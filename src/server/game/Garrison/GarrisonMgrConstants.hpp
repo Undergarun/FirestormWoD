@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_CONSTANTS_HPP_GARRISON
-#define GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#ifndef GARRISON_CONSTANTS_HPP_GARRISON
+#define GARRISON_CONSTANTS_HPP_GARRISON
 
 #include "SharedDefines.h"
 #include "GarrisonMgrStructures.hpp"
@@ -37,7 +37,7 @@ namespace MS { namespace Garrison
         };
     }
 
-    namespace Factions
+    namespace FactionIndex
     {
         enum Type : uint8
         {
@@ -222,18 +222,27 @@ namespace MS { namespace Garrison
     {
         enum
         {
-            DwarvenBunker__WarMill_Level1   = 8,
-            DwarvenBunker__WarMill_Level2   = 9,
-            DwarvenBunker__WarMill_Level3   = 10,
-            Barracks__Barracks_Level1       = 26,
-            Barracks__Barracks_Level2       = 27,
-            Barracks__Barracks_Level3       = 28,
-            Storehouse__Storehouse_Level1   = 51,
-            Storehouse__Storehouse_Level2   = 142,
-            Storehouse__Storehouse_Level3   = 143,
-            TheForge__TheForge_Level1       = 60,
-            TheForge__TheForge_Level2       = 117,
-            TheForge__TheForge_Level3       = 118,
+            DwarvenBunker__WarMill_Level1               = 8,
+            DwarvenBunker__WarMill_Level2               = 9,
+            DwarvenBunker__WarMill_Level3               = 10,
+            Barracks__Barracks_Level1                   = 26,
+            Barracks__Barracks_Level2                   = 27,
+            Barracks__Barracks_Level3                   = 28,
+            Storehouse__Storehouse_Level1               = 51,
+            Storehouse__Storehouse_Level2               = 142,
+            Storehouse__Storehouse_Level3               = 143,
+            TheForge__TheForge_Level1                   = 60,
+            TheForge__TheForge_Level2                   = 117,
+            TheForge__TheForge_Level3                   = 118,
+            TradingPost__TradingPost_Level1             = 111,
+            TradingPost__TradingPost_Level2             = 144,
+            TradingPost__TradingPost_Level3             = 145,
+            TailoringEmporium__TailoringEmporium_Level1 = 94,
+            TailoringEmporium__TailoringEmporium_Level2 = 127,
+            TailoringEmporium__TailoringEmporium_Level3 = 128,
+            AlchemyLab__AlchemyLab_Level1               = 76,
+            AlchemyLab__AlchemyLab_Level2               = 119,
+            AlchemyLab__AlchemyLab_Level3               = 120
         };
     }
 
@@ -243,33 +252,92 @@ namespace MS { namespace Garrison
         GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4
     };
 
-    static const uint32 gGarrisonInGarrisonAreaID[Factions::Max] =
+    namespace BuildingType
     {
-        7004,   ///< Horde
-        7078,   ///< Alliance
+        enum Type
+        {
+            Mine                = 1,
+            Garden              = 2,
+            Barn                = 3,
+            LumberMill          = 4,
+            Tavern              = 5,
+            TradingPost         = 6,
+            Menagerie           = 7,
+            Barracks            = 8,
+            Orchard             = 9,
+            WarFactory          = 10,
+            Stable              = 11,
+            Unk12               = 12,
+            MagusOffice         = 13,
+            SortingOffice       = 14,
+            Magasin             = 15,
+            AlchemyLab          = 16,
+            Forge               = 17,
+            EnchantingCabinet   = 18,
+            EngineeringPole     = 19,
+            ScribeStudy         = 20,
+            ShopGems            = 21,
+            Tannery             = 22,
+            TailoringWorkshop   = 23,
+            FishingHut          = 24,
+            SanctumGladiator    = 25,
+            GnomeWorkshop       = 26
+        };
+    }
+
+    namespace BuildingCategory
+    {
+        enum Type
+        {
+            Prebuilt    = 0,
+            UserBuilt   = 1
+        };
+    }
+
+    namespace WorkOrderGODisplayID
+    {
+        enum
+        {
+            BaseA       = 15585,
+            BaseH       = 20508,
+            AllComplete = 16091,
+        };
+    }
+
+    static const uint32 gGarrisonBuildingMaxWorkOrderPerBuildingLevel[Globals::MaxLevel] =
+    {
+        7,
+        14,
+        21
     };
 
-    static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * Factions::Max] =
+    static const uint32 gGarrisonInGarrisonAreaID[FactionIndex::Max] =
+    {
+        7004,   ///< Horde
+        7078    ///< Alliance
+    };
+
+    static const uint32 gGarrisonEmptyPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
         233083,     ///< PlotTypes::Small
         232425,     ///< PlotTypes::Medium
         233081,     ///< PlotTypes::Large
-        232415,     ///< PlotTypes::Farm
-        232447,     ///< PlotTypes::Mine
-        232426,     ///< PlotTypes::FishingHut
-        231706,     ///< PlotTypes::PetMenagerie
+        232425,     ///< PlotTypes::Farm
+        232425,     ///< PlotTypes::Mine
+        233083,     ///< PlotTypes::FishingHut
+        233083,     ///< PlotTypes::PetMenagerie
         /// Alliance
         229501,     ///< PlotTypes::Small
         232283,     ///< PlotTypes::Medium
         232143,     ///< PlotTypes::Large
-        232286,     ///< PlotTypes::Farm
-        233485,     ///< PlotTypes::Mine
-        237223,     ///< PlotTypes::FishingHut
-        0           ///< PlotTypes::PetMenagerie
+        232283,     ///< PlotTypes::Farm
+        232283,     ///< PlotTypes::Mine
+        229501,     ///< PlotTypes::FishingHut
+        229501      ///< PlotTypes::PetMenagerie
     };
 
-    static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * Factions::Max] =
+    static const uint32 gGarrisonBuildingPlotGameObject[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
         233958,     ///< PlotTypes::Small
@@ -289,11 +357,11 @@ namespace MS { namespace Garrison
         233957      ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * Factions::Max] =
+    static const float gGarrisonBuildingPlotAABBDiminishReturnFactor[PlotTypes::Max * FactionIndex::Max] =
     {
         /// Horde
-        0,          ///< PlotTypes::Small
-        0,          ///< PlotTypes::Medium
+        10,         ///< PlotTypes::Small
+        16,         ///< PlotTypes::Medium
         24,         ///< PlotTypes::Large
         0,          ///< PlotTypes::Farm          same as PlotTypes::Medium
         0,          ///< PlotTypes::Mine          same as PlotTypes::Medium
@@ -309,7 +377,7 @@ namespace MS { namespace Garrison
         10          ///< PlotTypes::PetMenagerie  same as PlotTypes::Small
     };
 
-    static const uint32 gGarrisonBuildingActivationGameObject[Factions::Max] =
+    static const uint32 gGarrisonBuildingActivationGameObject[FactionIndex::Max] =
     {
         233248,     ///< Horde
         233250      ///< Alliance
@@ -367,25 +435,25 @@ namespace MS { namespace Garrison
     };
 
     /// Cache game object position for each faction / level
-    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[Factions::Max * Globals::MaxLevel] =
+    static const GarrisonCacheInfoLocation gGarrisonCacheInfoLocation[FactionIndex::Max * Globals::MaxLevel] =
     {
         /// SiteLevelID         X           Y          Z         O
         /// Horde Level 1
         {     258,          5565.679f,  4499.0090f, 132.02610f, 0.081281f  },
         /// Horde level 2
-        {     445,             0.f,        0.f,       0.f,      0.f        },
+        {     445,          5589.409f,  4596.8510f, 136.58750f, 5.953404f  },
         /// Horde level 3
         {     259,          5592.272f,  4589.9390f, 136.66830f, 5.858787f  },
         /// Alliance Level 1
         {       5,          1893.729f,   208.8733f,  77.06371f, 1.685312f  },
         /// Alliance Level 2
-        {     444,             0.f,        0.f,       0.f,      0.f        },
+        {     444,          1949.946f,   287.2795f,  88.96585f, 3.255662f  },
         /// Alliance Level 3
         {       6,             0.f,        0.f,       0.f,      0.f        }
     };
 
     /// Cache game object entry for each faction / state
-    static const uint32 gGarrisonCacheGameObjectID[Factions::Max * 3] =
+    static const uint32 gGarrisonCacheGameObjectID[FactionIndex::Max * 3] =
     {
         /// Horde
         237191,         ///< Normal
@@ -400,4 +468,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_CONSTANTS_HPP_GARRISON
+#endif  ///< GARRISON_CONSTANTS_HPP_GARRISON

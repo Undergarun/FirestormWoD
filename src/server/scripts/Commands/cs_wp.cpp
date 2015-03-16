@@ -48,6 +48,7 @@ public:
         static ChatCommand scriptWpCommandTable[] =
         {
             { "add",            SEC_GAMEMASTER,     false, &HandleScriptWpAddCommand,          "", NULL },
+            { NULL,        0,               false,  NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {

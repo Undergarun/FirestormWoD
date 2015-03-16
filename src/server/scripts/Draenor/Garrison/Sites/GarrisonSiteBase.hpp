@@ -51,6 +51,11 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_Owner : Owner instance
             virtual void OnOwnerEnter(Player * p_Owner) = 0;
 
+        private:
+            /// When the owner player change level
+            /// @p_Level : New owner level
+            virtual void OnOwnerLevelChange(uint32 p_Level) override;
+
         protected:
             uint64                      m_OwnerGUID;    ///< Garrison owner GUID
             std::set<uint64>            m_Players;      ///< Players in garrison

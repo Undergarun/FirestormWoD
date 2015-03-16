@@ -84,6 +84,7 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "GarrisonShipmentManager.hpp"
 
 uint32 gOnlineGameMaster = 0;
 
@@ -1113,6 +1114,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PVP_ITEM_LEVEL_MAX]                         = ConfigMgr::GetIntDefault("PvP.Item.Level.Max", 690);
     m_int_configs[CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX]              = ConfigMgr::GetIntDefault("Challenge.Mode.Item.Level.Max", 630);
 
+    m_int_configs[CONFIG_LAST_CLIENT_BUILD]                          = ConfigMgr::GetIntDefault("LastClientBuild", 19342);
+
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = ConfigMgr::GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     if (int32 clientCacheId = ConfigMgr::GetIntDefault("ClientCacheVersion", 0))
@@ -1387,6 +1390,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTISPAM_MAIL_COUNT] = ConfigMgr::GetIntDefault("Antispam.Mail.Count", 10);
 
     m_bool_configs[CONFIG_TEMPLATES_ENABLED] = ConfigMgr::GetBoolDefault("Character.Templates.Enabled", false);
+
+    m_bool_configs[CONFIG_AOE_LOOT_ENABLED] = ConfigMgr::GetBoolDefault("LootAoe.Enabled", true);
 
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
@@ -1926,6 +1931,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading FollowerQuests...");
     sObjectMgr->LoadFollowerQuests();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading QuestForItem...");
+    sObjectMgr->LoadQuestForItem();
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2031,7 +2039,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily loot reset time...");
     InitDailyLootResetTime();
 
-    InitServerAutoRestartTime();
+    ///InitServerAutoRestartTime();
 
     LoadCharacterNameData();
 
@@ -2080,6 +2088,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
     sObjectMgr->LoadMapChallengeModeHotfixes();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
+    sGarrisonShipmentManager->Init();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
@@ -2253,8 +2264,8 @@ void World::Update(uint32 diff)
     if (m_gameTime >= m_NextDailyLootReset)
         ResetDailyLoots();
 
-    if (m_gameTime > m_NextServerRestart)
-        AutoRestartServer();
+    //if (m_gameTime > m_NextServerRestart)
+        //AutoRestartServer();
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -3344,7 +3355,7 @@ void World::InitDailyLootResetTime()
     m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
-void World::InitServerAutoRestartTime()
+/*void World::InitServerAutoRestartTime()
 {
     time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
     if (!serverRestartTime)
@@ -3372,7 +3383,7 @@ void World::InitServerAutoRestartTime()
 
     if (m_bool_configs[CONFIG_DISABLE_RESTART])
         m_NextServerRestart += DAY*1;
-}
+}*/
 
 void World::ResetDailyQuests()
 {
@@ -3531,7 +3542,7 @@ void World::ResetRandomBG()
     sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
 }
 
-void World::AutoRestartServer()
+/*void World::AutoRestartServer()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Automatic server restart.");
 
@@ -3539,7 +3550,7 @@ void World::AutoRestartServer()
 
     m_NextServerRestart = time_t(m_NextServerRestart + DAY);
     sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, uint64(m_NextServerRestart));
-}
+}*/
 
 void World::UpdateMaxSessionCounters()
 {

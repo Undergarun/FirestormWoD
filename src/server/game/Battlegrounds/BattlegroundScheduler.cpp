@@ -22,12 +22,23 @@ namespace MS
             /// @p_Group : The group.
             /// @p_Type : The type of the battleground.
             /// @p_BracketId : The bracket id of the battleground.
-            static bool IsEligibleForBattleground(GroupQueueInfo const* p_Group, BattlegroundType::Type p_Type, Bracket::Id p_BracketId)
+            static bool IsEligibleForBattleground(GroupQueueInfo const* p_Group, BattlegroundType::Type p_Type, Bracket::Id p_BracketId, Battleground const* p_Template)
             {
                 uint64 l_BattlegroundMask = 1 << p_Type;
 
                 if (p_Group->m_BracketId != p_BracketId)
                     return false;
+
+                /// We check if all the players have the good level for entering the battleground.
+                for (auto l_Plrs : p_Group->m_Players)
+                {
+                    Player* l_Player = ObjectAccessor::FindPlayer(l_Plrs.first);
+                    if (!l_Player)
+                        continue;
+
+                    if (l_Player->getLevel() < p_Template->GetMinLevel())
+                        return false;
+                }
 
                 if (p_Group->m_IsSkirmish)
                 {
@@ -364,7 +375,7 @@ namespace MS
                         continue;
 
                     /// We check if the group is eligible for the battleground.
-                    if (!IsEligibleForBattleground(l_Group, l_BgType, p_BracketId))
+                    if (!IsEligibleForBattleground(l_Group, l_BgType, p_BracketId, l_Template))
                         continue;
 
                     auto& l_Battlegrounds = sBattlegroundMgr->GetBattlegroundList(p_BracketId, l_BgType);
@@ -421,18 +432,19 @@ namespace MS
                     for (std::size_t i = 0; i < BattlegroundType::Max * 2; i += 2)
                     {
                         BattlegroundType::Type l_BgType = static_cast<BattlegroundType::Type>(i / 2);
+
+                        /// We get the battleground template.
+                        Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BgType);
+                        if (!l_Template)
+                            continue;
+
                         /// We check if the group is eligible for the arena.
-                        if (!IsEligibleForBattleground(l_Group, l_BgType, p_BracketId))
+                        if (!IsEligibleForBattleground(l_Group, l_BgType, p_BracketId, l_Template))
                             continue;
 
                         /// In the case of the casual battleground, we check if the group can fit in the battleground according to the max players and the group size.
                         if (BattlegroundType::IsCasualBattleground(l_BgType))
                         {
-                            /// We get the battleground template.
-                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BgType);
-                            if (!l_Template)
-                                continue;
-
                             /// We check if the number of players doesn't exceed the max number of players in the battleground.
                             if (p_PotientialBGs[i + l_Team] + l_Group->m_Players.size() > l_Template->GetMaxPlayersPerTeam())
                                 continue;

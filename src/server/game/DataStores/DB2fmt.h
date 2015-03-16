@@ -18,6 +18,27 @@
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
+char const PathNodeEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+
+char const LocationEntryfmt[] =
+{
+    FT_INDEX,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_FLOAT,
+    FT_END
+};
+
 char const CurvePointEntryfmt[] = "niiff";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
@@ -54,6 +75,14 @@ const char MountEntryfmt[] = "iiiisssini";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
 
+const char GlyphRequiredSpecfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
 //////////////////////////////////////////////////////////////////////////
@@ -64,19 +93,113 @@ const char GarrPlotEntryfmt[] = "niiiiiiii";
 const char GarrPlotUICategoryEntryfmt[] = "nsi";
 const char GarrMissionEntryfmt[] = "niiiiiiiisssiiiiiii";
 const char GarrMissionRewardEntryfmt[] = "niiiiiiiii";
-const char GarrMissionXEncouterEntryfmt[] = "nii";
+const char GarrMissionXEncouterEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
 const char GarrBuildingEntryfmt[] = "niiiiissssiiiiiiiiiiiiii";
-const char GarrPlotBuildingEntryfmt[] = "nii";
+const char GarrPlotBuildingEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
 const char GarrFollowerEntryfmt[] = "niiiiiiiiiiiiiissiiii";
 const char GarrAbilityEntryfmt[] = "nissiii";
 const char GarrAbilityEffectEntryfmt[] = "niiiiiffiii";
-const char GarrFollowerXAbilityEntryfmt[] = "niii";
-const char GarrBuildingPlotInstEntryfmt[] = "niiiii";
-const char GarrMechanicTypeEntryfmt[] = "nissi";
-const char GarrMechanicEntryfmt[] = "nif";
-const char GarrEncouterXMechanicEntryfmt[] = "nii";
-const char GarrFollowerLevelXPEntryfmt[] = "nii";
-const char GarrSpecializationEntryfmt[] = "niiiifiss";
+const char GarrFollowerXAbilityEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+const char GarrBuildingPlotInstEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+const char GarrMechanicTypeEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_STRING,
+    FT_STRING,
+    FT_INT,
+    FT_END
+};
+const char GarrMechanicEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_FLOAT,
+    FT_END
+};
+const char GarrEncouterXMechanicEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+const char GarrFollowerLevelXPEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+const char GarrSpecializationEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_FLOAT,
+    FT_INT,
+    FT_STRING,
+    FT_STRING,
+    FT_END
+};
+const char CharShipmentEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+const char CharShipmentContainerEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_STRING,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_INT,
+    FT_STRING,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
 
 const char BattlePetAbilityfmt[] = "niiiiiss";
 const char BattlePetSpeciesEntryfmt[] = "inxxxxxxx";

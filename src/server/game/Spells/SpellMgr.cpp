@@ -3341,23 +3341,52 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 110744: // Divine Star - should be 2 sec -- WTF Blizz ?
+            case 144757: /// Increased All Resist 05
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                break;
+            case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
-            case 20167:  // Seal of Insight
+            case 175915:///< Acid Breath (Drov the Ruiner)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 165096:///< Ogreic Landing
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 164868:///< Ogreic Landing
+                spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 164850:///< Nature Channeling (Cosmetic)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
                 break;
-            case 150055: // Volcanic Tantrum
-            case 149963: // Shatter Earth
+            case 150055:///< Volcanic Tantrum
+            case 149963:///< Shatter Earth
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 sec
                 break;
-            case 150004: // Magma Barrage
+            case 150004:///< Magma Barrage
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_MOVEMENT;
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 150306;
+                break;
+            case 102401:///< Wild Charge (Ally)
+            case 94954: ///< Heroic Leap
+                spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
+                break;
+            case 159362:///< Blood Craze
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+                break;
+            case 30814: ///< Mental Quickness
+                spellInfo->Effects[EFFECT_4].Effect = 0;
+                break;
+            /// January 12, 2015 - 6.0.3 Hotfixes for January 12th - Class Tuning Changes, Haste More Effective
+            case 165375:///< Sacred Duty - now causes the Paladin to gain 30% (up from 5%) more of the Haste stat from all sources.
+                spellInfo->Effects[EFFECT_0].BasePoints = 30;
                 break;
             case 149959: // Earth Shatter
             case 149968:
@@ -3732,9 +3761,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118592: ///< Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
                 break;
-            case 165381: ///< Righteous Vengeance
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
-                break;
             case 48505: ///< Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3771,6 +3797,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
                 break;
+            case 164991: ///< Entangling Energy
             case 15286: ///< Vampiric Embrace
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -3966,8 +3993,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: ///< Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
-            case 53:    ///< Backstab
-            case 8676:  ///< Ambush
             case 21987: ///< Lash of Pain
             case 58563: ///< Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
@@ -4427,6 +4452,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 123154: ///< Fists of Fury Visual Target
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(35); ///< 4s
                 break;
+            case 31616: ///< Nature's Guardian
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
+                spellInfo->Effects[0].BasePoints = 25;
+                break;
             case 53479: ///< Last Stand (Tenacity)
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT;
                 break;
@@ -4653,6 +4682,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 2484: ///< Earthbind Totem
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
+            case 33110: ///< Prayer of Mending
+            case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
@@ -4938,10 +4969,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 162532: ///< Glyph of Mind Harvest
-                spellInfo->ProcChance = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 162452: ///< Shadowy Insight
                 spellInfo->ProcChance = 0;
                 break;
@@ -4950,7 +4977,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 6346:   ///< Fear Ward
             case 48108:  ///< Hot Streak
-            case 57761:  ///< Brain Freeze
             case 132158: ///< Nature's Swiftness
             case 74434:  ///< Soul Burn
             case 23920:  ///< Spell Reflection
@@ -5232,25 +5258,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 20711: ///< Spirit of Redemption
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
-            case 5176:  ///< Wrath
-            case 2912:  ///< Starfire
-            case 78674: ///< Starsurge
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[EFFECT_1].Mechanic = MECHANIC_NONE;
-                break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);
                 break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
-                break;
-            case 132626: ///< Alliance Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_ALLIANCE_ONLY;
-                break;
-            case 132620: ///< Horde Portal - Mage
-                spellInfo->AttributesEx7 |= SPELL_ATTR7_HORDE_ONLY;
                 break;
             case 38112: ///< Magic Barrier, Lady Vashj
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
@@ -5325,9 +5338,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 92328: ///< Heart's Judgment, Heart of Ignacious trinket (heroic)
                 spellInfo->CasterAuraSpell = 92325;
-                break;
-            case 157717: ///< Enhanced Basic Attacks
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 56244: ///< Glyph of Fear
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
@@ -5795,9 +5805,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 22568: ///< Ferocious Bite
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 5221: ///< Shred
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)
@@ -5820,6 +5829,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 125050:///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 145153:///< Dream of Cenarius (Heal from Wrath)
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
+                spellInfo->Effects[0].TargetB = 0;
                 break;
             default:
                 break;

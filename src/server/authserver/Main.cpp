@@ -25,8 +25,6 @@
 #include <thread>
 
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
-#include "ReportWorker.hpp"
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -210,25 +208,9 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    ///- Launch the reporting thread. Didn't use asyn futures because I don't think it is intended for this use case.
-    std::thread l_Reporter([]()
-    {
-        if (ConfigMgr::GetIntDefault("ReporterActivated", 1) != 1)
-            return;
-
-        // Thread which repeat reporting.
-        sLog->outInfo(LOG_FILTER_AUTHSERVER, "REPORTER: Creating worker.");
-        MS::Reporting::ReportWorker l_ReportWorker(ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000"));
-        while (!stopEvent)
-        {
-            l_ReportWorker.ProcessReporting();
-#ifdef _MSC_VER
-            Sleep(1);
-#else
-            usleep(1);
-#endif
-        }
-    });
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
 
     // Initialise the signal handlers
     AuthServerSignalHandler SignalINT, SignalTERM;

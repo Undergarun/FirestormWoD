@@ -33,99 +33,171 @@
 
 enum ShamanSpells
 {
-    SHAMAN_SPELL_SATED                      = 57724,
-    SHAMAN_SPELL_EXHAUSTION                 = 57723,
-    HUNTER_SPELL_INSANITY                   = 95809,
-    MAGE_SPELL_TEMPORAL_DISPLACEMENT        = 80354,
-    SPELL_SHA_LIGHTNING_SHIELD_AURA         = 324,
-    SPELL_SHA_ASCENDANCE_ELEMENTAL          = 114050,
-    SPELL_SHA_ASCENDANCE_RESTORATION        = 114052,
-    SPELL_SHA_ASCENDANCE_ENHANCED           = 114051,
-    SPELL_SHA_ASCENDANCE                    = 114049,
-    SPELL_SHA_HEALING_RAIN                  = 142923,
-    SPELL_SHA_HEALING_RAIN_TICK             = 73921,
-    SPELL_SHA_HEALING_RAIN_AURA             = 73920,
-    SPELL_SHA_EARTHQUAKE                    = 61882,
-    SPELL_SHA_EARTHQUAKE_TICK               = 77478,
-    SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN      = 77505,
-    SPELL_SHA_ELEMENTAL_BLAST               = 117014,
-    SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL = 118517,
-    SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL  = 118515,
-    SPELL_SHA_LAVA_LASH                     = 60103,
-    SPELL_SHA_FLAME_SHOCK                   = 8050,
-    SPELL_SHA_STORMSTRIKE                   = 17364,
-    SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE   = 26364,
-    SPELL_SHA_HEALING_STREAM                = 52042,
-    SPELL_SHA_GLYPH_OF_HEALING_STREAM       = 119523,
-    SPELL_SHA_LAVA_SURGE_CAST_TIME          = 77762,
-    SPELL_SHA_FULMINATION                   = 88766,
-    SPELL_SHA_FULMINATION_TRIGGERED         = 88767,
-    SPELL_SHA_FULMINATION_INFO              = 95774,
-    SPELL_SHA_ROLLING_THUNDER_AURA          = 88764,
-    SPELL_SHA_ROLLING_THUNDER_ENERGIZE      = 88765,
-    SPELL_SHA_UNLEASH_ELEMENTS              = 73680,
-    SPELL_SHA_SEARING_FLAMES_DAMAGE_DONE    = 77661,
-    SPELL_SHA_FIRE_NOVA                     = 1535,
-    SPELL_SHA_FIRE_NOVA_TRIGGERED           = 8349,
-    SPELL_SHA_TIDAL_WAVES                   = 51564,
-    SPELL_SHA_TIDAL_WAVES_PROC              = 53390,
-    SPELL_SHA_MANA_TIDE                     = 16191,
-    SPELL_SHA_FROST_SHOCK_FREEZE            = 63685,
-    SPELL_SHA_FROZEN_POWER                  = 63374,
-    SPELL_SHA_MAIL_SPECIALIZATION_AGI       = 86099,
-    SPELL_SHA_MAIL_SPECIALISATION_INT       = 86100,
-    SPELL_SHA_UNLEASHED_FURY_TALENT         = 117012,
-    SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE    = 118470,
-    SPELL_SHA_UNLEASHED_FURY_WINDFURY       = 118472,
-    SPELL_SHA_UNLEASHED_FURY_EARTHLIVING    = 118473,
-    SPELL_SHA_UNLEASHED_FURY_FROSTBRAND     = 118474,
-    SPELL_SHA_UNLEASHED_FURY_ROCKBITER      = 118475,
-    SPELL_SHA_STONE_BULWARK_ABSORB          = 114893,
-    SPELL_SHA_EARTHGRAB_IMMUNITY            = 116946,
-    SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM = 116947,
-    SPELL_SHA_EARTHGRAB                     = 64695,
-    SPELL_SHA_ECHO_OF_THE_ELEMENTS          = 108283,
-    SPELL_SHA_ANCESTRAL_GUIDANCE            = 114911,
-    SPELL_SHA_CONDUCTIVITY_TALENT           = 108282,
-    SPELL_SHA_CONDUCTIVITY_HEAL             = 118800,
-    SPELL_SHA_GLYPH_OF_LAKESTRIDER          = 55448,
-    SPELL_SHA_WATER_WALKING                 = 546,
-    SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE     = 63280,
-    SPELL_SHA_SOLAR_BEAM                    = 113286,
-    SPELL_SHA_SOLAR_BEAM_SILENCE            = 113288,
-    SPELL_SHA_GHOST_WOLF                    = 2645,
-    SPELL_SHA_ITEM_T14_4P                   = 123124,
-    SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM = 55456,
-    SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS = 131554,
-    SPELL_SHA_RESTORATIVE_MISTS             = 114083,
-    SPELL_SHA_FROST_SHOCK                   = 8056,
-    SPELL_SHA_LAVA_SURGE_AURA               = 77756,
-    SPELL_SHA_LAVA_BURST                    = 51505,
-    SPELL_SPIRIT_HUNT_HEAL                  = 58879,
-    SPELL_SHA_WINDFURY_ATTACK               = 25504,
-    SPELL_SHA_LAMETONGUE_ATTACK             = 10444,
-    SPELL_SHA_PVP_BONUS_WOD_2               = 166103,
-    SPELL_SHA_PVP_BONUS_WOD_4               = 171121,
-    SPELL_SHA_LIGHTNING_SHIELD              = 324,
-    SPELL_SHA_IMPROVED_CHAIN_LIGHTNING      = 157766,
-    SPELL_SHA_MOLTEN_EARTH_DAMAGE           = 170379,
-    SPELL_SHA_MOLTEN_EARTH                  = 170374,
-    SPELL_SHA_MOLTEN_EARTH_PERIODICAL       = 170377,
-    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL   = 159101,
-    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT = 159103,
-    SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION = 159105,
-    SPELL_SHA_LAVA_LASH_SPREAD              = 105792,
-    SPELL_SHA_LIQUID_MAGMA_DAMAGE           = 177601,
-    SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED        = 159642,
-    SPELL_SHA_ELEMENTAL_BLAST_CRIT_BONUS    = 118522,
-    SPELL_SHA_ELEMENTAL_BLAST_HASTE_BONUS   = 173183,
-    SPELL_SHA_ELEMENTAL_BLAST_MASTERY_BONUS = 173184,
+    SHAMAN_SPELL_SATED                          = 57724,
+    SHAMAN_SPELL_EXHAUSTION                     = 57723,
+    HUNTER_SPELL_INSANITY                       = 95809,
+    MAGE_SPELL_TEMPORAL_DISPLACEMENT            = 80354,
+    SPELL_SHA_LIGHTNING_SHIELD_AURA             = 324,
+    SPELL_SHA_ASCENDANCE_ELEMENTAL              = 114050,
+    SPELL_SHA_ASCENDANCE_RESTORATION            = 114052,
+    SPELL_SHA_ASCENDANCE_ENHANCED               = 114051,
+    SPELL_SHA_ASCENDANCE                        = 114049,
+    SPELL_SHA_HEALING_RAIN                      = 142923,
+    SPELL_SHA_HEALING_RAIN_TICK                 = 73921,
+    SPELL_SHA_HEALING_RAIN_AURA                 = 73920,
+    SPELL_SHA_EARTHQUAKE                        = 61882,
+    SPELL_SHA_EARTHQUAKE_TICK                   = 77478,
+    SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN          = 77505,
+    SPELL_SHA_ELEMENTAL_BLAST                   = 117014,
+    SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL     = 118517,
+    SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL      = 118515,
+    SPELL_SHA_LAVA_LASH                         = 60103,
+    SPELL_SHA_FLAME_SHOCK                       = 8050,
+    SPELL_SHA_STORMSTRIKE                       = 17364,
+    SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE       = 26364,
+    SPELL_SHA_HEALING_STREAM                    = 52042,
+    SPELL_SHA_GLYPH_OF_HEALING_STREAM           = 119523,
+    SPELL_SHA_LAVA_SURGE_CAST_TIME              = 77762,
+    SPELL_SHA_FULMINATION                       = 88766,
+    SPELL_SHA_FULMINATION_TRIGGERED             = 88767,
+    SPELL_SHA_FULMINATION_INFO                  = 95774,
+    SPELL_SHA_ROLLING_THUNDER_AURA              = 88764,
+    SPELL_SHA_ROLLING_THUNDER_ENERGIZE          = 88765,
+    SPELL_SHA_UNLEASH_ELEMENTS                  = 73680,
+    SPELL_SHA_SEARING_FLAMES_DAMAGE_DONE        = 77661,
+    SPELL_SHA_FIRE_NOVA                         = 1535,
+    SPELL_SHA_FIRE_NOVA_TRIGGERED               = 8349,
+    SPELL_SHA_TIDAL_WAVES                       = 51564,
+    SPELL_SHA_TIDAL_WAVES_PROC                  = 53390,
+    SPELL_SHA_MANA_TIDE                         = 16191,
+    SPELL_SHA_FROST_SHOCK_FREEZE                = 63685,
+    SPELL_SHA_FROZEN_POWER                      = 63374,
+    SPELL_SHA_MAIL_SPECIALIZATION_AGI           = 86099,
+    SPELL_SHA_MAIL_SPECIALISATION_INT           = 86100,
+    SPELL_SHA_UNLEASHED_FURY_TALENT             = 117012,
+    SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE        = 118470,
+    SPELL_SHA_UNLEASHED_FURY_WINDFURY           = 118472,
+    SPELL_SHA_UNLEASHED_FURY_EARTHLIVING        = 118473,
+    SPELL_SHA_UNLEASHED_FURY_FROSTBRAND         = 118474,
+    SPELL_SHA_UNLEASHED_FURY_ROCKBITER          = 118475,
+    SPELL_SHA_STONE_BULWARK_ABSORB              = 114893,
+    SPELL_SHA_EARTHGRAB_IMMUNITY                = 116946,
+    SPELL_SHA_EARTHBIND_FOR_EARTHGRAB_TOTEM     = 116947,
+    SPELL_SHA_EARTHGRAB                         = 64695,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS              = 108283,
+    SPELL_SHA_ANCESTRAL_GUIDANCE                = 114911,
+    SPELL_SHA_CONDUCTIVITY_TALENT               = 108282,
+    SPELL_SHA_CONDUCTIVITY_HEAL                 = 118800,
+    SPELL_SHA_GLYPH_OF_LAKESTRIDER              = 55448,
+    SPELL_SHA_WATER_WALKING                     = 546,
+    SPELL_SHA_GLYPH_OF_SHAMANISTIC_RAGE         = 63280,
+    SPELL_SHA_SOLAR_BEAM                        = 113286,
+    SPELL_SHA_SOLAR_BEAM_SILENCE                = 113288,
+    SPELL_SHA_GHOST_WOLF                        = 2645,
+    SPELL_SHA_ITEM_T14_4P                       = 123124,
+    SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM     = 55456,
+    SPELL_SHA_ITEM_S12_4P_ENHANCEMENT_BONUS     = 131554,
+    SPELL_SHA_RESTORATIVE_MISTS                 = 114083,
+    SPELL_SHA_FROST_SHOCK                       = 8056,
+    SPELL_SHA_LAVA_SURGE_AURA                   = 77756,
+    SPELL_SHA_LAVA_BURST                        = 51505,
+    SPELL_SPIRIT_HUNT_HEAL                      = 58879,
+    SPELL_SHA_WINDFURY_ATTACK                   = 25504,
+    SPELL_SHA_LAMETONGUE_ATTACK                 = 10444,
+    SPELL_SHA_PVP_BONUS_WOD_2                   = 166103,
+    SPELL_SHA_PVP_BONUS_WOD_4                   = 171121,
+    SPELL_SHA_LIGHTNING_SHIELD                  = 324,
+    SPELL_SHA_IMPROVED_CHAIN_LIGHTNING          = 157766,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL    = 159101,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT  = 159103,
+    SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION  = 159105,
+    SPELL_SHA_LAVA_LASH_SPREAD                  = 105792,
+    SPELL_SHA_LIQUID_MAGMA_DAMAGE               = 177601,
+    SPELL_SHA_GLYPH_OF_GHOSTLY_SPEED            = 159642,
+    SPELL_SHA_ELEMENTAL_BLAST_CRIT_BONUS        = 118522,
+    SPELL_SHA_ELEMENTAL_BLAST_HASTE_BONUS       = 173183,
+    SPELL_SHA_ELEMENTAL_BLAST_MASTERY_BONUS     = 173184,
     SPELL_SHA_ELEMENTAL_BLAST_MULTISTRIKE_BONUS = 173185,
-    SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS = 173186,
-    SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS  = 173187,
-    SPELL_SHA_ELEMENTAL_FUSION              = 152257,
-    SPELL_SHA_ELEMENTAL_FUSION_PROC         = 157174,
-    SPELL_SHA_IMPROVED_LIGHTNING_SHIELD     = 157774
+    SPELL_SHA_ELEMENTAL_BLAST_AGILITY_BONUS     = 173186,
+    SPELL_SHA_ELEMENTAL_BLAST_SPIRIT_BONUS      = 173187,
+    SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
+    SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
+    SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
+    SPELL_SHA_GLYPH_OF_CLEANSING_WATER          = 55445,
+    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961
+};
+
+/// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
+/// Unleashed Fury - 165477
+class spell_sha_unleashed_fury : public SpellScriptLoader
+{
+    public:
+        spell_sha_unleashed_fury() : SpellScriptLoader("spell_sha_unleashed_fury") { }
+
+        class spell_sha_unleashed_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_unleashed_fury_SpellScript);
+
+            enum eSpells
+            {
+                UnleashedFuryTalent         = 165477,
+                /// Increases the damage dealt by your Lightning Bolt by 30% and Lava Burst by 10% for 10 sec.
+                UnleashedFuryElemental      = 118470,
+                /// Increases the damage dealt by your Lightning Bolt by 30% and increases your multistrike chance by 5% for 8 sec.
+                UnleashedFuryEnhancement    = 118472,
+                /// Increases the healing done by your next single-target heal by 50%, for 10 sec.
+                UnleashedRestauration       = 118473,
+
+                UnleashElements             = 73680,
+                UnleashLife                 = 73685,
+                UnleashFlame                = 165462
+            };
+
+            void HandleDummy(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(eSpells::UnleashedFuryTalent))
+                        return;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case eSpells::UnleashElements:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedFuryEnhancement, true);
+                            break;
+                        case eSpells::UnleashLife:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedRestauration, true);
+                            break;
+                        case eSpells::UnleashFlame:
+                            l_Caster->CastSpell(l_Caster, eSpells::UnleashedFuryElemental, true);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::UnleashElements:
+                    case eSpells::UnleashFlame:
+                        OnEffectHitTarget += SpellEffectFn(spell_sha_unleashed_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                        break;
+                    case eSpells::UnleashLife:
+                        OnEffectHitTarget += SpellEffectFn(spell_sha_unleashed_fury_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_HEAL);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_unleashed_fury_SpellScript();
+        }
 };
 
 /// Called by Chain Heal - 1064
@@ -287,7 +359,7 @@ class npc_storm_elemental : public CreatureScript
         }
 };
 
-// Totemic Projection - 108287
+/// Totemic Projection - 108287
 class spell_sha_totemic_projection: public SpellScriptLoader
 {
     public:
@@ -368,7 +440,7 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
-// Hex - 51514
+/// Hex - 51514
 class spell_sha_hex: public SpellScriptLoader
 {
     public:
@@ -408,7 +480,7 @@ class spell_sha_hex: public SpellScriptLoader
         }
 };
 
-// Water Ascendant - 114052
+/// Water Ascendant - 114052
 class spell_sha_water_ascendant: public SpellScriptLoader
 {
     public:
@@ -489,8 +561,8 @@ class spell_sha_water_ascendant: public SpellScriptLoader
         }
 };
 
-// Called by Shamanistic Rage - 30823
-// Glyph of Shamanistic Rage - 63280
+/// Called by Shamanistic Rage - 30823
+/// Glyph of Shamanistic Rage - 63280
 class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
 {
     public:
@@ -527,8 +599,8 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         }
 };
 
-// Called by Ghost Wolf - 2645
-// Glyph of Lakestrider - 55448
+/// Called by Ghost Wolf - 2645
+/// Glyph of Lakestrider - 55448
 class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
 {
     public:
@@ -557,6 +629,48 @@ class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
         }
 };
 
+/// Call by Cleanse Spirit - 51886
+/// Glyph of Cleansing Waters - 55445
+class spell_sha_glyph_of_cleansing_waters : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_cleansing_waters() : SpellScriptLoader("spell_sha_glyph_of_cleansing_waters") { }
+
+        class spell_sha_glyph_of_cleansing_waters_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_glyph_of_cleansing_waters_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_CLEANSING_WATER);
+
+                if (l_SpellInfo == nullptr || l_Target == nullptr)
+                    return;
+
+                /// You also heal the target for 4% of your maximum health.
+                if (l_Caster->HasAura(SPELL_SHA_GLYPH_OF_CLEANSING_WATER))
+                {
+                    int32 l_Bp = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
+
+                    l_Caster->CastCustomSpell(l_Target, SPELL_SHA_SPELL_CLEANSING_WATER, &l_Bp, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_glyph_of_cleansing_waters_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_glyph_of_cleansing_waters_SpellScript();
+        }
+};
+
 uint32 g_resetTotemCdSpells[] =
 {
     108269, // Capacitor Totem
@@ -569,7 +683,7 @@ uint32 g_resetTotemCdSpells[] =
     108273  // Windwalk Totem
 };
 
-// 108285 - Call of the Elements
+/// 108285 - Call of the Elements
 class spell_sha_call_of_the_elements: public SpellScriptLoader
 {
     public:
@@ -602,10 +716,10 @@ class spell_sha_call_of_the_elements: public SpellScriptLoader
         }
 };
 
-// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
-// Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
-// Called by Lightning Bolt - 45284, Chain Lightning - 45297
-// Conductivity - 108282
+/// Called by Healing Wave - 331, Greater Healing Wave - 77472 and Healing Surge - 8004
+/// Called by Lightning Bolt - 403, Chain Lightning - 421, Earth Shock - 8042 and Stormstrike - 17364
+/// Called by Lightning Bolt - 45284, Chain Lightning - 45297
+/// Conductivity - 108282
 class spell_sha_conductivity: public SpellScriptLoader
 {
     public:
@@ -654,7 +768,7 @@ class spell_sha_conductivity: public SpellScriptLoader
         }
 };
 
-// Ancestral Guidance - 108281
+/// Ancestral Guidance - 108281
 class spell_sha_ancestral_guidance: public SpellScriptLoader
 {
     public:
@@ -706,7 +820,7 @@ class spell_sha_ancestral_guidance: public SpellScriptLoader
         }
 };
 
-// 64695 - Earthgrab
+/// 64695 - Earthgrab
 class spell_sha_earthgrab: public SpellScriptLoader
 {
     public:
@@ -754,7 +868,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
         }
 };
 
-// Stone Bulwark - 114889
+/// Stone Bulwark - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
     public:
@@ -799,7 +913,7 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
         }
 };
 
-// Frost Shock - 8056
+/// Frost Shock - 8056
 class spell_sha_frozen_power: public SpellScriptLoader
 {
     public:
@@ -836,8 +950,8 @@ class spell_sha_frozen_power: public SpellScriptLoader
         }
 };
 
-// Spirit Link - 98020 : triggered by 98017
-// Spirit Link Totem
+/// Spirit Link - 98020 : triggered by 98017
+/// Spirit Link Totem
 class spell_sha_spirit_link: public SpellScriptLoader
 {
     public:
@@ -888,7 +1002,7 @@ class spell_sha_spirit_link: public SpellScriptLoader
         }
 };
 
-// Fire Nova - 1535
+/// Fire Nova - 1535
 class spell_sha_fire_nova: public SpellScriptLoader
 {
     public:
@@ -929,7 +1043,7 @@ class spell_sha_fire_nova: public SpellScriptLoader
         }
 };
 
-// 88766 Fulmination handled in 8042 Earth Shock
+/// 88766 Fulmination handled in 8042 Earth Shock
 class spell_sha_fulmination: public SpellScriptLoader
 {
     public:
@@ -980,7 +1094,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
-// 77762 Lava Surge
+/// 77762 Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
     public:
@@ -1013,7 +1127,7 @@ class spell_sha_lava_surge: public SpellScriptLoader
         }
 };
 
-// Healing Stream - 52042
+/// Healing Stream - 52042
 class spell_sha_healing_stream: public SpellScriptLoader
 {
     public:
@@ -1054,7 +1168,7 @@ class spell_sha_healing_stream: public SpellScriptLoader
         }
 };
 
-// Elemental Blast - 117014
+/// Elemental Blast - 117014
 class spell_sha_elemental_blast: public SpellScriptLoader
 {
     public:
@@ -1117,7 +1231,7 @@ class spell_sha_elemental_blast: public SpellScriptLoader
         }
 };
 
-// Earthquake : Ticks - 77478
+/// Earthquake : Ticks - 77478
 class spell_sha_earthquake_tick: public SpellScriptLoader
 {
     public:
@@ -1201,7 +1315,7 @@ class spell_sha_earthquake: public SpellScriptLoader
         }
 };
 
-// Healing Rain - 73920
+/// Healing Rain - 73920
 class spell_sha_healing_rain: public SpellScriptLoader
 {
     public:
@@ -1266,7 +1380,7 @@ class spell_sha_healing_rain: public SpellScriptLoader
         }
 };
 
-// Ascendance - 114049
+/// Ascendance - 114049
 class spell_sha_ascendance: public SpellScriptLoader
 {
     public:
@@ -1355,6 +1469,7 @@ class EarthenPowerTargetSelector
         }
 };
 
+/// Bloodlust - 2825
 class spell_sha_bloodlust: public SpellScriptLoader
 {
     public:
@@ -1371,24 +1486,23 @@ class spell_sha_bloodlust: public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    target->CastSpell(target, SHAMAN_SPELL_SATED, true);
+                if (Unit* l_Target = GetHitUnit())
+                    l_Target->CastSpell(l_Target, SHAMAN_SPELL_SATED, true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_bloodlust_SpellScript::ApplyDebuff);
             }
         };
@@ -1399,6 +1513,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
         }
 };
 
+/// Heroism - 32182
 class spell_sha_heroism: public SpellScriptLoader
 {
     public:
@@ -1415,24 +1530,23 @@ class spell_sha_heroism: public SpellScriptLoader
                 return true;
             }
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
 
             void ApplyDebuff()
             {
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SHAMAN_SPELL_EXHAUSTION, true);
+                if (Unit* l_Target = GetHitUnit())
+                    GetCaster()->CastSpell(l_Target, SHAMAN_SPELL_EXHAUSTION, true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
             }
         };
@@ -1443,7 +1557,7 @@ class spell_sha_heroism: public SpellScriptLoader
         }
 };
 
-// 58877 - Spirit Hunt
+/// 58877 - Spirit Hunt
 class spell_sha_spirit_hunt: public SpellScriptLoader
 {
     public:
@@ -1473,7 +1587,7 @@ class spell_sha_spirit_hunt: public SpellScriptLoader
         }
 };
 
-// 105792 - Lava Shock Spread
+/// 105792 - Lava Shock Spread
 class spell_sha_lava_lash_spread: public SpellScriptLoader
 {
     public:
@@ -1522,7 +1636,7 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
         }
 };
 
-// 60103 - Lava Lash
+/// 60103 - Lava Lash
 class spell_sha_lava_lash: public SpellScriptLoader
 {
     public:
@@ -1554,7 +1668,7 @@ class spell_sha_lava_lash: public SpellScriptLoader
         }
 };
 
-// 33757 - Windfury
+/// 33757 - Windfury
 class spell_sha_windfury: public SpellScriptLoader
 {
     public:
@@ -1601,7 +1715,7 @@ class spell_sha_windfury: public SpellScriptLoader
         }
 };
 
-// 10400 - Flametongue
+/// 10400 - Flametongue
 class spell_sha_flametongue: public SpellScriptLoader
 {
     public:
@@ -1634,7 +1748,7 @@ class spell_sha_flametongue: public SpellScriptLoader
         }
 };
 
-// 157804 - Improved Flame Shock
+/// 157804 - Improved Flame Shock
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
     public:
@@ -1665,7 +1779,7 @@ class spell_sha_improoved_flame_shock: public SpellScriptLoader
         }
 };
 
-// 51533 - Feral Spirit
+/// 51533 - Feral Spirit
 class spell_sha_feral_spirit: public SpellScriptLoader
 {
     public:
@@ -1695,7 +1809,7 @@ class spell_sha_feral_spirit: public SpellScriptLoader
         }
 };
 
-// 88766 - Fulmination
+/// 88766 - Fulmination
 class spell_sha_fulmination_proc: public SpellScriptLoader
 {
     public:
@@ -1739,7 +1853,7 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         }
 };
 
-// 157765 Enhanced Chain Lightning
+/// 157765 Enhanced Chain Lightning
 class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
 {
     public:
@@ -1768,121 +1882,7 @@ class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
         }
 };
 
-// 170374 - Molten Earth
-class spell_sha_molten_earth: public SpellScriptLoader
-{
-    public:
-        spell_sha_molten_earth() : SpellScriptLoader("spell_sha_molten_earth") { }
-
-        class spell_sha_molten_earth_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_molten_earth_AuraScript);
-
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_SHA_MOLTEN_EARTH_DAMAGE)
-                    return;
-
-                Unit *l_Caster = GetCaster();
-                Unit *l_Target = eventInfo.GetDamageInfo()->GetVictim();
-
-                if (l_Caster == nullptr || l_Target == nullptr)
-                    return;
-
-                if (l_Target->HasAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
-                {
-                    if (AuraPtr l_PeriodicAura = l_Target->GetAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL))
-                        l_PeriodicAura->SetDuration(l_PeriodicAura->GetMaxDuration());
-                }
-                else
-                    l_Caster->AddAura(SPELL_SHA_MOLTEN_EARTH_PERIODICAL, l_Target);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_molten_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_molten_earth_AuraScript();
-        }
-};
-
-// 170377 - Molten Earth Periodic
-class spell_sha_molten_earth_periodic: public SpellScriptLoader
-{
-    public:
-        spell_sha_molten_earth_periodic() : SpellScriptLoader("spell_sha_molten_earth_periodic") { }
-
-        class spell_sha_molten_earth_periodic_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_molten_earth_periodic_AuraScript);
-
-            void HandleEffectPeriodic(constAuraEffectPtr /*aurEff*/)
-            {
-                PreventDefaultAction();
-
-                if (GetOwner() && GetOwner()->ToUnit() && GetCaster())
-                {
-                    int l_Count = irand(1, 2);
-
-                    for (int l_I = 0; l_I < l_Count; l_I++)
-                        GetCaster()->CastSpell(GetOwner()->ToUnit(), SPELL_SHA_MOLTEN_EARTH_DAMAGE, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_molten_earth_periodic_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_molten_earth_periodic_AuraScript();
-        }
-};
-
-// 170379 - Molten Earth Damage
-class spell_sha_molten_earth_damage: public SpellScriptLoader
-{
-    public:
-        spell_sha_molten_earth_damage() : SpellScriptLoader("spell_sha_molten_earth_damage") { }
-
-        class spell_sha_molten_earth_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_molten_earth_damage_SpellScript);
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                Unit* l_Target = GetHitUnit();
-
-                if (!l_Target)
-                    return;
-
-                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_MOLTEN_EARTH))
-                    if (Player* l_Player = GetCaster()->ToPlayer())
-                        SetHitDamage(GetHitDamage() * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * l_Aura->GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier / 100);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_molten_earth_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_molten_earth_damage_SpellScript();
-        }
-};
-
-// Echo of Elements - 108283
+/// Echo of Elements - 108283
 class spell_sha_echo_of_elements: public SpellScriptLoader
 {
     public:
@@ -1928,7 +1928,7 @@ class spell_sha_echo_of_elements: public SpellScriptLoader
         }
 };
 
-// 152255 Liquid Magma - a bit hacky, will do it properly later
+/// 152255 Liquid Magma - a bit hacky, will do it properly later
 class spell_sha_liquid_magma: public SpellScriptLoader
 {
     public:
@@ -2006,7 +2006,7 @@ class spell_sha_liquid_magma: public SpellScriptLoader
         }
 };
 
-// 157501 Liquid Magma
+/// 157501 Liquid Magma
 class spell_sha_liquid_magma_visual: public SpellScriptLoader
 {
     public:
@@ -2033,7 +2033,7 @@ class spell_sha_liquid_magma_visual: public SpellScriptLoader
         }
 };
 
-// 2645 Ghost Wolf
+/// 2645 Ghost Wolf
 class spell_sha_ghost_wolf: public SpellScriptLoader
 {
     public:
@@ -2080,7 +2080,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-// 51505 Lava Burst
+/// 51505 Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2117,39 +2117,39 @@ class spell_sha_lava_burst: public SpellScriptLoader
         }
 };
 
-// Unleash Elements - 73680
+/// Unleash Elements - 73680
 class spell_sha_unleash_elements : public SpellScriptLoader
 {
-public:
-    spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
+    public:
+        spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
 
-    class spell_sha_unleash_elements_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
-
-        void HandleOnHit()
+        class spell_sha_unleash_elements_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                    l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
+                        l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
+            return new spell_sha_unleash_elements_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_sha_unleash_elements_SpellScript();
-    }
 };
 
-// Call by Chain Heal - 1064, Riptide - 61295
-// Tidal Waves - 51564
+/// Call by Chain Heal - 1064, Riptide - 61295
+/// Tidal Waves - 51564
 class spell_sha_tidal_waves : public SpellScriptLoader
 {
 public:
@@ -2186,6 +2186,8 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
+    new spell_sha_glyph_of_cleansing_waters();
+    new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
     new spell_sha_unleash_elements();
@@ -2220,9 +2222,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_feral_spirit();
     new spell_sha_fulmination_proc();
     new spell_sha_enhanced_chain_lightning();
-    new spell_sha_molten_earth();
-    new spell_sha_molten_earth_periodic();
-    new spell_sha_molten_earth_damage();
     new spell_sha_echo_of_elements();
     new spell_sha_lava_lash();
     new spell_sha_liquid_magma();

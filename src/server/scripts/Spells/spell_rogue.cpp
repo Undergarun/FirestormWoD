@@ -790,8 +790,8 @@ class spell_rog_killing_spree: public SpellScriptLoader
                         std::list<Unit*> l_TargetList;
                         float l_Radius = 10.0f;
 
-                        JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
-                        JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
                         l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
                         l_TargetList.remove_if([this](Unit* p_Unit) -> bool
@@ -1053,29 +1053,30 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
             {
                 PreventDefaultAction();
 
-                if (!GetCaster() || !GetTarget())
+                if (!GetTarget())
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
+                if (p_EventInfo.GetActor()->GetGUID() != GetTarget()->GetGUID())
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                    SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
+                    SpellInfo const* l_ProcSpell = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    int32 l_Damage = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), l_SpellInfo->Effects[EFFECT_2].BasePoints);
 
-                    if (!damage || eventInfo.GetDamageInfo()->GetDamageType() == DOT)
+                    if (!l_Damage || p_EventInfo.GetDamageInfo()->GetDamageType() == DOT)
                         return;
 
-                    if (spellInfo && !spellInfo->CanTriggerBladeFlurry())
+                    if (l_ProcSpell && !l_ProcSpell->CanTriggerBladeFlurry())
                         return;
 
-                    if (Unit* target = _player->SelectNearbyTarget(eventInfo.GetActionTarget()))
-                        _player->CastCustomSpell(target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &damage, NULL, NULL, true);
+                    if (Unit* l_Target = l_Caster->SelectNearbyTarget(p_EventInfo.GetActionTarget()))
+                        l_Caster->CastCustomSpell(l_Target, ROGUE_SPELL_BLADE_FLURRY_DAMAGE, &l_Damage, NULL, NULL, true);
                 }
             }
 
@@ -1285,7 +1286,12 @@ class spell_rog_nerve_strike: public SpellScriptLoader
         }
 };
 
-/// Called by Rupture - 1943, Garrote - 703, Hemorrhage (DoT) - 16511 and Crimson Tempest - 121411
+enum SanguinaryVein
+{
+    SpellRogueSanguinaryVein = 79147
+};
+
+/// Called by Rupture - 1943, Garrote - 703, Crimson Tempest - 122233
 /// Sanguinary Vein - 79147
 class spell_rog_sanguinary_vein: public SpellScriptLoader
 {
@@ -1298,31 +1304,35 @@ class spell_rog_sanguinary_vein: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
-                            return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
 
-                        caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
-                    }
-                }
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(SanguinaryVein::SpellRogueSanguinaryVein))
+                    return;
+
+                l_Caster->CastSpell(l_Target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetTarget())
-                    {
-                        if (GetSpellInfo()->Id == ROGUE_SPELL_HEMORRHAGE && !caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
-                            return;
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
 
-                        if (target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, caster->GetGUID()))
-                            caster->CastSpell(target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
-                    }
-                }
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_HEMORRHAGE, l_Caster->GetGUID()) && l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_RUPTURE_DOT, l_Caster->GetGUID()) ||
+                    l_Target->HasAura(ROGUE_SPELL_GARROTE_DOT, l_Caster->GetGUID()) || l_Target->HasAura(ROGUE_SPELL_CRIMSON_TEMPEST_DOT, l_Caster->GetGUID()))
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID());
             }
 
             void Register()
@@ -1374,6 +1384,55 @@ class spell_rog_hemorrhage: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_rog_hemorrhage_SpellScript();
+        }
+
+        class spell_rog_hemorrhage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_hemorrhage_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(SanguinaryVein::SpellRogueSanguinaryVein))
+                    return;
+
+                if (!l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_HEMORRHAGING_VEINS))
+                    return;
+
+                l_Caster->CastSpell(l_Target, ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_RUPTURE_DOT, l_Caster->GetGUID()) ||
+                    l_Target->HasAura(ROGUE_SPELL_GARROTE_DOT, l_Caster->GetGUID()) || l_Target->HasAura(ROGUE_SPELL_CRIMSON_TEMPEST_DOT, l_Caster->GetGUID()))
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID()))
+                    l_Target->RemoveAura(ROGUE_SPELL_SANGUINARY_VEIN_DEBUFF, l_Caster->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_hemorrhage_AuraScript::OnApply, EFFECT_3, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_hemorrhage_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_hemorrhage_AuraScript();
         }
 };
 
@@ -1549,60 +1608,61 @@ class spell_rog_shroud_of_concealment: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_shroud_of_concealment_SpellScript);
 
-            void SelectTargets(std::list<WorldObject*>& targets)
+            void SelectTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
                     return;
 
                 std::list<WorldObject*> targetsToRemove;
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
-                targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_WARSONG_FLAG));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_WS_SPELL_SILVERWING_FLAG));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_1));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_2));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_3));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_SPELL_ORB_PICKED_UP_4));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_ALLIANCE_INSIGNIA));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, BG_KT_HORDE_INSIGNIA));
 
-                for (auto itr : targets)
+                for (auto itr : p_Targets)
                 {
-                    if (Unit* target = itr->ToUnit())
+                    if (Unit* l_Target = itr->ToUnit())
                     {
-                        if ((!target->IsInRaidWith(caster) && !target->IsInPartyWith(caster)) ||
-                            target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING))
+                        if ((!l_Target->IsInRaidWith(l_Caster) && !l_Target->IsInPartyWith(l_Caster)) ||
+                            l_Target->isInCombat() || l_Target->HasUnitState(UNIT_STATE_CASTING))
                             targetsToRemove.push_back(itr);
                     }
                 }
 
                 for (auto itr : targetsToRemove)
-                    targets.remove(itr);
+                    p_Targets.remove(itr);
             }
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_ShroudOfConcealment = l_Target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, l_Caster->GetGUID()))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if ((!l_Target->IsInRaidWith(l_Caster) && !l_Target->IsInPartyWith(l_Caster)) ||
+                        l_Target->isInCombat() || l_Target->HasUnitState(UNIT_STATE_CASTING) ||
+                        l_Target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || l_Target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
+                        l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) || l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
+                        l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) || l_Target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
                     {
-                        if (AuraPtr shroudOfConcealment = target->GetAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, caster->GetGUID()))
-                        {
-                            if ((!target->IsInRaidWith(caster) && !target->IsInPartyWith(caster)) ||
-                                target->isInCombat() || target->HasUnitState(UNIT_STATE_CASTING) ||
-                                target->HasAura(BG_WS_SPELL_WARSONG_FLAG) || target->HasAura(BG_WS_SPELL_SILVERWING_FLAG) ||
-                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_1) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_2) ||
-                                target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_3) ||target->HasAura(BG_KT_SPELL_ORB_PICKED_UP_4))
-                            {
-                                target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, caster->GetGUID());
-                            }
-                        }
+                        l_Target->RemoveAura(ROGUE_SPELL_SHROUD_OF_CONCEALMENT_AURA, l_Caster->GetGUID());
                     }
                 }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_shroud_of_concealment_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnHit += SpellHitFn(spell_rog_shroud_of_concealment_SpellScript::HandleOnHit);
             }
         };
@@ -2240,6 +2300,16 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                         {
                             l_Caster->CastSpell(l_Caster, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
                             l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
+                        }
+                    }
+
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
+                        {
+                            int32 l_Damage = GetHitDamage();
+                            AddPct(l_Damage, l_AurEff->GetAmount());
+                            SetHitDamage(l_Damage);
                         }
                     }
                 }

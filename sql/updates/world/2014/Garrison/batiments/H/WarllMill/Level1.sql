@@ -19,7 +19,7 @@ INSERT INTO `creature_questrelation`(`id`,`quest`) VALUES ( '79815','37043');
 UPDATE creature_template SET ScriptName="npc_FrostwallGrunt_Garr" WHERE entry = 79781;
 UPDATE creature_template SET ScriptName="npc_FrostWallSmith_Garr" WHERE entry = 87630;
 
-UPDATE creature_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance * -1 WHERE item=113681;
+UPDATE creature_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance * -1 WHERE item=113681 AND ChanceOrQuestChance  < 0;
 
 DELETE FROM garrison_plot_content WHERE plot_type_or_building=-8 AND faction_index = 0;
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-8','0','-237379','5.47557','5.00065','1.1004','3.58665');
@@ -33,7 +33,7 @@ insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `
 insert into `garrison_plot_content` (`plot_type_or_building`, `faction_index`, `creature_or_gob`, `x`, `y`, `z`, `o`) values('-8','0','79781','7.75683','-0.602743','1.62177','5.6014');
 
 REPLACE INTO gossip_menu (entry, `text_id`) VALUES(17014, 87551);
-REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(17014, 1, 0, "Let me browse your goods.", 1, 0, 0, "", 1);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(17014, 1, 0, "Let me browse your goods.", 3, 0, 0, "", 128);
 INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(87551, "What am I needed for?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 
 UPDATE `creature_template` SET `npcflag`=`npcflag`|4227, gossip_menu_id = 17014 WHERE `entry`=79815;

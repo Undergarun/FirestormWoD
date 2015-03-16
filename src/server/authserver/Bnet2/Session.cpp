@@ -17,7 +17,6 @@
 #include <algorithm>
 
 #include <Reporting/Reporter.hpp>
-#include <Reporting/Reports.hpp>
 
 namespace BNet2 {
 
@@ -774,7 +773,7 @@ namespace BNet2 {
         if (!l_RealmRequested)
             return false;
 
-        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::ReportOpcodes::AuthChooseRealm>::Craft
+        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::AuthChooseRealm>::Craft
         (
             m_AccountID,                    ///< AccountId
             l_RealmRequested->name,         ///< Realm
@@ -782,6 +781,12 @@ namespace BNet2 {
             m_Socket.getRemoteAddress(),    ///< IpToCountry
             m_Locale                        ///< ClientLang
         ));
+
+        /// User reporting
+        /// Step Login (5)
+        /// We havn't script system in battle.net ...
+        /// @TODO: Use node.js reporter webservice
+        LoginDatabase.PExecute("UPDATE user_reporting SET step = 5, last_ip = '%s' WHERE account_id = %u AND step < 5", m_Socket.getRemoteAddress().c_str(),  m_AccountID);
 
         uint8 l_LockStatus = (l_RealmRequested->allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
 

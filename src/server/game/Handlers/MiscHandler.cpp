@@ -1094,11 +1094,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
-
-    uint64 l_CharacterGUID = 0;
-
-    uint32 l_Time               = 0;
+    uint64 l_CharacterGUID      = 0;
+    int32  l_Time               = 0;
     uint32 l_DataType           = 0;
     uint32 l_CompressedSize     = 0;
     uint32 l_UncompressedSize   = 0;
@@ -1109,11 +1106,11 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
     l_DataType = p_Packet.ReadBits(3);
 
+    p_Packet.FlushBits();
+
     p_Packet >> l_CompressedSize;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", l_DataType, l_Time, l_UncompressedSize);
-
-    ///< Erase
+    /// Erase
     if (l_UncompressedSize == 0)
     {
         SetAccountData(AccountDataType(l_DataType), 0, "");
@@ -1122,9 +1119,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
     if (l_UncompressedSize > 0xFFFF)
     {
-        ///< Unnneded warning spam in this case
+        /// Unneeded warning Spam in this case
         p_Packet.rfinish();
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", l_UncompressedSize);
         return;
     }
 
@@ -1134,9 +1130,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
     uLongf l_RealSize = l_UncompressedSize;
     if (uncompress(const_cast<uint8*>(l_Data.contents()), &l_RealSize, const_cast<uint8*>(p_Packet.contents() + p_Packet.rpos()), p_Packet.size() - p_Packet.rpos()) != Z_OK)
     {
-        ///< Unnneded warning spam in this case
+        /// Unneeded warning Spam in this case
         p_Packet.rfinish();
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Failed to decompress account data");
         return;
     }
 
@@ -1146,15 +1141,11 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
 void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
-
     uint64 l_CharacterGuid = 0;
-    uint32 l_Type;
+    uint32 l_Type = 0;
 
     p_Packet.readPackGUID(l_CharacterGuid);
     l_Type = p_Packet.ReadBits(3);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", l_Type);
 
     if (l_Type > NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -1168,22 +1159,19 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
     l_CompressedData.resize(l_DestSize);
 
     if (l_Size && compress(const_cast<uint8*>(l_CompressedData.contents()), &l_DestSize, (uint8*)l_AccountData->Data.c_str(), l_Size) != Z_OK)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
         return;
-    }
 
     l_CompressedData.resize(l_DestSize);
 
     WorldPacket l_Response(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+l_DestSize);
 
     l_Response.appendPackGUID(l_CharacterGuid);
-    l_Response << uint32(l_AccountData->Time);      /// unix time
-    l_Response << uint32(l_Size);                   /// decompressed length
+    l_Response << uint32(l_AccountData->Time);      ///< Unix time
+    l_Response << uint32(l_Size);                   ///< Decompressed length
     l_Response.WriteBits(l_Type, 3);
     l_Response.FlushBits();
-    l_Response << uint32(l_DestSize);               /// compressed length
-    l_Response.append(l_CompressedData);            /// compressed data
+    l_Response << uint32(l_DestSize);               ///< Compressed length
+    l_Response.append(l_CompressedData);            ///< Compressed data
 
     SendPacket(&l_Response);
 }
@@ -1257,6 +1245,18 @@ void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
     }
 
     m_Player->MovieDelayedTeleportMutex.unlock();
+}
+
+void WorldSession::HandleSceneTriggerEventOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player)
+        return;
+
+    uint8 l_EventLenght         = p_Packet.ReadBits(6);
+    uint32 l_SceneInstanceID    = p_Packet.read<uint32>();
+    std::string l_Event         = p_Packet.ReadString(l_EventLenght);
+
+    sScriptMgr->OnSceneTriggerEvent(m_Player, l_SceneInstanceID, l_Event);
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
@@ -1357,7 +1357,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& p_Packet)
         return;
     }
 
-    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, l_ActionBar);
+    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, l_ActionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)

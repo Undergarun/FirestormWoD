@@ -381,9 +381,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             m_declinedname = new DeclinedName;
             Field* fields2 = result->Fetch();
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            {
                 m_declinedname->name[i] = fields2[i].GetString();
-            }
         }
     }
 
@@ -392,6 +390,51 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
+
+    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
+    {
+        uint32 l_SpecializationID = GetSpecializationId();
+        if (owner->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+        {
+            switch (l_SpecializationID)
+            {
+                case SpecIndex::SPEC_PET_FEROCITY:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_CUNNING:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_TENACITY:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (l_SpecializationID)
+            {
+                case SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_FEROCITY;
+                    break;
+                case SpecIndex::SPEC_ROGUE_CUNNING_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_CUNNING;
+                    break;
+                case SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_TENACITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        UnlearnSpecializationSpell();
+
+        SetSpecializationId(l_SpecializationID);
+        LearnSpecializationSpell();
+        owner->ToPlayer()->SendTalentsInfoData(true);
+    }
 
     return true;
 }
@@ -914,6 +957,11 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
+
+    if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(58640))           ///< Glyph of the Geist
+        CastSpell(this, 121916, true);
+    else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
+        CastSpell(this, 147157, true);
 
     return true;
 }

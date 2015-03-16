@@ -125,6 +125,27 @@ namespace MS { namespace Garrison { namespace Sites
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    /// Can upgrade the garrison
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonAllianceLevel3::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    {
+        if (p_CurrentGarrisonLevel != 3)
+            return false;
+
+        return false;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonAllianceLevel3::OnUpgrade(Player * p_Owner)
+    {
+
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// When a mission start
     /// @p_Owner     : Garrison owner
     /// @p_MissionID : Started mission ID

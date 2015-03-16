@@ -88,14 +88,9 @@ enum WarlockSpells
     WARLOCK_IMP_SWARM                       = 104316,
     WARLOCK_DISRUPTED_NETHER                = 114736,
     WARLOCK_GLYPH_OF_SIPHON_LIFE            = 56218,
-    WARLOCK_SOULBURN_OVERRIDE_1             = 93312,
-    WARLOCK_SOULBURN_OVERRIDE_2             = 93313,
-    WARLOCK_SOULBURN_OVERRIDE_3             = 104245,
-    WARLOCK_SOULBURN_OVERRIDE_4             = 104249,
-    WARLOCK_SOULBURN_OVERRIDE_5             = 104250,
-    WARLOCK_SOULBURN_OVERRIDE_6             = 104251,
-    WARLOCK_SOULBURN_OVERRIDE_7             = 114787,
-    WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 86664,
+    WARLOCK_SOULBURN_OVERRIDE_1             = 93313,
+    WARLOCK_SOULBURN_OVERRIDE_2             = 104249,
+    WARLOCK_SEED_OF_CORRUPTION_DUMMY        = 157697,
     WARLOCK_SOULBURN_DEMONIC_CIRCLE_TELE    = 114794,
     WARLOCK_GRIMOIRE_OF_SUPREMACY_TALENT    = 108499,
     WARLOCK_SUMMON_FEL_IMP                  = 112866,
@@ -136,7 +131,9 @@ enum WarlockSpells
     WARLOCK_SPELL_IMMOLATE_AURA             = 157736,
     WARLOCK_GLYPH_OF_DRAIN_LIFE             = 63302,
     WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
-    WARLOCK_SPELL_SYPHON_LIFE               = 63106
+    WARLOCK_SPELL_SYPHON_LIFE               = 63106,
+    WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
+    WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -223,6 +220,40 @@ class spell_warl_haunt_dispel: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warl_haunt_dispel_AuraScript();
+        }
+};
+
+// Haunt - 48181
+class spell_warl_haunt : public SpellScriptLoader
+{
+    public:
+        spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
+
+        class spell_warl_haunt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_haunt_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                /// Your Haunt spell also increases the damage of your damage over time effects.
+                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA) && l_Caster->HasAura(WARLOCK_SPELL_SOULBURN_HAUNT_AURA))
+                {
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SPELL_SOULBURN_HAUNT, true);
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_haunt_SpellScript();
         }
 };
 
@@ -397,24 +428,54 @@ class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soulburn_seed_of_corruption_damage_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
+            std::list<uint64> m_Targets;
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                if (GetExplTargetUnit())
-                    targets.remove(GetExplTargetUnit());
+                for (std::list<WorldObject*>::const_iterator l_It = p_Targets.begin(); l_It != p_Targets.end(); ++l_It)
+                    m_Targets.push_back((*l_It)->GetGUID());
             }
 
-            void HandleScript()
+            void HandleOnHit()
             {
-                // Remove Soul Burn aura
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// Your Seed of Corruption detonation effect will afflict Corruption on all enemy targets.
+                if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                {
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                    return;
+                }
+
+                if (m_Targets.size())
+                    m_Targets.remove(l_Target->GetGUID());
+
+                if (!m_Targets.size())
+                {
+                    /// Remove Soul Burn aura
+                    if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
+                        l_Caster->RemoveAurasDueToSpell(WARLOCK_SEED_OF_CORRUPTION_DUMMY);
+                }
             }
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleOnHit);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                AfterHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleScript);
+                AfterHit += SpellHitFn(spell_warl_soulburn_seed_of_corruption_damage_SpellScript::HandleAfterHit);
             }
         };
 
@@ -457,29 +518,11 @@ class spell_warl_soulburn_seed_of_corruption: public SpellScriptLoader
         }
 };
 
-/// Curse of exhaustion is removed in  6.0.2 please clean me
 /// Soulburn - 74434
 class spell_warl_soulburn_override: public SpellScriptLoader
 {
     public:
         spell_warl_soulburn_override() : SpellScriptLoader("spell_warl_soulburn_override") { }
-
-        class spell_warl_soulburn_remove_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_soulburn_remove_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SOULBURN_AURA))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_soulburn_remove_SpellScript::HandleOnHit);
-            }
-        };
 
         class spell_warl_soulburn_override_AuraScript : public AuraScript
         {
@@ -487,44 +530,22 @@ class spell_warl_soulburn_override: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* player = GetCaster())
-                {
-                    // Overrides Drain Life, Undending Breath and Harvest Life
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_1, true);
-                    // Overrides Seed of Corruption
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_2, true);
-                    // Overrides Curse of Enfeeblement and Curse of Elements
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_3, true);
-                    // Overrides Demonic Circle : Teleport
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_4, true);
-                    // Overrides Curse of Exhaustion
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_5, true);
-                    // Overrides Soul Swap
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_6, true);
-                    // Overrides Health Funnel
-                    player->CastSpell(player, WARLOCK_SOULBURN_OVERRIDE_7, true);
-                }
+                Unit* l_Caster = GetCaster();
+
+                // Overrides Seed of Corruption
+                l_Caster->CastSpell(l_Caster, WARLOCK_SOULBURN_OVERRIDE_1, true);
+                // Overrides Demonic Circle : Teleport
+                l_Caster->CastSpell(l_Caster, WARLOCK_SOULBURN_OVERRIDE_2, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* player = GetCaster())
-                {
-                    // Overrides Drain Life, Undending Breath and Harvest Life
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_1);
-                    // Overrides Seed of Corruption
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_2);
-                    // Overrides Curse of Enfeeblement and Curse of Elements
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_3);
-                    // Overrides Demonic Circle : Teleport
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_4);
-                    // Overrides Curse of Exhaustion
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_5);
-                    // Overrides Soul Swap
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_6);
-                    // Overrides Health Funnel
-                    player->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_7);
-                }
+                Unit* l_Caster = GetCaster();
+                
+                // Overrides Seed of Corruption
+                l_Caster->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_1);
+                // Overrides Demonic Circle : Teleport
+                l_Caster->RemoveAura(WARLOCK_SOULBURN_OVERRIDE_2);
             }
 
             void Register()
@@ -533,11 +554,6 @@ class spell_warl_soulburn_override: public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_warl_soulburn_override_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_soulburn_remove_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1701,26 +1717,36 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
-                        {
-                            // Soul Swap override spell
-                            caster->CastSpell(caster, WARLOCK_SOUL_SWAP_AURA, true);
-                            caster->RemoveSoulSwapDOT(target);
-                        }
-                        else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
-                        {
-                            caster->CastSpell(target, WARLOCK_SOUL_SWAP_VISUAL, true);
-                            caster->ApplySoulSwapDOT(target);
-                            caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                            if (caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && caster->ToPlayer())
-                                caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, 30 * IN_MILLISECONDS);
-                        }
-                    }
+                if (l_Target == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
+                {
+                    // Soul Swap override spell
+                    l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
+                    l_Caster->RemoveSoulSwapDOT(l_Target);
+                }
+                else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
+                {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
+                    l_Caster->ApplySoulSwapDOT(l_Target);
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
+
+                    if (l_Caster->HasAura(WARLOCK_GLYPH_OF_SOUL_SWAP) && l_Caster->ToPlayer())
+                        l_Caster->ToPlayer()->AddSpellCooldown(WARLOCK_SOUL_SWAP, 0, 30 * IN_MILLISECONDS);
+                }
+
+                /// Soulburn: Applies Corruption, Unstable Affliction, and Agony without requiring a previous copy.
+                if (l_Caster->HasAura(WARLOCK_SOULBURN_AURA))
+                {
+                    l_Caster->CastSpell(l_Target, WARLOCK_AGONY, true);
+                    l_Caster->CastSpell(l_Target, WARLOCK_SPELL_CORRUPTION, true);
+                    l_Caster->CastSpell(l_Target, WARLOCK_UNSTABLE_AFFLICTION, true);
+                    
+                    l_Caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
                 }
             }
 
@@ -1751,38 +1777,65 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
+            void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                std::list<Unit*> l_TargetList;
+
+                p_AurEff->GetTargetList(l_TargetList);
+                for (auto l_Target : l_TargetList)
+                {
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
+                    {
+                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    }
+
+                    /// Associate DoT spells to their damage spells
+                    std::list<std::pair<uint32, uint32>> l_DotAurasList;
+                    l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
+                    l_DotAurasList.push_back(std::make_pair(27243,  132566)); ///< Seed of Corruption
+                    l_DotAurasList.push_back(std::make_pair(30108,  131736)); ///< Unstable Affliction
+                    l_DotAurasList.push_back(std::make_pair(146739, 131740)); ///< Corruption
+
+                    for (std::list<std::pair<uint32, uint32>>::const_iterator l_DotAura = l_DotAurasList.begin(); l_DotAura != l_DotAurasList.end(); ++l_DotAura)
+                    {
+                        if (AuraPtr l_AuraPtr = l_Target->GetAura((*l_DotAura).first, l_Caster->GetGUID()))
+                        {
+                            if (AuraEffectPtr l_AuraEffect = l_AuraPtr->GetEffect(l_AuraPtr->GetEffectIndexByType(SPELL_AURA_PERIODIC_DAMAGE)))
+                            {
+                                int32 l_Bp0 = CalculatePct(l_AuraEffect->GetAmount(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                                l_Caster->CastCustomSpell(l_Target, (*l_DotAura).second, &l_Bp0, NULL, NULL, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Target = GetTarget();
 
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+                {
                     if (Unit* l_Caster = GetCaster())
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+						if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        {
                             if (l_Caster->ToPlayer()->isHonorOrXPTarget(l_Target))
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
-            }
-
-            void HandleEffectPeriodicUpdate(AuraEffectPtr p_AurEff)
-            {
-                std::list<Unit*> l_TargetList;
-                p_AurEff->GetTargetList(l_TargetList);
-
-                if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                    {
-                        for (auto itr : l_TargetList)
-                            if (itr != nullptr && itr->GetHealthPct() < 20)
-                            {
-                                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
-                                    p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
-                            }
+                        }
                     }
+                }
             }
 
             void Register()
             {
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1909,7 +1962,8 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
 enum EmberTapSpells
 {
     SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
-    SPELL_WARL_SEARING_FLAMES = 174848
+    SPELL_WARL_SEARING_FLAMES = 174848,
+    SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
 // Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
@@ -1921,39 +1975,47 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_ember_tap_SpellScript);
 
-            void HandleOnHit()
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
-                    return;
+                return;
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) / 100.0f;
-                    float pct = 0.05f * (1 + Mastery);
+                    float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
+
+                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
+                        pct += ((float)l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
-                    healAmount = l_Player->SpellHealingBonusDone(l_Player, GetSpellInfo(), healAmount, EFFECT_0, HEAL);
-                    healAmount = l_Player->SpellHealingBonusTaken(l_Player, GetSpellInfo(), healAmount, HEAL);
+
+                    float Mastery = 3.0f * l_Player->GetFloatValue(PLAYER_FIELD_MASTERY);
+                    healAmount += CalculatePct(healAmount, Mastery);
 
                     if (AuraPtr l_SearingFlames = l_Player->GetAura(SPELL_WARL_SEARING_FLAMES))
                     {
                         healAmount *= 1 + (l_SearingFlames->GetSpellInfo()->Effects[EFFECT_0].BasePoints / 100.0f);
 
-                        // ManaCost == 0, wrong way to retrieve cost ?
-                        //l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        /// ManaCost == 0, wrong way to retrieve cost ?
+                        ///l_Player->ModifyPower(POWER_BURNING_EMBERS, CalculatePct(GetSpellInfo()->ManaCost, l_SearingFlames->GetSpellInfo()->Effects[EFFECT_1].BasePoints));
                         l_Player->ModifyPower(POWER_BURNING_EMBERS, 5);
                     }
 
-                    if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        healAmount += CalculatePct(l_Player->GetMaxHealth(), l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                    if (l_Player->HasAura(SPELL_WARL_ENHANCED_OF_EMBER_TAP))
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_ENHANCED_OF_EMBER_TAP);
+                        Pet* l_Pet = l_Player->GetPet();
 
+                        if (l_Pet != nullptr && l_SpellInfo != nullptr)
+                            l_Pet->SetHealth(l_Pet->GetHealth() + CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                    }
                     SetHitHeal(healAmount);
                 }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_warl_ember_tap_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_ember_tap_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
             }
         };
 
@@ -2032,6 +2094,54 @@ class spell_warl_conflagrate_aura: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_conflagrate_aura_SpellScript();
+        }
+};
+
+enum GlyphofNightmareSpells
+{
+    SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA      = 56232,
+    SPELL_WARL_GLYPH_OF_NIGHTMARE           = 143314
+};
+
+/// Call by : Felsteed - 5784, Dreadsteed - 23161
+/// Glyph of Nightmares - 56232
+class spell_warl_glyph_of_nightmares : public SpellScriptLoader
+{
+    public:
+        spell_warl_glyph_of_nightmares() : SpellScriptLoader("spell_warl_glyph_of_nightmares") { }
+
+        class spell_warl_glyph_of_nightmares_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_glyph_of_nightmares_AuraScript);
+
+            void HandleApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE_AURA))
+                        l_Caster->CastSpell(l_Caster, SPELL_WARL_GLYPH_OF_NIGHTMARE, true);
+                }
+            }
+
+            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(SPELL_WARL_GLYPH_OF_NIGHTMARE))
+                        l_Caster->RemoveAura(SPELL_WARL_GLYPH_OF_NIGHTMARE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectApplyFn(spell_warl_glyph_of_nightmares_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_glyph_of_nightmares_AuraScript();
         }
 };
 
@@ -2545,7 +2655,7 @@ class spell_warl_create_healthstone: public SpellScriptLoader
         }
 };
 
-// Seed of Corruption - 27285
+// Seed of Corruption (detonation) - 27285
 class spell_warl_seed_of_corruption: public SpellScriptLoader
 {
     public:
@@ -3003,6 +3113,8 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_haunt();
+    new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
     new spell_warl_siphon_life();
     new spell_warl_corruption();

@@ -509,7 +509,7 @@ enum AuraType
     SPELL_AURA_448                                          = 448,  // 6.0.X
     SPELL_AURA_449                                          = 449,  // 6.0.X
     SPELL_AURA_450                                          = 450,  // 6.0.X
-    SPELL_AURA_451                                          = 451,  // 6.0.X
+    SPELL_AURA_ADAPTATION                                   = 451,  // 6.0.X SPELL_AURA_ADAPTATION
     SPELL_AURA_452                                          = 452,  // 6.0.X
     SPELL_AURA_MOD_COOLDOWN_2                               = 453,  // 6.0.X SPELL_AURA_MOD_COOLDOWN_2
     SPELL_AURA_454                                          = 454,  // 6.0.X

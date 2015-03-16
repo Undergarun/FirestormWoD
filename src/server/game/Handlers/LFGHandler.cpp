@@ -115,24 +115,21 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& p_Packet)
     sLFGMgr->UpdateProposal(l_ProposalID, GetPlayer()->GetGUID(), l_Accepted);
 }
 
-void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recvData)
+void WorldSession::HandleDfSetRolesOpcode(WorldPacket& p_Packet)
 {
-    uint32 roles;
-    uint8 unk;
+    uint32 l_RolesDesired;
+    uint8 l_PartyIndex;
 
-    recvData >> roles;                                    // Player Group Roles
-    recvData >> unk;
+    p_Packet >> l_RolesDesired;
+    p_Packet >> l_PartyIndex;
 
-    uint64 guid = GetPlayer()->GetGUID();
-    Group* grp = GetPlayer()->GetGroup();
-    if (!grp)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", guid);
+    uint64 l_Guid = GetPlayer()->GetGUID();
+    Group* l_Group = GetPlayer()->GetGroup();
+    if (!l_Group)
         return;
-    }
-    uint64 gguid = grp->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_SET_ROLES: Group [" UI64FMTD "], Player [" UI64FMTD "], Roles: %u", gguid, guid, roles);
-    sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
+
+    uint64 l_GroupGUID = l_Group->GetGUID();
+    sLFGMgr->UpdateRoleCheck(l_GroupGUID, l_Guid, l_RolesDesired);
 }
 
 void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recvData)
@@ -436,7 +433,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
     l_Data << uint8(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetPartyIndex() : 0);///< Party index
     l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
     l_Data << uint32(l_JoinSlots.size());                                                   ///< Join Slots count
-    l_Data.appendPackGUID(l_BGqueueID);                                                     ///< BG Queue ID
+    l_Data << uint64(l_BGqueueID);                                                          ///< BG Queue ID
     l_Data << uint32(0);                                                                    ///< Activity ID
     l_Data << uint32(p_RoleCheck->roles.size());                                            ///< Member count
 

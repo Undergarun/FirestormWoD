@@ -2915,15 +2915,15 @@
   </AreaTable>
   <CharShipment build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="ID" />
+    <field type="int" name="ShipmentContainerID" />
     <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="Flags" />
+    <field type="int" name="Duration" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="ResultItemID" />
   </CharShipment>
   <GarrBuildingPlotInst build="0">
     <index>
@@ -3312,8 +3312,8 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="string" name="field1" />
+    <field type="string" name="field2" />
     <field type="int" name="field3" />
     <field type="int" name="field4" />
   </SceneScript>
@@ -3322,7 +3322,7 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="string" name="field1" />
   </SceneScriptPackage>
   <SceneScriptPackageMember build="0">
     <index>
@@ -4073,9 +4073,9 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="float" name="field1" />
+    <field type="float" name="field2" />
+    <field type="float" name="field3" />
     <field type="int" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
@@ -4103,4 +4103,111 @@
     <field type="float" name="X" />
     <field type="float" name="Y" />
   </Vignette>
+  <SpellReagents build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+  </SpellReagents>
+  <GarrBuildingDoodadSet build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </GarrBuildingDoodadSet>
+  <CharShipmentContainer build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="field1" />
+    <field type="int" name="BuildingType" />
+    <field type="string" name="Name" />
+    <field type="int" name="TextureKitID" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="string" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </CharShipmentContainer>
+  <SpellIcon build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </SpellIcon>
+  <UiTextureKit build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </UiTextureKit>
+  <BroadcastText build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="MsgType" />
+    <field type="string" name="Text0" />
+    <field type="string" name="Text1" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="SoundID" />
+    <field type="int" name="EmoteID" />
+    <field type="int" name="field12" />
+  </BroadcastText>
+  <Path build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+  </Path>
+  <PathNode build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </PathNode>
 </DBFilesClient>

@@ -3135,6 +3135,13 @@ Server.Auto.RestartHour = 4
 
 DisableRestart = 1
 
+#   LootAoe.Enabled
+#        Description: Enable AOE loot
+#        Default:     1 - (Enable)
+
+LootAoe.Enabled = 1
+LastClientBuild = 19342
+
 ###################################################################################################
 # VIP CONFIG
 #

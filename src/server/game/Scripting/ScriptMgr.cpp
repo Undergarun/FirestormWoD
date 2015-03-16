@@ -1311,11 +1311,11 @@ void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
 /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who send the packet
 /// @p_Packet : Sent packet
-void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
 {
     ASSERT(p_Socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet, p_Session);
 }
 /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who received the packet
@@ -1797,6 +1797,7 @@ void ScriptMgr::OnPlayerLogin(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(p_Player);
 }
+
 /// Called when a player logs out.
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLogout(Player * p_Player)
@@ -1898,6 +1899,20 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
+/// Called when a player receive a scene triggered event
+/// @p_Player          : Player instance
+/// @p_SceneInstanceID : Standalone scene instance ID
+/// @p_Event           : Event string received from client
+void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
+}
+
+/// Called when a player regen a power
+/// @p_Player         : Player instance
+/// @p_Power          : Power to be regenerate
+/// @p_AddValue       : amount of power to regenerate
+/// @p_PreventDefault : avoid default regeneration
 void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
 {
     FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);

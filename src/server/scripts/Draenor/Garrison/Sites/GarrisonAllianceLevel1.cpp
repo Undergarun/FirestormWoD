@@ -85,8 +85,8 @@ namespace MS { namespace Garrison { namespace Sites
     void InstanceScript_GarrisonAllianceLevel1::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
     {
         /// Hack fix for storehouse, need more work
-        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::LostInTransition)
-            p_Owner->CompleteQuest(Quests::LostInTransition);
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Alliance_LostInTransition)
+            p_Owner->CompleteQuest(Quests::Alliance_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -133,6 +133,40 @@ namespace MS { namespace Garrison { namespace Sites
             return true;
 
         return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Can upgrade the garrison
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonAllianceLevel1::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    {
+        if (p_CurrentGarrisonLevel != 1)
+            return false;
+
+        if (p_Owner->getLevel() < 93)
+            return false;
+
+        if (!p_Owner->HasQuest(Quests::Alliance_BiggerIsBetter))
+            return false;
+
+        return true;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonAllianceLevel1::OnUpgrade(Player * p_Owner)
+    {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
+
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 1759.94f, 184.86f, 71.50f, 0.57f);
+        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->CompleteQuest(Quests::Alliance_BiggerIsBetter);
     }
 
     //////////////////////////////////////////////////////////////////////////

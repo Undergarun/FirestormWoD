@@ -40,7 +40,6 @@ enum DeathKnightSpells
     DK_SPELL_GHOUL_AS_PET                       = 52150,
     DK_SPELL_BLOOD_BOIL                         = 50842,
     DK_SPELL_CHILBLAINS                         = 50041,
-    DK_SPELL_CHAINS_OF_ICE_ROOT                 = 53534,
     DK_SPELL_PLAGUE_LEECH                       = 123693,
     DK_SPELL_PERDITION                          = 123981,
     DK_SPELL_SHROUD_OF_PURGATORY                = 116888,
@@ -256,6 +255,12 @@ class spell_dk_gorefiends_grasp: public SpellScriptLoader
         }
 };
 
+enum DarkTransformationSpells
+{
+    DarkInfusionStacks              = 91342,
+    DarkTransformationAuraDummy     = 93426
+};
+
 // Dark transformation - transform pet spell - 63560
 class spell_dk_dark_transformation_form: public SpellScriptLoader
 {
@@ -268,14 +273,15 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* pet = GetHitUnit())
+                    if (Unit* l_Pet = GetHitUnit())
                     {
-                        if (pet->HasAura(DK_SPELL_DARK_INFUSION_STACKS))
+                        if (l_Pet->HasAura(DarkTransformationSpells::DarkInfusionStacks))
                         {
-                            _player->RemoveAura(DK_SPELL_DARK_INFUSION_STACKS);
-                            pet->RemoveAura(DK_SPELL_DARK_INFUSION_STACKS);
+                            l_Player->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
+                            l_Player->RemoveAura(DarkTransformationSpells::DarkTransformationAuraDummy);
+                            l_Pet->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
                         }
                     }
                 }
@@ -1095,37 +1101,6 @@ class spell_dk_unholy_blight: public SpellScriptLoader
         }
 };
 
-// Called by Chains of Ice - 45524
-// Chilblains - 50041
-class spell_dk_chilblains: public SpellScriptLoader
-{
-    public:
-        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
-
-        class spell_dk_chilblains_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_chilblains_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(DK_SPELL_CHILBLAINS))
-                            _player->CastSpell(target, DK_SPELL_CHAINS_OF_ICE_ROOT, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_chilblains_SpellScript();
-        }
-};
-
 // Outbreak - 77575
 class spell_dk_outbreak: public SpellScriptLoader
 {
@@ -1298,7 +1273,7 @@ class spell_dk_anti_magic_shell_self: public SpellScriptLoader
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster())
+                if (!GetCaster() || m_AmountAbsorb == 0)
                     return;
 
                 if (Player* l_Caster = GetCaster()->ToPlayer())
@@ -2026,8 +2001,48 @@ class spell_dk_death_pact: public SpellScriptLoader
         }
 };
 
-// Chilblains - 50041
-class spell_dk_chilblains_aura: public SpellScriptLoader
+/// Called by Chains of Ice - 45524
+/// Chilblains - 50041
+class spell_dk_chilblains: public SpellScriptLoader
+{
+    public:
+        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
+
+        class spell_dk_chilblains_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_chilblains_SpellScript);
+
+            enum eSpell
+            {
+                ChainOfIceRoot = 96294
+            };
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        if (l_Caster->HasAura(DK_SPELL_CHILBLAINS))
+                            l_Caster->CastSpell(l_Target, eSpell::ChainOfIceRoot, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_chilblains_SpellScript();
+        }
+};
+
+/// Chilblains - 50041
+class spell_dk_chilblains_aura : public SpellScriptLoader
 {
     public:
         spell_dk_chilblains_aura() : SpellScriptLoader("spell_dk_chilblains_aura") { }
@@ -2035,6 +2050,11 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
         class spell_dk_chilblains_aura_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dk_chilblains_aura_AuraScript);
+
+            enum eSpell
+            {
+                HowlingBlast = 49184
+            };
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
             {
@@ -2047,8 +2067,8 @@ class spell_dk_chilblains_aura: public SpellScriptLoader
                         if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
                             return;
 
-                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_FROST_FEVER || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_CHAINS_OF_ICE
-                            || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_ICY_TOUCH)
+                        if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_ICY_TOUCH ||
+                            p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == eSpell::HowlingBlast)
                             l_Caster->CastSpell(l_Target, DK_SPELL_CHILBLAINS_TRIGGER, true);
                     }
                 }
@@ -2174,7 +2194,111 @@ class spell_dk_death_coil : public SpellScriptLoader
         }
 };
 
-/// Areatrigger defile
+enum SkeletonSpells
+{
+    SpellSkeletonForm = 147157
+};
+
+enum GeistSpells
+{
+    SpellGeistForm = 121916
+};
+
+/// Called on removing Glyph of the Geist - 58640
+class spell_dk_glyph_of_the_geist : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_the_geist() : SpellScriptLoader("spell_dk_glyph_of_the_geist") { }
+
+        class spell_dk_glyph_of_the_geist_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_the_geist_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (!l_Pet->HasAura(SkeletonSpells::SpellSkeletonForm))
+                            l_Pet->CastSpell(l_Pet, GeistSpells::SpellGeistForm, true);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (l_Pet->HasAura(GeistSpells::SpellGeistForm))
+                            l_Pet->RemoveAura(GeistSpells::SpellGeistForm);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_glyph_of_the_geist_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_glyph_of_the_geist_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_the_geist_AuraScript();
+        }
+};
+
+/// Called on removing Glyph of the Skeleton - 146652
+class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_the_skeleton() : SpellScriptLoader("spell_dk_glyph_of_the_skeleton") { }
+
+        class spell_dk_glyph_of_the_skeleton_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_the_skeleton_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (!l_Pet->HasAura(GeistSpells::SpellGeistForm))
+                            l_Pet->CastSpell(l_Pet, SkeletonSpells::SpellSkeletonForm, true);
+                    }
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Player* l_Player = GetTarget()->ToPlayer())
+                {
+                    if (Pet* l_Pet = l_Player->GetPet())
+                    {
+                        if (l_Pet->HasAura(SkeletonSpells::SpellSkeletonForm))
+                            l_Pet->RemoveAura(SkeletonSpells::SpellSkeletonForm);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_glyph_of_the_skeleton_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_glyph_of_the_skeleton_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_the_skeleton_AuraScript();
+        }
+};
+
+/// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
     public:
@@ -2288,7 +2412,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_purgatory_absorb();
     new spell_dk_plague_leech();
     new spell_dk_unholy_blight();
-    new spell_dk_chilblains();
     new spell_dk_outbreak();
     new spell_dk_raise_dead();
     new spell_dk_anti_magic_shell_raid();
@@ -2305,10 +2428,13 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_plaguebearer();
     new spell_dk_necrotic_plague_aura();
     new spell_dk_death_pact();
+    new spell_dk_chilblains();
     new spell_dk_chilblains_aura();
     new spell_dk_reaping();
     new spell_dk_mark_of_sindragosa();
     new spell_dk_dark_succor();
+    new spell_dk_glyph_of_the_geist();
+    new spell_dk_glyph_of_the_skeleton();
 
     /// Player script
     new PlayerScript_Blood_Tap();

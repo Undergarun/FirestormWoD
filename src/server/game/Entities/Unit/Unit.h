@@ -320,20 +320,28 @@ enum HitInfo
     HITINFO_FULL_RESIST         = 0x00000080,
     HITINFO_PARTIAL_RESIST      = 0x00000100,
     HITINFO_CRITICALHIT         = 0x00000200,               // critical hit
-    // 0x00000400
-    // 0x00000800
-    // 0x00001000
+    /// 0x00000400
+    /// 0x00000800
+    /// 0x00001000
     HITINFO_BLOCK               = 0x00002000,               // blocked damage
-    // 0x00004000                                           // Hides worldtext for 0 damage
-    // 0x00008000                                           // Related to blood visual
+    /// 0x00004000                                           // Hides worldtext for 0 damage
+    /// 0x00008000                                           // Related to blood visual
     HITINFO_GLANCING            = 0x00010000,
     HITINFO_CRUSHING            = 0x00020000,
     HITINFO_NO_ANIMATION        = 0x00040000,
-    // 0x00080000
-    // 0x00100000
+    /// 0x00080000
+    /// 0x00100000
     HITINFO_SWINGNOHITSOUND     = 0x00200000,               // unused?
-    // 0x00400000
-    HITINFO_RAGE_GAIN           = 0x00800000
+    /// 0x00400000
+    HITINFO_RAGE_GAIN           = 0x00800000,
+    /// 0x01000000
+    /// 0x02000000
+    HITINFO_MULTISTRIKE         = 0x04000000
+    /// 0x08000000
+    /// 0x10000000
+    /// 0x20000000
+    /// 0x40000000
+    /// 0x80000000
 };
 
 //i would like to remove this: (it is defined in item.h
@@ -2411,6 +2419,8 @@ class Unit : public WorldObject
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
         ///----------End of Pet responses methods----------
+
+        void SendItemBonusDebug(uint32 p_Quantity, std::string p_Text, Player* p_Target = nullptr);
 
         void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
 

@@ -227,6 +227,7 @@ Battleground::~Battleground()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
 }
+
 void Battleground::InitGUID()
 {
     BattlegroundQueueType l_QueueType = BattlegroundQueueType::Battleground;
@@ -560,6 +561,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
                     MS::Battlegrounds::PacketFactory::Status(&status, this, player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
                     player->GetSession()->SendPacket(&status);
+
+                    player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, player->GetBGTeam());
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
@@ -1301,6 +1304,7 @@ void Battleground::AddPlayer(Player* player)
 
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
+            player->SaveBGLastSpecialization();
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
             SendCountdownTimer();
@@ -2155,6 +2159,7 @@ void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32
         CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, l_WinnerTeam);
     }
 }
+
 uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
 {
     switch (p_Award)
@@ -2169,4 +2174,3 @@ uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
             return 0;
     }
 }
-

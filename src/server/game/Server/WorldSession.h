@@ -461,6 +461,16 @@ class WorldSession
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
+        void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
+        uint16 GetClientBuild() const { return m_ClientBuild; }
+
+        /// Return join date as unix timestamp
+        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+
+        /// Set join date as unix timestamp
+        /// @p_JoinDate : unix timestamp of the account creation
+        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+
         //////////////////////////////////////////////////////////////////////////
         /// Vote
         //////////////////////////////////////////////////////////////////////////
@@ -846,6 +856,7 @@ class WorldSession
         void HandleCompleteCinematic(WorldPacket& recvPacket);
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
         void HandleCompleteMovieOpcode(WorldPacket & p_Packet);
+        void HandleSceneTriggerEventOpcode(WorldPacket & p_Packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
@@ -926,7 +937,7 @@ class WorldSession
         void HandleLfgLockInfoRequestOpcode(WorldPacket& recvData);
         void HandleLfgJoinOpcode(WorldPacket& recvData);
         void HandleLfgLeaveOpcode(WorldPacket& recvData);
-        void HandleLfgSetRolesOpcode(WorldPacket& recvData);
+        void HandleDfSetRolesOpcode(WorldPacket& recvData);
         void HandleLfgProposalResultOpcode(WorldPacket& recvData);
         void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
         void HandleLfgTeleportOpcode(WorldPacket& recvData);
@@ -1063,6 +1074,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
         void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
@@ -1072,6 +1084,9 @@ class WorldSession
         void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
@@ -1160,6 +1175,10 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        uint16 m_ClientBuild;
+
+        uint32 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

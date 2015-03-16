@@ -47,6 +47,32 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct GlyphRequiredSpecEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 GlyphID;                                                 ///< 1
+    uint32 SpecID;                                                  ///< 2
+};
+
+struct PathNodeEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 PathID;                                                  ///< 1
+    uint32 Order;                                                   ///< 2
+    uint32 LocationID;                                              ///< 3
+};
+
+struct LocationEntry
+{
+    uint32 ID;                                                      ///< 0
+    float X;                                                        ///< 1
+    float Y;                                                        ///< 2
+    float Z;                                                        ///< 3
+    float Unk1;                                                     ///< 4
+    float Unk2;                                                     ///< 5
+    float Unk3;                                                     ///< 6
+};
+
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {
@@ -593,7 +619,7 @@ struct GarrBuildingEntry
     uint32 BuildingID;                                  // 0
     uint32 GameObjects[2];                              // 1 - 2
     uint32 Unk2;                                        // 3
-    uint32 Unk3;                                        // 4
+    uint32 BuildingType;                                // 4
     uint32 BuildingLevel;                               // 5
     char * NameA;                                       // 6
     char * NameH;                                       // 7
@@ -606,9 +632,9 @@ struct GarrBuildingEntry
     uint32 TexturePrefixH;                              // 14
     uint32 IconID;                                      // 15
     uint32 Unk7;                                        // 16
-    uint32 Unk8;                                        // 17
+    uint32 BuildingCategory;                            // 17
     uint32 BuiltScene[2];                               // 18 - 19
-    uint32 Unk11;                                       // 20
+    uint32 BonusAmount;                                 // 20
     uint32 Unk12;                                       // 21
     uint32 PassiveEffect;                               // 22
     uint32 MoneyCost;                                   // 23
@@ -729,6 +755,43 @@ struct GarrSpecializationEntry
     uint32 Unk6;                                        // 6
     char * Name;                                        // 7
     char * Description;                                 // 8
+};
+
+namespace CharShipmentFlags
+{
+    enum
+    {
+        Quest       = 0x1,
+        Internal    = 0x8
+    };
+}
+
+struct CharShipmentEntry
+{
+    uint32 ID;                                          // 0
+    uint32 ShipmentContainerID;                         // 1
+    uint32 Unk1;                                        // 2
+    uint32 Flags;                                       // 3
+    uint32 Duration;                                    // 4
+    uint32 SpellID;                                     // 5
+    uint32 ResultItemID;                                // 6
+};
+
+struct CharShipmentContainerEntry
+{
+    uint32 ID;                                          // 0
+    uint32 Unk1;                                        // 1
+    uint32 BuildingType;                                // 2
+    char * Name;                                        // 3
+    uint32 TextureKitID;                                // 4
+    uint32 Unk2;                                        // 5
+    uint32 Unk3;                                        // 6
+    uint32 Unk4;                                        // 7
+    uint32 Unk5;                                        // 8
+    uint32 Unk6;                                        // 9
+    char * Description;                                 // 10
+    uint32 Unk7;                                        // 11
+    uint32 Unk8;                                        // 12
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6
