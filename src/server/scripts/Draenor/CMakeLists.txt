@@ -35,6 +35,13 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
   Draenor/BloodmaulSlagMines/boss_roltall.cpp
   Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
+  Draenor/IronDocks/boss_girmrail.cpp
+  Draenor/IronDocks/boss_nokgar.cpp
+  Draenor/IronDocks/boss_oshir.cpp
+  Draenor/IronDocks/instance_iron_docks.cpp
+  Draenor/IronDocks/iron_docks.cpp
+  Draenor/IronDocks/iron_docks.h
+  Draenor/IronDocks/skulloc.cpp
 )
 
 message("  -> Prepared: Draenor")
