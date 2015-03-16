@@ -66,6 +66,8 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
     m_groupLootTimer = 0;
     lootingGroupLowGUID = 0;
 
+    m_AllowAnim = true;
+
     ResetLootMode(); // restore default loot mode
 }
 
@@ -1122,6 +1124,14 @@ bool GameObject::ActivateToQuest(Player* target) const
     return false;
 }
 
+void GameObject::SetCancelAnim(bool p_Disable)
+{
+    if (p_Disable)
+        m_AllowAnim = false;
+    else
+        m_AllowAnim = true;
+}
+
 void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 {
     GameObjectTemplate const* trapInfo = sObjectMgr->GetGameObjectTemplate(trapEntry);
@@ -1444,11 +1454,14 @@ void GameObject::Use(Unit* p_User)
             SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED, p_User);
 
-            // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (l_Info->goober.customAnim)
-                SendCustomAnim(GetGoAnimProgress());
-            else
-                SetGoState(GO_STATE_ACTIVE);
+            if (m_AllowAnim)
+            {
+                // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
+                if (l_Info->goober.customAnim)
+                    SendCustomAnim(GetGoAnimProgress());
+                else
+                    SetGoState(GO_STATE_ACTIVE);
+            }
 
             m_cooldownTime = time(NULL) + l_Info->GetAutoCloseTime();
 
