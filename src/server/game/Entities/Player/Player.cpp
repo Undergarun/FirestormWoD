@@ -23608,9 +23608,19 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
 void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
     Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    if (l_Target == nullptr)
+        return;
 
     std::string l_Text(p_Text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
+
+    if (l_Target->GetSocial()->HasIgnore(GetGUIDLow()))
+    {
+        WorldPacket l_Data;
+        ChatHandler::FillMessageData(&l_Data, GetSession(), CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetGUID(), GetName(), NULL);
+        GetSession()->SendPacket(&l_Data);
+        return;
+    }
 
     /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!l_Target->isDND() || isGameMaster())
