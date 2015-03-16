@@ -2641,8 +2641,7 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
     {
         if (SpellCategoriesEntry const* l_Cat = GetSpellCategories())
         {
-            SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_Cat->Category);
-            if (l_Category != nullptr && l_Category->Id == 330) ///< Mount
+            if (l_Cat->Mechanic == MECHANIC_MOUNT) ///< Mount
                 return 0;
         }
     }
