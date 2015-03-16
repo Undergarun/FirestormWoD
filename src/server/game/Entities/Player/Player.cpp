@@ -5826,8 +5826,8 @@ bool Player::ResetTalents(bool no_cost)
 
     if (isInCombat())
     {
-            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-            return false;
+        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        return false;
     }
 
     if (Pet* pet = GetPet())
@@ -29018,6 +29018,14 @@ void Player::SendTalentsInfoData(bool pet)
     WorldPacket data(SMSG_UPDATE_TALENT_DATA);
     BuildPlayerTalentsInfoData(&data);
     GetSession()->SendPacket(&data);
+}
+
+void Player::SendTalentsInvoluntarilyReset(bool p_IsPet /*= false*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_TALENTS_INVOLUNTARILY_RESET, 1);
+    l_Data.WriteBit(p_IsPet);
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
