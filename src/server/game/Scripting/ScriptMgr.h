@@ -745,6 +745,10 @@ class ScriptMgr
         /// @p_Form   : New shapeshift from
         void OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form);
 
+        /// Called when a player changes his faction
+        /// @p_Player : Player instance
+        void OnPlayerFactionChanged(Player* p_Player);
+
         /// Called when a player loot an item
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
