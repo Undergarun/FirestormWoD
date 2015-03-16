@@ -1589,8 +1589,6 @@ class spell_dk_death_grip: public SpellScriptLoader
                 if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
                     l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Damage, true);
 
-                if (l_Caster->HasSpell(DeathGripSpells::SpellImprovedDeathGrip)) ///< The target of your Death Grip will now automatically have Chains of Ice applied to them.
-                    l_Caster->CastSpell(l_Target, DK_SPELL_CHAINS_OF_ICE, true);
             }
 
             void Register()
