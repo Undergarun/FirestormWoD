@@ -8942,46 +8942,6 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 p_ID)
-{
-    PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.find(p_ID);
-
-    if (l_It == _currencyStorage.end())
-        return;
-
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
-
-    l_Data << uint32(1);
-
-    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
-
-    if (!l_CurrencyEntry) // should never happen
-        return;
-
-    uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
-    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-    uint32 l_SeasonTotal = l_It->second.seasonTotal / l_Precision;
-
-    l_Data << uint32(l_CurrencyEntry->ID);
-    l_Data << uint32(l_It->second.totalCount / l_Precision);
-
-    l_Data.WriteBit(l_WeekCount);
-    l_Data.WriteBit(l_WeekCap);
-    l_Data.WriteBit(l_SeasonTotal);
-    l_Data.WriteBits(l_It->second.flags, 5);
-    l_Data.FlushBits();
-
-    if (l_WeekCount)
-        l_Data << uint32(l_WeekCount);
-    if (l_WeekCap)
-        l_Data << uint32(l_WeekCap);
-    if (l_SeasonTotal)
-        l_Data << uint32(l_SeasonTotal);
-
-    GetSession()->SendPacket(&l_Data);
-}
-
 void Player::SendCurrencies()
 {
     WorldPacket l_Data(SMSG_INIT_CURRENCY);
@@ -9206,7 +9166,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 itr->second.weekCap = CalculateCurrencyWeekCap(id);
-                SendNewCurrency(id);
+                SendCurrencies();
                 return;
             }
 
