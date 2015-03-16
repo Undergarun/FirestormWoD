@@ -165,14 +165,12 @@ public:
 
         Vehicle* vehicle;
         InstanceScript* pinstance = me->GetInstanceScript();
-        int32 diffforshreddingstrike;
+        uint32 diffforshreddingstrike;
         void Reset() override
         {
             _Reset();
             events.Reset();
             ASSERT(vehicle);  
-
-            me->MonsterSay("test", LANG_UNIVERSAL, me->GetGUID());
            
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             DespawnCreaturesInArea(NPC_GROMKAR_FLAMESLINGER, me);

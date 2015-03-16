@@ -303,7 +303,7 @@ public:
             me->setFaction(16);
         }
 
-        int interval;
+        uint32 interval;
         void Reset()
         {
             me->AddAura(SPELL_LAVA_SWEEP_VISUAL, me);

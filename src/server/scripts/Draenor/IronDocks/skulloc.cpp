@@ -102,7 +102,7 @@ enum Talks
 #define bladestormwinterval 14000
 #define berserkerleapinterval 24000
 #define rapidfireinterval 8000 
-Position backdraftnpc = { 6859.93f, -989.91f, 23.054f, 3.000260 };
+Position backdraftnpc = { 6859.93f, -989.91f, 23.054f, 3.00 };
 
 class pre_last_boss_event : public BasicEvent
 {
@@ -233,9 +233,9 @@ public:
         }
         void DoAction(int32 const action)
         {
-            switch (action)
+            /*switch (action)
             {
-            }
+            }*/
         }
         void UpdateAI(uint32 const diff)
         {

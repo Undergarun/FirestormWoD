@@ -220,20 +220,20 @@ public:
         }
         void OnGameObjectCreate(GameObject* go)
         {
-            switch (go->GetEntry())
+            /*switch (go->GetEntry())
             {
             default:
                 break;
-            }
+            }*/
         }
         void OnGameObjectRemove(GameObject* go)
         {
-            switch (go->GetEntry())
+            /*switch (go->GetEntry())
             {
  
             default:
                 break;
-            }
+            }*/
         }
         void SetData(uint32 type, uint32 data)
         {
@@ -266,22 +266,22 @@ public:
         {
             Events.Update(diff);
 
-            while (uint32 eventId = Events.ExecuteEvent())
+            /*while (uint32 eventId = Events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                 default:
                     break;
                 }
-            }
+            }*/
         }
         uint32 GetData(uint32 type)
         {
-            switch (type)
+            /*switch (type)
             {
             default:
                 break;
-            }
+            }*/
 
             return 0;
         }
@@ -339,7 +339,7 @@ public:
             if (!InstanceScript::SetBossState(type, state))
                 return false;
 
-            switch (type)
+            /*switch (type)
             {
                 /*
             case DATA_GRIMRAIL_MAKOGG:
@@ -347,8 +347,10 @@ public:
                     if (Creature* Skullock = instance->GetCreature(Pinstance->GetData64(DATA_SKULLOC)))
                         Skullock->m_Events.AddEvent(new aftergrimrail_event(Skullock, 0), Skullock->m_Events.CalculateTime(8000));
                 break;
-                */
-            }
+                
+            }*/
+
+            return true;
         }
         bool IsWipe()
         {
