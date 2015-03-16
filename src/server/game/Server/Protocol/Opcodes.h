@@ -257,7 +257,7 @@ enum Opcodes
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x163D, ///< 6.1.2 19750
         SMSG_ACHIEVEMENT_DELETED                    = 0x1CF2, ///< 6.1.2 19750
         SMSG_ACHIEVEMENT_EARNED                     = 0x06C0, ///< 6.1.2 19750
-        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0000, ///< (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x1635, ///< 6.1.2 19750
         SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0000, ///< (unused)
         SMSG_CRITERIA_DELETED                       = 0x1E2F, ///< 6.1.2 19750
         SMSG_CRITERIA_UPDATE                        = 0x0716, ///< 6.1.2 19750

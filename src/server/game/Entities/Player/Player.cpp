@@ -32229,7 +32229,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     l_Statement->setUInt32(2, l_HeirloomFlags);
     LoginDatabase.Execute(l_Statement);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
     return true;
 }
 

@@ -1199,6 +1199,35 @@ void AchievementMgr<T>::SendCriteriaUpdate(CriteriaEntry const* /*entry*/, Crite
 {
 }
 
+template<class T>
+void AchievementMgr<T>::SendAccountCriteriaUpdate(CriteriaEntry const* /*entry*/, CriteriaProgress const* /*progress*/, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
+{
+}
+
+template<>
+void AchievementMgr<Player>::SendAccountCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
+{
+    WorldPacket l_Data(SMSG_ACCOUNT_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
+
+    l_Data << uint32(entry->ID);
+    l_Data << uint64(progress->counter);
+    l_Data.appendPackGUID(GetOwner()->GetGUID());
+
+    // This are some flags, 1 is for keeping the counter at 0 in client
+    if (!entry->StartTimer)
+        l_Data << uint32(0);
+    else
+        l_Data << uint32(timedCompleted ? 0 : 1);
+
+    l_Data << uint32(secsToTimeBitFields(progress->date));
+    l_Data << uint32(timeElapsed);                        ///< Time from start
+    l_Data << uint32(0);                                  ///< Time from create
+    l_Data.WriteBits(0, 4);                               ///< Flags
+    l_Data.FlushBits();
+
+    SendPacket(&l_Data);
+}
+
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
@@ -2036,12 +2065,20 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
     l_Progress->date = time(NULL); // set the date to the latest update.
     uint32 l_TimeElapsed = 0; // @todo : Fix me
 
+    bool l_HasAccountCriteria = false;
+    bool l_HasOtherCriteria = false;
+
     AchievementCriteriaTreeList l_CriteriaList = sAchievementMgr->GetAchievementCriteriaTreeList(p_Entry);
     for (AchievementCriteriaTreeList::const_iterator l_Iter = l_CriteriaList.begin(); l_Iter != l_CriteriaList.end(); l_Iter++)
     {
         AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievementEntryByCriteriaTree(*l_Iter);
         if (!l_Achievement)
             continue;
+
+        if (l_Achievement->Flags & ACHIEVEMENT_FLAG_ACCOUNT)
+            l_HasAccountCriteria = true;
+        else
+            l_HasOtherCriteria = true;
 
         bool l_IsCriteriaComplete = IsCompletedCriteriaForAchievement(p_Entry, l_Achievement);
 
@@ -2059,7 +2096,11 @@ void AchievementMgr<T>::SetCriteriaProgress(CriteriaEntry const* p_Entry, uint64
             l_Progress->CompletedGUID = p_ReferencePlayer->GetGUID();
     }
 
-    SendCriteriaUpdate(p_Entry, l_Progress, l_TimeElapsed, false);
+    if (l_HasAccountCriteria)
+        SendAccountCriteriaUpdate(p_Entry, l_Progress, l_TimeElapsed, false);
+
+    if (l_HasOtherCriteria)
+        SendCriteriaUpdate(p_Entry, l_Progress, l_TimeElapsed, false);
 }
 
 template<class T>
