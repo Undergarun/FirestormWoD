@@ -1784,34 +1784,25 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 void WorldSession::HandleItemRefundInfoRequest(WorldPacket& p_Packet)
 {
     uint64 l_Guid = 0;
-
     p_Packet.readPackGUID(l_Guid);
 
-    Item * l_Item = m_Player->GetItemByGuid(l_Guid);
-
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
     if (!l_Item)
         return;
 
-    GetPlayer()->SendRefundInfo(l_Item);
+    m_Player->SendRefundInfo(l_Item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket& recvData)
+void WorldSession::HandleItemRefund(WorldPacket& p_Packet)
 {
-    ObjectGuid itemGuid;
+    uint64 l_Guid = 0;
+    p_Packet.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 4, 7, 6, 5, 0, 3, 2, 1 };
-    recvData.ReadBitInOrder(itemGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 1, 4, 3, 5, 6, 0, 7 };
-    recvData.ReadBytesSeq(itemGuid, bytesOrder);
-
-    Item* item = m_Player->GetItemByGuid(itemGuid);
-    if (!item)
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
+    if (!l_Item)
         return;
 
-    GetPlayer()->RefundItem(item);
+    m_Player->RefundItem(l_Item);
 }
 
 void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
