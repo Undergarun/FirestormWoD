@@ -1828,12 +1828,12 @@ void OutdoorPvPAshran::AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint3
     /// Loop on this to prevent something like giving 900 artifact fragments to a NPC
     /// which require only 400 fragments to launch event, he'll have 500/400 fragments...
     /// Will be useless for many events, except Knight and Wolf Riders
-    while ((m_ArtifactsCollected[p_TeamID][p_Type] + p_Count) >= g_MaxArtifactsToCollect[p_Type]);
+    while ((m_ArtifactsCollected[p_TeamID][p_Type] + p_Count) >= g_MaxArtifactsToCollect[p_Type])
     {
         p_Count -= g_MaxArtifactsToCollect[p_Type] - m_ArtifactsCollected[p_TeamID][p_Type];
         m_ArtifactsCollected[p_TeamID][p_Type] = 0;
         StartArtifactEvent(p_TeamID, p_Type);
-    }
+    };
 
     m_ArtifactsCollected[p_TeamID][p_Type] += p_Count;
     SendUpdateWorldState(g_ArtifactsWorldStates[p_TeamID][p_Type], m_ArtifactsCollected[p_TeamID][p_Type]);

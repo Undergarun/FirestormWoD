@@ -32,11 +32,9 @@ INSERT INTO creature_equip_template VALUE
 
 DELETE FROM spell_script_names WHERE spell_id IN (170896, 168232, 170407);
 INSERT INTO spell_script_names VALUES
-(
-    170896, 'spell_ashran_stone_empowerment',
-    168232, 'spell_ashran_pocket_flying_machine',
-    170407, 'spell_ashran_pocket_flying_machine'
-);
+(170896, 'spell_ashran_stone_empowerment'),
+(168232, 'spell_ashran_pocket_flying_machine'),
+(170407, 'spell_ashran_pocket_flying_machine');
 
 DELETE FROM spell_proc_event WHERE entry IN (170896);
 INSERT INTO spell_proc_event (entry, procFlags) VALUES
