@@ -1877,6 +1877,13 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
+/// Called when a player changes his faction
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerFactionChanged(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFactionChanged(p_Player);
+}
+
 /// Called when a player loot an item
 /// @p_Player : Player instance
 /// @p_Item   : New looted item instance
