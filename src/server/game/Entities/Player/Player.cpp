@@ -5826,8 +5826,8 @@ bool Player::ResetTalents(bool no_cost)
 
     if (isInCombat())
     {
-            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-            return false;
+        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        return false;
     }
 
     if (Pet* pet = GetPet())
@@ -22491,7 +22491,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
     // the client auto counts down in real time after having received the initial played time on the first
-    // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
+    // SMSG_SET_ITEM_PURCHASE_DATA packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
     std::set<uint32>::iterator i_next;
     for (std::set<uint32>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
@@ -23614,9 +23614,19 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
 void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
     Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    if (l_Target == nullptr)
+        return;
 
     std::string l_Text(p_Text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
+
+    if (l_Target->GetSocial()->HasIgnore(GetGUIDLow()))
+    {
+        WorldPacket l_Data;
+        ChatHandler::FillMessageData(&l_Data, GetSession(), CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetGUID(), GetName(), NULL);
+        GetSession()->SendPacket(&l_Data);
+        return;
+    }
 
     /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!l_Target->isDND() || isGameMaster())
@@ -24825,6 +24835,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+            it->SetUInt32Value(ITEM_FIELD_CONTEXT, 14);
             it->SetRefundRecipient(GetGUIDLow());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);
@@ -29028,6 +29039,14 @@ void Player::SendTalentsInfoData(bool pet)
     GetSession()->SendPacket(&data);
 }
 
+void Player::SendTalentsInvoluntarilyReset(bool p_IsPet /*= false*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_TALENTS_INVOLUNTARILY_RESET, 1);
+    l_Data.WriteBit(p_IsPet);
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
+}
+
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 {
     uint32 slotUsedMask = 0;
@@ -29634,71 +29653,62 @@ void Player::SendDuelCountdown(uint32 p_Coutdown)
     GetSession()->SendPacket(&data);
 }
 
-void Player::AddRefundReference(uint32 it)
+void Player::AddRefundReference(uint32 p_Iter)
 {
-    m_refundableItems.insert(it);
+    m_refundableItems.insert(p_Iter);
 }
 
-void Player::DeleteRefundReference(uint32 it)
+void Player::DeleteRefundReference(uint32 p_Iter)
 {
-    std::set<uint32>::iterator itr = m_refundableItems.find(it);
-    if (itr != m_refundableItems.end())
-    {
-        m_refundableItems.erase(itr);
-    }
+    std::set<uint32>::iterator l_Iter = m_refundableItems.find(p_Iter);
+    if (l_Iter != m_refundableItems.end())
+        m_refundableItems.erase(l_Iter);
 }
 
-void Player::SendRefundInfo(Item* item)
+void Player::SendRefundInfo(Item* p_Item)
 {
-    // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
-    item->UpdatePlayedTime(this);
+    /// This function call unset ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
+    p_Item->UpdatePlayedTime(this);
 
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    ObjectGuid l_ItemGUID = p_Item->GetGUID();
+    WorldPacket l_Data(SMSG_SET_ITEM_PURCHASE_DATA);
+
+    l_Data.appendPackGUID(l_ItemGUID);
+
+    /// Content
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
+        l_Data << uint32(p_Item->GetPaidMoney());                               ///< Money cost
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredItem[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredItemCount[l_I]);
+        }
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I] / 100); ///< Must be devided by precision
+        }
     }
 
-    ObjectGuid itemGuid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE);
+    l_Data << uint32(0);                                                        ///< Flags
+    l_Data << uint32(GetTotalPlayedTime() - p_Item->GetPlayedTime());           ///< Time Left
 
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   // Time Left
-    data << uint32(0);                                              // Unk
-    data << uint32(item->GetPaidMoney());                           // Money cost
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        data << uint32(iece->RequiredItemCount[i]);
-        data << uint32(iece->RequiredItem[i]);
-    }
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
-    {
-        data << uint32(iece->RequiredCurrency[i]);
-        data << uint32(iece->RequiredCurrencyCount[i] / 100);       // Must be devided by precision
-    }
-
-    uint8 bitsOrder[8] = { 1, 0, 7, 2, 3, 6, 4, 5 };
-    data.WriteBitInOrder(itemGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 1, 0, 2, 5, 3, 4, 7 };
-    data.WriteBytesSeq(itemGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
@@ -29740,145 +29750,140 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
             l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
         }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i] / 100);
         }
     }
 
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::RefundItem(Item* item)
+void Player::RefundItem(Item* p_Item)
 {
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (p_Item->IsRefundExpired())    ///< Item refund has expired
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
+        SendItemRefundResult(p_Item, NULL, 10);
         return;
     }
 
-    if (item->IsRefundExpired())    // item refund has expired
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        item->SetNotRefundable(this);
-        SendItemRefundResult(item, NULL, 10);
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    bool l_StoreError = false;
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
-    }
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
 
-    bool store_error = false;
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-
-        if (count && itemid)
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            if (msg != EQUIP_ERR_OK)
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            if (l_InvResult != EQUIP_ERR_OK)
             {
-                store_error = true;
+                l_StoreError = true;
                 break;
             }
          }
     }
 
-    if (store_error)
+    if (l_StoreError)
     {
-        SendItemRefundResult(item, iece, 10);
+        SendItemRefundResult(p_Item, l_ExtendedCost, 10);
         return;
     }
 
-    // Check total cap
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Check total cap
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currencyId = iece->RequiredCurrency[i];
-        CurrencyTypesEntry const* cte = sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!cte)
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        CurrencyTypesEntry const* l_CurrencyType = sCurrencyTypesStore.LookupEntry(l_CurrencyID);
+        if (!l_CurrencyType)
             continue;
 
-        uint32 count = iece->RequiredCurrencyCount[i] / cte->GetPrecision();
-        uint32 plrCount = GetCurrency(currencyId, cte->HasPrecision());
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I] / l_CurrencyType->GetPrecision();
+        uint32 l_CurrCount = GetCurrency(l_CurrencyID, l_CurrencyType->HasPrecision());
 
-        if (cte->TotalCap && (plrCount + count > (cte->TotalCap / cte->GetPrecision())))
+        if (l_CurrencyType->TotalCap && (l_CurrCount + l_Count > (l_CurrencyType->TotalCap / l_CurrencyType->GetPrecision())))
         {
-            SendItemRefundResult(item, iece, 10);
+            SendItemRefundResult(p_Item, l_ExtendedCost, 10);
             return;
         }
     }
 
-    SendItemRefundResult(item, iece, 0);
+    SendItemRefundResult(p_Item, l_ExtendedCost, 0);
 
-    uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
+    uint32 l_MoneyRefund = p_Item->GetPaidMoney();  ///< Item-> will be invalidated in DestroyItem
 
-    // Save all relevant data to DB to prevent desynchronisation exploits
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    /// Save all relevant data to DB to prevent desynchronizing exploits
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    // Delete any references to the refund data
-    item->SetNotRefundable(this, true, &trans);
+    /// Delete any references to the refund data
+    p_Item->SetNotRefundable(this, true, &l_Transaction);
 
-    // Destroy item
-    DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+    /// Destroy item
+    DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
 
-    // Grant back extended cost items ...
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Grant back extended cost items ...
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-        if (count && itemid)
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
+
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            ASSERT(msg == EQUIP_ERR_OK) /// Already checked before
-            Item* it = StoreNewItem(dest, itemid, true);
-            SendNewItem(it, count, true, false, true);
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            ASSERT(l_InvResult == EQUIP_ERR_OK) ///< Already checked before
+            Item* l_Item = StoreNewItem(l_Dest, l_ItemID, true);
+            SendNewItem(l_Item, l_Count, true, false, true);
         }
     }
 
-    // ... and currencies
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// ... and currencies
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currency = iece->RequiredCurrency[i];
-        uint32 count = iece->RequiredCurrencyCount[i];
-        if (currency && count)
-            ModifyCurrency(currency, count, false, true, true);
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I];
+
+        if (l_CurrencyID && l_Count)
+            ModifyCurrency(l_CurrencyID, l_Count, false, true, true);
     }
 
-    // Grant back money
-    if (moneyRefund)
-        ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
+    /// Grant back money
+    if (l_MoneyRefund)
+        ModifyMoney(l_MoneyRefund); ///< Saved in SaveInventoryAndGoldToDB
 
-    // Grant back Arena and Honor points ?
+    /// Grant back Arena and Honor points ?
 
-    SaveInventoryAndGoldToDB(trans);
+    SaveInventoryAndGoldToDB(l_Transaction);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void Player::SetRandomWinner(bool isWinner)
