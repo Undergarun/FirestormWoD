@@ -135,7 +135,7 @@ class UnitAI
 
         virtual bool CanAIAttack(Unit const* target) const { return true; }
         virtual void AttackStart(Unit* target);
-        virtual void UpdateAI(uint32 const diff) = 0;
+        virtual void UpdateAI(uint32 const p_Diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
