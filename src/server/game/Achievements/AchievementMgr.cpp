@@ -1407,6 +1407,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEAL_CASTED:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED:
+            case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS:
                 SetCriteriaProgress(l_AchievementCriteria, p_MiscValue1, p_ReferencePlayer, PROGRESS_HIGHEST);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
@@ -1804,6 +1805,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
+        case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS:
             return l_Progress->counter >= l_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:

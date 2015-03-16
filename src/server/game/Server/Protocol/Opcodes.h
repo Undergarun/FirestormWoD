@@ -1013,7 +1013,7 @@ enum Opcodes
     CMSG_REQUEST_PET_INFO                       = 0x0000,   ///<
     CMSG_STAND_STATE_CHANGE                     = 0x01AD,   ///< 6.1.2 19750
     CMSG_BINDER_ACTIVATE                        = 0x1C71,   ///< 6.1.2 19750
-    CMSG_REQUEST_FORCED_REACTIONS               = 0x0DA5,   ///< 6.1.2 19750 - not sure
+    CMSG_REQUEST_FORCED_REACTIONS               = 0x1AAC,   ///< 6.1.2 19750
     CMSG_DESTROY_ITEM                           = 0x0A72,   ///< 6.1.2 19750
     CMSG_OPEN_ITEM                              = 0x0354,   ///< 6.1.2 19750
     CMSG_SET_TITLE                              = 0x1650,   ///< 6.1.2 19750

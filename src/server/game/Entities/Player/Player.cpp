@@ -32229,6 +32229,7 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     l_Statement->setUInt32(2, l_HeirloomFlags);
     LoginDatabase.Execute(l_Statement);
 
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index);
     return true;
 }
 
@@ -32282,6 +32283,8 @@ void Player::_LoadHeirloomCollection()
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
     }
     while (l_Result->NextRow());
+
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size());
 }
 
 uint32 Player::GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const
