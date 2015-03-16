@@ -32256,7 +32256,7 @@ void Player::_LoadHeirloomCollection()
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
-    PreparedQueryResult l_Result = LoginDatabase.Query(l_Statement);
+    PreparedQueryResult l_Result = LoginDatabase.AsyncQuery(l_Statement);
 
     if (!l_Result)
         return;

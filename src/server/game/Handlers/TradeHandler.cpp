@@ -627,7 +627,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
     if (l_Player == GetPlayer() || l_Player->m_trade)
     {
         // Ignore
-        SendTradeStatus(TRADE_STATUS_BUSY_2);
+        SendTradeStatus(TRADE_STATUS_BUSY);
         return;
     }
 

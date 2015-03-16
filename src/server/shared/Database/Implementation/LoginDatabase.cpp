@@ -118,7 +118,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     //////////////////////////////////////////////////////////////////////////
     /// Heirloom Collection
-    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_SYNCH);
+    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags) VALUE (?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_HEILOOM_FLAGS, "UPDATE account_heirlooms SET upgrade_flags = ? WHERE account_id = ? AND heirloom_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
