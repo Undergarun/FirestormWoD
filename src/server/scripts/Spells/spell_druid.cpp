@@ -1575,7 +1575,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                 std::list<Creature*> l_Mushroomlist;
                 l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
 
-                // Remove other player mushrooms
+                /// Remove other player mushrooms
                 for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)
                 {
                     Unit* l_Owner = (*i)->GetOwner();
@@ -1586,25 +1586,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                 }
 
                 if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
-                {
-                    // 1 mushrooms max
-                    if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomRestoration)
-                    {
-                        Creature* l_Mushroom = l_Mushroomlist.back();
-
-                        // Recasting Wild Mushroom will move the Mushroom without losing this accumulated healing.
-                        if (WorldLocation* l_Dest = const_cast<WorldLocation*>(GetExplTargetDest()))
-                        {
-                            l_Mushroom->NearTeleportTo(l_Dest->GetPositionX(), l_Dest->GetPositionY(), l_Dest->GetPositionZ(), l_Mushroom->GetOrientation());
-                            return;
-                        }
-                    }
-                    else if (GetSpellInfo()->Id == WildMushroomSpells::SpellDruidWildMushroomBalance) // 3 mushrooms max
-                    {
-                        if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
-                            l_Mushroomlist.back()->ToTempSummon()->UnSummon();
-                    }
-                }
+                    l_Mushroomlist.back()->ToTempSummon()->UnSummon(); ///< 1 mushroom max for Restoration and 3 for Balance at time
 
                 Position l_Pos;
                 GetExplTargetDest()->GetPosition(&l_Pos);
