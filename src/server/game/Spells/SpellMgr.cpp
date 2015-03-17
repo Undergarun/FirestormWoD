@@ -3344,6 +3344,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 144757: /// Increased All Resist 05
                 spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
                 break;
+            case 108683:///< Fire and Brimstone
+                /// I guess spellmod type is failed here because of -75% damage
+                spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

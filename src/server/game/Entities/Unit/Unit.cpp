@@ -11618,9 +11618,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Chaos Bolt - 116858 and Soul Fire - 6353
+    // Chaos Bolt - 116858, Chaos Bolt (Fire and Brimstone) - 157701 and Soul Fire - 6353
     // damage is increased by your critical strike chance
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 6353 || spellProto->Id == 104027))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 157701 || spellProto->Id == 6353 || spellProto->Id == 104027))
     {
         float crit_chance;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
@@ -12274,10 +12274,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
-                            case 6353:  // Soul Fire
-                            case 104027:// Soul Fire (Metamorphosis)
-                            case 116858:// Chaos Bolt ...
-                            case 31117: // Unstable Affliction dispell
+                            case 6353:  ///< Soul Fire
+                            case 104027:///< Soul Fire (Metamorphosis)
+                            case 116858:///< Chaos Bolt ...
+                            case 157701:///< Chaos Bolt (Fire and Brimstone)
+                            case 31117: ///< Unstable Affliction dispell
                                 // ... are always critical hit
                                 return 100.0f;
                                 break;

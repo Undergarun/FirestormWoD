@@ -28,11 +28,6 @@
 
 enum WarlockSpells
 {
-    WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS    = 54435,
-    WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER  = 54443,
-    WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD    = 54508,
-    WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER   = 54509,
-    WARLOCK_DEMONIC_EMPOWERMENT_IMP         = 54444,
     WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
     WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
@@ -44,14 +39,12 @@ enum WarlockSpells
     WARLOCK_SOULBURN_AURA                   = 74434,
     WARLOCK_CORRUPTION                      = 146739,
     WARLOCK_AGONY                           = 980,
-    //WARLOCK_DOOM                            = 603,
     WARLOCK_UNSTABLE_AFFLICTION             = 30108,
     WARLOCK_IMMOLATE                        = 157736,
     WARLOCK_SHADOWBURN_ENERGIZE             = 125882,
     WARLOCK_CONFLAGRATE                     = 17962,
     WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE  = 108685,
     WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE     = 108686,
-    WARLOCK_FIRE_AND_BRIMSTONE              = 108683,
     WARLOCK_BACKDRAFT                       = 117828,
     WARLOCK_RAIN_OF_FIRE                    = 104232,
     WARLOCK_RAIN_OF_FIRE_TRIGGERED          = 104233,
@@ -118,9 +111,6 @@ enum WarlockSpells
     WARLOCK_HAND_OF_GULDAN_DAMAGE           = 86040,
     WARLOCK_HELLFIRE_DAMAGE                 = 5857,
     WARLOCK_DARK_APOTHEOSIS                 = 114168,
-    //WARLOCK_METAMORPHOSIS_OVERRIDER         = 103965,
-    //WARLOCK_METAMORPHOSIS_RESISTANCE        = 54817,
-    //WARLOCK_METAMORPHOSIS_MODIFIERS         = 54879,
     WARLOCK_DEMON_SINGLE_MAGIC              = 89808,
     WARLOCK_DEMON_SUFFERING                 = 17735,
     WARLOCK_DEMON_SEDUCE                    = 6358,
@@ -134,6 +124,43 @@ enum WarlockSpells
     WARLOCK_SPELL_SYPHON_LIFE               = 63106,
     WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
     WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109
+};
+
+enum BurningEmbersSpells
+{
+    SPELL_WARL_GLYPH_OF_VERDANT_SPHERES = 56241,
+    SPELL_WARL_CHARRED_REMAINS          = 157696
+};
+
+/// Fire and Brimstone - 108683, with Charred Remains - 157696
+class spell_warl_fire_and_brimstone : public SpellScriptLoader
+{
+    public:
+        spell_warl_fire_and_brimstone() : SpellScriptLoader("spell_warl_fire_and_brimstone") { }
+
+        class spell_warl_fire_and_brimstone_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_fire_and_brimstone_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasAura(SPELL_WARL_CHARRED_REMAINS))
+                        p_Amount = 0;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_fire_and_brimstone_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_fire_and_brimstone_AuraScript();
+        }
 };
 
 // Called by Grimoire: Imp - 111859, Grimoire: Voidwalker - 111895, Grimoire: Succubus - 111896
@@ -1965,6 +1992,7 @@ enum EmberTapSpells
     SPELL_WARL_SEARING_FLAMES = 174848,
     SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
 };
+
 // Ember Tap - 114635
 class spell_warl_ember_tap: public SpellScriptLoader
 {
@@ -2022,40 +2050,6 @@ class spell_warl_ember_tap: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_ember_tap_SpellScript();
-        }
-};
-
-// Called By : Incinerate (Fire and Brimstone) - 114654, Conflagrate (Fire and Brimstone) - 108685
-// Immolate (Fire and Brimstone) - 108686
-// Fire and Brimstone - 108683
-class spell_warl_fire_and_brimstone: public SpellScriptLoader
-{
-    public:
-        spell_warl_fire_and_brimstone() : SpellScriptLoader("spell_warl_fire_and_brimstone") { }
-
-        class spell_warl_fire_and_brimstone_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_fire_and_brimstone_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (!GetHitUnit())
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_FIRE_AND_BRIMSTONE))
-                        caster->RemoveAura(WARLOCK_FIRE_AND_BRIMSTONE);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_fire_and_brimstone_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_fire_and_brimstone_SpellScript();
         }
 };
 
@@ -2177,12 +2171,6 @@ class spell_warl_shadowburn: public SpellScriptLoader
         {
             return new spell_warl_shadowburn_AuraScript();
         }
-};
-
-enum BurningEmbersSpells
-{
-    SPELL_WARL_GLYPH_OF_VERDANT_SPHERES = 56241,
-    SPELL_WARL_CHARRED_REMAINS = 157696
 };
 
 // Called By : Incinerate - 29722 and Incinerate (Fire and Brimstone) - 114654
@@ -3154,6 +3142,7 @@ class spell_warl_havoc: public SpellScriptLoader
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_fire_and_brimstone();
     new spell_warl_haunt();
     new spell_warl_glyph_of_nightmares();
     new spell_warl_cataclysm();
@@ -3202,7 +3191,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_rain_of_fire();
     new spell_warl_rain_of_fire_despawn();
     new spell_warl_ember_tap();
-    new spell_warl_fire_and_brimstone();
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
