@@ -1258,6 +1258,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_TAXI_HELLO,                                      STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiQueryAvailableNodes    );
     DEFINE_OPCODE_HANDLER(CMSG_ACTIVATE_TAXI,                                   STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleActivateTaxiOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_ACTIVATE_TAXI_EXPRESS,                           STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleActivateTaxiExpressOpcode  );
+    DEFINE_OPCODE_HANDLER(CMSG_TAXI_NODE_STATUS_QUERY,                          STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleTaxiNodeStatusQueryOpcode  );
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest
