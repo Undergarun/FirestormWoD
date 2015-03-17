@@ -1210,6 +1210,7 @@ enum Opcodes
     CMSG_TAXI_HELLO                             = 0x000E,   ///< 6.0.3 19116
     CMSG_ACTIVATE_TAXI                          = 0x0311,   ///< 6.0.3 19116
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x1B52,   ///< 6.0.3 19116
+    CMSG_TAXI_NODE_STATUS_QUERY                 = 0x1BC1,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest

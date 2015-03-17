@@ -1058,7 +1058,8 @@ void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 p_Team
 
 void BattlegroundDG::EndBattleground(uint32 p_Winner)
 {
-    AwardTeams(m_TeamScores[GetOtherTeam(p_Winner) == HORDE], BG_DG_MAX_VICTORY_POINTS, GetOtherTeam(p_Winner));
+    TeamId l_LooserTeam = p_Winner == TeamId::TEAM_HORDE ? TeamId::TEAM_ALLIANCE : TeamId::TEAM_HORDE;
+    AwardTeams(m_TeamScores[l_LooserTeam], BG_DG_MAX_VICTORY_POINTS, l_LooserTeam);
     Battleground::EndBattleground(p_Winner);
 }
 

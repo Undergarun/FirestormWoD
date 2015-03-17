@@ -1136,7 +1136,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     bool l_IsAELooting    = false;
     bool l_AoeLootEnabled = sWorld->getBoolConfig(CONFIG_AOE_LOOT_ENABLED);
 
-    // Process radius loot
+    /// Process radius loot
     for (uint32 l_Slot = l_Loot.Items.size() + l_Loot.QuestItems.size(); l_Slot <= l_Loot.MaxLinkedSlot; l_Slot++)
     {
         if (!l_AoeLootEnabled)
@@ -1179,7 +1179,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
                         uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_LinkedLoot.slot].itemid))
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid))
                             l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                         l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
@@ -1213,7 +1213,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
 
                         uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_LinkedLoot.slot].itemid))
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid))
                             l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                         l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
@@ -1253,15 +1253,12 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                             break;
                     }
 
-                    if (l_LinkedLoot.slot >= l_LinkedLootAround->Items.size())
-                        sLog->outAshran("LootMgr: Creature entry %u slot %u, items size : %u", l_LinkedLoot.slot, l_CreatureAround->GetEntry(), l_LinkedLootAround->Items.size());
-
                     if (!l_LinkedLootAround->Items[l_LinkedLoot.slot].currency && !l_LinkedLootAround->Items[l_LinkedLoot.slot].is_looted && !l_LinkedLootAround->Items[l_LinkedLoot.slot].freeforall &&
                         l_LinkedLootAround->Items[l_LinkedLoot.slot].conditions.empty() && l_LinkedLootAround->Items[l_LinkedLoot.slot].AllowedForPlayer(lv.viewer))
                     {
                         uint8 l_ItemListType = LOOT_LIST_ITEM;
 
-                        if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_LinkedLoot.slot].itemid))
+                        if (lv.viewer && lv.viewer->HasQuestForItem(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid))
                             l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                         l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
