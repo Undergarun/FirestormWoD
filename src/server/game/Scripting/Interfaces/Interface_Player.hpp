@@ -538,6 +538,13 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_PreventDefault);
         }
 
+
+
+        // Called when some faction change is applied on the player.
+        virtual void OnFactionChanged(Player* p_Player)
+        {
+            UNUSED(p_Player);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER

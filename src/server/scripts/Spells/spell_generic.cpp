@@ -3481,31 +3481,63 @@ class spell_gen_orb_of_power: public SpellScriptLoader
 // Whispers of Insanity - 176151, custom script, that buff is used to reward player vote
 class spell_vote_buff: public SpellScriptLoader
 {
-public:
-    spell_vote_buff() : SpellScriptLoader("spell_vote_buff") { }
+    public:
+        spell_vote_buff() : SpellScriptLoader("spell_vote_buff") { }
 
-    class spell_vote_buff_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_vote_buff_AuraScript);
-
-        void CalculateEffectAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+        class spell_vote_buff_AuraScript : public AuraScript
         {
-            if (!GetUnitOwner())
+            PrepareAuraScript(spell_vote_buff_AuraScript);
+
+            void CalculateEffectAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (!GetUnitOwner())
+                    return;
+
+                p_Amount = GetUnitOwner()->getLevel() * 2;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_vote_buff_AuraScript::CalculateEffectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_vote_buff_AuraScript();
+        }
+};
+
+// Touch of Elune - 45529
+class PlayerScript_Touch_Of_Elune: public PlayerScript
+{
+    public:
+        PlayerScript_Touch_Of_Elune() :PlayerScript("PlayerScript_Touch_Of_Elune") {}
+
+        enum TouchOfELuneSpell
+        {
+            Day         = 154796,
+            Night       = 154797,
+            Racial      = 154748,
+            EventNight  = 25 // Id on game_event
+        };
+
+        void OnUpdate(Player* p_Player, uint32 p_Diff)
+        {
+            if (p_Player->getRace() != Races::RACE_NIGHTELF || !p_Player->HasSpell(TouchOfELuneSpell::Racial))
                 return;
 
-            p_Amount = GetUnitOwner()->getLevel() * 2;
+            if (sGameEventMgr->IsActiveEvent(TouchOfELuneSpell::EventNight) && !p_Player->HasAura(TouchOfELuneSpell::Night))
+            {
+                p_Player->RemoveAura(TouchOfELuneSpell::Day);
+                p_Player->AddAura(TouchOfELuneSpell::Night, p_Player);
+            }
+            else if (!p_Player->HasAura(TouchOfELuneSpell::Day))
+            {
+                p_Player->RemoveAura(TouchOfELuneSpell::Night);
+                p_Player->AddAura(TouchOfELuneSpell::Day, p_Player);
+            }
         }
-
-        void Register()
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_vote_buff_AuraScript::CalculateEffectAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_vote_buff_AuraScript();
-    }
 };
 
 void AddSC_generic_spell_scripts()
@@ -3586,4 +3618,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_ds_flush_knockback();
     new spell_gen_orb_of_power();
     new spell_vote_buff();
+
+    /// PlayerScript
+    new PlayerScript_Touch_Of_Elune();
 }

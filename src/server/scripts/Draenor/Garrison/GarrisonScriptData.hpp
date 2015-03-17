@@ -55,6 +55,7 @@ namespace MS { namespace Garrison
         Alliance_LostInTransition                   = 37087,
         Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
         Alliance_BiggerIsBetter                     = 36592,
+        Alliance_YoutFirstAlchemyWorkOrder          = 36641,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
@@ -63,7 +64,8 @@ namespace MS { namespace Garrison
         Horde_LostInTransition                    = 37060,
         Horde_YourFirstBlacksmithingWorkOrder     = 37569,
         Horde_BiggerIsBetter                      = 36567,
-        Horde_YourFirstTailoringWorkOrder         = 37575
+        Horde_YourFirstTailoringWorkOrder         = 37575,
+        Horde_YoutFirstAlchemyWorkOrder           = 37568
 
     };
 

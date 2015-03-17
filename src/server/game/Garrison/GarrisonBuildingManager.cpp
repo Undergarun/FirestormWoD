@@ -23,7 +23,8 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker__WarMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheForge__TheForge_Level1);
         m_AllowedBluePrints.push_back(Buildings::TradingPost__TradingPost_Level1);
-        m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
+        m_AllowedBluePrints.push_back(Buildings::TailoringEmporium__TailoringEmporium_Level1);
+        m_AllowedBluePrints.push_back(Buildings::AlchemyLab__AlchemyLab_Level1);
     }
 
     /// Destructor

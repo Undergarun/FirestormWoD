@@ -1679,6 +1679,8 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_CHAKRA:
         case SPELL_SPECIFIC_EXOTIC_MUNITION:
         case SPELL_SPECIFIC_LONE_WOLF_BUFF:
+        case SPELL_SPECIFIC_LETHAL_POISON:
+        case SPELL_SPECIFIC_NON_LETHAL_POISON:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -2557,6 +2559,23 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if (Id == 48266 || Id == 48263 || Id == 48265)
                 return SPELL_SPECIFIC_PRESENCE;
             break;
+        case SPELLFAMILY_ROGUE:
+        {
+            switch (Id)
+            {
+                case 3408:    ///< Crippling Poison
+                case 108211:  ///< Leeching Poison
+                    return SPELL_SPECIFIC_LETHAL_POISON;
+                case 2823:    ///< Deadly Poison
+                case 8679:    ///< Wound Poison
+                case 157605:  ///< Swift Poison
+                    return SPELL_SPECIFIC_NON_LETHAL_POISON;
+                default:
+                    break;
+            }
+
+            break;
+        }
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

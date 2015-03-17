@@ -23,11 +23,12 @@ class boss_tarlna_the_ageless : public CreatureScript
         {
             MainHandEquipID         = 118056,
             MaxGiantLasherSpawns    = 15,
-            HealthScalingCoeff      = 20
+            HealthScalingCoeff      = 10
         };
 
         enum eSpells
         {
+            SouthshoreMobScalingAura    = 169704,
             SpellColossalBlow           = 175973,
             SpellSavageVines            = 176001,   ///< Trigger 176004 after 8s
             SpellGrowUntamedMandragora  = 176013,   ///< Missile 176014 on random destination
@@ -45,26 +46,19 @@ class boss_tarlna_the_ageless : public CreatureScript
 
         struct boss_tarlna_the_agelessAI : public ScriptedAI
         {
-            boss_tarlna_the_agelessAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_BaseHP = me->GetMaxHealth();
-            }
+            boss_tarlna_the_agelessAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
-
-            bool m_FirstVictim;
-            uint32 m_BaseHP;
 
             void Reset()
             {
                 m_Events.Reset();
 
+                me->RemoveAura(eSpells::SouthshoreMobScalingAura);
+
                 summons.DespawnAll();
 
                 SetEquipmentSlots(false, eDatas::MainHandEquipID);
-
-                m_FirstVictim = true;
-                me->SetHealth(m_BaseHP);
             }
 
             void JustDied(Unit* p_Killer)
@@ -74,53 +68,19 @@ class boss_tarlna_the_ageless : public CreatureScript
 
             void EnterCombat(Unit*)
             {
+                me->CastSpell(me, eSpells::SouthshoreMobScalingAura, true);
                 m_Events.ScheduleEvent(eEvents::EventColossalBlow, 14 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventSavageVines, 7 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventGrowUntamedMandragora, 18 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventGenesis, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void OnHostileReferenceAdded(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (m_FirstVictim)
-                {
-                    m_FirstVictim = false;
-                    return;
-                }
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / eDatas::HealthScalingCoeff;
-
-                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
-            void OnHostileReferenceRemoved(Unit* p_Ennemy)
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / eDatas::HealthScalingCoeff;
-
-                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
-                {
-                    me->SetMaxHealth(m_BaseHP);
-                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
-                    return;
-                }
-
-                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
             void UpdateAI(uint32 const p_Diff)
             {
                 if (!UpdateVictim())
                     return;
+
+                HandleHealthAndDamageScaling();
 
                 m_Events.Update(p_Diff);
 
@@ -178,6 +138,24 @@ class boss_tarlna_the_ageless : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                }
+            }
+
             void SummonGiantLashers(uint32 p_Count)
             {
                 for (uint32 l_I = 0; l_I < p_Count; ++l_I)
@@ -199,18 +177,19 @@ class boss_drov_the_ruiner : public CreatureScript
 
         enum eDatas
         {
-            HealthScalingCoeff  = 20,
+            HealthScalingCoeff  = 10,
             RumblingGoren       = 88106,
             FrenziedGoren       = 88119
         };
 
         enum eSpells
         {
-            SpellColossalSlam   = 175791,   ///< Damaging in front cone
-            SpellGigaSmash      = 175953,   ///< Damaging all ennemies
-            SpellCallOfEarth    = 175827,   ///< Periodic trigger 172911 -> launchs 175835 missile (summon and AoE damage)
-            GorenEmergeSearcher = 175911,   ///< Triggers 175915
-            GorenEmerge         = 175912
+            SouthshoreMobScalingAura    = 169704,
+            SpellColossalSlam           = 175791,   ///< Damaging in front cone
+            SpellGigaSmash              = 175953,   ///< Damaging all ennemies
+            SpellCallOfEarth            = 175827,   ///< Periodic trigger 172911 -> launchs 175835 missile (summon and AoE damage)
+            GorenEmergeSearcher         = 175911,   ///< Triggers 175915
+            GorenEmerge                 = 175912
         };
 
         enum eEvents
@@ -227,15 +206,9 @@ class boss_drov_the_ruiner : public CreatureScript
 
         struct boss_drov_the_ruinerAI : public ScriptedAI
         {
-            boss_drov_the_ruinerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_BaseHP = me->GetMaxHealth();
-            }
+            boss_drov_the_ruinerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
-
-            bool m_FirstVictim;
-            uint32 m_BaseHP;
 
             std::list<uint64> m_GorenList;
 
@@ -246,8 +219,7 @@ class boss_drov_the_ruiner : public CreatureScript
                 summons.DespawnAll();
                 m_GorenList.clear();
 
-                m_FirstVictim = true;
-                me->SetHealth(m_BaseHP);
+                me->RemoveAura(eSpells::SouthshoreMobScalingAura);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -271,6 +243,7 @@ class boss_drov_the_ruiner : public CreatureScript
 
             void EnterCombat(Unit*) override
             {
+                me->CastSpell(me, eSpells::SouthshoreMobScalingAura, true);
                 m_Events.ScheduleEvent(eEvents::EventColossalSlam, 6000);
                 m_Events.ScheduleEvent(eEvents::EventCallOfEarth, 18000);
                 m_Events.ScheduleEvent(eEvents::EventGigaSmash, 13000);
@@ -283,43 +256,6 @@ class boss_drov_the_ruiner : public CreatureScript
 
                 if (p_SpellInfo->Id == eSpells::GorenEmergeSearcher)
                     me->CastSpell(p_Target, eSpells::GorenEmerge, true);
-            }
-
-            void OnHostileReferenceAdded(Unit* p_Ennemy) override
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (m_FirstVictim)
-                {
-                    m_FirstVictim = false;
-                    return;
-                }
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / eDatas::HealthScalingCoeff;
-
-                me->SetMaxHealth(me->GetMaxHealth() + l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
-            }
-
-            void OnHostileReferenceRemoved(Unit* p_Ennemy) override
-            {
-                if (p_Ennemy->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                float l_HealthPct = me->GetHealthPct();
-                uint32 l_AddedValue = m_BaseHP / eDatas::HealthScalingCoeff;
-
-                if ((me->GetMaxHealth() - l_AddedValue) < m_BaseHP)
-                {
-                    me->SetMaxHealth(m_BaseHP);
-                    me->SetHealth(CalculatePct(m_BaseHP, l_HealthPct));
-                    return;
-                }
-
-                me->SetMaxHealth(me->GetMaxHealth() - l_AddedValue);
-                me->SetHealth(CalculatePct(me->GetMaxHealth(), l_HealthPct));
             }
 
             void DoAction(int32 const p_Action) override
@@ -340,6 +276,8 @@ class boss_drov_the_ruiner : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                HandleHealthAndDamageScaling();
 
                 m_Events.Update(p_Diff);
 
@@ -367,6 +305,24 @@ class boss_drov_the_ruiner : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TypeID::TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(eSpells::SouthshoreMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eDatas::HealthScalingCoeff * l_Count);
+                }
             }
         };
 

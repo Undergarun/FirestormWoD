@@ -29,9 +29,7 @@
 
 enum RogueSpells
 {
-    ROGUE_SPELL_RECUPERATE                      = 73651,
     ROGUE_SPELL_DEADLY_POISON                   = 2823,
-    ROGUE_SPELL_WOUND_POISON                    = 8679,
     ROGUE_SPELL_CRIPPLING_POISON                = 3408,
     ROGUE_SPELL_CRIPPLING_POISON_DEBUFF         = 3409,
     ROGUE_SPELL_LEECHING_POISON                 = 108211,
@@ -770,6 +768,17 @@ class spell_rog_killing_spree: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_killing_spree_AuraScript);
 
+            enum eSpell
+            {
+                KillingSpreeDeselect = 61851
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::KillingSpreeDeselect, true);
+            }
+
             void OnTick(constAuraEffectPtr)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -817,6 +826,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_killing_spree_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
@@ -1859,65 +1869,6 @@ class spell_rog_shiv: public SpellScriptLoader
         }
 };
 
-/// All Poisons
-/// Deadly Poison - 2823, Wound Poison - 8679, Mind-numbing Poison - 5761, Leeching Poison - 108211 or Crippling Poison - 3408
-class spell_rog_poisons: public SpellScriptLoader
-{
-    public:
-        spell_rog_poisons() : SpellScriptLoader("spell_rog_poisons") { }
-
-        class spell_rog_poisons_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_poisons_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    switch (GetSpellInfo()->Id)
-                    {
-                        case ROGUE_SPELL_WOUND_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_DEADLY_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_DEADLY_POISON);
-                            break;
-                        }
-                        case ROGUE_SPELL_CRIPPLING_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_LEECHING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_LEECHING_POISON);
-                            break;
-                        }
-                        case ROGUE_SPELL_LEECHING_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_CRIPPLING_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_CRIPPLING_POISON);
-                            break;
-                        }
-                        case ROGUE_SPELL_DEADLY_POISON:
-                        {
-                            if (caster->HasAura(ROGUE_SPELL_WOUND_POISON))
-                                caster->RemoveAura(ROGUE_SPELL_WOUND_POISON);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_poisons_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_poisons_SpellScript();
-        }
-};
-
 /// Recuperate - 73651
 class spell_rog_recuperate: public SpellScriptLoader
 {
@@ -2549,7 +2500,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_slice_and_dice();
     new spell_rog_deadly_poison_instant_damage();
     new spell_rog_shiv();
-    new spell_rog_poisons();
     new spell_rog_recuperate();
     new spell_rog_preparation();
     new spell_rog_deadly_poison();

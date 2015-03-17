@@ -2309,6 +2309,8 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
     if (m_Player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
         m_Player->KilledMonsterCredit(64594);
 
+    sScriptMgr->OnPlayerFactionChanged(m_Player);
+
     m_Player->SendMovieStart(116);
 }
 
