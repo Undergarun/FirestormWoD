@@ -998,7 +998,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
@@ -1034,7 +1034,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(0);                                  ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
