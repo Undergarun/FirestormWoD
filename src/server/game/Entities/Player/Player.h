@@ -2498,6 +2498,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateItemLevel();
         void UpdateAllRatings();
+        uint32 GetRatingValue(CombatRating p_CombatRating) const { return m_baseRatingValue[p_CombatRating]; }
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
