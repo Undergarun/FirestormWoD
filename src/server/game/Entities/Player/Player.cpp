@@ -30868,6 +30868,13 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
 {
     switch (spellId)
     {
+        case 46584: // Raise dead
+            if (Pet* l_Pet = this->GetPet())
+            {
+                if (l_Pet->GetEntry() == 26125)
+                    l_Pet->UnSummon();
+            }
+            break;
         case 1463:  // Incanter's Ward
             RemoveAura(118858);
             break;
