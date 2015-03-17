@@ -475,7 +475,7 @@ public:
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
 
             stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
+            stmt->setUInt8(1, uint8(playerSecurity - 1));
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -496,6 +496,8 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
+
+        SQLTransaction l_Trans = LoginDatabase.BeginTransaction();
         PreparedStatement* stmt;
 
         if (l_GMRealmID == -1)
@@ -512,7 +514,7 @@ public:
             stmt->setUInt32(1, g_RealmID);
         }
 
-        LoginDatabase.Execute(stmt);
+        l_Trans->Append(stmt);
 
         if (gm != 0)
         {
@@ -521,11 +523,10 @@ public:
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt8(1, uint8(gm));
             stmt->setInt32(2, l_GMRealmID);
-
-            LoginDatabase.Execute(stmt);
+            l_Trans->Append(stmt);
         }
 
-
+        LoginDatabase.CommitTransaction(l_Trans);
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;
     }
