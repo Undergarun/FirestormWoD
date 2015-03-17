@@ -845,7 +845,7 @@ enum SolarBeamSpells
 };
 
 /// Solar beam - 78675
-class spell_dru_solar_beam: public SpellScriptLoader
+class spell_dru_solar_beam : public SpellScriptLoader
 {
     public:
         spell_dru_solar_beam() : SpellScriptLoader("spell_dru_solar_beam") { }
@@ -1116,36 +1116,36 @@ public:
 /// Wild growth - 48438
 class spell_dru_wild_growth : public SpellScriptLoader
 {
-public:
-    spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
+    public:
+        spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
 
-    class spell_dru_wild_growth_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_wild_growth_AuraScript);
-
-        void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_dru_wild_growth_AuraScript : public AuraScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+            void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
-                ///If soul of the forest is activated we increase the heal by 50%
-                if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                if (Unit* l_Caster = GetCaster())
                 {
-                    amount *= 1.5f;
-                    l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                    /// If soul of the forest is activated we increase the heal by 50%
+                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
+                    {
+                        p_Amount *= 1.5f;
+                        l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
+                    }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+            return new spell_dru_wild_growth_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_dru_wild_growth_AuraScript();
-    }
 };
 
 enum SavageDefenseSpells
