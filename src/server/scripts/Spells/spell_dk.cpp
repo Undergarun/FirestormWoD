@@ -809,7 +809,7 @@ class spell_dk_improved_blood_presence: public SpellScriptLoader
         }
 };
 
-// Unholy Presence - 48265 and Improved Unholy Presence - 50392
+// Unholy Presence - 48265
 class spell_dk_unholy_presence: public SpellScriptLoader
 {
     public:
@@ -833,8 +833,8 @@ class spell_dk_unholy_presence: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
