@@ -20,5 +20,3 @@ DELETE FROM spell_script_names WHERE ScriptName = 'spell_q31049_fae_spirit';
 INSERT INTO spell_script_names VALUES (122567, 'spell_q31049_fae_spirit');
 DELETE FROM spell_script_names WHERE ScriptName = 'spell_pri_item_s12_4p_heal';
 INSERT INTO spell_script_names VALUES (26171, 'spell_pri_item_s12_4p_heal');
-DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_fire_and_brimstone';
-INSERT INTO spell_script_names VALUES (108683, 'spell_warl_fire_and_brimstone');
