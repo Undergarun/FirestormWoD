@@ -4337,6 +4337,9 @@ void Player::InitSpellForLevel()
             removeSpell(68975, false, false);
     }
 
+    if (getRace() == Races::RACE_NIGHTELF)
+        learnSpell(154748, false);
+
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
     // http://www.wowhead.com/spell=33388
     if (l_Level >= 20 && getRace() == RACE_WORGEN)
@@ -5350,6 +5353,15 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     RemovePassiveTalentSpell(spell_id);
+
+    /// Remove areatrigger
+    std::list<AreaTrigger*> l_AreaTriggerList;
+    GetAreaTriggerList(l_AreaTriggerList, spell_id);
+    if (l_AreaTriggerList.size() > 0)
+    {
+        for (auto l_Itr : l_AreaTriggerList)
+            l_Itr->RemoveFromWorld();
+    }
 
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
@@ -8942,46 +8954,6 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 p_ID)
-{
-    PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.find(p_ID);
-
-    if (l_It == _currencyStorage.end())
-        return;
-
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
-
-    l_Data << uint32(1);
-
-    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
-
-    if (!l_CurrencyEntry) // should never happen
-        return;
-
-    uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
-    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-    uint32 l_SeasonTotal = l_It->second.seasonTotal / l_Precision;
-
-    l_Data << uint32(l_CurrencyEntry->ID);
-    l_Data << uint32(l_It->second.totalCount / l_Precision);
-
-    l_Data.WriteBit(l_WeekCount);
-    l_Data.WriteBit(l_WeekCap);
-    l_Data.WriteBit(l_SeasonTotal);
-    l_Data.WriteBits(l_It->second.flags, 5);
-    l_Data.FlushBits();
-
-    if (l_WeekCount)
-        l_Data << uint32(l_WeekCount);
-    if (l_WeekCap)
-        l_Data << uint32(l_WeekCap);
-    if (l_SeasonTotal)
-        l_Data << uint32(l_SeasonTotal);
-
-    GetSession()->SendPacket(&l_Data);
-}
-
 void Player::SendCurrencies()
 {
     WorldPacket l_Data(SMSG_INIT_CURRENCY);
@@ -9206,7 +9178,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 itr->second.weekCap = CalculateCurrencyWeekCap(id);
-                SendNewCurrency(id);
+                SendCurrencies();
                 return;
             }
 
@@ -19942,53 +19914,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) have invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         RelocateToHomebind();
     }
-    // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
-    {
-        Battleground* currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::BattlegroundType::None);
-
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
-
-        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
-        {
-            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-            AddBattlegroundQueueId(bgQueueTypeId);
-
-            m_bgData.bgTypeID = currentBg->GetTypeID();
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-        }
-        // Bg was not found - go to Entry Point
-        else
-        {
-            /// Leave bg.
-            if (player_at_bg)
-                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
-
-            /// Do not look for instance if bg not found.
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
-
-            /// Db field type is type int16, so it can never be MAPID_INVALID.
-            /// if (mapId == MAPID_INVALID) -- code kept for reference
-            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                RelocateToHomebind();
-            }
-            else
-                Relocate(&_loc);
-
-            /// We are not in BG anymore.
-            m_bgData.bgInstanceID = 0;
-        }
-    }
     // currently we do not support transport in bg
     else if (transGUID)
     {
@@ -20323,6 +20248,59 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
+
+    /// Player was saved in BG or arena.
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    {
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
+
+            m_bgData.bgTypeID = currentBg->GetTypeID();
+
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+        }
+        // Bg was not found - go to Entry Point
+        else
+        {
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
+
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
+            }
+            else
+                Relocate(&_loc);
+
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
+        }
+    }
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
@@ -30870,18 +30848,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
             break;
-        case 116011:// Rune of Power
-        {
-            if (CountDynObject(spellId))
-            {
-                std::list<DynamicObject*> dynObjList;
-                GetDynObjectList(dynObjList, spellId);
-
-                for (auto itr : dynObjList)
-                    itr->SetDuration(0);
-            }
-            break;
-        }
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
                 removeSpell(111859, false, false);  // WARLOCK_GRIMOIRE_IMP

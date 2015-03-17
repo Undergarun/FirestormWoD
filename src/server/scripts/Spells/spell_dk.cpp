@@ -1560,7 +1560,12 @@ class spell_dk_reaping: public SpellScriptLoader
         }
 };
 
-// Death Grip - 49560
+enum DeathGripSpells
+{
+    SpellImprovedDeathGrip = 157367
+};
+
+/// Death Grip - 49560
 class spell_dk_death_grip: public SpellScriptLoader
 {
     public:
@@ -1572,13 +1577,18 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
-                Position const* pos = GetExplTargetDest();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                int32 l_Damage = GetEffectValue();
+                Position const* l_Pos = GetExplTargetDest();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
+                    l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Damage, true);
+
             }
 
             void Register()
@@ -2298,6 +2308,46 @@ class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
         }
 };
 
+// Improved Death Grip - 157367
+class spell_dk_improved_death_grip : public SpellScriptLoader
+{
+    public:
+        spell_dk_improved_death_grip() : SpellScriptLoader("spell_dk_improved_death_grip") { }
+
+        class spell_dk_improved_death_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_improved_death_grip_SpellScript);
+
+            enum ImprovedDeathGrip
+            {
+                Spell       = 157367,
+                ChainsOfIce = 45524
+            };
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasSpell(ImprovedDeathGrip::Spell))
+                        return;
+
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, ImprovedDeathGrip::ChainsOfIce, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_improved_death_grip_SpellScript();
+        }
+};
+
 /// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
@@ -2435,6 +2485,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_dark_succor();
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();
+    new spell_dk_improved_death_grip();
 
     /// Player script
     new PlayerScript_Blood_Tap();
