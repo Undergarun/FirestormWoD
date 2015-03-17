@@ -1906,7 +1906,7 @@ class spell_monk_surging_mist: public SpellScriptLoader
                 }
             }
 
-            void HandleHeal()
+            void HandleHeal(SpellEffIndex effIndex)
             {
                 Player* l_Caster = GetCaster()->ToPlayer();
                 if (!l_Caster)
@@ -1932,9 +1932,9 @@ class spell_monk_surging_mist: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_surging_mist_SpellScript::HandleHeal);
                 OnPrepare += SpellOnPrepareFn(spell_monk_surging_mist_SpellScript::HandleOnPrepare);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleGivePower, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_surging_mist_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
