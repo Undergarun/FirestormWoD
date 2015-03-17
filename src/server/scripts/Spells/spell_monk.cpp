@@ -3636,26 +3636,10 @@ enum FistsOfFurySpells
 };
 
 /// Fists of Fury - 113656
-/// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury: public SpellScriptLoader
 {
     public:
         spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
-
-        class spell_monk_fists_of_fury_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_fists_of_fury_SpellScript);
-
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
-            }
-        };
 
         class spell_monk_fists_of_fury_AuraScript : public AuraScript
         {
@@ -3681,14 +3665,36 @@ class spell_monk_fists_of_fury: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_fists_of_fury_SpellScript();
-        }
-
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_fists_of_fury_AuraScript();
+        }
+};
+
+/// Fists of Fury (Stun) - 120086
+class spell_monk_fists_of_fury_stun: public SpellScriptLoader
+{
+    public:
+        spell_monk_fists_of_fury_stun() : SpellScriptLoader("spell_monk_fists_of_fury_stun") { }
+
+        class spell_monk_fists_of_fury_stun_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_stun_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_fists_of_fury_stun_SpellScript();
         }
 };
 
