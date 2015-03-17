@@ -31,7 +31,6 @@
 
 enum MonkSpells
 {
-    SPELL_MONK_LEGACY_OF_THE_EMPEROR            = 117667,
     SPELL_MONK_FORTIFYING_BREW                  = 120954,
     SPELL_MONK_PROVOKE                          = 118635,
     SPELL_MONK_ZEN_PILGRIMAGE                   = 126892,
@@ -3258,41 +3257,6 @@ class spell_monk_fortifying_brew: public SpellScriptLoader
         }
 };
 
-// Legacy of the Emperor - 115921
-class spell_monk_legacy_of_the_emperor: public SpellScriptLoader
-{
-    public:
-        spell_monk_legacy_of_the_emperor() : SpellScriptLoader("spell_monk_legacy_of_the_emperor") { }
-
-        class spell_monk_legacy_of_the_emperor_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_legacy_of_the_emperor_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* plr = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> groupList;
-
-                    plr->GetRaidMembers(groupList);
-                    if (!groupList.empty())
-                        for (auto itr : groupList)
-                            plr->CastSpell(itr, SPELL_MONK_LEGACY_OF_THE_EMPEROR, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_monk_legacy_of_the_emperor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_legacy_of_the_emperor_SpellScript();
-        }
-};
-
 // Roll - 109132 or Roll (3 charges) - 121827
 class spell_monk_roll: public SpellScriptLoader
 {
@@ -4402,7 +4366,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_soothing_mist();
     new spell_monk_disable();
     new spell_monk_zen_pilgrimage();
-    new spell_monk_legacy_of_the_emperor();
     new spell_monk_fortifying_brew();
     new spell_monk_touch_of_death();
     new spell_monk_paralysis();
