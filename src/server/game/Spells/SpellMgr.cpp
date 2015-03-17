@@ -4364,9 +4364,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE;
                 spellInfo->Effects[0].ValueMultiplier = -200;
                 break;
-            case 51690: ///< Killing Spree
-                spellInfo->Effects[3].Effect = SPELL_EFFECT_FORCE_DESELECT;
-                break;
             case 137619: ///< Marked for Death
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;

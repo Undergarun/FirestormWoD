@@ -768,6 +768,17 @@ class spell_rog_killing_spree: public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_killing_spree_AuraScript);
 
+            enum eSpell
+            {
+                KillingSpreeDeselect = 61851
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, eSpell::KillingSpreeDeselect, true);
+            }
+
             void OnTick(constAuraEffectPtr)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -815,6 +826,7 @@ class spell_rog_killing_spree: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_killing_spree_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_killing_spree_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
