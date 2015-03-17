@@ -110,8 +110,6 @@ enum MonkSpells
     SPELL_MONK_MASTERY_BOTTLED_FURY             = 115636,
     SPELL_MONK_BREWMASTER_TRAINING              = 117967,
     SPELL_MONK_STORM_EARTH_AND_FIRE             = 137639,
-    SPELL_MONK_ZEN_MEDITATION                   = 115176,
-    SPELL_MONK_ZEN_MEDITATION_AURA              = 131523,
     SPELL_MONK_RING_OF_PEACE_AURA               = 140023,
     SPELL_MONK_RING_OF_PEACE_DISARM             = 137461,
     SPELL_MONK_RING_OF_PEACE_SILENCE            = 137460,
@@ -264,34 +262,6 @@ class spell_monk_ring_of_peace: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_ring_of_peace_AuraScript();
-        }
-};
-
-// Zen Meditation = 115176
-class spell_monk_zen_meditation: public SpellScriptLoader
-{
-    public:
-        spell_monk_zen_meditation() : SpellScriptLoader("spell_monk_zen_meditation") { }
-
-        class spell_monk_zen_meditation_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_zen_meditation_AuraScript);
-
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveAura(SPELL_MONK_ZEN_MEDITATION_AURA);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_monk_zen_meditation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SPELL_MAGNET, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_zen_meditation_AuraScript();
         }
 };
 
@@ -4386,7 +4356,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_combo_breaker();
     new spell_monk_ring_of_peace_dummy();
     new spell_monk_ring_of_peace();
-    new spell_monk_zen_meditation();
     new spell_monk_storm_earth_and_fire_stats();
     new spell_monk_storm_earth_and_fire();
     new spell_monk_chi_brew();
