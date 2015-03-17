@@ -3347,6 +3347,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 108683:///< Fire and Brimstone
                 /// I guess spellmod type is failed here because of -75% damage
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_5].BasePoints = -65;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
