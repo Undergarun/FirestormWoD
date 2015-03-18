@@ -1102,36 +1102,6 @@ class spell_rog_blade_flurry: public SpellScriptLoader
         }
 };
 
-/// Growl - 113613
-class spell_rog_growl: public SpellScriptLoader
-{
-    public:
-        spell_rog_growl() : SpellScriptLoader("spell_rog_growl") { }
-
-        class spell_rog_growl_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_growl_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        if (caster->IsValidAttackTarget(target))
-                            caster->CastSpell(target, 355, true); // Taunt
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_growl_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_growl_SpellScript();
-        }
-};
-
 /// Cloak of Shadows - 31224
 class spell_rog_cloak_of_shadows: public SpellScriptLoader
 {
@@ -2487,7 +2457,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_cloak_and_dagger();
     new spell_rog_cheat_death();
     new spell_rog_blade_flurry();
-    new spell_rog_growl();
     new spell_rog_cloak_of_shadows();
     new spell_rog_combat_readiness();
     new spell_rog_nerve_strike();
