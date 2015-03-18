@@ -25310,6 +25310,9 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 int days = catrec / 1000;
                 recTime = (86400 * days) * IN_MILLISECONDS;
+
+                if (rec == 0 && catrec == 1000)
+                    catrec = recTime;
             }
         }
 
