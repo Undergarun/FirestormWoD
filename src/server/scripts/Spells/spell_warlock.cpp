@@ -751,45 +751,6 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         }
 };
 
-// Voidwalker : Shield of Shadow - 103130
-class spell_warl_shield_of_shadow: public SpellScriptLoader
-{
-    public:
-        spell_warl_shield_of_shadow() : SpellScriptLoader("spell_warl_shield_of_shadow") { }
-
-        class spell_warl_shield_of_shadow_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_shield_of_shadow_AuraScript);
-
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Pet* pet = _player->GetPet())
-                    {
-                        if (pet->GetEntry() == ENTRY_VOIDWALKER)
-                        {
-                            if (!pet->HasSpell(WARLOCK_SHIELD_OF_SHADOW))
-                                pet->addSpell(WARLOCK_SHIELD_OF_SHADOW);
-                            if (!pet->HasSpell(WARLOCK_THREATENING_PRESENCE))
-                                pet->addSpell(WARLOCK_THREATENING_PRESENCE);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_shield_of_shadow_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_shield_of_shadow_AuraScript();
-        }
-};
-
 // Agony - 980
 class spell_warl_agony: public SpellScriptLoader
 {
@@ -3170,7 +3131,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_glyph_of_imp_swarm();
     new spell_warl_unbound_will();
     new spell_warl_rain_of_fire_damage();
-    new spell_warl_shield_of_shadow();
     new spell_warl_agony();
     new spell_warl_grimoire_of_sacrifice();
     new spell_warl_flames_of_xoroth();
