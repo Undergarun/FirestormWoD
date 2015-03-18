@@ -1573,46 +1573,6 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Tracking - 118424
-class spell_hun_tracking: public SpellScriptLoader
-{
-    public:
-        spell_hun_tracking() : SpellScriptLoader("spell_hun_tracking") { }
-
-        class spell_hun_tracking_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_tracking_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->learnSpell(HUNTER_SPELL_TRACK_BEASTS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_DEMONS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_DRAGONKIN,   false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_ELEMENTALS,  false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_GIANTS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_HUMANOIDS,   false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_UNDEAD,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_HIDDEN,      false);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_tracking_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_tracking_AuraScript();
-        }
-};
-
 // Dash - 113073
 class spell_hun_dash: public SpellScriptLoader
 {
@@ -3761,7 +3721,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_glaive_toss_damage();
     new spell_hun_glaive_toss_missile();
     new spell_hun_glyph_of_fetch();
-    new spell_hun_tracking();
     new spell_hun_dash();
     new spell_hun_dire_beast();
     new spell_hun_a_murder_of_crows();
