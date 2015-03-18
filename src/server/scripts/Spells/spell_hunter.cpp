@@ -2415,77 +2415,6 @@ class spell_hun_binding_shot_areatrigger : public AreaTriggerEntityScript
         }
 };
 
-// Called by Serpent Sting - 118253
-// Improved Serpent Sting - 82834
-class spell_hun_improved_serpent_sting: public SpellScriptLoader
-{
-    public:
-        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
-
-        class spell_hun_improved_serpent_sting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_improved_serpent_sting_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(HUNTER_SPELL_IMPROVED_SERPENT_STING_AURA))
-                        {
-                            if (AuraPtr serpentSting = target->GetAura(HUNTER_SPELL_SERPENT_STING, _player->GetGUID()))
-                            {
-                                if (serpentSting->GetEffect(EFFECT_0))
-                                {
-                                    int32 bp = _player->SpellDamageBonusDone(target, GetSpellInfo(), serpentSting->GetEffect(EFFECT_0)->GetAmount(), EFFECT_0, DOT);
-                                    bp *= serpentSting->GetMaxDuration() / serpentSting->GetEffect(EFFECT_0)->GetAmplitude();
-                                    bp = CalculatePct(bp, 15);
-
-                                    _player->CastCustomSpell(target, HUNTER_SPELL_IMPROVED_SERPENT_STING, &bp, NULL, NULL, true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_improved_serpent_sting_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_improved_serpent_sting_SpellScript();
-        }
-
-        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (GetCaster()->HasAura(HUNTER_SPELL_VIPER_VENOM))
-                    GetCaster()->EnergizeBySpell(GetCaster(), HUNTER_SPELL_VIPER_VENOM, 3, POWER_FOCUS);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_improved_serpent_sting_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_improved_serpent_sting_AuraScript();
-        }
-};
-
 // Powershot - 109259
 class spell_hun_powershot: public SpellScriptLoader
 {
@@ -2708,7 +2637,6 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
             }
         };
@@ -3846,7 +3774,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_barrage();
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
-    new spell_hun_improved_serpent_sting();
     new spell_hun_powershot();
     new spell_hun_feign_death();
     new spell_hun_camouflage_visual();

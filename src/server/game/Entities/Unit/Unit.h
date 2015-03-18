@@ -2774,6 +2774,15 @@ namespace JadeCore
                 float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
                 return m_ascending ? rA < rB : rA > rB;
             }
+            bool operator() (const WorldObject* a, const WorldObject* b) const
+            {
+                if (a->GetTypeId() != TYPEID_UNIT || b->GetTypeId() != TYPEID_UNIT)
+                    return false;
+
+                float rA = a->ToUnit()->GetMaxHealth() ? float(a->ToUnit()->GetHealth()) / float(a->ToUnit()->GetMaxHealth()) : 0.0f;
+                float rB = b->ToUnit()->GetMaxHealth() ? float(b->ToUnit()->GetHealth()) / float(b->ToUnit()->GetMaxHealth()) : 0.0f;
+                return m_ascending ? rA < rB : rA > rB;
+            }
         private:
             const bool m_ascending;
     };

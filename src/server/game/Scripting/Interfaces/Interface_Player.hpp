@@ -538,12 +538,23 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_PreventDefault);
         }
 
-
-
         // Called when some faction change is applied on the player.
         virtual void OnFactionChanged(Player* p_Player)
         {
             UNUSED(p_Player);
+        }
+
+        /// Called when a player take damage
+        /// @p_Player          : Player instance
+        /// @p_DamageEffectTyp : Damage type
+        /// @p_Damage          : Amount of damage taken
+        /// @p_SchoolMask      : school mask of the damage
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_DamageEffectType);
+            UNUSED(p_Damage);
+            UNUSED(p_CleanDamage);
         }
 };
 
