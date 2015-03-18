@@ -733,7 +733,25 @@ class World
         uint16 GetConfigMaxSkillValue() const
         {
             uint8 lvl = uint8(getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-            return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl*5;
+
+            if (lvl >= 1 && lvl < 10)
+                return 75;
+            else if (lvl >= 10 && lvl < 20)
+                return 150;
+            else if (lvl >= 20 && lvl < 35)
+                return 225;
+            else if (lvl >= 35 && lvl < 50)
+                return 300;
+            else if (lvl >= 50 && lvl < 65)
+                return 375;
+            else if (lvl >= 65 && lvl < 75)
+                return 450;
+            else if (lvl >= 75 && lvl < 81)
+                return 525;
+            else if (lvl >= 81 && lvl < 90)
+                return 600;
+            else if (lvl >= 90)
+                return 700;
         }
 
         void SetInitialWorldSettings();
