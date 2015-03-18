@@ -476,7 +476,7 @@ class spell_warr_second_wind: public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->GetHealthPct() <= 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                    if (l_Caster->GetHealthPct() < 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
                         l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
                 }
             }
@@ -501,6 +501,23 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             return new spell_warr_second_wind_AuraScript();
         }
+};
+
+/// Second Wind (aura) - 29838
+class PlayerScript_second_wind : public PlayerScript
+{
+public:
+    PlayerScript_second_wind() :PlayerScript("PlayerScript_second_wind") {}
+
+    void OnModifyHealth(Player * p_Player, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_WARRIOR && p_Player->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+        {
+            /// Remove aura if player has more than 35% life
+            if (p_Player->GetHealthPct() >= 35.0f)
+                p_Player->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
+        }
+    }
 };
 
 /// Sudden Death - 52437
@@ -1901,4 +1918,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
+
+    /// Playerscripts
+    new PlayerScript_second_wind();
 }
