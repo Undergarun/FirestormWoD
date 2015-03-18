@@ -1925,6 +1925,15 @@ void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, floa
     FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
 }
 
+/// Called when a player take damage
+/// @p_Player          : Player instance
+/// @p_DamageEffectTyp : Damage type
+/// @p_Damage          : Amount of damage taken
+void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

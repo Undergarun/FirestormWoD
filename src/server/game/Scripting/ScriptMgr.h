@@ -775,6 +775,12 @@ class ScriptMgr
         /// @p_PreventDefault : avoid default regeneration
         void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
 
+        /// Called when a player take damage
+        /// @p_Player          : Player instance
+        /// @p_DamageEffectTyp : Damage type
+        /// @p_Damage          : Amount of damage taken
+        void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.
