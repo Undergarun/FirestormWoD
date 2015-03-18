@@ -257,34 +257,6 @@ class spell_warr_glyph_of_hindering_strikes: public SpellScriptLoader
         }
 };
 
-/// Stampeding Shout - 122294
-class spell_warr_stampeding_shout: public SpellScriptLoader
-{
-    public:
-        spell_warr_stampeding_shout() : SpellScriptLoader("spell_warr_stampeding_shout") { }
-
-        class spell_warr_stampeding_shout_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_stampeding_shout_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* target = GetHitUnit())
-                    target->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_stampeding_shout_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_stampeding_shout_SpellScript();
-        }
-};
-
 /// Shield Block - 2565
 class spell_warr_shield_block: public SpellScriptLoader
 {
@@ -1884,7 +1856,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_rend();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
-    new spell_warr_stampeding_shout();
     new spell_warr_shield_block();
     new spell_warr_storm_bolt();
     new spell_warr_colossus_smash();
