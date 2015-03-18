@@ -28494,7 +28494,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 max      = fields[2].GetUInt16();
 
             /// Bug fixed in commit ed9e9fafb28bed40118a238849e0332726843cb6
-            /// but we need to fix early learning of the last wod proffesion
+            /// but we need to fix early learning of the last wod profession
             /// palier
             if (max == 675)
                 max = 700;
@@ -28535,13 +28535,16 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, skill);
             uint16 step = 0;
 
-            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
-                step = max / 75;
+            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY || pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
+            {
+                if (max <= 600)
+                    step = max / 75;
+                else
+                    step = (600 / 75) + ((max - 600) / 100);
+            }
 
             if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
             {
-                step = max / 75;
-
                 if (professionCount < DEFAULT_MAX_PRIMARY_TRADE_SKILL)
                     SetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE + professionCount++, skill);
             }
