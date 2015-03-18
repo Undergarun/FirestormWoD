@@ -1744,14 +1744,14 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
-                        // 30% additional damage as a bleed over 6 sec
-                        int32 l_Damage = (l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints / 100) / 6;
+                        /// 30% additional damage as a bleed over 6 sec
+                        int32 l_Damage = ((l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints) / 100) / 6;
 
                         l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
                         l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
 
                         if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
-                            l_BloodbathActual->SetAmount(l_Damage);
+                            l_BloodbathActual->ChangeAmount(l_Damage);
                     }
                 }
             }
