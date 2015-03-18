@@ -416,35 +416,6 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
         }
 };
 
-// Soulburn : Health Funnel - 104220
-class spell_warl_soulburn_health_funnel: public SpellScriptLoader
-{
-    public:
-        spell_warl_soulburn_health_funnel() : SpellScriptLoader("spell_warl_soulburn_health_funnel") { }
-
-        class spell_warl_soulburn_health_funnel_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_soulburn_health_funnel_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SOULBURN_AURA))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_soulburn_health_funnel_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_soulburn_health_funnel_SpellScript();
-        }
-};
-
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
 {
@@ -3123,7 +3094,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt_dispel();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
-    new spell_warl_soulburn_health_funnel();
     new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulburn_seed_of_corruption();
     new spell_warl_soulburn_override();
