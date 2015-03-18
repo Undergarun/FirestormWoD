@@ -47,7 +47,6 @@ enum MonkSpells
     SPELL_MONK_KEG_SMASH_ENERGIZE               = 127796,
     SPELL_MONK_WEAKENED_BLOWS                   = 115798,
     SPELL_MONK_DIZZYING_HAZE                    = 116330,
-    SPELL_MONK_CLASH_CHARGE                     = 126452,
     SPELL_MONK_LIGHT_STAGGER                    = 124275,
     SPELL_MONK_MODERATE_STAGGER                 = 124274,
     SPELL_MONK_HEAVY_STAGGER                    = 124273,
@@ -2629,44 +2628,6 @@ class spell_monk_purifying_brew: public SpellScriptLoader
         }
 };
 
-// Clash - 122057 and Clash - 126449
-class spell_monk_clash: public SpellScriptLoader
-{
-    public:
-        spell_monk_clash() : SpellScriptLoader("spell_monk_clash") { }
-
-        class spell_monk_clash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_clash_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        if (Unit* target = GetHitUnit())
-                        {
-                            int32 basePoint = 2;
-                            _player->CastCustomSpell(target, SPELL_MONK_CLASH_CHARGE, &basePoint, NULL, NULL, true);
-                            target->CastSpell(_player, SPELL_MONK_CLASH_CHARGE, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_clash_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_clash_SpellScript();
-        }
-};
-
 // Keg Smash - 121253
 class spell_monk_keg_smash: public SpellScriptLoader
 {
@@ -4359,7 +4320,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_flying_serpent_kick();
     new spell_monk_chi_torpedo();
     new spell_monk_purifying_brew();
-    new spell_monk_clash();
     new spell_monk_keg_smash();
     new spell_monk_elusive_brew();
     new spell_monk_breath_of_fire();
