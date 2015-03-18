@@ -3455,7 +3455,17 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
 
     uint32 skillid = m_spellInfo->Effects[effIndex].MiscValue;
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->Effects[effIndex].CalcValue(), skillval ? skillval : 1, damage * 75);
+
+    uint32 l_Multiplier  = damage;
+    uint32 l_NewMaxValue = 0;
+
+    /// Since WoD palier 9 give 100 points not 75
+    if (l_Multiplier < 9)
+        l_NewMaxValue = l_Multiplier * 75;
+    else
+        l_NewMaxValue = ((l_Multiplier - 8) * 100) + (8 * 75);
+
+    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->Effects[effIndex].CalcValue(), skillval ? skillval : 1, l_NewMaxValue);
 
     // Archaeology
     if (skillid == SKILL_ARCHAEOLOGY)
