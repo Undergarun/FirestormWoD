@@ -28493,6 +28493,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
+            /// Bug fixed in commit ed9e9fafb28bed40118a238849e0332726843cb6
+            /// but we need to fix early learning of the last wod proffesion
+            /// palier
+            if (max == 675)
+                max = 700;
+
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
@@ -28571,7 +28577,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             continue;
 
         uint16 value = 0;
-        uint16 max = 0;
+        uint16 max = 75;
         uint16 step = 0;
 
         uint16 field = count / 2;
