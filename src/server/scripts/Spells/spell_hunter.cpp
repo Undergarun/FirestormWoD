@@ -1573,34 +1573,6 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Dash - 113073
-class spell_hun_dash: public SpellScriptLoader
-{
-    public:
-        spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
-
-        class spell_hun_dash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_dash_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_dash_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_dash_SpellScript();
-        }
-};
-
 // Dire Beast - 120679
 class spell_hun_dire_beast: public SpellScriptLoader
 {
@@ -3721,7 +3693,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_glaive_toss_damage();
     new spell_hun_glaive_toss_missile();
     new spell_hun_glyph_of_fetch();
-    new spell_hun_dash();
     new spell_hun_dire_beast();
     new spell_hun_a_murder_of_crows();
     new spell_hun_focus_fire();
