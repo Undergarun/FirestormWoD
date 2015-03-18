@@ -838,40 +838,6 @@ class spell_dru_ursols_vortex_snare: public SpellScriptLoader
         }
 };
 
-enum SolarBeamSpells
-{
-    SPELL_DRUID_SOLAR_BEAM         = 78675,
-    SPELL_DRUID_SOLAR_BEAM_SILENCE = 81261
-};
-
-/// Solar beam - 78675
-class spell_dru_solar_beam : public SpellScriptLoader
-{
-    public:
-        spell_dru_solar_beam() : SpellScriptLoader("spell_dru_solar_beam") { }
-
-        class spell_dru_solar_beam_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_solar_beam_AuraScript);
-
-            void OnTick(constAuraEffectPtr /*aurEff*/)
-            {
-                if (DynamicObject* dynObj = GetCaster()->GetDynObject(SPELL_DRUID_SOLAR_BEAM))
-                    GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_DRUID_SOLAR_BEAM_SILENCE, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_solar_beam_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_solar_beam_AuraScript();
-        }
-};
-
 enum DashSpells
 {
     SPELL_DRUID_STAMPEDING_ROAR = 106898
@@ -3804,7 +3770,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_natures_vigil();
     new spell_dru_ursols_vortex_snare();
     new spell_dru_ursols_vortex();
-    new spell_dru_solar_beam();
     new spell_dru_dash();
     new spell_dru_savage_defense();
     new spell_dru_lifebloom();
