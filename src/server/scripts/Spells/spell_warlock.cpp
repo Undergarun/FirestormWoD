@@ -2965,7 +2965,7 @@ public:
     }
 };
 
-// dark soul - 77801
+/// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
 public:
@@ -2986,7 +2986,7 @@ public:
 
                 if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
                     l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
-                else                 // Case of GLYPH_OF_DARK_SOUL
+                else ///< Case of GLYPH_OF_DARK_SOUL
                     l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
                 if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
