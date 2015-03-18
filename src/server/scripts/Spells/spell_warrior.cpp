@@ -1757,20 +1757,22 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
                     return;
 
-                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
-                {
-                    if (Unit* l_Caster = GetCaster())
-                    {
-                        /// 30% additional damage as a bleed over 6 sec
-                        int32 l_Damage = ((l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints) / 100) / 6;
+                Unit* l_Target = l_ProcInfo.GetActionTarget();
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
 
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+                /// 30% additional damage as a bleed over 6 sec
 
-                        if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
-                            l_BloodbathActual->ChangeAmount(l_Damage);
-                    }
-                }
+                if (l_SpellInfo == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                int32 l_Damage = ((l_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100) / 6;
+
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+
+                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                    l_BloodbathActual->SetAmount(l_Damage);
             }
 
             void Register()
