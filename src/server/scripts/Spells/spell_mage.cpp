@@ -361,6 +361,54 @@ class npc_mage_prismatic_crystal : public CreatureScript
         }
 };
 
+/// Prismatic Crystal - 155152
+class spell_mage_prysmatic_crystal_damage : public SpellScriptLoader
+{
+    public:
+        spell_mage_prysmatic_crystal_damage() : SpellScriptLoader("spell_mage_prysmatic_crystal_damage") { }
+
+        class spell_mage_prysmatic_crystal_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_prysmatic_crystal_damage_SpellScript);
+
+            enum eCreature
+            {
+                PrismaticCrystalNpc = 76933
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->ToUnit()->GetEntry() == eCreature::PrismaticCrystalNpc)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_prysmatic_crystal_damage_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_prysmatic_crystal_damage_SpellScript();
+        }
+};
+
 /// Comet Storm - 153595
 class spell_mage_comet_storm : public SpellScriptLoader
 {
@@ -2427,6 +2475,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();
+    new spell_mage_prysmatic_crystal_damage();
 
     // Player Script
     new PlayerScript_rapid_teleportation();
