@@ -2010,7 +2010,12 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
-                    p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+                {
+                    if (AuraPtr l_AuraRunicCorruption = p_Player->GetAura(DK_SPELL_RUNIC_CORRUPTION))
+                        l_AuraRunicCorruption->SetDuration(l_AuraRunicCorruption->GetDuration() + l_AuraRunicCorruption->GetMaxDuration());
+                    else
+                        p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+                }
             }
         }
 };
