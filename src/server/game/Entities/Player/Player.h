@@ -3554,7 +3554,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEffect, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
-        void _LoadHeirloomCollection();
+        void _LoadHeirloomCollection(PreparedQueryResult p_Result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
@@ -3911,6 +3911,7 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeItemCallback;
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
+        PreparedQueryResultFuture _HeirloomStoreCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;

@@ -1887,6 +1887,10 @@ void Player::Update(uint32 p_time)
         stmt->setUInt32(1, m_currentPetSlot);
         _petPreloadCallback = CharacterDatabase.AsyncQuery(stmt);
 
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
+        stmt->setUInt32(0, GetSession()->GetAccountId());
+        _HeirloomStoreCallback = CharacterDatabase.AsyncQuery(stmt);
+
         m_initializeCallback = true;
     }
 
@@ -1931,6 +1935,13 @@ void Player::Update(uint32 p_time)
             _petPreloadCallback.get(result);
             LoadPet(result);
             _petPreloadCallback.cancel();
+        }
+
+        if (_HeirloomStoreCallback.ready())
+        {
+            _HeirloomStoreCallback.get(result);
+            _LoadHeirloomCollection(result);
+            _HeirloomStoreCallback.cancel();
         }
 
         if (_petLoginCallback.ready())
@@ -20328,7 +20339,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
 
-    _LoadHeirloomCollection();
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINVENTORY), time_diff);
 
     if (IsVoidStorageUnlocked())
@@ -32253,18 +32263,14 @@ bool Player::HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const
     return false;
 }
 
-void Player::_LoadHeirloomCollection()
+void Player::_LoadHeirloomCollection(PreparedQueryResult p_Result)
 {
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
-    l_Statement->setUInt32(0, GetSession()->GetAccountId());
-    PreparedQueryResult l_Result = LoginDatabase.AsyncQuery(l_Statement);
-
-    if (!l_Result)
+    if (!p_Result)
         return;
 
     do
     {
-        Field* l_Fields = l_Result->Fetch();
+        Field* l_Fields = p_Result->Fetch();
         uint32 l_HeirloomID = l_Fields[0].GetUInt32();
         uint32 l_HeirloomFlags = l_Fields[1].GetUInt32();
 
@@ -32282,7 +32288,7 @@ void Player::_LoadHeirloomCollection()
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, l_HeirloomEntry->ItemID);
         SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
     }
-    while (l_Result->NextRow());
+    while (p_Result->NextRow());
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size());
 }
