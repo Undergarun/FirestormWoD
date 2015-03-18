@@ -826,31 +826,6 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), l_Emote);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    uint8 unk;
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_CHAT_IGNORED");
-
-    recvData >> unk;                                       // probably related to spam reporting
-
-    uint8 bitOrder[8] = { 7, 1, 5, 3, 2, 6, 0, 4 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 5, 0, 1, 2, 3, 6, 4, 7 };
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player || !player->GetSession())
-        return;
-
-    WorldPacket data;
-    ChatHandler::FillMessageData(&data, this, CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetPlayer()->GetGUID(), GetPlayer()->GetName(), NULL);
-    player->GetSession()->SendPacket(&data);
-}
-
 void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", p_Packet.GetOpcode());

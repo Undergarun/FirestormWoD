@@ -461,6 +461,16 @@ class WorldSession
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
+        void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
+        uint16 GetClientBuild() const { return m_ClientBuild; }
+
+        /// Return join date as unix timestamp
+        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+
+        /// Set join date as unix timestamp
+        /// @p_JoinDate : unix timestamp of the account creation
+        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
+
         //////////////////////////////////////////////////////////////////////////
         /// Vote
         //////////////////////////////////////////////////////////////////////////
@@ -810,7 +820,6 @@ class WorldSession
         void SendPlayerAmbiguousNotice(std::string name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
-        void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
@@ -1165,6 +1174,10 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        uint16 m_ClientBuild;
+
+        uint32 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

@@ -126,7 +126,6 @@ class ConditionScript : public ScriptObjectImpl<true>
 
             return true; 
         }
-
 };
 
 /// Player Script Interface
@@ -146,6 +145,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killer);
             UNUSED(p_Killed);
         }
+
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
@@ -154,6 +154,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Killer);
             UNUSED(p_Killed);
         }
+
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
@@ -246,6 +247,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Target);
             UNUSED(p_Challenger);
         }
+
         /// Called when a duel starts (after 3s countdown)
         /// @p_Player1 : First player
         /// @p_Player2 : Second player
@@ -254,7 +256,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player1);
             UNUSED(p_Player2);
         }
-        
+
         /// Called when a duel ends
         /// @p_Winner         : Duel winner
         /// @p_Looser         : Duel looser
@@ -274,7 +276,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_SpellInfo);
         }
-        
+
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -287,6 +289,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Lang);
             UNUSED(p_Message);
         }
+
         /// The following methods are called when a player sends a chat message. (Whisper)
         /// @p_Player   : Player instance
         /// @p_Type     : Message type
@@ -301,6 +304,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Message);
             UNUSED(p_Receiver);
         }
+
         /// The following methods are called when a player sends a chat message. (Party)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -315,6 +319,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Message);
             UNUSED(p_Group);
         }
+
         /// The following methods are called when a player sends a chat message. (Guild)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -329,6 +334,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Message);
             UNUSED(p_Guild);
         }
+
         /// The following methods are called when a player sends a chat message. (Channel)
         /// @p_Player  : Player instance
         /// @p_Type    : Message type
@@ -352,6 +358,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_Emote);
         }
+
         /// When player start a text emote
         /// @p_Player     : Player instance
         /// @p_TextEmote  : Text emote ID
@@ -375,6 +382,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Spell);
             UNUSED(p_SkipCheck);
         }
+
         /// When the player learn a spell
         /// @p_Player  : Player instance
         /// @p_SpellID : Learned spell ID
@@ -390,18 +398,21 @@ class PlayerScript : public ScriptObjectImpl<false>
         {
             UNUSED(p_Player);
         }
+
         /// Called when a player logs out.
         /// @p_Player : Player instance
         virtual void OnLogout(Player * p_Player)
         {
             UNUSED(p_Player);
         }
+
         /// Called when a player is created.
         /// @p_Player : Player instance
         virtual void OnCreate(Player * p_Player)
         {
             UNUSED(p_Player);
         }
+
         /// Called when a player is deleted.
         /// @p_GUID : Player instance
         virtual void OnDelete(uint64 p_GUID)
@@ -459,6 +470,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_Quest);
         }
+
         /// Called when a player validates some quest objective
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID
@@ -526,6 +538,24 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_PreventDefault);
         }
 
+        // Called when some faction change is applied on the player.
+        virtual void OnFactionChanged(Player* p_Player)
+        {
+            UNUSED(p_Player);
+        }
+
+        /// Called when a player take damage
+        /// @p_Player          : Player instance
+        /// @p_DamageEffectTyp : Damage type
+        /// @p_Damage          : Amount of damage taken
+        /// @p_SchoolMask      : school mask of the damage
+        virtual void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_DamageEffectType);
+            UNUSED(p_Damage);
+            UNUSED(p_CleanDamage);
+        }
 };
 
 #endif  ///< SCRIPTING_INTERFACES_PLAYER

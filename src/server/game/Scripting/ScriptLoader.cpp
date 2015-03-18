@@ -22,6 +22,8 @@
 void AddSC_event_april();
 void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
+void AddSC_user_reporting();
+void AddSC_warning_update_client();
 //void AddSC_DuelReset();
 
 // spells
@@ -836,6 +838,14 @@ void AddSC_boss_SlaveWatcherCrushto();
 void AddSC_boss_forgemaster_gogduh();
 void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
+
+/* Iron Docks */
+void AddSC_iron_docks_cpp();
+void AddSC_instance_iron_docks();
+void AddSC_boss_nokgar();
+void AddSC_boss_skulloc();
+void AddSC_boss_grimrail();
+void AddSC_boss_oshir();
 
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -1717,6 +1727,15 @@ void AddDraenorScripts()
     AddSC_boss_forgemaster_gogduh();
     AddSC_boss_roltall();
     AddSC_boss_gugrokk();
+    /* Iron Docks*/
+    AddSC_iron_docks_cpp();
+    AddSC_instance_iron_docks();
+    AddSC_boss_nokgar();
+    AddSC_boss_skulloc();
+    AddSC_boss_grimrail();
+    AddSC_boss_oshir();
+
+    /// Battlegrounds strongbox
     AddSC_item_strongboxes();
 #endif
 }
@@ -1758,5 +1777,7 @@ void AddCustomScripts()
     AddSC_event_april();
     AddSC_promotion_new_players();
     AddSC_first_time_connexion();
+    AddSC_user_reporting();
+    AddSC_warning_update_client();
 #endif
 }

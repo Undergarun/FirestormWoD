@@ -1363,7 +1363,7 @@ struct PlayerTalentInfo
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
             SpecInfo[i].Talents = new PlayerTalentMap();
-            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+            SpecInfo[i].Glyphs.resize(MAX_GLYPH_SLOT_INDEX);
             SpecInfo[i].TalentTree = 0;
             SpecInfo[i].SpecializationId = 0;
         }
@@ -1382,7 +1382,7 @@ struct PlayerTalentInfo
     struct TalentSpecInfo
     {
         PlayerTalentMap* Talents;
-        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+        std::vector<uint32> Glyphs;
         uint32 TalentTree;
         uint32 SpecializationId;
     } SpecInfo[MAX_TALENT_SPECS];
@@ -1633,7 +1633,7 @@ class Player : public Unit, public GridObject<Player>
         void TextEmote(const std::string& text);
         void Whisper(const std::string& text, const uint32 language, uint64 receiver);
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
-        void BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix = NULL, const std::string& channel = "") const;
+        void BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
 
         ArchaeologyMgr& GetArchaeologyMgr() { return m_archaeologyMgr; }
 
@@ -1743,8 +1743,6 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
-        /// send initialization of new currency for client
-        void SendNewCurrency(uint32 id);
         /// send full data about all currencies to client
         void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
         void SendCurrencies();
@@ -2196,6 +2194,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveSpecializationSpells();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
+        void SendTalentsInvoluntarilyReset(bool p_IsPet = false);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
@@ -2219,6 +2218,7 @@ class Player : public Unit, public GridObject<Player>
         }
         uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
         bool HasGlyph(uint32 spell_id);
+        std::vector<uint32> GetGlyphMap(uint8 p_Spec) { return _talentMgr->SpecInfo[p_Spec].Glyphs; }
 
         PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
         PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->SpecInfo[spec].Talents; }
@@ -2496,6 +2496,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateItemLevel();
         void UpdateAllRatings();
+        uint32 GetRatingValue(CombatRating p_CombatRating) const { return m_baseRatingValue[p_CombatRating]; }
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2893,7 +2894,10 @@ class Player : public Unit, public GridObject<Player>
         void SetBattlegroundEntryPoint();
 
         void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0)); }
+
+        /// Return faction team (see enum @Team)
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
+
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
 
@@ -3422,7 +3426,7 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
 
-        Vignette::Manager const& GetVignetteMgr() { return m_VignetteMgr; }
+        Vignette::Manager& GetVignetteMgr() { return m_VignetteMgr; }
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////

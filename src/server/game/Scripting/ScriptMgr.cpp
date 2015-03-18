@@ -1311,11 +1311,11 @@ void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
 /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who send the packet
 /// @p_Packet : Sent packet
-void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
 {
     ASSERT(p_Socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet, p_Session);
 }
 /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who received the packet
@@ -1797,6 +1797,7 @@ void ScriptMgr::OnPlayerLogin(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(p_Player);
 }
+
 /// Called when a player logs out.
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLogout(Player * p_Player)
@@ -1876,6 +1877,13 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
+/// Called when a player changes his faction
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerFactionChanged(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFactionChanged(p_Player);
+}
+
 /// Called when a player loot an item
 /// @p_Player : Player instance
 /// @p_Item   : New looted item instance
@@ -1915,6 +1923,15 @@ void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID,
 void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
 {
     FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
+}
+
+/// Called when a player take damage
+/// @p_Player          : Player instance
+/// @p_DamageEffectTyp : Damage type
+/// @p_Damage          : Amount of damage taken
+void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
 }
 
 //////////////////////////////////////////////////////////////////////////

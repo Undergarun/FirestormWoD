@@ -372,7 +372,7 @@ class spell_dk_festering_strike: public SpellScriptLoader
                                 l_AuraChainsOfIce->SetMaxDuration(dur);
                         }
 
-                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE, l_Player->GetGUID()))
+                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
                         {
                             uint32 dur = l_NecroticPlague->GetDuration() + 6000;
                             l_NecroticPlague->SetDuration(dur);
@@ -809,7 +809,7 @@ class spell_dk_improved_blood_presence: public SpellScriptLoader
         }
 };
 
-// Unholy Presence - 48265 and Improved Unholy Presence - 50392
+// Unholy Presence - 48265
 class spell_dk_unholy_presence: public SpellScriptLoader
 {
     public:
@@ -833,8 +833,8 @@ class spell_dk_unholy_presence: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1560,7 +1560,12 @@ class spell_dk_reaping: public SpellScriptLoader
         }
 };
 
-// Death Grip - 49560
+enum DeathGripSpells
+{
+    SpellImprovedDeathGrip = 157367
+};
+
+/// Death Grip - 49560
 class spell_dk_death_grip: public SpellScriptLoader
 {
     public:
@@ -1572,13 +1577,18 @@ class spell_dk_death_grip: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 damage = GetEffectValue();
-                Position const* pos = GetExplTargetDest();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                int32 l_Damage = GetEffectValue();
+                Position const* l_Pos = GetExplTargetDest();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (!l_Target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) ///< Deterrence
+                    l_Target->CastSpell(l_Pos->GetPositionX(), l_Pos->GetPositionY(), l_Pos->GetPositionZ(), l_Damage, true);
+
             }
 
             void Register()
@@ -1739,47 +1749,89 @@ class spell_dk_icy_touch: public SpellScriptLoader
 };
 
 // Empowered Obliterate - 157409
-// Called by Icy Touch - 45477 & Howling Blast - 49184
-class spell_dk_empowered_obliterate : public SpellScriptLoader
+// Called by Icy Touch - 45477
+class spell_dk_empowered_obliterate_icy_touch : public SpellScriptLoader
 {
-public:
-    spell_dk_empowered_obliterate() : SpellScriptLoader("spell_dk_empowered_obliterate") { }
+    public:
+        spell_dk_empowered_obliterate_icy_touch() : SpellScriptLoader("spell_dk_empowered_obliterate_icy_touch") { }
 
-    class spell_dk_empowered_obliterate_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_empowered_obliterate_SpellScript);
-
-        bool m_HasAura = false;
-
-        void HandleOnPrepare()
+        class spell_dk_empowered_obliterate_icy_touch_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_dk_empowered_obliterate_icy_touch_SpellScript);
+
+            bool m_HasAura = false;
+
+            void HandleOnPrepare()
             {
-                if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
-                    m_HasAura = true;
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                        m_HasAura = true;
+                }
             }
-        }
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+
+                if (m_HasAura && l_SpellInfo != nullptr)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_icy_touch_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_icy_touch_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
-
-            if (m_HasAura && l_SpellInfo != nullptr)
-                SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            return new spell_dk_empowered_obliterate_icy_touch_SpellScript();
         }
+};
 
-        void Register()
+/// Empowered Obliterate - 157409
+/// Howling Blast - 49184
+class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
+{
+    public:
+        spell_dk_empowered_obliterate_howling_blast() : SpellScriptLoader("spell_dk_empowered_obliterate_howling_blast") { }
+
+        class spell_dk_empowered_obliterate_howling_blast_SpellScript : public SpellScript
         {
-            OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_SpellScript::HandleOnPrepare);
-            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
+            PrepareSpellScript(spell_dk_empowered_obliterate_howling_blast_SpellScript);
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dk_empowered_obliterate_SpellScript();
-    }
+            bool m_HasAura = false;
+
+            void HandleOnPrepare()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                        m_HasAura = true;
+                }
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+
+                if (m_HasAura && l_SpellInfo != nullptr)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_howling_blast_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_howling_blast_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_empowered_obliterate_howling_blast_SpellScript();
+        }
 };
 
 // Plaguebearer - 161497
@@ -2298,6 +2350,46 @@ class spell_dk_glyph_of_the_skeleton : public SpellScriptLoader
         }
 };
 
+// Improved Death Grip - 157367
+class spell_dk_improved_death_grip : public SpellScriptLoader
+{
+    public:
+        spell_dk_improved_death_grip() : SpellScriptLoader("spell_dk_improved_death_grip") { }
+
+        class spell_dk_improved_death_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_improved_death_grip_SpellScript);
+
+            enum ImprovedDeathGrip
+            {
+                Spell       = 157367,
+                ChainsOfIce = 45524
+            };
+
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!l_Caster->HasSpell(ImprovedDeathGrip::Spell))
+                        return;
+
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, ImprovedDeathGrip::ChainsOfIce, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_improved_death_grip_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_improved_death_grip_SpellScript();
+        }
+};
+
 /// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
@@ -2389,7 +2481,8 @@ class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
-    new spell_dk_empowered_obliterate();
+    new spell_dk_empowered_obliterate_icy_touch();
+    new spell_dk_empowered_obliterate_howling_blast();
     new spell_dk_glyph_of_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();
@@ -2435,6 +2528,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_dark_succor();
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();
+    new spell_dk_improved_death_grip();
 
     /// Player script
     new PlayerScript_Blood_Tap();

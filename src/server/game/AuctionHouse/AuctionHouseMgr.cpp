@@ -127,7 +127,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
             uint32 owner_accid = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
 
             sLog->outCommand(bidder_accId, "", 0, bidder_name.c_str(), owner_accid, "", 0, owner_name.c_str(),
-              "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
+                "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: " UI64FMTD ". Original owner %s (Account: %u)",
               bidder_name.c_str(),bidder_accId,pItem->GetTemplate()->Name1.c_str(),pItem->GetEntry(),pItem->GetCount(),auction->bid,owner_name.c_str(),owner_accid);
         }
     }
@@ -175,7 +175,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
     // owner exist
     if (owner || owner_accId)
     {
-        uint32 profit = auction->bid + auction->deposit - auction->GetAuctionCut();
+        uint64 profit = auction->bid + auction->deposit - auction->GetAuctionCut();
 
         //FIXME: what do if owner offline
         if (owner)
@@ -885,15 +885,16 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
 {
     std::ostringstream strm;
     strm << itemEntry << ":0:" << response << ':' << Id << ':' << itemCount;
+    strm << ":0" << ":0" << ":0" << ":0" << ":0";
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut, uint32 deliveryTime)
+std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint32 deposit, uint32 cut, uint32 deliveryTime)
 {
     std::ostringstream strm;
     strm.width(16);
     strm << std::right << std::hex << MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);   // HIGHGUID_PLAYER always present, even for empty guids
     strm << std::dec << ':' << bid << ':' << buyout;
-    strm << ':' << deposit << ':' << cut << ":1:" << secsToTimeBitFields(time(NULL)+ deliveryTime);
+    strm << ':' << deposit << ':' << cut << ":0:";
     return strm.str();
 }

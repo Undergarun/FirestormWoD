@@ -3341,17 +3341,31 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 144757: /// Increased All Resist 05
+                spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
+                break;
+            case 108683:///< Fire and Brimstone
+                /// I guess spellmod type is failed here because of -75% damage
+                spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
                 break;
+            case 175915:///< Acid Breath (Drov the Ruiner)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 165096:///< Ogreic Landing
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
             case 164868:///< Ogreic Landing
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 164850:///< Nature Channeling (Cosmetic)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 20167: ///< Seal of Insight
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_NONE;
@@ -3752,9 +3766,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 118592: ///< Spinning Crane Kick
                 spellInfo->Effects[0].BasePoints = urand(180, 230);
                 break;
-            case 165381: ///< Righteous Vengeance
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MASTERY;
-                break;
             case 48505: ///< Starfall
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -3987,8 +3998,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: ///< Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
-            case 53:    ///< Backstab
-            case 8676:  ///< Ambush
             case 21987: ///< Lash of Pain
             case 58563: ///< Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
@@ -4354,9 +4363,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -200;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE;
                 spellInfo->Effects[0].ValueMultiplier = -200;
-                break;
-            case 51690: ///< Killing Spree
-                spellInfo->Effects[3].Effect = SPELL_EFFECT_FORCE_DESELECT;
                 break;
             case 137619: ///< Marked for Death
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
@@ -4964,10 +4970,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 162532: ///< Glyph of Mind Harvest
-                spellInfo->ProcChance = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 162452: ///< Shadowy Insight
                 spellInfo->ProcChance = 0;
@@ -5805,9 +5807,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 22568: ///< Ferocious Bite
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 5221: ///< Shred
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)

@@ -252,7 +252,7 @@ public:
     }
 };
 
-// Exorcism - 879
+/// Exorcism - 879, Mass Exorcism - 122032
 class spell_pal_exorcism_energize: public SpellScriptLoader
 {
     public:
@@ -264,10 +264,15 @@ class spell_pal_exorcism_energize: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_EXORCISM)
-                            _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+                    return;
+                
+                l_Player->CastSpell(l_Player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
             }
 
             void Register()

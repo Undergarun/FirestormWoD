@@ -20,11 +20,13 @@
 #include "Buildings/Alliance/ABarracks.hpp"
 #include "Buildings/Alliance/ATradingPost.hpp"
 #include "Buildings/Alliance/ATailoringEmporium.hpp"
+#include "Buildings/Alliance/AAlchemyLab.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
 #include "Buildings/Horde/HWarMill.hpp"
 #include "Buildings/Horde/HTailoringEmporium.hpp"
+#include "Buildings/Horde/HAlchemyLab.hpp"
 
 #include <random>
 
@@ -32,7 +34,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0)
     {
 
     }
@@ -105,6 +107,9 @@ namespace MS { namespace Garrison
     /// Do next sequence element
     void GarrisonNPCAI::DoNextSequenceAction()
     {
+        if (!m_SequenceSize)
+            return;
+
         if (m_SequencePosition >= m_SequenceSize)
             m_SequencePosition = 0;
 
@@ -416,6 +421,10 @@ void AddSC_Garrison_NPC()
         /// TailoringEmporium
         new MS::Garrison::npc_ChristopherMacdonald;
         new MS::Garrison::npc_KaylieMacdonald;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_MaryKearie;
+        new MS::Garrison::npc_PeterKearie;
     }
 
     /// Horde
@@ -443,5 +452,9 @@ void AddSC_Garrison_NPC()
         /// Tailoring Emporium
         new MS::Garrison::npc_WarraTheWeaver;
         new MS::Garrison::npc_Turga;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_AlbertDeHyde;
+        new MS::Garrison::npc_KeyanaTone;
     }
 }

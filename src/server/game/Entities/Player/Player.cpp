@@ -4340,6 +4340,9 @@ void Player::InitSpellForLevel()
             removeSpell(68975, false, false);
     }
 
+    if (getRace() == Races::RACE_NIGHTELF)
+        learnSpell(154748, false);
+
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
     // http://www.wowhead.com/spell=33388
     if (l_Level >= 20 && getRace() == RACE_WORGEN)
@@ -5354,6 +5357,15 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     RemovePassiveTalentSpell(spell_id);
 
+    /// Remove areatrigger
+    std::list<AreaTrigger*> l_AreaTriggerList;
+    GetAreaTriggerList(l_AreaTriggerList, spell_id);
+    if (l_AreaTriggerList.size() > 0)
+    {
+        for (auto l_Itr : l_AreaTriggerList)
+            l_Itr->RemoveFromWorld();
+    }
+
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
     if (spellLearnSkill)
@@ -5829,8 +5841,8 @@ bool Player::ResetTalents(bool no_cost)
 
     if (isInCombat())
     {
-            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-            return false;
+        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        return false;
     }
 
     if (Pet* pet = GetPet())
@@ -5885,38 +5897,90 @@ bool Player::ResetTalents(bool no_cost)
 
 void Player::ResetSpec(bool p_NoCost /* = false */)
 {
-    uint32 cost = 0;
+    uint32 l_Cost = 0;
 
     if (!sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) && !p_NoCost)
     {
-        cost = GetNextResetSpecializationCost();
+        l_Cost = GetNextResetSpecializationCost();
 
-        if (!HasEnoughMoney(uint64(cost)))
+        if (!HasEnoughMoney(uint64(l_Cost)))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return;
         }
+
         if (isInCombat())
         {
-                SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-                return;
+            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+            return;
         }
     }
 
-    if (GetSpecializationId(GetActiveSpec()) == 0)
+    if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
         return;
 
-    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    /// Remove specialization Glyphs
+    std::vector<uint32> l_Glyphs = GetGlyphMap(GetActiveSpec());
+    uint8 l_Slot = 0;
+    for (uint32 l_Glyph : l_Glyphs)
     {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
+        GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+        for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+        {
+            if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+            {
+                if (l_GlyphRequirements->GlyphID == l_Glyph)
+                {
+                    l_GlyphReq = l_GlyphRequirements;
+                    break;
+                }
+            }
+        }
+
+        if (l_GlyphReq == nullptr)
+        {
+            ++l_Slot;
+            continue;
+        }
+
+        /// If glyph has a spec requirement, remove it
+        if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+        {
+            RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+            SetGlyph(l_Slot, 0);
+        }
+
+        ++l_Slot;
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), 0);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    ModifyMoney(-(int64)l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, l_Cost);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
+
+    SetSpecializationResetCost(l_Cost);
+    SetSpecializationResetTime(time(nullptr));
+}
+
+void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
+{
+    /// Remove specialization talents
+    for (auto l_Iter : *GetTalentMap(GetActiveSpec()))
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (!l_SpellInfo)
             continue;
 
         bool l_Remove = false;
-        for (uint32 l_TalentID : spell->m_TalentIDs)
+        for (uint32 l_TalentID : l_SpellInfo->m_TalentIDs)
         {
             TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentEntry->SpecID == GetSpecializationId(GetActiveSpec()))
+            if (l_TalentEntry && l_TalentEntry->SpecID != p_Specialization)
             {
                 l_Remove = true;
                 break;
@@ -5926,45 +5990,33 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
         if (!l_Remove)
             continue;
 
-        removeSpell(itr.first, true);
+        removeSpell(l_Iter.first, true);
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(spell->Effects[i].TriggerSpell, true);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].TriggerSpell > 0 && l_SpellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(l_SpellInfo->Effects[i].TriggerSpell, true);
+        }
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
+        for (uint8 i = 0; i < MAX_EFFECTS; ++i)
+        {
+            if (l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+                l_SpellInfo->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+                RemoveAurasDueToSpell(l_SpellInfo->Effects[i].BasePoints);
+        }
 
-        itr.second->state = PLAYERSPELL_REMOVED;
+        l_Iter.second->state = PLAYERSPELL_REMOVED;
 
         SetUsedTalentCount(GetUsedTalentCount() - 1);
         SetFreeTalentPoints(GetFreeTalentPoints() + 1);
     }
 
-    RemoveSpecializationSpells();
-    SetSpecializationId(GetActiveSpec(), 0);
-    InitSpellForLevel();
-    UpdateMasteryPercentage();
-    SendTalentsInfoData(false);
-
-    ModifyMoney(-(int64)cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
-
-    SetSpecializationResetCost(cost);
-    SetSpecializationResetTime(time(NULL));
-}
-
-void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
-{
-
-    if (spec == GetActiveSpec())
+    if (p_Spec == GetActiveSpec())
     {
         float pct = GetHealthPct();
-        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
+        SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, p_Specialization);
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5976,9 +6028,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
             }
         }
 
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 
-        if (!loading)
+        if (!p_Loading)
         {
             for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
             {
@@ -5994,7 +6046,7 @@ void Player::SetSpecializationId(uint8 spec, uint32 id, bool loading)
         return;
     }
     else
-        _talentMgr->SpecInfo[spec].SpecializationId = id;
+        _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -8921,46 +8973,6 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 p_ID)
-{
-    PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.find(p_ID);
-
-    if (l_It == _currencyStorage.end())
-        return;
-
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
-
-    l_Data << uint32(1);
-
-    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
-
-    if (!l_CurrencyEntry) // should never happen
-        return;
-
-    uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
-    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-    uint32 l_SeasonTotal = l_It->second.seasonTotal / l_Precision;
-
-    l_Data << uint32(l_CurrencyEntry->ID);
-    l_Data << uint32(l_It->second.totalCount / l_Precision);
-
-    l_Data.WriteBit(l_WeekCount);
-    l_Data.WriteBit(l_WeekCap);
-    l_Data.WriteBit(l_SeasonTotal);
-    l_Data.WriteBits(l_It->second.flags, 5);
-    l_Data.FlushBits();
-
-    if (l_WeekCount)
-        l_Data << uint32(l_WeekCount);
-    if (l_WeekCap)
-        l_Data << uint32(l_WeekCap);
-    if (l_SeasonTotal)
-        l_Data << uint32(l_SeasonTotal);
-
-    GetSession()->SendPacket(&l_Data);
-}
-
 void Player::SendCurrencies()
 {
     WorldPacket l_Data(SMSG_INIT_CURRENCY);
@@ -9185,7 +9197,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 itr->second.weekCap = CalculateCurrencyWeekCap(id);
-                SendNewCurrency(id);
+                SendCurrencies();
                 return;
             }
 
@@ -11180,7 +11192,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         if (!l_Corpse->lootForBody)
         {
             l_Corpse->lootForBody = true;
-            uint32 pLevel = l_Corpse->loot.gold;
+            uint32 pLevel = l_Corpse->loot.Gold;
             l_Corpse->loot.clear();
 
             if (Battleground* bg = GetBattleground())
@@ -11196,7 +11208,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
             // It may need a better formula
             // Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-            l_Corpse->loot.gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
+            l_Corpse->loot.Gold = uint32(urand(50, 150) * 0.016f * pow(float(pLevel)/5.76f, 2.5f) * sWorld->getRate(RATE_DROP_MONEY));
         }
 
         if (l_Corpse->lootRecipient != this)
@@ -19921,53 +19933,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) have invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         RelocateToHomebind();
     }
-    // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
-    {
-        Battleground* currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::BattlegroundType::None);
-
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
-
-        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
-        {
-            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-            AddBattlegroundQueueId(bgQueueTypeId);
-
-            m_bgData.bgTypeID = currentBg->GetTypeID();
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-        }
-        // Bg was not found - go to Entry Point
-        else
-        {
-            /// Leave bg.
-            if (player_at_bg)
-                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
-
-            /// Do not look for instance if bg not found.
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
-
-            /// Db field type is type int16, so it can never be MAPID_INVALID.
-            /// if (mapId == MAPID_INVALID) -- code kept for reference
-            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                RelocateToHomebind();
-            }
-            else
-                Relocate(&_loc);
-
-            /// We are not in BG anymore.
-            m_bgData.bgInstanceID = 0;
-        }
-    }
     // currently we do not support transport in bg
     else if (transGUID)
     {
@@ -20302,6 +20267,59 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
+
+    /// Player was saved in BG or arena.
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    {
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
+
+            m_bgData.bgTypeID = currentBg->GetTypeID();
+
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+        }
+        // Bg was not found - go to Entry Point
+        else
+        {
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
+
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
+            }
+            else
+                Relocate(&_loc);
+
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
+        }
+    }
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
@@ -22464,7 +22482,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
     // the client auto counts down in real time after having received the initial played time on the first
-    // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
+    // SMSG_SET_ITEM_PURCHASE_DATA packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
     std::set<uint32>::iterator i_next;
     for (std::set<uint32>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
@@ -22599,8 +22617,8 @@ void Player::_SaveMail(SQLTransaction& trans)
             stmt->setUInt8(0, uint8(m->HasItems() ? 1 : 0));
             stmt->setUInt32(1, uint32(m->expire_time));
             stmt->setUInt32(2, uint32(m->deliver_time));
-            stmt->setUInt32(3, m->money);
-            stmt->setUInt32(4, m->COD);
+            stmt->setUInt64(3, m->money);
+            stmt->setUInt64(4, m->COD);
             stmt->setUInt8(5, uint8(m->checked));
             stmt->setUInt32(6, m->messageID);
 
@@ -23467,119 +23485,165 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language, const char* addonPrefix /*= NULL*/, const std::string& channel /*= ""*/) const
+void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix /*= nullptr*/, std::string const& p_Channel /*= ""*/) const
 {
-    uint32 speakerNameLength = strlen(GetName());
+    uint32 l_SenderNameLen = strlen(GetName());
+    uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
-    ObjectGuid senderUnkGuid = GetGUID();
-    ObjectGuid groupGuid = 0;
-    ObjectGuid senderGuid = GetGUID();
-    uint64 guildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
+    p_Data->Initialize(SMSG_CHAT, 100);
+    *p_Data << uint8(p_MsgType);
+    *p_Data << uint8(p_LangID);
+    p_Data->appendPackGUID(GetGUID());
+    p_Data->appendPackGUID(l_GuildGuid);
+    p_Data->appendPackGUID(0);
+    p_Data->appendPackGUID(p_Target != nullptr ? p_Target->GetGUID() : 0);
+    *p_Data << uint32(g_RealmID);
+    *p_Data << uint32(g_RealmID);
+    p_Data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
+    *p_Data << uint32(0);     ///< AchievementID
+    *p_Data << float(0);      ///< DisplayTime
 
-    data->Initialize(SMSG_CHAT, 100);
-    *data << uint8(msgtype);
-    *data << uint8(language);
-    data->appendPackGUID(GetGUID());
-    data->appendPackGUID(guildGuid);
-    data->appendPackGUID(0);// MAKE_NEW_GUID(GetSession()->GetAccountId(), 0, HIGHGUID_WOW_ACCOUNT));
-    data->appendPackGUID(0);
-    *data << uint32(g_RealmID);
-    *data << uint32(g_RealmID);
-    data->appendPackGUID(GetGroup() ? GetGroup()->GetGUID() : 0);
-    *data << uint32(0);
-    *data << float(0);
+    p_Data->WriteBits(l_SenderNameLen, 11);
+    p_Data->WriteBits(0, 11); ///< TargetNameLen
+    p_Data->WriteBits(p_AddonPrefix ? strlen(p_AddonPrefix) : 0, 5);
+    p_Data->WriteBits(p_Channel.length(), 7);
+    p_Data->WriteBits(p_Text.length(), 12);
+    p_Data->WriteBits(GetChatTag(), 10);
+    p_Data->WriteBit(false);  ///< hide chat log
+    p_Data->WriteBit(false);  ///< Faker sender name
+    p_Data->FlushBits();
 
-    data->WriteBits(speakerNameLength, 11);
-    data->WriteBits(0, 11);
-    data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
-    data->WriteBits(channel.length(), 7);
-    data->WriteBits(text.length(), 12);
-    data->WriteBits(GetChatTag(), 10);
-    data->WriteBit(false);  ///< hide chat log
-    data->WriteBit(false);  ///< Faker sender name
-    data->FlushBits();
-
-    data->WriteString(GetName());
-    data->WriteString(addonPrefix ? addonPrefix : "");
-    data->WriteString(channel);
-    data->WriteString(text);
+    p_Data->WriteString(GetName());
+    p_Data->WriteString(p_AddonPrefix ? p_AddonPrefix : "");
+    p_Data->WriteString(p_Channel);
+    p_Data->WriteString(p_Text);
 }
 
-void Player::Say(const std::string& text, const uint32 language)
+void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, p_LangID, l_Text);
 
-    WorldPacket data;;
-    BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_SAY, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::Yell(const std::string& text, const uint32 language)
+void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, p_LangID, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_YELL, l_Text, p_LangID);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::TextEmote(const std::string& text)
+void Player::TextEmote(std::string const& p_Text)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, l_Text);
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    std::list<Player*> l_PlayerList;
+    GetPlayerListInGrid(l_PlayerList, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
+
+    for (Player* l_Target : l_PlayerList)
+    {
+        if (!HaveAtClient(l_Target))
+            continue;
+
+        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId())
+            continue;
+
+        if (WorldSession* l_Session = l_Target->GetSession())
+        {
+            WorldPacket l_Data;
+            /// No specific target needed
+            BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_EMOTE, l_Text, LANG_UNIVERSAL);
+            l_Session->SendPacket(&l_Data);
+        }
+    }
 }
 
-void Player::WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver)
+void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix, Player* p_Receiver)
 {
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, _text, receiver);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, LANG_UNIVERSAL, l_Text, p_Receiver);
 
-    if (!receiver->GetSession()->IsAddonRegistered(prefix))
+    if (!p_Receiver->GetSession()->IsAddonRegistered(p_Prefix))
         return;
 
-    WorldPacket data;
-    BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, LANG_UNIVERSAL, prefix.c_str());
-    receiver->GetSession()->SendPacket(&data);
+    WorldPacket l_Data;
+    BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_WHISPER, l_Text, LANG_UNIVERSAL, p_Prefix.c_str());
+    p_Receiver->GetSession()->SendPacket(&l_Data);
 }
 
-void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
+void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
-    Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
+    Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    if (l_Target == nullptr)
+        return;
 
-    std::string _text(text);
-    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
+    std::string l_Text(p_Text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
 
-    // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
-    if (!rPlayer->isDND() || isGameMaster())
+    if (l_Target->GetSocial()->HasIgnore(GetGUIDLow()))
     {
-        WorldPacket data;
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
-        rPlayer->GetSession()->SendPacket(&data);
-
-        rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
-        GetSession()->SendPacket(&data);
+        WorldPacket l_Data;
+        ChatHandler::FillMessageData(&l_Data, GetSession(), CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetGUID(), GetName(), NULL);
+        GetSession()->SendPacket(&l_Data);
+        return;
     }
-    else // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
 
-    if (!IsAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
+    if (!l_Target->isDND() || isGameMaster())
+    {
+        WorldPacket l_Data;
+        BuildPlayerChat(&l_Data, l_Target, CHAT_MSG_WHISPER, l_Text, p_LangID);
+        l_Target->GetSession()->SendPacket(&l_Data);
+
+        l_Target->BuildPlayerChat(&l_Data, this, CHAT_MSG_WHISPER_INFORM, l_Text, p_LangID);
+        GetSession()->SendPacket(&l_Data);
+    }
+    else ///< Announce to player that player he is whispering to is dnd and cannot receive his message
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, l_Target->GetName(), l_Target->dndMsg.c_str());
+
+    if (!IsAcceptWhispers() && !isGameMaster() && !l_Target->isGameMaster())
     {
         SetAcceptWhispers(true);
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
-    // announce to player that player he is whispering to is afk
-    if (rPlayer->isAFK())
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName(), rPlayer->afkMsg.c_str());
+    /// Announce to player that player he is whispering to is afk
+    if (l_Target->isAFK())
+        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, l_Target->GetName(), l_Target->afkMsg.c_str());
 
-    // if player whisper someone, auto turn of dnd to be able to receive an answer
-    if (isDND() && !rPlayer->isGameMaster())
+    /// If player whisper someone, auto turn of dnd to be able to receive an answer
+    if (isDND() && !l_Target->isGameMaster())
         ToggleDND();
 }
 
@@ -24762,6 +24826,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+            it->SetUInt32Value(ITEM_FIELD_CONTEXT, 14);
             it->SetRefundRecipient(GetGUIDLow());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);
@@ -28918,6 +28983,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
     {
         PlayerTalentMap & l_PlayerTalent = *GetTalentMap(l_SpeIT);
         ByteBuffer l_Talents(400);
+        int l_TalentCount = 0;
 
         for (PlayerTalentMap::iterator itr = l_PlayerTalent.begin(); itr != l_PlayerTalent.end(); ++itr)
         {
@@ -28943,11 +29009,12 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
                 }
 
                 l_Talents << uint16(l_Talent);
+                l_TalentCount++;
             }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
-        *p_Data << uint32(l_Talents.size() / 2);
+        *p_Data << uint32(l_TalentCount);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             *p_Data << uint16(GetGlyph(l_SpeIT, i));
@@ -28973,6 +29040,14 @@ void Player::SendTalentsInfoData(bool pet)
     WorldPacket data(SMSG_UPDATE_TALENT_DATA);
     BuildPlayerTalentsInfoData(&data);
     GetSession()->SendPacket(&data);
+}
+
+void Player::SendTalentsInvoluntarilyReset(bool p_IsPet /*= false*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_TALENTS_INVOLUNTARILY_RESET, 1);
+    l_Data.WriteBit(p_IsPet);
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
@@ -29581,71 +29656,62 @@ void Player::SendDuelCountdown(uint32 p_Coutdown)
     GetSession()->SendPacket(&data);
 }
 
-void Player::AddRefundReference(uint32 it)
+void Player::AddRefundReference(uint32 p_Iter)
 {
-    m_refundableItems.insert(it);
+    m_refundableItems.insert(p_Iter);
 }
 
-void Player::DeleteRefundReference(uint32 it)
+void Player::DeleteRefundReference(uint32 p_Iter)
 {
-    std::set<uint32>::iterator itr = m_refundableItems.find(it);
-    if (itr != m_refundableItems.end())
-    {
-        m_refundableItems.erase(itr);
-    }
+    std::set<uint32>::iterator l_Iter = m_refundableItems.find(p_Iter);
+    if (l_Iter != m_refundableItems.end())
+        m_refundableItems.erase(l_Iter);
 }
 
-void Player::SendRefundInfo(Item* item)
+void Player::SendRefundInfo(Item* p_Item)
 {
-    // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
-    item->UpdatePlayedTime(this);
+    /// This function call unset ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
+    p_Item->UpdatePlayedTime(this);
 
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    ObjectGuid l_ItemGUID = p_Item->GetGUID();
+    WorldPacket l_Data(SMSG_SET_ITEM_PURCHASE_DATA);
+
+    l_Data.appendPackGUID(l_ItemGUID);
+
+    /// Content
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
+        l_Data << uint32(p_Item->GetPaidMoney());                               ///< Money cost
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredItem[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredItemCount[l_I]);
+        }
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I] / 100); ///< Must be devided by precision
+        }
     }
 
-    ObjectGuid itemGuid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE);
+    l_Data << uint32(0);                                                        ///< Flags
+    l_Data << uint32(GetTotalPlayedTime() - p_Item->GetPlayedTime());           ///< Time Left
 
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   // Time Left
-    data << uint32(0);                                              // Unk
-    data << uint32(item->GetPaidMoney());                           // Money cost
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        data << uint32(iece->RequiredItemCount[i]);
-        data << uint32(iece->RequiredItem[i]);
-    }
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
-    {
-        data << uint32(iece->RequiredCurrency[i]);
-        data << uint32(iece->RequiredCurrencyCount[i] / 100);       // Must be devided by precision
-    }
-
-    uint8 bitsOrder[8] = { 1, 0, 7, 2, 3, 6, 4, 5 };
-    data.WriteBitInOrder(itemGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 1, 0, 2, 5, 3, 4, 7 };
-    data.WriteBytesSeq(itemGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
@@ -29687,145 +29753,140 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
             l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
         }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i] / 100);
         }
     }
 
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::RefundItem(Item* item)
+void Player::RefundItem(Item* p_Item)
 {
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (p_Item->IsRefundExpired())    ///< Item refund has expired
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
+        SendItemRefundResult(p_Item, NULL, 10);
         return;
     }
 
-    if (item->IsRefundExpired())    // item refund has expired
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        item->SetNotRefundable(this);
-        SendItemRefundResult(item, NULL, 10);
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    bool l_StoreError = false;
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
-    }
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
 
-    bool store_error = false;
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-
-        if (count && itemid)
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            if (msg != EQUIP_ERR_OK)
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            if (l_InvResult != EQUIP_ERR_OK)
             {
-                store_error = true;
+                l_StoreError = true;
                 break;
             }
          }
     }
 
-    if (store_error)
+    if (l_StoreError)
     {
-        SendItemRefundResult(item, iece, 10);
+        SendItemRefundResult(p_Item, l_ExtendedCost, 10);
         return;
     }
 
-    // Check total cap
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Check total cap
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currencyId = iece->RequiredCurrency[i];
-        CurrencyTypesEntry const* cte = sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!cte)
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        CurrencyTypesEntry const* l_CurrencyType = sCurrencyTypesStore.LookupEntry(l_CurrencyID);
+        if (!l_CurrencyType)
             continue;
 
-        uint32 count = iece->RequiredCurrencyCount[i] / cte->GetPrecision();
-        uint32 plrCount = GetCurrency(currencyId, cte->HasPrecision());
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I] / l_CurrencyType->GetPrecision();
+        uint32 l_CurrCount = GetCurrency(l_CurrencyID, l_CurrencyType->HasPrecision());
 
-        if (cte->TotalCap && (plrCount + count > (cte->TotalCap / cte->GetPrecision())))
+        if (l_CurrencyType->TotalCap && (l_CurrCount + l_Count > (l_CurrencyType->TotalCap / l_CurrencyType->GetPrecision())))
         {
-            SendItemRefundResult(item, iece, 10);
+            SendItemRefundResult(p_Item, l_ExtendedCost, 10);
             return;
         }
     }
 
-    SendItemRefundResult(item, iece, 0);
+    SendItemRefundResult(p_Item, l_ExtendedCost, 0);
 
-    uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
+    uint32 l_MoneyRefund = p_Item->GetPaidMoney();  ///< Item-> will be invalidated in DestroyItem
 
-    // Save all relevant data to DB to prevent desynchronisation exploits
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    /// Save all relevant data to DB to prevent desynchronizing exploits
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    // Delete any references to the refund data
-    item->SetNotRefundable(this, true, &trans);
+    /// Delete any references to the refund data
+    p_Item->SetNotRefundable(this, true, &l_Transaction);
 
-    // Destroy item
-    DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+    /// Destroy item
+    DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
 
-    // Grant back extended cost items ...
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Grant back extended cost items ...
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-        if (count && itemid)
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
+
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            ASSERT(msg == EQUIP_ERR_OK) /// Already checked before
-            Item* it = StoreNewItem(dest, itemid, true);
-            SendNewItem(it, count, true, false, true);
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            ASSERT(l_InvResult == EQUIP_ERR_OK) ///< Already checked before
+            Item* l_Item = StoreNewItem(l_Dest, l_ItemID, true);
+            SendNewItem(l_Item, l_Count, true, false, true);
         }
     }
 
-    // ... and currencies
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// ... and currencies
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currency = iece->RequiredCurrency[i];
-        uint32 count = iece->RequiredCurrencyCount[i];
-        if (currency && count)
-            ModifyCurrency(currency, count, false, true, true);
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I];
+
+        if (l_CurrencyID && l_Count)
+            ModifyCurrency(l_CurrencyID, l_Count, false, true, true);
     }
 
-    // Grant back money
-    if (moneyRefund)
-        ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
+    /// Grant back money
+    if (l_MoneyRefund)
+        ModifyMoney(l_MoneyRefund); ///< Saved in SaveInventoryAndGoldToDB
 
-    // Grant back Arena and Honor points ?
+    /// Grant back Arena and Honor points ?
 
-    SaveInventoryAndGoldToDB(trans);
+    SaveInventoryAndGoldToDB(l_Transaction);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void Player::SetRandomWinner(bool isWinner)
@@ -30798,6 +30859,13 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
 {
     switch (spellId)
     {
+        case 46584: // Raise dead
+            if (Pet* l_Pet = this->GetPet())
+            {
+                if (l_Pet->GetEntry() == 26125)
+                    l_Pet->UnSummon();
+            }
+            break;
         case 1463:  // Incanter's Ward
             RemoveAura(118858);
             break;
@@ -30818,18 +30886,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
             break;
-        case 116011:// Rune of Power
-        {
-            if (CountDynObject(spellId))
-            {
-                std::list<DynamicObject*> dynObjList;
-                GetDynObjectList(dynObjList, spellId);
-
-                for (auto itr : dynObjList)
-                    itr->SetDuration(0);
-            }
-            break;
-        }
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
                 removeSpell(111859, false, false);  // WARLOCK_GRIMOIRE_IMP

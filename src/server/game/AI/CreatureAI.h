@@ -166,12 +166,6 @@ class CreatureAI : public UnitAI
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
-        /// Called when an hostile reference is added to the threat list
-        virtual void OnHostileReferenceAdded(Unit* p_Ennemy) { }
-
-        /// Called when an hostile reference is removed from the threat list
-        virtual void OnHostileReferenceRemoved(Unit* p_Ennemy) { }
-
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)

@@ -256,6 +256,109 @@ class spell_ashran_curse_of_krong : public SpellScriptLoader
         }
 };
 
+/// Artifacts Collected - 177393
+class spell_ashran_artifacts_collected : public SpellScriptLoader
+{
+    public:
+        spell_ashran_artifacts_collected() : SpellScriptLoader("spell_ashran_artifacts_collected") { }
+
+        class spell_ashran_artifacts_collected_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_artifacts_collected_AuraScript);
+
+            void UpdateCurrentCount(uint32, AuraEffectPtr p_AurEff)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                {
+                    ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetZoneScript(l_Caster->GetZoneId());
+                    if (l_ZoneScript == nullptr)
+                        return;
+
+                    uint8 l_Type = eArtifactsDatas::CountForMage;
+                    uint8 l_TeamID = TeamId::TEAM_ALLIANCE;
+                    switch (l_Caster->GetEntry())
+                    {
+                        case eCreatures::Nisstyr:
+                            l_Type = eArtifactsDatas::CountForWarlock;
+                            l_TeamID = TeamId::TEAM_HORDE;
+                            break;
+                        case eCreatures::Marketa:
+                            l_Type = eArtifactsDatas::CountForWarlock;
+                            break;
+                        case eCreatures::Fura:
+                            l_TeamID = TeamId::TEAM_HORDE;
+                            break;
+                        case eCreatures::Kalgan:
+                            l_Type = eArtifactsDatas::CountForWarriorPaladin;
+                            l_TeamID = TeamId::TEAM_HORDE;
+                            break;
+                        case eCreatures::ValantBrightsworn:
+                            l_Type = eArtifactsDatas::CountForWarriorPaladin;
+                            break;
+                        case eCreatures::Atomik:
+                            l_Type = eArtifactsDatas::CountForDruidShaman;
+                            l_TeamID = TeamId::TEAM_HORDE;
+                            break;
+                        case eCreatures::Anenga:
+                            l_Type = eArtifactsDatas::CountForDruidShaman;
+                            break;
+                        case eCreatures::Ecilam:
+                        default:
+                            break;
+                    }
+
+                    uint32 l_Count = ((OutdoorPvPAshran*)l_ZoneScript)->GetArtifactCollected(l_TeamID, l_Type);
+                    p_AurEff->ChangeAmount(l_Count);
+                }
+            }
+
+            void SetMaxCount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& p_CanBeRecalculated)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                {
+                    switch (l_Caster->GetEntry())
+                    {
+                        case eCreatures::Marketa:
+                        case eCreatures::Nisstyr:
+                            p_Amount = eArtifactsDatas::MaxCountForWarlock;
+                            break;
+                        case eCreatures::Ecilam:
+                        case eCreatures::Fura:
+                            p_Amount = eArtifactsDatas::MaxCountForMage;
+                            break;
+                        case eCreatures::Kalgan:
+                        case eCreatures::ValantBrightsworn:
+                            p_Amount = eArtifactsDatas::MaxCountForWarriorPaladin;
+                            break;
+                        case eCreatures::Atomik:
+                        case eCreatures::Anenga:
+                            p_Amount = eArtifactsDatas::MaxCountForDruidShaman;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_ashran_artifacts_collected_AuraScript::UpdateCurrentCount, EFFECT_0, SPELL_AURA_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ashran_artifacts_collected_AuraScript::SetMaxCount, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_artifacts_collected_AuraScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -263,4 +366,5 @@ void AddSC_AshranSpells()
     new spell_ashran_faction_rewards();
     new spell_ashran_booming_shout();
     new spell_ashran_curse_of_krong();
+    new spell_ashran_artifacts_collected();
 }

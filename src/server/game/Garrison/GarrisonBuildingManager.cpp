@@ -23,7 +23,8 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::DwarvenBunker__WarMill_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheForge__TheForge_Level1);
         m_AllowedBluePrints.push_back(Buildings::TradingPost__TradingPost_Level1);
-        m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
+        m_AllowedBluePrints.push_back(Buildings::TailoringEmporium__TailoringEmporium_Level1);
+        m_AllowedBluePrints.push_back(Buildings::AlchemyLab__AlchemyLab_Level1);
     }
 
     /// Destructor
@@ -36,13 +37,13 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Learn allowed building blue prints
-    /// @p_Player     : Target player
-    void BuildingManager::LearnAllowedBuildings(Player * p_Player)
+    /// @p_Player     : Target player/// @p_Garrison   : Target garrison
+    void BuildingManager::LearnAllowedBuildings(Player * p_Player, Manager * p_Garrison)
     {
-        if (!p_Player || !p_Player->GetGarrison())
+        if (!p_Player || !p_Garrison)
             return;
 
-        auto l_KnownBluePrints = p_Player->GetGarrison()->GetKnownBlueprints();
+        auto l_KnownBluePrints = p_Garrison->GetKnownBlueprints();
 
         for (int32 l_BluePrint : m_AllowedBluePrints)
         {
@@ -50,7 +51,7 @@ namespace MS { namespace Garrison
             if (std::find(l_KnownBluePrints.begin(), l_KnownBluePrints.end(), l_BluePrint) != l_KnownBluePrints.end())
                 continue;
 
-            p_Player->GetGarrison()->LearnBlueprint(l_BluePrint);
+            p_Garrison->LearnBlueprint(l_BluePrint);
         }
     }
 

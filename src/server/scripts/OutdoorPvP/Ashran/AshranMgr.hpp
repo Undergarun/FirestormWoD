@@ -149,6 +149,10 @@ class OutdoorPvPAshran : public OutdoorPvP
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* p_Player);
         uint8 GetSpiritGraveyardID(uint32 p_AreaID, TeamId p_Team) const;
 
+        uint32 GetArtifactCollected(uint8 p_TeamID, uint8 p_Type) const { return m_ArtifactsCollected[p_TeamID][p_Type]; }
+        void AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint32 p_Count);
+        void RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player);
+
     private:
 
         OPvPCapturePoint_Graveyard* m_GraveYard;
@@ -172,6 +176,8 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
         uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
+
+        uint32 m_ArtifactsCollected[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
 
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
