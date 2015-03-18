@@ -2993,63 +2993,6 @@ class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
         }
 };
 
-class spell_hun_pet_carrion_feeder: public SpellScriptLoader
-{
-    public:
-        spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
-
-        class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
-
-            bool Load()
-            {
-                if (!GetCaster()->isPet())
-                    return false;
-                return true;
-            }
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckIfCorpseNear()
-            {
-                Unit* caster = GetCaster();
-                float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
-                // search for nearby enemy corpse in range
-                JadeCore::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
-                JadeCore::WorldObjectSearcher<JadeCore::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
-                if (!result)
-                    return SPELL_FAILED_NO_EDIBLE_CORPSES;
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to pet's Last Stand
-                OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_pet_carrion_feeder_SpellScript();
-        }
-};
-
 // Misdirection - 34477
 class spell_hun_misdirection: public SpellScriptLoader
 {
@@ -3717,7 +3660,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_scatter_shot();
     new spell_hun_pet_heart_of_the_phoenix();
-    new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();
