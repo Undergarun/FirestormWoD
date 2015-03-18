@@ -2824,7 +2824,7 @@ class spell_gen_mount: public SpellScriptLoader
 
             void Register()
             {
-                 OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                 OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
 
         private:
