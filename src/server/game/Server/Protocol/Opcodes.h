@@ -1354,6 +1354,11 @@ enum Opcodes
     CMSG_REQUEST_RAID_INFO                      = 0x0A96, ///< 6.1.2 19750
     CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x1716, ///< 6.1.2 19750
     CMSG_CLEAR_RAID_MARKER                      = 0x0FDB, ///< 6.1.2 19750
+    CMSG_GROUP_ASSISTANT_LEADER                 = 0x0395, ///< 6.1.2 19750
+    CMSG_GROUP_ASSIGNMENT                       = 0x0AB8, ///< 6.1.2 19750
+    CMSG_GROUP_CHANGE_SUB_GROUP                 = 0x0AB7, ///< 6.1.2 19750
+    CMSG_GROUP_REQUEST_JOIN_UPDATES             = 0x0620, ///< 6.1.2 19750
+    CMSG_GROUP_SWAP_SUB_GROUP                   = 0x0F98, ///< 6.1.2 19750
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1666,12 +1671,6 @@ enum Opcodes
     CMSG_GETDEATHBINDZONE                               = 0x0000,
     CMSG_GHOST                                          = 0x0000,
     CMSG_GRANT_LEVEL                                    = 0x0000,
-    CMSG_GROUP_ASSISTANT_LEADER                         = 0x0000,
-    CMSG_GROUP_ASSIGNMENT                               = 0x0000,
-    CMSG_GROUP_CANCEL                                   = 0x0000,
-    CMSG_GROUP_CHANGE_SUB_GROUP                         = 0x0000, //
-    CMSG_GROUP_REQUEST_JOIN_UPDATES                     = 0x0000,
-    CMSG_GROUP_SWAP_SUB_GROUP                           = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                           = 0x0000,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE                 = 0x0000,
     CMSG_ITEM_REFUND                                    = 0x0000,

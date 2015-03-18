@@ -774,18 +774,11 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     else
        timeLastChangeSubGroupCommand = now;
 
-    ObjectGuid guid;
+    uint64 guid;
     uint8 groupNr, unk;
 
+    recvData.readPackGUID(guid);
     recvData >> unk >> groupNr;
-
-    uint8 bitsOrder[8] = { 1, 3, 7, 2, 0, 5, 4, 6 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 0, 2, 4, 5, 3, 6, 1 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
 
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
@@ -803,51 +796,15 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
     uint8 unk1;
-    ObjectGuid guid1;
-    ObjectGuid guid2;
-    uint8 unk2;
+    uint64 guid1;
+    uint64 guid2;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
 
     recvData >> unk1;
-
-    guid1[4] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-
-    guid2[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[3] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid1[7]);
-
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[2]);
-
-    recvData >> unk2;
+    recvData.readPackGUID(guid2);
+    recvData.readPackGUID(guid1);
 }
 
 void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket & p_Packet)
@@ -879,27 +836,14 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    ObjectGuid guid;
-    bool apply;
+    uint64 guid;
     uint8 unk = 0;
+
     recvData >> unk;
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    apply = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 6, 3, 2, 5, 7, 1, 0, 4 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(guid);
+    bool apply = recvData.ReadBit();
 
     group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
-
     group->SendUpdate();
 }
 
@@ -916,25 +860,13 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
         return;
 
     uint8 assignment, unk;
-    bool apply;
-    ObjectGuid guid;
+    uint64 guid;
 
-    recvData >> assignment >> unk;
-
-    guid[0] = recvData.ReadBit();
-    apply = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
+    recvData >> unk >> assignment;
+    recvData.readPackGUID(guid);
+    bool apply = recvData.ReadBit();
 
     recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 5, 4, 7, 6, 3, 0, 1, 2 };
-    recvData.ReadBytesSeq(guid, byteOrder);
 
     switch (assignment)
     {

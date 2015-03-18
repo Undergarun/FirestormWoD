@@ -1406,6 +1406,11 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RAID_INFO,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestRaidInfoOpcode      );
     DEFINE_OPCODE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,                       STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleGroupEveryoneIsAssistantOpcode);
     DEFINE_OPCODE_HANDLER(CMSG_CLEAR_RAID_MARKER,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleClearRaidMarkerOpcode      );
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_ASSISTANT_LEADER,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGroupAssistantLeaderOpcode);
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_ASSIGNMENT,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandlePartyAssignmentOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_CHANGE_SUB_GROUP,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleGroupChangeSubGroupOpcode );
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_REQUEST_JOIN_UPDATES,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestJoinUpdates        );
+    DEFINE_OPCODE_HANDLER(CMSG_GROUP_SWAP_SUB_GROUP,                            STATUS_UNHANDLED,   PROCESS_THREADUNSAFE,   &WorldSession::HandleGroupSwapSubGroupOpcode   );
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
@@ -1699,11 +1704,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_DEL_VOICE_IGNORE,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CRITTER,                         STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleDismissCritter            );
     //DEFINE_OPCODE_HANDLER(CMSG_GRANT_LEVEL,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGrantLevel                );
-    //DEFINE_OPCODE_HANDLER(CMSG_GROUP_ASSISTANT_LEADER,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_GROUP_ASSIGNMENT,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePartyAssignmentOpcode     );
-    //DEFINE_OPCODE_HANDLER(CMSG_GROUP_CHANGE_SUB_GROUP,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupChangeSubGroupOpcode );
-    //DEFINE_OPCODE_HANDLER(CMSG_GROUP_REQUEST_JOIN_UPDATES,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestJoinUpdates        );
-    //DEFINE_OPCODE_HANDLER(CMSG_GROUP_SWAP_SUB_GROUP,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupSwapSubGroupOpcode   );
     //DEFINE_OPCODE_HANDLER(CMSG_HEARTH_AND_RESURRECT,                    STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleHearthAndResurrect        );
     //DEFINE_OPCODE_HANDLER(CMSG_INSTANCE_LOCK_WARNING_RESPONSE,          STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_ITEM_REFUND,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleItemRefund                );
