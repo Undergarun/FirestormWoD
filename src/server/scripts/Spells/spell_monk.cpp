@@ -78,9 +78,6 @@ enum MonkSpells
     MONK_NPC_JADE_SERPENT_STATUE                = 60849,
     SPELL_MONK_UPLIFT_ALLOWING_CAST             = 123757,
     SPELL_MONK_THUNDER_FOCUS_TEA                = 116680,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_DAMAGE     = 123408,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE    = 118852,
-    SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT       = 123407,
     SPELL_MONK_TOUCH_OF_KARMA_REDIRECT_DAMAGE   = 124280,
     SPELL_MONK_JADE_LIGHTNING_ENERGIZE          = 123333,
     SPELL_MONK_CRACKLING_JADE_SHOCK_BUMP        = 117962,
@@ -1393,116 +1390,6 @@ class spell_monk_touch_of_karma: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_touch_of_karma_AuraScript();
-        }
-};
-
-// Spinning Fire Blossom - 123408
-class spell_monk_spinning_fire_blossom_damage: public SpellScriptLoader
-{
-    public:
-        spell_monk_spinning_fire_blossom_damage() : SpellScriptLoader("spell_monk_spinning_fire_blossom_damage") { }
-
-        class spell_monk_spinning_fire_blossom_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_spinning_fire_blossom_damage_SpellScript);
-
-            SpellCastResult CheckTarget()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetExplTargetUnit())
-                        if (_player->IsFriendlyTo(target))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleBeforeHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (target->GetDistance(_player) > 10.0f)
-                        {
-                            int32 damage = GetHitDamage();
-                            AddPct(damage, 50);
-                            SetHitDamage(damage);
-                            _player->CastSpell(target, SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_monk_spinning_fire_blossom_damage_SpellScript::CheckTarget);
-                BeforeHit += SpellHitFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleBeforeHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_spinning_fire_blossom_damage_SpellScript();
-        }
-};
-
-// Spinning Fire Blossom - 115073
-class spell_monk_spinning_fire_blossom: public SpellScriptLoader
-{
-    public:
-        spell_monk_spinning_fire_blossom() : SpellScriptLoader("spell_monk_spinning_fire_blossom") { }
-
-        class spell_monk_spinning_fire_blossom_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_spinning_fire_blossom_SpellScript)
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> tempList;
-                    std::list<Unit*> targetList;
-
-                    _player->GetAttackableUnitListInRange(tempList, 50.0f);
-
-                    for (auto itr : tempList)
-                    {
-                        if (!_player->IsValidAttackTarget(itr))
-                            continue;
-
-                        if (!_player->isInFront(itr))
-                            continue;
-
-                        if (!itr->IsWithinLOSInMap(_player))
-                            continue;
-
-                        if (itr->GetGUID() == _player->GetGUID())
-                            continue;
-
-                        targetList.push_back(itr);
-                    }
-
-                    if (!targetList.empty())
-                    {
-                        JadeCore::Containers::RandomResizeList(targetList, 1);
-
-                        for (auto itr : targetList)
-                            _player->CastSpell(itr, SPELL_MONK_SPINNING_FIRE_BLOSSOM_DAMAGE, true);
-                    }
-                    else
-                        _player->CastSpell(_player, SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_monk_spinning_fire_blossom_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_spinning_fire_blossom_SpellScript();
         }
 };
 
@@ -4298,8 +4185,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_power_strikes();
     new spell_monk_crackling_jade_lightning();
     new spell_monk_touch_of_karma();
-    new spell_monk_spinning_fire_blossom_damage();
-    new spell_monk_spinning_fire_blossom();
     new spell_monk_thunder_focus_tea();
     new spell_monk_jade_serpent_statue();
     new spell_monk_teachings_of_the_monastery();
