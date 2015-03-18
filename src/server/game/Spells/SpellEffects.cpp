@@ -6657,6 +6657,22 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     if (success_list.empty())
         return;
 
+    // @TODO : add the SMSG_SPELLSTEALLOG
+    /*WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + success_list.size() * 5);
+    // Send packet header
+    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
+    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
+    dataSuccess << uint32(success_list.size());            // count
+    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
+    dataSuccess << uint32(0);                              // */
+
+    for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    {
+        // dataSuccess << uint32(itr->first);              // Spell Id
+        // dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
+        unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
+    }
+
     // Glyph of SpellSteal
     if (m_caster->HasAura(115713))
         m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
