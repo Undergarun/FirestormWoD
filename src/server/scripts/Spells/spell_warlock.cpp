@@ -1130,13 +1130,20 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                    {
-                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
-                        if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
-                    }
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                {
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                    if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                }
+
+                /// Generates 2 Demonic Fury every time it deals damage.
+                l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY));
             }
 
             void Register()
