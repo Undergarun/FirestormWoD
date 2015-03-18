@@ -752,6 +752,8 @@ class World
                 return 600;
             else if (lvl >= 90)
                 return 700;
+
+            return 0;
         }
 
         void SetInitialWorldSettings();
