@@ -11392,6 +11392,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         default: break;
     }
 
+    /// In WoD, more you have fishing skill more the fish is bigger
     if (loot_type == LOOT_FISHING)
     {
         uint32 l_SmallFishChance    = 100;
@@ -11400,6 +11401,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
         uint32 l_FishingSKill = GetSkillValue(SKILL_FISHING);
 
+        http://www.wowhead.com/achievement=9462/draenor-angler#comments
         if (l_FishingSKill >= 100 && l_FishingSKill < 525)
         {
             l_SmallFishChance  = 80;
@@ -11432,6 +11434,17 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             Big
         };
 
+        /// Fish with vairous size :
+        /// -------------------------------------------
+        /// - Crescent Saberfish
+        /// - Blackwater Whiptail
+        /// - Abyssal Gulper Eel
+        /// - Sea Scorpion
+        /// - Fire Ammonite
+        /// - Blind Lake Sturgeon
+        /// - Fat Sleeper
+        /// - Jawless Skulker
+        /// - Savage Piranha
         std::vector<uint32> g_SmallFish { 111589, 111650, 111651, 111652, 111656, 111658, 111659, 111662, 118564 };
         std::vector<uint32> g_MediumFish{ 111595, 111663, 111664, 111665, 111666, 111667, 111668, 111669, 118565 };
         std::vector<uint32> g_BigFish   { 111601, 111670, 111671, 111672, 111673, 111674, 111675, 111676, 118566 };
