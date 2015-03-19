@@ -11393,7 +11393,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
     }
 
     /// In WoD, more you have fishing skill more the fish is bigger
-    if (loot_type == LOOT_FISHING)
+    if (loot_type == LOOT_FISHING || loot_type == LOOT_FISHINGHOLE)
     {
         uint32 l_SmallFishChance    = 100;
         uint32 l_MediumFishChance   = 0;
@@ -11401,7 +11401,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
 
         uint32 l_FishingSKill = GetSkillValue(SKILL_FISHING);
 
-        http://www.wowhead.com/achievement=9462/draenor-angler#comments
+        /// http://www.wowhead.com/achievement=9462/draenor-angler#comments
         if (l_FishingSKill >= 100 && l_FishingSKill < 525)
         {
             l_SmallFishChance  = 80;
