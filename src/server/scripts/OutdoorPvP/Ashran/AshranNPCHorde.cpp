@@ -940,7 +940,8 @@ class npc_ashran_kronus : public CreatureScript
         {
             EventFracture = 1,
             EventGroundPound,
-            EventRockShield
+            EventRockShield,
+            EventMove
         };
 
         struct npc_ashran_kronusAI : public ScriptedAI
@@ -948,9 +949,12 @@ class npc_ashran_kronus : public CreatureScript
             npc_ashran_kronusAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
 
             void InitializeAI() override
             {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1000);
+
                 /// Kronus no longer scales their health based the number of players he's fighting.
                 /// Each faction guardian's health now scales based on the number of enemy players active at the time when they're summoned.
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
@@ -982,6 +986,10 @@ class npc_ashran_kronus : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                Position l_Pos;
+                me->GetPosition(&l_Pos);
+                me->SetHomePosition(l_Pos);
+
                 m_Events.ScheduleEvent(eEvents::EventFracture, 5000);
                 m_Events.ScheduleEvent(eEvents::EventGroundPound, 12000);
                 m_Events.ScheduleEvent(eEvents::EventRockShield, 9000);
@@ -1008,6 +1016,16 @@ class npc_ashran_kronus : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    me->SetWalk(true);
+                    me->LoadPath(me->GetEntry());
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 

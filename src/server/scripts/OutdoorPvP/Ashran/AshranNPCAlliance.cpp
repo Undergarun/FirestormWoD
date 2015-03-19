@@ -946,7 +946,8 @@ class npc_ashran_fangraal : public CreatureScript
             EventWildGrowth = 1,
             EventEntanglingRoots,
             EventAwake1,
-            EventAwake2
+            EventAwake2,
+            EventMove
         };
 
         enum eTalks
@@ -961,9 +962,12 @@ class npc_ashran_fangraal : public CreatureScript
 
             EventMap m_Events;
             EventMap m_TalkEvents;
+            EventMap m_MoveEvent;
 
             void InitializeAI() override
             {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1000);
+
                 /// Fangraal no longer scales their health based the number of players he's fighting.
                 /// Each faction guardian's health now scales based on the number of enemy players active at the time when they're summoned.
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
@@ -997,6 +1001,10 @@ class npc_ashran_fangraal : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                Position l_Pos;
+                me->GetPosition(&l_Pos);
+                me->SetHomePosition(l_Pos);
+
                 m_Events.ScheduleEvent(eEvents::EventWildGrowth, 5000);
                 m_Events.ScheduleEvent(eEvents::EventEntanglingRoots, 10000);
             }
@@ -1022,6 +1030,16 @@ class npc_ashran_fangraal : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    me->SetWalk(true);
+                    me->LoadPath(me->GetEntry());
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 m_TalkEvents.Update(p_Diff);
 
                 switch (m_TalkEvents.ExecuteEvent())
