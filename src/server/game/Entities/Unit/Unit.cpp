@@ -18282,6 +18282,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             l_Loot->generateMoneyLoot(l_KilledCreature->GetCreatureTemplate()->mingold, l_KilledCreature->GetCreatureTemplate()->maxgold);
         }
 
+        l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
         l_KillerPlayer->RewardPlayerAndGroupAtKill(l_KilledVictim, false);
     }
 

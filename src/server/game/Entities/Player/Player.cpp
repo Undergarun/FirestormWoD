@@ -27280,6 +27280,49 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
     return recruitAFriend;
 }
 
+void Player::RewardPersonnalCurrencies(Unit* p_Victim)
+{
+    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    if (!p_Victim->ToCreature())
+        return;
+
+    if (!p_Victim->ToCreature()->GetEntry())
+        return;
+
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
+    CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetPersonnalCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
+    if (!l_Curr)
+        return;
+
+    bool l_Result = true;
+    if (p_Victim->ToCreature()->AI())
+        p_Victim->ToCreature()->AI()->CurrenciesRewarder(l_Result);
+
+    if (!l_Result)
+        return;
+
+    for (CurrencyOnKillEntry::const_iterator l_Iter = l_Curr->begin(); l_Iter != l_Curr->end(); ++l_Iter)
+    {
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator l_I = l_Auras.begin(); l_I != l_Auras.end(); ++l_I)
+        {
+            if (l_Iter->first == (*l_I)->GetMiscValue())
+                l_Pct += (*l_I)->GetAmount();
+        }
+
+        ModifyCurrency(l_Iter->first, CalculatePct(l_Iter->second, l_Pct));
+    }
+}
+
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
     if (Group *pGroup = GetGroup())
