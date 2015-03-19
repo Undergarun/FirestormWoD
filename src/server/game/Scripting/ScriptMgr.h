@@ -745,6 +745,10 @@ class ScriptMgr
         /// @p_Form   : New shapeshift from
         void OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form);
 
+        /// Called when a player changes his faction
+        /// @p_Player : Player instance
+        void OnPlayerFactionChanged(Player* p_Player);
+
         /// Called when a player loot an item
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
@@ -770,6 +774,12 @@ class ScriptMgr
         /// @p_AddValue       : amount of power to regenerate
         /// @p_PreventDefault : avoid default regeneration
         void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
+
+        /// Called when a player take damage
+        /// @p_Player          : Player instance
+        /// @p_DamageEffectTyp : Damage type
+        /// @p_Damage          : Amount of damage taken
+        void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage);
 
     /// BattlegroundScript
     public:

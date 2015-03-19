@@ -997,6 +997,14 @@ class ObjectMgr
             return NULL;
         }
 
+        CurrencyOnKillEntry const* GetPersonnalCurrencyOnKillEntry(uint32 p_ID) const
+        {
+            CurOnKillContainer::const_iterator l_Iter = m_PersonnalCurrOnKillStore.find(p_ID);
+            if (l_Iter != m_PersonnalCurrOnKillStore.end())
+                return &l_Iter->second;
+            return NULL;
+        }
+
         PointOfInterest const* GetPointOfInterest(uint32 id) const
         {
             PointOfInterestContainer::const_iterator itr = _pointsOfInterestStore.find(id);
@@ -1164,6 +1172,7 @@ class ObjectMgr
         void LoadReputationOnKill();
         void LoadReputationSpilloverTemplate();
         void LoadCurrencyOnKill();
+        void LoadPersonnalCurrencyOnKill();
 
         void LoadPointsOfInterest();
         void LoadQuestPOI();
@@ -1677,6 +1686,7 @@ class ObjectMgr
         RepOnKillContainer _repOnKillStore;
         RepSpilloverTemplateContainer _repSpilloverTemplateStore;
         CurOnKillContainer _curOnKillStore;
+        CurOnKillContainer m_PersonnalCurrOnKillStore;
 
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;

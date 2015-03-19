@@ -1743,8 +1743,6 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
-        /// send initialization of new currency for client
-        void SendNewCurrency(uint32 id);
         /// send full data about all currencies to client
         void ModifyCurrencyFlags(uint32 currencyId, uint8 flags);
         void SendCurrencies();
@@ -2196,6 +2194,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveSpecializationSpells();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
+        void SendTalentsInvoluntarilyReset(bool p_IsPet = false);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
@@ -2497,6 +2496,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateItemLevel();
         void UpdateAllRatings();
+        uint32 GetRatingValue(CombatRating p_CombatRating) const { return m_baseRatingValue[p_CombatRating]; }
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2650,6 +2650,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
         void RewardCurrencyAtKill(Unit* victim);
+        void RewardPersonnalCurrencies(Unit* p_Victim);
         void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* victim);
@@ -2894,7 +2895,10 @@ class Player : public Unit, public GridObject<Player>
         void SetBattlegroundEntryPoint();
 
         void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, uint8(team == ALLIANCE ? 1 : 0)); }
+
+        /// Return faction team (see enum @Team)
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
+
         uint8 GetBGLastActiveSpec() const { return m_bgData.m_LastActiveSpec; }
         void SaveBGLastSpecialization() { m_bgData.m_LastActiveSpec = GetActiveSpec(); }
 

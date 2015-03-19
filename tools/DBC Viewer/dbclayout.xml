@@ -1725,8 +1725,6 @@
       <primary>ID</primary>
     </index>
     <field type="int" name="ID" />
-    <field type="int" name="reqhonorpoints" />
-    <field type="int" name="reqarenapoints" />
     <field type="int" name="RequiredArenaSlot" />
     <field type="int" name="RequiredItem1" />
     <field type="int" name="RequiredItem2" />
@@ -1753,7 +1751,8 @@
     <field type="int" name="RequiredFactionId" />
     <field type="int" name="RequiredFactionStanding" />
     <field type="int" name="RequirementFlags" />
-    <field type="int" name="RequiredGuildLevel" />
+    <field type="int" name="newField1 6.1" />
+    <field type="int" name="newField2 6.2" />
   </ItemExtendedCost>
   <Item-sparse build="0">
     <index>
@@ -3322,7 +3321,7 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="string" name="field1" />
   </SceneScriptPackage>
   <SceneScriptPackageMember build="0">
     <index>
@@ -4073,9 +4072,9 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
+    <field type="float" name="field1" />
+    <field type="float" name="field2" />
+    <field type="float" name="field3" />
     <field type="int" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
@@ -4170,4 +4169,113 @@
     <field type="int" name="field0" />
     <field type="int" name="field1" />
   </UiTextureKit>
+  <BroadcastText build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="MsgType" />
+    <field type="string" name="Text0" />
+    <field type="string" name="Text1" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="SoundID" />
+    <field type="int" name="EmoteID" />
+    <field type="int" name="field12" />
+  </BroadcastText>
+  <Path build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+  </Path>
+  <PathNode build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </PathNode>
+  <ItemExtendedCost build="6.0.3">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="reqhonorpoints" />
+    <field type="int" name="reqarenapoints" />
+    <field type="int" name="RequiredArenaSlot" />
+    <field type="int" name="RequiredItem1" />
+    <field type="int" name="RequiredItem2" />
+    <field type="int" name="RequiredItem3" />
+    <field type="int" name="RequiredItem4" />
+    <field type="int" name="RequiredItem5" />
+    <field type="int" name="RequiredItemCount1" />
+    <field type="int" name="RequiredItemCount2" />
+    <field type="int" name="RequiredItemCount3" />
+    <field type="int" name="RequiredItemCount4" />
+    <field type="int" name="RequiredItemCount5" />
+    <field type="int" name="RequiredPersonalArenaRating" />
+    <field type="int" name="ItemPurchaseGroup" />
+    <field type="int" name="RequiredCurrency1" />
+    <field type="int" name="RequiredCurrency2" />
+    <field type="int" name="RequiredCurrency3" />
+    <field type="int" name="RequiredCurrency4" />
+    <field type="int" name="RequiredCurrency5" />
+    <field type="int" name="RequiredCurrencyCount1" />
+    <field type="int" name="RequiredCurrencyCount2" />
+    <field type="int" name="RequiredCurrencyCount3" />
+    <field type="int" name="RequiredCurrencyCount4" />
+    <field type="int" name="RequiredCurrencyCount5" />
+    <field type="int" name="RequiredFactionId" />
+    <field type="int" name="RequiredFactionStanding" />
+    <field type="int" name="RequirementFlags" />
+    <field type="int" name="RequierementguildLevel" />
+  </ItemExtendedCost>
+  <ItemExtendedCost build="19702">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="RequiredArenaSlot" />
+    <field type="int" name="RequiredItem1" />
+    <field type="int" name="RequiredItem2" />
+    <field type="int" name="RequiredItem3" />
+    <field type="int" name="RequiredItem4" />
+    <field type="int" name="RequiredItem5" />
+    <field type="int" name="RequiredItemCount1" />
+    <field type="int" name="RequiredItemCount2" />
+    <field type="int" name="RequiredItemCount3" />
+    <field type="int" name="RequiredItemCount4" />
+    <field type="int" name="RequiredItemCount5" />
+    <field type="int" name="RequiredPersonalArenaRating" />
+    <field type="int" name="ItemPurchaseGroup" />
+    <field type="int" name="RequiredCurrency1" />
+    <field type="int" name="RequiredCurrency2" />
+    <field type="int" name="RequiredCurrency3" />
+    <field type="int" name="RequiredCurrency4" />
+    <field type="int" name="RequiredCurrency5" />
+    <field type="int" name="RequiredCurrencyCount1" />
+    <field type="int" name="RequiredCurrencyCount2" />
+    <field type="int" name="RequiredCurrencyCount3" />
+    <field type="int" name="RequiredCurrencyCount4" />
+    <field type="int" name="RequiredCurrencyCount5" />
+    <field type="int" name="RequiredFactionId" />
+    <field type="int" name="RequiredFactionStanding" />
+    <field type="int" name="RequirementFlags" />
+    <field type="int" name="newField1 6.1" />
+    <field type="int" name="newField2 6.2" />
+  </ItemExtendedCost>
 </DBFilesClient>

@@ -19,10 +19,14 @@
 #include "Buildings/Alliance/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/ABarracks.hpp"
 #include "Buildings/Alliance/ATradingPost.hpp"
+#include "Buildings/Alliance/ATailoringEmporium.hpp"
+#include "Buildings/Alliance/AAlchemyLab.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
 #include "Buildings/Horde/HWarMill.hpp"
+#include "Buildings/Horde/HTailoringEmporium.hpp"
+#include "Buildings/Horde/HAlchemyLab.hpp"
 
 #include <random>
 
@@ -30,7 +34,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0)
     {
 
     }
@@ -103,6 +107,9 @@ namespace MS { namespace Garrison
     /// Do next sequence element
     void GarrisonNPCAI::DoNextSequenceAction()
     {
+        if (!m_SequenceSize)
+            return;
+
         if (m_SequencePosition >= m_SequenceSize)
             m_SequencePosition = 0;
 
@@ -240,21 +247,18 @@ namespace MS { namespace Garrison
                                                                     gGarrisonCreationCoords[l_TeamID][3]);
             p_Player->SendMovieStart(l_MovieID);
 
+            p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
+            p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
+
             if (l_TeamID == TEAM_ALLIANCE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_A) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_A), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_A);
-
-                if (p_Player->IsQuestRewarded(Quests::Alliance_BiggerIsBetter))
-                    p_Player->RemoveRewardedQuest(Quests::Alliance_BiggerIsBetter);
             }
             else if (l_TeamID == TEAM_HORDE && p_Player->GetQuestStatus(Quests::QUEST_ETABLISH_YOUR_GARRISON_H) != QUEST_STATUS_REWARDED)
             {
                 p_Player->AddQuest(sObjectMgr->GetQuestTemplate(Quests::QUEST_ETABLISH_YOUR_GARRISON_H), p_Creature);
                 p_Player->CompleteQuest(Quests::QUEST_ETABLISH_YOUR_GARRISON_H);
-
-                if (p_Player->IsQuestRewarded(Quests::Horde_BiggerIsBetter))
-                    p_Player->RemoveRewardedQuest(Quests::Horde_BiggerIsBetter);
             }
 
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
@@ -265,8 +269,8 @@ namespace MS { namespace Garrison
         }
         else
         {
-            if (p_Player->GetCurrency(Globals::CurrencyID, false))
-                p_Player->ModifyCurrency(Globals::CurrencyID, -(int32)p_Player->GetCurrency(Globals::CurrencyID, false));
+            if (p_Player->HasCurrency(Globals::CurrencyID, 200))
+                p_Player->ModifyCurrency(Globals::CurrencyID, -200);
 
             p_Player->DeleteGarrison();
         }
@@ -413,6 +417,14 @@ void AddSC_Garrison_NPC()
 
         /// Trading post
         new MS::Garrison::npc_TraderJoseph;
+
+        /// TailoringEmporium
+        new MS::Garrison::npc_ChristopherMacdonald;
+        new MS::Garrison::npc_KaylieMacdonald;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_MaryKearie;
+        new MS::Garrison::npc_PeterKearie;
     }
 
     /// Horde
@@ -430,12 +442,19 @@ void AddSC_Garrison_NPC()
         new MS::Garrison::npc_FrostWallGrunt;
         new MS::Garrison::npc_FrostWallSmith;
 
-
         /// The forge
         new MS::Garrison::npc_OrgekIronhand;
         new MS::Garrison::npc_Kinja;
 
         /// Trading post
         new MS::Garrison::npc_FaylaFairfeather;
+
+        /// Tailoring Emporium
+        new MS::Garrison::npc_WarraTheWeaver;
+        new MS::Garrison::npc_Turga;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_AlbertDeHyde;
+        new MS::Garrison::npc_KeyanaTone;
     }
 }

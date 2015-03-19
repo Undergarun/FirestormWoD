@@ -114,9 +114,9 @@ class npc_faction_boss : public CreatureScript
     public:
         npc_faction_boss() : CreatureScript("npc_faction_boss") { }
 
-        struct npc_faction_bossAI : public BossAI
+        struct npc_faction_bossAI : public ScriptedAI
         {
-            npc_faction_bossAI(Creature* p_Creature) : BossAI(p_Creature, 0)
+            npc_faction_bossAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_ZoneScript = sOutdoorPvPMgr->GetZoneScript(p_Creature->GetZoneId());
             }
@@ -152,8 +152,6 @@ class npc_faction_boss : public CreatureScript
 
             void Reset() override
             {
-                _Reset();
-
                 m_Events.Reset();
 
                 me->RemoveAura(eSpells::SpellEnableUnitFrame);
@@ -165,8 +163,6 @@ class npc_faction_boss : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                _EnterCombat();
-
                 Talk(eTalk::TalkAggro, 0, TextRange::TEXT_RANGE_MAP);
 
                 m_Events.ScheduleEvent(eEvents::EventMortalCleave, 5000);
@@ -183,8 +179,6 @@ class npc_faction_boss : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                _JustDied();
-
                 Talk(eTalk::TalkDeath, 0, TextRange::TEXT_RANGE_MAP);
 
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)m_ZoneScript)

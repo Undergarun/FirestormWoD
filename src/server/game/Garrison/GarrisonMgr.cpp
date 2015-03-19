@@ -134,7 +134,7 @@ namespace MS { namespace Garrison
             }
         }
 
-        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
+        sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner, this);
 
         /// Learn garrison taxinodes
         if (m_Owner->getFaction() == HORDE)
@@ -482,7 +482,7 @@ namespace MS { namespace Garrison
                 }
             }
 
-            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner);
+            sGarrisonBuildingManager->LearnAllowedBuildings(m_Owner, this);
 
             return true;
         }
@@ -724,7 +724,7 @@ namespace MS { namespace Garrison
         Interfaces::GarrisonSite * l_GarrisonScript = GetGarrisonScript();
 
         if (l_GarrisonScript)
-            return l_GarrisonScript->CanUpgrade(m_Owner);
+            return l_GarrisonScript->CanUpgrade(m_Owner, m_GarrisonLevel);
 
         return false;
     }
@@ -3218,7 +3218,7 @@ namespace MS { namespace Garrison
 
                             if (l_Creature->AI())
                             {
-                                if (l_Contents[l_I].PlotTypeOrBuilding > 0)
+                                if (l_IsPlotBuilding)
                                     l_Creature->AI()->SetData(CreatureAIDataIDs::Builder, 1);
                                 else
                                 {

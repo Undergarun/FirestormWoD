@@ -3140,6 +3140,7 @@ DisableRestart = 1
 #        Default:     1 - (Enable)
 
 LootAoe.Enabled = 1
+LastClientBuild = 19342
 
 ###################################################################################################
 # VIP CONFIG

@@ -222,21 +222,27 @@ namespace MS { namespace Garrison
     {
         enum
         {
-            DwarvenBunker__WarMill_Level1   = 8,
-            DwarvenBunker__WarMill_Level2   = 9,
-            DwarvenBunker__WarMill_Level3   = 10,
-            Barracks__Barracks_Level1       = 26,
-            Barracks__Barracks_Level2       = 27,
-            Barracks__Barracks_Level3       = 28,
-            Storehouse__Storehouse_Level1   = 51,
-            Storehouse__Storehouse_Level2   = 142,
-            Storehouse__Storehouse_Level3   = 143,
-            TheForge__TheForge_Level1       = 60,
-            TheForge__TheForge_Level2       = 117,
-            TheForge__TheForge_Level3       = 118,
-            TradingPost__TradingPost_Level1 = 111,
-            TradingPost__TradingPost_Level2 = 144,
-            TradingPost__TradingPost_Level3 = 145
+            DwarvenBunker__WarMill_Level1               = 8,
+            DwarvenBunker__WarMill_Level2               = 9,
+            DwarvenBunker__WarMill_Level3               = 10,
+            Barracks__Barracks_Level1                   = 26,
+            Barracks__Barracks_Level2                   = 27,
+            Barracks__Barracks_Level3                   = 28,
+            Storehouse__Storehouse_Level1               = 51,
+            Storehouse__Storehouse_Level2               = 142,
+            Storehouse__Storehouse_Level3               = 143,
+            TheForge__TheForge_Level1                   = 60,
+            TheForge__TheForge_Level2                   = 117,
+            TheForge__TheForge_Level3                   = 118,
+            TradingPost__TradingPost_Level1             = 111,
+            TradingPost__TradingPost_Level2             = 144,
+            TradingPost__TradingPost_Level3             = 145,
+            TailoringEmporium__TailoringEmporium_Level1 = 94,
+            TailoringEmporium__TailoringEmporium_Level2 = 127,
+            TailoringEmporium__TailoringEmporium_Level3 = 128,
+            AlchemyLab__AlchemyLab_Level1               = 76,
+            AlchemyLab__AlchemyLab_Level2               = 119,
+            AlchemyLab__AlchemyLab_Level3               = 120
         };
     }
 

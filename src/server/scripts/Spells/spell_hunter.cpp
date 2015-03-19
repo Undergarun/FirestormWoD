@@ -322,6 +322,9 @@ class spell_hun_black_arrow : public SpellScriptLoader
 
             void HandleDispel(DispelInfo*)
             {
+                if (!GetCaster())
+                    return;
+
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     if (l_Player->HasSpellCooldown(GetSpellInfo()->Id))
@@ -1570,74 +1573,6 @@ class spell_hun_glyph_of_fetch: public SpellScriptLoader
         }
 };
 
-// Tracking - 118424
-class spell_hun_tracking: public SpellScriptLoader
-{
-    public:
-        spell_hun_tracking() : SpellScriptLoader("spell_hun_tracking") { }
-
-        class spell_hun_tracking_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_tracking_AuraScript);
-
-            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->learnSpell(HUNTER_SPELL_TRACK_BEASTS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_DEMONS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_DRAGONKIN,   false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_ELEMENTALS,  false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_GIANTS,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_HUMANOIDS,   false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_UNDEAD,      false);
-                    _player->learnSpell(HUNTER_SPELL_TRACK_HIDDEN,      false);
-                }
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_hun_tracking_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_tracking_AuraScript();
-        }
-};
-
-// Dash - 113073
-class spell_hun_dash: public SpellScriptLoader
-{
-    public:
-        spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
-
-        class spell_hun_dash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_dash_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_dash_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_dash_SpellScript();
-        }
-};
-
 // Dire Beast - 120679
 class spell_hun_dire_beast: public SpellScriptLoader
 {
@@ -2412,77 +2347,6 @@ class spell_hun_binding_shot_areatrigger : public AreaTriggerEntityScript
         }
 };
 
-// Called by Serpent Sting - 118253
-// Improved Serpent Sting - 82834
-class spell_hun_improved_serpent_sting: public SpellScriptLoader
-{
-    public:
-        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
-
-        class spell_hun_improved_serpent_sting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_improved_serpent_sting_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(HUNTER_SPELL_IMPROVED_SERPENT_STING_AURA))
-                        {
-                            if (AuraPtr serpentSting = target->GetAura(HUNTER_SPELL_SERPENT_STING, _player->GetGUID()))
-                            {
-                                if (serpentSting->GetEffect(EFFECT_0))
-                                {
-                                    int32 bp = _player->SpellDamageBonusDone(target, GetSpellInfo(), serpentSting->GetEffect(EFFECT_0)->GetAmount(), EFFECT_0, DOT);
-                                    bp *= serpentSting->GetMaxDuration() / serpentSting->GetEffect(EFFECT_0)->GetAmplitude();
-                                    bp = CalculatePct(bp, 15);
-
-                                    _player->CastCustomSpell(target, HUNTER_SPELL_IMPROVED_SERPENT_STING, &bp, NULL, NULL, true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_improved_serpent_sting_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_improved_serpent_sting_SpellScript();
-        }
-
-        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                if (GetCaster()->HasAura(HUNTER_SPELL_VIPER_VENOM))
-                    GetCaster()->EnergizeBySpell(GetCaster(), HUNTER_SPELL_VIPER_VENOM, 3, POWER_FOCUS);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_improved_serpent_sting_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_improved_serpent_sting_AuraScript();
-        }
-};
-
 // Powershot - 109259
 class spell_hun_powershot: public SpellScriptLoader
 {
@@ -2705,7 +2569,6 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
                 OnCheckCast += SpellCheckCastFn(spell_hun_ancient_hysteria_SpellScript::CheckMap);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_ancient_hysteria_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_hun_ancient_hysteria_SpellScript::ApplyDebuff);
             }
         };
@@ -3127,63 +2990,6 @@ class spell_hun_pet_heart_of_the_phoenix: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
-        }
-};
-
-class spell_hun_pet_carrion_feeder: public SpellScriptLoader
-{
-    public:
-        spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
-
-        class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
-
-            bool Load()
-            {
-                if (!GetCaster()->isPet())
-                    return false;
-                return true;
-            }
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckIfCorpseNear()
-            {
-                Unit* caster = GetCaster();
-                float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
-                // search for nearby enemy corpse in range
-                JadeCore::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
-                JadeCore::WorldObjectSearcher<JadeCore::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
-                if (!result)
-                    return SPELL_FAILED_NO_EDIBLE_CORPSES;
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to pet's Last Stand
-                OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_pet_carrion_feeder_SpellScript();
         }
 };
 
@@ -3830,8 +3636,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_glaive_toss_damage();
     new spell_hun_glaive_toss_missile();
     new spell_hun_glyph_of_fetch();
-    new spell_hun_tracking();
-    new spell_hun_dash();
     new spell_hun_dire_beast();
     new spell_hun_a_murder_of_crows();
     new spell_hun_focus_fire();
@@ -3843,7 +3647,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_barrage();
     new spell_hun_binding_shot();
     new spell_hun_binding_shot_zone();
-    new spell_hun_improved_serpent_sting();
     new spell_hun_powershot();
     new spell_hun_feign_death();
     new spell_hun_camouflage_visual();
@@ -3857,7 +3660,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_scatter_shot();
     new spell_hun_pet_heart_of_the_phoenix();
-    new spell_hun_pet_carrion_feeder();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
     new spell_hun_disengage();

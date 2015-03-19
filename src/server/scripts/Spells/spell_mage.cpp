@@ -361,6 +361,54 @@ class npc_mage_prismatic_crystal : public CreatureScript
         }
 };
 
+/// Prismatic Crystal - 155152
+class spell_mage_prysmatic_crystal_damage : public SpellScriptLoader
+{
+    public:
+        spell_mage_prysmatic_crystal_damage() : SpellScriptLoader("spell_mage_prysmatic_crystal_damage") { }
+
+        class spell_mage_prysmatic_crystal_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_prysmatic_crystal_damage_SpellScript);
+
+            enum eCreature
+            {
+                PrismaticCrystalNpc = 76933
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->ToUnit()->GetEntry() == eCreature::PrismaticCrystalNpc)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_prysmatic_crystal_damage_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_prysmatic_crystal_damage_SpellScript();
+        }
+};
+
 /// Comet Storm - 153595
 class spell_mage_comet_storm : public SpellScriptLoader
 {
@@ -1330,34 +1378,6 @@ class spell_mage_inferno_blast: public SpellScriptLoader
         }
 };
 
-// Replenish Mana - 5405
-class spell_mage_replenish_mana: public SpellScriptLoader
-{
-    public:
-        spell_mage_replenish_mana() : SpellScriptLoader("spell_mage_replenish_mana") { }
-
-        class spell_mage_replenish_mana_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_replenish_mana_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->CastSpell(_player, 10052, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_mage_replenish_mana_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_replenish_mana_SpellScript();
-        }
-};
-
 // Evocation - 12051
 class spell_mage_evocation: public SpellScriptLoader
 {
@@ -1459,7 +1479,6 @@ class spell_mage_time_warp: public SpellScriptLoader
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_2, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
             }
         };
@@ -1580,77 +1599,6 @@ class spell_mage_cold_snap: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_cold_snap_SpellScript();
-        }
-};
-
-class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
-{
-    public:
-        enum Spells
-        {
-            SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED = 44413,
-            SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
-        };
-
-        bool Validate(SpellInfo const* /*spellEntry*/)
-        {
-            return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-                && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
-        }
-
-        void Trigger(AuraEffectPtr aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
-        {
-            Unit* target = GetTarget();
-
-            if (AuraEffectPtr talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
-            {
-                int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-            }
-        }
-};
-
-// Incanter's Absorption
-class spell_mage_incanters_absorbtion_absorb: public SpellScriptLoader
-{
-    public:
-        spell_mage_incanters_absorbtion_absorb() : SpellScriptLoader("spell_mage_incanters_absorbtion_absorb") { }
-
-        class spell_mage_incanters_absorbtion_absorb_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
-        {
-            PrepareAuraScript(spell_mage_incanters_absorbtion_absorb_AuraScript);
-
-            void Register()
-            {
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_mage_incanters_absorbtion_absorb_AuraScript::Trigger, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_incanters_absorbtion_absorb_AuraScript();
-        }
-};
-
-// Incanter's Absorption
-class spell_mage_incanters_absorbtion_manashield: public SpellScriptLoader
-{
-    public:
-        spell_mage_incanters_absorbtion_manashield() : SpellScriptLoader("spell_mage_incanters_absorbtion_manashield") { }
-
-        class spell_mage_incanters_absorbtion_manashield_AuraScript : public spell_mage_incanters_absorbtion_base_AuraScript
-        {
-            PrepareAuraScript(spell_mage_incanters_absorbtion_manashield_AuraScript);
-
-            void Register()
-            {
-                 AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_incanters_absorbtion_manashield_AuraScript::Trigger, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_incanters_absorbtion_manashield_AuraScript();
         }
 };
 
@@ -2488,18 +2436,16 @@ void AddSC_mage_spell_scripts()
     new spell_mage_frostjaw();
     new spell_mage_combustion();
     new spell_mage_inferno_blast();
-    new spell_mage_replenish_mana();
     new spell_mage_evocation();
     new spell_mage_conjure_refreshment();
     new spell_mage_time_warp();
     new spell_mage_alter_time_overrided();
     new spell_mage_alter_time();
     new spell_mage_cold_snap();
-    new spell_mage_incanters_absorbtion_absorb();
-    new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_living_bomb();
     new spell_mage_mirror_image_summon();
     new spell_mage_ice_barrier();
+    new spell_mage_prysmatic_crystal_damage();
 
     // Player Script
     new PlayerScript_rapid_teleportation();

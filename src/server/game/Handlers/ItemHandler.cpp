@@ -998,7 +998,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
@@ -1034,7 +1034,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(0);                                  ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
@@ -1784,34 +1784,25 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 void WorldSession::HandleItemRefundInfoRequest(WorldPacket& p_Packet)
 {
     uint64 l_Guid = 0;
-
     p_Packet.readPackGUID(l_Guid);
 
-    Item * l_Item = m_Player->GetItemByGuid(l_Guid);
-
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
     if (!l_Item)
         return;
 
-    GetPlayer()->SendRefundInfo(l_Item);
+    m_Player->SendRefundInfo(l_Item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket& recvData)
+void WorldSession::HandleItemRefund(WorldPacket& p_Packet)
 {
-    ObjectGuid itemGuid;
+    uint64 l_Guid = 0;
+    p_Packet.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 4, 7, 6, 5, 0, 3, 2, 1 };
-    recvData.ReadBitInOrder(itemGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 1, 4, 3, 5, 6, 0, 7 };
-    recvData.ReadBytesSeq(itemGuid, bytesOrder);
-
-    Item* item = m_Player->GetItemByGuid(itemGuid);
-    if (!item)
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
+    if (!l_Item)
         return;
 
-    GetPlayer()->RefundItem(item);
+    m_Player->RefundItem(l_Item);
 }
 
 void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
@@ -1844,7 +1835,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 {
-    uint64 l_NpcGUID;
+    uint64 l_NpcGUID = 0;
     uint32 l_ItemCount = 0;
 
     p_Packet >> l_ItemCount;
@@ -1905,82 +1896,85 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
             p_Packet.readPackGUID(l_SrcVoidItemGUIDs[l_I]);         ///< Source Void Item GUID
     }
 
-    // Validate
+    /// Validate
     if (!m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_TRANSMOGRIFIER))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(l_NpcGUID));
         return;
-    }
 
     float cost = 0;
     for (uint8 l_I = 0; l_I < l_ItemCount; ++l_I)
     {
-        // slot of the transmogrified item
+        /// Slot of the transmogrified item
         if (l_Slots[l_I] < EQUIPMENT_SLOT_START || l_Slots[l_I] >= EQUIPMENT_SLOT_END)
             return;
 
-        // entry of the transmogrifier item, if it's not 0
-        if (l_ItemIDs[l_I])
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(l_ItemIDs[l_I]);
-            if (!proto)
-                return;
+        Item* l_ItemTransmogrifier = nullptr;
+        ItemTemplate const* l_Template = nullptr;
 
-            if (!m_Player->HasItemCount(l_ItemIDs[l_I], 1, false))
-                return;
-        }
-
-        Item* itemTransmogrifier = NULL;
-        // guid of the transmogrifier item, if it's not 0
+        /// Guid of the transmogrifier item, if it's not 0
         if (l_SrcItemGUIDs[l_I])
         {
-            itemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
-            if (!itemTransmogrifier)
+            l_ItemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
+            if (!l_ItemTransmogrifier)
+                return;
+
+            l_Template = l_ItemTransmogrifier->GetTemplate();
+            if (!l_Template)
                 return;
         }
         else if (l_SrcVoidItemGUIDs[l_I])
         {
-            /// TODO
+            uint32 l_GuidLow = GUID_LOPART(l_SrcVoidItemGUIDs[l_I]) & ~0xF0000000;
+            uint8 l_Placeholder = 0;    ///< Useless but necessary
+            VoidStorageItem* l_Item = m_Player->GetVoidStorageItem(l_GuidLow, l_Placeholder);
+            if (!l_Item)
+                return;
+
+            l_Template = sObjectMgr->GetItemTemplate(l_Item->ItemEntry);
+            if (!l_Template)
+                return;
         }
 
-        // transmogrified item
-        Item* itemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
-        if (!itemTransmogrified)
+        /// Transmogrified item
+        Item* l_ItemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
+        if (!l_ItemTransmogrified)
             return;
 
-        if (!l_ItemIDs[l_I]) // reset look
+        if (!l_ItemIDs[l_I]) ///< Reset look
         {
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+            l_ItemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
         else
         {
-            if (!itemTransmogrifier)
+            if (!l_Template)
                 return;
 
-            if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
+            if (!Item::CanTransmogrifyItemWithItem(l_ItemTransmogrified->GetTemplate(), l_Template))
                 return;
 
-            // All okay, proceed
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_ItemIDs[l_I]);
-            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            /// All okay, proceed
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_Template->ItemId);
+            l_ItemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 
-            itemTransmogrified->UpdatePlayedTime(m_Player);
+            l_ItemTransmogrified->UpdatePlayedTime(m_Player);
 
-            itemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrified->SetNotRefundable(m_Player);
-            itemTransmogrified->ClearSoulboundTradeable(m_Player);
+            l_ItemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
+            l_ItemTransmogrified->SetNotRefundable(m_Player);
+            l_ItemTransmogrified->ClearSoulboundTradeable(m_Player);
 
-            if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
-                itemTransmogrifier->SetBinding(true);
+            if (l_ItemTransmogrifier != nullptr)
+            {
+                if (l_Template->Bonding == BIND_WHEN_EQUIPED || l_Template->Bonding == BIND_WHEN_USE)
+                    l_ItemTransmogrifier->SetBinding(true);
 
-            itemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrifier->SetNotRefundable(m_Player);
-            itemTransmogrifier->ClearSoulboundTradeable(m_Player);
+                l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
+                l_ItemTransmogrifier->SetNotRefundable(m_Player);
+                l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
+            }
 
-            cost += itemTransmogrified->GetSpecialPrice();
+            cost += l_ItemTransmogrified->GetSpecialPrice();
         }
     }
 
@@ -1991,9 +1985,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
     cost *= costModifier;
 
-    // trusting the client, if it got here it has to have enough money
-    // ... unless client was modified
-    if (cost) // 0 cost if reverting look
+    /// Trusting the client, if it got here it has to have enough money
+    /// ... unless client was modified
+    if (cost) ///< 0 cost if reverting look
         m_Player->ModifyMoney(-int64(cost));
 }
 

@@ -763,9 +763,8 @@ class spell_pri_shadowfiend: public SpellScriptLoader
         }
 };
 
-// Surge of Light (Discipline, Holy) - 109186 
-// Surge of Light - 114255
-class spell_pri_surge_of_light: public SpellScriptLoader
+/// Surge of Light - 114255
+class spell_pri_surge_of_light : public SpellScriptLoader
 {
     public:
         spell_pri_surge_of_light() : SpellScriptLoader("spell_pri_surge_of_light") { }
@@ -779,19 +778,19 @@ class spell_pri_surge_of_light: public SpellScriptLoader
             void HandleOnPrepare()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                        m_Duration = l_SurgeOfLight->GetDuration();
+                if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                    m_Duration = l_SurgeOfLight->GetDuration();
             }
 
             void HandleOnCast()
             {
                 if (Unit* l_Caster = GetCaster())
-                    if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
-                    {
-                        l_SurgeOfLight->SetDuration(m_Duration);
-                        if (l_SurgeOfLight->GetStackAmount() > 1)
-                            l_SurgeOfLight->SetStackAmount(1);
-                    }
+                if (AuraPtr l_SurgeOfLight = l_Caster->GetAura(PRIEST_SURGE_OF_LIGHT))
+                {
+                    l_SurgeOfLight->SetDuration(m_Duration);
+                    if (l_SurgeOfLight->GetStackAmount() > 1)
+                        l_SurgeOfLight->SetStackAmount(1);
+                }
             }
 
             void Register()
@@ -805,10 +804,17 @@ class spell_pri_surge_of_light: public SpellScriptLoader
         {
             return new spell_pri_surge_of_light_SpellScript();
         }
+};
 
-        class spell_pri_surge_of_light_AuraScript : public AuraScript
+/// Surge of Light (Discipline, Holy) - 109186 
+class spell_pri_surge_of_light_aura : public SpellScriptLoader
+{
+    public:
+        spell_pri_surge_of_light_aura() : SpellScriptLoader("spell_pri_surge_of_light_aura") { }
+
+        class spell_pri_surge_of_light_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_pri_surge_of_light_AuraScript);
+            PrepareAuraScript(spell_pri_surge_of_light_aura_AuraScript);
 
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& procInfo)
             {
@@ -822,30 +828,30 @@ class spell_pri_surge_of_light: public SpellScriptLoader
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         return;
 
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                    if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints))
+                    {
+                        if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
                         {
-                            if (AuraPtr l_SurgeOfLight = l_Player->GetAura(PRIEST_SURGE_OF_LIGHT))
-                            {
-                                if (l_SurgeOfLight->GetStackAmount() == 2)
-                                    l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
-                                else
-                                    l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
-                            }
+                            if (l_SurgeOfLight->GetStackAmount() == 2)
+                                l_SurgeOfLight->SetDuration(l_SurgeOfLight->GetMaxDuration());
                             else
                                 l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
                         }
+                        else
+                            l_Player->CastSpell(l_Player, PRIEST_SURGE_OF_LIGHT, true);
+                    }
                 }
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_pri_surge_of_light_aura_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_pri_surge_of_light_AuraScript();
+            return new spell_pri_surge_of_light_aura_AuraScript();
         }
 };
 
@@ -1052,6 +1058,35 @@ class spell_pri_holy_word_sanctuary: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_pri_holy_word_sanctuary_AuraScript();
+        }
+};
+
+// Holy Word : Sanctuary (heal) - 88686
+class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_holy_word_sanctuary_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+
+        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 6 allies 
+                if (p_Targets.size() > 6)
+                    JadeCore::RandomResizeList(p_Targets, 6);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
         }
 };
 
@@ -2890,47 +2925,47 @@ class spell_pri_mind_blast: public SpellScriptLoader
         }
 };
 
-// Glyphe of Mind Blast - 87195
+/// Glyphe of Mind Blast - 87195
 class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
 {
-public:
-    spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
+    public:
+        spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
 
-    class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
-
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
 
-            Unit* l_Caster = GetCaster();
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
 
-            if (!l_Caster)
-                return;
+                Unit* l_Caster = GetCaster();
 
-            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
-                return;
+                if (!l_Caster)
+                    return;
 
-            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
-                return;
+                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                    return;
 
-            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
-                return;
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
+                    return;
 
-            l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
-        }
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
 
-        void Register()
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_pri_glyphe_of_mind_blast_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_glyphe_of_mind_blast_AuraScript();
-    }
 };
 
 enum MindFlay
@@ -3251,7 +3286,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) && !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
                     return;
 
                 Unit* l_Caster = GetCaster();
@@ -3356,6 +3391,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_insight_holy();
     new spell_pri_divine_insight_discipline();
     new spell_pri_holy_word_sanctuary();
+    new spell_pri_holy_word_sanctuary_heal();
     new spell_pri_smite();
     new spell_pri_lightwell_renew();
     new spell_pri_atonement();
@@ -3383,6 +3419,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_twist_of_fate();
     new spell_pri_divine_aegis();
     new spell_pri_chakra_sanctuary();
+    new spell_pri_surge_of_light_aura();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

@@ -773,7 +773,7 @@ namespace BNet2 {
         if (!l_RealmRequested)
             return false;
 
-        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::ReportOpcodes::AuthChooseRealm>::Craft
+        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::AuthChooseRealm>::Craft
         (
             m_AccountID,                    ///< AccountId
             l_RealmRequested->name,         ///< Realm
