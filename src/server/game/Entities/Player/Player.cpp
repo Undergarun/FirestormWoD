@@ -11392,6 +11392,114 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         default: break;
     }
 
+    if (loot_type == LOOT_FISHING)
+    {
+        uint32 l_SmallFishChance    = 100;
+        uint32 l_MediumFishChance   = 0;
+        uint32 l_BigFishChance      = 0;
+
+        uint32 l_FishingSKill = GetSkillValue(SKILL_FISHING);
+
+        if (l_FishingSKill >= 100 && l_FishingSKill < 525)
+        {
+            l_SmallFishChance  = 80;
+            l_MediumFishChance = 20;
+        }
+        else if(l_FishingSKill >= 525 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 10;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 10;
+        }
+        else if (l_FishingSKill >= 650 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50;
+        }
+        else if (l_FishingSKill >= 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+        }
+
+        enum class FishType
+        {
+            None,
+            Small,
+            Medium,
+            Big
+        };
+
+        std::vector<uint32> g_SmallFish { 111589, 111650, 111651, 111652, 111656, 111658, 111659, 111662, 118564 };
+        std::vector<uint32> g_MediumFish{ 111595, 111663, 111664, 111665, 111666, 111667, 111668, 111669, 118565 };
+        std::vector<uint32> g_BigFish   { 111601, 111670, 111671, 111672, 111673, 111674, 111675, 111676, 118566 };
+
+        auto GetFishType = [g_SmallFish, g_MediumFish, g_BigFish](uint32 p_ItemID) -> FishType
+        {
+            if (std::find(g_SmallFish.begin(), g_SmallFish.end(), p_ItemID) != g_SmallFish.end())
+                return FishType::Small;
+            if (std::find(g_MediumFish.begin(), g_MediumFish.end(), p_ItemID) != g_MediumFish.end())
+                return FishType::Medium;
+            if (std::find(g_BigFish.begin(), g_BigFish.end(), p_ItemID) != g_BigFish.end())
+                return FishType::Big;
+
+            return FishType::None;
+        };
+
+        std::vector<LootItem*> l_Fishs;
+
+        for (uint32 l_I = 0; l_I < loot->Items.size(); ++l_I)
+        {
+            LootItem * l_LootItem = &loot->Items[l_I];
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
+
+            if (!l_ItemTemplate)
+                return;
+
+            if (l_ItemTemplate->SubClass != ITEM_SUBCLASS_MEAT)
+                continue;
+
+            if (GetFishType(l_LootItem->itemid) == FishType::None)
+                continue;
+
+#ifdef _MSC_VER
+            char * l_Size[] = { "None", "Small", "Medium", "Big" };
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+#endif
+            l_Fishs.push_back(l_LootItem);
+            l_LootItem->needs_quest = true;
+        }
+
+        if (l_Fishs.size())
+        {
+            for (auto l_Template : l_Fishs)
+            {
+                bool l_RoolResult = false;
+                switch (GetFishType(l_Template->itemid))
+                {
+                    case FishType::Small:  l_RoolResult = roll_chance_i(l_SmallFishChance);  break;
+                    case FishType::Medium: l_RoolResult = roll_chance_i(l_MediumFishChance); break;
+                    case FishType::Big:    l_RoolResult = roll_chance_i(l_BigFishChance);    break;
+
+                    default:
+                        break;
+                }
+
+                if (l_RoolResult)
+                {
+#ifdef _MSC_VER
+                    ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Template->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_Template->itemid);
+#endif
+                    l_Template->needs_quest = false;
+                }
+            }
+        }
+    }
+
     // need know merged fishing/corpse loot type for achievements
     loot->Type = loot_type;
 

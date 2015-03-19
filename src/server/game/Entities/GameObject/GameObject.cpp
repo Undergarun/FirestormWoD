@@ -1766,6 +1766,9 @@ void GameObject::Use(Unit* p_User)
             if (!player)
                 break;
 
+            loot.clear();
+            loot.FillLoot(GetGOInfo()->GetLootId(), LootTemplates_Gameobject, player, true);
+
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);
             return;
