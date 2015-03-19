@@ -1,20 +1,10 @@
-/*
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -102,9 +92,9 @@ enum Spells
     SPELL_CARRY_CRATE = 173166,
     SPELL_CARRY_SACK = 167539,
 };
+
 enum Events
 {
-
     // Thunderlord wrangler
     EVENT_CULTTRAPS = 1000,
     EVENT_SPEAR_THROW = 1001,
@@ -147,16 +137,19 @@ enum Events
     EVENT_LAVA_BARRAGE = 922,
     EVENT_LAVA_BLAST = 923,
 };
+
 enum actions
 {
     ACTION_QUIET_DEATH = 744,
 };
+
 Position stunnedadds[3] = 
 {
     {6848.13f, -557.67f, 5.134f, 0.167117f},
     {6856.76f, -570.57f, 4.741f, 1.034980f},
     {6868.90f, -571.93f, 5.115f, 2.466761f},
 };
+
 Position cheeringsoldiers[6] = 
 {
     // right
@@ -168,11 +161,13 @@ Position cheeringsoldiers[6] =
     {6841.33f, -690.54f, 4.835f, 3.146160f},
     {6846.15f, -696.68f, 4.914f, 2.999297f},
 };
+
 Position practicingwarriors[2] =
 {
     { 6826.10f, -688.61f, 4.835f, 2.412430f },
     { 6823.62f, -686.06f, 4.835f, 5.513440f },
 };
+
 Position cheeringsoldiers2[10] =
 {
     { 6620.58f, -676.56f, 4.599f, 3.959485f },
@@ -186,6 +181,7 @@ Position cheeringsoldiers2[10] =
     { 6600.86f, -687.21f, 4.658f, 6.278765f },
     { 6603.08f, -678.38f, 4.626f, 5.607255f },
 };
+
 Position practicingwarriors2[2] =
 {
     { 6614.71f, -688.92f, 4.763f, 2.389464f },
@@ -217,1746 +213,1795 @@ Position practicingwarriors2[2] =
 #define rendingcleaveinterval urand(8000, 12000)
 #define rushingstampedeinterval 15000
 #define lavaburstinterval urand(15000, 20000)
-enum Talks
-{
-    TALK_ZOGGOSH_09 = 18, // Good idea sir! (44056)
-    TALK_ZOGGOSH_10 = 19, // Oh... (44057)
-    TALK_ZOGGOSH_12 = 21, // Yes! Captain! (44059)
-    TALK_ZOGGOSH_13 = 22, // Koramar no... I will avenge you! (44060)
-    TALK_ZOGGOSH_TWENTY_QUESTION_MARK = 99944, // Good thinking sir. (40637)
-
-    TALK_KORAMAR_04 = 26, // Fire! Fire! Aim... then fire.. (46903)
-    TALK_KORAMAR_05 = 27, // What is wrong with you?! keep firing you all! (46904)
-
-   
-    TALK_KORAMAR_08 = 30, // That is what I do Zoggosh.. I think good. (46907)
-
-    TALK_KORAMAR_10 = 33, // I didn't mean.. the Cat... (46910)
-    TALK_KORAMAR_11 = 32, // Put a muzzle on it (46909)
-};
 
 class iron_docks_mob_gromkar_battlemaster : public CreatureScript
 {
-public:
-    iron_docks_mob_gromkar_battlemaster() : CreatureScript("iron_docks_mob_gromkar_battlemaster") { }
+    public:
+        iron_docks_mob_gromkar_battlemaster() : CreatureScript("iron_docks_mob_gromkar_battlemaster") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
+        struct mob_iron_docksAI : public ScriptedAI
         {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
-            events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
-                {
-                case EVENT_BLADESTORM:
-                    me->CastSpell(me, SPELL_BLADESTORM);
-                    events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
-                    break;
-                case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
-                        me->CastSpell(random, SPELL_CHAIN_DRAG);
 
-                    events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
-                    break;
-                }
             }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
+                events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_BLADESTORM:
+                        me->CastSpell(me, SPELL_BLADESTORM);
+                        events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
+                        break;
+                    case EVENT_CHAIN_DRAG:
+                        if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                            me->CastSpell(random, SPELL_CHAIN_DRAG);
+
+                        events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_spell_charging_slash_effect : public SpellScriptLoader
 {
-public:
-    iron_docks_spell_charging_slash_effect() : SpellScriptLoader("iron_docks_spell_charging_slash_effect") { }
+    public:
+        iron_docks_spell_charging_slash_effect() : SpellScriptLoader("iron_docks_spell_charging_slash_effect") { }
 
-    class spells_iron_docks : public SpellScript
-    {
-        PrepareSpellScript(spells_iron_docks);
-
-        void OnHitTarget()
+        class spells_iron_docks : public SpellScript
         {
-            if (GetCaster() && GetHitUnit())
+            PrepareSpellScript(spells_iron_docks);
+
+            void OnHitTarget()
             {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_CHARGING_SLASH);
+                if (GetCaster() && GetHitUnit())
+                {
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_CHARGING_SLASH);
+                }
             }
-        }
-        void Register()
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spells_iron_docks::OnHitTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spells_iron_docks::OnHitTarget);
+            return new spells_iron_docks();
         }
-    };
-    SpellScript* GetSpellScript() const
-    {
-        return new spells_iron_docks();
-    }
 };
+
 class iron_docks_mob_gromkar_deadeye : public CreatureScript
 {
-public:
-    iron_docks_mob_gromkar_deadeye() : CreatureScript("iron_docks_mob_gromkar_deadeye") { }
+    public:
+        iron_docks_mob_gromkar_deadeye() : CreatureScript("iron_docks_mob_gromkar_deadeye") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        { }
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 visual;
-        void Reset()
-        {
-            visual = 5000;
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);         
-            events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
+            uint32 visual;
+
+            void Reset()
             {
-                if (visual <= diff)
+                visual = 5000;
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);
+                events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
                 {
-                    if (Creature* archery_target = me->FindNearestCreature(TRIGGER_ARCHERY_TARGET, 30.0f))
+                    if (visual <= diff)
                     {
-                        archery_target->setFaction(1);
-                        me->CastSpell(archery_target, SPELL_IRON_SHOT);
-                    }
-                    visual = 6000;
-                }
-                else
-                {
-                    visual -= diff;
-                }
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    /*
-                case EVENT_IRON_SHOT:
-                    me->CastSpell(me->getVictim(), SPELL_IRON_SHOT);
-                    events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);
-                    break;
-                    */
-                case EVENT_LEG_SHOT:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
-                        me->CastSpell(random, SPELL_LEG_SHOT);
-
-                    events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
-                    break;
-                }
-            }
-
-            DoSpellAttackIfReady(SPELL_IRON_SHOT); // shooting spell?
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_mob_gromkar_footsoldier : public CreatureScript
-{
-public:
-    iron_docks_mob_gromkar_footsoldier() : CreatureScript("iron_docks_mob_gromkar_footsoldier") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
-        {
-
-        }
-        void EnterCombat(Unit* who)
-        {
-            // Scheduling an event, which will result in spell casting
-            events.ScheduleEvent(EVENT_TACTICAL_KICK, tacticalkickinterval);       
-            events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
-
-            me->RemoveAura(SPELL_SELF_STUN);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_DEMORALIZING_SHOUT:
-                    me->CastSpell(me, SPELL_DEMORALIZING_SHOUT);
-                    events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
-                    break;
-                    // event definition
-                case EVENT_TACTICAL_KICK:      
-                    // cast spell SPELL_TACTICAL_KICK at victim aka tank or highest aggro
-                    me->CastSpell(me->getVictim(), SPELL_TACTICAL_KICK);
-                    events.ScheduleEvent(EVENT_TACTICAL_KICK, tacticalkickinterval);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_mob_gromkar_deck_hand : public CreatureScript
-{
-public:
-    iron_docks_mob_gromkar_deck_hand() : CreatureScript("iron_docks_mob_gromkar_deck_hand") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void Reset()
-        {
-            switch (urand(0, 1))
-            {
-            case 0:
-                me->CastSpell(me, SPELL_CARRY_SACK);
-                break;
-            case 1:
-                me->CastSpell(me, SPELL_CARRY_CRATE);
-                break;
-            }
-        }
-        void EnterCombat(Unit* who)
-        {
-            me->RemoveAura(SPELL_EMOTE_WORK);
-            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-
-            events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_HATCHET_TOSS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_HATCHET_TOSS);
-
-                    events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_mob_gromkar_incinerator : public CreatureScript
-{
-public:
-    iron_docks_mob_gromkar_incinerator() : CreatureScript("iron_docks_mob_gromkar_incinerator") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 visual;
-        void Reset()
-        {
-            visual = 6000;
-        }
-        void EnterCombat(Unit* who)
-        {
-            // Scheduling an event, which will result in spell casting
-           // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
-            events.ScheduleEvent(EVENT_SHARPNEL_BLAST, sharpnelblastinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-            {
-                if (visual <= diff)
-                {
-                    if (Creature* archery_target = me->FindNearestCreature(TRIGGER_ARCHERY_TARGET, 30.0f))
-                    {
-                        archery_target->setFaction(1);
-                        me->CastSpell(archery_target, SPELL_IRON_SHOT);
-
+                        if (Creature* archery_target = me->FindNearestCreature(TRIGGER_ARCHERY_TARGET, 30.0f))
+                        {
+                            archery_target->setFaction(1);
+                            me->CastSpell(archery_target, SPELL_IRON_SHOT);
+                        }
                         visual = 6000;
                     }
+                    else
+                    {
+                        visual -= diff;
+                    }
                 }
-                else
+
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
                 {
-                    visual -= diff;
+                    switch (eventId)
+                    {
+                        /*
+                    case EVENT_IRON_SHOT:
+                        me->CastSpell(me->getVictim(), SPELL_IRON_SHOT);
+                        events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);
+                        break;
+                        */
+                    case EVENT_LEG_SHOT:
+                        if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                            me->CastSpell(random, SPELL_LEG_SHOT);
+
+                        events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
+                        break;
+                    }
                 }
+
+                DoSpellAttackIfReady(SPELL_IRON_SHOT); // shooting spell?
             }
+        };
 
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_INCEDINARY_SLUG:
-                    me->CastSpell(me->getVictim(), SPELL_INCIDENARY_SLUGS);
-                    events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenaryslugsinterval);
-                    break;
-                    /*
-                      // event definition
-                case EVENT_SHARPNEL_BLAST:
-                    // cast spell SPELL_TACTICAL_KICK at victim aka tank or highest aggro
-                    me->CastSpell(me->getVictim(), SPELL_TACTICAL_KICK);
-                    events.ScheduleEvent(EVENT_SHARPNEL_BLAST, sharpnelblastinterval);
-                    break;
-                    */
-                }
-            }
-            DoSpellAttackIfReady(SPELL_SHARPNEL_BLAST);
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
 };
+
+class iron_docks_mob_gromkar_footsoldier : public CreatureScript
+{
+    public:
+        iron_docks_mob_gromkar_footsoldier() : CreatureScript("iron_docks_mob_gromkar_footsoldier") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                // Scheduling an event, which will result in spell casting
+                events.ScheduleEvent(EVENT_TACTICAL_KICK, tacticalkickinterval);
+                events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
+
+                me->RemoveAura(SPELL_SELF_STUN);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_DEMORALIZING_SHOUT:
+                        me->CastSpell(me, SPELL_DEMORALIZING_SHOUT);
+                        events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
+                        break;
+                        // event definition
+                    case EVENT_TACTICAL_KICK:
+                        // cast spell SPELL_TACTICAL_KICK at victim aka tank or highest aggro
+                        me->CastSpell(me->getVictim(), SPELL_TACTICAL_KICK);
+                        events.ScheduleEvent(EVENT_TACTICAL_KICK, tacticalkickinterval);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_mob_gromkar_deck_hand : public CreatureScript
+{
+    public:
+        iron_docks_mob_gromkar_deck_hand() : CreatureScript("iron_docks_mob_gromkar_deck_hand") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
+            {
+                switch (urand(0, 1))
+                {
+                    case 0:
+                        me->CastSpell(me, SPELL_CARRY_SACK);
+                        break;
+                    case 1:
+                        me->CastSpell(me, SPELL_CARRY_CRATE);
+                        break;
+                }
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                me->RemoveAura(SPELL_EMOTE_WORK);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+
+                events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_HATCHET_TOSS:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_HATCHET_TOSS);
+
+                        events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_mob_gromkar_incinerator : public CreatureScript
+{
+    public:
+        iron_docks_mob_gromkar_incinerator() : CreatureScript("iron_docks_mob_gromkar_incinerator") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+
+            uint32 visual;
+
+            void Reset()
+            {
+                visual = 6000;
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                // Scheduling an event, which will result in spell casting
+               // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
+                events.ScheduleEvent(EVENT_SHARPNEL_BLAST, sharpnelblastinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (visual <= diff)
+                    {
+                        if (Creature* archery_target = me->FindNearestCreature(TRIGGER_ARCHERY_TARGET, 30.0f))
+                        {
+                            archery_target->setFaction(1);
+                            me->CastSpell(archery_target, SPELL_IRON_SHOT);
+
+                            visual = 6000;
+                        }
+                    }
+                    else
+                    {
+                        visual -= diff;
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_INCEDINARY_SLUG:
+                        me->CastSpell(me->getVictim(), SPELL_INCIDENARY_SLUGS);
+                        events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenaryslugsinterval);
+                        break;
+                        /*
+                          // event definition
+                    case EVENT_SHARPNEL_BLAST:
+                        // cast spell SPELL_TACTICAL_KICK at victim aka tank or highest aggro
+                        me->CastSpell(me->getVictim(), SPELL_TACTICAL_KICK);
+                        events.ScheduleEvent(EVENT_SHARPNEL_BLAST, sharpnelblastinterval);
+                        break;
+                        */
+                    }
+                }
+                DoSpellAttackIfReady(SPELL_SHARPNEL_BLAST);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
 class iron_docks_mob_gromkar_technician : public CreatureScript
 {
-public:
-    iron_docks_mob_gromkar_technician() : CreatureScript("iron_docks_mob_gromkar_technician") { }
+    public:
+        iron_docks_mob_gromkar_technician() : CreatureScript("iron_docks_mob_gromkar_technician") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        uint32 visual;
-
-        void Reset()
+        struct mob_iron_docksAI : public ScriptedAI
         {
-            visual = 6000;
-        }
-        void EnterCombat(Unit* who)
-        {
-            // Scheduling an event, which will result in spell casting
-            // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
-            me->RemoveAura(SPELL_EMOTE_WORK);
-            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-            events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
-            events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
-            events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
+            uint32 visual;
+
+            void Reset()
             {
-                if (visual <= diff)
-                {
-                    me->RemoveAura(SPELL_EMOTE_WORK);
-                    me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                visual = 6000;
+            }
 
-                    switch (urand(0, 2))
+            void EnterCombat(Unit* who)
+            {
+                // Scheduling an event, which will result in spell casting
+                // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
+                me->RemoveAura(SPELL_EMOTE_WORK);
+                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+
+                events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
+                events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
+                events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (visual <= diff)
                     {
-                    case 0: // work
-                        me->CastSpell(me, SPELL_EMOTE_WORK); //43831 
+                        me->RemoveAura(SPELL_EMOTE_WORK);
+                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+
+                        switch (urand(0, 2))
+                        {
+                        case 0: // work
+                            me->CastSpell(me, SPELL_EMOTE_WORK); //43831
+                            break;
+                        case 1: // craft
+                           // me->CastSpell(me, SP);
+                            me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 133);
+                            break;
+                        case 2: // idle
+                            break;
+                        }
+                        visual = 6000;
+                    }
+                    else
+                    {
+                        visual -= diff;
+                    }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_GREASE_VIAL:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_GREASE_VIAL);
+
+                        events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
                         break;
-                    case 1: // craft
-                       // me->CastSpell(me, SP);
-                        me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 133);
+                    case EVENT_FLING_HAMMER:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_FLING_HAMMER);
+
+                        events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
                         break;
-                    case 2: // idle                      
+                    case EVENT_HIGH_EXPLOSIVE_GRENADE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_HIGH_EXPLOSIVE_GRENADE);
+
+                        events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
                         break;
                     }
-                    visual = 6000;
                 }
-                else
-                {
-                    visual -= diff;
-                }
+                DoMeleeAttackIfReady();
             }
+        };
 
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_GREASE_VIAL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_GREASE_VIAL);
-
-                    events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
-                    break;
-                case EVENT_FLING_HAMMER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_FLING_HAMMER);
-
-                    events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
-                    break;
-                case EVENT_HIGH_EXPLOSIVE_GRENADE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_HIGH_EXPLOSIVE_GRENADE);
-
-                    events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
 };
+
 class iron_docks_mob_champion_darona : public CreatureScript
 {
-public:
-    iron_docks_mob_champion_darona() : CreatureScript("iron_docks_mob_champion_darona") { }
+    public:
+        iron_docks_mob_champion_darona() : CreatureScript("iron_docks_mob_champion_darona") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
+        struct mob_iron_docksAI : public ScriptedAI
         {
-            me->CastSpell(me, SPELL_CHAMPIONS_PRESENCE);
-        }
-        void EnterCombat(Unit* who)
-        {
-            //  172810 aura 
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-            // Scheduling an event, which will result in spell casting
-            // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
-
-            // I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
-            events.ScheduleEvent(EVENT_BURNING_ARROW, burningarrowinterval);
-            events.ScheduleEvent(EVENT_BARBED_ARROW, barbedarrowinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
+                me->CastSpell(me, SPELL_CHAMPIONS_PRESENCE);
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                //  172810 aura
+
+                // Scheduling an event, which will result in spell casting
+                // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
+
+                // I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
+                events.ScheduleEvent(EVENT_BURNING_ARROW, burningarrowinterval);
+                events.ScheduleEvent(EVENT_BARBED_ARROW, barbedarrowinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_BURNING_ARROW:
+                    switch (eventId)
                     {
-                        me->CastSpell(me, SPELL_BURNING_ARROW_DUMMY);           
-                        me->MonsterYell("Light them up!", LANG_UNIVERSAL, me->GetGUID());
-                        events.ScheduleEvent(EVENT_BURNING_ARROW, burningarrowinterval);
-                        break;
-                    }
-                    case EVENT_BARBED_ARROW:
-                    {
-                        me->CastSpell(me, SPELL_BARBED_ARROW_BARRAGE_DUMMY);
-                        me->AddAura(SPELL_BARBED_ARROW_AURA, me);
-                        events.ScheduleEvent(EVENT_BARBED_ARROW, barbedarrowinterval);
-                        break;
+                        case EVENT_BURNING_ARROW:
+                        {
+                            me->CastSpell(me, SPELL_BURNING_ARROW_DUMMY);
+                            me->MonsterYell("Light them up!", LANG_UNIVERSAL, me->GetGUID());
+                            events.ScheduleEvent(EVENT_BURNING_ARROW, burningarrowinterval);
+                            break;
+                        }
+                        case EVENT_BARBED_ARROW:
+                        {
+                            me->CastSpell(me, SPELL_BARBED_ARROW_BARRAGE_DUMMY);
+                            me->AddAura(SPELL_BARBED_ARROW_AURA, me);
+                            events.ScheduleEvent(EVENT_BARBED_ARROW, barbedarrowinterval);
+                            break;
+                        }
                     }
                 }
+                DoMeleeAttackIfReady();
             }
-            DoMeleeAttackIfReady();
-        }
-    };
+        };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_area_trigger_oil_effect : public AreaTriggerEntityScript
 {
-public:
-    iron_docks_area_trigger_oil_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_oil_effect")
-    {
-        diff = 500;
-    }
-
-    uint32 diff;
-    std::list<uint64> m_Targets;
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (diff <= p_Time)
+    public:
+        iron_docks_area_trigger_oil_effect() : AreaTriggerEntityScript("iron_docks_area_trigger_oil_effect")
         {
-            std::list<Player*> PL_list;
-
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
-            p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
-
-            if (PL_list.empty())
-                return;
-
-            for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
-            {
-                if (!(*itr)->HasAura(SPELL_GREASE_VIAL_EFFECT))
-                {
-                    (*itr)->CastSpell((*itr), SPELL_GREASE_VIAL_EFFECT);
-                    m_Targets.push_back((*itr)->GetGUID());
-                }
-            }
-
             diff = 500;
         }
-        else
+
+        uint32 diff;
+        std::list<uint64> m_Targets;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            diff -= p_Time;
+            if (diff <= p_Time)
+            {
+                std::list<Player*> PL_list;
+
+                JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
+                p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+
+                if (PL_list.empty())
+                    return;
+
+                for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+                {
+                    if (!(*itr)->HasAura(SPELL_GREASE_VIAL_EFFECT))
+                    {
+                        (*itr)->CastSpell((*itr), SPELL_GREASE_VIAL_EFFECT);
+                        m_Targets.push_back((*itr)->GetGUID());
+                    }
+                }
+
+                diff = 500;
+            }
+            else
+            {
+                diff -= p_Time;
+            }
         }
-    }
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target && l_Target->HasAura(SPELL_GREASE_VIAL_EFFECT))
-                l_Target->RemoveAura(SPELL_GREASE_VIAL_EFFECT);
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(SPELL_GREASE_VIAL_EFFECT))
+                    l_Target->RemoveAura(SPELL_GREASE_VIAL_EFFECT);
+            }
         }
-    }
-iron_docks_area_trigger_oil_effect* GetAI() const
-{
-    return new iron_docks_area_trigger_oil_effect();
-}
+
+        iron_docks_area_trigger_oil_effect* GetAI() const
+        {
+            return new iron_docks_area_trigger_oil_effect();
+        }
 };
+
 class iron_docks_area_lava_barrage_effect : public AreaTriggerEntityScript
 {
-public:
-    iron_docks_area_lava_barrage_effect() : AreaTriggerEntityScript("iron_docks_area_lava_barrage_effect")
-    {
-        diff = 500;
-    }
-
-    uint32 diff;
-    std::list<uint64> m_Targets;
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (diff <= p_Time)
+    public:
+        iron_docks_area_lava_barrage_effect() : AreaTriggerEntityScript("iron_docks_area_lava_barrage_effect")
         {
-            std::list<Player*> PL_list;
-
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
-            p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
-
-            if (PL_list.empty())
-                return;
-
-            for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
-            {
-                if (!(*itr)->HasAura(SPELL_LAVA_BARRAGE_DOT))
-                {
-                    (*itr)->CastSpell((*itr), SPELL_LAVA_BARRAGE_DOT);
-                    m_Targets.push_back((*itr)->GetGUID());
-                }
-            }
-
             diff = 500;
         }
-        else
+
+        uint32 diff;
+        std::list<uint64> m_Targets;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            diff -= p_Time;
+            if (diff <= p_Time)
+            {
+                std::list<Player*> PL_list;
+
+                JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
+                p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+
+                if (PL_list.empty())
+                    return;
+
+                for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+                {
+                    if (!(*itr)->HasAura(SPELL_LAVA_BARRAGE_DOT))
+                    {
+                        (*itr)->CastSpell((*itr), SPELL_LAVA_BARRAGE_DOT);
+                        m_Targets.push_back((*itr)->GetGUID());
+                    }
+                }
+
+                diff = 500;
+            }
+            else
+            {
+                diff -= p_Time;
+            }
         }
-    }
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target && l_Target->HasAura(SPELL_LAVA_BARRAGE_DOT))
-                l_Target->RemoveAura(SPELL_LAVA_BARRAGE_DOT);
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(SPELL_LAVA_BARRAGE_DOT))
+                    l_Target->RemoveAura(SPELL_LAVA_BARRAGE_DOT);
+            }
         }
-    }
-    iron_docks_area_lava_barrage_effect* GetAI() const
-    {
-        return new iron_docks_area_lava_barrage_effect();
-    }
+
+        iron_docks_area_lava_barrage_effect* GetAI() const
+        {
+            return new iron_docks_area_lava_barrage_effect();
+        }
 };
+
 class iron_docks_area_trigger_burning_arrow : public AreaTriggerEntityScript
 {
-public:
-    iron_docks_area_trigger_burning_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_burning_arrow")
-    {
-    }
-
-    uint32 diff = 500;
-    std::list<uint64> m_Targets;
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (diff <= p_Time)
+    public:
+        iron_docks_area_trigger_burning_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_burning_arrow")
         {
-            std::list<Player*> PL_list;
+        }
 
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
-            p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+        uint32 diff = 500;
+        std::list<uint64> m_Targets;
 
-            if (PL_list.empty())
-                return;
-
-            for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (diff <= p_Time)
             {
-                if (!(*itr)->HasAura(SPELL_BURNING_ARROW_DAMAGE))
+                std::list<Player*> PL_list;
+
+                JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
+                p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+
+                if (PL_list.empty())
+                    return;
+
+                for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
                 {
-                    (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE);
-                    m_Targets.push_back((*itr)->GetGUID());
+                    if (!(*itr)->HasAura(SPELL_BURNING_ARROW_DAMAGE))
+                    {
+                        (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE);
+                        m_Targets.push_back((*itr)->GetGUID());
+                    }
                 }
+
+                diff = 500;
             }
+            else
+            {
+                diff -= p_Time;
+            }
+        }
 
-            diff = 500;
-        }
-        else
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            diff -= p_Time;
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(SPELL_BURNING_ARROW_DAMAGE))
+                    l_Target->RemoveAura(SPELL_BURNING_ARROW_DAMAGE);
+            }
         }
-    }
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
-        {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target && l_Target->HasAura(SPELL_BURNING_ARROW_DAMAGE))
-                l_Target->RemoveAura(SPELL_BURNING_ARROW_DAMAGE);
-        }
-    }
 
-    iron_docks_area_trigger_burning_arrow* GetAI() const
-    {
-        return new iron_docks_area_trigger_burning_arrow();
-    }
+        iron_docks_area_trigger_burning_arrow* GetAI() const
+        {
+            return new iron_docks_area_trigger_burning_arrow();
+        }
 };
+
 class iron_docks_area_trigger_barbed_arrow : public AreaTriggerEntityScript
 {
-public:
-    iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow")
-    {
-    }
-    uint32 diff;
-    std::list<uint64> m_Targets;
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        if (diff <= p_Time)
+    public:
+        iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow")
         {
-            std::list<Player*> PL_list;
+        }
 
-            JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
-            JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
-            p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+        uint32 diff;
+        std::list<uint64> m_Targets;
 
-            if (PL_list.empty())
-                return;
-
-            for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (diff <= p_Time)
             {
-                if (!(*itr)->HasAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE))
+                std::list<Player*> PL_list;
+
+                JadeCore::AnyPlayerInObjectRangeCheck check(p_AreaTrigger, 3.0f);
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(p_AreaTrigger, PL_list, check);
+                p_AreaTrigger->VisitNearbyObject(3.0f, searcher);
+
+                if (PL_list.empty())
+                    return;
+
+                for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
                 {
-                    (*itr)->CastSpell((*itr), SPELL_BARBED_ARROW_UNKNOWN_DAMAGE);
-                    m_Targets.push_back((*itr)->GetGUID());
+                    if (!(*itr)->HasAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE))
+                    {
+                        (*itr)->CastSpell((*itr), SPELL_BARBED_ARROW_UNKNOWN_DAMAGE);
+                        m_Targets.push_back((*itr)->GetGUID());
+                    }
                 }
+
+                diff = 500;
             }
+            else
+            {
+                diff -= p_Time;
+            }
+        }
 
-            diff = 500;
-        }
-        else
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
         {
-            diff -= p_Time;
+            for (auto l_Guid : m_Targets)
+            {
+                Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
+                if (l_Target && l_Target->HasAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE))
+                    l_Target->RemoveAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE);
+            }
         }
-    }
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        for (auto l_Guid : m_Targets)
-        {
-            Unit* l_Target = Unit::GetUnit(*p_AreaTrigger, l_Guid);
-            if (l_Target && l_Target->HasAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE))
-                l_Target->RemoveAura(SPELL_BARBED_ARROW_UNKNOWN_DAMAGE);
-        }
-    }
 
-    iron_docks_area_trigger_burning_arrow* GetAI() const
-    {
-        return new iron_docks_area_trigger_burning_arrow();
-    }
+        iron_docks_area_trigger_burning_arrow* GetAI() const
+        {
+            return new iron_docks_area_trigger_burning_arrow();
+        }
 };
 
 class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 {
-public:
-    iron_docks_spell_burning_arrow_aura() : SpellScriptLoader("iron_docks_spell_burning_arrow_aura") { }
+    public:
+        iron_docks_spell_burning_arrow_aura() : SpellScriptLoader("iron_docks_spell_burning_arrow_aura") { }
 
-    class iron_docks_Spells : public AuraScript
-    {
-        PrepareAuraScript(iron_docks_Spells);
+        class iron_docks_Spells : public AuraScript
+        {
+            PrepareAuraScript(iron_docks_Spells);
 
-        bool load()
-        {
-           time = 0;
-        }
-        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
-        {
-            PreventDefaultAction();
-            
-            if (time < 3)
+            bool load()
             {
+               time = 0;
+            }
+
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            {
+                PreventDefaultAction();
+
+                if (time < 3)
+                {
+                    if (GetCaster())
+                    {
+                        if (Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
+                        {
+                            GetCaster()->CastSpell(target, SPELL_BURNING_ARROW_AREA_TRIGGER);
+
+                            time++;
+                        }
+                    }
+                }
+            }
+
+            private:
+                uint32 time;
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new iron_docks_Spells();
+        }
+};
+
+class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
+{
+    public:
+        iron_docks_spell_barbed_arrow_dummy() : SpellScriptLoader("iron_docks_spell_barbed_arrow_dummy") { }
+
+        class iron_docks_spell_barbed_arrow_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(iron_docks_spell_barbed_arrow_dummy_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (!GetCaster())
+                    return;
+
+                GetCaster()->CastSpell(GetCaster(), SPELL_BARBED_ARROW_AURA);
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new iron_docks_spell_barbed_arrow_dummy_SpellScript();
+        }
+};
+
+class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
+{
+    public:
+        iron_docks_spell_barbed_arrow_aura() : SpellScriptLoader("iron_docks_spell_barbed_arrow_aura") { }
+
+        class iron_docks_Spells : public AuraScript
+        {
+            PrepareAuraScript(iron_docks_Spells);
+
+            void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
+            {
+                PreventDefaultAction();
+
                 if (GetCaster())
                 {
                     if (Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
                     {
-                        GetCaster()->CastSpell(target, SPELL_BURNING_ARROW_AREA_TRIGGER);
-
-                        time++;
+                        GetCaster()->CastSpell(target, SPELL_BARBED_ARROW_AREA_TRIGGER);
                     }
                 }
             }
-        }
 
-    private:
-        uint32 time;
-
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-    AuraScript* GetAuraScript() const
-    {
-        return new iron_docks_Spells();
-    }
-};
-class iron_docks_spell_barbed_arrow_dummy : public SpellScriptLoader
-{
-public:
-    iron_docks_spell_barbed_arrow_dummy() : SpellScriptLoader("iron_docks_spell_barbed_arrow_dummy") { }
-
-    class iron_docks_spell_barbed_arrow_dummy_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(iron_docks_spell_barbed_arrow_dummy_SpellScript);
-
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            if (!GetCaster())
-                return;
-
-            GetCaster()->CastSpell(GetCaster(), SPELL_BARBED_ARROW_AURA);
-        }
-
-        void Register()
-        {
-            OnEffectLaunch += SpellEffectFn(iron_docks_spell_barbed_arrow_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new iron_docks_spell_barbed_arrow_dummy_SpellScript();
-    }
-};
-class iron_docks_spell_barbed_arrow_aura : public SpellScriptLoader
-{
-public:
-    iron_docks_spell_barbed_arrow_aura() : SpellScriptLoader("iron_docks_spell_barbed_arrow_aura") { }
-
-    class iron_docks_Spells : public AuraScript
-    {
-        PrepareAuraScript(iron_docks_Spells);
-
-        void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
-        {
-            PreventDefaultAction();
-
-            if (GetCaster())
+            void Register()
             {
-                if (Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
-                {
-                    GetCaster()->CastSpell(target, SPELL_BARBED_ARROW_AREA_TRIGGER);
-                }
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
-        }
+        };
 
-        void Register()
+        AuraScript* GetAuraScript() const
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_Spells::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            return new iron_docks_Spells();
         }
-    };
-    AuraScript* GetAuraScript() const
-    {
-        return new iron_docks_Spells();
-    }
 };
+
 class iron_docks_siege_master_olugar : public CreatureScript
 {
-public:
-    iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
+    public:
+        iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 rp;
+            uint32 rp;
 
-        void Reset()
-        {
-            rp = 16000;
-            me->SetReactState(REACT_DEFENSIVE);
-        }
-        void EnterCombat(Unit* who)
-        {
-            // I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
-            events.ScheduleEvent(EVENT_SHATTERING_STRIKE, shatteringstrikeinterval);
-            events.ScheduleEvent(EVENT_GATECRASHER, gatecrasherinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
+            void Reset()
             {
-                if (rp <= diff)
-                {
-                    me->MonsterSay("Stop showin' off.", LANG_UNIVERSAL, me->GetGUID());
+                rp = 16000;
+                me->SetReactState(REACT_DEFENSIVE);
+            }
 
-                    rp = 16000;
+            void EnterCombat(Unit* who)
+            {
+                // I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
+                events.ScheduleEvent(EVENT_SHATTERING_STRIKE, shatteringstrikeinterval);
+                events.ScheduleEvent(EVENT_GATECRASHER, gatecrasherinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (rp <= diff)
+                    {
+                        Talk(0);
+                        rp = 16000;
+                    }
+                    else
+                        rp -= diff;
+
+                    return;
+                }
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                // pit fighter
+                if (me->HasAuraType(SPELL_AURA_MOD_DISARM))
+                {
+                    if (!me->HasAura(SPELL_PIT_FIGHTER))
+                        me->AddAura(SPELL_PIT_FIGHTER, me);
                 }
                 else
-                    rp -= diff;
-
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            // pit fighter
-            if (me->HasAuraType(SPELL_AURA_MOD_DISARM))
-            {
-                if (!me->HasAura(SPELL_PIT_FIGHTER))
-                me->AddAura(SPELL_PIT_FIGHTER, me);
-            }
-            else
-            {
-                if (me->HasAura(SPELL_PIT_FIGHTER))
                 {
-                    me->RemoveAura(SPELL_PIT_FIGHTER);
+                    if (me->HasAura(SPELL_PIT_FIGHTER))
+                        me->RemoveAura(SPELL_PIT_FIGHTER);
                 }
-            }
 
-            if (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                if (uint32 eventId = events.ExecuteEvent())
                 {
-                case EVENT_SHATTERING_STRIKE:
+                    switch (eventId)
                     {
-                        me->CastSpell(me->getVictim(), SPELL_SHATTERING_STRIKE);
-                        events.ScheduleEvent(EVENT_SHATTERING_STRIKE, shatteringstrikeinterval);
-                        break;
-                    }
-                case EVENT_GATECRASHER:
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                        case EVENT_SHATTERING_STRIKE:
                         {
-                            me->CastSpell(target, SPELL_THROW_GATECRASHER);                        
+                            me->CastSpell(me->getVictim(), SPELL_SHATTERING_STRIKE);
+                            events.ScheduleEvent(EVENT_SHATTERING_STRIKE, shatteringstrikeinterval);
+                            break;
                         }
+                        case EVENT_GATECRASHER:
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                            {
+                                me->CastSpell(target, SPELL_THROW_GATECRASHER);
+                            }
 
-                        events.ScheduleEvent(EVENT_GATECRASHER, gatecrasherinterval);
-                        break;
+                            events.ScheduleEvent(EVENT_GATECRASHER, gatecrasherinterval);
+                            break;
+                        }
                     }
                 }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 // 86534
 class iron_docks_gatecrasher_trigger : public CreatureScript
 {
-public:
-    iron_docks_gatecrasher_trigger() : CreatureScript("iron_docks_gatecrasher_trigger") { }
+    public:
+        iron_docks_gatecrasher_trigger() : CreatureScript("iron_docks_gatecrasher_trigger") { }
 
-    struct mob_iron_docksAI : public Scripted_NoMovementAI
-    {
-        mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
-
-        void Reset()
+        struct mob_iron_docksAI : public Scripted_NoMovementAI
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetDisplayId(11686);
-            me->setFaction(16);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            events.Update(diff);
-            
-            // handle hacked areatrigger dmg (it appears to be blizzlike since dbc handler summon that add, 
-            //but why the fuck would you do that if already summon an areatrigger? are they dumb? just areatrigger update blizzard, l2p
-            std::list<Player*> nearplayerslist;
-            me->GetPlayerListInGrid(nearplayerslist, 4.0F);
+            mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
-            for (auto itr : nearplayerslist)
+            void Reset()
             {
-                if (!itr->HasAura(SPELL_GATECRASHER_DAMAGE))
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetDisplayId(11686);
+                me->setFaction(16);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                // handle hacked areatrigger dmg (it appears to be blizzlike since dbc handler summon that add,
+                //but why the fuck would you do that if already summon an areatrigger? are they dumb? just areatrigger update blizzard, l2p
+                std::list<Player*> nearplayerslist;
+                me->GetPlayerListInGrid(nearplayerslist, 4.0F);
+
+                for (auto itr : nearplayerslist)
                 {
-                    me->CastSpell(itr, SPELL_GATECRASHER_DAMAGE);
+                    if (!itr->HasAura(SPELL_GATECRASHER_DAMAGE))
+                    {
+                        me->CastSpell(itr, SPELL_GATECRASHER_DAMAGE);
 
-                    if (AuraPtr aur_gatecrasher = itr->GetAura(SPELL_GATECRASHER_DAMAGE))
-                        aur_gatecrasher->SetDuration(1);
+                        if (AuraPtr aur_gatecrasher = itr->GetAura(SPELL_GATECRASHER_DAMAGE))
+                            aur_gatecrasher->SetDuration(1);
+                    }
                 }
-            }          
-        }
-    };
+            }
+        };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_gwarnok : public CreatureScript
 {
-public:
-    iron_docks_gwarnok() : CreatureScript("iron_docks_gwarnok") { }
+    public:
+        iron_docks_gwarnok() : CreatureScript("iron_docks_gwarnok") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
+        struct mob_iron_docksAI : public ScriptedAI
         {
-            me->SetReactState(REACT_DEFENSIVE);
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
-            events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
-            events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-            events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
-                {
-                case EVENT_BLADESTORM:
-                    me->CastSpell(me, SPELL_BLADESTORM);
-                    events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
-                    break;
-                case EVENT_CHARGING_SLASH:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
-                        me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
-
-                    events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
-                    break;
-                case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
-                    {
-                        me->CastSpell(random, SPELL_CHAIN_DRAG);
-                        random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
-                    }
-                    events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
-                    break;
-                }
+                me->SetReactState(REACT_DEFENSIVE);
             }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_mob_ogron : public CreatureScript
-{
-public:
-    iron_docks_mob_ogron() : CreatureScript("iron_docks_mob_ogron") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset()
-        {
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_THUNDERING_STOMP, thunderingstompinterval);
-            events.ScheduleEvent(EVENT_FLURRY, flurryinterval);
-
-            switch (urand(0, 2))
+            void EnterCombat(Unit* who)
             {
-            case 0:
-                me->MonsterYell("CRUSH THEM!!", LANG_UNIVERSAL, me->GetGUID());
-                break;
+                events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
+                events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
+                events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
             }
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void UpdateAI(uint32 const diff)
             {
-                switch (eventId)
-                {
-                case EVENT_THUNDERING_STOMP:
-                    me->CastSpell(me, SPELL_THUNDERING_STOMP);
-                    events.ScheduleEvent(EVENT_THUNDERING_STOMP, thunderingstompinterval);
-                    break;
-                case EVENT_FLURRY:
-                    me->CastSpell(me->getVictim(), SPELL_FLURRY);
-                    events.ScheduleEvent(EVENT_FLURRY, flurryinterval);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_spell_flurry_periodic : public SpellScriptLoader
-{
-public:
-    iron_docks_spell_flurry_periodic() : SpellScriptLoader("iron_docks_spell_flurry_periodic") { }
-
-    class iron_docks_auras : public AuraScript
-    {
-        PrepareAuraScript(iron_docks_auras);
-
-
-        void HandlePeriodic(constAuraEffectPtr aurEff)
-        {
-            PreventDefaultAction();
-            if (GetCaster())
-            {
-                std::list<Player*> targets;
-                GetCaster()->GetPlayerListInGrid(targets, 5.0f);
-
-                for (auto itr : targets)
-                {
-                    if (GetCaster()->isInFront(itr, M_PI * 0.5f))
-                        GetCaster()->CastSpell(itr, SPELL_FLURRY_DAMAGE);
-                }          
-            }
-        }
-        void Register()
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_auras::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new iron_docks_auras();
-    }
-};
-class iron_docks_stunned_soldiers_trigger : public CreatureScript
-{
-public:
-    iron_docks_stunned_soldiers_trigger() : CreatureScript("iron_docks_stunned_soldiers_trigger") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) 
-        {
-            std::list<Creature*> Oldstunnedcreatures;
-            
-            me->GetCreatureListWithEntryInGrid(Oldstunnedcreatures, NPC_GROMKAR_FOOT_SOLDIER_2, 10.0f);
-
-            for (auto itr : Oldstunnedcreatures)
-                itr->DespawnOrUnsummon();
-
-            for (int i = 0; i <= 2; i++)
-            {
-                Creature* foot_soldier_stunned = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER_2, stunnedadds[i], TEMPSUMMON_DEAD_DESPAWN);
-                if (foot_soldier_stunned)
-                foot_soldier_stunned->AddAura(SPELL_SELF_STUN, foot_soldier_stunned);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_stunned_cheering_practicing_trigger : public CreatureScript
-{
-public:
-    iron_docks_stunned_cheering_practicing_trigger() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        {                
-            // Fighting Soldiers
-            for (int i = 0; i < 2; i++)
-            {
-                Creature* foot_soldiers = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, practicingwarriors[i], TEMPSUMMON_DEAD_DESPAWN);
-               if (foot_soldiers)
-                foot_soldiers->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, SPELL_EMOTE_FIGHT);
-            }
-            // Praciticng Soldiers
-            for (int i = 0; i < 5; i++)
-            {    
-                Creature* cheeringsoldierscreature = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, cheeringsoldiers[i], TEMPSUMMON_DEAD_DESPAWN);          
-                if (cheeringsoldierscreature)
-                    cheeringsoldierscreature->CastSpell(cheeringsoldierscreature, 84062);
-            }   
-        }
-        InstanceScript* pinscription = me->GetInstanceScript();
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_stunned_cheering_practicing_trigger_second_segement : public CreatureScript
-{
-public:
-    iron_docks_stunned_cheering_practicing_trigger_second_segement() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger_second_segement") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        {
-            /*
-            std::list<Creature*> list_p;
-            JadeCore::AnyCreatureInObjectRangeCheck check(me, 12.0f);
-            JadeCore::CreatureListSearcher<JadeCore::AnyCreatureInObjectRangeCheck> searcher(me, list_p, check);
-            me->VisitNearbyObject(12.0f, searcher);
-
-            for (std::list<Creature*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
-            {
-                if ((*itr)->GetEntry() != NPC_GROMKAR_FOOT_SOLDIER)
+                if (!UpdateVictim())
                     return;
 
-                if ((*itr)->IsWithinDistInMap(me, 12.0f, true))
-                    (*itr)->DespawnOrUnsummon();
-            }
-            */
-            // Fighting Soldiers
-            for (int i = 0; i < 2; i++)
-            {
-                Creature* foot_soldiers = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, practicingwarriors2[i], TEMPSUMMON_DEAD_DESPAWN);
-                if (foot_soldiers)
-                foot_soldiers->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, SPELL_EMOTE_FIGHT);
-            }
-            // Praciticng Soldiers
-            for (int i = 0; i < 10; i++)
-            {
-                Creature* cheeringsoldierscreature = NULL;
-                cheeringsoldierscreature = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, cheeringsoldiers2[i], TEMPSUMMON_DEAD_DESPAWN);
-                  
-                if (roll_chance_i(30))
-                if (cheeringsoldierscreature)
-                    cheeringsoldierscreature->CastSpell(cheeringsoldierscreature, 84062);
-            }
-        }
-        InstanceScript* pinscription = me->GetInstanceScript();
-    };
+                events.Update(diff);
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_archery_target : public CreatureScript
-{
-public:
-    iron_docks_archery_target() : CreatureScript("iron_docks_archery_target") { }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-    struct mob_iron_docksAI : public Scripted_NoMovementAI
-    {
-        mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature)
-        {
-            me->SetReactState(REACT_PASSIVE);
-            me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
-};
-class iron_docks_mob_gromkar_technician_deckhand_leader : public CreatureScript
-{
-public:
-    iron_docks_mob_gromkar_technician_deckhand_leader() : CreatureScript("iron_docks_mob_gromkar_technician_deckhand_leader") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        {
-            // Fighting Soldiers
-            for (int i = 0; i < 6; i++)
-            {
-                Position pos;
-
-                me->GetRandomNearPosition(pos, 10.0f);
-
-                Creature* deckhands = me->SummonCreature(NPC_GROMKAR_DECKHAND, pos, TEMPSUMMON_DEAD_DESPAWN);
-                if (deckhands)
+                if (uint32 eventId = events.ExecuteEvent())
                 {
-                    deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    deckhandslist.push_back(deckhands);
-                }
-            }
-        }
-        int visual;
-        std::list<Creature*> deckhandslist;
-
-        void Reset()
-        {
-            visual = 6000;
-            me->SetSpeed(MOVE_RUN, 0.5, true);
-
-            if (!deckhandslist.empty())
-                for (auto itr : deckhandslist)
-                {
-                    if (itr->isAlive())
+                    switch (eventId)
                     {
-                        itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                    case EVENT_BLADESTORM:
+                        me->CastSpell(me, SPELL_BLADESTORM);
+                        events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
+                        break;
+                    case EVENT_CHARGING_SLASH:
+                        if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                            me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
+
+                        events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
+                        break;
+                    case EVENT_CHAIN_DRAG:
+                        if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                        {
+                            me->CastSpell(random, SPELL_CHAIN_DRAG);
+                            random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
+                        }
+                        events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
+                        break;
                     }
                 }
-        }
-        void EnterCombat(Unit* who)
-        {
-            // Scheduling an event, which will result in spell casting
-            // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
-            me->RemoveAura(SPELL_EMOTE_WORK);
-            //  me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                DoMeleeAttackIfReady();
+            }
+        };
 
-            events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
-            events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
-            events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
-        }
-        void UpdateAI(uint32 const diff)
+        CreatureAI* GetAI(Creature* creature) const
         {
-            if (!UpdateVictim())
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_mob_ogron : public CreatureScript
+{
+    public:
+        iron_docks_mob_ogron() : CreatureScript("iron_docks_mob_ogron") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset()
             {
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_THUNDERING_STOMP, thunderingstompinterval);
+                events.ScheduleEvent(EVENT_FLURRY, flurryinterval);
+
+                switch (urand(0, 2))
+                {
+                case 0:
+                    me->MonsterYell("CRUSH THEM!!", LANG_UNIVERSAL, me->GetGUID());
+                    break;
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_THUNDERING_STOMP:
+                        me->CastSpell(me, SPELL_THUNDERING_STOMP);
+                        events.ScheduleEvent(EVENT_THUNDERING_STOMP, thunderingstompinterval);
+                        break;
+                    case EVENT_FLURRY:
+                        me->CastSpell(me->getVictim(), SPELL_FLURRY);
+                        events.ScheduleEvent(EVENT_FLURRY, flurryinterval);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_spell_flurry_periodic : public SpellScriptLoader
+{
+    public:
+        iron_docks_spell_flurry_periodic() : SpellScriptLoader("iron_docks_spell_flurry_periodic") { }
+
+        class iron_docks_auras : public AuraScript
+        {
+            PrepareAuraScript(iron_docks_auras);
+
+            void HandlePeriodic(constAuraEffectPtr aurEff)
+            {
+                PreventDefaultAction();
+                if (GetCaster())
+                {
+                    std::list<Player*> targets;
+                    GetCaster()->GetPlayerListInGrid(targets, 5.0f);
+
+                    for (auto itr : targets)
+                    {
+                        if (GetCaster()->isInFront(itr, M_PI * 0.5f))
+                            GetCaster()->CastSpell(itr, SPELL_FLURRY_DAMAGE);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(iron_docks_auras::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new iron_docks_auras();
+        }
+};
+
+class iron_docks_stunned_soldiers_trigger : public CreatureScript
+{
+    public:
+        iron_docks_stunned_soldiers_trigger() : CreatureScript("iron_docks_stunned_soldiers_trigger") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+            {
+                std::list<Creature*> Oldstunnedcreatures;
+            
+                me->GetCreatureListWithEntryInGrid(Oldstunnedcreatures, NPC_GROMKAR_FOOT_SOLDIER_2, 10.0f);
+
+                for (auto itr : Oldstunnedcreatures)
+                    itr->DespawnOrUnsummon();
+
+                for (int i = 0; i <= 2; i++)
+                {
+                    Creature* foot_soldier_stunned = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER_2, stunnedadds[i], TEMPSUMMON_DEAD_DESPAWN);
+                    if (foot_soldier_stunned)
+                    foot_soldier_stunned->AddAura(SPELL_SELF_STUN, foot_soldier_stunned);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_stunned_cheering_practicing_trigger : public CreatureScript
+{
+    public:
+        iron_docks_stunned_cheering_practicing_trigger() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+            {
+                // Fighting Soldiers
+                for (int i = 0; i < 2; i++)
+                {
+                    Creature* foot_soldiers = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, practicingwarriors[i], TEMPSUMMON_DEAD_DESPAWN);
+                   if (foot_soldiers)
+                    foot_soldiers->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, SPELL_EMOTE_FIGHT);
+                }
+                // Praciticng Soldiers
+                for (int i = 0; i < 5; i++)
+                {
+                    Creature* cheeringsoldierscreature = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, cheeringsoldiers[i], TEMPSUMMON_DEAD_DESPAWN);
+                    if (cheeringsoldierscreature)
+                        cheeringsoldierscreature->CastSpell(cheeringsoldierscreature, 84062);
+                }
+            }
+
+            InstanceScript* pinscription = me->GetInstanceScript();
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_stunned_cheering_practicing_trigger_second_segement : public CreatureScript
+{
+    public:
+        iron_docks_stunned_cheering_practicing_trigger_second_segement() : CreatureScript("iron_docks_stunned_cheering_practicing_trigger_second_segement") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+            {
+                /*
+                std::list<Creature*> list_p;
+                JadeCore::AnyCreatureInObjectRangeCheck check(me, 12.0f);
+                JadeCore::CreatureListSearcher<JadeCore::AnyCreatureInObjectRangeCheck> searcher(me, list_p, check);
+                me->VisitNearbyObject(12.0f, searcher);
+
+                for (std::list<Creature*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
+                {
+                    if ((*itr)->GetEntry() != NPC_GROMKAR_FOOT_SOLDIER)
+                        return;
+
+                    if ((*itr)->IsWithinDistInMap(me, 12.0f, true))
+                        (*itr)->DespawnOrUnsummon();
+                }
+                */
+                // Fighting Soldiers
+                for (int i = 0; i < 2; i++)
+                {
+                    Creature* foot_soldiers = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, practicingwarriors2[i], TEMPSUMMON_DEAD_DESPAWN);
+                    if (foot_soldiers)
+                    foot_soldiers->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, SPELL_EMOTE_FIGHT);
+                }
+                // Praciticng Soldiers
+                for (int i = 0; i < 10; i++)
+                {
+                    Creature* cheeringsoldierscreature = NULL;
+                    cheeringsoldierscreature = me->SummonCreature(NPC_GROMKAR_FOOT_SOLDIER, cheeringsoldiers2[i], TEMPSUMMON_DEAD_DESPAWN);
+                  
+                    if (roll_chance_i(30))
+                    if (cheeringsoldierscreature)
+                        cheeringsoldierscreature->CastSpell(cheeringsoldierscreature, 84062);
+                }
+            }
+
+            InstanceScript* pinscription = me->GetInstanceScript();
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_archery_target : public CreatureScript
+{
+    public:
+        iron_docks_archery_target() : CreatureScript("iron_docks_archery_target") { }
+
+        struct mob_iron_docksAI : public Scripted_NoMovementAI
+        {
+            mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            {
+                me->SetReactState(REACT_PASSIVE);
+                me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
+class iron_docks_mob_gromkar_technician_deckhand_leader : public CreatureScript
+{
+    public:
+        iron_docks_mob_gromkar_technician_deckhand_leader() : CreatureScript("iron_docks_mob_gromkar_technician_deckhand_leader") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+            {
+                // Fighting Soldiers
+                for (int i = 0; i < 6; i++)
+                {
+                    Position pos;
+
+                    me->GetRandomNearPosition(pos, 10.0f);
+
+                    Creature* deckhands = me->SummonCreature(NPC_GROMKAR_DECKHAND, pos, TEMPSUMMON_DEAD_DESPAWN);
+                    if (deckhands)
+                    {
+                        deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        deckhandslist.push_back(deckhands);
+                    }
+                }
+            }
+
+            int visual;
+            std::list<Creature*> deckhandslist;
+
+            void Reset()
+            {
+                visual = 6000;
+                me->SetSpeed(MOVE_RUN, 0.5, true);
+
                 if (!deckhandslist.empty())
                     for (auto itr : deckhandslist)
                     {
-                        if (!itr->isMoving())
+                        if (itr->isAlive())
+                        {
                             itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        }
                     }
             }
 
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void EnterCombat(Unit* who)
             {
-                switch (eventId)
-                {
-                case EVENT_GREASE_VIAL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_GREASE_VIAL);
+                // Scheduling an event, which will result in spell casting
+                // events.ScheduleEvent(EVENT_INCEDINARY_SLUG, incidenarysluginterval); // cuz fuck grammar
+                me->RemoveAura(SPELL_EMOTE_WORK);
+                //  me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
 
-                    events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
-                    break;
-                case EVENT_FLING_HAMMER:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_FLING_HAMMER);
-
-                    events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
-                    break;
-                case EVENT_HIGH_EXPLOSIVE_GRENADE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(target, SPELL_HIGH_EXPLOSIVE_GRENADE);
-
-                    events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
-                    break;
-                }
+                events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
+                events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
+                events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
             }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (!deckhandslist.empty())
+                        for (auto itr : deckhandslist)
+                        {
+                            if (!itr->isMoving())
+                                itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        }
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_GREASE_VIAL:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_GREASE_VIAL);
+
+                        events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
+                        break;
+                    case EVENT_FLING_HAMMER:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_FLING_HAMMER);
+
+                        events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
+                        break;
+                    case EVENT_HIGH_EXPLOSIVE_GRENADE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            me->CastSpell(target, SPELL_HIGH_EXPLOSIVE_GRENADE);
+
+                        events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
+                        break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_mob_thundering_wandler : public CreatureScript
 {
-public:
-    iron_docks_mob_thundering_wandler() : CreatureScript("iron_docks_mob_thundering_wandler") { }
+    public:
+        iron_docks_mob_thundering_wandler() : CreatureScript("iron_docks_mob_thundering_wandler") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_iron_docksAI : public ScriptedAI
         {
-        }
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
-        {
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_CULTTRAPS, culttrapsinterval);
-            events.ScheduleEvent(EVENT_SPEAR_THROW, spearthrowinterval);
-            events.ScheduleEvent(EVENT_RENDING_CLEAVE, rendingcleaveinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
-                {
-                case EVENT_CULTTRAPS:
-                    me->CastSpell(me->getVictim(), SPELL_CULTTRAPS, true);
-                    me->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 8.0f);
-                    events.ScheduleEvent(EVENT_CULTTRAPS, culttrapsinterval);
-                    break;
-                case EVENT_SPEAR_THROW:
-                    me->CastSpell(me->getVictim(), SPELL_SPEAR_THROW);
-                    events.ScheduleEvent(EVENT_SPEAR_THROW, spearthrowinterval);
-                    break;
-                case EVENT_RENDING_CLEAVE:
-                    me->CastSpell(me->getVictim(), SPELL_RENDING_CLEAVE);
-                    events.ScheduleEvent(EVENT_RENDING_CLEAVE, rendingcleaveinterval);
-                    break;
-
-                }
             }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_CULTTRAPS, culttrapsinterval);
+                events.ScheduleEvent(EVENT_SPEAR_THROW, spearthrowinterval);
+                events.ScheduleEvent(EVENT_RENDING_CLEAVE, rendingcleaveinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_CULTTRAPS:
+                        me->CastSpell(me->getVictim(), SPELL_CULTTRAPS, true);
+                        me->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 8.0f);
+                        events.ScheduleEvent(EVENT_CULTTRAPS, culttrapsinterval);
+                        break;
+                    case EVENT_SPEAR_THROW:
+                        me->CastSpell(me->getVictim(), SPELL_SPEAR_THROW);
+                        events.ScheduleEvent(EVENT_SPEAR_THROW, spearthrowinterval);
+                        break;
+                    case EVENT_RENDING_CLEAVE:
+                        me->CastSpell(me->getVictim(), SPELL_RENDING_CLEAVE);
+                        events.ScheduleEvent(EVENT_RENDING_CLEAVE, rendingcleaveinterval);
+                        break;
+
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_mob_rampaging_clefthoof : public CreatureScript
 {
-public:
-    iron_docks_mob_rampaging_clefthoof() : CreatureScript("iron_docks_mob_rampaging_clefthoof") { }
+    public:
+        iron_docks_mob_rampaging_clefthoof() : CreatureScript("iron_docks_mob_rampaging_clefthoof") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_iron_docksAI : public ScriptedAI
         {
-        }
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        Unit* stampedeTar = NULL;
-        void Reset()
-        {
-            me->AddAura(SPELL_SPINY_HORNS, me);
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_RUSHING_STAMPEDE, greesevialinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())            
-                return;
+            Unit* stampedeTar = NULL;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
-                {
-                case EVENT_RUSHING_STAMPEDE:
-                    me->CastSpell(me, SPELL_RUSHING_STAMPEDE_VISUAL_MOVEMENT);
-
-                    stampedeTar = NULL;
-
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    {
-                        me->CastSpell(target, SPELL_RUSHING_STAMPEDE_DUMMY_CAST);
-                        stampedeTar = target;
-                    }
-                    events.ScheduleEvent(EVENT_RUSHING_STAMPEDE, greesevialinterval);
-                    events.ScheduleEvent(EVENT_RUSHING_STAMPEDE_2, 2500);
-                    break;
-                case EVENT_RUSHING_STAMPEDE_2:
-                {
-                    if (stampedeTar)
-                    {
-                        me->GetMotionMaster()->MoveCharge(stampedeTar->GetPositionX(), stampedeTar->GetPositionY(), stampedeTar->GetPositionZ(), 42.0f);
-                        me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_VISUAL_JUMP);
-                        me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_DAMAGE);
-                        me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_VISUAL_HORNING);
-
-                        me->GetMotionMaster()->Clear();
-                    }
-                }
-                    break;
-
-                }
+                me->AddAura(SPELL_SPINY_HORNS, me);
             }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_RUSHING_STAMPEDE, greesevialinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_RUSHING_STAMPEDE:
+                        me->CastSpell(me, SPELL_RUSHING_STAMPEDE_VISUAL_MOVEMENT);
+
+                        stampedeTar = NULL;
+
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        {
+                            me->CastSpell(target, SPELL_RUSHING_STAMPEDE_DUMMY_CAST);
+                            stampedeTar = target;
+                        }
+                        events.ScheduleEvent(EVENT_RUSHING_STAMPEDE, greesevialinterval);
+                        events.ScheduleEvent(EVENT_RUSHING_STAMPEDE_2, 2500);
+                        break;
+                    case EVENT_RUSHING_STAMPEDE_2:
+                    {
+                        if (stampedeTar)
+                        {
+                            me->GetMotionMaster()->MoveCharge(stampedeTar->GetPositionX(), stampedeTar->GetPositionY(), stampedeTar->GetPositionZ(), 42.0f);
+                            me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_VISUAL_JUMP);
+                            me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_DAMAGE);
+                            me->CastSpell(stampedeTar, SPELL_RUSHING_STAMPEDE_VISUAL_HORNING);
+
+                            me->GetMotionMaster()->Clear();
+                        }
+                    }
+                        break;
+
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_mob_drake : public CreatureScript
 {
-public:
-    iron_docks_mob_drake() : CreatureScript("iron_docks_mob_drake") { }
+    public:
+        iron_docks_mob_drake() : CreatureScript("iron_docks_mob_drake") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_iron_docksAI : public ScriptedAI
         {
-        }
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
-        {
-        }
-        void EnterCombat(Unit* who)
-        {
-            events.ScheduleEvent(EVENT_LAVA_BARRAGE, lavaburstinterval);
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch (eventId)
-                {
-                case EVENT_LAVA_BARRAGE:
-                    for (int i = 0; i <= 3; i++)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            me->CastSpell(target, SPELL_LAVA_BARRAGE_AREA_TRIGGER, true);
-                    }
-
-                    events.ScheduleEvent(EVENT_LAVA_BARRAGE, lavaburstinterval);
-                    break;
-
-                }
             }
-            DoMeleeAttackIfReady();
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void EnterCombat(Unit* who)
+            {
+                events.ScheduleEvent(EVENT_LAVA_BARRAGE, lavaburstinterval);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_LAVA_BARRAGE:
+                        for (int i = 0; i <= 3; i++)
+                        {
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                me->CastSpell(target, SPELL_LAVA_BARRAGE_AREA_TRIGGER, true);
+                        }
+
+                        events.ScheduleEvent(EVENT_LAVA_BARRAGE, lavaburstinterval);
+                        break;
+
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 // 167239 
 class iron_docks_spell_shoot_damage_decrease_on_dummies : public SpellScriptLoader
 {
-public:
-    iron_docks_spell_shoot_damage_decrease_on_dummies() : SpellScriptLoader("iron_docks_spell_shoot_damage_decrease_on_dummies") { }
+    public:
+        iron_docks_spell_shoot_damage_decrease_on_dummies() : SpellScriptLoader("iron_docks_spell_shoot_damage_decrease_on_dummies") { }
 
-    class iron_docks_spells : public SpellScript
-    {
-        PrepareSpellScript(iron_docks_spells);
-
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        class iron_docks_spells : public SpellScript
         {
-            if (!GetCaster() || !GetHitUnit())
-                return;
+            PrepareSpellScript(iron_docks_spells);
 
-            if (GetHitUnit()->GetEntry() == 79423)
-            PreventHitDamage();
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new iron_docks_spells();
-    }
-};
-class iron_docks_spell_charge_forward : public SpellScriptLoader
-{
-public:
-    iron_docks_spell_charge_forward() : SpellScriptLoader("iron_docks_spell_charge_forward") { }
-
-    class iron_docks_spell_charge_forward_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(iron_docks_spell_charge_forward_SpellScript);
-
-        void HandleCharge()
-        {
-            if (!GetCaster())
-                return;
-
-            // START VISUAL EVENT
-            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                instance->SetData(DATA_SECOND_EVENT, uint32(true));
- 
-                GetCaster()->GetAI()->DoAction(ACTION_QUIET_DEATH);
-                GetCaster()->GetVehicleKit()->RemoveAllPassengers();
-                
-                GetCaster()->SetSpeed(MOVE_RUN, 12.0f, true);         
-        }
-
-        void Register()
-        {
-            AfterCast += SpellCastFn(iron_docks_spell_charge_forward_SpellScript::HandleCharge);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new iron_docks_spell_charge_forward_SpellScript();
-    }
-};
-class iron_docks_mob_iron_star : public CreatureScript
-{
-public:
-    iron_docks_mob_iron_star() : CreatureScript("iron_docks_mob_iron_star") { }
-
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        uint32 timerperexplosion;
-        bool canKill;
-
-        void Reset()
-        {
-            timerperexplosion = 0;
-            me->setFaction(35);
-            canKill = false;
-        }
-        void DoAction(int32 const action)
-        {
-            switch (action)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-            case ACTION_QUIET_DEATH:
-                timerperexplosion = 12000;
-                me->setFaction(16);
-
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                break;
-            }
-        }
-        void UpdateAI(uint32 const diff)
-        {
-            std::list<Creature*> hostileCreatures;
-
-            std::list<Creature*> list_p;
-            JadeCore::AllCreaturesInRange check(me, 1.0f);
-            JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(me, list_p, check);
-            me->VisitNearbyObject(1.0f, searcher);
-
-            for (std::list<Creature*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
-            {
-                if ((*itr) == me)
+                if (!GetCaster() || !GetHitUnit())
                     return;
 
-               // me->Kill((*itr));
+                if (GetHitUnit()->GetEntry() == 79423)
+                PreventHitDamage();
             }
-            if (canKill && timerperexplosion <= diff)
-            {
-                me->CastSpell(me, SPELL_QUIET_SUICIDE);
-            }
-            else
-                timerperexplosion -= diff;
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new iron_docks_spells();
+        }
 };
+
+class iron_docks_spell_charge_forward : public SpellScriptLoader
+{
+    public:
+        iron_docks_spell_charge_forward() : SpellScriptLoader("iron_docks_spell_charge_forward") { }
+
+        class iron_docks_spell_charge_forward_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(iron_docks_spell_charge_forward_SpellScript);
+
+            void HandleCharge()
+            {
+                if (!GetCaster())
+                    return;
+
+                // START VISUAL EVENT
+                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                    instance->SetData(DATA_SECOND_EVENT, uint32(true));
+ 
+                    GetCaster()->GetAI()->DoAction(ACTION_QUIET_DEATH);
+                    GetCaster()->GetVehicleKit()->RemoveAllPassengers();
+                
+                    GetCaster()->SetSpeed(MOVE_RUN, 12.0f, true);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(iron_docks_spell_charge_forward_SpellScript::HandleCharge);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new iron_docks_spell_charge_forward_SpellScript();
+        }
+};
+
+class iron_docks_mob_iron_star : public CreatureScript
+{
+    public:
+        iron_docks_mob_iron_star() : CreatureScript("iron_docks_mob_iron_star") { }
+
+        struct mob_iron_docksAI : public ScriptedAI
+        {
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
+
+            uint32 timerperexplosion;
+            bool canKill;
+
+            void Reset()
+            {
+                timerperexplosion = 0;
+                me->setFaction(35);
+                canKill = false;
+            }
+
+            void DoAction(int32 const action)
+            {
+                switch (action)
+                {
+                case ACTION_QUIET_DEATH:
+                    timerperexplosion = 12000;
+                    me->setFaction(16);
+
+                    me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    break;
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                std::list<Creature*> hostileCreatures;
+
+                std::list<Creature*> list_p;
+                JadeCore::AllCreaturesInRange check(me, 1.0f);
+                JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(me, list_p, check);
+                me->VisitNearbyObject(1.0f, searcher);
+
+                for (std::list<Creature*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
+                {
+                    if ((*itr) == me)
+                        return;
+
+                   // me->Kill((*itr));
+                }
+                if (canKill && timerperexplosion <= diff)
+                {
+                    me->CastSpell(me, SPELL_QUIET_SUICIDE);
+                }
+                else
+                    timerperexplosion -= diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
+};
+
 class iron_docks_trigger_stand_third_event : public CreatureScript
 {
-public:
-    iron_docks_trigger_stand_third_event() : CreatureScript("iron_docks_trigger_stand_third_event") { }
+    public:
+        iron_docks_trigger_stand_third_event() : CreatureScript("iron_docks_trigger_stand_third_event") { }
 
-    struct mob_iron_docksAI : public ScriptedAI
-    {
-        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_iron_docksAI : public ScriptedAI
         {
-        }
+            mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        int32 timerperexplosion;
-        bool canEvent;
+            int32 timerperexplosion;
+            bool canEvent;
 
-        void Reset()
-        {
-            timerperexplosion = 0;
-            me->setFaction(35);
-            canEvent = false;
-        }
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15.0f) && !canEvent)
+            void Reset()
             {
-                canEvent = true;
-
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->SetData(DATA_THIRD_EVENT, uint32(true));
+                timerperexplosion = 0;
+                me->setFaction(35);
+                canEvent = false;
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
+            void MoveInLineOfSight(Unit* who)
+            {
+                if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15.0f) && !canEvent)
+                {
+                    canEvent = true;
+
+                    if (InstanceScript* instance = me->GetInstanceScript())
+                        instance->SetData(DATA_THIRD_EVENT, uint32(true));
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_iron_docksAI(creature);
+        }
 };
+
 class iron_docks_trigger_cannon : public CreatureScript
 {
-public:
-    iron_docks_trigger_cannon() : CreatureScript("iron_docks_trigger_cannon") { }
+    public:
+        iron_docks_trigger_cannon() : CreatureScript("iron_docks_trigger_cannon") { }
 
-    struct mob_iron_docksAI : public Scripted_NoMovementAI
-    {
-        mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        struct mob_iron_docksAI : public Scripted_NoMovementAI
         {
-        }
+            mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
-        void Reset()
+            void Reset()
+            {
+                me->setFaction(16);
+                me->SetReactState(REACT_PASSIVE);
+                me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
+                me->SetHealth(6000000);
+                me->SetMaxHealth(6000000);
+                me->GetMap()->SetObjectVisibility(1000.0f);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            me->setFaction(16);
-            me->SetReactState(REACT_PASSIVE);
-            me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
-            me->SetHealth(6000000);
-            me->SetMaxHealth(6000000);
-            me->GetMap()->SetObjectVisibility(1000.0f);
+            return new mob_iron_docksAI(creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_iron_docksAI(creature);
-    }
 };
 
 void AddSC_iron_docks_cpp()
