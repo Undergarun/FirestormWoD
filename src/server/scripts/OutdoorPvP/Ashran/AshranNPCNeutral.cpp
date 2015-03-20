@@ -49,7 +49,7 @@ class npc_ashran_herald : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_heraldAI(p_Creature);
         }
@@ -101,7 +101,7 @@ class npc_slg_generic_mop : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_slg_generic_mopAI(p_Creature);
         }
@@ -296,7 +296,7 @@ class npc_faction_boss : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_faction_bossAI(p_Creature);
         }
@@ -332,7 +332,7 @@ class npc_ashran_flight_masters : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_flight_mastersAI(p_Creature);
         }
@@ -368,7 +368,7 @@ class npc_ashran_spirit_healer : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_spirit_healerAI(p_Creature);
         }
@@ -651,7 +651,7 @@ class npc_ashran_korlok : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_korlokAI(p_Creature);
         }
@@ -822,7 +822,7 @@ class npc_ashran_faction_champions : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_faction_championsAI(p_Creature);
         }
@@ -930,7 +930,7 @@ class npc_ashran_mandragoraster : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_mandragorasterAI(p_Creature);
         }
@@ -1018,7 +1018,7 @@ class npc_ashran_panthora : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_panthoraAI(p_Creature);
         }
@@ -1131,7 +1131,7 @@ class npc_ashran_ancient_inferno : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_ancient_infernoAI(p_Creature);
         }
@@ -1163,7 +1163,7 @@ class npc_ashran_volcano : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override { }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_volcanoAI(p_Creature);
         }
@@ -1250,7 +1250,7 @@ class npc_ashran_goregore : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_goregoreAI(p_Creature);
         }
@@ -1320,7 +1320,7 @@ class npc_ashran_ashmaul_magma_caster : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_ashmaul_magma_casterAI(p_Creature);
         }
@@ -1352,7 +1352,7 @@ class npc_ashran_volcanic_ground : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override { }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_volcanic_groundAI(p_Creature);
         }
@@ -1475,7 +1475,7 @@ class npc_ashran_elder_darkweaver_kath : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_elder_darkweaver_kathAI(p_Creature);
         }
@@ -1507,7 +1507,7 @@ class npc_ashran_shadow_figurine : public CreatureScript
             void UpdateAI(uint32 const p_Diff) override { }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_shadow_figurineAI(p_Creature);
         }
@@ -1571,7 +1571,7 @@ class npc_ashran_ashmaul_destroyer : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_ashmaul_destroyerAI(p_Creature);
         }

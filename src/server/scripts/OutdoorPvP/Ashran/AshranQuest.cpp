@@ -146,7 +146,7 @@ class npc_ashran_harrison_jones : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_harrison_jonesAI(p_Creature);
         }
@@ -208,7 +208,7 @@ class npc_ashran_belloc_brightblade : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_belloc_brightbladeAI(p_Creature);
         }

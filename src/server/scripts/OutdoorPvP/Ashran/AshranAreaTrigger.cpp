@@ -19,7 +19,7 @@ class areatrigger_ashran_splitting_breath : public AreaTriggerEntityScript
             SplittingBreath = 161517
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 3.0f;
@@ -35,7 +35,7 @@ class areatrigger_ashran_splitting_breath : public AreaTriggerEntityScript
             }
         }
 
-        AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_ashran_splitting_breath();
         }
@@ -52,7 +52,7 @@ class areatrigger_ashran_volcano : public AreaTriggerEntityScript
             VolcanicFallout = 176146
         };
 
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/) override
         {
             std::list<Unit*> l_TargetList;
             float l_Radius = 4.0f;
@@ -68,7 +68,7 @@ class areatrigger_ashran_volcano : public AreaTriggerEntityScript
             }
         }
 
-        AreaTriggerEntityScript* GetAI() const
+        AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_ashran_volcano();
         }

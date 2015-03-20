@@ -52,7 +52,7 @@ class spell_ashran_blade_twister: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_blade_twister_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -92,7 +92,7 @@ class spell_ashran_emberfall_living_bomb: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_ashran_emberfall_living_bomb_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
@@ -158,7 +158,7 @@ class spell_ashran_faction_rewards : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_faction_rewards_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_ashran_faction_rewards_SpellScript::HandleOnHit);
@@ -214,7 +214,7 @@ class spell_ashran_booming_shout : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_booming_shout_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_booming_shout_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -244,7 +244,7 @@ class spell_ashran_curse_of_krong : public SpellScriptLoader
                     l_Target->DealDamage(l_Target, l_Target->CountPctFromMaxHealth(p_AurEff->GetAmount()), nullptr, DOT);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_curse_of_krong_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -349,7 +349,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_ashran_artifacts_collected_AuraScript::UpdateCurrentCount, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ashran_artifacts_collected_AuraScript::SetMaxCount, EFFECT_1, SPELL_AURA_DUMMY);
@@ -648,7 +648,7 @@ class spell_ashran_darkness_within : public SpellScriptLoader
                     l_Target->CastSpell(l_Target, eSpell::SpellDarknessWithinSearcher, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_darkness_within_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -729,7 +729,7 @@ class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
                     l_Target->Dismount();
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_ashran_preserved_discombobulator_ray_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
