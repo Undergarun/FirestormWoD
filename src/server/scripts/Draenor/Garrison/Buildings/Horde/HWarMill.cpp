@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_GrunLekData
     {
-        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetupActionSequence(GrunLek::MovePointLoc, GrunLek::Sequence, sizeof(GrunLek::Sequence), GrunLek::MovePointIDs::Out);
 
@@ -67,12 +67,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };

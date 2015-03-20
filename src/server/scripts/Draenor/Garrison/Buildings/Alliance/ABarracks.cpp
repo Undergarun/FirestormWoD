@@ -21,7 +21,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     namespace npc_JonathanStephensData
     {
-        extern InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        extern InitSequenceFunction FnLevel1 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
             p_This->SetupActionSequence(JonathanStephens_Level1::MovePointLoc, JonathanStephens_Level1::Sequence, sizeof(JonathanStephens_Level1::Sequence), JonathanStephens_Level1::MovePointIDs::Table);
 
@@ -113,12 +113,12 @@ namespace MS { namespace Garrison
             p_This->DoNextSequenceAction();
         };
 
-        extern InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        extern InitSequenceFunction FnLevel2 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
 
-        extern InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
+        extern InitSequenceFunction FnLevel3 = [](GarrisonNPCAI* p_This, Creature* p_Me)
         {
 
         };
