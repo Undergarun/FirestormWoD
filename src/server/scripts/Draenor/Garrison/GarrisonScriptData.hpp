@@ -66,7 +66,8 @@ namespace MS { namespace Garrison
         Horde_YourFirstBlacksmithingWorkOrder     = 37569,
         Horde_BiggerIsBetter                      = 36567,
         Horde_YourFirstTailoringWorkOrder         = 37575,
-        Horde_YoutFirstAlchemyWorkOrder           = 37568
+        Horde_YoutFirstAlchemyWorkOrder           = 37568,
+        Horde_YoutFirstLeatherworkingWorkOrder    = 37574
 
     };
 

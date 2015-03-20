@@ -28,6 +28,7 @@
 #include "Buildings/Horde/HWarMill.hpp"
 #include "Buildings/Horde/HTailoringEmporium.hpp"
 #include "Buildings/Horde/HAlchemyLab.hpp"
+#include "Buildings/Horde/HTheTannery.hpp"
 
 #include <random>
 
@@ -461,5 +462,9 @@ void AddSC_Garrison_NPC()
         /// Alchemy lab
         new MS::Garrison::npc_AlbertDeHyde;
         new MS::Garrison::npc_KeyanaTone;
+
+        /// The tannery
+        new MS::Garrison::npc_MurneGreenhoof;
+        new MS::Garrison::npc_Yanney;
     }
 }
