@@ -995,14 +995,23 @@ class npc_ashran_kronus : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventRockShield, 9000);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                if (p_Damage < me->GetHealth())
+                    return;
+
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
                 if (l_ZoneScript == nullptr)
                     return;
 
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
-                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman);
+                {
+                    if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman))
+                    {
+                        l_Ashran->CastSpellOnTeam(me, TeamId::TEAM_ALLIANCE, eAshranSpells::SpellEventAllianceReward);
+                        l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman);
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1191,6 +1200,181 @@ class npc_ashran_warspear_gladiator : public CreatureScript
         }
 };
 
+/// Excavator Rustshiv - 88568
+class npc_ashran_excavator_rustshiv : public CreatureScript
+{
+    public:
+        npc_ashran_excavator_rustshiv() : CreatureScript("npc_ashran_excavator_rustshiv") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth,
+            Fifth,
+            Sixth
+        };
+
+        enum eData
+        {
+            ExcavatorHardtooth  = 88567,
+            ActionInit          = 0,
+            ActionLoop          = 1,
+            EventLoop           = 1
+        };
+
+        struct npc_ashran_excavator_rustshivAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_excavator_rustshivAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorHardtooth, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        if (m_Init)
+                            break;
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks()
+            {
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+                AddTimedDelayedOperation(84 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fifth); });
+                AddTimedDelayedOperation(101 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Sixth); });
+            }
+
+            void LastOperationCalled() override
+            {
+                m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eData::EventLoop)
+                {
+                    if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorHardtooth, 15.0f))
+                    {
+                        if (l_Creature->AI())
+                        {
+                            l_Creature->AI()->DoAction(eData::ActionLoop);
+                            ScheduleAllTalks();
+                        }
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_excavator_rustshivAI(p_Creature);
+        }
+};
+
+/// Excavator Hardtooth - 88567
+class npc_ashran_excavator_hardtooth : public CreatureScript
+{
+    public:
+        npc_ashran_excavator_hardtooth() : CreatureScript("npc_ashran_excavator_hardtooth") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth
+        };
+
+        enum eData
+        {
+            ExcavatorRustshiv   = 88568,
+            ActionInit          = 0,
+            ActionLoop          = 1
+        };
+
+        struct npc_ashran_excavator_hardtoothAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_excavator_hardtoothAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+
+            void Reset() override
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorRustshiv, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    case eData::ActionLoop:
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks()
+            {
+                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(76 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(93 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_excavator_hardtoothAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -1208,4 +1392,6 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_kronus();
     new npc_ashran_underpowered_earth_fury();
     new npc_ashran_warspear_gladiator();
+    new npc_ashran_excavator_rustshiv();
+    new npc_ashran_excavator_hardtooth();
 }

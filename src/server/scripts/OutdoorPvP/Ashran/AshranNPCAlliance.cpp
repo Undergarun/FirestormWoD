@@ -1009,14 +1009,23 @@ class npc_ashran_fangraal : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventEntanglingRoots, 10000);
             }
 
-            void JustDied(Unit* p_Killer) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
+                if (p_Damage < me->GetHealth())
+                    return;
+
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
                 if (l_ZoneScript == nullptr)
                     return;
 
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
-                    l_Ashran->EndArtifactEvent(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman);
+                {
+                    if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman))
+                    {
+                        l_Ashran->CastSpellOnTeam(me, TeamId::TEAM_HORDE, eAshranSpells::SpellEventAllianceReward);
+                        l_Ashran->EndArtifactEvent(TeamId::TEAM_ALLIANCE, eArtifactsDatas::CountForDruidShaman);
+                    }
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override

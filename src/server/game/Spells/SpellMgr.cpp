@@ -3354,6 +3354,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176172:///< Ancient Inferno: Molten Firestorm
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
                 break;
+            case 175093:///< Alliance Reward (Ashran events)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].BasePoints = 50;
+                break;
+            case 174094:///< Horde Reward (Ashran events)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].MiscValue = 1681;
+                break;
             case 108683:///< Fire and Brimstone
                 /// I guess spellmod type is failed here because of -75% damage
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;

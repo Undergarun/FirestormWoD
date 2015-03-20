@@ -1482,6 +1482,8 @@ void OutdoorPvPAshran::OnGameObjectCreate(GameObject* p_GameObject)
         default:
             break;
     }
+
+    OutdoorPvP::OnGameObjectCreate(p_GameObject);
 }
 
 void OutdoorPvPAshran::OnGameObjectRemove(GameObject* p_GameObject)
@@ -1503,6 +1505,8 @@ void OutdoorPvPAshran::OnGameObjectRemove(GameObject* p_GameObject)
         default:
             break;
     }
+
+    OutdoorPvP::OnGameObjectRemove(p_GameObject);
 }
 
 Creature* OutdoorPvPAshran::GetHerald() const
@@ -2078,6 +2082,21 @@ void OutdoorPvPAshran::RemoveVignetteOnPlayers(uint32 p_VignetteID, uint8 p_Team
                 l_VignetteMgr.DestroyAndRemoveVignetteByEntry(l_Vignette);
             }
         }
+    }
+}
+
+void OutdoorPvPAshran::CastSpellOnTeam(Unit* p_Caster, uint8 p_Team, uint32 p_SpellID)
+{
+    if (p_Team > TeamId::TEAM_HORDE)
+        return;
+
+    for (uint64 l_Guid : m_PlayersInWar[p_Team])
+    {
+        if (!p_Caster->getThreatManager().HaveInThreatList(l_Guid))
+            continue;
+
+        if (Player* l_Player = Player::GetPlayer(*p_Caster, l_Guid))
+            p_Caster->CastSpell(l_Player, p_SpellID, true);
     }
 }
 

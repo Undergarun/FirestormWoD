@@ -174,6 +174,8 @@ class OutdoorPvPAshran : public OutdoorPvP
             return (uint32)m_PlayersInWar[p_TeamID].size();
         }
 
+        void CastSpellOnTeam(Unit* p_Caster, uint8 p_Team, uint32 p_SpellID);
+
     private:
 
         OPvPCapturePoint_Graveyard* m_GraveYard;

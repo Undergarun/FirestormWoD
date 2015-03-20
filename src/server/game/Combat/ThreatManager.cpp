@@ -591,3 +591,18 @@ void ThreatManager::resetAllAggro()
 
     setDirty(true);
 }
+
+bool ThreatManager::HaveInThreatList(uint64 p_Guid) const
+{
+    std::list<HostileReference*> l_ThreatList = getThreatList();
+    if (l_ThreatList.empty())
+        return false;
+
+    for (auto l_Iter : l_ThreatList)
+    {
+        if (p_Guid == l_Iter->getUnitGuid())
+            return true;
+    }
+
+    return false;
+}

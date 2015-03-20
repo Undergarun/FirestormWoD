@@ -739,11 +739,23 @@ class npc_ashran_faction_champions : public CreatureScript
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
-                if (me->HasAura(eSpells::SpellEnrage))
+                if (p_Damage < me->GetHealth())
+                {
+                    if (me->HasAura(eSpells::SpellEnrage))
+                        return;
+
+                    if (me->HealthBelowPctDamaged(50, p_Damage))
+                        me->CastSpell(me, eSpells::SpellEnrage, true);
+
+                    return;
+                }
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
                     return;
 
-                if (me->HealthBelowPctDamaged(50, p_Damage))
-                    me->CastSpell(me, eSpells::SpellEnrage, true);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->CastSpellOnTeam(me, TeamId::TEAM_ALLIANCE, eAshranSpells::SpellEventAllianceReward);
             }
 
             void UpdateAI(uint32 const p_Diff) override

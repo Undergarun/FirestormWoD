@@ -175,6 +175,7 @@ class ThreatContainer
         HostileReference* getReferenceByTarget(Unit* victim);
 
         std::list<HostileReference*>& getThreatList() { return iThreatList; }
+        std::list<HostileReference*> getThreatList() const { return iThreatList; }
 };
 
 //=================================================
@@ -242,9 +243,13 @@ class ThreatManager
         // methods to access the lists from the outside to do some dirty manipulation (scriping and such)
         // I hope they are used as little as possible.
         std::list<HostileReference*>& getThreatList() { return iThreatContainer.getThreatList(); }
+        std::list<HostileReference*> getThreatList() const { return iThreatContainer.getThreatList(); }
         std::list<HostileReference*>& getOfflineThreatList() { return iThreatOfflineContainer.getThreatList(); }
         ThreatContainer& getOnlineContainer() { return iThreatContainer; }
         ThreatContainer& getOfflineContainer() { return iThreatOfflineContainer; }
+
+        bool HaveInThreatList(uint64 p_Guid) const;
+
     private:
         void _addThreat(Unit* victim, float threat);
 

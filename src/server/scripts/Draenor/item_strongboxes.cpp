@@ -70,6 +70,11 @@ class item_strongbox : public ItemScript
                     l_RareChance = 90;
                     l_EpicChance = 10;
                     break;
+                case 118093:///< Dented Ashmaul Strongbox (H)
+                case 118094:///< Dented Ashmaul Strongbox (A)
+                    l_ItemChance = 100;
+                    l_RareChance = 100;
+                    break;
                 default:
                     break;
             }
