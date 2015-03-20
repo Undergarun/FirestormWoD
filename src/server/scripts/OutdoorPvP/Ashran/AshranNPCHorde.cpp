@@ -1375,6 +1375,33 @@ class npc_ashran_excavator_hardtooth : public CreatureScript
         }
 };
 
+/// Vol'jin's Spear Battle Standard - 85383
+class npc_ashran_voljins_spear_battle_standard : public CreatureScript
+{
+    public:
+        npc_ashran_voljins_spear_battle_standard() : CreatureScript("npc_ashran_voljins_spear_battle_standard") { }
+
+        struct npc_ashran_voljins_spear_battle_standardAI : public ScriptedAI
+        {
+            npc_ashran_voljins_spear_battle_standardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_voljins_spear_battle_standardAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -1394,4 +1421,5 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_warspear_gladiator();
     new npc_ashran_excavator_rustshiv();
     new npc_ashran_excavator_hardtooth();
+    new npc_ashran_voljins_spear_battle_standard();
 }

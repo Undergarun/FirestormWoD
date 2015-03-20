@@ -27,16 +27,21 @@ UPDATE creature_template SET ScriptName = 'npc_ashran_shadow_figurine' WHERE ent
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_ashmaul_destroyer' WHERE entry = 84876;
 UPDATE creature_template SET ScriptName = 'npc_ashran_excavator_rustshiv' WHERE entry = 88568;
 UPDATE creature_template SET ScriptName = 'npc_ashran_excavator_hardtooth' WHERE entry = 88567;
+UPDATE creature_template SET ScriptName = 'npc_ashran_voljins_spear_battle_standard' WHERE entry = 85383;
+UPDATE creature_template SET ScriptName = 'npc_ashran_wrynns_vanguard_battle_standard' WHERE entry = 85382;
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, exp = 5 WHERE entry = 84225;
 
 DELETE FROM gameobject_template WHERE entry IN (234082, 234083);
 INSERT INTO gameobject_template VALUES
 (234082, 22, 12984, 'Horde''s gate', '', '', '', 83, 32, 4, 0, 0, 0, 0, 0, 0, 166511, 4294967295, 0, 1, 1, 27752, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19342),
 (234083, 22, 12984, 'Horde''s gate', '', '', '', 83, 32, 4, 0, 0, 0, 0, 0, 0, 166512, 4294967295, 0, 1, 1, 27752, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 19342);
 
-DELETE FROM creature_template_addon WHERE entry IN (84466, 84468);
+DELETE FROM creature_template_addon WHERE entry IN (84466, 84468, 85383, 85382);
 INSERT INTO creature_template_addon VALUES
 (84466, 0, 0, 0, 1, 333, ''),
-(84468, 0, 0, 0, 1, 333, '');
+(84468, 0, 0, 0, 1, 333, ''),
+(85382, 0, 0, 0, 2, 0, '170484'),
+(85383, 0, 0, 0, 2, 0, '170484');
 
 DELETE FROM creature_equip_template WHERE entry IN (84468, 84646, 84645);
 INSERT INTO creature_equip_template VALUE
@@ -51,7 +56,7 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (161519, 2, 2319, 1, 1, 4096, 'areatrigger_ashran_splitting_breath'),
 (176144, 0, 3440, 1, 1, 4096, 'areatrigger_ashran_volcano');
 
-DELETE FROM spell_script_names WHERE spell_id IN (161520, 162908, 170896, 168232, 170407, 176542, 158830, 176187);
+DELETE FROM spell_script_names WHERE spell_id IN (161520, 162908, 170896, 168232, 170407, 176542, 158830, 176187, 168224);
 INSERT INTO spell_script_names VALUES
 (161520, 'spell_ashran_splitting_breath'),
 (162908, 'spell_ashran_vile_blood'),
@@ -60,7 +65,8 @@ INSERT INTO spell_script_names VALUES
 (170407, 'spell_ashran_pocket_flying_machine'),
 (176542, 'spell_ashran_shadow_claws'),
 (158830, 'spell_ashran_darkness_within'),
-(176187, 'spell_ashran_earth_smash');
+(176187, 'spell_ashran_earth_smash'),
+(168224, 'spell_ashran_preserved_discombobulator_ray');
 
 DELETE FROM spell_proc_event WHERE entry IN (162908, 170896);
 INSERT INTO spell_proc_event (entry, procFlags, CustomChance) VALUES
@@ -1040,3 +1046,32 @@ INSERT INTO item_loot_template VALUES
 (118093, 115269, 100, 1, 0, 1, 1, ""),
 (118093, 115270, 100, 1, 0, 1, 1, ""),
 (118093, 115271, 100, 1, 0, 1, 1, "");
+
+DELETE FROM npc_vendor WHERE entry IN (80882, 85115);
+INSERT INTO npc_vendor VALUES
+(80882, 0, 114126, 0, 0, 0, 1),
+(80882, 1, 115517, 0, 0, 0, 1),
+(80882, 2, 114125, 0, 0, 5290, 1), -- 25 fragments
+(80882, 3, 114629, 0, 0, 5298, 1), -- 50 fragments
+(80882, 4, 115501, 0, 0, 5491, 1), -- 500 fragments
+(80882, 5, 116396, 0, 0, 5491, 1), -- 500 fragments
+(80882, 6, 115532, 0, 0, 5330, 1), -- 20 fragments
+(80882, 7, 115522, 0, 0, 0, 1),
+(80882, 8, 115511, 0, 0, 5290, 1), -- 25 fragments
+(80882, 9, 115513, 0, 0, 5298, 1), -- 50 fragments
+(80882, 10, 116925, 0, 0, 5330, 1), -- 20 fragments
+(80882, 11, 114124, 0, 0, 5330, 1), -- 20 fragments
+(80882, 12,  116776, 0, 0, 5340, 1), -- 5000 apexis crystals
+(85115, 0, 115500, 0, 0, 0, 1),
+(85115, 1, 115518, 0, 0, 0, 1),
+(85115, 2, 114125, 0, 0, 5290, 1), -- 25 fragments
+(85115, 3, 114629, 0, 0, 5298, 1), -- 50 fragments
+(85115, 4, 115501, 0, 0, 5491, 1), -- 500 fragments
+(85115, 5, 115505, 0, 0, 5491, 1), -- 500 fragments
+(85115, 6, 116398, 0, 0, 5330, 1), -- 20 fragments
+(85115, 7, 116397, 0, 0, 0, 1),
+(85115, 8, 115512, 0, 0, 5290, 1), -- 25 fragments
+(85115, 9, 115514, 0, 0, 5298, 1), -- 50 fragments
+(85115, 10, 116925, 0, 0, 5330, 1), -- 20 fragments
+(85115, 11, 114124, 0, 0, 5330, 1), -- 20 fragments
+(85115, 12,  116775, 0, 0, 5340, 1); -- 5000 apexis crystals

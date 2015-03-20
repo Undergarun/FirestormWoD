@@ -713,6 +713,34 @@ class spell_ashran_earth_smash : public SpellScriptLoader
         }
 };
 
+/// Preserved Discombobulator Ray - 168224
+class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
+{
+    public:
+        spell_ashran_preserved_discombobulator_ray() : SpellScriptLoader("spell_ashran_preserved_discombobulator_ray") { }
+
+        class spell_ashran_preserved_discombobulator_ray_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_preserved_discombobulator_ray_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->Dismount();
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_ashran_preserved_discombobulator_ray_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_preserved_discombobulator_ray_AuraScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -728,4 +756,5 @@ void AddSC_AshranSpells()
     new spell_ashran_shadow_claws();
     new spell_ashran_darkness_within();
     new spell_ashran_earth_smash();
+    new spell_ashran_preserved_discombobulator_ray();
 }

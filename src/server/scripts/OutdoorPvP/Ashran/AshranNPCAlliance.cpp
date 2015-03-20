@@ -1297,6 +1297,33 @@ class npc_ashran_stormshield_gladiator : public CreatureScript
         }
 };
 
+/// Wrynn's Vanguard Battle Standard - 85382
+class npc_ashran_wrynns_vanguard_battle_standard : public CreatureScript
+{
+    public:
+        npc_ashran_wrynns_vanguard_battle_standard() : CreatureScript("npc_ashran_wrynns_vanguard_battle_standard") { }
+
+        struct npc_ashran_wrynns_vanguard_battle_standardAI : public ScriptedAI
+        {
+            npc_ashran_wrynns_vanguard_battle_standardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new npc_ashran_wrynns_vanguard_battle_standardAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -1315,4 +1342,5 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_lifeless_ancient();
     new npc_ashran_stormshield_stormcrow();
     new npc_ashran_stormshield_gladiator();
+    new npc_ashran_wrynns_vanguard_battle_standard();
 }

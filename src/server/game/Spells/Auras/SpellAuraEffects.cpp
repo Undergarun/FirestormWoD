@@ -2166,11 +2166,9 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
 
     if (apply)
     {
-        // apply glow vision
-        //if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->GetMaxDuration() != -1)
-        //{
-        //    target->SetByteFlag(PLAYER_FIELD_OVERRIDE_SPELLS_ID, 3, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
-        //}
+        /// Apply glow vision
+        if (target->GetTypeId() == TYPEID_PLAYER && GetSpellInfo()->GetMaxDuration() != -1)
+            target->SetByteFlag(PLAYER_FIELD_OVERRIDE_SPELLS_ID, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_BYTES_2_INVISIBILITY_GLOW);
 
         if (GetBase()->GetId() == 32612) // invisible mage pet
             if (Unit* pet = target->GetGuardianPet())
@@ -2183,10 +2181,10 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     {
         if (!target->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
         {
-            // if not have different invisibility auras.
-            // remove glow vision
-            //if (target->GetTypeId() == TYPEID_PLAYER)
-            //    target->RemoveByteFlag(PLAYER_FIELD_OVERRIDE_SPELLS_ID, 3, PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
+            /// If not have different invisibility auras.
+            /// Remove glow vision
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                target->RemoveByteFlag(PLAYER_FIELD_OVERRIDE_SPELLS_ID, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, PLAYER_BYTES_2_INVISIBILITY_GLOW);
 
             target->m_invisibility.DelFlag(type);
         }
