@@ -25,6 +25,7 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::TradingPost__TradingPost_Level1);
         m_AllowedBluePrints.push_back(Buildings::TailoringEmporium_TailoringEmporium_Level1);
         m_AllowedBluePrints.push_back(Buildings::TheTannery_TheTannery_Level1);
+        m_AllowedBluePrints.push_back(Buildings::AlchemyLab__AlchemyLab_Level1);
     }
 
     /// Destructor

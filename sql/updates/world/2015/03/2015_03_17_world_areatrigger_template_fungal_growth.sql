@@ -1,0 +1,1 @@
+UPDATE areatrigger_template SET ScriptName = "at_fungal_growth" WHERE spell_id = 164717;

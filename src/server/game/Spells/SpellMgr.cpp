@@ -3344,6 +3344,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 144757: /// Increased All Resist 05
                 spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
                 break;
+            case 108683:///< Fire and Brimstone
+                /// I guess spellmod type is failed here because of -75% damage
+                spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -4359,9 +4364,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE;
                 spellInfo->Effects[0].ValueMultiplier = -200;
                 break;
-            case 51690: ///< Killing Spree
-                spellInfo->Effects[3].Effect = SPELL_EFFECT_FORCE_DESELECT;
-                break;
             case 137619: ///< Marked for Death
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
@@ -5254,9 +5256,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
-                break;
-            case 20711: ///< Spirit of Redemption
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form

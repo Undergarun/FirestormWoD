@@ -3455,7 +3455,17 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
 
     uint32 skillid = m_spellInfo->Effects[effIndex].MiscValue;
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->Effects[effIndex].CalcValue(), skillval ? skillval : 1, damage * 75);
+
+    uint32 l_Multiplier  = damage;
+    uint32 l_NewMaxValue = 0;
+
+    /// Since WoD palier 9 give 100 points not 75
+    if (l_Multiplier < 9)
+        l_NewMaxValue = l_Multiplier * 75;
+    else
+        l_NewMaxValue = ((l_Multiplier - 8) * 100) + (8 * 75);
+
+    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->Effects[effIndex].CalcValue(), skillval ? skillval : 1, l_NewMaxValue);
 
     // Archaeology
     if (skillid == SKILL_ARCHAEOLOGY)
@@ -4218,7 +4228,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
-                && (curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE || curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK1)
+                && (curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE || curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK1 || curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK3)
                 && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
                 || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {
@@ -6656,6 +6666,22 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
     if (success_list.empty())
         return;
+
+    // @TODO : add the SMSG_SPELLSTEALLOG
+    /*WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + success_list.size() * 5);
+    // Send packet header
+    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
+    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
+    dataSuccess << uint32(success_list.size());            // count
+    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
+    dataSuccess << uint32(0);                              // */
+
+    for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    {
+        // dataSuccess << uint32(itr->first);              // Spell Id
+        // dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
+        unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
+    }
 
     // Glyph of SpellSteal
     if (m_caster->HasAura(115713))

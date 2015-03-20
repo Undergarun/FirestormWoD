@@ -2101,6 +2101,7 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_PACIFY    = 2,
     SPELL_PREVENTION_TYPE_UNK1      = 3, // Only a few spells have this, but most of the should be interruptable.
     SPELL_PREVENTION_TYPE_UNK2      = 4,
+    SPELL_PREVENTION_TYPE_UNK3      = 5
 };
 
 enum GameobjectTypes

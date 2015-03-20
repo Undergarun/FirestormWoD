@@ -90,13 +90,13 @@
 
 enum SkillFieldOffset
 {
-    SKILL_OFFSET_LINEID = 0 * 64,
-    SKILL_OFFSET_STEP = 1 * 64,
-    SKILL_OFFSET_RANK = 2 * 64,
-    SKILL_OFFSET_UNK = 3 * 64,
-    SKILL_OFFSET_MAX_RANK = 4 * 64,
-    SKILL_OFFSET_MODIFIER = 5 * 64,
-    SKILL_OFFSET_TALENT = 6 * 64,
+    SKILL_OFFSET_LINEID     = 0 * 64,
+    SKILL_OFFSET_STEP       = 1 * 64,
+    SKILL_OFFSET_RANK       = 2 * 64,
+    SKILL_OFFSET_UNK        = 3 * 64,
+    SKILL_OFFSET_MAX_RANK   = 4 * 64,
+    SKILL_OFFSET_MODIFIER   = 5 * 64,
+    SKILL_OFFSET_TALENT     = 6 * 64,
 };
 
 enum CharacterFlags
@@ -4049,6 +4049,10 @@ void Player::GiveGatheringXP()
         gain = 750 * level - 58250;
     else if (level > 84 && level < 90)
         gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, @TODO : find blizzlike formula (7400 - 14280)
+    else if (level > 89 && level < 95)
+        gain = -225 * level + 23100;
+    else if (level > 94 && level < 100)
+        gain = -228 * level + 24512;    ///< Guessed
 
     float GatheringXpRate = 1;
 
@@ -4058,7 +4062,6 @@ void Player::GiveGatheringXP()
         GatheringXpRate = sWorld->getRate(RATE_XP_GATHERING);
 
     gain *= GatheringXpRate;
-
     GiveXP(gain, nullptr);
 }
 
@@ -4336,6 +4339,9 @@ void Player::InitSpellForLevel()
         if (HasSpell(68975))
             removeSpell(68975, false, false);
     }
+
+    if (getRace() == Races::RACE_NIGHTELF)
+        learnSpell(154748, false);
 
     // Worgen players are automatically granted Apprentice Riding at level 20, as well, due to their racial ability Running Wild.
     // http://www.wowhead.com/spell=33388
@@ -5351,6 +5357,15 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     RemovePassiveTalentSpell(spell_id);
 
+    /// Remove areatrigger
+    std::list<AreaTrigger*> l_AreaTriggerList;
+    GetAreaTriggerList(l_AreaTriggerList, spell_id);
+    if (l_AreaTriggerList.size() > 0)
+    {
+        for (auto l_Itr : l_AreaTriggerList)
+            l_Itr->RemoveFromWorld();
+    }
+
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
     if (spellLearnSkill)
@@ -5826,8 +5841,8 @@ bool Player::ResetTalents(bool no_cost)
 
     if (isInCombat())
     {
-            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-            return false;
+        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        return false;
     }
 
     if (Pet* pet = GetPet())
@@ -7672,13 +7687,15 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-            int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
 
-            // Since 4.0.x, we have bonus skill point reward with somes items
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
-                craft_skill_gain = _spell_idx->second->skill_gain;
+            if (_spell_idx->second->skill_gain)
+                craft_skill_gain *= _spell_idx->second->skill_gain;
 
-            return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
+            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
+                _spell_idx->second->max_value,
+                (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
+                _spell_idx->second->min_value),
+                craft_skill_gain);
         }
     }
     return false;
@@ -7728,63 +7745,67 @@ bool Player::UpdateFishingSkill()
 // levels sync. with spell requirement for skill levels to learn
 // bonus abilities in sSkillLineAbilityStore
 // Used only to avoid scan DBC at each skill grow
-static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
-static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
+static uint32 g_BonusSkillLevels[] = {75, 150, 225, 300, 375, 450, 525, 600, 700};
+static const size_t g_BonusSkillLevelsSize = sizeof(g_BonusSkillLevels) / sizeof(uint32);
 
-bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
+bool Player::UpdateSkillPro(uint16 p_SkillId, int32 p_Chance, uint32 p_Step)
 {
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId, Chance / 10.0f);
-    if (!SkillId)
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", p_SkillId, p_Chance / 10.0f);
+
+    if (!p_SkillId)
         return false;
 
-    if (Chance <= 0)                                         // speedup in 0 chance case
+    if (p_Chance <= 0)                                         // speedup in 0 chance case
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
         return false;
     }
 
-    SkillStatusMap::iterator itr = mSkillStatus.find(SkillId);
-    if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
+    SkillStatusMap::iterator l_It = mSkillStatus.find(p_SkillId);
+    if (l_It == mSkillStatus.end() || l_It->second.uState == SKILL_DELETED)
         return false;
 
-    uint16 field = itr->second.pos / 2;
-    uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
+    uint16 l_SkillField       = l_It->second.pos / 2;
+    uint8  l_SkillFieldOffset = l_It->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset);
+    uint16 l_CurrentSkillValue    = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset);
+    uint16 l_CurrentSkillMaxValue = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + l_SkillField, l_SkillFieldOffset);
 
-    if (!max || !value || value >= max)
+    if (!l_CurrentSkillMaxValue || !l_CurrentSkillValue || l_CurrentSkillValue >= l_CurrentSkillMaxValue)
         return false;
 
-    int32 Roll = irand(1, 1000);
+    int32 l_Roll = irand(1, 1000);
 
-    if (Roll <= Chance)
+    if (l_Roll <= p_Chance)
     {
-        uint16 new_value = value + step;
-        if (new_value > max)
-            new_value = max;
+        uint16 l_NewSkillValue = l_CurrentSkillValue + p_Step;
+        if (l_NewSkillValue > l_CurrentSkillMaxValue)
+            l_NewSkillValue = l_CurrentSkillMaxValue;
 
-        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, new_value);
-        if (itr->second.uState != SKILL_NEW)
-            itr->second.uState = SKILL_CHANGED;
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset, l_NewSkillValue);
 
-        for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
+        if (l_It->second.uState != SKILL_NEW)
+            l_It->second.uState = SKILL_CHANGED;
+
+        for (size_t l_I = 0; l_I < g_BonusSkillLevelsSize; ++l_I)
         {
-            uint32 bsl = bonusSkillLevels[i];
-            if (value < bsl && new_value >= bsl)
+            uint32 l_BonusSkillLevel = g_BonusSkillLevels[l_I];
+            if (l_CurrentSkillValue < l_BonusSkillLevel && l_NewSkillValue >= l_BonusSkillLevel)
             {
-                learnSkillRewardedSpells(SkillId, new_value);
+                learnSkillRewardedSpells(p_SkillId, l_NewSkillValue);
                 break;
             }
         }
 
-        UpdateSkillEnchantments(SkillId, value, new_value);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, SkillId);
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", Chance / 10.0f);
+        UpdateSkillEnchantments(p_SkillId, l_CurrentSkillValue, l_NewSkillValue);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, p_SkillId);
+
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", p_Chance / 10.0f);
+
         return true;
     }
 
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
     return false;
 }
 
@@ -7859,10 +7880,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_TALENT + field, offset, 0);
 
@@ -7877,6 +7898,16 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
                         removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+        }
+
+        if (step == 0 && newVal == 0 && maxVal == 0)
+        {
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
+            // update step
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
+            // update value
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
         }
     }
     else if (newVal)                                        //add
@@ -8942,46 +8973,6 @@ void Player::_SaveCurrency(SQLTransaction& trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 p_ID)
-{
-    PlayerCurrenciesMap::const_iterator l_It = _currencyStorage.find(p_ID);
-
-    if (l_It == _currencyStorage.end())
-        return;
-
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
-
-    l_Data << uint32(1);
-
-    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_ID);
-
-    if (!l_CurrencyEntry) // should never happen
-        return;
-
-    uint32 l_Precision = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-    uint32 l_WeekCount = l_It->second.weekCount / l_Precision;
-    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-    uint32 l_SeasonTotal = l_It->second.seasonTotal / l_Precision;
-
-    l_Data << uint32(l_CurrencyEntry->ID);
-    l_Data << uint32(l_It->second.totalCount / l_Precision);
-
-    l_Data.WriteBit(l_WeekCount);
-    l_Data.WriteBit(l_WeekCap);
-    l_Data.WriteBit(l_SeasonTotal);
-    l_Data.WriteBits(l_It->second.flags, 5);
-    l_Data.FlushBits();
-
-    if (l_WeekCount)
-        l_Data << uint32(l_WeekCount);
-    if (l_WeekCap)
-        l_Data << uint32(l_WeekCap);
-    if (l_SeasonTotal)
-        l_Data << uint32(l_SeasonTotal);
-
-    GetSession()->SendPacket(&l_Data);
-}
-
 void Player::SendCurrencies()
 {
     WorldPacket l_Data(SMSG_INIT_CURRENCY);
@@ -9206,7 +9197,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 itr->second.weekCap = CalculateCurrencyWeekCap(id);
-                SendNewCurrency(id);
+                SendCurrencies();
                 return;
             }
 
@@ -11399,6 +11390,127 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
         case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
         default: break;
+    }
+
+    /// In WoD, more you have fishing skill more the fish is bigger
+    if (loot_type == LOOT_FISHING || loot_type == LOOT_FISHINGHOLE)
+    {
+        uint32 l_SmallFishChance    = 100;
+        uint32 l_MediumFishChance   = 0;
+        uint32 l_BigFishChance      = 0;
+
+        uint32 l_FishingSKill = GetSkillValue(SKILL_FISHING);
+
+        /// http://www.wowhead.com/achievement=9462/draenor-angler#comments
+        if (l_FishingSKill >= 100 && l_FishingSKill < 525)
+        {
+            l_SmallFishChance  = 80;
+            l_MediumFishChance = 20;
+        }
+        else if(l_FishingSKill >= 525 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 10;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 10;
+        }
+        else if (l_FishingSKill >= 650 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50;
+        }
+        else if (l_FishingSKill >= 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+        }
+
+        enum class FishType
+        {
+            None,
+            Small,
+            Medium,
+            Big
+        };
+
+        /// Fish with vairous size :
+        /// -------------------------------------------
+        /// - Crescent Saberfish
+        /// - Blackwater Whiptail
+        /// - Abyssal Gulper Eel
+        /// - Sea Scorpion
+        /// - Fire Ammonite
+        /// - Blind Lake Sturgeon
+        /// - Fat Sleeper
+        /// - Jawless Skulker
+        /// - Savage Piranha
+        std::vector<uint32> g_SmallFish { 111589, 111650, 111651, 111652, 111656, 111658, 111659, 111662, 118564 };
+        std::vector<uint32> g_MediumFish{ 111595, 111663, 111664, 111665, 111666, 111667, 111668, 111669, 118565 };
+        std::vector<uint32> g_BigFish   { 111601, 111670, 111671, 111672, 111673, 111674, 111675, 111676, 118566 };
+
+        auto GetFishType = [g_SmallFish, g_MediumFish, g_BigFish](uint32 p_ItemID) -> FishType
+        {
+            if (std::find(g_SmallFish.begin(), g_SmallFish.end(), p_ItemID) != g_SmallFish.end())
+                return FishType::Small;
+            if (std::find(g_MediumFish.begin(), g_MediumFish.end(), p_ItemID) != g_MediumFish.end())
+                return FishType::Medium;
+            if (std::find(g_BigFish.begin(), g_BigFish.end(), p_ItemID) != g_BigFish.end())
+                return FishType::Big;
+
+            return FishType::None;
+        };
+
+        std::vector<LootItem*> l_Fishs;
+
+        for (uint32 l_I = 0; l_I < loot->Items.size(); ++l_I)
+        {
+            LootItem * l_LootItem = &loot->Items[l_I];
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
+
+            if (!l_ItemTemplate)
+                return;
+
+            if (l_ItemTemplate->SubClass != ITEM_SUBCLASS_MEAT)
+                continue;
+
+            if (GetFishType(l_LootItem->itemid) == FishType::None)
+                continue;
+
+#ifdef _MSC_VER
+            char * l_Size[] = { "None", "Small", "Medium", "Big" };
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+#endif
+            l_Fishs.push_back(l_LootItem);
+            l_LootItem->needs_quest = true;
+        }
+
+        if (l_Fishs.size())
+        {
+            for (auto l_Template : l_Fishs)
+            {
+                bool l_RoolResult = false;
+                switch (GetFishType(l_Template->itemid))
+                {
+                    case FishType::Small:  l_RoolResult = roll_chance_i(l_SmallFishChance);  break;
+                    case FishType::Medium: l_RoolResult = roll_chance_i(l_MediumFishChance); break;
+                    case FishType::Big:    l_RoolResult = roll_chance_i(l_BigFishChance);    break;
+
+                    default:
+                        break;
+                }
+
+                if (l_RoolResult)
+                {
+#ifdef _MSC_VER
+                    ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Template->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_Template->itemid);
+#endif
+                    l_Template->needs_quest = false;
+                }
+            }
+        }
     }
 
     // need know merged fishing/corpse loot type for achievements
@@ -19942,53 +20054,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) have invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         RelocateToHomebind();
     }
-    // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
-    {
-        Battleground* currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::BattlegroundType::None);
-
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
-
-        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
-        {
-            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-            AddBattlegroundQueueId(bgQueueTypeId);
-
-            m_bgData.bgTypeID = currentBg->GetTypeID();
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-        }
-        // Bg was not found - go to Entry Point
-        else
-        {
-            /// Leave bg.
-            if (player_at_bg)
-                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
-
-            /// Do not look for instance if bg not found.
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
-
-            /// Db field type is type int16, so it can never be MAPID_INVALID.
-            /// if (mapId == MAPID_INVALID) -- code kept for reference
-            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                RelocateToHomebind();
-            }
-            else
-                Relocate(&_loc);
-
-            /// We are not in BG anymore.
-            m_bgData.bgInstanceID = 0;
-        }
-    }
     // currently we do not support transport in bg
     else if (transGUID)
     {
@@ -20323,6 +20388,59 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
+
+    /// Player was saved in BG or arena.
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    {
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
+
+            m_bgData.bgTypeID = currentBg->GetTypeID();
+
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+        }
+        // Bg was not found - go to Entry Point
+        else
+        {
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
+
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
+            }
+            else
+                Relocate(&_loc);
+
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
+        }
+    }
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
@@ -22485,7 +22603,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
     // the client auto counts down in real time after having received the initial played time on the first
-    // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
+    // SMSG_SET_ITEM_PURCHASE_DATA packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
     std::set<uint32>::iterator i_next;
     for (std::set<uint32>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
@@ -23608,9 +23726,19 @@ void Player::WhisperAddon(std::string const& p_Text, std::string const& p_Prefix
 void Player::Whisper(std::string const& p_Text, uint32 p_LangID, uint64 p_Receiver)
 {
     Player* l_Target = ObjectAccessor::FindPlayer(p_Receiver);
+    if (l_Target == nullptr)
+        return;
 
     std::string l_Text(p_Text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, p_LangID, l_Text, l_Target);
+
+    if (l_Target->GetSocial()->HasIgnore(GetGUIDLow()))
+    {
+        WorldPacket l_Data;
+        ChatHandler::FillMessageData(&l_Data, GetSession(), CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetGUID(), GetName(), NULL);
+        GetSession()->SendPacket(&l_Data);
+        return;
+    }
 
     /// When player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!l_Target->isDND() || isGameMaster())
@@ -24819,6 +24947,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (pProto->Flags & ITEM_PROTO_FLAG_REFUNDABLE && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
+            it->SetUInt32Value(ITEM_FIELD_CONTEXT, 14);
             it->SetRefundRecipient(GetGUIDLow());
             it->SetPaidMoney(price);
             it->SetPaidExtendedCost(crItem->ExtendedCost);
@@ -25367,6 +25496,9 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 int days = catrec / 1000;
                 recTime = (86400 * days) * IN_MILLISECONDS;
+
+                if (rec == 0 && catrec == 1000)
+                    catrec = recTime;
             }
         }
 
@@ -27291,6 +27423,49 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
     return recruitAFriend;
 }
 
+void Player::RewardPersonnalCurrencies(Unit* p_Victim)
+{
+    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    if (!p_Victim->ToCreature())
+        return;
+
+    if (!p_Victim->ToCreature()->GetEntry())
+        return;
+
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
+    CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetPersonnalCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
+    if (!l_Curr)
+        return;
+
+    bool l_Result = true;
+    if (p_Victim->ToCreature()->AI())
+        p_Victim->ToCreature()->AI()->CurrenciesRewarder(l_Result);
+
+    if (!l_Result)
+        return;
+
+    for (CurrencyOnKillEntry::const_iterator l_Iter = l_Curr->begin(); l_Iter != l_Curr->end(); ++l_Iter)
+    {
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator l_I = l_Auras.begin(); l_I != l_Auras.end(); ++l_I)
+        {
+            if (l_Iter->first == (*l_I)->GetMiscValue())
+                l_Pct += (*l_I)->GetAmount();
+        }
+
+        ModifyCurrency(l_Iter->first, CalculatePct(l_Iter->second, l_Pct));
+    }
+}
+
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
     if (Group *pGroup = GetGroup())
@@ -28550,6 +28725,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
+            /// Bug fixed in commit ed9e9fafb28bed40118a238849e0332726843cb6
+            /// but we need to fix early learning of the last wod profession
+            /// palier
+            if (max == 675)
+                max = 700;
+
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
@@ -28586,13 +28767,16 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, skill);
             uint16 step = 0;
 
-            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
-                step = max / 75;
+            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY || pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
+            {
+                if (max <= 600)
+                    step = max / 75;
+                else
+                    step = (600 / 75) + ((max - 600) / 100);
+            }
 
             if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
             {
-                step = max / 75;
-
                 if (professionCount < DEFAULT_MAX_PRIMARY_TRADE_SKILL)
                     SetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE + professionCount++, skill);
             }
@@ -28628,7 +28812,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             continue;
 
         uint16 value = 0;
-        uint16 max = 0;
+        uint16 max = 75;
         uint16 step = 0;
 
         uint16 field = count / 2;
@@ -28963,6 +29147,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
     {
         PlayerTalentMap & l_PlayerTalent = *GetTalentMap(l_SpeIT);
         ByteBuffer l_Talents(400);
+        int l_TalentCount = 0;
 
         for (PlayerTalentMap::iterator itr = l_PlayerTalent.begin(); itr != l_PlayerTalent.end(); ++itr)
         {
@@ -28988,11 +29173,12 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket * p_Data)
                 }
 
                 l_Talents << uint16(l_Talent);
+                l_TalentCount++;
             }
         }
 
         *p_Data << uint32(GetSpecializationId(l_SpeIT));
-        *p_Data << uint32(l_Talents.size() / 2);
+        *p_Data << uint32(l_TalentCount);
 
         for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             *p_Data << uint16(GetGlyph(l_SpeIT, i));
@@ -29018,6 +29204,14 @@ void Player::SendTalentsInfoData(bool pet)
     WorldPacket data(SMSG_UPDATE_TALENT_DATA);
     BuildPlayerTalentsInfoData(&data);
     GetSession()->SendPacket(&data);
+}
+
+void Player::SendTalentsInvoluntarilyReset(bool p_IsPet /*= false*/)
+{
+    WorldPacket l_Data(Opcodes::SMSG_TALENTS_INVOLUNTARILY_RESET, 1);
+    l_Data.WriteBit(p_IsPet);
+    l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
@@ -29626,71 +29820,62 @@ void Player::SendDuelCountdown(uint32 p_Coutdown)
     GetSession()->SendPacket(&data);
 }
 
-void Player::AddRefundReference(uint32 it)
+void Player::AddRefundReference(uint32 p_Iter)
 {
-    m_refundableItems.insert(it);
+    m_refundableItems.insert(p_Iter);
 }
 
-void Player::DeleteRefundReference(uint32 it)
+void Player::DeleteRefundReference(uint32 p_Iter)
 {
-    std::set<uint32>::iterator itr = m_refundableItems.find(it);
-    if (itr != m_refundableItems.end())
-    {
-        m_refundableItems.erase(itr);
-    }
+    std::set<uint32>::iterator l_Iter = m_refundableItems.find(p_Iter);
+    if (l_Iter != m_refundableItems.end())
+        m_refundableItems.erase(l_Iter);
 }
 
-void Player::SendRefundInfo(Item* item)
+void Player::SendRefundInfo(Item* p_Item)
 {
-    // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
-    item->UpdatePlayedTime(this);
+    /// This function call unset ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
+    p_Item->UpdatePlayedTime(this);
 
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    ObjectGuid l_ItemGUID = p_Item->GetGUID();
+    WorldPacket l_Data(SMSG_SET_ITEM_PURCHASE_DATA);
+
+    l_Data.appendPackGUID(l_ItemGUID);
+
+    /// Content
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
+        l_Data << uint32(p_Item->GetPaidMoney());                               ///< Money cost
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredItem[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredItemCount[l_I]);
+        }
+
+        for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
+        {
+            l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
+            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I] / 100); ///< Must be devided by precision
+        }
     }
 
-    ObjectGuid itemGuid = item->GetGUID();
-    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE);
+    l_Data << uint32(0);                                                        ///< Flags
+    l_Data << uint32(GetTotalPlayedTime() - p_Item->GetPlayedTime());           ///< Time Left
 
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   // Time Left
-    data << uint32(0);                                              // Unk
-    data << uint32(item->GetPaidMoney());                           // Money cost
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        data << uint32(iece->RequiredItemCount[i]);
-        data << uint32(iece->RequiredItem[i]);
-    }
-
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
-    {
-        data << uint32(iece->RequiredCurrency[i]);
-        data << uint32(iece->RequiredCurrencyCount[i] / 100);       // Must be devided by precision
-    }
-
-    uint8 bitsOrder[8] = { 1, 0, 7, 2, 3, 6, 4, 5 };
-    data.WriteBitInOrder(itemGuid, bitsOrder);
-
-    uint8 bytesOrder[8] = { 6, 1, 0, 2, 5, 3, 4, 7 };
-    data.WriteBytesSeq(itemGuid, bytesOrder);
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(&l_Data);
 }
 
 bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
@@ -29732,145 +29917,140 @@ void Player::SendItemRefundResult(Item* p_Item, ItemExtendedCostEntry const* p_E
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
             l_Data << uint32(p_ExtendedCost->RequiredItem[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredItemCount[i]);
         }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             l_Data << uint32(p_ExtendedCost->RequiredCurrency[i]);
-            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i]);
+            l_Data << uint32(p_ExtendedCost->RequiredCurrencyCount[i] / 100);
         }
     }
 
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::RefundItem(Item* item)
+void Player::RefundItem(Item* p_Item)
 {
-    if (!item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+    if (!p_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
+        return;
+
+    if (p_Item->IsRefundExpired())    ///< Item refund has expired
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item not refundable!");
+        p_Item->SetNotRefundable(this);
+        SendItemRefundResult(p_Item, NULL, 10);
         return;
     }
 
-    if (item->IsRefundExpired())    // item refund has expired
+    if (GetGUIDLow() != p_Item->GetRefundRecipient()) ///< Formerly refundable item got traded
     {
-        item->SetNotRefundable(this);
-        SendItemRefundResult(item, NULL, 10);
+        p_Item->SetNotRefundable(this);
         return;
     }
 
-    if (GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
-    {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: item was traded!");
-        item->SetNotRefundable(this);
+    ItemExtendedCostEntry const* l_ExtendedCost = sItemExtendedCostStore.LookupEntry(p_Item->GetPaidExtendedCost());
+    if (!l_ExtendedCost)
         return;
-    }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
-    if (!iece)
+    bool l_StoreError = false;
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_ITEMS; ++l_I)
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item refund: cannot find extendedcost data.");
-        return;
-    }
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
 
-    bool store_error = false;
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-    {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-
-        if (count && itemid)
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            if (msg != EQUIP_ERR_OK)
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            if (l_InvResult != EQUIP_ERR_OK)
             {
-                store_error = true;
+                l_StoreError = true;
                 break;
             }
          }
     }
 
-    if (store_error)
+    if (l_StoreError)
     {
-        SendItemRefundResult(item, iece, 10);
+        SendItemRefundResult(p_Item, l_ExtendedCost, 10);
         return;
     }
 
-    // Check total cap
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Check total cap
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currencyId = iece->RequiredCurrency[i];
-        CurrencyTypesEntry const* cte = sCurrencyTypesStore.LookupEntry(currencyId);
-        if (!cte)
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        CurrencyTypesEntry const* l_CurrencyType = sCurrencyTypesStore.LookupEntry(l_CurrencyID);
+        if (!l_CurrencyType)
             continue;
 
-        uint32 count = iece->RequiredCurrencyCount[i] / cte->GetPrecision();
-        uint32 plrCount = GetCurrency(currencyId, cte->HasPrecision());
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I] / l_CurrencyType->GetPrecision();
+        uint32 l_CurrCount = GetCurrency(l_CurrencyID, l_CurrencyType->HasPrecision());
 
-        if (cte->TotalCap && (plrCount + count > (cte->TotalCap / cte->GetPrecision())))
+        if (l_CurrencyType->TotalCap && (l_CurrCount + l_Count > (l_CurrencyType->TotalCap / l_CurrencyType->GetPrecision())))
         {
-            SendItemRefundResult(item, iece, 10);
+            SendItemRefundResult(p_Item, l_ExtendedCost, 10);
             return;
         }
     }
 
-    SendItemRefundResult(item, iece, 0);
+    SendItemRefundResult(p_Item, l_ExtendedCost, 0);
 
-    uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
+    uint32 l_MoneyRefund = p_Item->GetPaidMoney();  ///< Item-> will be invalidated in DestroyItem
 
-    // Save all relevant data to DB to prevent desynchronisation exploits
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    /// Save all relevant data to DB to prevent desynchronizing exploits
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    // Delete any references to the refund data
-    item->SetNotRefundable(this, true, &trans);
+    /// Delete any references to the refund data
+    p_Item->SetNotRefundable(this, true, &l_Transaction);
 
-    // Destroy item
-    DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+    /// Destroy item
+    DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
 
-    // Grant back extended cost items ...
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// Grant back extended cost items ...
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        uint32 count = iece->RequiredItemCount[i];
-        uint32 itemid = iece->RequiredItem[i];
-        if (count && itemid)
+        uint32 l_Count = l_ExtendedCost->RequiredItemCount[l_I];
+        uint32 l_ItemID = l_ExtendedCost->RequiredItem[l_I];
+
+        if (l_Count && l_ItemID)
         {
-            ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
-            ASSERT(msg == EQUIP_ERR_OK) /// Already checked before
-            Item* it = StoreNewItem(dest, itemid, true);
-            SendNewItem(it, count, true, false, true);
+            ItemPosCountVec l_Dest;
+            InventoryResult l_InvResult = CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_ItemID, l_Count);
+            ASSERT(l_InvResult == EQUIP_ERR_OK) ///< Already checked before
+            Item* l_Item = StoreNewItem(l_Dest, l_ItemID, true);
+            SendNewItem(l_Item, l_Count, true, false, true);
         }
     }
 
-    // ... and currencies
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    /// ... and currencies
+    for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
     {
-        // Second field in dbc is season count except one row
-        if (i == 1 && iece->ID != 2999)
+        /// Second field in dbc is season count except one row
+        if (l_I == 1 && l_ExtendedCost->ID != 2999)
             continue;
 
-        uint32 currency = iece->RequiredCurrency[i];
-        uint32 count = iece->RequiredCurrencyCount[i];
-        if (currency && count)
-            ModifyCurrency(currency, count, false, true, true);
+        uint32 l_CurrencyID = l_ExtendedCost->RequiredCurrency[l_I];
+        uint32 l_Count = l_ExtendedCost->RequiredCurrencyCount[l_I];
+
+        if (l_CurrencyID && l_Count)
+            ModifyCurrency(l_CurrencyID, l_Count, false, true, true);
     }
 
-    // Grant back money
-    if (moneyRefund)
-        ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
+    /// Grant back money
+    if (l_MoneyRefund)
+        ModifyMoney(l_MoneyRefund); ///< Saved in SaveInventoryAndGoldToDB
 
-    // Grant back Arena and Honor points ?
+    /// Grant back Arena and Honor points ?
 
-    SaveInventoryAndGoldToDB(trans);
+    SaveInventoryAndGoldToDB(l_Transaction);
 
-    CharacterDatabase.CommitTransaction(trans);
+    CharacterDatabase.CommitTransaction(l_Transaction);
 }
 
 void Player::SetRandomWinner(bool isWinner)
@@ -30843,6 +31023,13 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
 {
     switch (spellId)
     {
+        case 46584: // Raise dead
+            if (Pet* l_Pet = this->GetPet())
+            {
+                if (l_Pet->GetEntry() == 26125)
+                    l_Pet->UnSummon();
+            }
+            break;
         case 1463:  // Incanter's Ward
             RemoveAura(118858);
             break;
@@ -30863,18 +31050,6 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
         case 108499:// Grimoire of Supremacy
             RemoveAura(108499);
             break;
-        case 116011:// Rune of Power
-        {
-            if (CountDynObject(spellId))
-            {
-                std::list<DynamicObject*> dynObjList;
-                GetDynObjectList(dynObjList, spellId);
-
-                for (auto itr : dynObjList)
-                    itr->SetDuration(0);
-            }
-            break;
-        }
         case 108501:// Grimoire of Service
             if (HasSpell(111859))
                 removeSpell(111859, false, false);  // WARLOCK_GRIMOIRE_IMP

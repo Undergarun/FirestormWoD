@@ -899,6 +899,45 @@ struct ItemTemplate
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
+
+    bool CanBeTransmogrified() const
+    {
+        if (Quality == ITEM_QUALITY_LEGENDARY)
+            return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+            return false;
+
+        return true;
+    }
+
+    bool CanTransmogrify() const
+    {
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+            return false;
+
+        if (Quality == ITEM_QUALITY_LEGENDARY)
+            return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+            return true;
+
+        return true;
+    }
 };
 
 extern float GetCurveValue(uint32 CurveParameter, float level);
