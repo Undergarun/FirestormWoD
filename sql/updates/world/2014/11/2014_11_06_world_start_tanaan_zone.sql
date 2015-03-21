@@ -34,7 +34,7 @@
 
 		#78883/NPC - Iron Grunt
 
-			DELETE FROM creature WHERE id = 78883 AND areaId = 7037;
+			-- DELETE FROM creature WHERE id = 78883 AND areaId = 7037;
 			UPDATE `creature_template` SET `exp` = 5, faction = 14, `ScriptName` = 'npc_iron_grunt' WHERE `entry` = 78883;
 			
 		#81990/NPC - Moriccalas
@@ -97,7 +97,8 @@
 			INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) VALUES('82191','1265','7025','7037','1','4294967295','0','0','4037.77','-2420.96','94.5996','2.92044','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
 
 		#82012/NPC - Kengtus the patient
-		
+
+			UPDATE creature_template SET faction = 2580 WHERE entry = 82012;
 			DELETE FROM creature WHERE id = 82012;
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82012','1265','7025','7037','1','1','0','0','4040.23','-2288.61','64.9604','0.903204','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('82012','1265','7025','7045','1','1','0','0','3770.24','-2044.35','14.1326','0.903204','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
@@ -395,6 +396,7 @@
 
 		#300004/NPC - Blaze of Glory Trigger
 
+			DELETE FROM creature_template WHERE entry = 300004;
 			insert into `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('300004','0','0','11686','0','0','0','Blaze of Glory Trigger (Tanaan)',NULL,NULL,'0','1','1','0','0','35','0','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','0','33554950','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','','1');
 			DELETE FROM creature WHERE id = 300004;
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('300004','1265','7025','7041','1','4294967295','0','0','4045.68','-2587.89','52.0885','2.10206','300','0','0','42','0','0','0','0','0','2048','0','0','0','0',NULL);
@@ -512,7 +514,7 @@
 
 		#78561/NPC - Archmage Khadgar
 
-			UPDATE creature_template SET scriptname = "npc_archmage_khadgar_shadowmoon";
+			UPDATE creature_template SET scriptname = "npc_archmage_khadgar_shadowmoon" WHERE entry = 78561;
 
 		#79583/NPC - Ungra
 
@@ -536,7 +538,7 @@
 
 		#79537/NPC - Exarch Maladaar
 
-			UPDATE creature_template SEt scritpname = "npc_exarch_maladaar_tanaan_cave" WHERE entry = 79537;
+			UPDATE creature_template SEt scriptname = "npc_exarch_maladaar_tanaan_cave" WHERE entry = 79537;
 
 		#79702/NPC - Keli Dan the Breaker
 
@@ -578,7 +580,34 @@
 
 		#86691-86690/NPC - Gogluk Adds
 
+			DELETE FROM creature WHERE id IN (86691, 86690);
 			UPDATE creature_template SET scriptname = "npc_tanaan_gogluk_adds" WHERE entry IN (86691, 86690);
+
+		#80521/NPC - Thaelin Darkanvil
+
+			DELETE FROM creature WHERE id = 80521;
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('80521','1265','7025','7044','1','4294967295','0','0','4063.27','-2022.57','75.5059','6.11318','300','0','0','87515','0','0','0','0','0','2048','0','0','0','0',NULL);
+			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) values('80521','1265','7025','7044','1','4294967295','0','1','4063.77','-2020.12','75.4733','2.50024','120','0','0','1','0','0','4739','0','0','0','0','0','0','0',NULL);
+			UPDATE creature_template SET scriptname = "npc_thaelin_tanaan_questgiver" WHERE entry = 80521;
+
+		#78553/NPC - Thrall
+
+			UPDATE `creature_template` SET `ScriptName` = 'npc_thrall_tanaan_boats' WHERE `entry` = 78553;
+
+		#81711/NPC - Shadowmoon Ritualist (Tanaan Jungle)
+
+			REPLACE INTO `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES('81711','0','0','59618','59619','59620','0','Shadowmoon Ritualist','','','0','90','90','0','0','14','0','0','1','1.14286','1.14286','1','0','0','1','2000','2000','1','1','2','0','0','0','0','0','0','0','0','0','0','7','0','0','0','0','0','0','0','0','0','0','0','157355','158396','1604','0','0','0','0','0','0','0','0','0','','0','3','1','0.9','1','1','1','0','113579','0','0','0','0','0','0','1','0','0','0','','19116');
+			UPDATE creature_template SET scriptname = "npc_shadowmoon_ritualist"  WHERE entry = 81711;
+
+		#82006/NPC - Pazo Stonehoof
+
+			UPDATE creature_template SET scriptname = "npc_generic_tanaan_guardian" WHERE entry = 82006;
+
+		#81895/NPC - Bleeding Hollow Savage
+
+			UPDATE `creature_template` SET `unit_flags` = 33554436 WHERE `entry` = 81895;
+
+
 		-- Game Objects
 
 		#233104/Game Object - Stasis Rune
@@ -1019,6 +1048,30 @@
 			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (80521, 34445);
 			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=80521;
 
+		#35884/Quest - The Home Stretch
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 35884;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 35884;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 35884;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (80521, 35884);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 80521;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 35884;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 35884;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78563, 35884);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78563;
+
+		#34446/Quest - The Home Stretch
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34446;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34446;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34446;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (80521, 34446);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 80521;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34446;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34446;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78563, 34446);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78563;
+
 		-- Phases
 
 			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
@@ -1037,18 +1090,24 @@
 			AND areaId = 7041 AND position_x < 3963 AND position_x > 3931 AND position_y < -2501 AND position_y > -2537;
 			UPDATE gameobject SET phasemask = 2 WHERE id = 231197;
 
+		-- Phases (2nd try)
+
+			UPDATE gameobject SET phasemask = 32768 WHERE id = 237667;
 		-- Misc
 
 			DELETE FROM creature WHERE id IN
 			(82125, 81776, 79185, 79659, 81885, 78965, 82973, 79770, 88354);
+			DELETE FROM creature WHERE id = 81711;
 			DELETE FROM creature_template_addon WHERE entry = 82260;
 			DELETE FROM creature_template_addon WHERE entry = 78507;
 			UPDATE creature SET spawntimesecs = 15 WHERE id = 78883;
+			DELETE FROM creature_model_info WHERE modelid = 53438;
 			insert into `creature_model_info` values('53438','2.5','2.5','0','0');
-			UPDATE creature_template SET scriptname = "npc_generic_tanaan_guardian" WHERE entry IN
+			UPDATE creature_template SET scriptname = "npc_generic_tanaan_guardian", faction = 2580 WHERE entry IN
 			(82188, 81990, 82007, 82010, 81994, 82011, 81997, 82082, 82191, 82012, 82014, 82002,
 			81996, 81998, 79062, 81993, 81995, 82000, 82001, 82003, 82004, 82005, 82008, 82025,
-			82016, 82260, 82264, 82014, 82009, 82075, 82017, 82189, 82263);
+			82016, 82260, 82264, 82014, 82009, 82075, 82017, 82189, 82263, 82259, 81993, 82006,
+			82013, 78569);
 			UPDATE quest_template_objective SET `index` = 0 WHERE id = 273635;
 			UPDATE quest_template_objective SET flags = 0 WHERE questid = 34393;
 			UPDATE `quest_template` SET `Flags` = 8 WHERE `Id` = 35241;
@@ -1064,6 +1123,7 @@
 			faction = 35,
 			scriptname = "npc_generic_tanaan_escorter" WHERE `entry` IN
 			(82125, 81776, 79185, 79659, 81885, 78965, 82973, 79770, 88354, 76793);
+			DELETE FROM creature_template_addon WHERE entry = 81696 AND auras LIKE "%166539%";
 			INSERT INTO creature_template_addon (entry, auras) VALUE (81696, "166539"); -- Ghost visual
 			UPDATE creature_template SET scriptname = "npc_tanaan_khadgar_bridge" WHERE entry = 80244;
 			UPDATE `quest_template` SET `Method` = 0 WHERE `Id` = 34420;
@@ -1080,9 +1140,69 @@
 			DELETE FROM npc_spellclick_spells WHERE npc_entry = 86039;
 			INSERT INTO npc_spellclick_spells VALUE (86039, 173426, 1, 0);
 			SELECT * FROM vehicle_template_accessory WHERE entry = 86039;
-			UPDATE gameobject SET state = 2 WHERE id = 232539;
-			UPDATE gameobject SET state = 2 WHERE id = 231261;
+			UPDATE gameobject SET state = 2 WHERE id IN (232539, 231261);
+			DELETE FROM creature_template_addon WHERE entry = 78430;
+			DELETE FROM creature_template_addon WHERE entry = 79593;
+			DELETE FROM creature_template_addon WHERE entry IN (81996, 81999, 82000, 82001, 82004, 82007, 82008, 82189);
+			DELETE FROM creature_template_addon WHERE entry IN (78554, 81994);
+			DELETE FROM creature_template_addon WHERE entry = 78562;
+			DELETE FROM creature_template_addon WHERE entry = 78563;
+			DELETE FROM creature_template_addon WHERE entry IN (78650, 78651, 78906);
+			UPDATE `creature_template` SET `unit_flags` = 570687620, `dynamicflags` = 32 WHERE `entry` IN (78650, 78651, 78906);
+			DELETE FROM creature_template_addon WHERE entry = 78996;
+			DELETE FROM creature_template_addon WHERE entry IN (82016, 82263);
+			DELETE FROM creature_template_addon WHERE entry = 79589;
+			DELETE FROM creature_template_addon WHERE entry = 79590;
+			DELETE FROM creature_template_addon WHERE entry = 79702;
+			DELETE FROM creature_template_addon WHERE entry = 82647;
+			DELETE FROM creature_template_addon WHERE entry = 80290;
+			DELETE FROM creature_template_addon WHERE entry = 80775;
+			DELETE FROM creature_template_addon WHERE entry IN (80786, 81014);
+			DELETE FROM creature_template_addon WHERE entry = 81063;
+			DELETE FROM creature_template_addon WHERE entry = 81129;
+			DELETE FROM creature_template_addon WHERE entry = 81357;
+			DELETE FROM creature_template_addon WHERE entry = 81762;
+			UPDATE `creature_template` SET `unit_flags` = 537133058, `dynamicflags` = 32 WHERE `entry` = 81762;
+			DELETE FROM creature_template_addon WHERE entry = 81993;
+			DELETE FROM creature_template_addon WHERE entry = 82259;
+			DELETE FROM creature_template_addon WHERE entry IN (79316, 81995);
+			DELETE FROM creature_template_addon WHERE entry = 81998;
+			DELETE FROM creature_template_addon WHERE entry = 82002;
+			DELETE FROM creature_template_addon WHERE entry = 82005;
+			DELETE FROM creature_template_addon WHERE entry = 82057;
+			DELETE FROM creature_template_addon WHERE entry = 82003;
+			DELETE FROM creature_template_addon WHERE entry = 82014;
+			DELETE FROM creature_template_addon WHERE entry IN (82264, 82006);
+			DELETE FROM creature_template_addon WHERE entry = 82009;
+			DELETE FROM creature_template_addon WHERE entry = 82187;
+			DELETE FROM creature_template_addon WHERE entry IN (82012, 82013, 82015, 82025);
+			DELETE FROM creature_template_addon WHERE entry = 82011;
+			DELETE FROM creature_template_addon WHERE entry = 82373;
+			DELETE FROM creature_template_addon WHERE entry = 82469;
+			DELETE FROM creature_template_addon WHERE entry = 82484;
+			DELETE FROM creature_template_addon WHERE entry = 83441;
+			UPDATE `creature_template` SET `unit_flags` = 33554688 WHERE `entry` = 83441;
+			DELETE FROM creature_template_addon WHERE entry = 83538;
+			DELETE FROM creature_template_addon WHERE entry = 78820;
+			DELETE FROM creature_template_addon WHERE entry IN (78883, 82075, 82082, 82188, 82191);
 
+
+		-- Adjust Scriptnames
+
+			UPDATE creature_template SET scriptname = "npc_iron_grunt" WHERE entry = 78883;
+			UPDATE creature_template SET scriptname = "npc_iron_gronnling" WHERE entry = 82484;
+			UPDATE creature_template SET scriptname = "npc_gul_dan_trigger" WHERE entry = 300003;
+			UPDATE creature_template SET scriptname = "npc_tormented_soul" WHERE entry = 82647;
+			UPDATE creature_template SET scriptname = "npc_tanaan_ariok" WHERE entry = 78556;
+			UPDATE creature_template SET scriptname = "npc_bleeding_hollow_sauvage" WHERE entry = 78507;
+			UPDATE creature_template SET scriptname = "npc_blood_ritual_orb" WHERE entry = 83670;
+			UPDATE creature_template SET scriptname = "npc_archmage_khadgar_bridge" WHERE entry = 78560;
+			UPDATE creature_template SET scriptname = "npc_kargath_bladefist" WHERE entry = 79097;
+			UPDATE creature_template SET scriptname = "npc_shattered_hand_brawler" WHERE entry = 82057;
+			-- /!\ TP TO TANAAN FROM BLASTED LANDS
+			UPDATE creature_template SET scriptname = "npc_archmage_khadgar_gossip" WHERE entry = 76643; -- /!\ TP TO TANAAN FROM BLASTED LANDS
+			-- /!\ TP TO TANAAN FROM BLASTED LANDS
+			
 		-- Quests suit
 
 			UPDATE `quest_template` SET `PrevQuestId` = 0, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 35933 WHERE `Id` = 34398;

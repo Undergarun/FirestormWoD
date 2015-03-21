@@ -36,7 +36,7 @@ EndContentData */
 ## npc_deathly_usher
 ######*/
 
-#define GOSSIP_ITEM_USHER "I wish to to visit the Rise of the Defiler."
+#define GOSSIP_ITEM_USHER "I would like to visit the Rise of the Defiler."
 
 #define SPELL_TELEPORT_SINGLE           12885
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142

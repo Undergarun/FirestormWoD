@@ -26,64 +26,7 @@
 #include "GameObjectAI.h"
 #include "NPCHandler.h"
 #include "Vehicle.h"
-
-/*struct EscortSpawns
-{
-    uint32 summoner;
-    uint32 summoned;
-    float  pos_x;
-    float  pos_y;
-};*/
-
-/*EscortSpawns const g_EscortSpawns[10]
-{
-    // Summoner Summoned      pos_x      pos_y
-    { 78430,     79659,     3936.32f, -2503.62f }, ///< Cordana Felsong
-    { 79316,     81776,     3962.48f, -2536.50f }, ///< Qiana Moonshadow
-    { 78553,     79185,     3956.76f, -2523.68f }, ///< Thrall
-    { 78568,     81885,     3940.90f, -2510.88f }, ///< Thaelin Darkanvil
-    { 78556,     78965,     3936.05f, -2520.35f }, ///< Ariok
-    { 78554,     82973,     3958.91f, -2520.15f }, ///< Vindicator Maraad
-    { 78569,     79770,     3931.80f, -2510.70f }, ///< Hansel
-    { 79315,     88354,     3943.55f, -2505.18f }, ///< Olin
-    { 79675,     76793,     3951.24f, -2501.23f }, ///< Lady Liadrin
-    { 78558,     82125,     3936.72f, -2505.22f }  ///< Archmage Khadgar
-};
-
-Position g_Waypoints[7] =
-{
-    { 4070.7846f, -2424.4675f, 94.7915f, 4.6861f },
-    { 4042.2768f, -2469.6655f, 94.6138f, 4.5807f }, // upstairs
-    { 4040.7263f, -2494.6997f, 77.2829f, 4.6593f }, // downstairs
-    { 4032.9309f, -2532.2856f, 71.9626f, 2.9196f },
-    { 3993.7102f, -2536.6916f, 66.9982f, 3.2534f }, // Talk + attack
-    { 3969.3171f, -2530.2429f, 66.1909f, 2.7586f }, // downstairs house
-    { 3954.4253f, -2519.3913f, 69.7395f, 2.4735f } // in the house, cast spell + dispersion
-};
-
-Position g_BleedingHollowSpawn[5] =
-{
-    { 3964.6762f, -2536.0610f, 66.6200f, 5.8923f },
-    { 3971.2495f, -2526.6828f, 66.0740f, 5.4917f },
-    { 3933.9599f, -2521.4599f, 69.7307f, 0.7224f },
-    { 3932.1899f, -2511.2600f, 69.8392f, 4.9061f },
-    { 3952.9599f, -2499.9799f, 69.7307f, 3.9810f }
-};
-
-Position g_FirstStepPos[10]
-{
-    { 3936.0500f, -2520.3500f, 69.7307f, 3.9808f }, // Ariok done
-    { 3931.8000f, -2510.6999f, 69.7307f, 4.6681f }, // Hansel done
-    { 3936.7199f, -2505.2199f, 69.7307f, 5.6082f }, // Khadgar done
-    { 3936.3200f, -2503.6201f, 69.7307f, 5.6268f }, // Cordana done
-    { 3940.8999f, -2510.8798f, 69.3792f, 5.6180f }, // Thaelin done
-    { 3943.5500f, -2505.1799f, 69.3792f, 5.8881f }, // Olin done
-    { 3951.2399f, -2501.2299f, 69.7307f, 0.7631f }, // Lady Liadrin done
-    { 3956.7600f, -2523.6799f, 69.7497f, 5.8588f }, // Thrall done
-    { 3958.9099f, -2520.1499f, 69.8712f, 5.8444f }, // Vindicator done
-    { 3962.4799f, -2536.5000f, 61.5501f, 3.7332f }  // Qiana done
-};*/
-
+#include "PhaseMgr.h"
 
 Position g_ShatteredHandSpawn[4] =
 {
@@ -333,18 +276,11 @@ class playerScript_map_shift : public PlayerScript
 
                 if (p_Event == "Force Phase")
                 {
+                    std::set<uint32> l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap;
+                    l_Terrainswap.insert((uint32)1307);
+                    l_InactiveTerrainSwap.insert((uint32)1307);
 
-                    uint64 l_Guid = p_Player->GetGUID();
-                    p_Player->AddCriticalOperation([l_Guid]() -> void
-                    {
-                        Player * l_Player = HashMapHolder<Player>::Find(l_Guid);
-
-                        if (!l_Player)
-                            return;
-
-                       // l_Player->SwitchToPhasedMap(1307);
-//                        l_Player->SetPhaseMask(0x800000, true);
-                    });
+                    p_Player->GetSession()->SendSetPhaseShift(l_PhaseId, l_Terrainswap, l_InactiveTerrainSwap);
                 }
             }
         }
@@ -465,12 +401,60 @@ class playerScript_taste_of_iron : public PlayerScript
                     p_Player->CancelStandaloneScene(p_SceneInstanceID);
                     p_Player->ExitVehicle();
                     p_Player->RemoveAura(164042);
-                    p_Player->SummonCreature(80521, 4063.77f, -2020.12f, 75.4733f, p_Player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60, p_Player->GetGUID());
+                    // Change phase
                 }
             }
         }
 };
 playerScript_taste_of_iron* g_TaseOfIronPlayerScript = nullptr;
+
+/// Kill Your Hundred Passive Scene Object
+class playerScript_the_home_stretch : public PlayerScript
+{
+    public:
+        playerScript_the_home_stretch() : PlayerScript("playerScript_the_home_stretch") { }
+
+        std::map<uint64, uint32> m_PlayerSceneFirstInstanceId;
+
+        void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
+        {
+            if (p_Player && p_Quest && p_Quest->GetQuestId() == 35884 || p_Quest->GetQuestId() == 34446)
+            {
+                if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
+                    p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
+            }
+        }
+
+        void OnSceneCancel(Player* p_Player, uint32 p_sceneInstanceId)
+        {
+            if (p_sceneInstanceId == m_PlayerSceneFirstInstanceId[p_Player->GetGUID()])
+            {
+            }
+        }
+
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        {
+            if (p_Player && p_Quest && p_Quest->GetQuestId() == 35884 || p_Quest->GetQuestId() == 34446)
+            {
+                if (m_PlayerSceneFirstInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneFirstInstanceId.end())
+                    p_Player->CancelStandaloneScene(m_PlayerSceneFirstInstanceId[p_Player->GetGUID()]);
+            }
+        }
+
+        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        {
+            bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
+            {
+                return p_Pair.second == p_SceneInstanceID;
+            });
+
+            if (l_HasFirstScript)
+            {
+                return;
+            }
+        }
+};
+playerScript_the_home_stretch* g_TheHomeStretchPlayerScript = nullptr;
 
 /// Archmage Khadgar - 78558/78559 (Main quest giver/taker)
 class npc_archmage_khadgar : public CreatureScript
@@ -479,23 +463,6 @@ class npc_archmage_khadgar : public CreatureScript
         npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar")
         {
         }
-
-        /*void SummonEscorter(uint32 p_SummonerEntry, uint32 p_EscorterEntry, Creature* p_Khadgar, Player* p_Escorted)
-        {
-            if (Creature* l_Summoner = GetClosestCreatureWithEntry(p_Khadgar, p_SummonerEntry, 20.0f))
-            {
-                Position l_Pos;
-                l_Summoner->GetPosition(&l_Pos);
-
-                if (Creature* l_Summoned = l_Summoner->SummonCreature(p_EscorterEntry, l_Pos, TEMPSUMMON_MANUAL_DESPAWN, 36000, 0, p_Escorted->GetGUID()))
-                {
-                    l_Summoned->SetPhaseMask(p_Escorted->GetPhaseMask(), true);
-
-                    if (l_Summoned->AI() && p_EscorterEntry == 82125)
-                        l_Summoned->AI()->SetGUID(p_Escorted->GetGUID());
-                }
-            }
-        }*/
 
         bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option)
         {
@@ -540,15 +507,12 @@ class npc_archmage_khadgar : public CreatureScript
                 }
                 case TanaanQuests::QuestCostOfWar:
                 {
-//                    l_PlayerPhase |= TANAAN_ESCORT_SECOND_ZONE;
+//                    Change PHASE
                     l_PlayerPhase |= TanaanPhases::PhaseCostOfWarEnded;
                     l_PlayerPhase &= ~TanaanPhases::PhaseGulDan;
                     l_PlayerPhase &= ~TanaanPhases::PhaseDarkPortalBase;
                     p_Player->SetPhaseMask(l_PlayerPhase, true);
                     p_Player->PlayScene(TanaanSceneObjects::SceneCostOfWarEscort, p_Player);
-
-//                    for (int8 l_Itr = 0; l_Itr < 10; l_Itr++)
-//                        SummonEscorter(g_EscortSpawns[l_Itr].summoner, g_EscortSpawns[l_Itr].summoned, p_Creature, p_Player);
 
                     p_Player->PlayerTalkClass->SendCloseGossip();
                     break;
@@ -580,75 +544,6 @@ class npc_archmage_khadgar : public CreatureScript
 
             return true;
         }
-
-        /*CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_archmage_khadgarAI(creature);
-        }
-
-        struct npc_archmage_khadgarAI : public ScriptedAI
-        {
-            npc_archmage_khadgarAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                std::list<Creature*> l_CreatureList;
-                me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 20.0f);
-
-                for (Creature* l_Grunt : l_CreatureList)
-                    me->AddAura(29266, l_Grunt);
-
-                if (CheckPosition(me, g_EscortSpawns[9].pos_x, g_EscortSpawns[9].pos_y))
-                {
-                    for (uint8 l_Itr = 0; l_Itr < 10; l_Itr++)
-                    {
-                        if (Creature* l_Summoner = GetClosestCreatureWithEntry(me, g_EscortSpawns[l_Itr].summoner, 30.0f))
-                        {
-                            if (CheckPosition(l_Summoner, g_EscortSpawns[l_Itr].pos_x, g_EscortSpawns[l_Itr].pos_y))
-                                l_Summoner->SetPhaseMask(TANAAN_COW_ENDED, true);
-                        }
-                    }
-
-                    me->SetPhaseMask(TANAAN_COW_ENDED, true);
-                }
-            }
-        };*/
-};
-
-/// Vindicator Maraad - 78554 (Main quest giver/taker)
-class npc_vindicator_maraad_tanaan : public CreatureScript
-{
-    public:
-        npc_vindicator_maraad_tanaan() : CreatureScript("npc_vindicator_maraad_tanaan")
-        {
-        }
-
-        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
-        {
-            if (p_Creature->GetAreaId() != TanaanZones::AreaBlackRockQuarry)
-                return false;
-
-            p_Player->PrepareQuestMenu(p_Creature->GetGUID());
-            p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
-
-            return true;
-        }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_vindicator_maraad_tanaanAI(creature);
-        }
-
-        struct npc_vindicator_maraad_tanaanAI : public ScriptedAI
-        {
-            npc_vindicator_maraad_tanaanAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                if (me->GetAreaId() != TanaanZones::AreaBlackRockQuarry && me->HasFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
-                    me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            }
-        };
 };
 
 /// 82188 - 81990 - 82007 - 82010 - 81994 - 82011 - 81997 - 82082 - 82191 - 82012 - 82014 - 82002 - 81996 - 81998 - 79062 - 81993 - 81995 - 82000
@@ -673,6 +568,9 @@ class npc_generic_tanaan_guardian : public CreatureScript
             {
                 m_EnableCheck = true;
                 me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
+                if (me->GetEntry() == 81990)
+                    me->AddAura(165762, me);
             }
 
             void EnterCombat(Unit* p_Attacker)
@@ -713,6 +611,9 @@ class npc_generic_tanaan_guardian : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff)
             {
+                if (!UpdateVictim())
+                    EnterEvadeMode();
+
                 if (m_EnableCheck)
                 {
                     std::list<Creature*> l_EnemyList;
@@ -722,7 +623,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
                     {
                         if (!l_Grunt->isMoving())
                         {
-                            if (me->GetDistance(l_Grunt) < 3.0f)
+                            if (me->GetDistance(l_Grunt) < 2.0f && me->IsWithinMeleeRange(l_Grunt))
                             {
                                 AttackStart(l_Grunt);
                                 break;
@@ -738,271 +639,6 @@ class npc_generic_tanaan_guardian : public CreatureScript
             }
         };
 };
-
-/// Tanaan escorters - 79659 - 81776 - 79185 - 81885 - 78965 - 82973 - 79770 - 88354 - 76793 - 82125
-/*class npc_generic_tanaan_escorter : public CreatureScript
-{
-    public:
-        npc_generic_tanaan_escorter() : CreatureScript("npc_generic_tanaan_escorter") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_generic_tanaan_escorterAI(creature);
-        }
-
-        enum eEvents
-        {
-            EVENT_TALK = 1,
-            EVENT_GO,
-        };
-
-        struct npc_generic_tanaan_escorterAI : public ScriptedAI
-        {
-            npc_generic_tanaan_escorterAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool m_EnableCheck;
-            EventMap m_Events;
-            uint64 m_EscortedPlayerGuid;
-
-            void Reset()
-            {
-                m_EscortedPlayerGuid = 0;
-                m_Events.Reset();
-                m_Events.ScheduleEvent(EVENT_TALK, 1000);
-                me->GetMotionMaster()->Clear();
-            }
-
-            void SetGUID(uint64 p_Guid, int32 id)
-            {
-                m_EscortedPlayerGuid = p_Guid;
-            }
-
-            void MovementInform(uint32 p_Type, uint32 p_Id)
-            {
-                if (p_Type != POINT_MOTION_TYPE)
-                    return;
-
-                switch (p_Id)
-                {
-                    case 1:
-                        me->GetMotionMaster()->MovePoint(2, g_Waypoints[1]);
-                        break;
-                    case 2:
-                        me->GetMotionMaster()->MovePoint(3, g_Waypoints[2]);
-                        break;
-                    case 3:
-                        me->GetMotionMaster()->MovePoint(4, g_Waypoints[3]);
-                        break;
-                    case 4:
-                        me->GetMotionMaster()->MovePoint(5, g_Waypoints[4]);
-                        break;
-                    case 5:
-                    {
-                        if (me->GetEntry() == 82125)
-                        {
-                            std::list<Creature*> l_CreatureList;
-                            Talk(2);
-                            me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 30.0f);
-
-                            l_CreatureList.remove_if([this](Creature* l_Creature) -> bool
-                            {
-                                if (l_Creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
-                                    return false;
-
-                                return true;
-                            });
-
-                            for (Creature* l_Creature : l_CreatureList)
-                                me->CastSpell(l_Creature, 133123, true);
-                        }
-                        else if (me->GetEntry() == 81776) ///< Qiana
-                        {
-                            me->GetMotionMaster()->MovePoint(6, g_FirstStepPos[9]);
-                            break;
-                        }
-
-                        me->GetMotionMaster()->MovePoint(6, g_Waypoints[5]);
-                        break;
-                    }
-                    case 6:
-                    {
-                        if (me->GetEntry() == 82973) ///< Vindicator Maraad
-                        {
-                            me->GetMotionMaster()->MovePoint(7, g_FirstStepPos[8]);
-                            break;
-                        }
-                        else if (me->GetEntry() == 79185) ///< Thrall
-                        {
-                            me->GetMotionMaster()->MovePoint(7, g_FirstStepPos[7]);
-                            break;
-                        }
-                        else if (me->GetEntry() == 81776)
-                        {
-                            me->DespawnOrUnsummon();
-                            break;
-                        }
-
-                        me->GetMotionMaster()->MovePoint(7, g_Waypoints[6]);
-                        break;
-                    }
-                    case 7:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case 82125: ///< Khadgar
-                            {
-                                std::list<Creature*> l_CreatureList;
-                                me->GetCreatureListWithEntryInGrid(l_CreatureList, 78507, 20.0f);
-
-                                l_CreatureList.remove_if([this](Creature* l_Creature) -> bool
-                                {
-                                    if (l_Creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
-                                        return false;
-
-                                    return true;
-                                });
-
-                                for (Creature* l_Creature : l_CreatureList)
-                                    me->CastSpell(l_Creature, 133123, true);
-
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[2]);
-
-                                break;
-                            }
-                            case 79770: ///< Hansel
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[1]);
-                                break;
-                            }
-                            case 78965: ///< Ariok
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[0]);
-                                break;
-                            }
-                            case 79659: ///< Cordana
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[3]);
-                                break;
-                            }
-                            case 81885: ///< Thaelin
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[4]);
-                                break;
-                            }
-                            case 88354: ///< Olin
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[5]);
-                                break;
-                            }
-                            case 76793: ///< Lady Liadrin
-                            {
-                                me->GetMotionMaster()->MovePoint(8, g_FirstStepPos[6]);
-                                break;
-                            }
-                            case 82973:
-                            case 79185:
-                            {
-                                me->DespawnOrUnsummon();
-                                break;
-                            }
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    case 8:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case 82125: // Khadgar
-                            {
-                                if (Player* l_EscortedPlr = me->GetPlayer(*me, m_EscortedPlayerGuid))
-                                {
-                                    uint32 l_PlrPhase = l_EscortedPlr->GetPhaseMask();
-                                    l_PlrPhase |= TANAAN_COW_ENDED;
-                                    l_PlrPhase &= ~TANAAN_ESCORT_SECOND_ZONE;
-                                    l_EscortedPlr->SetPhaseMask(l_PlrPhase, true);
-                                }
-                                break;
-                            }
-                            default:
-                                me->DespawnOrUnsummon();
-                                break;
-                        }
-                    }
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                m_Events.Update(p_Diff);
-
-                switch (m_Events.ExecuteEvent())
-                {
-                    case EVENT_TALK:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case 82125: // Khadgar
-                                Talk(1);
-                                m_Events.ScheduleEvent(EVENT_GO, 2000);
-                                break;
-                            case 76793: // Lady
-                                m_Events.ScheduleEvent(EVENT_GO, 2500);
-                                break;
-                            case 88354: // Olin
-                                m_Events.ScheduleEvent(EVENT_GO, 2800);
-                                break;
-                            case 79770: // Hansel
-                                m_Events.ScheduleEvent(EVENT_GO, 3100);
-                                break;
-                            case 82973: // Vindicator
-                                m_Events.ScheduleEvent(EVENT_GO, 3400);
-                                break;
-                            case 78965: // Ariok
-                                m_Events.ScheduleEvent(EVENT_GO, 3700);
-                                break;
-                            case 81885: // Thaelin
-                                m_Events.ScheduleEvent(EVENT_GO, 4000);
-                                break;
-                            case 79185: // Thrall
-                                m_Events.ScheduleEvent(EVENT_GO, 4300);
-                                break;
-                            case 81776: // Qiana
-                                m_Events.ScheduleEvent(EVENT_GO, 4600);
-                                break;
-                            case 79659: // Cordana
-                                m_Events.ScheduleEvent(EVENT_GO, 4900);
-                                break;
-                        }
-                        break;
-                    }
-                    case EVENT_GO:
-                    {
-                        me->GetMotionMaster()->MovePoint(1, g_Waypoints[0]);
-                        if (me->GetEntry() == 82125)
-                        {
-                            for (int8 l_Itr = 0; l_Itr < 5; l_Itr++)
-                            {
-                                if (Creature* l_Creature = me->SummonCreature(78507, g_BleedingHollowSpawn[l_Itr]))
-                                    l_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                            }
-                        }
-                        break;
-                    }
-                    default:
-                        break;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-};*/
 
 /// 78883 - Iron Grunt (ennemy)
 class npc_iron_grunt : public CreatureScript
@@ -1070,16 +706,16 @@ class npc_iron_grunt : public CreatureScript
                 {
                     case eCreatureIds::Moriccalas:
                     {
-                        if ((m_Pos.m_positionX <= 4094.0f && m_Pos.m_positionX >= 4093.0f) &&
-                            (m_Pos.m_positionY >= -2324.0f && m_Pos.m_positionY <= -2323.0f))
+                        if ((m_Pos.m_positionX <= 4091.0f && m_Pos.m_positionX >= 4090.0f) &&
+                            (m_Pos.m_positionY >= -2325.0f && m_Pos.m_positionY <= -2324.0f))
                             return true;
                         else
                             break;
                     }
                     case eCreatureIds::Mumper:
                     {
-                        if ((m_Pos.m_positionX <= 4043.0f && m_Pos.m_positionX >= 4042.0f) &&
-                            (m_Pos.m_positionY >= -2320.0f && m_Pos.m_positionY <= -2319.0f))
+                        if ((m_Pos.m_positionX <= 4042.0f && m_Pos.m_positionX >= 4041.0f) &&
+                            (m_Pos.m_positionY >= -2325.0f && m_Pos.m_positionY <= -2324.0f))
                             return true;
                         else
                             break;
@@ -1116,8 +752,6 @@ class npc_iron_grunt : public CreatureScript
                             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 
-//                             me->getThreatManager().resetAllAggro();
-//                             me->getThreatManager().clearReferences();
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->GetMotionMaster()->Clear();
 
@@ -1142,8 +776,6 @@ class npc_iron_grunt : public CreatureScript
                             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
 
-//                             me->getThreatManager().resetAllAggro();
-//                             me->getThreatManager().clearReferences();
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->GetMotionMaster()->Clear();
 
@@ -1186,33 +818,6 @@ class npc_iron_gronnling : public CreatureScript
 
                 if (me->HasAura(TanaanSpells::SpellKnockthrough))
                     me->RemoveAura(TanaanSpells::SpellKnockthrough);
-            }
-        };
-};
-
-/// 81711 - ShadowMoon Ritualist (ennemy)
-class npc_shadowmoon_ritualist : public CreatureScript
-{
-    public:
-        npc_shadowmoon_ritualist() : CreatureScript("npc_shadowmoon_ritualist") { }
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_shadowmoon_ritualistAI(creature);
-        }
-
-        struct npc_shadowmoon_ritualistAI : public ScriptedAI
-        {
-            npc_shadowmoon_ritualistAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE ||
-                    !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
-                {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
             }
         };
 };
@@ -1268,6 +873,8 @@ class npc_tormented_soul : public CreatureScript
             {
                 if (Creature* l_GulDan = GetClosestCreatureWithEntry(me, TanaanCreatures::NpcIronGrunt, 30.0f))
                     me->setFaction(eFactions::FactionAggressive);
+
+                me->AddAura(166452, me);
             }
 
             void MoveInLineOfSight(Unit* p_Target)
@@ -1300,6 +907,9 @@ class npc_tanaan_ariok : public CreatureScript
                 uint64 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseBlazeOfGlory;
                 l_PhaseMask |= TanaanPhases::PhaseAltarAltercation;
+
+                if (p_Player->GetQuestObjectiveCounter(273075))
+                    return false;
 
                 if (p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjAriokGossip) < 1)
                     p_Player->KilledMonsterCredit(TanaanKillCredits::CreditAriokGossip);
@@ -1826,7 +1436,7 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
             {
                 case TanaanQuests::QuestKillYourHundred:
                 {
-                    p_Creature->MonsterSay("EVENT HUNDRED - third script ! (validates obj 100/100)", LANG_UNIVERSAL, p_Player->GetGUID());
+                    p_Creature->MonsterSay("REWARD KILL YOUR HUNDRED", LANG_UNIVERSAL, p_Player->GetGUID());
 
                     if (p_Creature->GetAI())
                     {
@@ -2269,6 +1879,11 @@ class npc_cordana_felsong_blackrock : public CreatureScript
             uint64 m_PlayerGuid;
             bool m_Summoned;
 
+            void Reset()
+            {
+                me->AddAura(165900, me);
+            }
+
             void IsSummonedBy(Unit* p_Summoner)
             {
                 m_Summoned = true;
@@ -2427,6 +2042,19 @@ class npc_ogron_warcrusher : public CreatureScript
         {
             npc_ogron_warcrusherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            EventMap m_Events;
+
+            enum eEvents
+            {
+                EventAddaura = 1
+            };
+
+            void Reset()
+            {
+                m_Events.Reset();
+                m_Events.ScheduleEvent(EventAddaura, 3000);
+            }
+
             void JustDied(Unit* p_Killer)
             {
                 std::list<Player*> l_PlayerList;
@@ -2436,6 +2064,22 @@ class npc_ogron_warcrusher : public CreatureScript
                 {
                     if (l_Player->GetQuestStatus(34439) == QUEST_STATUS_INCOMPLETE)
                         l_Player->KilledMonsterCredit(80775);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventAddaura:
+                        me->AddAura(166032, me);
+                        m_Events.ScheduleEvent(eEvents::EventAddaura, 12000);
+                        break;
                 }
             }
         };
@@ -2456,10 +2100,8 @@ class npc_farseer_drek_thar : public CreatureScript
             switch (p_Quest->GetQuestId())
             {
                 case 34442:
-                {
                     p_Player->PlayScene(928, p_Player);
                     break;
-                }
                 default:
                     break;
             }
@@ -2784,6 +2426,218 @@ class npc_tanaan_gogluk_adds : public CreatureScript
         };
 };
 
+// Ken-Ken - 60979
+class npc_thaelin_tanaan_questgiver : public CreatureScript
+{
+    public:
+        npc_thaelin_tanaan_questgiver() : CreatureScript("npc_thaelin_tanaan_questgiver")
+        {
+        }
+
+        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest)
+        {
+            if (p_Quest->GetQuestId() == 35884 || p_Quest->GetQuestId() == 34446)
+            {
+                Position l_Pos;
+                p_Player->GetPosition(&l_Pos);
+
+                if (g_TheHomeStretchPlayerScript)
+                    g_TheHomeStretchPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(912, 16, l_Pos);
+
+                if (p_Creature->GetAI())
+                    p_Creature->GetAI()->SetGUID(p_Player->GetGUID());
+            }
+
+            return false;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_thaelin_tanaan_questgiverAI(creature);
+        }
+
+        struct npc_thaelin_tanaan_questgiverAI : public ScriptedAI
+        {
+            npc_thaelin_tanaan_questgiverAI(Creature* creature) : ScriptedAI(creature)
+            {
+                m_TimerValues = { 8000,   8000,   8000,   8000,   8000,   8000,   8000   };
+                m_Auras       = { 163524, 163525, 163526, 163527, 163528, 163529, 163530 };
+                l_UpdateCounter = 0;
+            }
+
+            struct PlayerScene
+            {
+                uint32 m_Timers[7];
+                bool m_Done;
+            };
+
+            typedef std::map<uint64, PlayerScene> SceneMap;
+
+            PlayerScene m_Scene;
+            SceneMap m_SceneMap;
+            std::list<uint64> m_GuidList;
+            std::vector<uint32> m_TimerValues;
+            std::vector<uint32> m_Auras;
+            uint8 l_UpdateCounter;
+
+            void SetGUID(uint64 p_Guid, int32 p_Id)
+            {
+                if (std::find(m_GuidList.begin(), m_GuidList.end(), p_Guid) != m_GuidList.end())
+                    return;
+
+                if (m_SceneMap.empty())
+                {
+                    for (uint8 l_Itr = 0; l_Itr < 7; l_Itr++)
+                        m_TimerValues[l_Itr] = 10000;
+
+                    m_Scene.m_Done = false;
+
+                    for (uint8 l_I = 1; l_I < 7; l_I++)
+                        m_Scene.m_Timers[l_I] = 0;
+
+                    m_Scene.m_Timers[0] = 11000;
+                    m_SceneMap.insert(std::make_pair(p_Guid, m_Scene));
+
+                    return;
+                }
+
+                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
+                {
+                    if (l_Itr->first != p_Guid)
+                    {
+                        l_Itr->second.m_Done = false;
+
+                        for (uint8 l_SubItr = 0; l_SubItr < 7; l_SubItr++)
+                            l_Itr->second.m_Timers[l_SubItr] = l_SubItr ? 0 : 11000;
+
+                        m_SceneMap.insert(std::make_pair(p_Guid, m_Scene));
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (p_Diff < 50 && l_UpdateCounter <= 10)
+                {
+                    l_UpdateCounter++;
+
+                    if (l_UpdateCounter < 10)
+                        return;
+
+                    l_UpdateCounter = 0;
+                }
+                else if (p_Diff >= 50 && p_Diff <= 150 && l_UpdateCounter <= 3)
+                {
+                    l_UpdateCounter++;
+
+                    if (l_UpdateCounter >= 3)
+
+
+                    if (l_UpdateCounter < 3)
+                        return;
+
+                    l_UpdateCounter = 0;
+                }
+                else
+                    l_UpdateCounter = 0;
+
+                for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
+                {
+                    if (l_Itr->second.m_Done)
+                        continue;
+
+                    Player* l_Player = me->GetPlayer(*me, l_Itr->first);
+
+                    if (!l_Player)
+                        continue;
+
+                    for (uint8 l_SubItr = 0; l_SubItr < 7; l_SubItr++)
+                    {
+                        if (l_Itr->second.m_Timers[l_SubItr])
+                        {
+                            if (l_Itr->second.m_Timers[l_SubItr] <= p_Diff)
+                            {
+                                l_Itr->second.m_Timers[l_SubItr] = 0;
+
+                                if (l_SubItr != 6)
+                                    l_Itr->second.m_Timers[l_SubItr + 1] = m_TimerValues[l_SubItr + 1];
+                                else
+                                {
+                                    m_GuidList.push_back(l_Itr->first);
+                                    l_Itr = m_SceneMap.erase(l_Itr);
+                                    continue;
+                                }
+
+
+                                l_Player->AddAura(m_Auras[l_SubItr], l_Player);
+                            }
+                            else
+                            {
+                                if (l_UpdateCounter)
+                                    l_Itr->second.m_Timers[l_SubItr] -= p_Diff * l_UpdateCounter;
+                                else
+                                    l_Itr->second.m_Timers[l_SubItr] -= p_Diff;
+                            }
+                        }
+                    }
+                }
+
+            }
+        };
+};
+
+class npc_thrall_tanaan_boats : public CreatureScript
+{
+    public:
+        npc_thrall_tanaan_boats() : CreatureScript("npc_thrall_tanaan_boats")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_thrall_tanaan_boatsAI(creature);
+        }
+
+        struct npc_thrall_tanaan_boatsAI : public ScriptedAI
+        {
+            npc_thrall_tanaan_boatsAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap m_Events;
+
+            enum eEvent
+            {
+                EventCheckPlayers = 1
+            };
+
+            void Reset()
+            {
+                m_Events.Reset();
+                m_Events.ScheduleEvent(EventCheckPlayers, 1000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EventCheckPlayers)
+                {
+                    std::list<Player*> l_PlayerList;
+                    GetPlayerListInGrid(l_PlayerList, me, 15.0f);
+
+                    for (Player* l_Player : l_PlayerList)
+                    {
+                        if (l_Player->GetQuestStatus(35884) == QUEST_STATUS_INCOMPLETE || l_Player->GetQuestStatus(34446) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            ///< Change Phase
+                            l_Player->QuestObjectiveSatisfy(81024, 1);
+                        }
+                    }
+
+                    m_Events.ScheduleEvent(EventCheckPlayers, 1500);
+                }
+            }
+        };
+};
 /// 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
@@ -2971,6 +2825,9 @@ class playerScript_enter_tanaan : public PlayerScript
 
         void OnUpdateZone(Player* p_Player, uint32 p_NewZoneId, uint32 p_OldZoneID, uint32 p_NewAreaId)
         {
+            if (p_NewAreaId == 7037)
+                p_Player->PlayScene(1018, p_Player);
+
             if (p_NewZoneId == TanaanZones::ZoneTanaanJungle)
             {
                 uint64 l_PhaseMask = p_Player->GetPhaseMask();
@@ -3076,7 +2933,13 @@ class playerScript_enter_tanaan : public PlayerScript
         {
             switch (p_Quest->GetQuestId())
             {
-            case TanaanQuests::QuestDarkPortal:
+                case TanaanQuests::QuestDarkPortal:
+                {
+                    if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(35933))
+                        p_Player->AddQuest(l_Quest, nullptr);
+                    break;
+                }
+                case 35933:
                 {
                     if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestOnslaughtEnd))
                         p_Player->AddQuest(l_Quest, nullptr);
@@ -3318,12 +3181,9 @@ class spell_tanaan_inferno : public SpellScriptLoader
 void AddSC_tanaan_jungle()
 {
     new npc_archmage_khadgar();
-//    new npc_vindicator_maraad_tanaan();
     new npc_generic_tanaan_guardian();
-//    new npc_generic_tanaan_escorter();
     new npc_iron_grunt();
     new npc_iron_gronnling();
-    new npc_shadowmoon_ritualist();
     new npc_gul_dan_trigger();
     new npc_tormented_soul();
     new npc_tanaan_ariok();
@@ -3349,6 +3209,8 @@ void AddSC_tanaan_jungle()
     new npc_thaelin_darkanvil_tanaan();
     new npc_tanaan_gogluk();
     new npc_tanaan_gogluk_adds();
+    new npc_thaelin_tanaan_questgiver();
+    new npc_thrall_tanaan_boats();
     new gob_static_rune();
     new go_platform_tanaan();
     new go_bleeding_hollow_cage();
@@ -3366,4 +3228,5 @@ void AddSC_tanaan_jungle()
     g_MapShiftPlayerScript = new playerScript_map_shift();
     g_GunpowderPlotPlayerScript = new playerScript_gunpowder_plot();
     g_TaseOfIronPlayerScript = new playerScript_taste_of_iron();
+    g_TheHomeStretchPlayerScript = new playerScript_the_home_stretch();
 }
