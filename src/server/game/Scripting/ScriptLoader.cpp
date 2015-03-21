@@ -847,6 +847,11 @@ void AddSC_boss_skulloc();
 void AddSC_boss_grimrail();
 void AddSC_boss_oshir();
 
+/// Highmaul
+void AddSC_instance_highmaul();
+void AddSC_highmaul();
+void AddSC_boss_kargath_bladefist();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -1734,6 +1739,11 @@ void AddDraenorScripts()
     AddSC_boss_skulloc();
     AddSC_boss_grimrail();
     AddSC_boss_oshir();
+
+    /// Highmaul
+    AddSC_instance_highmaul();
+    AddSC_highmaul();
+    AddSC_boss_kargath_bladefist();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();

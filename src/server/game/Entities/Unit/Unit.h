@@ -1855,6 +1855,7 @@ class Unit : public WorldObject
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
+        void NearTeleportTo(Position const p_Position, bool p_Cast = false) { NearTeleportTo(p_Position.m_positionX, p_Position.m_positionY, p_Position.m_positionZ, p_Position.m_orientation, p_Cast); }
         void SendTeleportPacket(Position &p_NewPosition);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
