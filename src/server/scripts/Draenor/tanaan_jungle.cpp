@@ -938,13 +938,11 @@ class npc_tanaan_ariok : public CreatureScript
             npc_tanaan_ariokAI(Creature* creature) : ScriptedAI(creature) { }
 
             bool m_IsSummoned;
-            bool m_EscortPaused;
             uint64 m_PlayerGuid;
 
             void Reset()
             {
                 m_IsSummoned = false;
-                m_EscortPaused = false;
                 m_PlayerGuid = 0;
             }
 
@@ -978,12 +976,11 @@ class npc_tanaan_ariok : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (m_IsSummoned && !m_EscortPaused)
+                if (m_IsSummoned)
                 {
                     if (Creature* l_Bleeding = GetClosestCreatureWithEntry(me, TanaanCreatures::NpcBleedingHollowBloodchosen, 54.02f))
                     {
                         me->GetMotionMaster()->Clear();
-                        m_EscortPaused = true;
 
                         if (m_PlayerGuid)
                         {
@@ -991,18 +988,8 @@ class npc_tanaan_ariok : public CreatureScript
                             {
                                 if (!l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed))
                                     l_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditAriokEscort, 1);
-                            }
-                        }
-                    }
 
-                    if (m_IsSummoned && m_EscortPaused)
-                    {
-                        if (m_PlayerGuid)
-                        {
-                            if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
-                            {
-                                if (l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) >= 3)
-                                    me->GetMotionMaster()->MoveFollow(l_Player, 0.2f, 5.23f);
+                                me->DespawnOrUnsummon();
                             }
                         }
                     }
@@ -2130,8 +2117,11 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
+
+            QEmote l_Emote = { 0, 0 };
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes, I need you to help me operate that enormous tank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "I would like to buy from you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            p_Player->PlayerTalkClass->SendQuestGiverQuestList(l_Emote, "Check those quests !", p_Creature->GetGUID());
             p_Player->SEND_GOSSIP_MENU(1, p_Creature->GetGUID());
 
             return true;
@@ -2541,6 +2531,9 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                 else
                     l_UpdateCounter = 0;
 
+                if (m_SceneMap.empty())
+                    return;
+
                 for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
                 {
                     if (l_Itr->second.m_Done)
@@ -2628,7 +2621,7 @@ class npc_thrall_tanaan_boats : public CreatureScript
                     {
                         if (l_Player->GetQuestStatus(35884) == QUEST_STATUS_INCOMPLETE || l_Player->GetQuestStatus(34446) == QUEST_STATUS_INCOMPLETE)
                         {
-                            ///< Change Phase
+                            /// Change Phase
                             l_Player->QuestObjectiveSatisfy(81024, 1);
                         }
                     }
@@ -2638,6 +2631,80 @@ class npc_thrall_tanaan_boats : public CreatureScript
             }
         };
 };
+
+
+class npc_black_rock_trigger : public CreatureScript
+{
+    public:
+        npc_black_rock_trigger() : CreatureScript("npc_black_rock_trigger")
+        {
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_black_rock_triggerAI(creature);
+        }
+
+        struct npc_black_rock_triggerAI : public ScriptedAI
+        {
+            npc_black_rock_triggerAI(Creature* creature) : ScriptedAI(creature) { }
+
+            EventMap m_Events;
+
+            enum eEvent
+            {
+                EventCheckPlayers = 1
+            };
+
+            std::map<uint64, uint32> m_PlayerTimers;
+            std::set<uint64> m_PlayerGuids;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_Id)
+            {
+                m_PlayerGuids.insert(p_Guid);
+
+                if (std::find(m_PlayerGuids.begin(), m_PlayerGuids.end(), p_Guid) == m_PlayerGuids.end())
+                    m_PlayerTimers.insert(std::make_pair(p_Guid, 8000));
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!m_PlayerTimers.empty())
+                {
+                    for (std::map<uint64, uint32>::iterator l_Itr = m_PlayerTimers.begin(); l_Itr != m_PlayerTimers.end(); l_Itr++)
+                    {
+                        Player* l_Player = me->GetPlayer(*me, l_Itr->first);
+
+                        if (!l_Player)
+                            continue;
+
+                        if (!l_Itr->second)
+                        {
+                            m_PlayerTimers.erase(l_Itr);
+                            continue;
+                        }
+                        else
+                        {
+                            if (l_Itr->second <= p_Diff)
+                            {
+                                l_Itr->second = 0;
+
+                                /// PHASE CHANGE ON PLAYER
+                            }
+                            else
+                                l_Itr->second -= p_Diff;
+                        }
+                    }
+                }
+            }
+        };
+};
+
 /// 237670/237667 - Dark Portal
 class go_platform_tanaan : public GameObjectScript
 {
@@ -2827,8 +2894,38 @@ class playerScript_enter_tanaan : public PlayerScript
         {
             if (p_NewAreaId == 7037)
                 p_Player->PlayScene(1018, p_Player);
+            else if (p_NewAreaId == 7043)
+            {
+                switch (p_Player->GetTeamId())
+                {
+                    case TEAM_ALLIANCE:
+                    {
+                        if (p_Player->GetQuestStatus(34436) == QUEST_STATUS_COMPLETE)
+                        {
+                            if (Creature* l_Creature = GetClosestCreatureWithEntry(p_Player, 300005, 20.0f))
+                            {
+                                if (l_Creature->GetAI())
+                                    l_Creature->AI()->SetGUID(p_Player->GetGUID());
+                            }
+                        }
+                        break;
+                    }
+                    case TEAM_HORDE:
+                    {
+                        if (p_Player->GetQuestStatus(34741) == QUEST_STATUS_COMPLETE)
+                        {
+                            if (Creature* l_Creature = GetClosestCreatureWithEntry(p_Player, 300005, 20.0f))
+                            {
+                                if (l_Creature->GetAI())
+                                    l_Creature->AI()->SetGUID(p_Player->GetGUID());
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
 
-            if (p_NewZoneId == TanaanZones::ZoneTanaanJungle)
+            if (p_NewZoneId == TanaanZones::ZoneTanaanJungle && p_OldZoneID != TanaanZones::ZoneTanaanJungle)
             {
                 uint64 l_PhaseMask = p_Player->GetPhaseMask();
 
@@ -2934,12 +3031,6 @@ class playerScript_enter_tanaan : public PlayerScript
             switch (p_Quest->GetQuestId())
             {
                 case TanaanQuests::QuestDarkPortal:
-                {
-                    if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(35933))
-                        p_Player->AddQuest(l_Quest, nullptr);
-                    break;
-                }
-                case 35933:
                 {
                     if (const Quest* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestOnslaughtEnd))
                         p_Player->AddQuest(l_Quest, nullptr);
@@ -3211,6 +3302,7 @@ void AddSC_tanaan_jungle()
     new npc_tanaan_gogluk_adds();
     new npc_thaelin_tanaan_questgiver();
     new npc_thrall_tanaan_boats();
+    new npc_black_rock_trigger();
     new gob_static_rune();
     new go_platform_tanaan();
     new go_bleeding_hollow_cage();
