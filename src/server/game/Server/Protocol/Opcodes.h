@@ -267,7 +267,7 @@ enum Opcodes
         SMSG_FRIEND_STATUS                          = 0x1BEA, ///< 6.1.2 19783
 
         /// Taxi
-        SMSG_TAXI_NODE_STATUS                       = 0x0338, ///< 6.1.2 19783
+        SMSG_TAXI_NODE_STATUS                       = 0x0EBF, ///< 6.1.2 19783
         SMSG_NEW_TAXI_PATH                          = 0x080F, ///< 6.1.2 19783
         SMSG_SHOW_TAXI_NODES                        = 0x12A1, ///< 6.1.2 19783
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x1321, ///< 6.1.2 19783
@@ -858,6 +858,7 @@ enum Opcodes
     /// Jam Client Lfg
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamLFG
+        /// LFG
         SMSG_LFG_BOOT_PLAYER                              = 0x0E11, ///< 6.1.2 19783
         SMSG_LFG_DISABLED                                 = 0x0EBA, ///< 6.1.2 19783
         SMSG_LFG_JOIN_RESULT                              = 0x1B31, ///< 6.1.2 19783
@@ -873,7 +874,6 @@ enum Opcodes
         SMSG_LFG_SEARCH_RESULT                            = 0x0000, ///< (unused)
         SMSG_LFG_SLOT_INVALID                             = 0x0000, ///< (unused)
         SMSG_LFG_TELEPORT_DENIED                          = 0x0FB1, ///< 6.1.2 19783
-        SMSG_LFG_LIST_JOIN_RESULT                         = 0x0000, ///< (unused)
         SMSG_LFG_UPDATE_LIST                              = 0x0000, ///<
         SMSG_LFG_UPDATE_PARTY                             = 0x0000,
         SMSG_LFG_UPDATE_PLAYER                            = 0x0000,
@@ -881,6 +881,12 @@ enum Opcodes
         SMSG_LFG_UPDATE_STATUS                            = 0x1A92, ///< 6.1.2 19783
         SMSG_LFG_UPDATE_STATUS_NONE                       = 0x0000,
         SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT            = 0x0000,
+
+        /// LFG List
+        SMSG_LFG_LIST_JOIN_RESULT                         = 0x0B99, ///< 6.1.2 19783
+        SMSG_LFG_LIST_UPDATE_BLACKLIST                    = 0x0F31, ///< 6.1.2 19783
+        SMSG_LFG_LIST_UPDATE_STATUS                       = 0x0B12, ///< 6.1.2 19783
+        SMSG_LFG_LIST_SEARCH_RESULT                       = 0x0B32, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1520,7 +1526,15 @@ enum Opcodes
     CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< (unused)
     CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< (unused)
     CMSG_RESET_INSTANCES                           = 0x0A97,    ///< 6.1.2 19783
-    CMSG_REQUEST_LFGLIST_BLACKLIST                 = 0x0000,    ///< (unused)
+
+    //////////////////////////////////////////////////////////////////////////
+    /// LFG LIST
+    //////////////////////////////////////////////////////////////////////////
+    CMSG_LFG_LIST_JOIN                              = 0x13B6,   ///< 6.1.2 19783
+    CMSG_LFG_LIST_UPDATE_REQUEST                    = 0x12B7,   ///< 6.1.2 19783
+    CMSG_LFG_LIST_LEAVE                             = 0x0B20,   ///< 6.1.2 19783
+    CMSG_LFG_LIST_SEARCH                            = 0x1A1D,   ///< 6.1.2 19783
+    CMSG_REQUEST_LFG_LIST_BLACKLIST                 = 0x0A02,   ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House

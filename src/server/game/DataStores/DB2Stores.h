@@ -26,6 +26,7 @@
 #include <list>
 
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
+extern DB2Storage <GroupFinderActivityEntry>        sGroupFinderActivityStore;
 extern DB2Storage <LocationEntry>                   sLocationStore;
 extern DB2Storage <ItemEntry>                       sItemStore;
 extern DB2Storage <ItemBonusEntry>                  sItemStoreEntry;

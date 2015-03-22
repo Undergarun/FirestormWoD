@@ -52,6 +52,7 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
+struct LFGListEntry;
 struct MovementInfo;
 struct PetBattleRequest;
 class PetBattle;
@@ -956,6 +957,17 @@ class WorldSession
         void HandleSelfResOpcode(WorldPacket& recvData);
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
+
+        // Lfg List
+        void HandleRequestLfgListBlacklist(WorldPacket& p_RecvData);
+        void HandleLfgListJoin(WorldPacket& p_RecvData);
+        void HandleLfgListUpdateRequest(WorldPacket& p_RecvData);
+        void HandleLfgListLeave(WorldPacket& p_RecvData);
+        void HandleLfgListSearch(WorldPacket& p_RecvData);
+        void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
+        static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListJoinRequest(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, bool p_Listed);
 
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);

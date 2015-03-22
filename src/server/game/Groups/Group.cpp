@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "LFGListMgr.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -60,15 +61,14 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORMAL),
 m_dungeonDifficulty(REGULAR_5_DIFFICULTY), m_raidDifficulty(NORMAL_DIFFICULTY), m_LegacyRaidDifficuty(LEGACY_MAN10_DIFFICULTY),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-    m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false)
+    m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0),
+    m_readyCheck(false), m_membersInInstance(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
 
     uint32 lowguid = sGroupMgr->GenerateGroupId();
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
-
-    m_membersInInstance = 0;
 }
 
 Group::~Group()
@@ -466,6 +466,9 @@ bool Group::AddMember(Player* player)
         InstanceGroupBind* bind = GetBoundInstance(player);
         if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
             player->m_InstanceValid = true;
+
+        if (sLFGListMgr->IsGroupQueued(this))
+            sLFGListMgr->PlayerAddedToGroup(player, this);
     }
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
@@ -594,6 +597,10 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
 {
     BroadcastGroupUpdate();
 
+    if (Player* l_Player = sObjectAccessor->FindPlayer(p_Guid))
+        if (sLFGListMgr->IsGroupQueued(this))
+            sLFGListMgr->PlayerRemoveFromGroup(l_Player, this);
+
     sScriptMgr->OnGroupRemoveMember(this, p_Guid, p_Method, p_Kicker, p_Reason);
 
     /// LFG group vote kick handled in scripts
@@ -601,7 +608,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
         return m_memberSlots.size();
 
     /// Remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
-    if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
+    if (sLFGListMgr->IsGroupQueued(this) || GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
         Player * l_Player = ObjectAccessor::GetObjectInOrOutOfWorld(p_Guid, (Player*)NULL);
 
@@ -732,17 +739,18 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
             }
         }
 
-        if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+        if ((!sLFGListMgr->IsGroupQueued(this) || !m_memberMgr.getSize()) && m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
             Disband();
 
         return true;
     }
     /// If group size before player removal <= 2 then disband it
-    else
+    else if (!m_memberMgr.getSize())
     {
         Disband();
         return false;
     }
+    return true;
 }
 
 void Group::ChangeLeader(uint64 newLeaderGuid)
@@ -827,6 +835,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 void Group::Disband(bool hideDestroy /* = false */)
 {
     sScriptMgr->OnGroupDisband(this);
+    sLFGListMgr->Remove(GetLowGUID(), nullptr, false);
 
     Player* player;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)

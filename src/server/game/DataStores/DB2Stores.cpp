@@ -32,6 +32,7 @@ std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, s
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 
 DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
+DB2Storage <GroupFinderActivityEntry>       sGroupFinderActivityStore(GroupFinderActivityfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
 DB2Storage <ItemBonusTreeNodeEntry>         sItemBonusTreeNodeStore(ItemBonusTreeNodefmt);
@@ -187,6 +188,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
     LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
+    LoadDB2(bad_db2_files, sGroupFinderActivityStore,       db2Path, "GroupFinderActivity.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
     LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
