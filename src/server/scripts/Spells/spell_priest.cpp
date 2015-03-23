@@ -3299,8 +3299,20 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     return;
 
                 int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+                int32 l_PreviousAmount = 0;
 
-                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
+                /// Divine Aegis previous amount for stack
+                if (AuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                    l_PreviousAmount = l_PreviousShield->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, NULL, NULL, true);
+                
+                /// Apply the previous amount after casting to no apply the bonus multiple times
+                if (l_PreviousAmount)
+                {
+                    if (AuraEffectPtr l_AcutalShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                        l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
+                }
             }
 
             void Register()
