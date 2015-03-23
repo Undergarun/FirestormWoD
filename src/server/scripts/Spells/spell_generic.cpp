@@ -3588,7 +3588,7 @@ namespace Resolve
                 m_Timers[p_Player->GetGUID()] = Resolve::TickTimer;
             }
 
-            void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage* p_CleanDamage) override
+            void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage) override
             {
                 if (!ResolveIsAvailable(p_Player) || p_CleanDamage == nullptr)
                     return;
