@@ -3349,6 +3349,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
                 spellInfo->Effects[EFFECT_5].BasePoints = -65;
                 break;
+            case 162472:///< Earth Breaker (Vul'gor)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 162304:///< Earth Breaker (Summon - Vul'gor)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3942,6 +3948,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037:///< Noxious Spit (DoT)
             case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
+            case 161635:///< Molten Bomb
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s

@@ -11,6 +11,7 @@
 Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 Position const g_TeleportPos = { 3466.42f, 7578.84f, 55.34f, 4.0125f };
+Position const g_MargokTeleport = { 3435.43f, 7540.16f, 73.664f, 0.896154f };
 
 /// Gharg <Arena Master> - 84971
 class npc_highmaul_gharg_arena_master : public CreatureScript
@@ -181,7 +182,8 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
         enum eActions
         {
             StartIntro,
-            ContinueIntro
+            ContinueIntro,
+            VulgorDied
         };
 
         struct npc_highmaul_jhorn_the_madAI : public MS::AI::CosmeticAI
@@ -230,6 +232,26 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                         AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
                         AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
                         break;
+                    case eActions::VulgorDied:
+                    {
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
+
+                        AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
+                                l_Kargath->AI()->DoAction(eActions::VulgorDied);
+                        });
+
+                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
+                                l_Kargath->SetFacingTo(4.02f);
+
+                            Talk(eTalks::Kargath2);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -261,7 +283,8 @@ class npc_highmaul_thoktar_ironskull : public CreatureScript
         enum eActions
         {
             StartIntro,
-            ContinueIntro
+            ContinueIntro,
+            VulgorDied
         };
 
         struct npc_highmaul_thoktar_ironskullAI : public MS::AI::CosmeticAI
@@ -281,6 +304,9 @@ class npc_highmaul_thoktar_ironskull : public CreatureScript
                         AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
                         AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
                         break;
+                    case eActions::VulgorDied:
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
+                        break;
                     default:
                         break;
                 }
@@ -290,6 +316,93 @@ class npc_highmaul_thoktar_ironskull : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_thoktar_ironskullAI(p_Creature);
+        }
+};
+
+/// Imperator Mar'gok <Sorcerer King> (Only cosmetic) - 83268
+class npc_highmaul_imperator_margok : public CreatureScript
+{
+    public:
+        npc_highmaul_imperator_margok() : CreatureScript("npc_highmaul_imperator_margok") { }
+
+        enum eTalks
+        {
+            SorckingEvent12,
+            SorckingEvent13
+        };
+
+        enum eActions
+        {
+            VulgorDied = 2,
+            KargathLastTalk
+        };
+
+        enum eMove
+        {
+            MoveFrontGate = 1
+        };
+
+        struct npc_highmaul_imperator_margokAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_imperator_margokAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::VulgorDied:
+                    {
+                        /// Teleport in Coliseum
+                        AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            me->NearTeleportTo(g_MargokTeleport);
+                            me->SetFacingTo(g_MargokTeleport.m_orientation);
+                        });
+
+                        AddTimedDelayedOperation(28 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent12); });
+
+                        AddTimedDelayedOperation(49 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
+                            {
+                                if (Creature* l_Trigger = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathTrigger)))
+                                {
+                                    Position l_Pos;
+                                    l_Trigger->GetPosition(&l_Pos);
+                                    l_Kargath->GetMotionMaster()->MovePoint(eMove::MoveFrontGate, l_Pos);
+                                }
+                            }
+                        });
+
+                        AddTimedDelayedOperation(39 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            if (m_Instance == nullptr)
+                                return;
+
+                            if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
+                                l_Kargath->AI()->DoAction(eActions::KargathLastTalk);
+                        });
+
+                        AddTimedDelayedOperation(51 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent13); });
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_imperator_margokAI(p_Creature);
         }
 };
 
@@ -312,6 +425,7 @@ void AddSC_highmaul()
     new npc_highmaul_areatrigger_for_crowd();
     new npc_highmaul_jhorn_the_mad();
     new npc_highmaul_thoktar_ironskull();
+    new npc_highmaul_imperator_margok();
 
     /// GameObjects
     new go_highmaul_arena_elevator();

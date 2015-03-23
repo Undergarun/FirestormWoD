@@ -851,6 +851,7 @@ void AddSC_boss_oshir();
 void AddSC_instance_highmaul();
 void AddSC_highmaul();
 void AddSC_boss_kargath_bladefist();
+void AddSC_boss_the_butcher();
 
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -1744,6 +1745,7 @@ void AddDraenorScripts()
     AddSC_instance_highmaul();
     AddSC_highmaul();
     AddSC_boss_kargath_bladefist();
+    AddSC_boss_the_butcher();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();

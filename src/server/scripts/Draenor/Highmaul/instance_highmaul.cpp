@@ -35,6 +35,9 @@ class instance_highmaul : public InstanceMapScript
                 m_CollisionWallGuid         = 0;
                 m_VulgorGuid                = 0;
                 m_GateArenaInnerGuid        = 0;
+                m_CrowdAreatriggerGuid      = 0;
+                m_KargathTriggerGuid        = 0;
+                m_MargokCosmeticGuid        = 0;
                 m_TheButcherGuid            = 0;
                 m_BrackensporeGuid          = 0;
             }
@@ -48,6 +51,9 @@ class instance_highmaul : public InstanceMapScript
             uint64 m_CollisionWallGuid;
             uint64 m_VulgorGuid;
             uint64 m_GateArenaInnerGuid;
+            uint64 m_CrowdAreatriggerGuid;
+            uint64 m_KargathTriggerGuid;
+            uint64 m_MargokCosmeticGuid;
 
             /// The Underbelly
             uint64 m_TheButcherGuid;
@@ -76,6 +82,16 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulCreatures::Vulgor:
                         m_VulgorGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::CrowdAreatrigger:
+                        m_CrowdAreatriggerGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::KargathTrigger:
+                        m_KargathTriggerGuid = p_Creature->GetGUID();
+                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        break;
+                    case eHighmaulCreatures::MargokCosmetic:
+                        m_MargokCosmeticGuid = p_Creature->GetGUID();
                         break;
                     case eHighmaulCreatures::TheButcher:
                         m_TheButcherGuid = p_Creature->GetGUID();
@@ -163,6 +179,12 @@ class instance_highmaul : public InstanceMapScript
                         return m_CollisionWallGuid;
                     case eHighmaulGameobjects::GateArenaInner:
                         return m_GateArenaInnerGuid;
+                    case eHighmaulCreatures::CrowdAreatrigger:
+                        return m_CrowdAreatriggerGuid;
+                    case eHighmaulCreatures::KargathTrigger:
+                        return m_KargathTriggerGuid;
+                    case eHighmaulCreatures::MargokCosmetic:
+                        return m_MargokCosmeticGuid;
                     case eHighmaulCreatures::TheButcher:
                         return m_TheButcherGuid;
                     case eHighmaulCreatures::Brackenspore:

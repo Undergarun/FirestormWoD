@@ -9,6 +9,10 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
@@ -36,6 +40,9 @@ enum eHighmaulCreatures
     ThoktarIronskull    = 83378,
     Vulgor              = 80048,
     BladespireSorcerer  = 80071,
+    CrowdAreatrigger    = 79260,
+    KargathTrigger      = 78846,
+    MargokCosmetic      = 83268,
     /// The Underbelly
     TheButcher          = 77404,
     /// Gorian Strand
