@@ -20434,35 +20434,40 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
     return modelid;
 }
 
-uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
+uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
 {
-    switch (totemType)
+    PlayerTotemType l_OriginalTotemType = p_TotemType;
+
+    switch (p_TotemType)
     {
         case SUMMON_TYPE_TOTEM_FIRE2:
         case SUMMON_TYPE_TOTEM_FIRE3:
         case SUMMON_TYPE_TOTEM_FIRE4:
-            totemType = SUMMON_TYPE_TOTEM_FIRE;
+            p_TotemType = SUMMON_TYPE_TOTEM_FIRE;
             break;
         case SUMMON_TYPE_TOTEM_EARTH2:
         case SUMMON_TYPE_TOTEM_EARTH3:
-            totemType = SUMMON_TYPE_TOTEM_EARTH;
+            p_TotemType = SUMMON_TYPE_TOTEM_EARTH;
             break;
         case SUMMON_TYPE_TOTEM_WATER2:
-            totemType = SUMMON_TYPE_TOTEM_WATER;
+            p_TotemType = SUMMON_TYPE_TOTEM_WATER;
             break;
         case SUMMON_TYPE_TOTEM_AIR2:
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
-            totemType = SUMMON_TYPE_TOTEM_AIR;
+            p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }
+
+    if (l_OriginalTotemType == SUMMON_TYPE_TOTEM_FIRE4 && HasAura(147772)) // Searing Totem - Glyph of the Flaming Serpent
+        return 46820; // Vol'Jin Serpent
 
     switch (getRace())
     {
         case RACE_ORC:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30758;
@@ -20477,7 +20482,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_DWARF:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30754;
@@ -20492,7 +20497,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_TROLL:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30762;
@@ -20502,14 +20507,12 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
                     return 30763;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
                     return 30760;
-                case 3211: // Custom MoP Script - Hack Fix Searing Totem
-                    return 30762;
             }
             break;
         }
         case RACE_TAUREN:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 4589;
@@ -20524,7 +20527,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_DRAENEI:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 19074;
@@ -20539,7 +20542,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_GOBLIN:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30783;
@@ -20554,7 +20557,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_NEUTRAL:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;
@@ -20569,7 +20572,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_ALLI:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;
@@ -20584,7 +20587,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_HORDE:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;
