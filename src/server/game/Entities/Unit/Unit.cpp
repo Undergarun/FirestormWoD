@@ -7261,12 +7261,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    // Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
-                    if (procSpell->Id == 5185 || procSpell->Id == 8936)
-                    {
-                        triggered_spell_id = 108381;
-                        target = this;
-                    }
                     // Wrath, Starfire, Starsurge, and melee abilities increase healing done by your next healing spell by 30%. Tranquility is not affected.
                     else if ((procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS) || (procSpell->Id == 5176 || procSpell->Id == 2912 || procSpell->Id == 78674))
                     {
@@ -12464,7 +12458,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
-    if (GetTypeId() == TYPEID_UNIT && isTotem())
+    if (GetTypeId() == TYPEID_UNIT && (isTotem() || (GetEntry() == 60849 && spellProto->Id == 115175)))
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonusDone(victim, spellProto, healamount, effIndex, damagetype, stack);
 
