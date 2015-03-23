@@ -733,26 +733,22 @@ class spell_sha_conductivity: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
                     {
-                        if (AuraPtr conductivity = _player->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                        int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
+                        uint32 l_AddDuration = std::min(l_RemainingDuration, 4000);
+
+                        l_DynObj->SetDuration(l_DynObj->GetDuration() + l_AddDuration);
+                        l_Conductivity->GetEffect(EFFECT_0)->SetAmount((l_RemainingDuration - l_AddDuration) / 10);
+
+                        if (AuraPtr l_HealingRain = l_Caster->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
                         {
-                            if (DynamicObject* dynObj = _player->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                            {
-                                int32 remainingDuration = conductivity->GetEffect(EFFECT_0)->GetAmount() * 100;
-                                uint32 addDuration = std::min(remainingDuration, 4000);
-
-                                dynObj->SetDuration(dynObj->GetDuration() + addDuration);
-                                conductivity->GetEffect(EFFECT_0)->SetAmount((remainingDuration - addDuration) / 100);
-
-                                if (AuraPtr healingRain = _player->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
-                                {
-                                    healingRain->SetDuration(healingRain->GetDuration() + addDuration);
-                                    healingRain->SetMaxDuration(healingRain->GetMaxDuration() + addDuration);
-                                }
-                            }
+                            l_HealingRain->SetDuration(l_HealingRain->GetDuration() + l_AddDuration);
+                            l_HealingRain->SetMaxDuration(l_HealingRain->GetMaxDuration() + l_AddDuration);
                         }
                     }
                 }
