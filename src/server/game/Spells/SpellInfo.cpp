@@ -2656,7 +2656,7 @@ uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
         return 0;
 
     /// Swift Riding Crop
-    if (p_Caster->HasAura(170495))
+    if (p_Caster && p_Caster->HasAura(170495))
     {
         if (SpellCategoriesEntry const* l_Cat = GetSpellCategories())
         {
