@@ -856,7 +856,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (pet && pet->isAlive())
             pet->AI()->OwnerDamagedBy(this);
 
-        sScriptMgr->OnPlayerTakeDamage(victim->ToPlayer(), damagetype, damage, damageSchoolMask, *cleanDamage);
+        sScriptMgr->OnPlayerTakeDamage(victim->ToPlayer(), damagetype, damage, damageSchoolMask, cleanDamage);
     }
 
     if (damagetype != NODAMAGE)

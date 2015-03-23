@@ -3588,9 +3588,9 @@ namespace Resolve
                 m_Timers[p_Player->GetGUID()] = Resolve::TickTimer;
             }
 
-            void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage p_CleanDamage) override
+            void OnTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage* p_CleanDamage) override
             {
-                if (!ResolveIsAvailable(p_Player))
+                if (!ResolveIsAvailable(p_Player) || p_CleanDamage == nullptr)
                     return;
 
                 if (p_DamageEffectType == DamageEffectType::SELF_DAMAGE
@@ -3598,7 +3598,7 @@ namespace Resolve
                     return;
 
                 auto& l_DamagesHistory = m_HistoryDamagesPlayers[p_Player->GetGUID()];
-                l_DamagesHistory.push_back(Resolve::DamageHistoryEntry(p_CleanDamage.absorbed_damage + p_CleanDamage.mitigated_damage + p_Damage, p_DamageEffectType, p_SchoolMask, time(nullptr)));
+                l_DamagesHistory.push_back(Resolve::DamageHistoryEntry(p_CleanDamage->absorbed_damage + p_CleanDamage->mitigated_damage + p_Damage, p_DamageEffectType, p_SchoolMask, time(nullptr)));
 
                 Update(p_Player);
             }
