@@ -215,6 +215,8 @@ class Group
             uint8       group;
             uint8       flags;
             uint8       roles;
+            uint8       playerClass;
+            uint32      specID;
         };
 
         typedef ACE_Based::LockedVector<MemberSlot> MemberSlotList;
@@ -245,7 +247,7 @@ class Group
         // group manipulation methods
         bool   Create(Player* leader);
         void   LoadGroupFromDB(Field* field);
-        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
+        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId);
         bool   AddInvite(Player* player);
         void   RemoveInvite(Player* player);
         void   RemoveAllInvites();
@@ -319,6 +321,7 @@ class Group
         void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid, uint8 partyIndex);
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void setGroupMemberRole(uint64 guid, uint32 role);
+        void OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId);
         uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 

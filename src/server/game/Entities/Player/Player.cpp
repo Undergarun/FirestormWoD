@@ -5949,7 +5949,7 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     }
 
     RemoveSpecializationSpells();
-    SetSpecializationId(GetActiveSpec(), 0);
+    SetSpecializationId(GetActiveSpec(), false);
     InitSpellForLevel();
     UpdateMasteryPercentage();
     SendTalentsInfoData(false);
@@ -6042,6 +6042,9 @@ void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_L
     }
     else
         _talentMgr->SpecInfo[p_Spec].SpecializationId = p_Specialization;
+
+    if (Group* l_Group = GetGroup())
+        l_Group->OnChangeMemberSpec(GetGUID(), p_Specialization);
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -6049,8 +6052,14 @@ uint32 Player::GetRoleForGroup(uint32 specializationId)
     if (!specializationId)
         specializationId = GetSpecializationId(GetActiveSpec());
 
+    return GetRoleBySpecializationId(specializationId);
+}
+
+
+uint32 Player::GetRoleBySpecializationId(uint32 specializationId)
+{
    if (specializationId)
-    if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(specializationId))
+        if (ChrSpecializationsEntry const* spec = sChrSpecializationsStore.LookupEntry(specializationId))
         return spec->Role;
 
     return ROLE_DAMAGE;

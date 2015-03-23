@@ -12,7 +12,7 @@
 
 struct LFGListEntry
 {
-    int32 m_ActivityID;
+    GroupFinderActivityEntry const* m_ActivityEntry;
     float m_RequiredItemLevel;
     std::string m_Name;
     std::string m_Comment;
@@ -61,6 +61,7 @@ public:
     bool Remove(uint32 l_GroupGuidLow, Player* p_Requester = nullptr, bool l_Disband = true);
     void PlayerAddedToGroup(Player* p_Player, Group* p_Group);
     void PlayerRemoveFromGroup(Player* p_Player, Group* p_Group);
+    std::list<LFGListEntry const*> GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
 
 private:
     std::unordered_map<uint32, LFGListEntry const*> m_LFGListQueue;

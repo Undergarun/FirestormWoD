@@ -40,7 +40,8 @@ char const LocationEntryfmt[] =
 };
 
 char const CurvePointEntryfmt[] = "niiff";
-const char GroupFinderActivityfmt[] = "nxxxxxxxxxxxxss";
+const char GroupFinderActivityfmt[] = "nixxxxxxxxxxxss";
+const char GroupFinderCategoryfmt[] = "nsxx";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
 const char ItemBonusTreeNodefmt[] = "diiii";

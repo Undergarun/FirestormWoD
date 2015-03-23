@@ -47,12 +47,18 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
-// Only needed for verifying the data received
 struct GroupFinderActivityEntry
 {
     uint32 ID;                                                      ///< 0
+    uint32 ActivityGroupID;                                         ///< 1
     char* Name;                                                     ///< 13
     char* Difficulty;                                               ///< 14
+};
+
+struct GroupFinderCategoryEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 Name;                                                    ///< 1
 };
 
 struct GlyphRequiredSpecEntry

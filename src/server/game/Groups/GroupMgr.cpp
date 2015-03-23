@@ -163,8 +163,8 @@ void GroupMgr::LoadGroups()
         // Delete all members that does not exist
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 
-        //                                                    0        1           2            3       4
-        QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
+        //                                                    0        1           2            3       4      5      6
+        QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles, class, specId FROM group_member ORDER BY guid");
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group members. DB table `group_member` is empty!");
@@ -179,7 +179,7 @@ void GroupMgr::LoadGroups()
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
 
             if (group)
-                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
+                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8(), fields[5].GetInt8(), fields[6].GetUInt32());
             else
                 sLog->outError(LOG_FILTER_GENERAL, "GroupMgr::LoadGroups: Consistency failed, can't find group (storage id: %u)", fields[0].GetUInt32());
 

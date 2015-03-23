@@ -224,7 +224,7 @@ void Group::LoadGroupFromDB(Field* fields)
         m_LegacyRaidDifficuty = Difficulty(l_LegacyRaidDiff);
 }
 
-void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
+void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId)
 {
     MemberSlot member;
     member.guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
@@ -241,6 +241,8 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
     member.group = subgroup;
     member.flags = memberFlags;
     member.roles = roles;
+    member.playerClass = playerClass;
+    member.specID = specId;
 
     m_memberSlots.push_back(member);
 
@@ -443,11 +445,13 @@ bool Group::AddMember(Player* player)
     }
 
     MemberSlot member;
-    member.guid      = player->GetGUID();
-    member.name      = player->GetName();
-    member.group     = subGroup;
-    member.flags     = 0;
-    member.roles     = 0;
+    member.guid         = player->GetGUID();
+    member.name         = player->GetName();
+    member.group        = subGroup;
+    member.flags        = 0;
+    member.roles        = 0;
+    member.playerClass  = player->getClass();
+    member.specID       = player->GetSpecializationId(player->GetActiveSpec());
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subGroup);
@@ -487,6 +491,8 @@ bool Group::AddMember(Player* player)
         stmt->setUInt8(2, member.flags);
         stmt->setUInt8(3, member.group);
         stmt->setUInt8(4, member.roles);
+        stmt->setUInt8(5, member.playerClass);
+        stmt->setUInt32(6, member.specID);
 
         CharacterDatabase.Execute(stmt);
 
@@ -2903,6 +2909,27 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
         stmt->setUInt32(1, GUID_LOPART(guid));
         CharacterDatabase.Execute(stmt);
     }
+}
+
+void Group::OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId)
+{
+    for (auto l_Member = m_memberSlots.begin(); l_Member != m_memberSlots.end(); ++l_Member)
+    {
+        if (l_Member->guid == p_GUID)
+        {
+            l_Member->specID = p_SpecId;
+            break;
+        }
+    }
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SPEC);
+    if (l_Stmt != nullptr)
+    {
+        l_Stmt->setUInt32(0, p_SpecId);
+        l_Stmt->setUInt32(1, GUID_LOPART(p_GUID));
+        CharacterDatabase.Execute(l_Stmt);
+    }
+
 }
 
 uint32 Group::getGroupMemberRole(uint64 guid)

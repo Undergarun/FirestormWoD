@@ -46,14 +46,14 @@ bool LFGListMgr::Insert(LFGListEntry* p_LFGEntry, Player* p_Requester)
 /// Stupid error messages: Todo: Find more appropriate
 bool LFGListMgr::CanInsert(LFGListEntry const* p_LFGEntry, Player* p_Requester, bool p_SendError /* = false */) const
 {
-    if (!IsEligibleForQueue(p_Requester) || p_LFGEntry->m_Group)
+    if (!p_LFGEntry->m_ActivityEntry)
     {
         if (p_SendError)
-            p_Requester->GetSession()->SendLfgListJoinResult(p_LFGEntry, LFG_LIST_ERR_ALREADY_USING_LFG_LIST);
+            p_Requester->GetSession()->SendLfgListJoinResult(p_LFGEntry, LFG_LIST_ERR_LFG_NO_LFG_OBJECT);
         return false;
     }
 
-    if (!sGroupFinderActivityStore.LookupEntry(p_LFGEntry->m_ActivityID))
+    if (!IsEligibleForQueue(p_Requester) || p_LFGEntry->m_Group)
     {
         if (p_SendError)
             p_Requester->GetSession()->SendLfgListJoinResult(p_LFGEntry, LFG_LIST_ERR_ALREADY_USING_LFG_LIST);
@@ -97,7 +97,7 @@ bool LFGListMgr::IsEligibleForQueue(Player* p_Requester) const
 bool LFGListMgr::IsGroupQueued(Group const* p_Group) const
 {
     if (!p_Group)
-        return true;
+        return false;
 
     return m_LFGListQueue.find(p_Group->GetLowGUID()) != m_LFGListQueue.end();
 }
@@ -137,7 +137,6 @@ bool LFGListMgr::Remove(uint32 l_GroupGuidLow, Player* p_Requester /* = nullptr 
     return true;
 }
 
-
 void LFGListMgr::PlayerAddedToGroup(Player* p_Player, Group* p_Group)
 {
     std::unordered_map<uint32, LFGListEntry const*>::const_iterator l_Iter = m_LFGListQueue.find(p_Group->GetLowGUID());
@@ -154,4 +153,30 @@ void LFGListMgr::PlayerRemoveFromGroup(Player* p_Player, Group* p_Group)
         return;
 
     SendLFGListStatusUpdate(l_Iter->second, p_Player->GetSession(), false);
+}
+
+std::list<LFGListEntry const*> LFGListMgr::GetFilteredList(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString)
+{
+    std::list<LFGListEntry const*> l_LFGFiltered;
+
+    for (auto l_Iter : m_LFGListQueue)
+    {
+        LFGListEntry const* l_ListEntry = l_Iter.second;
+
+        if (l_ListEntry->m_ActivityEntry->ActivityGroupID != p_ActivityCategory)
+            continue;
+
+        if (p_FilterString.length() && l_ListEntry->m_Name.length())
+        {
+            std::string l_UpperName = l_ListEntry->m_Name;
+            std::transform(l_UpperName.begin(), l_UpperName.end(), l_UpperName.begin(), toupper);
+            std::transform(p_FilterString.begin(), p_FilterString.end(), p_FilterString.begin(), toupper);
+
+            if (l_UpperName.find(p_FilterString) == std::string::npos)
+                continue;
+        }
+
+        l_LFGFiltered.push_back(l_ListEntry);
+    }
+    return l_LFGFiltered;
 }

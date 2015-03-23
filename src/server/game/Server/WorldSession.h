@@ -965,6 +965,7 @@ class WorldSession
         void HandleLfgListLeave(WorldPacket& p_RecvData);
         void HandleLfgListSearch(WorldPacket& p_RecvData);
         void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
+        void SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
         static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListJoinRequest(WorldPacket* p_Data, LFGListEntry const* p_Entry);
         static void BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, bool p_Listed);
