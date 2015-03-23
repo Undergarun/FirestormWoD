@@ -19,6 +19,8 @@
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "CreatureTextMgr.h"
+#include "MoveSplineInit.h"
 
 #ifndef ASHRAN_MGR_HPP_ASHRAN
 #define ASHRAN_MGR_HPP_ASHRAN
@@ -90,7 +92,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 {
     using PlayerTimerMap = std::map<uint64, uint32>;
     using PlayerCurrencyLoot = std::map<uint64, uint32>;
-    using AshranEventsMap = std::map<uint32, uint32>;
+    using AshranVignettesMap = std::map<uint32, uint64>;
 
     public:
         OutdoorPvPAshran();
@@ -126,6 +128,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player);
 
         void OnCreatureCreate(Creature* p_Creature);
+        void OnCreatureRemove(Creature* p_Creature);
+        void OnGameObjectCreate(GameObject* p_GameObject);
+        void OnGameObjectRemove(GameObject* p_GameObject);
         Creature* GetHerald() const;
 
         void ResetControlPoints();
@@ -152,6 +157,24 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 GetArtifactCollected(uint8 p_TeamID, uint8 p_Type) const { return m_ArtifactsCollected[p_TeamID][p_Type]; }
         void AddCollectedArtifacts(uint8 p_TeamID, uint8 p_Type, uint32 p_Count);
         void RewardHonorAndReputation(uint32 p_ArtifactCount, Player* p_Player);
+        void StartArtifactEvent(uint8 p_TeamID, uint8 p_Type);
+        void EndArtifactEvent(uint8 p_TeamID, uint8 p_Type);
+        bool IsArtifactEventLaunched(uint8 p_TeamID, uint8 p_Type) const;
+        void AnnounceArtifactEvent(uint8 p_TeamID, uint8 p_Type, bool p_Apply);
+
+        template<class T>
+        void AddVignetteOnPlayers(T const* p_Object, uint32 p_VignetteID, uint8 p_TeamID = TeamId::TEAM_NEUTRAL);
+        void RemoveVignetteOnPlayers(uint32 p_VignetteID, uint8 p_TeamID = TeamId::TEAM_NEUTRAL);
+
+        uint32 CountPlayersForTeam(uint8 p_TeamID) const
+        {
+            if (p_TeamID > TeamId::TEAM_HORDE)
+                return 0;
+
+            return (uint32)m_PlayersInWar[p_TeamID].size();
+        }
+
+        void CastSpellOnTeam(Unit* p_Caster, uint8 p_Team, uint32 p_SpellID);
 
     private:
 
@@ -177,7 +200,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
         uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
 
+        uint64 m_ArtifactsNPCGuids[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
         uint32 m_ArtifactsCollected[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
+        bool m_ArtifactEventsLaunched[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
 
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
@@ -185,6 +210,9 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
+
+        AshranVignettesMap m_NeutralVignettes;
+        AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
 };
 
 #endif

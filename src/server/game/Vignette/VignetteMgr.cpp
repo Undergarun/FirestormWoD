@@ -37,6 +37,14 @@ namespace Vignette
 
     Vignette::Entity* Manager::CreateAndAddVignette(VignetteEntry const* p_VignetteEntry, uint32 const p_MapId, Vignette::Type const p_VignetteType, G3D::Vector3 const p_Position, uint64 const p_SourceGuid)
     {
+        /// Check for duplicated vignettes
+        for (auto l_Vignette : m_Vignettes)
+        {
+            /// Return if same vignette has already been created
+            if (l_Vignette.second->GetVignetteEntry()->Id == p_VignetteEntry->Id)
+                return nullptr;
+        }
+
         Vignette::Entity* l_Vignette = new Vignette::Entity(p_VignetteEntry, p_MapId);
         l_Vignette->Create(p_VignetteType, p_Position, p_SourceGuid);
 
@@ -44,6 +52,25 @@ namespace Vignette
         m_AddedVignette.insert(l_Vignette->GetGuid());
 
         return l_Vignette;
+    }
+
+    void Manager::DestroyAndRemoveVignetteByEntry(VignetteEntry const* p_VignetteEntry)
+    {
+        if (p_VignetteEntry == nullptr)
+            return;
+
+        for (auto l_Iterator = m_Vignettes.begin(); l_Iterator != m_Vignettes.end();)
+        {
+            if (l_Iterator->second->GetVignetteEntry()->Id == p_VignetteEntry->Id)
+            {
+                delete l_Iterator->second;
+                m_RemovedVignette.insert(l_Iterator->first);
+                l_Iterator = m_Vignettes.erase(l_Iterator);
+                continue;
+            }
+
+            ++l_Iterator;
+        }
     }
 
     void Manager::DestroyAndRemoveVignettes(std::function<bool(Vignette::Entity* const)> p_Lamba)
