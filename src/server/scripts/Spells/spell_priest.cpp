@@ -3290,7 +3290,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetTarget();
+                Unit* l_Target = p_EventInfo.GetActionTarget();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
