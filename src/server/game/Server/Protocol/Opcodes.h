@@ -260,8 +260,8 @@ enum Opcodes
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x0030,   ///< 6.0.3 19116
         SMSG_ACHIEVEMENT_DELETED                    = 0x050E,   ///< 6.0.3 19116
         SMSG_ACHIEVEMENT_EARNED                     = 0x010E,   ///< 6.0.3 19116
-        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0912,   ///< 6.0.3 19116 (unused)
-        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0123,   ///< 6.0.3 19116 (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0912,   ///< 6.0.3 19116
+        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0123,   ///< 6.0.3 19116
         SMSG_CRITERIA_DELETED                       = 0x0105,   ///< 6.0.3 19116
         SMSG_CRITERIA_UPDATE                        = 0x1904,   ///< 6.0.3 19116
 
