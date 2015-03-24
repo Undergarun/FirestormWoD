@@ -3313,7 +3313,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
 
                     /// The maximum size of a Divine Aegis is 40% of the maximum health of the target.
-                    if (l_AcutalShield->GetAmount() > CalculatePct(l_Target->GetMaxHealth(), 40))
+                    if (l_AcutalShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
                         l_AcutalShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
                 }
             }
