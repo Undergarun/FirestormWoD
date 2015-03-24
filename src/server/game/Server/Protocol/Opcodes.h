@@ -192,6 +192,7 @@ enum Opcodes
         SMSG_CANCEL_SCENE                           = 0x033F,   ///< 6.0.3 19116
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x01E3,   ///< 6.0.3 19116
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x0316,   ///< 6.0.3 19116
+        SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x15C0,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -1177,6 +1178,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
     CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
+    CMSG_SHOW_TRADE_SKILL                       = 0x07AD,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles

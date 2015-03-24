@@ -1058,6 +1058,7 @@ class WorldSession
         void HandleSetFactionOpcode(WorldPacket& recvPacket);
         void HandleCategoryCooldownOpcode(WorldPacket& recvPacket);
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
+        void HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket);
         int32 HandleEnableNagleAlgorithm();
 
         // Black Market

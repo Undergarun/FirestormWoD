@@ -158,3 +158,54 @@ void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
 
     SendPacket(&l_Data);
 }
+
+void WorldSession::HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket)
+{
+    uint32 l_SpellID = 0;
+    uint32 l_SkillID = 0;
+    uint64 l_PlayerGuid = 0;
+
+    p_RecvPacket.readPackGUID(l_PlayerGuid);
+    p_RecvPacket >> l_SpellID;
+    p_RecvPacket >> l_SkillID;
+
+    Player* l_Player = ObjectAccessor::FindPlayer(l_PlayerGuid);
+
+    if (!l_Player)
+        return;
+
+    if (!l_Player->HasSkill(l_SkillID))
+        return;
+
+    SkillLineEntry const* l_SkillEntry = sSkillLineStore.LookupEntry(l_SkillID);
+    if (!l_SkillEntry || l_SkillEntry->categoryId != SKILL_CATEGORY_PROFESSION)
+        return;
+
+    std::vector<uint32> l_Recipes;
+
+    for (uint32 l_J = 0; l_J < sSkillLineAbilityStore.GetNumRows(); ++l_J)
+    {
+        if (SkillLineAbilityEntry const* l_Ability = sSkillLineAbilityStore.LookupEntry(l_J))
+        {
+            if (l_Ability->skillId == l_SkillID && l_Player->HasSpell(l_Ability->spellId))
+                l_Recipes.push_back(l_Ability->spellId);
+        }
+    }
+
+    WorldPacket l_Data(SMSG_SHOW_TRADE_SKILL_RESPONSE, 500);
+    l_Data.appendPackGUID(l_PlayerGuid);        ///< PlayerGUID
+    l_Data << uint32(l_SpellID);                ///< SpellID
+    l_Data << uint32(1);                        ///< SkillLineIDs count
+    l_Data << uint32(1);                        ///< SkillRanks count
+    l_Data << uint32(1);                        ///< SkillMaxRanks count
+    l_Data << uint32(l_Recipes.size());         ///< KnownAbilitySpellIDs count
+
+    l_Data << uint32(l_SkillID);                                ///< SkillLineIDs
+    l_Data << uint32(l_Player->GetSkillValue(l_SkillID));       ///< SkillRanks
+    l_Data << uint32(l_Player->GetMaxSkillValue(l_SkillID));    ///< SkillMaxRanks
+
+    for (size_t l_I = 0; l_I < l_Recipes.size(); ++l_I)         ///< KnownAbilitySpellIDs
+        l_Data << uint32(l_Recipes[l_I]);
+
+    SendPacket(&l_Data);
+}
