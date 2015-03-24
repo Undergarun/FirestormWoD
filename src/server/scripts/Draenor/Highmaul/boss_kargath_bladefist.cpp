@@ -54,14 +54,21 @@ class boss_kargath_bladefist : public CreatureScript
             MoveFrontGate = 1
         };
 
+        enum eCosmeticEvents
+        {
+            OrientationForFight = 1
+        };
+
         struct boss_kargath_bladefistAI : public BossAI
         {
             boss_kargath_bladefistAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossKargathBladefist)
             {
                 m_Instance = p_Creature->GetInstanceScript();
+                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             EventMap m_Events;
+            EventMap m_CosmeticEvents;
             InstanceScript* m_Instance;
 
             void Reset() override
@@ -108,6 +115,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                             me->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, 25.0f, 10.0f);
                             Talk(eTalks::Intro1);
+                            m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
                         }
 
                         break;
@@ -126,11 +134,33 @@ class boss_kargath_bladefist : public CreatureScript
                     return;
 
                 if (p_ID == eMove::MoveFrontGate)
-                    me->SetOrientation(0.90f);
+                {
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetWalk(false);
+                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_CosmeticEvents.Update(p_Diff);
+
+                switch (m_CosmeticEvents.ExecuteEvent())
+                {
+                    case eCosmeticEvents::OrientationForFight:
+                    {
+                        me->SetOrientation(0.90f);
+
+                        Position l_Pos;
+                        me->GetPosition(&l_Pos);
+                        me->SetHomePosition(l_Pos);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
                 if (!UpdateVictim())
                     return;
 

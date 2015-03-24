@@ -11,7 +11,7 @@
 Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 Position const g_TeleportPos = { 3466.42f, 7578.84f, 55.34f, 4.0125f };
-Position const g_MargokTeleport = { 3435.43f, 7540.16f, 73.664f, 0.896154f };
+Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
 
 /// Gharg <Arena Master> - 84971
 class npc_highmaul_gharg_arena_master : public CreatureScript
@@ -242,12 +242,12 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                                 l_Kargath->AI()->DoAction(eActions::VulgorDied);
                         });
 
-                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath2); });
+
+                        AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
                                 l_Kargath->SetFacingTo(4.02f);
-
-                            Talk(eTalks::Kargath2);
                         });
 
                         break;
@@ -342,6 +342,13 @@ class npc_highmaul_imperator_margok : public CreatureScript
             MoveFrontGate = 1
         };
 
+        enum eSpells
+        {
+            TeleportIntoArena   = 167048,
+            TeleportVisual      = 167050,
+            SitThrone           = 88648
+        };
+
         struct npc_highmaul_imperator_margokAI : public MS::AI::CosmeticAI
         {
             npc_highmaul_imperator_margokAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
@@ -360,8 +367,15 @@ class npc_highmaul_imperator_margok : public CreatureScript
                         /// Teleport in Coliseum
                         AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
+                            me->CastSpell(me, eSpells::TeleportIntoArena, true);
                             me->NearTeleportTo(g_MargokTeleport);
+                            me->CastSpell(me, eSpells::TeleportVisual, true);
+                        });
+
+                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
                             me->SetFacingTo(g_MargokTeleport.m_orientation);
+                            me->RemoveAura(eSpells::TeleportIntoArena);
                         });
 
                         AddTimedDelayedOperation(28 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent12); });
@@ -377,6 +391,7 @@ class npc_highmaul_imperator_margok : public CreatureScript
                                 {
                                     Position l_Pos;
                                     l_Trigger->GetPosition(&l_Pos);
+                                    l_Kargath->SetWalk(true);
                                     l_Kargath->GetMotionMaster()->MovePoint(eMove::MoveFrontGate, l_Pos);
                                 }
                             }
@@ -392,6 +407,7 @@ class npc_highmaul_imperator_margok : public CreatureScript
                         });
 
                         AddTimedDelayedOperation(51 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent13); });
+                        AddTimedDelayedOperation(52 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SitThrone, true); });
                         break;
                     }
                     default:

@@ -65,6 +65,8 @@ class instance_highmaul : public InstanceMapScript
             {
                 SetBossNumber(eHighmaulDatas::MaxHighmaulBosses);
                 LoadDoorData(g_DoorData);
+
+                instance->SetObjectVisibility(500.0f);
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
