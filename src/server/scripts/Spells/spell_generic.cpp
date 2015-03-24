@@ -3501,7 +3501,7 @@ class PlayerScript_Touch_Of_Elune: public PlayerScript
                 p_Player->RemoveAura(TouchOfELuneSpell::Day);
                 p_Player->AddAura(TouchOfELuneSpell::Night, p_Player);
             }
-            else if (!p_Player->HasAura(TouchOfELuneSpell::Day))
+            else if (!p_Player->HasAura(TouchOfELuneSpell::Day) && !sGameEventMgr->IsActiveEvent(TouchOfELuneSpell::EventNight))
             {
                 p_Player->RemoveAura(TouchOfELuneSpell::Night);
                 p_Player->AddAura(TouchOfELuneSpell::Day, p_Player);
