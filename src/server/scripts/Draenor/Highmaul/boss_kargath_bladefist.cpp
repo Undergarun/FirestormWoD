@@ -49,9 +49,10 @@ class boss_kargath_bladefist : public CreatureScript
             KargathLastTalk
         };
 
-        enum eMove
+        enum eMoves
         {
-            MoveFrontGate = 1
+            MoveFrontGate = 1,
+            MoveChargeOnPlayer
         };
 
         enum eCosmeticEvents
@@ -59,9 +60,43 @@ class boss_kargath_bladefist : public CreatureScript
             OrientationForFight = 1
         };
 
+        enum eDatas
+        {
+            MorphWithWeapon = 54674,
+            MorphAmputation = 55201
+        };
+
+        enum eSpells
+        {
+            /// Cosmetic
+            BladeFistAmputation     = 167593,
+            PlayChogallScene        = 178333,
+
+            /// Fight
+            /// Impale
+            SpellImpale             = 159113,
+            /// Blade Dance
+            SpellBladeDance         = 159250,
+            SpellBladeDanceHit      = 159212,
+            SpellBladeDanceMorph    = 159214,
+            SpellBladeDanceFadeOut  = 159209,
+            SpellBladeDanceCharge   = 159265
+        };
+
+        enum eEvents
+        {
+            EventImpale = 1,
+            EventBladeDance
+        };
+
+        enum eCreatures
+        {
+            KargathBladefist    = 78846 ///< Used for Blade Dance
+        };
+
         struct boss_kargath_bladefistAI : public BossAI
         {
-            boss_kargath_bladefistAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossKargathBladefist)
+            boss_kargath_bladefistAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossKargathBladefist), m_Vehicle(p_Creature->GetVehicleKit())
             {
                 m_Instance = p_Creature->GetInstanceScript();
                 p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
@@ -70,12 +105,18 @@ class boss_kargath_bladefist : public CreatureScript
             EventMap m_Events;
             EventMap m_CosmeticEvents;
             InstanceScript* m_Instance;
+            Vehicle* m_Vehicle;
 
             void Reset() override
             {
                 m_Events.Reset();
 
                 _Reset();
+
+                me->RemoveAura(eSpells::BladeFistAmputation);
+                me->RemoveAura(eSpells::PlayChogallScene);
+
+                me->SetDisplayId(eDatas::MorphWithWeapon);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -89,6 +130,9 @@ class boss_kargath_bladefist : public CreatureScript
                 _EnterCombat();
 
                 Talk(eTalks::Aggro);
+
+                m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
+                m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -96,6 +140,9 @@ class boss_kargath_bladefist : public CreatureScript
                 _JustDied();
 
                 Talk(eTalks::Death);
+
+                me->CastSpell(me, eSpells::BladeFistAmputation, true);
+                me->SetDisplayId(eDatas::MorphAmputation);
             }
 
             void DoAction(int32 const p_Action) override
@@ -128,17 +175,54 @@ class boss_kargath_bladefist : public CreatureScript
                 }
             }
 
+            void JustReachedHome() override
+            {
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                Reset();
+            }
+
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
 
-                if (p_ID == eMove::MoveFrontGate)
+                if (p_ID == eMoves::MoveFrontGate)
                 {
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetWalk(false);
                     m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellImpale:
+                        p_Target->EnterVehicle(me);
+                        break;
+                    case eSpells::SpellBladeDanceHit:
+                    {
+                        Position l_Pos;
+                        p_Target->GetPosition(&l_Pos);
+
+                        if (Creature* l_Trigger = me->SummonCreature(eCreatures::KargathBladefist, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 5000))
+                        {
+                            me->CastSpell(l_Trigger, eSpells::SpellBladeDanceCharge, true);
+                            l_Trigger->CastSpell(l_Trigger, eSpells::SpellBladeDanceMorph, true);
+                            l_Trigger->CastSpell(l_Trigger, eSpells::SpellBladeDanceFadeOut, true);
+                        }
+
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -164,16 +248,32 @@ class boss_kargath_bladefist : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
                 m_Events.Update(p_Diff);
 
-                /*switch (m_Events.ExecuteEvent())
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
                 {
+                    case eEvents::EventImpale:
+                    {
+                        Talk(eTalks::Impale);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellImpale, false);
+
+                        m_Events.ScheduleEvent(eEvents::EventImpale, 44000);
+                        break;
+                    }
+                    case eEvents::EventBladeDance:
+                    {
+                        me->CastSpell(me, eSpells::SpellBladeDance, true);
+                        m_Events.ScheduleEvent(eEvents::EventBladeDance, 23000);
+                        break;
+                    }
                     default:
                         break;
-                }*/
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -675,6 +775,47 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
         }
 };
 
+/// Kargath Bladefist (trigger) - 78846
+class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
+{
+    public:
+        npc_highmaul_kargath_bladefist_trigger() : CreatureScript("npc_highmaul_kargath_bladefist_trigger") { }
+
+        enum eSpells
+        {
+            BladeDanceDmg       = 159217,
+            BladeDanceCharge    = 159265
+        };
+
+        struct npc_highmaul_kargath_bladefist_triggerAI : public ScriptedAI
+        {
+            npc_highmaul_kargath_bladefist_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Caster == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::BladeDanceCharge)
+                {
+                    p_Caster->CastSpell(me, eSpells::BladeDanceDmg, true);
+                    me->CastSpell(p_Caster, eSpells::BladeDanceCharge, true);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_kargath_bladefist_triggerAI(p_Creature);
+        }
+};
+
 /// Earth Breaker - 162271
 class spell_highmaul_earth_breaker : public SpellScriptLoader
 {
@@ -746,6 +887,34 @@ class spell_highmaul_earth_breaker : public SpellScriptLoader
         }
 };
 
+/// Impale - 159113
+class spell_highmaul_impale : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_impale() : SpellScriptLoader("spell_highmaul_impale") { }
+
+        class spell_highmaul_impale_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_impale_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->ExitVehicle();
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_impale_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_impale_AuraScript();
+        }
+};
+
 /// Molten Bomb - 161634
 class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 {
@@ -790,9 +959,11 @@ void AddSC_boss_kargath_bladefist()
     new npc_highmaul_somldering_stoneguard();
     new npc_highmaul_fire_pillar();
     new npc_highmaul_ravenous_bloodmaw();
+    new npc_highmaul_kargath_bladefist_trigger();
 
     /// Spells
     new spell_highmaul_earth_breaker();
+    new spell_highmaul_impale();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();

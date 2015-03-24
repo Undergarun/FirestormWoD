@@ -12,6 +12,7 @@ Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 Position const g_TeleportPos = { 3466.42f, 7578.84f, 55.34f, 4.0125f };
 Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
+Position const g_KargathPos = { 3444.50f, 7550.76f, 55.39f, 0.90f };
 
 /// Gharg <Arena Master> - 84971
 class npc_highmaul_gharg_arena_master : public CreatureScript
@@ -387,13 +388,8 @@ class npc_highmaul_imperator_margok : public CreatureScript
 
                             if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
                             {
-                                if (Creature* l_Trigger = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathTrigger)))
-                                {
-                                    Position l_Pos;
-                                    l_Trigger->GetPosition(&l_Pos);
-                                    l_Kargath->SetWalk(true);
-                                    l_Kargath->GetMotionMaster()->MovePoint(eMove::MoveFrontGate, l_Pos);
-                                }
+                                l_Kargath->SetWalk(true);
+                                l_Kargath->GetMotionMaster()->MovePoint(eMove::MoveFrontGate, g_KargathPos);
                             }
                         });
 

@@ -13,6 +13,7 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "Vehicle.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
@@ -41,7 +42,6 @@ enum eHighmaulCreatures
     Vulgor              = 80048,
     BladespireSorcerer  = 80071,
     CrowdAreatrigger    = 79260,
-    KargathTrigger      = 78846,
     MargokCosmetic      = 83268,
     /// The Underbelly
     TheButcher          = 77404,

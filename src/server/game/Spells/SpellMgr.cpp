@@ -3355,6 +3355,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162304:///< Earth Breaker (Summon - Vul'gor)
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 159265:///< Blade Dance (charge visual - Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
