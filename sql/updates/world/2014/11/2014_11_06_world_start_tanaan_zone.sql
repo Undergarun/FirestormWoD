@@ -159,11 +159,11 @@
 
 			DELETE FROM creature WHERE id = 81696;
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('81696','1265','7025','7037','1','4294967295','0','0','3964.79','-2773.55','66.6518','4.7544','120','0','0','1','0','0','0','0','0','0','0','0',NULL);
-			UPDATE `creature_template` SET `minlevel` = 93, `maxlevel` = 93, `exp` = 5, `InhabitType` = 4, `Health_mod` = 3, `Mana_mod` = 3, faction = 35 WHERE `entry` = 81696;
+			UPDATE `creature_template` SET `minlevel` = 93, `maxlevel` = 93, `exp` = 5, `InhabitType` = 4, `Health_mod` = 3, `Mana_mod` = 3, faction = 35,  unit_flags = 33686308, scriptname = "" WHERE `entry` = 81696;
 
 		#81695/NPC - Cho Gall
 		
-			UPDATE `creature_template` SET `unit_flags` = 33686276 WHERE `entry` = 81695;
+			UPDATE `creature_template` SET `unit_flags` = 33686276, scriptname = "" WHERE `entry` = 81695;
 		
 		#78333/NPC - Gul Dan
 		
@@ -189,7 +189,8 @@
 			UPDATE `creature_template` SET `exp` = 5, faction=14, `ScriptName` = 'npc_kengtus_pranch_the_patient' WHERE `entry` = 82012;
 
 		#81762/NPC - Taag
-		
+
+			UPDATE creature_template SET scriptname = "npc_tanaan_taag" WHERE entry = 81762;
 			DELETE FROM creature WHERE id = 81762;
 			insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `dynamicflags`, `isActive`, `protec_anti_doublet`) values('81762','1265','7025','7041','1','1','0','0','3990.82','-2553.8','66.0799','0.0878151','120','0','0','1','0','0','2','0','0','0','0','0',NULL);
 
@@ -607,7 +608,9 @@
 
 			UPDATE `creature_template` SET `unit_flags` = 33554436 WHERE `entry` = 81895;
 
+		#78563/NPC - Archmage Khadgar
 
+			UPDATE creature_template SET scriptname = "" WHERE entry = 78563;
 		-- Game Objects
 
 		#233104/Game Object - Stasis Rune
@@ -665,6 +668,9 @@
 
 			insert into `creature_template` (`entry`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `exp_unk`, `faction`, `npcflag`, `npcflag2`, `speed_walk`, `speed_run`, `speed_fly`, `scale`, `rank`, `dmgschool`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `baseVariance`, `rangeVariance`, `unit_class`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `type`, `type_flags`, `type_flags2`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Mana_mod_extra`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) values('300005','0','0','11686','0','0','0','Black Rock trigger (Tanaan)',NULL,NULL,'0','1','1','0','0','35','0','0','1','1.14286','1.14286','1','0','0','1','0','0','1','1','0','33554950','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','3','1','1','1','1','1','0','0','0','0','0','0','0','0','1','0','0','0','npc_black_rock_trigger','1');
 
+		#232538/Game Object - Main Cannon Trigger
+
+			UPDATE gameobject_template SET scriptname = "gob_main_cannon_trigger" WHERE entry = 232538;
 		-- Quests
 
 		#35933/Quest - Azeroth s Last Stand
@@ -1144,7 +1150,8 @@
 			DELETE FROM npc_spellclick_spells WHERE npc_entry = 86039;
 			INSERT INTO npc_spellclick_spells VALUE (86039, 173426, 1, 0);
 			SELECT * FROM vehicle_template_accessory WHERE entry = 86039;
-			UPDATE gameobject SET state = 2 WHERE id IN (232539, 231261);
+			UPDATE gameobject SET state = 2 WHERE id = 231261;
+			UPDATE gameobject SET state = 1 WHERE id = 232539;
 			DELETE FROM creature_template_addon WHERE entry = 78430;
 			DELETE FROM creature_template_addon WHERE entry = 79593;
 			DELETE FROM creature_template_addon WHERE entry IN (81996, 81999, 82000, 82001, 82004, 82007, 82008, 82189);
@@ -1259,6 +1266,11 @@
 
 			UPDATE `quest_template` SET `PrevQuestId` = 34445, `NextQuestId` = 0, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34446;
 			UPDATE `quest_template` SET `PrevQuestId` = 34740, `NextQuestId` = 35019, `ExclusiveGroup` = 0, `NextQuestIdChain` = 0 WHERE `Id` = 34741;
+
+			UPDATE `quest_template` SET `ExclusiveGroup` = 0 WHERE `Id` = 34442; -- (before -34442)
+			UPDATE `quest_template` SET `ExclusiveGroup` = 0 WHERE `Id` = 34925; -- (before -34925)
+			UPDATE `quest_template` SET `ExclusiveGroup` = 0 WHERE `Id` = 34437; -- (before -34925)
+			UPDATE `quest_template` SET `PrevQuestId` = 35747 WHERE `Id` = 34445;
 			-- Talks
 
 			DELETE FROM creature_text WHERE entry = 82125;
