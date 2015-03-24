@@ -862,16 +862,7 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(obj, x, y, z, obj->GetObjectSize(), distance2d, GetAngle(obj));
         }
 
-        float GetObjectSize() const
-        {
-            if (GetTypeId() == TYPEID_GAMEOBJECT)
-            {
-                if (auto l_GameObjectTemplate = ToGameObject()->GetGOInfo())
-                    return l_GameObjectTemplate->size;
-            }
-
-            return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
-        }
+        float GetObjectSize() const;
 
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
