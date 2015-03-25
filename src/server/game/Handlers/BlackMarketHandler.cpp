@@ -158,6 +158,6 @@ void WorldSession::SendBlackMarketBidResult(uint32 p_ItemEntry, uint32 p_Auction
         l_Data << uint32(0);   ///< BonusCount
     }
 
-    l_Data << uint32(1);    ///< Result OK
+    l_Data << uint32(BlackMarketBidResult::BidPlaced);    ///< Result OK
     SendPacket(&l_Data);
 }
