@@ -445,11 +445,12 @@ enum Opcodes
 
         /// Petition
         SMSG_PETITION_ALREADY_SIGNED                            = 0x0D8E, ///< 6.0.3 19116
-        SMSG_PETITION_DECLINED                                  = 0x11E9, ///< 6.0.3 19116
-        SMSG_PETITION_QUERY_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
+        SMSG_PETITION_SIGN_RESULTS                              = 0x11E9, ///< 6.0.3 19116
+        SMSG_QUERY_PETITION_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
+        SMSG_PETITION_DECLINED                                  = 0x1B32, ///< 6.0.3 19116
 
         /// Threat
         SMSG_THREAT_CLEAR                                       = 0x030F, ///< 6.0.3 19116

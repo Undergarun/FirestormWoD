@@ -117,6 +117,8 @@ public:
 
         fflush(l_File);
         fclose(l_File);
+
+        return true;
     }
 };
 
