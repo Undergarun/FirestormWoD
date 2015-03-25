@@ -771,17 +771,14 @@ namespace MS
                                     /// Players can't decide on which kind of battleground there are playing, so it's a basic random.
                                     BattlegroundType::Type l_RatedBg = BattlegroundType::None;
                                     if (BattlegroundType::IsArena(l_DecidedBg))
-                                        l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::TigersPeaks, BattlegroundType::TheRingOfValor));
+                                        l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::TigersPeaks, BattlegroundType::NagrandArena));
                                     else
                                         l_RatedBg = static_cast<BattlegroundType::Type>(urand(BattlegroundType::Warsong, BattlegroundType::StrandOfTheAncients));
 
-                                    /// We get the battleground template.
-                                    Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_RatedBg);
-                                    if (!l_Template)
-                                        continue;
-
                                     /// Create the new battleground.
                                     Battleground* l_Bg = sBattlegroundMgr->CreateNewBattleground(l_RatedBg, Brackets::RetreiveFromId(l_BracketId), BattlegroundType::GetArenaType(l_DecidedBg), false);
+                                    if (l_Bg == nullptr)
+                                        continue;
 
                                     /// Add groups to the battleground and remove them from waiting groups list.
                                     RemoveGroupFromQueues(l_Group);
@@ -789,10 +786,10 @@ namespace MS
                                     RemoveGroupFromQueues(l_Previous);
                                     AddToBG(l_Previous, l_Bg, HORDE);
 
+                                    l_Bg->StartBattleground();
+
                                     l_Previous = nullptr;
                                     continue;
-
-                                    l_Bg->StartBattleground();
                                 }
 
                                 l_Previous = l_Group;
