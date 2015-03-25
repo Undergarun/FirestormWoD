@@ -3352,21 +3352,23 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 if (l_Caster->GetTypeId() == TYPEID_PLAYER)
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
-                // converts each extra point of energy ( up to 25 energy ) into additional damage
+                /// converts each extra point of energy ( up to 25 energy ) into additional damage
                 int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                // 25 energy = 100% more damage
+                /// 25 energy = 100% more damage
                 AddPct(l_Damage, l_EnergyConsumed * 4);
 
                 SetHitDamage(l_Damage);
 
-                // Glyph of Ferocious Bite
+                /// Glyph of Ferocious Bite
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
-                    int32 l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() / 10) * (l_EnergyConsumed / 10);
+                    l_EnergyConsumed += 25; ///< Add the basic cost of Ferocious Bite to the extra cost;
+                    int l_HealPct = l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * (l_EnergyConsumed / 10);
+                    l_HealPct /= 10;
                     l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
                 }
 
-                // if target is under 25% of life, also reset rake duration
+                /// if target is under 25% of life, also reset rake duration
                 if (l_Target && l_Target->GetHealthPct() <= 25.0f)
                 if (AuraPtr l_Rake = l_Target->GetAura(SPELL_DRUID_RAKE_TRIGGERED))
                     l_Rake->RefreshDuration();

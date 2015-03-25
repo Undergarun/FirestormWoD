@@ -714,6 +714,9 @@ class npc_ashran_faction_champions : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
+                if (m_OutdoorPvP == nullptr)
+                    return;
+
                 Creature* l_Korlok = sObjectAccessor->FindCreature(m_OutdoorPvP->GetCreature(eSpecialSpawns::NeutralKorlokTheOgreKing));
                 if (l_Korlok == nullptr || !l_Korlok->IsAIEnabled)    ///< Shouldn't happens
                     return;

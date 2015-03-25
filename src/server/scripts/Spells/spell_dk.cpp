@@ -1438,7 +1438,7 @@ class spell_dk_death_gate: public SpellScriptLoader
         }
 };
 
-// Blood Boil - 50842
+/// Blood Boil - 50842
 class spell_dk_blood_boil: public SpellScriptLoader
 {
     public:
@@ -1451,59 +1451,78 @@ class spell_dk_blood_boil: public SpellScriptLoader
             int32 m_FrostFever  = 0;
             int32 m_BloodPlague = 0;
 
+            SpellCastResult CheckTarget()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_SUCCESS;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                if (!l_Player->IsValidAttackTarget(l_Target))
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                if (l_Player->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleBeforeCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                    {
-                        if (Unit* l_Target = l_Player->GetSelectedUnit())
-                        {
-                            if (!l_Player->IsValidAttackTarget(l_Target))
-                                return;
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                                m_BloodPlague = l_AuraBloodPlague->GetDuration();
+                if (l_Player == nullptr)
+                    return;
 
-                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                                m_FrostFever = l_AuraFrostFever->GetDuration();
-                        }
-                    }
-                }
+                Unit* l_Target = l_Player->GetSelectedUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
+                    m_BloodPlague = l_AuraBloodPlague->GetDuration();
+
+                if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                    m_FrostFever = l_AuraFrostFever->GetDuration();
             }
 
             void HandleHitTarget(SpellEffIndex /* effIndex */)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if ((!l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID())->GetDuration() < m_FrostFever) && m_FrostFever > 0)
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+                    if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
                     {
-                        if ((!l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID())->GetDuration() < m_FrostFever) && m_FrostFever > 0)
-                        {
-                            l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
-                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                            {
-                                // Don't Refresh diseases
-                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                                    l_AuraFrostFever->SetDuration(m_FrostFever);
-                            }
-                        }
-
-                        // Blood plague
-                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID())->GetDuration() < m_BloodPlague) && m_BloodPlague > 0)
-                        {
-                            l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
-                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                            {
-                                // Don't Refresh diseases
-                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                                    l_AuraBloodPlague->SetDuration(m_BloodPlague);
-                            }
-                        }
-
-                        l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                        // Don't Refresh diseases
+                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                            l_AuraFrostFever->SetDuration(m_FrostFever);
                     }
                 }
+
+                // Blood plague
+                if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID())->GetDuration() < m_BloodPlague) && m_BloodPlague > 0)
+                {
+                    l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+                    if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                    {
+                        // Don't Refresh diseases
+                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                            l_AuraBloodPlague->SetDuration(m_BloodPlague);
+                    }
+                }
+
+                l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
             }
 
             void HandleAfterCast()
@@ -1517,6 +1536,7 @@ class spell_dk_blood_boil: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dk_blood_boil_SpellScript::CheckTarget);
                 BeforeCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleBeforeCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_blood_boil_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleAfterCast);
