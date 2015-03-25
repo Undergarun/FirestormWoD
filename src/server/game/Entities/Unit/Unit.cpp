@@ -15088,7 +15088,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (!spellProto || castTime < 0)
         return;
 
-    if (spellProto->IsChanneled() && !spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
+    if (spellProto->IsChanneled() && !(spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
         return;
 
     Unit* owner = GetOwner();
