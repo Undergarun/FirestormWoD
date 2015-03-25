@@ -160,7 +160,6 @@ enum PetitionTurns
 enum PetitionSigns
 {
     PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_DECLINED              = 0,
     PETITION_SIGN_FULL                  = 1,
     PETITION_SIGN_RESTRICTED_ACCOUNT    = 7,
     PETITION_SIGN_NOT_SERVER            = 10,

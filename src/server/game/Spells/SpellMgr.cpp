@@ -3794,9 +3794,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119539: ///< Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-            case 76671: ///< Mastery: Divine Bulwark
-                spellInfo->Effects[4].BasePoints = 8;
-                break;
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
                 break;
