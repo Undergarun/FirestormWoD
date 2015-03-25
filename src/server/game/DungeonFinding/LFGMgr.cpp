@@ -2465,10 +2465,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool chec
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
     uint32 groupType = dungeon ? dungeon->grouptype : 0;
 
-    if (!check)
-        return (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
-
-    LfgDungeonSet& cachedDungeon = (dungeon ? dungeon->type != TYPEID_RANDOM_DUNGEON : true) ? m_CachedDungeonMap[groupType] : m_CachedDungeonMap[0];
+    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
     for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end();)
     {
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
@@ -2483,7 +2480,7 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool chec
 
             if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
             {
-                if (ar->levelMin > 90 || ar->levelMax > 90)
+                if (ar->levelMin > MAX_LEVEL || ar->levelMax > MAX_LEVEL)
                 {
                     cachedDungeon.erase(it++);
                     continue;
