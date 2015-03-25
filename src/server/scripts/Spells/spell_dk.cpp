@@ -2415,6 +2415,66 @@ class spell_dk_improved_death_grip : public SpellScriptLoader
         }
 };
 
+/// Army Transform - 127517
+class spell_dk_army_transform : public SpellScriptLoader
+{
+    public:
+        spell_dk_army_transform() : SpellScriptLoader("spell_dk_army_transform") { }
+
+        class spell_dk_army_transform_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_army_transform_SpellScript);
+
+            enum eArmyTransformSpells
+            {
+                GlyphOfFullMenagerie        = 58642,
+                TransformFleahBeast         = 127533,
+                TransformGeist              = 127534,
+                TransformNothrendSkeleton   = 127528,
+                TransformSkeleton           = 127527,
+                TransformSpikedGhoul        = 127525,
+                TransformSuperZombie        = 127526
+            };
+
+            bool Load() override
+            {
+                return GetCaster()->isGuardian();
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Owner = GetCaster()->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return SPELL_FAILED_SPELL_UNAVAILABLE;
+
+                if (l_Owner->HasAura(eArmyTransformSpells::GlyphOfFullMenagerie))
+                    return SPELL_CAST_OK;
+
+                return SPELL_FAILED_SPELL_UNAVAILABLE;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                static uint32 const ArmyTransforms[6] = { TransformFleahBeast, TransformGeist, TransformNothrendSkeleton, TransformSkeleton, TransformSpikedGhoul, TransformSuperZombie };
+                Unit *l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, ArmyTransforms[urand(0, 5)], true);
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_army_transform_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_army_transform_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_army_transform_SpellScript();
+        }
+};
+
 /// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
