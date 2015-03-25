@@ -7419,28 +7419,35 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
+    float oldRating = m_baseRatingValue[cr];
     m_baseRatingValue[cr] += (apply ? value : -value);
 
     // explicit affected values
+    float const multiplier = GetRatingMultiplier(cr);
+    float const oldVal = oldRating * multiplier;
+    float const newVal = m_baseRatingValue[cr] * multiplier;
     switch (cr)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, RatingChange, apply);
-            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, RatingChange, apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, newVal, true);
+            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, newVal, true);
             if (getClass() == CLASS_DEATH_KNIGHT)
                 UpdateAllRunesRegen();
             break;
         }
         case CR_HASTE_RANGED:
         {
-            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, value * GetRatingMultiplier(cr), apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, newVal, true);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            ApplyCastTimePercentMod(value * GetRatingMultiplier(cr), apply);
+            ApplyCastTimePercentMod(oldVal, false);
+            ApplyCastTimePercentMod(newVal, true);
             break;
         }
         default:
