@@ -4879,7 +4879,8 @@ void Spell::SendSpellGo()
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
-        && m_spellInfo->GetMainPower() == POWER_RUNES)
+        && m_spellInfo->GetMainPower() == POWER_RUNES
+        && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
         l_CastFlags |= CAST_FLAG_NO_GCD;                    ///< same as in SMSG_SPELL_START
         l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
