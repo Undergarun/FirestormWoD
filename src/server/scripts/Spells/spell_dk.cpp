@@ -329,7 +329,7 @@ class spell_dk_desecrated_ground: public SpellScriptLoader
         }
 };
 
-// Festering Strike - 85948
+/// Festering Strike - 85948
 class spell_dk_festering_strike: public SpellScriptLoader
 {
     public:
@@ -341,46 +341,47 @@ class spell_dk_festering_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                int32 l_extraDuration = GetSpellInfo()->Effects[EFFECT_2].BasePoints * IN_MILLISECONDS;
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraBloodPlague->GetDuration() + 6000;
-                            l_AuraBloodPlague->SetDuration(dur);
+                    uint32 l_Dur = std::min(l_AuraBloodPlague->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_AuraBloodPlague->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraBloodPlague->GetMaxDuration()))
-                                l_AuraBloodPlague->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_AuraBloodPlague->GetMaxDuration()))
+                        l_AuraBloodPlague->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraFrostFever->GetDuration() + 6000;
-                            l_AuraFrostFever->SetDuration(dur);
+                if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_AuraFrostFever->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_AuraFrostFever->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraFrostFever->GetMaxDuration()))
-                                l_AuraFrostFever->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_AuraFrostFever->GetMaxDuration()))
+                        l_AuraFrostFever->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_AuraChainsOfIce = l_Target->GetAura(DK_SPELL_CHAINS_OF_ICE, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraChainsOfIce->GetDuration() + 6000;
-                            l_AuraChainsOfIce->SetDuration(dur);
+                if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_NecroticPlague->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_NecroticPlague->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
-                                l_AuraChainsOfIce->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_NecroticPlague->GetMaxDuration()))
+                        l_NecroticPlague->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_NecroticPlague->GetDuration() + 6000;
-                            l_NecroticPlague->SetDuration(dur);
+                if (AuraPtr l_AuraChainsOfIce = l_Target->GetAura(DK_SPELL_CHAINS_OF_ICE, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_AuraChainsOfIce->GetDuration() + l_extraDuration, 20 * IN_MILLISECONDS);
+                    l_AuraChainsOfIce->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_NecroticPlague->GetMaxDuration()))
-                                l_NecroticPlague->SetMaxDuration(dur);
-                        }
-                    }
+                    if (l_Dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
+                        l_AuraChainsOfIce->SetMaxDuration(l_Dur);
                 }
             }
             void Register()
