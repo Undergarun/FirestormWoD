@@ -42,19 +42,19 @@ namespace MS
 
                 if (p_Group->m_IsSkirmish)
                 {
-                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && l_BattlegroundMask & BattlegroundMasks::ArenaSkirmish2v2)
+                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_Group->m_WantedBGs & BattlegroundMasks::ArenaSkirmish2v2)
                         return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && l_BattlegroundMask & BattlegroundMasks::ArenaSkirmish3v3)
+                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_Group->m_WantedBGs & BattlegroundMasks::ArenaSkirmish3v3)
                         return true;
                 }
 
                 if (p_Group->m_IsRatedBG)
                 {
-                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && l_BattlegroundMask & BattlegroundMasks::Arena2v2)
+                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_Group->m_WantedBGs & BattlegroundMasks::Arena2v2)
                         return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && l_BattlegroundMask & BattlegroundMasks::Arena3v3)
+                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_Group->m_WantedBGs & BattlegroundMasks::Arena3v3)
                         return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena5v5 && l_BattlegroundMask & BattlegroundMasks::Arena5v5)
+                    if (p_Group->m_ArenaType == ArenaType::Arena5v5 && p_Group->m_WantedBGs & BattlegroundMasks::Arena5v5)
                         return true;
                 }
 
