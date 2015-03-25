@@ -2629,6 +2629,31 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         return;
     }
 
+    if (reqSkillValue == 0)
+    {
+        switch (skillId)
+        {
+            case SKILL_BLACKSMITHING:
+            case SKILL_LEATHERWORKING:
+            case SKILL_ALCHEMY:
+            case SKILL_HERBALISM:
+            case SKILL_COOKING:
+            case SKILL_MINING:
+            case SKILL_TAILORING:
+            case SKILL_ENGINEERING:
+            case SKILL_ENCHANTING:
+            case SKILL_SKINNING:
+            case SKILL_JEWELCRAFTING:
+            case SKILL_RUNEFORGING:
+            case SKILL_ARCHAEOLOGY:
+                reqSkillValue = skillValue;
+                break;
+
+            default:
+                break;
+        }
+    }
+
     if (gameObjTarget)
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
