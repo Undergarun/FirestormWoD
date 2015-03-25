@@ -14380,8 +14380,7 @@ InventoryResult Player::CanReagentBankItem(uint8 bag, uint8 slot, ItemPosCountVe
     if (!pProto)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
 
-
-    if (!IsItemSupplies(pProto))
+    if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_CRAFTING_REAGENT) == 0)
         return EQUIP_ERR_WRONG_SLOT;
 
     if (pItem->IsBindedNotWith(this))
