@@ -86,7 +86,8 @@ enum DeathKnightSpells
     DK_SPELL_EMPOWERED_OBLITERATE               = 157409,
     DK_SPELL_FREEZING_FOG_AURA                  = 59052,
     DK_SPELL_ENHANCED_DEATH_COIL                = 157343,
-    DK_SPELL_SHADOW_OF_DEATH                    = 164047
+    DK_SPELL_SHADOW_OF_DEATH                    = 164047,
+    DK_SPELL_DEATH_COIL                         = 47541
 };
 
 enum DeathKnightPresence
@@ -2239,7 +2240,53 @@ class spell_dk_mark_of_sindragosa : public SpellScriptLoader
         }
 };
 
-//Death Coil - 47541
+enum DeathCoilSpells
+{
+    SpellGlyphOfDeathsEmbrace = 58679
+};
+
+/// 58677 - Glyph of Death's Embrace
+class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_deaths_embrace() : SpellScriptLoader("spell_dk_glyph_of_deaths_embrace") { }
+
+        class spell_dk_glyph_of_deaths_embrace_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_deaths_embrace_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+
+                if (l_Target->IsHostileTo(l_Caster))
+                    return;
+
+
+                if (l_Target->GetOwner() && l_Target->isGuardian() && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_DEATH_COIL)
+                    l_Caster->CastSpell(l_Caster, DeathCoilSpells::SpellGlyphOfDeathsEmbrace, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_deaths_embrace_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_deaths_embrace_AuraScript();
+        }
+};
+
+/// Death Coil - 47541
 class spell_dk_death_coil : public SpellScriptLoader
 {
     public:
@@ -2615,6 +2662,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();
     new spell_dk_improved_death_grip();
+    new spell_dk_glyph_of_deaths_embrace();
 
     /// Player script
     new PlayerScript_Blood_Tap();
