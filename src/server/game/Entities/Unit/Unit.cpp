@@ -9814,26 +9814,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Will of the Necropolis
-        case 81164:
-        {
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (GetHealthPct() >= 30.0f)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(81164))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(81164, 0, 45 * IN_MILLISECONDS);
-
-            // Rune Tap
-            if (ToPlayer()->HasSpellCooldown(48982))
-                ToPlayer()->RemoveSpellCooldown(48982, true);
-
-            break;
-        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:

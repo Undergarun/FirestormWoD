@@ -2165,6 +2165,55 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
         }
 };
 
+/// Will of the Necropolis - 81164
+class spell_dk_will_of_the_necropolis : public SpellScriptLoader
+{
+    public:
+        spell_dk_will_of_the_necropolis() : SpellScriptLoader("spell_dk_will_of_the_necropolis") { }
+
+        class spell_dk_will_of_the_necropolis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
+
+            enum eSpell
+            {
+                TimerAura   = 157335, ///< 30s
+                RuneTap     = 171049
+            };
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpell::TimerAura))
+                    return;
+
+                if (!l_Caster->HealthBelowPctDamaged(GetSpellInfo()->Effects[EFFECT_0].BasePoints, p_EventInfo.GetDamageInfo()->GetDamage()))
+                    return;
+
+                /// This effect cannot occur more than once every 30 sec.
+                l_Caster->CastSpell(l_Caster, eSpell::TimerAura, true);
+
+                l_Caster->CastSpell(l_Caster, eSpell::RuneTap, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_will_of_the_necropolis_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_will_of_the_necropolis_AuraScript();
+        }
+};
+
 /// Dark Succor - 178819
 class spell_dk_dark_succor : public SpellScriptLoader
 {
@@ -2663,6 +2712,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_the_skeleton();
     new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
+    new spell_dk_will_of_the_necropolis();
 
     /// Player script
     new PlayerScript_Blood_Tap();
