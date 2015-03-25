@@ -4974,6 +4974,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90259: ///< Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
+                spellInfo->Effects[1].BasePoints = -70;
                 break;
             case 49821: ///< Mind Sear
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CHANNEL_TARGET;
