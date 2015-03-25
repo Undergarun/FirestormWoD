@@ -574,11 +574,11 @@ class player_draenor_profession : public PlayerScript
         {
             for (auto l_Pair : m_SpellPerProfessions)
             {
-                if (p_Player->HasSkill(l_Pair.first))
+                if (p_Player->HasSpell(l_Pair.first))
                 {
                     for (auto l_SpellID : l_Pair.second)
                     {
-                        if (!p_Player->HasSpell(l_SpellID));
+                        if (!p_Player->HasSpell(l_SpellID))
                             p_Player->learnSpell(l_SpellID, false);
                     }
                 }
