@@ -37,6 +37,10 @@ class instance_highmaul : public InstanceMapScript
                 m_GateArenaInnerGuid        = 0;
                 m_CrowdAreatriggerGuid      = 0;
                 m_MargokCosmeticGuid        = 0;
+
+                for (uint8 l_I = eHighmaulDatas::RaidGrate001; l_I < eHighmaulDatas::MaxRaidGrates; ++l_I)
+                    m_RaidGrateGuids[l_I]   = 0;
+
                 m_TheButcherGuid            = 0;
                 m_BrackensporeGuid          = 0;
             }
@@ -52,6 +56,7 @@ class instance_highmaul : public InstanceMapScript
             uint64 m_GateArenaInnerGuid;
             uint64 m_CrowdAreatriggerGuid;
             uint64 m_MargokCosmeticGuid;
+            uint64 m_RaidGrateGuids[4];
 
             /// The Underbelly
             uint64 m_TheButcherGuid;
@@ -121,6 +126,18 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::GateArenaInner:
                         m_GateArenaInnerGuid = p_GameObject->GetGUID();
                         break;
+                    case eHighmaulGameobjects::RaidGrate1:
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate001] = p_GameObject->GetGUID();
+                        break;
+                    case eHighmaulGameobjects::RaidGrate2:
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate002] = p_GameObject->GetGUID();
+                        break;
+                    case eHighmaulGameobjects::RaidGrate3:
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate003] = p_GameObject->GetGUID();
+                        break;
+                    case eHighmaulGameobjects::RaidGrate4:
+                        m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = p_GameObject->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -183,6 +200,14 @@ class instance_highmaul : public InstanceMapScript
                         return m_TheButcherGuid;
                     case eHighmaulCreatures::Brackenspore:
                         return m_BrackensporeGuid;
+                    case eHighmaulGameobjects::RaidGrate1:
+                        return m_RaidGrateGuids[eHighmaulDatas::RaidGrate001];
+                    case eHighmaulGameobjects::RaidGrate2:
+                        return m_RaidGrateGuids[eHighmaulDatas::RaidGrate002];
+                    case eHighmaulGameobjects::RaidGrate3:
+                        return m_RaidGrateGuids[eHighmaulDatas::RaidGrate003];
+                    case eHighmaulGameobjects::RaidGrate4:
+                        return m_RaidGrateGuids[eHighmaulDatas::RaidGrate004];
                     default:
                         break;
                 }
@@ -202,6 +227,14 @@ class instance_highmaul : public InstanceMapScript
                 }*/
 
                 return true;
+            }
+
+            void FillInitialWorldStates(ByteBuffer& p_Buffer) override
+            {
+                p_Buffer << uint32(eHighmaulWorldStates::IronBomberEnable) << uint32(0);
+                p_Buffer << uint32(eHighmaulWorldStates::IronBomberRemaining) << uint32(0);
+                p_Buffer << uint32(eHighmaulWorldStates::DrunkenBileslingerEnable) << uint32(0);
+                p_Buffer << uint32(eHighmaulWorldStates::DrunkenBileslingerRemaining) << uint32(0);
             }
         };
 

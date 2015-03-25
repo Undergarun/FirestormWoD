@@ -53,7 +53,6 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                     p_Player->NearTeleportTo(g_TeleportPos);
                 else
                 {
-                    
                     me->GetMotionMaster()->MovePoint(eMove::MoveSecondPos, g_GhargSecondPos);
                     m_Instance->SetData(eHighmaulDatas::ElevatorActivated, true);
                 }
@@ -110,6 +109,11 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
             StartIntro
         };
 
+        enum eSpell
+        {
+            ElevatorSoundTrigger = 166694
+        };
+
         struct npc_highmaul_areatrigger_for_crowdAI : public ScriptedAI
         {
             npc_highmaul_areatrigger_for_crowdAI(Creature* p_Creature) : ScriptedAI(p_Creature)
@@ -140,6 +144,8 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
                     if (Player* l_Player = me->FindNearestPlayer(10.0f))
                     {
                         m_IntroStarted = true;
+
+                        me->CastSpell(me, eSpell::ElevatorSoundTrigger, true);
 
                         if (Creature* l_Jhorn = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::JhornTheMad)))
                             l_Jhorn->AI()->DoAction(eAction::StartIntro);

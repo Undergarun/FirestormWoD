@@ -3355,6 +3355,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162304:///< Earth Breaker (Summon - Vul'gor)
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            case 159113:///< Impale (Kargath)
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
             case 159265:///< Blade Dance (charge visual - Kargath)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
@@ -3952,6 +3955,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
             case 161635:///< Molten Bomb
+            case 159311:///< Flame Jet
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
@@ -4133,6 +4137,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 153907: ///< Dervish (Skyreach)
             case 156841: ///< Storm (Skyreach)
             case 72293:  ///< Mark of the Fallen Champion (Deathbringer Saurfang)
+            case 159178: ///< Open Wounds (Kargath Bladefist)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 116711: ///< Draw Flame

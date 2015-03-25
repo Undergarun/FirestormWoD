@@ -46,7 +46,8 @@ class boss_kargath_bladefist : public CreatureScript
         enum eActions
         {
             VulgorDied = 2,
-            KargathLastTalk
+            KargathLastTalk,
+            InterruptByPillar
         };
 
         enum eMoves
@@ -71,27 +72,39 @@ class boss_kargath_bladefist : public CreatureScript
             /// Cosmetic
             BladeFistAmputation     = 167593,
             PlayChogallScene        = 178333,
+            KargathDiesCrowdSound   = 166861,
+            KargathChantingSound    = 168278,
 
             /// Fight
             /// Impale
             SpellImpale             = 159113,
+            SpellImpaleMorph        = 160728,
             /// Blade Dance
             SpellBladeDance         = 159250,
             SpellBladeDanceHit      = 159212,
-            SpellBladeDanceMorph    = 159214,
-            SpellBladeDanceFadeOut  = 159209,
-            SpellBladeDanceCharge   = 159265
+            SpellBladeDanceCharge   = 159265,
+            /// Fire Pillars
+            FirePillarTargetSelect  = 159705,
+            FirePillarSelector      = 159712,
+            TriggerCosmeticAura     = 160519,   ///< Fire aura when breaked by Fire Pillar
+
+            SpellBerserker          = 26662
         };
 
         enum eEvents
         {
             EventImpale = 1,
-            EventBladeDance
+            EventBladeDance,
+            EventOpenGrates,
+            EventBerserkerRush,
+            EventChainHurl,
+            EventBerserker
         };
 
         enum eCreatures
         {
-            KargathBladefist    = 78846 ///< Used for Blade Dance
+            KargathBladefist    = 78846,    ///< Used for Blade Dance
+            ChainHurlVehicle    = 79134
         };
 
         struct boss_kargath_bladefistAI : public BossAI
@@ -115,6 +128,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 me->RemoveAura(eSpells::BladeFistAmputation);
                 me->RemoveAura(eSpells::PlayChogallScene);
+                me->RemoveAura(eSpells::FirePillarTargetSelect);
 
                 me->SetDisplayId(eDatas::MorphWithWeapon);
             }
@@ -133,6 +147,12 @@ class boss_kargath_bladefist : public CreatureScript
 
                 m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
                 m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
+                m_Events.ScheduleEvent(eEvents::EventOpenGrates, 4000);
+                m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 48000);
+                m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
+                m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
+
+                me->CastSpell(me, eSpells::FirePillarTargetSelect, true);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -142,6 +162,8 @@ class boss_kargath_bladefist : public CreatureScript
                 Talk(eTalks::Death);
 
                 me->CastSpell(me, eSpells::BladeFistAmputation, true);
+                me->CastSpell(me, eSpells::KargathDiesCrowdSound, true);
+
                 me->SetDisplayId(eDatas::MorphAmputation);
             }
 
@@ -169,6 +191,10 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eActions::KargathLastTalk:
                         Talk(eTalks::Intro2);
+                        break;
+                    case eActions::InterruptByPillar:
+                        Talk(eTalks::FlamePillar);
+                        me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
                         break;
                     default:
                         break;
@@ -205,19 +231,20 @@ class boss_kargath_bladefist : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::SpellImpale:
-                        p_Target->EnterVehicle(me);
+                    {
+                        if (m_Vehicle == nullptr)
+                            break;
+
+                        p_Target->EnterVehicle(me, 0, true);
                         break;
+                    }
                     case eSpells::SpellBladeDanceHit:
                     {
                         Position l_Pos;
                         p_Target->GetPosition(&l_Pos);
 
                         if (Creature* l_Trigger = me->SummonCreature(eCreatures::KargathBladefist, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 5000))
-                        {
                             me->CastSpell(l_Trigger, eSpells::SpellBladeDanceCharge, true);
-                            l_Trigger->CastSpell(l_Trigger, eSpells::SpellBladeDanceMorph, true);
-                            l_Trigger->CastSpell(l_Trigger, eSpells::SpellBladeDanceFadeOut, true);
-                        }
 
                         break;
                     }
@@ -239,6 +266,8 @@ class boss_kargath_bladefist : public CreatureScript
                         Position l_Pos;
                         me->GetPosition(&l_Pos);
                         me->SetHomePosition(l_Pos);
+
+                        me->CastSpell(me, eSpells::KargathChantingSound, true);
                         break;
                     }
                     default:
@@ -262,13 +291,45 @@ class boss_kargath_bladefist : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::SpellImpale, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventImpale, 44000);
+                        me->CastSpell(me, eSpells::SpellImpaleMorph, true);
+                        m_Events.ScheduleEvent(eEvents::EventImpale, 43500);
                         break;
                     }
                     case eEvents::EventBladeDance:
                     {
                         me->CastSpell(me, eSpells::SpellBladeDance, true);
                         m_Events.ScheduleEvent(eEvents::EventBladeDance, 23000);
+                        break;
+                    }
+                    case eEvents::EventOpenGrates:
+                    {
+                        if (m_Instance == nullptr)
+                            break;
+
+                        for (uint8 l_I = eHighmaulDatas::RaidGrate001; l_I < eHighmaulDatas::MaxRaidGrates; ++l_I)
+                        {
+                            if (GameObject* l_RaidGrate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::RaidGrate1 + l_I)))
+                                l_RaidGrate->SetGoState(GOState::GO_STATE_ACTIVE);
+                        }
+
+                        break;
+                    }
+                    case eEvents::EventBerserkerRush:
+                    {
+                        Talk(eTalks::BerserkerRush);
+                        m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 55000);
+                        break;
+                    }
+                    case eEvents::EventChainHurl:
+                    {
+                        Talk(eTalks::ChainHurl);
+                        m_Events.ScheduleEvent(eEvents::EventChainHurl, 106000);
+                        break;
+                    }
+                    case eEvents::EventBerserker:
+                    {
+                        me->CastSpell(me, eSpells::SpellBerserker, true);
+                        Talk(eTalks::Berserk);
                         break;
                     }
                     default:
@@ -314,13 +375,17 @@ class npc_highmaul_vulgor : public CreatureScript
         {
             SpellCleave         = 161712,
             SpellEarthBreaker   = 162271,
-            EarthBreakerSearch  = 163933
+            EarthBreakerSearch  = 163933,
+            SpellEyeOfTheTiger  = 161716,
+
+            VulgorDieCrowdSound = 166860
         };
 
         enum eEvents
         {
             EventCleave = 1,
-            EventEarthBreaker
+            EventEarthBreaker,
+            EventEyeOfTheTiger
         };
 
         struct npc_highmaul_vulgorAI : public ScriptedAI
@@ -361,8 +426,7 @@ class npc_highmaul_vulgor : public CreatureScript
                     l_SecondSorcerer->GetMotionMaster()->MoveTargetedHome();
                 }
 
-                m_Events.ScheduleEvent(eEvents::EventCleave, 5000);
-                m_Events.ScheduleEvent(eEvents::EventEarthBreaker, 8000);
+                m_Events.Reset();
 
                 summons.DespawnAll();
             }
@@ -370,6 +434,10 @@ class npc_highmaul_vulgor : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 Talk(eTalks::Aggro);
+
+                m_Events.ScheduleEvent(eEvents::EventCleave, 5000);
+                m_Events.ScheduleEvent(eEvents::EventEarthBreaker, 8000);
+                m_Events.ScheduleEvent(eEvents::EventEyeOfTheTiger, 18000);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -468,6 +536,8 @@ class npc_highmaul_vulgor : public CreatureScript
             void JustReachedHome() override
             {
                 me->GetMotionMaster()->MovePoint(0, g_VulgorMovePos);
+
+                m_IntroContinued = false;
             }
 
             void JustDied(Unit* p_Killer) override
@@ -485,6 +555,8 @@ class npc_highmaul_vulgor : public CreatureScript
                     if (Creature* l_MargokCosmetic = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::MargokCosmetic)))
                         l_MargokCosmetic->AI()->DoAction(eActions::VulgorDied);
                 }
+
+                me->CastSpell(me, eSpells::VulgorDieCrowdSound, true);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -507,6 +579,10 @@ class npc_highmaul_vulgor : public CreatureScript
                     case eEvents::EventEarthBreaker:
                         me->CastSpell(me, eSpells::EarthBreakerSearch, true);
                         m_Events.ScheduleEvent(eEvents::EventEarthBreaker, 15000);
+                        break;
+                    case eEvents::EventEyeOfTheTiger:
+                        me->CastSpell(me, eSpells::SpellEyeOfTheTiger, true);
+                        m_Events.ScheduleEvent(eEvents::EventEyeOfTheTiger, 30000);
                         break;
                     default:
                         break;
@@ -735,14 +811,53 @@ class npc_highmaul_fire_pillar : public CreatureScript
     public:
         npc_highmaul_fire_pillar() : CreatureScript("npc_highmaul_fire_pillar") { }
 
-        struct npc_highmaul_fire_pillarAI : public ScriptedAI
+        enum eSpells
         {
-            npc_highmaul_fire_pillarAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            FirePillarSelector      = 159712,
+            FirePillarActivated     = 159706,
+            FirePillarKnockback     = 158994,
+            FirePillarSteamTimer    = 163967,
+
+            FlameJet                = 159202,   ///< AreaTrigger
+            KargathTrigger          = 159070,
+            KargathTrigger2         = 159073
+        };
+
+        struct npc_highmaul_fire_pillarAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_fire_pillarAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
 
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_LOOTING | eUnitFlags::UNIT_FLAG_TAXI_FLIGHT);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT | eUnitFlags::UNIT_FLAG_PLAYER_CONTROLLED);
+            }
+
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Caster == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::FirePillarSelector:
+                        me->CastSpell(me, eSpells::FirePillarSteamTimer, true);
+                        me->CastSpell(me, eSpells::FirePillarActivated, true);
+                        me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
+
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::FlameJet, true); });
+
+                        me->GetMotionMaster()->MoveCharge(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 4.0f);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
@@ -758,14 +873,47 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
     public:
         npc_highmaul_ravenous_bloodmaw() : CreatureScript("npc_highmaul_ravenous_bloodmaw") { }
 
+        enum eSpell
+        {
+            Generic1HMeleeInstakill = 162445
+        };
+
         struct npc_highmaul_ravenous_bloodmawAI : public ScriptedAI
         {
             npc_highmaul_ravenous_bloodmawAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            uint32 m_CheckPlayer;
 
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+                m_CheckPlayer = 1000;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!m_CheckPlayer)
+                    return;
+
+                if (m_CheckPlayer <= p_Diff)
+                {
+                    std::list<Player*> l_PlrList;
+                    me->GetPlayerListInGrid(l_PlrList, 2.0f);
+
+                    for (Player* l_Player : l_PlrList)
+                    {
+                        if (!l_Player->isAlive())
+                            continue;
+
+                        me->CastSpell(l_Player, eSpell::Generic1HMeleeInstakill, true);
+                    }
+
+                    m_CheckPlayer = 1000;
+                }
+                else
+                    m_CheckPlayer -= p_Diff;
             }
         };
 
@@ -783,8 +931,14 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
 
         enum eSpells
         {
-            BladeDanceDmg       = 159217,
-            BladeDanceCharge    = 159265
+            BladeDanceDmg           = 159217,
+            BladeDanceCharge        = 159265,
+            SpellBladeDanceFadeOut  = 159209
+        };
+
+        enum eData
+        {
+            MorphWithWeapon = 54674
         };
 
         struct npc_highmaul_kargath_bladefist_triggerAI : public ScriptedAI
@@ -794,7 +948,7 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
@@ -804,8 +958,11 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
 
                 if (p_SpellInfo->Id == eSpells::BladeDanceCharge)
                 {
-                    p_Caster->CastSpell(me, eSpells::BladeDanceDmg, true);
+                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
+                    me->SetDisplayId(eData::MorphWithWeapon);
                     me->CastSpell(p_Caster, eSpells::BladeDanceCharge, true);
+                    me->CastSpell(me, eSpells::SpellBladeDanceFadeOut, true);
+                    me->DespawnOrUnsummon(1500);
                 }
             }
         };
@@ -893,14 +1050,27 @@ class spell_highmaul_impale : public SpellScriptLoader
     public:
         spell_highmaul_impale() : SpellScriptLoader("spell_highmaul_impale") { }
 
+        enum eSpell
+        {
+            OpenWounds = 159178
+        };
+
         class spell_highmaul_impale_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_highmaul_impale_AuraScript);
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
             {
-                if (Unit* l_Target = GetTarget())
-                    l_Target->ExitVehicle();
+                Unit* l_Target = GetTarget();
+                Unit* l_Caster = GetCaster();
+                if (l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    l_Caster->CastSpell(l_Target, eSpell::OpenWounds, true);
+
+                l_Target->ExitVehicle();
             }
 
             void Register() override
@@ -912,6 +1082,77 @@ class spell_highmaul_impale : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_impale_AuraScript();
+        }
+};
+
+/// Fire Pillar Steam Timer - 163967
+class spell_highmaul_fire_pillar_steam_timer : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_fire_pillar_steam_timer() : SpellScriptLoader("spell_highmaul_fire_pillar_steam_timer") { }
+
+        enum eSpell
+        {
+            FirePillarSteamCosmetic = 163970
+        };
+
+        class spell_highmaul_fire_pillar_steam_timer_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_fire_pillar_steam_timer_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->CastSpell(l_Target, eSpell::FirePillarSteamCosmetic, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_fire_pillar_steam_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_fire_pillar_steam_timer_AuraScript();
+        }
+};
+
+/// Fire Pillar Activated - 159706
+class spell_highmaul_fire_pillar_activated : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_fire_pillar_activated() : SpellScriptLoader("spell_highmaul_fire_pillar_activated") { }
+
+        class spell_highmaul_fire_pillar_activated_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_fire_pillar_activated_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
+                    return;
+
+                /// Deactivate Pillar
+                l_Target->RemoveAllAreasTrigger();
+                l_Target->GetMotionMaster()->MoveCharge(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ() - 4.0f);
+                l_Target->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
+                l_Target->RemoveAllAuras();
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_fire_pillar_activated_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_fire_pillar_activated_AuraScript();
         }
 };
 
@@ -948,6 +1189,39 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
         }
 };
 
+/// Flame Jet - 159202
+class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_flame_jet() : AreaTriggerEntityScript("areatrigger_highmaul_flame_jet") { }
+
+        enum eSpell
+        {
+            FlameJet = 159311
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 6.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eSpell::FlameJet, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_flame_jet();
+        }
+};
+
 void AddSC_boss_kargath_bladefist()
 {
     /// Boss
@@ -964,7 +1238,10 @@ void AddSC_boss_kargath_bladefist()
     /// Spells
     new spell_highmaul_earth_breaker();
     new spell_highmaul_impale();
+    new spell_highmaul_fire_pillar_steam_timer();
+    new spell_highmaul_fire_pillar_activated();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();
+    new areatrigger_highmaul_flame_jet();
 }

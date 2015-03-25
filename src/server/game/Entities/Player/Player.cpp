@@ -12341,6 +12341,23 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 l_Buffer << uint32(9524) << uint32(0);              // WorldStateChickenTimer
                 l_Buffer << uint32(9523) << uint32(0);              // WorldStateEnableChicken
             }
+
+            break;
+        }
+        /// Highmaul
+        case 6996:
+        {
+            if (instance && mapid == 1228)
+                instance->FillInitialWorldStates(l_Buffer);
+            else
+            {
+                l_Buffer << uint32(9722) << uint32(0); /// Iron Bombers - activation
+                l_Buffer << uint32(9723) << uint32(0); /// Iron Bombers remaining
+                l_Buffer << uint32(9724) << uint32(0); /// Drunken Bileslinger - activation
+                l_Buffer << uint32(9725) << uint32(0); /// Drunken Bileslinger remaining
+            }
+
+            break;
         }
         default:
             l_Buffer << uint32(0x914) << uint32(0x0);           // 7

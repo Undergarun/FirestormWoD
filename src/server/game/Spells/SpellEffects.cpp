@@ -356,9 +356,9 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
+void Spell::EffectInstaKill(SpellEffIndex /*p_EffIndex*/)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
     if (!unitTarget || (!unitTarget->isAlive() && m_spellInfo->Id != 108503))
@@ -366,24 +366,27 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
 
     if (m_spellInfo->Id == 108503 && (!unitTarget->GetHealth() || !unitTarget->isAlive()))
     {
-        unitTarget->ToPet()->Remove(PET_SLOT_ACTUAL_PET_SLOT, false, unitTarget->ToPet()->m_Stampeded);
+        unitTarget->ToPet()->Remove(PetSlot::PET_SLOT_ACTUAL_PET_SLOT, false, unitTarget->ToPet()->m_Stampeded);
         return;
     }
 
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        if (unitTarget->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+    if (unitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
+    {
+        if (unitTarget->ToPlayer()->GetCommandStatus(PlayerCommandStates::CHEAT_GOD))
             return;
+    }
 
-    if (m_caster == unitTarget)                              // prevent interrupt message
+    /// Prevent interrupt message
+    if (m_caster == unitTarget)
         finish();
 
-    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8 + 8 + 4);
-    data << uint64(m_caster->GetGUID());
-    data << uint64(unitTarget->GetGUID());
-    data << uint32(m_spellInfo->Id);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPacket l_Data(Opcodes::SMSG_SPELL_INSTAKILL_LOG, 8 + 8 + 4);
+    l_Data.appendPackGUID(unitTarget->GetGUID());
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    m_caster->SendMessageToSet(&l_Data, true);
 
-    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), nullptr, DamageEffectType::NODAMAGE, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 }
 
 void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)

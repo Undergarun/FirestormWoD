@@ -20,6 +20,7 @@
 
 enum eHighmaulDatas
 {
+    /// Bosses
     BossKargathBladefist,
     BossTheButcher,
     BossBrackenspore,
@@ -29,7 +30,15 @@ enum eHighmaulDatas
     BossImperatorMargok,
     MaxHighmaulBosses,
 
-    ElevatorActivated   = 0
+    /// Instance datas
+    ElevatorActivated   = 0,
+
+    /// Misc values
+    RaidGrate001        = 0,
+    RaidGrate002,
+    RaidGrate003,
+    RaidGrate004,
+    MaxRaidGrates
 };
 
 enum eHighmaulCreatures
@@ -60,7 +69,21 @@ enum eHighmaulGameobjects
     EarthenPillar   = 239110,
     /// Brackenspore's Doors
     FungalGiantDoor = 239124,
-    WindDoor        = 236703
+    WindDoor        = 236703,
+
+    /// Kargath Bladefist
+    RaidGrate1      = 232368,
+    RaidGrate2      = 232369,
+    RaidGrate3      = 232370,
+    RaidGrate4      = 232371
+};
+
+enum eHighmaulWorldStates
+{
+    IronBomberEnable            = 9722,
+    IronBomberRemaining         = 9723,
+    DrunkenBileslingerEnable    = 9724,
+    DrunkenBileslingerRemaining = 9725
 };
 
 #endif

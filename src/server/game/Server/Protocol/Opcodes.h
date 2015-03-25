@@ -800,7 +800,7 @@ enum Opcodes
         SMSG_SPELL_EXECUTE_LOG                      = 0x1823,   ///< 6.0.3 19116
         SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x11FB,   ///< 6.0.3 19116
         SMSG_SPELL_HEAL_LOG                         = 0x0114,   ///< 6.0.3 19116
-        SMSG_SPELL_INSTAKILL_LOG                    = 0x0000,
+        SMSG_SPELL_INSTAKILL_LOG                    = 0x1164,   ///< 6.0.3 19116
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
         SMSG_SPELL_MISS_LOG                         = 0x0000,
         SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x0AAB,   ///< 6.0.3 19116
