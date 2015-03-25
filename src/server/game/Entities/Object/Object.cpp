@@ -1943,6 +1943,17 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     return distsq < maxdist * maxdist;
 }
 
+float WorldObject::GetObjectSize() const
+{
+    if (GetTypeId() == TYPEID_GAMEOBJECT)
+    {
+        if (auto l_GameObjectTemplate = ToGameObject()->GetGOInfo())
+            return l_GameObjectTemplate->size;
+    }
+
+    return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
+}
+
 bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
 {
     float dx = GetPositionX() - x;

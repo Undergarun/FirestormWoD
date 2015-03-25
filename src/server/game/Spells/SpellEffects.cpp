@@ -2632,6 +2632,31 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         return;
     }
 
+    if (reqSkillValue == 0)
+    {
+        switch (skillId)
+        {
+            case SKILL_BLACKSMITHING:
+            case SKILL_LEATHERWORKING:
+            case SKILL_ALCHEMY:
+            case SKILL_HERBALISM:
+            case SKILL_COOKING:
+            case SKILL_MINING:
+            case SKILL_TAILORING:
+            case SKILL_ENGINEERING:
+            case SKILL_ENCHANTING:
+            case SKILL_SKINNING:
+            case SKILL_JEWELCRAFTING:
+            case SKILL_RUNEFORGING:
+            case SKILL_ARCHAEOLOGY:
+                reqSkillValue = skillValue;
+                break;
+
+            default:
+                break;
+        }
+    }
+
     if (gameObjTarget)
         SendLoot(guid, LOOT_SKINNING);
     else if (itemTarget)
@@ -2809,98 +2834,98 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-    case 124927:// Call Dog
-        if (m_originalCaster->ToPlayer())
-            m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
-        break;
-    case 123040:// Mindbender
-        // Glyph of the Sha
-        if (m_originalCaster->HasAura(147776))
-        {
-            entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
-
-            SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
-            if (newProperties)
-                properties = newProperties;
-        }
-
-        ((SummonPropertiesEntry*)properties)->Flags |= 0x200; // Controllable guardian ?
-        ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
-        ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
-        break;
-    case 113890:// Demonic Gateway : Remove old summon when cast an other gate
-    case 113886:// Demonic Gateway : Remove old summon when cast an other gate
-        if (m_spellInfo->Id == 113890)
-        {
-            std::list<Creature*> tempList;
-            std::list<Creature*> gatewayList;
-
-            m_caster->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
-
-            if (!tempList.empty())
+        case 124927:// Call Dog
+            if (m_originalCaster->ToPlayer())
+                m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
+            break;
+        case 123040:// Mindbender
+            // Glyph of the Sha
+            if (m_originalCaster->HasAura(147776))
             {
-                for (auto itr : tempList)
-                    gatewayList.push_back(itr);
+                entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
 
-                // Remove other players mushrooms
-                for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                {
-                    Unit* owner = (*i)->GetOwner();
-                    if (owner && owner == m_caster && (*i)->isSummon())
-                        continue;
-
-                    gatewayList.remove((*i));
-                }
-
-                // 1 gateway max
-                if ((int32)gatewayList.size() >= 1)
-                    gatewayList.back()->ToTempSummon()->UnSummon();
+                SummonPropertiesEntry const* newProperties = sSummonPropertiesStore.LookupEntry(sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValueB);
+                if (newProperties)
+                    properties = newProperties;
             }
-        }
-        else
-        {
-            std::list<Creature*> tempList;
-            std::list<Creature*> gatewayList;
 
-            m_caster->GetCreatureListWithEntryInGrid(tempList, 59262, 500.0f);
-
-            if (!tempList.empty())
+            ((SummonPropertiesEntry*)properties)->Flags |= 0x200; // Controllable guardian ?
+            ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
+            ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
+            break;
+        case 113890:// Demonic Gateway : Remove old summon when cast an other gate
+        case 113886:// Demonic Gateway : Remove old summon when cast an other gate
+            if (m_spellInfo->Id == 113890)
             {
-                for (auto itr : tempList)
-                    gatewayList.push_back(itr);
+                std::list<Creature*> tempList;
+                std::list<Creature*> gatewayList;
 
-                // Remove other players mushrooms
-                for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                m_caster->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
+
+                if (!tempList.empty())
                 {
-                    Unit* owner = (*i)->GetOwner();
-                    if (owner && owner == m_caster && (*i)->isSummon())
-                        continue;
+                    for (auto itr : tempList)
+                        gatewayList.push_back(itr);
 
-                    gatewayList.remove((*i));
-                }
+                    // Remove other players mushrooms
+                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                    {
+                        Unit* owner = (*i)->GetOwner();
+                        if (owner && owner == m_caster && (*i)->isSummon())
+                            continue;
 
-                // 1 gateway max
-                if ((int32)gatewayList.size() >= 1)
-                    gatewayList.back()->ToTempSummon()->UnSummon();
-            }
-        }
-        break;
-    case 33663:
-    case 117663:
-        if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
-        {
-            if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
-            {
-                if (m_originalCaster->GetOwner()->HasAura(117013))
-                {
-                    m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
-                    return;
+                        gatewayList.remove((*i));
+                    }
+
+                    // 1 gateway max
+                    if ((int32)gatewayList.size() >= 1)
+                        gatewayList.back()->ToTempSummon()->UnSummon();
                 }
             }
-        }
-        break;
-    default:
-        break;
+            else
+            {
+                std::list<Creature*> tempList;
+                std::list<Creature*> gatewayList;
+
+                m_caster->GetCreatureListWithEntryInGrid(tempList, 59262, 500.0f);
+
+                if (!tempList.empty())
+                {
+                    for (auto itr : tempList)
+                        gatewayList.push_back(itr);
+
+                    // Remove other players mushrooms
+                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+                    {
+                        Unit* owner = (*i)->GetOwner();
+                        if (owner && owner == m_caster && (*i)->isSummon())
+                            continue;
+
+                        gatewayList.remove((*i));
+                    }
+
+                    // 1 gateway max
+                    if ((int32)gatewayList.size() >= 1)
+                        gatewayList.back()->ToTempSummon()->UnSummon();
+                }
+            }
+            break;
+        case 33663:
+        case 117663:
+            if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
+            {
+                if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
+                {
+                    if (m_originalCaster->GetOwner()->HasAura(117013))
+                    {
+                        m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
+                        return;
+                    }
+                }
+            }
+            break;
+        default:
+            break;
     }
 
     int32 duration = m_spellInfo->GetDuration();
@@ -2923,178 +2948,178 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     // so here's a list of MiscValueB values, which is currently most generic check
     switch (properties->Id)
     {
-    case 61:
-    case 64:
-    case 66:
-    case 181:
-    case 629:
-    case 648:
-    case 715:
-    case 833:
-    case 2301:
-    case 1061:
-    case 1101:
-    case 1161:
-    case 1261:
-    case 1562:
-    case 2929: // Summon Unbound Flamesparks, Flameseer's Staff
-    case 3097:// Force of Nature
-    case 3245:
-        numSummons = (damage > 0) ? damage : 1;
-        break;
-    default:
-        numSummons = 1;
-        break;
+        case 61:
+        case 64:
+        case 66:
+        case 181:
+        case 629:
+        case 648:
+        case 715:
+        case 833:
+        case 2301:
+        case 1061:
+        case 1101:
+        case 1161:
+        case 1261:
+        case 1562:
+        case 2929: // Summon Unbound Flamesparks, Flameseer's Staff
+        case 3097:// Force of Nature
+        case 3245:
+            numSummons = (damage > 0) ? damage : 1;
+            break;
+        default:
+            numSummons = 1;
+            break;
     }
 
     switch (properties->Category)
     {
-    case SUMMON_CATEGORY_WILD:
-    case SUMMON_CATEGORY_ALLY:
-    case SUMMON_CATEGORY_UNK:
-        if ((properties->Flags & 512) || m_spellInfo->Id == 114192 || m_spellInfo->Id == 114203 || m_spellInfo->Id == 114207)
-        {
-            SummonGuardian(effIndex, entry, properties, numSummons);
-            break;
-        }
-        switch (properties->Type)
-        {
-        case SUMMON_TYPE_PET:
-        case SUMMON_TYPE_GUARDIAN:
-        case SUMMON_TYPE_GUARDIAN2:
-        case SUMMON_TYPE_MINION:
-            SummonGuardian(effIndex, entry, properties, numSummons);
-            break;
-            // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
-        case SUMMON_TYPE_VEHICLE:
-        case SUMMON_TYPE_VEHICLE2:
-            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
-            break;
-        case SUMMON_TYPE_TOTEM:
-        {
-            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
-            if (!summon || !summon->isTotem())
-                return;
-
-            // Mana Tide Totem
-            if (m_spellInfo->Id == 16190)
-                damage = m_caster->CountPctFromMaxHealth(10);
-
-            if (damage)                                            // if not spell info, DB values used
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if ((properties->Flags & 512) || m_spellInfo->Id == 114192 || m_spellInfo->Id == 114203 || m_spellInfo->Id == 114207)
             {
-                summon->SetMaxHealth(damage);
-                summon->SetHealth(damage);
+                SummonGuardian(effIndex, entry, properties, numSummons);
+                break;
             }
-            break;
-        }
-        case SUMMON_TYPE_MINIPET:
-        {
-            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
-            if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
-                return;
-
-            summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
-            summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->NpcFlags1);
-            summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, summon->GetCreatureTemplate()->NpcFlags2);
-
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-
-            summon->AI()->EnterEvadeMode();
-            break;
-        }
-        default:
-        {
-            float radius = m_spellInfo->Effects[effIndex].CalcRadius();
-
-            TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
-
-            for (uint32 count = 0; count < numSummons; ++count)
+            switch (properties->Type)
             {
-                Position pos;
-                if (count == 0)
-                    pos = *destTarget;
-                else
-                    // randomize position for multiple summons
-                    m_caster->GetRandomPoint(*destTarget, radius, pos);
-
-                summon = m_originalCaster->SummonCreature(entry, *destTarget, summonType, duration);
-                if (!summon)
-                    continue;
-
-                switch (properties->Id)
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
+                case SUMMON_TYPE_MINION:
+                    SummonGuardian(effIndex, entry, properties, numSummons);
+                    break;
+                    // Summons a vehicle, but doesn't force anyone to enter it (see SUMMON_CATEGORY_VEHICLE)
+                case SUMMON_TYPE_VEHICLE:
+                case SUMMON_TYPE_VEHICLE2:
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
+                    break;
+                case SUMMON_TYPE_TOTEM:
                 {
-                case 3347: // Orphelins
-                {
-                    if (uint32 slot = properties->Slot)
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
+                    if (!summon || !summon->isTotem())
+                        return;
+
+                    // Mana Tide Totem
+                    if (m_spellInfo->Id == 16190)
+                        damage = m_caster->CountPctFromMaxHealth(10);
+
+                    if (damage)                                            // if not spell info, DB values used
                     {
-                        if (m_caster->m_SummonSlot[slot] && m_caster->m_SummonSlot[slot] != summon->GetGUID())
-                        {
-                            Creature* oldSummon = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
-                            if (oldSummon && oldSummon->isSummon())
-                                oldSummon->ToTempSummon()->UnSummon();
-                        }
-                        m_caster->m_SummonSlot[slot] = summon->GetGUID();
+                        summon->SetMaxHealth(damage);
+                        summon->SetHealth(damage);
                     }
-                }
-                default:
                     break;
                 }
-
-                if (properties->Category == SUMMON_CATEGORY_ALLY)
+                case SUMMON_TYPE_MINIPET:
                 {
-                    summon->SetOwnerGUID(m_originalCaster->GetGUID());
-                    summon->setFaction(m_originalCaster->getFaction());
-                    summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
-                }
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
+                    if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
+                        return;
 
-                // Explosive Decoy and Explosive Decoy 2.0
-                if (m_spellInfo->Id == 54359 || m_spellInfo->Id == 62405)
+                    summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
+                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->NpcFlags1);
+                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS + 1, summon->GetCreatureTemplate()->NpcFlags2);
+
+                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+
+                    summon->AI()->EnterEvadeMode();
+                    break;
+                }
+                default:
                 {
-                    summon->SetMaxHealth(damage);
-                    summon->SetHealth(damage);
-                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    float radius = m_spellInfo->Effects[effIndex].CalcRadius();
+
+                    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+
+                    for (uint32 count = 0; count < numSummons; ++count)
+                    {
+                        Position pos;
+                        if (count == 0)
+                            pos = *destTarget;
+                        else
+                            // randomize position for multiple summons
+                            m_caster->GetRandomPoint(*destTarget, radius, pos);
+
+                        summon = m_originalCaster->SummonCreature(entry, *destTarget, summonType, duration);
+                        if (!summon)
+                            continue;
+
+                        switch (properties->Id)
+                        {
+                        case 3347: // Orphelins
+                        {
+                            if (uint32 slot = properties->Slot)
+                            {
+                                if (m_caster->m_SummonSlot[slot] && m_caster->m_SummonSlot[slot] != summon->GetGUID())
+                                {
+                                    Creature* oldSummon = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
+                                    if (oldSummon && oldSummon->isSummon())
+                                        oldSummon->ToTempSummon()->UnSummon();
+                                }
+                                m_caster->m_SummonSlot[slot] = summon->GetGUID();
+                            }
+                        }
+                        default:
+                            break;
+                        }
+
+                        if (properties->Category == SUMMON_CATEGORY_ALLY)
+                        {
+                            summon->SetOwnerGUID(m_originalCaster->GetGUID());
+                            summon->setFaction(m_originalCaster->getFaction());
+                            summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
+                        }
+
+                        // Explosive Decoy and Explosive Decoy 2.0
+                        if (m_spellInfo->Id == 54359 || m_spellInfo->Id == 62405)
+                        {
+                            summon->SetMaxHealth(damage);
+                            summon->SetHealth(damage);
+                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        }
+
+                        // Wild Mushroom : Plague
+                        if (summon && m_spellInfo->Id == 113516)
+                            m_originalCaster->CastSpell(m_originalCaster, 113517, true); // Wild Mushroom : Plague (periodic dummy)
+
+                        ExecuteLogEffectSummonObject(effIndex, summon);
+                    }
+                    return;
                 }
+            }//switch
+            break;
+        case SUMMON_CATEGORY_PET:
+            SummonGuardian(effIndex, entry, properties, numSummons);
+            break;
+        case SUMMON_CATEGORY_PUPPET:
+            summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
+            break;
+        case SUMMON_CATEGORY_VEHICLE:
+            // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
+            // to cast a ride vehicle spell on the summoned unit.
+            float x, y, z;
+            m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
+            summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_caster, m_spellInfo->Id);
+            if (!summon || !summon->IsVehicle())
+                return;
 
-                // Wild Mushroom : Plague
-                if (summon && m_spellInfo->Id == 113516)
-                    m_originalCaster->CastSpell(m_originalCaster, 113517, true); // Wild Mushroom : Plague (periodic dummy)
+            // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
+            uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
+            if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+                spellId = spellInfo->Id;
 
-                ExecuteLogEffectSummonObject(effIndex, summon);
-            }
-            return;
-        }
-        }//switch
-        break;
-    case SUMMON_CATEGORY_PET:
-        SummonGuardian(effIndex, entry, properties, numSummons);
-        break;
-    case SUMMON_CATEGORY_PUPPET:
-        summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
-        break;
-    case SUMMON_CATEGORY_VEHICLE:
-        // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
-        // to cast a ride vehicle spell on the summoned unit.
-        float x, y, z;
-        m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-        summon = m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_caster, m_spellInfo->Id);
-        if (!summon || !summon->IsVehicle())
-            return;
+            // Hard coded enter vehicle spell
+            m_originalCaster->CastSpell(summon, spellId, true);
 
-        // The spell that this effect will trigger. It has SPELL_AURA_CONTROL_VEHICLE
-        uint32 spellId = VEHICLE_SPELL_RIDE_HARDCODED;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].CalcValue());
-        if (spellInfo && spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-            spellId = spellInfo->Id;
+            uint32 faction = properties->Faction;
+            if (!faction)
+                faction = m_originalCaster->getFaction();
 
-        // Hard coded enter vehicle spell
-        m_originalCaster->CastSpell(summon, spellId, true);
-
-        uint32 faction = properties->Faction;
-        if (!faction)
-            faction = m_originalCaster->getFaction();
-
-        summon->setFaction(faction);
-        break;
+            summon->setFaction(faction);
+            break;
     }
 
     /// Ring of frost

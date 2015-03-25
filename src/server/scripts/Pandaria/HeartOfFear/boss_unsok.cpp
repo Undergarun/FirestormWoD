@@ -758,12 +758,18 @@ public:
             }
         }
 
-        void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, SpellInfo const* p_SpellInfo)
         {
-            if (damage > me->GetHealth())
+            if (me->HasAura(SPELL_TEMP_FEIGN_DEATH) || me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+            {
+                p_Damage = 0;
+                return;
+            }
+
+            if (p_Damage > me->GetHealth())
             {
                 // False death
-                damage = me->GetHealth() - 1;
+                p_Damage = me->GetHealth() - 1;
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAurasDueToSpell(SPELL_CORROSIVE_AURA);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);

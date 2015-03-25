@@ -693,6 +693,51 @@ bool OutdoorPvP::DelCreature(uint32 p_Type)
     return true;
 }
 
+bool OutdoorPvP::AddObject(uint32 p_Type, uint32 p_Entry, uint32 p_Map, float p_X, float p_Y, float p_Z, float p_O, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3)
+{
+    uint32 l_Guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (sObjectMgr->AddGOData(l_Guid, p_Entry, p_Map, p_X, p_Y, p_Z, p_O, 0, p_Rot0, p_Rot1, p_Rot2, p_Rot3))
+    {
+        m_Objects[p_Type] = MAKE_NEW_GUID(l_Guid, p_Entry, HIGHGUID_GAMEOBJECT);
+        m_ObjectTypes[m_Objects[p_Type]] = p_Type;
+        return true;
+    }
+
+    return false;
+}
+
+bool OutdoorPvP::DelObject(uint32 p_Type)
+{
+    if (!m_Objects[p_Type])
+        return false;
+
+    GameObject* l_GameObject = HashMapHolder<GameObject>::Find(m_Objects[p_Type]);
+    if (!l_GameObject)
+    {
+        /// Can happen when closing the core
+        m_Objects[p_Type] = 0;
+        return false;
+    }
+
+    uint32 l_Guid = l_GameObject->GetDBTableGUIDLow();
+
+    /// Don't save respawn time
+    l_GameObject->SetRespawnTime(0);
+
+    /// Delete respawn time for this creature
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
+    l_Statement->setUInt32(0, l_Guid);
+    l_Statement->setUInt16(1, l_GameObject->GetMapId());
+    l_Statement->setUInt32(2, 0);  ///< InstanceID, always 0 for world maps
+    CharacterDatabase.Execute(l_Statement);
+
+    l_GameObject->AddObjectToRemoveList();
+    sObjectMgr->DeleteGOData(l_Guid);
+    m_ObjectTypes[m_Objects[p_Type]] = 0;
+    m_Objects[p_Type] = 0;
+    return true;
+}
+
 void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 {
     TeamCastSpell(team, spellId);

@@ -140,24 +140,26 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
 
             enum eSpells
             {
-                UnleashedFuryTalent         = 165477,
+                UnleashedFuryTalentElemental    = 165477,
+                UnleashedFuryTalentEnhancement  = 117012,
+                UnleashedFuryTalentRestauration = 165479,
                 /// Increases the damage dealt by your Lightning Bolt by 30% and Lava Burst by 10% for 10 sec.
-                UnleashedFuryElemental      = 118470,
+                UnleashedFuryElemental          = 118470,
                 /// Increases the damage dealt by your Lightning Bolt by 30% and increases your multistrike chance by 5% for 8 sec.
-                UnleashedFuryEnhancement    = 118472,
+                UnleashedFuryEnhancement        = 118472,
                 /// Increases the healing done by your next single-target heal by 50%, for 10 sec.
-                UnleashedRestauration       = 118473,
+                UnleashedRestauration           = 118473,
 
-                UnleashElements             = 73680,
-                UnleashLife                 = 73685,
-                UnleashFlame                = 165462
+                UnleashElements                 = 73680,
+                UnleashLife                     = 73685,
+                UnleashFlame                    = 165462
             };
 
             void HandleDummy(SpellEffIndex)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (!l_Caster->HasAura(eSpells::UnleashedFuryTalent))
+                    if (!l_Caster->HasAura(eSpells::UnleashedFuryTalentElemental) && !l_Caster->HasAura(eSpells::UnleashedFuryTalentEnhancement) && !l_Caster->HasAura(eSpells::UnleashedFuryTalentRestauration))
                         return;
 
                     switch (GetSpellInfo()->Id)
@@ -731,26 +733,22 @@ class spell_sha_conductivity: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (AuraPtr l_Conductivity = l_Caster->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (DynamicObject* l_DynObj = l_Caster->GetDynObject(SPELL_SHA_HEALING_RAIN))
                     {
-                        if (AuraPtr conductivity = _player->GetAura(SPELL_SHA_CONDUCTIVITY_TALENT))
+                        int32 l_RemainingDuration = l_Conductivity->GetEffect(EFFECT_0)->GetAmount() * 10;
+                        uint32 l_AddDuration = std::min(l_RemainingDuration, 4000);
+
+                        l_DynObj->SetDuration(l_DynObj->GetDuration() + l_AddDuration);
+                        l_Conductivity->GetEffect(EFFECT_0)->SetAmount((l_RemainingDuration - l_AddDuration) / 10);
+
+                        if (AuraPtr l_HealingRain = l_Caster->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
                         {
-                            if (DynamicObject* dynObj = _player->GetDynObject(SPELL_SHA_HEALING_RAIN))
-                            {
-                                int32 remainingDuration = conductivity->GetEffect(EFFECT_0)->GetAmount() * 100;
-                                uint32 addDuration = std::min(remainingDuration, 4000);
-
-                                dynObj->SetDuration(dynObj->GetDuration() + addDuration);
-                                conductivity->GetEffect(EFFECT_0)->SetAmount((remainingDuration - addDuration) / 100);
-
-                                if (AuraPtr healingRain = _player->GetAura(SPELL_SHA_HEALING_RAIN_AURA))
-                                {
-                                    healingRain->SetDuration(healingRain->GetDuration() + addDuration);
-                                    healingRain->SetMaxDuration(healingRain->GetMaxDuration() + addDuration);
-                                }
-                            }
+                            l_HealingRain->SetDuration(l_HealingRain->GetDuration() + l_AddDuration);
+                            l_HealingRain->SetMaxDuration(l_HealingRain->GetMaxDuration() + l_AddDuration);
                         }
                     }
                 }
@@ -2117,37 +2115,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
         }
 };
 
-/// Unleash Elements - 73680
-class spell_sha_unleash_elements : public SpellScriptLoader
-{
-    public:
-        spell_sha_unleash_elements() : SpellScriptLoader("spell_sha_unleash_elements") { }
-
-        class spell_sha_unleash_elements_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_unleash_elements_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasAura(SPELL_SHA_UNLEASHED_FURY_TALENT))
-                        l_Caster->CastSpell(l_Caster, SPELL_SHA_UNLEASHED_FURY_FLAMETONGUE, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_unleash_elements_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_unleash_elements_SpellScript();
-        }
-};
-
 /// Call by Chain Heal - 1064, Riptide - 61295
 /// Tidal Waves - 51564
 class spell_sha_tidal_waves : public SpellScriptLoader
@@ -2190,7 +2157,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
-    new spell_sha_unleash_elements();
     new spell_sha_totemic_projection();
     new spell_sha_hex();
     new spell_sha_water_ascendant();

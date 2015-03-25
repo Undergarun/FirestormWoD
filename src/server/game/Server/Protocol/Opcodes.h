@@ -192,6 +192,7 @@ enum Opcodes
         SMSG_CANCEL_SCENE                           = 0x033F,   ///< 6.0.3 19116
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x01E3,   ///< 6.0.3 19116
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x0316,   ///< 6.0.3 19116
+        SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x15C0,   ///< 6.0.3 19116
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0305,   ///< 6.0.3 19116
@@ -259,8 +260,8 @@ enum Opcodes
         SMSG_ALL_ACHIEVEMENT_DATA                   = 0x0030,   ///< 6.0.3 19116
         SMSG_ACHIEVEMENT_DELETED                    = 0x050E,   ///< 6.0.3 19116
         SMSG_ACHIEVEMENT_EARNED                     = 0x010E,   ///< 6.0.3 19116
-        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0912,   ///< 6.0.3 19116 (unused)
-        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0123,   ///< 6.0.3 19116 (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x0912,   ///< 6.0.3 19116
+        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0123,   ///< 6.0.3 19116
         SMSG_CRITERIA_DELETED                       = 0x0105,   ///< 6.0.3 19116
         SMSG_CRITERIA_UPDATE                        = 0x1904,   ///< 6.0.3 19116
 
@@ -444,11 +445,12 @@ enum Opcodes
 
         /// Petition
         SMSG_PETITION_ALREADY_SIGNED                            = 0x0D8E, ///< 6.0.3 19116
-        SMSG_PETITION_DECLINED                                  = 0x11E9, ///< 6.0.3 19116
-        SMSG_PETITION_QUERY_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
+        SMSG_PETITION_SIGN_RESULTS                              = 0x11E9, ///< 6.0.3 19116
+        SMSG_QUERY_PETITION_RESPONSE                            = 0x13AC, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_LIST                                 = 0x0915, ///< 6.0.3 19116
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0830, ///< 6.0.3 19116
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0919, ///< 6.0.3 19116
+        SMSG_PETITION_DECLINED                                  = 0x1B32, ///< 6.0.3 19116
 
         /// Threat
         SMSG_THREAT_CLEAR                                       = 0x030F, ///< 6.0.3 19116
@@ -1177,6 +1179,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                         = 0x13D4,   ///< 6.0.3 19116
     CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
+    CMSG_SHOW_TRADE_SKILL                       = 0x07AD,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
