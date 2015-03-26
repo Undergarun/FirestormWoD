@@ -40,24 +40,6 @@ namespace MS
                         return false;
                 }
 
-                if (p_Group->m_IsSkirmish)
-                {
-                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_Group->m_WantedBGs & BattlegroundMasks::ArenaSkirmish2v2)
-                        return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_Group->m_WantedBGs & BattlegroundMasks::ArenaSkirmish3v3)
-                        return true;
-                }
-
-                if (p_Group->m_IsRatedBG)
-                {
-                    if (p_Group->m_ArenaType == ArenaType::Arena2v2 && p_Group->m_WantedBGs & BattlegroundMasks::Arena2v2)
-                        return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena3v3 && p_Group->m_WantedBGs & BattlegroundMasks::Arena3v3)
-                        return true;
-                    if (p_Group->m_ArenaType == ArenaType::Arena5v5 && p_Group->m_WantedBGs & BattlegroundMasks::Arena5v5)
-                        return true;
-                }
-
                 return (p_Group->m_WantedBGs & l_BattlegroundMask) != 0;
             }
 
@@ -534,9 +516,8 @@ namespace MS
                             if (l_NumberOfPlayersRequired == 0)
                                 continue;
 
-
                             /// If there is not enough players, we pass.
-                            if (l_NumberOfPlayersRequired >= l_Group->m_Players.size())
+                            if (l_NumberOfPlayersRequired > l_Group->m_Players.size())
                                 continue;
 
                             /// We don't make any differences between factions so we merge them.
