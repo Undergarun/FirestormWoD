@@ -1,3 +1,5 @@
+SET NAMES utf8;
+
 DELETE FROM creature_text WHERE entry = 80858;
 INSERT INTO creature_text VALUES
 (80858, 0, 0, 'I have returned! Submit, peasants, to the might of the great Ogre Empire!', 14, 0, 100, 0, 0, 0, 'Awakening'),
@@ -332,233 +334,233 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
 (
     65536, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65536, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65536, 2,
     'À quoi sert Kronus ?',
-    '',
+    'Was macht Kronus?',
     '¿A qué se dedica Kronus?',
-    ''
+    'Что делает Крон?'
 ),
 (
     65540, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65540, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65540, 2,
     'À quoi servent les portes de démoniste ?',
-    '',
+    'Wie funktionieren die Hexenmeisterportale?',
     '¿Qué hacen los portales de brujo?',
-    ''
+    'А для чего нужны врата чернокнижников?'
 ),
 (
     65539, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65539, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65539, 2,
     'À quoi servent les portails de mage ?',
-    '',
+    'Wie funktionieren die magischen Portale?',
     '¿Qué hacen los portales de mago?',
-    ''
+    'А для чего нужны порталы магов?'
 ),
 (
     65537, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65537, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65537, 2,
     'Quel est le rôle des Chevaucheurs de loups ?',
-    '',
+    'Was machen die Wolfsreiter?',
     '¿Qué hacen los Caballeros Lobo?',
-    ''
+    'А зачем нужны всадники?'
 ),
 (
     65543, 0,
     'Montrez-moi la cime de la Brute.',
-    '',
+    'Zeigt mir das Schlägerplateau.',
     'Muéstrame el Alto del Bruto.',
-    ''
+    'Покажи мне Утес Громил.'
 ),
 (
     65543, 1,
     'Montrez-moi la carrière de la Fournaise.',
-    '',
+    'Zeigt mir den Geschmolzenen Steinbruch.',
     'Muéstrame la Cantera de magma.',
-    ''
+    'Покажи мне Раскаленный карьер.'
 ),
 (
     65543, 2,
     'Montrez-moi l''amphitéâtre de l''Annihilation.',
-    '',
+    'Zeigt mir das Amphitheater der Auslöschung.',
     'Muéstrame el Anfiteatro de la Aniquilación.',
-    ''
+    'Покажи мне Амфитеатр Истребления.'
 ),
 (
     65543, 3,
     'Montrez-moi le cimetière des Cognecendres.',
-    '',
+    'Zeigt mir den Friedhof der Aschehämmer.',
     'Muéstrame los Cementerios de Machacacenizas.',
-    ''
+    'Покажи мне Некрополь Молота Ашрана.'
 ),
 (
     65545, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65586, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65547, 0,
     'Je voudrais vous acheter quelque chose.',
-    '',
+    'Ich möchte etwas von Euch kaufen.',
     'Me gustaría comprar algo.',
-    ''
+    'Мне нужно кое-что купить.'
 ),
 (
     65560, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65560, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65560, 2,
     'Quel est le rôle des Chevaucheurs ?',
-    '',
+    'Was macht die Kavallerie?',
     '¿Qué hacen los jinetes Caballeros?',
-    ''
+    'А зачем нужны конные рыцари?'
 ),
 (
     65563, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65563, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65563, 2,
     'À quoi sert l''ancien de la guerre ?',
-    '',
+    'Was tut ein Urtum des Krieges?',
     '¿Qué hace el Anciano de la Guerra?',
-    ''
+    'Что делает Древо войны?'
 ),
 (
     65566, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65566, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65566, 2,
     'À quoi servent les portes ?',
-    '',
+    'Wie funktionieren die Portale?',
     '¿Qué hacen los portales?',
-    ''
+    'Для чего нужны эти врата?'
 ),
 (
     65569, 0,
     'Prenez tous mes fragments d''artéfacts !',
-    '',
+    'Nehmt all meine Artefaktfragmente!',
     '¡Llévate todos mis fragmentos de artefacto!',
-    ''
+    'Забери все мои фрагменты артефакта!'
 ),
 (
     65569, 1,
     'Combien de fragments d''artéfacts avons-nous rassemblés ?',
-    '',
+    'Wie viele Artefaktfragmente haben wir gesammelt?',
     '¿Cuántos fragmentos de artefacto hemos recolectado?',
-    ''
+    'Сколько фрагментов артефакта мы собрали?'
 ),
 (
     65569, 2,
     'À quoi servent les portails de mage ?',
-    '',
+    'Wie funktionieren die magischen Portale?',
     '¿Qué hacen los portales de mago?',
-    ''
+    'А для чего нужны порталы магов?'
 ),
 (
     65587, 0,
     'Pourriez-vous m''invoquer de la nourriture ?',
-    '',
+    'Könntet Ihr mir etwas zu essen herbeizaubern?',
     '¿Podrías conjurarme algo de comer?',
-    ''
+    'Можешь сотворить мне еду?'
 ),
 (
     65588, 0,
     'Pourriez-vous m''invoquer de la nourriture ?',
-    '',
+    'Könntet Ihr mir etwas zu essen herbeizaubern?',
     '¿Podrías conjurarme algo de comer?',
-    ''
+    'Можешь сотворить мне еду?'
 );
 
 -- Basic text from horde NPC's, base gossips
@@ -617,8 +619,8 @@ INSERT INTO npc_text (ID, text0_0, text0_1) VALUES
 ),
 (
     88550,
-    'I come and go like the wind.',
-    'I come and go like the wind.'
+    'I''ll slit any Alliance''s throat for a copper.',
+    'I''ll slit any Alliance''s throat for a copper.'
 ),
 (
     91496,
@@ -800,404 +802,496 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     82999,
     'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
     'Avez-vous déniché l''un de ces artéfacts cachés ?$B$BOn trouve des fragments un peu partout dans A''shran. J''ai entendu dire qu''on avait récemment découvert en tuant des créatures rôdant à proximité de la route de la Gloire.$B$BVous pouvez me remettre ceux que vous trouverez, et je me chargerai de les redistribuer aux personnes qui en ont besoin.',
-    '', '',
+    'Habt Ihr welche von den verborgenen Artefakten gesehen?$B$BMan kann ihre Fragmente in ganz Ashran finden. Ich hörte, dass vor Kurzem, nach dem Töten der Kreaturen in der Umgebung der Straße des Ruhms, ein paar von ihnen entdeckt wurden.$B$BIhr könnt mir alle bringen, die Ihr findet, und ich werde sie unter denjenigen verteilen, die sie brauchen.',
+    'Habt Ihr welche von den verborgenen Artefakten gesehen?$B$BMan kann ihre Fragmente in ganz Ashran finden. Ich hörte, dass vor Kurzem, nach dem Töten der Kreaturen in der Umgebung der Straße des Ruhms, ein paar von ihnen entdeckt wurden.$B$BIhr könnt mir alle bringen, die Ihr findet, und ich werde sie unter denjenigen verteilen, die sie brauchen.',
     '¿Viste alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos por todo Ashran. Escuché que matar a las criaturas en la periferia del Camino de Gloria dejó al descubierto algunos recientemente.$B$BPuedes darme los que encuentres y yo los entregaré a.',
     '¿Viste alguno de los artefactos ocultos?$B$BPuedes encontrar fragmentos por todo Ashran. Escuché que matar a las criaturas en la periferia del Camino de Gloria dejó al descubierto algunos recientemente.$B$BPuedes darme los que encuentres y yo los entregaré a.',
-    '', ''
+    'Тебе что-нибудь известно о здешних артефактах?$B$BВ Ашране их можно отыскать повсюду. Я тут слыхал, недавно у Дороги Славы пару тварей завалили и нашли у них такие артефакты. $B$BВ общем, неси мне все, что найдешь, а я уже раздам их тем, кто в них больше всего нуждается.',
+    'Тебе что-нибудь известно о здешних артефактах?$B$BВ Ашране их можно отыскать повсюду. Я тут слыхал, недавно у Дороги Славы пару тварей завалили и нашли у них такие артефакты. $B$BВ общем, неси мне все, что найдешь, а я уже раздам их тем, кто в них больше всего нуждается.'
 ),
 (
     83825,
-    '<Pousse un léger gémissement gutural.>',
-    '<Pousse un léger gémissement gutural.>',
-    '', '',
+    '<Pousse un léger gémissement guttural.>',
+    '<Pousse un léger gémissement guttural.>',
+    '<Stößt ein leises, tiefes Stöhnen aus>',
+    '<Stößt ein leises, tiefes Stöhnen aus>',
     '<Suelta un gemido suave y profundo>',
     '<Suelta un gemido suave y profundo>',
-    '', ''
+    '<Негромко стонет.>',
+    '<Негромко стонет.>'
 ),
 (
     84857,
-    'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
-    'Plongez votre regard dans le mien $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
-    '', '',
+    'Plongez votre regard dans le mien, $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
+    'Plongez votre regard dans le mien, $n. Vous pourrez ainsi observer à distance ce qui se passe à A''shran.$B$BQue voulez-vous voir ?',
+    'Seht mir tief in die Augen, $n, und Ihr könnt Ashran aus der Ferne überblicken.$B$BWas würdet Ihr gerne sehen?',
+    'Seht mir tief in die Augen, $n, und Ihr könnt Ashran aus der Ferne überblicken.$B$BWas würdet Ihr gerne sehen?',
     'Veme detenidamente a los ojos, $n, y podrás sondear Ashran desde lejos.$B$B¿Qué te gustaría ver?',
     'Veme detenidamente a los ojos, $n, y podrás sondear Ashran desde lejos.$B$B¿Qué te gustaría ver?',
-    '', ''
+    'Посмотри мне в глаза, $n, и ты сможешь взглянуть на Ашран издалека.$B$BЧто тебе показать?',
+    'Посмотри мне в глаза, $n, и ты сможешь взглянуть на Ашран издалека.$B$BЧто тебе показать?'
 ),
 (
     85290,
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs de loups et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Bringt mir genug von diesen Artefakten, damit ich unsere Wolfsreiter ausrüsten und sie in die Schlacht schicken kann.$B$BWie viele habt Ihr mir gebracht?',
+    'Bringt mir genug von diesen Artefakten, damit ich unsere Wolfsreiter ausrüsten und sie in die Schlacht schicken kann.$B$BWie viele habt Ihr mir gebracht?',
     'Tráeme suficientes de esos artefactos y podré equipar a nuestros caballeros lobo para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
     'Tráeme suficientes de esos artefactos y podré equipar a nuestros caballeros lobo para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Принеси мне достаточное количество этих артефактов, и тогда я смогу снарядить в бой наших волчьих всадников. $B$BСколько фрагментов ты мне $gпринес:принесла;?',
+    'Принеси мне достаточное количество этих артефактов, и тогда я смогу снарядить в бой наших волчьих всадников. $B$BСколько фрагментов ты мне $gпринес:принесла;?'
 ),
 (
     85346,
     'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
     'VOUS COMPTEZ PRENDRE RACINE ICI OU QUOI ? ALLEZ ME TUER LES VERMINES DE L''ALLIANCE. RAPPORTEZ-MOI DES TÊTES, DES DENTS, DES QUEUES... PEU IMPORTE ! ET GROUILLEZ-VOUS !!',
-    '', '',
+    'WAS STEHT IHR EINFACH SO DA RUM? ZIEHT LOS UND TÖTET DIESEN ALLIANZABSCHAUM! BRINGT MIR IHRE KÖPFE, ZÄHNE, SCHWÄNZE... IRGENDETWAS! UND JETZT LOS!!!',
+    'WAS STEHT IHR EINFACH SO DA RUM? ZIEHT LOS UND TÖTET DIESEN ALLIANZABSCHAUM! BRINGT MIR IHRE KÖPFE, ZÄHNE, SCHWÄNZE... IRGENDETWAS! UND JETZT LOS!!!',
     '¿QUÉ HACES AHÍ SIN HACER NADA? VE A MATAR ALGUNAS ESCORIAS DE LA ALLIANZA. TRÁEME SUS CABEZAS, DIENTES, COLAS... ¡LO QUE SEA! ¡VE, AHORA!',
     '¿QUÉ HACES AHÍ SIN HACER NADA? VE A MATAR ALGUNAS ESCORIAS DE LA ALLIANZA. TRÁEME SUS CABEZAS, DIENTES, COLAS... ¡LO QUE SEA! ¡VE, AHORA!',
-    '', ''
+    'И ЧЕГО ТЫ ТУТ ИСТУКАНОМ СТОИШЬ? ИДИ И УБИВАЙ ЭТИХ ПОГАНЫХ ПСОВ АЛЬЯНСА. НЕСИ МНЕ ИХ ГОЛОВЫ, КРЫЛЬЯ, НОГИ, ХВОСТЫ... ВСЕ НЕСИ! СТУПАЙ!',
+    'И ЧЕГО ТЫ ТУТ ИСТУКАНОМ СТОИШЬ? ИДИ И УБИВАЙ ЭТИХ ПОГАНЫХ ПСОВ АЛЬЯНСА. НЕСИ МНЕ ИХ ГОЛОВЫ, КРЫЛЬЯ, НОГИ, ХВОСТЫ... ВСЕ НЕСИ! СТУПАЙ!'
 ),
 (
     85455,
     'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
     'L''énergie dons nous avons besoin se trouve dans les fragments d''artéfacts, $n. En quantité suffisante, ils permettront aux mages d''invoquer un portail pour atteindre l''avant-poste de Fer-de-Lance plus rapidement.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Diese Artefaktfragmente bergen große Macht, $n. Wenn Ihr genug davon zurückbringen könnt, werden die Magier ein Portal beschwören, damit wir schneller zum Vorposten des Kriegsspeers zurückkehren können.$B$BWie viele habt Ihr mir mitgebracht?',
+    'Diese Artefaktfragmente bergen große Macht, $n. Wenn Ihr genug davon zurückbringen könnt, werden die Magier ein Portal beschwören, damit wir schneller zum Vorposten des Kriegsspeers zurückkehren können.$B$BWie viele habt Ihr mir mitgebracht?',
     'El poder yace en los fragmentos del artefacto, $n. Regresa los suficientes y los magos invocarán los portales para poder regresar más rápido a Lanza de guerra.$B$B¿Cuántos me trajiste?',
     'El poder yace en los fragmentos del artefacto, $n. Regresa los suficientes y los magos invocarán los portales para poder regresar más rápido a Lanza de guerra.$B$B¿Cuántos me trajiste?',
-    '', ''
+    '$n, в этих фрагментах артефакта заключена большая сила. Приноси их сюда, и маги откроют порталы, чтобы мы могли быстрее возвращаться на Аванпост Копья Войны.$B$BСколько фрагментов ты мне $gпринес:принесла;?',
+    '$n, в этих фрагментах артефакта заключена большая сила. Приноси их сюда, и маги откроют порталы, чтобы мы могли быстрее возвращаться на Аванпост Копья Войны.$B$BСколько фрагментов ты мне $gпринес:принесла;?'
 ),
 (
     85464,
-    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
-    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de déùpnostres pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de démoniste pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
+    'Si nous parvenons à nous procurer assez de fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons activer les portes de démoniste pour nous déplacer plus rapidement d''un point à un autre.$B$BCombien m''en apportez-vous ?',
+    'Wenn wir in Ashran genug Artefaktfragmente finden, können wir die Hexenmeisterportale öffnen und schneller zwischen den Gebieten hin- und herwechseln.$B$BWie viele habt Ihr mir mitgebracht?',
+    'Wenn wir in Ashran genug Artefaktfragmente finden, können wir die Hexenmeisterportale öffnen und schneller zwischen den Gebieten hin- und herwechseln.$B$BWie viele habt Ihr mir mitgebracht?',
     'Si podemos recolectar suficientes de los fragmentos de artefacto hallados en Ashran, podemos activar los portales de brujo para movernos más rápido entre áreas.$B$B¿Cuántos me trajiste?',
     'Si podemos recolectar suficientes de los fragmentos de artefacto hallados en Ashran, podemos activar los portales de brujo para movernos más rápido entre áreas.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Если нам удастся собрать в Ашране достаточно фрагментов артефактов, то мы сможем открыть врата чернокнижников. Это позволит нам быстрее путешествовать от одного пункта к другому. $B$BСколько фрагментов ты мне $gпринес:принесла;?',
+    'Если нам удастся собрать в Ашране достаточно фрагментов артефактов, то мы сможем открыть врата чернокнижников. Это позволит нам быстрее путешествовать от одного пункта к другому. $B$BСколько фрагментов ты мне $gпринес:принесла;?'
 ),
 (
     86045,
     'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
     'Alors, combien de soldats de l''Alliance avez-vous tués ajourd''hui, $n ?',
-    '', '',
+    'Und, wie viele Allianzler habt Ihr heute erschlagen, $n?',
+    'Und, wie viele Allianzler habt Ihr heute erschlagen, $n?',
     '¿A cuántos de la Alianza mataste hoy, $n?',
     '¿A cuántos de la Alianza mataste hoy, $n?',
-    '', ''
+    'Сколько воинов Альянса ты $gубил:убила; сегодня, $n?',
+    'Сколько воинов Альянса ты $gубил:убила; сегодня, $n?'
 ),
 (
     87225,
     'Quelqu''un m''a montré un tubercule découvert dans la partie est d''A''shran. $B$BSes vertus médicinales égalent celles de mes potions de soins !',
     'Quelqu''un m''a montré un tubercule découvert dans la partie est d''A''shran. $B$BSes vertus médicinales égalent celles de mes potions de soins !',
-    '', '',
+    'Jemand hat mir gerade eine Wurzelknolle gezeigt, die irgendwo im östlichen Ashran gefunden wurde.$B$BDie machen sogar meinen Heiltränken Konkurrenz!',
+    'Jemand hat mir gerade eine Wurzelknolle gezeigt, die irgendwo im östlichen Ashran gefunden wurde.$B$BDie machen sogar meinen Heiltränken Konkurrenz!',
     'Alguien me mostró una raíz de tubérculo que encontraron en algún lugar al este de Ashran.$B$B¡Rivaliza en poder con mis pociones de sanació!',
     'Alguien me mostró una raíz de tubérculo que encontraron en algún lugar al este de Ashran.$B$B¡Rivaliza en poder con mis pociones de sanació!',
-    '', ''
+    'Кое-кто мне недавно показал один клубень, который нашли на востоке Ашрана. $B$BОн даст фору моим лечебным зельям!',
+    'Кое-кто мне недавно показал один клубень, который нашли на востоке Ашрана. $B$BОн даст фору моим лечебным зельям!'
 ),
 (
     88550,
     'Je tranche la gorge de n''importe quel membre de l''Alliance pour une pièce de cuivre.',
     'Je tranche la gorge de n''importe quel membre de l''Alliance pour une pièce de cuivre.',
-    '', '',
+    'Ich würde jede Allianzkehle für ein Kupferstück aufschlitzen.',
+    'Ich würde jede Allianzkehle für ein Kupferstück aufschlitzen.',
     'Voy y vengo como el viento.',
     'Voy y vengo como el viento.',
-    '', ''
+    'За медяк я перережу глотку любому из Альянса.',
+    'За медяк я перережу глотку любому из Альянса.'
 ),
 (
     88548,
-    'PARTEZ !', 'PARTEZ !',
-    '', '',
-    '¡VAMOS!', '¡VAMOS!',
-    '', ''
+    'PARTEZ !',
+    'PARTEZ !',
+    'LOS!',
+    'LOS!',
+    '¡VAMOS!',
+    '¡VAMOS!',
+    'Вперед!',
+    'Вперед!'
 ),
 (
     91432,
     'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
     'Si vous vous rendez dans le bois Sombre, essayez de cueillir des fleurs des chants. Elles ont de puissantes propriétés magiques. Notez néanmoins que vous devrez peut-être combattre quelques arakkoa pour les obtenir.',
-    '', '',
+    'Die Nachtelfen versuchen, mit der Macht einiger Artefakte aus Ashran ein Urtum zu erwecken, das sie gegen uns richten können.$B$BFalls Ihr dort draußen auf Mitglieder der Allianz trefft, nehmt ihnen ihre Fragmente ab, auch wenn Ihr ihnen dafür alle Knochen brechen müsst.',
+    'Die Nachtelfen versuchen, mit der Macht einiger Artefakte aus Ashran ein Urtum zu erwecken, das sie gegen uns richten können.$B$BFalls Ihr dort draußen auf Mitglieder der Allianz trefft, nehmt ihnen ihre Fragmente ab, auch wenn Ihr ihnen dafür alle Knochen brechen müsst.',
     'Los elfos de la noche intentan resucitar a un Anciano para usarlo contra nosotros, y utilizan el poder de los artefactos hallados en Ashran.$B$BSi ves ferzas de la Alianza aquí, captura por cualquier medio necesario los fragmentos que lleven.',
     'Los elfos de la noche intentan resucitar a un Anciano para usarlo contra nosotros, y utilizan el poder de los artefactos hallados en Ashran.$B$BSi ves ferzas de la Alianza aquí, captura por cualquier medio necesario los fragmentos que lleven.',
-    '', ''
+    'Ночные эльфы пытаются воскресить Древнего, чтобы использовать его силу для противодействия нашим артефактам в Ашране.$b$bЕсли увидишь кого-нибудь из Альянса, завладей их фрагментами любой ценой.',
+    'Ночные эльфы пытаются воскресить Древнего, чтобы использовать его силу для противодействия нашим артефактам в Ашране.$b$bЕсли увидишь кого-нибудь из Альянса, завладей их фрагментами любой ценой.'
 ),
 (
     91496,
     'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
     'Si l''Alliance vous pose des problèmes dans le coin, utilisez l''une des fusées de Frizzo Grilletorpille.$B$BNous ne pourrons vous aider que si nous savons où vous vous trouvez.',
-    '', '',
+    'Wenn Ihr hier in der Gegend Ärger mit der Allianz bekommt, dann verwendet eine von Frizzo Zündmines Signalleuchtfeuern.$B$BWir können Euch nicht helfen, wenn wir nicht wissen, wo Ihr seid.',
+    'Wenn Ihr hier in der Gegend Ärger mit der Allianz bekommt, dann verwendet eine von Frizzo Zündmines Signalleuchtfeuern.$B$BWir können Euch nicht helfen, wenn wir nicht wissen, wo Ihr seid.',
     'Si te encuentras con la Alianza por aquí, usa una de las bengalas de Frizzo Chispamisil.$B$BNo podemos ayudarte si no sabemos dónde estás.',
     'Si te encuentras con la Alianza por aquí, usa una de las bengalas de Frizzo Chispamisil.$B$BNo podemos ayudarte si no sabemos dónde estás.',
-    '', ''
+    'Если у тебя возникнут неприятности с Альянсом, запусти одну из сигнальных ракет Фриззо Искрожига.$B$BМы не сможем прийти тебе на помощь, если не будем знать, где ты.',
+    'Если у тебя возникнут неприятности с Альянсом, запусти одну из сигнальных ракет Фриззо Искрожига.$B$BМы не сможем прийти тебе на помощь, если не будем знать, где ты.'
 ),
 (
     87402,
     'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
     'Tous les grands seigneurs de guerre ne se ressemblent pas, $c. Certains sont arrivés là à force de temps et d''efforts, d''autres par leurs apptitude au combat. Devinez à quelle catégorie j''appartiens.',
-    '', '',
+    'Nicht alle Obersten Kriegsfürsten sind gleich, $C. Einige haben es mit Durchhaltevermögen und Zeit so weit gebracht, andere durch ihre Fähigkeiten im Kampf. Ratet mal, zu welcher Kategorie ich gehöre.',
+    'Nicht alle Obersten Kriegsfürsten sind gleich, $C. Einige haben es mit Durchhaltevermögen und Zeit so weit gebracht, andere durch ihre Fähigkeiten im Kampf. Ratet mal, zu welcher Kategorie ich gehöre.',
     'No todos los Grandes Señores de la Guerra son iguales, $c. Unos llegamos por persistencia y tiempo, otros por habilidad en la lucha. ¿De qué clase crees que soy?',
     'No todos los Grandes Señores de la Guerra son iguales, $c. Unos llegamos por persistencia y tiempo, otros por habilidad en la lucha. ¿De qué clase crees que soy?',
-    '', ''
+    'Не все верховные полководцы одинаковы, |3-6($c). Кто-то проложил себе дорогу сюда упорством и временем, а кто-то прорубил ее грубой силой. Угадай, из каких я?',
+    'Не все верховные полководцы одинаковы, |3-6($c). Кто-то проложил себе дорогу сюда упорством и временем, а кто-то прорубил ее грубой силой. Угадай, из каких я?'
 ),
 (
     89855,
     'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
     'Les fragments d''artéfacts contiennent suffisamment d''énergie margique pour remettre sur pied cette fureur terrestre.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Die Artefaktfragmente enthalten genug magische Energie, um diesen Erdzorn wieder zu seiner vollen Stärke aufleben zu lassen.$B$BWie viele habt Ihr uns mitgebracht?',
+    'Die Artefaktfragmente enthalten genug magische Energie, um diesen Erdzorn wieder zu seiner vollen Stärke aufleben zu lassen.$B$BWie viele habt Ihr uns mitgebracht?',
     'Los fragmentos del artefacto contienen suficiente poder mágico para devolverle toda su fuerza a esta Furia de tierra.$B$B¿Cuántos me trajiste?',
     'Los fragmentos del artefacto contienen suficiente poder mágico para devolverle toda su fuerza a esta Furia de tierra.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Фрагменты артефакта содержат в себе достаточно волшебной энергии, чтобы вернуть Гневу Земли полную силу.$B$BСколько ты нам $gпринес:принесла;?',
+    'Фрагменты артефакта содержат в себе достаточно волшебной энергии, чтобы вернуть Гневу Земли полную силу.$B$BСколько ты нам $gпринес:принесла;?'
 ),
 (
     91435,
     'Les flammes se dégageant des braseros près de l''arène des Conquérants ont l''air ordinaires de premier abord. Cependant, je pense qu''ils ont été enchantés par l''antique magie de la Masse-Sanglante.$B$BJ''étais étrangement attirée vers eux. Quand j''en ai touché un, j''ai soudain été remplie d''énergie magique.',
     'Les flammes se dégageant des braseros près de l''arène des Conquérants ont l''air ordinaires de premier abord. Cependant, je pense qu''ils ont été enchantés par l''antique magie de la Masse-Sanglante.$B$BJ''étais étrangement attirée vers eux. Quand j''en ai touché un, j''ai soudain été remplie d''énergie magique.',
-    '', '',
+    'Die Flammen der Kohlenbecken am Ring der Eroberung mögen im ersten Moment ganz gewöhnlich aussehen. Ich bin jedoch überzeugt, dass sie mit uralter Hochfelsmagie verzaubert wurden.$B$BIch fühlte mich auf merkwürdige Weise zu ihnen hingezogen. Als ich schließlich eins davon berührte, wurde ich urplötzlich mit magischer Energie erfüllt.',
+    'Die Flammen der Kohlenbecken am Ring der Eroberung mögen im ersten Moment ganz gewöhnlich aussehen. Ich bin jedoch überzeugt, dass sie mit uralter Hochfelsmagie verzaubert wurden.$B$BIch fühlte mich auf merkwürdige Weise zu ihnen hingezogen. Als ich schließlich eins davon berührte, wurde ich urplötzlich mit magischer Energie erfüllt.',
     'Las llamas de los braseros cerca del Anillo de conquista pueden parecer ordinarias a primera vista. Pero creo que están hechizadas con magia antigua de Gran Magullador.$B$BMe sentí extrañamente atraída hacia ellas y, al tocar una, me inundó de repente la ener.',
     'Las llamas de los braseros cerca del Anillo de conquista pueden parecer ordinarias a primera vista. Pero creo que están hechizadas con magia antigua de Gran Magullador.$B$BMe sentí extrañamente atraída hacia ellas y, al tocar una, me inundó de repente la ener.',
-    '', ''
+    'Огни, поднимающиеся от жаровен у Круга Завоеваний, на первый взгляд кажутся обычными. Но я думаю, что они зачарованы древней магией клана Верховного Молота.$b$bНеведомая сила влекла меня к ним. Прикоснувшись к одному, я ощутила, как меня наполняет волшебная энергия.',
+    'Огни, поднимающиеся от жаровен у Круга Завоеваний, на первый взгляд кажутся обычными. Но я думаю, что они зачарованы древней магией клана Верховного Молота.$b$bНеведомая сила влекла меня к ним. Прикоснувшись к одному, я ощутила, как меня наполняет волшебная энергия.'
 ),
 (
     85343,
     'Kronus va patrouiller le long de la route de la Gloire et se chargera d''éliminer les forces de l''Alliance qui croiseront son chemin.',
     'Kronus va patrouiller le long de la route de la Gloire et se chargera d''éliminer les forces de l''Alliance qui croiseront son chemin.',
-    '', '',
+    'Kronus wird auf der Straße des Ruhms patrouillieren und alle Allianzangehörigen ausschalten, die er finden kann.',
+    'Kronus wird auf der Straße des Ruhms patrouillieren und alle Allianzangehörigen ausschalten, die er finden kann.',
     'Kronus patrullará el Camino de Gloria y lo limpiará de cualquier fuerza de la Alianza.',
     'Kronus patrullará el Camino de Gloria y lo limpiará de cualquier fuerza de la Alianza.',
-    '', ''
+    'Крон будет патрулировать Дорогу Славы, уничтожая всех псов Альянса на своем пути.',
+    'Крон будет патрулировать Дорогу Славы, уничтожая всех псов Альянса на своем пути.'
 ),
 (
     85461,
     'Les portes se trouvent au nord-ouest et au sud-est ; elles permettent de se déplacer de l''un de ces deux points à l''autre.',
     'Les portes se trouvent au nord-ouest et au sud-est ; elles permettent de se déplacer de l''un de ces deux points à l''autre.',
-    '', '',
+    'Die Portale befinden sich im Nordwesten und Südosten. Mit ihrer Hilfe könnt Ihr zwischen diesen zwei Standorten reisen.',
+    'Die Portale befinden sich im Nordwesten und Südosten. Mit ihrer Hilfe könnt Ihr zwischen diesen zwei Standorten reisen.',
     'Los portales se ubican al noreste y sureste, y se pueden usar para moverse entre esos dos puntos.',
     'Los portales se ubican al noreste y sureste, y se pueden usar para moverse entre esos dos puntos.',
-    '', ''
+    'Врата находятся на северо-западе и юго-востоке. С их помощью можно перемещаться между двумя этими двумя точками.',
+    'Врата находятся на северо-западе и юго-востоке. С их помощью можно перемещаться между двумя этими двумя точками.'
 ),
 (
     85460,
     'Les mages ouvriront un portail à l''ouest d''A''shran. Il vous permettra de rentrer directement à l''avant-poste de Fer-de-Lance.',
     'Les mages ouvriront un portail à l''ouest d''A''shran. Il vous permettra de rentrer directement à l''avant-poste de Fer-de-Lance.',
-    '', '',
+    'Die Magier werden im Westen Ashrans ein Portal beschwören, das Euch zurück zum Vorposten des Kriegsspeers bringen kann.',
+    'Die Magier werden im Westen Ashrans ein Portal beschwören, das Euch zurück zum Vorposten des Kriegsspeers bringen kann.',
     'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Puesto Lanza de Guerra.',
     'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Puesto Lanza de Guerra.',
-    '', ''
+    'Маги создадут портал на западе Ашрана. С его помощью ты сможешь вернуться в Копье Войны.',
+    'Маги создадут портал на западе Ашрана. С его помощью ты сможешь вернуться в Копье Войны.'
 ),
 (
     85334,
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
     'Nos meilleurs Chevaucheurs de loups vont arpenter A''shran pour protéger la province et servir sa population. Et mettre en pièces ces chiens de l''Alliance.',
-    '', '',
+    'Unsere besten Wolfsreiter werden durch ganz Ashran reiten, um zu schützen und zu dienen. Reißt diese Allianzhunde in Stücke.',
+    'Unsere besten Wolfsreiter werden durch ganz Ashran reiten, um zu schützen und zu dienen. Reißt diese Allianzhunde in Stücke.',
     'Nuestro mejor jinete de lobo cabalgará en Ashran para proteger y servir. Despedaza a esos perros de la Alianza.',
     'Nuestro mejor jinete de lobo cabalgará en Ashran para proteger y servir. Despedaza a esos perros de la Alianza.',
-    '', ''
+    'Наши лучшие волчьи всадники будут патрулировать весь Ашран. Они этих псов из Альянса в клочья порвут.',
+    'Наши лучшие волчьи всадники будут патрулировать весь Ашран. Они этих псов из Альянса в клочья порвут.'
 ),
 (
     84924,
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
     'J''ai besoin de beaucoup d''artéfacts pour équiper nos Chevaucheurs et les envoyer au combat.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Bringt mir genug von diesen Artefakten, damit ich unsere Reiter damit aufrüsten und sie in die Schlacht schicken kann.$B$BWie viele habt Ihr mir gebracht?',
+    'Bringt mir genug von diesen Artefakten, damit ich unsere Reiter damit aufrüsten und sie in die Schlacht schicken kann.$B$BWie viele habt Ihr mir gebracht?',
     'Tráeme suficientes de esos artefactos y podré equipar a nestros caballeros para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
     'Tráeme suficientes de esos artefactos y podré equipar a nestros caballeros para enviarlos a la batalla.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Принеси мне достаточное количество этих артефактов, и тогда я смогу снарядить в бой наших рыцарей. $B$BСколько фрагментов ты $gпринес:принесла;?',
+    'Принеси мне достаточное количество этих артефактов, и тогда я смогу снарядить в бой наших рыцарей. $B$BСколько фрагментов ты $gпринес:принесла;?'
 ),
 (
     84928,
     'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
     'Nos meilleurs Chevaucheurs vont arpenter A''shran pour protéger la province, servir la population... et faire vivre un cauchemar à la Horde.',
-    '', '',
+    'Unsere beste Kavallerie wird in Ashran patrouillieren, um zu schützen und zu dienen. Also hauptsächlich werden sie der Horde den Tag versauen.',
+    'Unsere beste Kavallerie wird in Ashran patrouillieren, um zu schützen und zu dienen. Also hauptsächlich werden sie der Horde den Tag versauen.',
     'Nuestro mejor jinete caballero cabalgará en Ashran para proteger y servir. Ya sabes, para arruinarle el día a la Horda.',
     'Nuestro mejor jinete caballero cabalgará en Ashran para proteger y servir. Ya sabes, para arruinarle el día a la Horda.',
-    '', ''
+    'Наши лучшие всадники будут патрулировать весь Ашран. Они будут препятствовать планам Орды и вообще всячески ей вредить.',
+    'Наши лучшие всадники будут патрулировать весь Ашран. Они будут препятствовать планам Орды и вообще всячески ей вредить.'
 ),
 (
     83896,
     'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
     'Les fragments d''artéfacts contiennent suffisamment d''énergie magique pour remettre sur pied cet ancien. $B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Die Artefaktfragmente enthalten genug magische Energie, um dieses Urtum wieder zu seiner vollen Stärke aufleben zu lassen.$B$BWie viele habt Ihr uns mitgebracht?',
+    'Die Artefaktfragmente enthalten genug magische Energie, um dieses Urtum wieder zu seiner vollen Stärke aufleben zu lassen.$B$BWie viele habt Ihr uns mitgebracht?',
     'Los fragmentos del artefacto contienen suficiente poder mágico para revivir a este anciano y darle toda su fuerza.$B$B¿Cuántos me trajiste?',
     'Los fragmentos del artefacto contienen suficiente poder mágico para revivir a este anciano y darle toda su fuerza.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Фрагменты разбитого артефакта содержат в себе достаточно волшебной энергии, чтобы вернуть этому древнему его силу.$B$BСколько ты нам $gпринес:принесла;?',
+    'Фрагменты разбитого артефакта содержат в себе достаточно волшебной энергии, чтобы вернуть этому древнему его силу.$B$BСколько ты нам $gпринес:принесла;?'
 ),
 (
     84624,
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
-    '', '',
+    'Fangraal wird auf die Straße des Ruhms marschieren und sie von sämtlichen Hordemitgliedern säubern, die er findet.',
+    'Fangraal wird auf die Straße des Ruhms marschieren und sie von sämtlichen Hordemitgliedern säubern, die er findet.',
     'Fangraal marchará por el Camino de Gloria y lo limpiará de cualquier fuerza de la Horda.',
     'Fangraal marchará por el Camino de Gloria y lo limpiará de cualquier fuerza de la Horda.',
-    '', ''
+    'Фанграал будет патрулировать Дорогу Славы, уничтожая всех приспешников Орды на своем пути.',
+    'Фанграал будет патрулировать Дорогу Славы, уничтожая всех приспешников Орды на своем пути.'
 ),
 (
     84627,
     'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
     'Les démonistes vont ouvrir des portes pour que nous puissions nous déplacer plus rapidement dans A''shran. Mais pour ça, nous avons besoin de la puissance magique renfermée dans les fragments d''artéfacts disséminés par ici.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Die Hexenmeister werden Portale aufstellen, damit wir uns innerhalb Ashrans schneller bewegen können. Wir brauchen nur die magischen Kräfte der Artefaktfragmente, die überall in Ashran verstreut sind.$B$BWie viele habt Ihr mitgebracht?',
+    'Die Hexenmeister werden Portale aufstellen, damit wir uns innerhalb Ashrans schneller bewegen können. Wir brauchen nur die magischen Kräfte der Artefaktfragmente, die überall in Ashran verstreut sind.$B$BWie viele habt Ihr mitgebracht?',
     'Los brujos erigirán portales para que podamos movernos más rápido por Ashran. Solo necesitamos el poder mágico de esas piezas de artefacto desperdigadas por todo Ashran.$B$B¿Cuántos me trajiste?',
     'Los brujos erigirán portales para que podamos movernos más rápido por Ashran. Solo necesitamos el poder mágico de esas piezas de artefacto desperdigadas por todo Ashran.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Чернокнижники создадут врата, с помощью которых мы сможем быстрее перемещаться по Ашрану. Но для этого нам потребуется магическая энергия из фрагментов артефакта, разбросанных по Ашрану.$B$BСколько фрагментов ты мне $gпринес:принесла;?',
+    'Чернокнижники создадут врата, с помощью которых мы сможем быстрее перемещаться по Ашрану. Но для этого нам потребуется магическая энергия из фрагментов артефакта, разбросанных по Ашрану.$B$BСколько фрагментов ты мне $gпринес:принесла;?'
 ),
 (
     84642,
     'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
     'Les portes sont activées au sud-est et au nord-ouest d''A''shran. Servez-vous en pour vous téléporter d''une zone à l''autre.',
-    '', '',
+    'Die Portale aktivieren sich im Nordwesten und Südosten Ashrans. Mit ihrer Hilfe könnt Ihr zwischen diesen beiden Standorten reisen.',
+    'Die Portale aktivieren sich im Nordwesten und Südosten Ashrans. Mit ihrer Hilfe könnt Ihr zwischen diesen beiden Standorten reisen.',
     'Los portales se activan hacia el sureste y el noroeste de Ashran. Úsalos para teletransportarte entre ambos puntos.',
     'Los portales se activan hacia el sureste y el noroeste de Ashran. Úsalos para teletransportarte entre ambos puntos.',
-    '', ''
+    'Врата расположены на юго-востоке и северо-западе Ашрана. Когда они будут активированы, ты сможешь свободно перемещаться между ними.',
+    'Врата расположены на юго-востоке и северо-западе Ашрана. Когда они будут активированы, ты сможешь свободно перемещаться между ними.'
 ),
 (
     84922,
     'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
     'Si vous récupérez assez des fragments d''artéfacts qu''on peut trouver à A''shran, nous pourrons utiliser l''énergie qu''ils renferment pour invoquer un portail de mage.$B$BCombien m''en apportez-vous ?',
-    '', '',
+    'Wenn Ihr uns genug von den Artefaktfragmenten bringt, die um Ashran herum verstreut liegen, können wir mit ihrer Energie ein Magierportal öffnen.$B$BWie viele habt Ihr mir gebracht?',
+    'Wenn Ihr uns genug von den Artefaktfragmenten bringt, die um Ashran herum verstreut liegen, können wir mit ihrer Energie ein Magierportal öffnen.$B$BWie viele habt Ihr mir gebracht?',
     'Si nos traes suficiente de estas piezas de artefacto que están dispersas en Ashran, podemos usar su poder para conjurar un portal de mago.$B$B¿Cuántos me trajiste?',
     'Si nos traes suficiente de estas piezas de artefacto que están dispersas en Ashran, podemos usar su poder para conjurar un portal de mago.$B$B¿Cuántos me trajiste?',
-    '', ''
+    'Если ты принесешь нам достаточно этих фрагментов артефакта – а они разбросаны по всему Ашрану – наши маги смогут направить их силу на создание порталов.$B$BСколько фрагментов ты мне $gпринес:принесла;?',
+    'Если ты принесешь нам достаточно этих фрагментов артефакта – а они разбросаны по всему Ашрану – наши маги смогут направить их силу на создание порталов.$B$BСколько фрагментов ты мне $gпринес:принесла;?'
 ),
 (
     90226,
     'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
     'Les mages vont invoquer dans l''ouest d''A''shran un portail qui vous permettra de rentrer au bastion de Bouclier-des-Tempêtes.',
-    '', '',
+    'Die Magier werden im Westen Ashrans ein Portal beschwören, das Euch zurück zur Sturmschildfeste bringen kann.',
+    'Die Magier werden im Westen Ashrans ein Portal beschwören, das Euch zurück zur Sturmschildfeste bringen kann.',
     'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Fuerte Escudo de Tormenta.',
     'Los magos invocarán un portal al oeste de Ashran que se puede usar para devolverte al Fuerte Escudo de Tormenta.',
-    '', ''
+    'Маги создадут портал в западной части Ашрана, и через него ты сможешь попасть в Крепость Преграды Ветров.',
+    'Маги создадут портал в западной части Ашрана, и через него ты сможешь попасть в Крепость Преграды Ветров.'
 ),
 (
     85651,
     'Je n''irai pas jusqu''à dire que nous n''étions pas préparés, mais on manque de réserves à Ashran. On n''en a pas emporté assez en traversant le portail. $B$BJ''espère que l''équipe de Brac pourra nous fournir la machinerie lourde nécessaire à notre victoire sur la Horde.',
     'Je n''irai pas jusqu''à dire que nous n''étions pas préparés, mais on manque de réserves à Ashran. On n''en a pas emporté assez en traversant le portail. $B$BJ''espère que l''équipe de Brac pourra nous fournir la machinerie lourde nécessaire à notre victoire sur la Horde.',
-    '', '',
+    'Ich will ja nicht behaupten, dass wir uns nicht ordentlich vorbereitet hätten, doch uns bleiben kaum noch Vorräte hier in Ashran. Wir haben einfach nicht genug durchs Portal gebracht.$B$BHoffentlich kann Nocks Team uns die schweren Maschinen bringen, die wir brauchen werden, um die Horde zu besiegen.',
+    'Ich will ja nicht behaupten, dass wir uns nicht ordentlich vorbereitet hätten, doch uns bleiben kaum noch Vorräte hier in Ashran. Wir haben einfach nicht genug durchs Portal gebracht.$B$BHoffentlich kann Nocks Team uns die schweren Maschinen bringen, die wir brauchen werden, um die Horde zu besiegen.',
     'No quiero decir que no estábamos preparados, pero en Ashran escasean los suministros. No trajimos suficientes por el portal.$B$BEspero que el equipo de Piñón nos traiga la maquinaria pesada que necesitamos para ganar esta batalla contra la Horda.',
     'No quiero decir que no estábamos preparados, pero en Ashran escasean los suministros. No trajimos suficientes por el portal.$B$BEspero que el equipo de Piñón nos traiga la maquinaria pesada que necesitamos para ganar esta batalla contra la Horda.',
-    '', ''
+    'Не сказала бы, что мы не готовы, но нам не хватает боевой мощи в Ашране – слишком мало техники перевезли через портал.$B$BБудем надеяться, что отряд Шестера достанет тяжелую технику, которая необходима нам для победы в этой битве против Орды.',
+    'Не сказала бы, что мы не готовы, но нам не хватает боевой мощи в Ашране – слишком мало техники перевезли через портал.$B$BБудем надеяться, что отряд Шестера достанет тяжелую технику, которая необходима нам для победы в этой битве против Орды.'
 ),
 (
     85108,
     'Ne ménagez pas la Horde, $n. Rapportez-moi une preuve de sa défaite, et je vous récompenserai généreusement.',
     'Ne ménagez pas la Horde, $n. Rapportez-moi une preuve de sa défaite, et je vous récompenserai généreusement.',
-    '', '',
+    'Macht es der Horde nicht leicht, $n. Bringt mir ein Zeichen für ihren Niedergang und ich werde Euch fürstlich belohnen.',
+    'Macht es der Horde nicht leicht, $n. Bringt mir ein Zeichen für ihren Niedergang und ich werde Euch fürstlich belohnen.',
     'Sé $Gduro:dura; con la Horda, $n. Tráeme una prueba de su desaparición y serás muy bien $Grecompensado:recompensada;.',
     'Sé $Gduro:dura; con la Horda, $n. Tráeme una prueba de su desaparición y serás muy bien $Grecompensado:recompensada;.',
-    '', ''
+    'Не давай Орде спуску, $n. Если принесешь мне подтверждение гибели ее бойцов, я щедро тебя награжу.',
+    'Не давай Орде спуску, $n. Если принесешь мне подтверждение гибели ее бойцов, я щедро тебя награжу.'
 ),
 (
     87228,
     'On sous-estime clairement le rôle des soigneurs, $n. Si on pensait plus souvent à nous inclure aux effectifs chargés de partir en mission, il y aurait moins de monde dans ma hutte de guérison.',
     'On sous-estime clairement le rôle des soigneurs, $n. Si on pensait plus souvent à nous inclure aux effectifs chargés de partir en mission, il y aurait moins de monde dans ma hutte de guérison.',
-    '', '',
+    'Heiler werden wirklich komplett unterschätzt, $n. Wenn sich mehr Leute entschließen könnten, uns auf ihre Missionen mitzunehmen, gäbe es weniger Patienten hier in meiner Heilerhütte.',
+    'Heiler werden wirklich komplett unterschätzt, $n. Wenn sich mehr Leute entschließen könnten, uns auf ihre Missionen mitzunehmen, gäbe es weniger Patienten hier in meiner Heilerhütte.',
     'Se nos subestima a los sanadores, $n. Si nos eligieran más como acompañantes en sus misiones, habría menos en este refugio de sanación.',
     'Se nos subestima a los sanadores, $n. Si nos eligieran más como acompañantes en sus misiones, habría menos en este refugio de sanación.',
-    '', ''
+    'Нас, лекарей, сильно недооценивают, $n. Если бы воины почаще брали нас с собой на задания, в моем лазарете было бы куда меньше пациентов...',
+    'Нас, лекарей, сильно недооценивают, $n. Если бы воины почаще брали нас с собой на задания, в моем лазарете было бы куда меньше пациентов...'
 ),
 (
     87226,
     'Vous venez rendre visite à l''un des blessés, $n ?',
     'Vous venez rendre visite à l''un des blessés, $n ?',
-    '', '',
+    'Seid Ihr hier, um einen der Verwundeten zu besuchen, $n?',
+    'Seid Ihr hier, um einen der Verwundeten zu besuchen, $n?',
     '¿Has venido aquí a visitar a los heridos, $n?',
     '¿Has venido aquí a visitar a los heridos, $n?',
-    '', ''
+    'Ты хочешь навестить кого-то из раненых, $n?',
+    'Ты хочешь навестить кого-то из раненых, $n?'
 ),
 (
     88551,
     'Ce n''est pas si facile que ça de s''occuper des chevaux, mais au moins on profite du grand air.',
     'Ce n''est pas si facile que ça de s''occuper des chevaux, mais au moins on profite du grand air.',
-    '', '',
+    'Die Pferde zu versorgen, ist nicht so einfach, wie es aussieht, doch wenigstens kann man dabei im Freien sein.',
+    'Die Pferde zu versorgen, ist nicht so einfach, wie es aussieht, doch wenigstens kann man dabei im Freien sein.',
     'Cuidar a los caballos no es tan fácil como parece, pero al menos disfrutas del aire libre.',
     'Cuidar a los caballos no es tan fácil como parece, pero al menos disfrutas del aire libre.',
-    '', ''
+    'Ухаживать за лошадьми не так просто, как кажется. Зато ты проводишь время на свежем воздухе.',
+    'Ухаживать за лошадьми не так просто, как кажется. Зато ты проводишь время на свежем воздухе.'
 ),
 (
     88743,
     'Il vous reste des fragments d''artéfacts, $n ? Mon ami Ecilam en aurait bien besoin.',
     'Il vous reste des fragments d''artéfacts, $n ? Mon ami Ecilam en aurait bien besoin.',
-    '', '',
+    'Habt Ihr irgendwelche Artefaktfragmente übrig, $n? Mein Freund Ecilam könnte sie brauchen.',
+    'Habt Ihr irgendwelche Artefaktfragmente übrig, $n? Mein Freund Ecilam könnte sie brauchen.',
     '¿Tienes algunos fragmentos de artefacto de sobra, $n? Mi amigo Ecilam podría usarlos.',
     '¿Tienes algunos fragmentos de artefacto de sobra, $n? Mi amigo Ecilam podría usarlos.',
-    '', ''
+    'Нет ли у тебя лишних фрагментов артефакта, $n? Мой друг Экилам нашел бы им применение.',
+    'Нет ли у тебя лишних фрагментов артефакта, $n? Мой друг Экилам нашел бы им применение.'
 ),
 (
     87224,
     'Nos potions fantomatiques sont parfaites pour éviter les gardes de la Horde ou aller se promener dans leur base principale ! Vous avez déjà essayé ça, $n ?',
     'Nos potions fantomatiques sont parfaites pour éviter les gardes de la Horde ou aller se promener dans leur base principale ! Vous avez déjà essayé ça, $n ?',
-    '', '',
+    'Meine Phantomtränke sind perfekt dafür geeignet, ungesehen um die Wachen der Horde herumzuschleichen oder sogar in ihr Hauptquartier vorzudringen! Habt Ihr sie schon ausprobiert, $n?',
+    'Meine Phantomtränke sind perfekt dafür geeignet, ungesehen um die Wachen der Horde herumzuschleichen oder sogar in ihr Hauptquartier vorzudringen! Habt Ihr sie schon ausprobiert, $n?',
     'Mis pociones fantasma son perfectas para infiltrarse entre los guardias de la Horda, jo hasta para entrar en su base principal! ¿Ya las has probado, $n?',
     'Mis pociones fantasma son perfectas para infiltrarse entre los guardias de la Horda, jo hasta para entrar en su base principal! ¿Ya las has probado, $n?',
-    '', ''
+    'Наши зелья призрачности идеальны для того, чтобы прошмыгнуть мимо часовых Орды – и даже пробраться на их главную базу! Ты уже $gопробовал:опробовала; их в деле, $n?',
+    'Наши зелья призрачности идеальны для того, чтобы прошмыгнуть мимо часовых Орды – и даже пробраться на их главную базу! Ты уже $gопробовал:опробовала; их в деле, $n?'
 ),
 (
     83826,
     'Nos pouvoirs ne sont pas suffisants pour revitaliser cet ancien, mais nous n''abandonnerons pas. Nous aiderez-vous ?',
     'Nos pouvoirs ne sont pas suffisants pour revitaliser cet ancien, mais nous n''abandonnerons pas. Nous aiderez-vous ?',
-    '', '',
+    'Unsere Macht reicht nicht aus, um dieses Urtum wiederzubeleben, aber wir werden es weiterhin versuchen. Werdet Ihr uns helfen?',
+    'Unsere Macht reicht nicht aus, um dieses Urtum wiederzubeleben, aber wir werden es weiterhin versuchen. Werdet Ihr uns helfen?',
     'Nestro poder no es lo suficientemente fuerte como para revivir a esto ancestro, pero lo seguiremos intentando. ¿Vas a ayudarnos?',
     'Nestro poder no es lo suficientemente fuerte como para revivir a esto ancestro, pero lo seguiremos intentando. ¿Vas a ayudarnos?',
-    '', ''
+    'У нас не хватает сил, чтобы оживить древнего, но мы не оставляем надежды. Ты поможешь нам?',
+    'У нас не хватает сил, чтобы оживить древнего, но мы не оставляем надежды. Ты поможешь нам?'
 ),
 (
     86756,
     'J''étais pratiquement rentré à la base après avoir fait le plein de fragments d''artéfacts quand je me suis fait dépouiller par ces vermines de la Horde. Je vous conseille de rester sur vos gardes, $n.',
     'J''étais pratiquement rentré à la base après avoir fait le plein de fragments d''artéfacts quand je me suis fait dépouiller par ces vermines de la Horde. Je vous conseille de rester sur vos gardes, $n.',
-    '', '',
+    'Ich war schon beinahe wieder in der Basis und hatte einen Sack voll mit diesen Artefaktfragmenten, als die Horde sie mir abgenommen hat. Man muss ständig achtsam sein, $n.',
+    'Ich war schon beinahe wieder in der Basis und hatte einen Sack voll mit diesen Artefaktfragmenten, als die Horde sie mir abgenommen hat. Man muss ständig achtsam sein, $n.',
     'Estaba por llegar a la base con un montón de esos fragmentos de artefacto cuando la Horda me los robó. Cuídate en todo momento, $n.',
     'Estaba por llegar a la base con un montón de esos fragmentos de artefacto cuando la Horda me los robó. Cuídate en todo momento, $n.',
-    '', ''
+    'Я уже почти было вернулся на базу с целым мешком этих фрагментов артефактов, но тут на меня напали воины Орды и все отобрали. Так что будь начеку, $n.',
+    'Я уже почти было вернулся на базу с целым мешком этих фрагментов артефактов, но тут на меня напали воины Орды и все отобрали. Так что будь начеку, $n.'
 ),
 (
     86864,
     'Je me demande ce que Chris Clarkie peut faire de tous les pieds de troll qu''on lui rapporte.',
     'Je me demande ce que Chris Clarkie peut faire de tous les pieds de troll qu''on lui rapporte.',
-    '', '',
+    'Ich frage mich, was Chris Clarkie mit all diesen Trollfüßen macht, die die Leute ihm bringen.',
+    'Ich frage mich, was Chris Clarkie mit all diesen Trollfüßen macht, die die Leute ihm bringen.',
     'Me pregunto qué es lo que Chris Clarkie hace con todos esos Pies de Trol que la traen.',
     'Me pregunto qué es lo que Chris Clarkie hace con todos esos Pies de Trol que la traen.',
-    '', ''
+    'Интересно, что Крис Кларки делает со всеми ногами троллей, что ему приносят?',
+    'Интересно, что Крис Кларки делает со всеми ногами троллей, что ему приносят?'
 ),
 (
     86758,
     'Comment êtes-vous $garrivé:arrivée; jusqu''ici ? Harrison Jones n''avait pas dit que cette aventure se révélerait aussi... dangereuse.',
     'Comment êtes-vous $garrivé:arrivée; jusqu''ici ? Harrison Jones n''avait pas dit que cette aventure se révélerait aussi... dangereuse.',
-    '', '',
+    'Wie seid Ihr hierher gekommen? Harrison Jones hat nicht erwähnt, dass dieses Abenteuer so... gefährlich sein würde.',
+    'Wie seid Ihr hierher gekommen? Harrison Jones hat nicht erwähnt, dass dieses Abenteuer so... gefährlich sein würde.',
     '¿Cómo llegaste aquí? Harrison Jones nunca dijo que esta aventura sería tan... peligrosa.',
     '¿Cómo llegaste aquí? Harrison Jones nunca dijo que esta aventura sería tan... peligrosa.',
-    '', ''
+    'Как ты сюда $gпопал:попала;? Харрисон Джонс не говорил, что это приключение будет таким... опасным.',
+    'Как ты сюда $gпопал:попала;? Харрисон Джонс не говорил, что это приключение будет таким... опасным.'
 ),
 (
     87229,
     'Vous avez croisé Feezzel ? Je n''arrive pas à lui mettre la main dessus.',
     'Vous avez croisé Feezzel ? Je n''arrive pas à lui mettre la main dessus.',
-    '', '',
+    'Habt Ihr Feezzel gesehen? Ich kann ihn nirgends finden!',
+    'Habt Ihr Feezzel gesehen? Ich kann ihn nirgends finden!',
     '¿Has visto a Feezzel? No lo encuentro por ninguna parte.',
     '¿Has visto a Feezzel? No lo encuentro por ninguna parte.',
-    '', ''
+    'Ты не $gвидел:видела; Физзеля? Нигде не могу его найти.',
+    'Ты не $gвидел:видела; Физзеля? Нигде не могу его найти.'
 ),
 (
     86207,
     'L''entrée de la mine est barrée, mais à l''intérieur le travail continue.',
     'L''entrée de la mine est barrée, mais à l''intérieur le travail continue.',
-    '', '',
+    'Der Eingang zur Mine ist verschlossen, solange darin gearbeitet wird.',
+    'Der Eingang zur Mine ist verschlossen, solange darin gearbeitet wird.',
     'La entrada a la mina está bloqueada mientras estén trabajando adentro.',
     'La entrada a la mina está bloqueada mientras estén trabajando adentro.',
-    '', ''
+    'Вход в шахту закрыт, но работы в ней продолжаются.',
+    'Вход в шахту закрыт, но работы в ней продолжаются.'
 ),
 (
     87162,
     'Nous ne sommes pas les seuls à faire des prisonniers, $n.$B$BLa base de la Horde dispose d''une prison située sous la hutte de guérison qui se trouve sur la gauche, de l''autre côté de la porte principale.$B$BSi nous parvenons à mettre la main sur les clés de la prison de Fer-de-Lance qu''on peut trouver à A''shran, nous pourrons libérer les captifs.',
     'Nous ne sommes pas les seuls à faire des prisonniers, $n.$B$BLa base de la Horde dispose d''une prison située sous la hutte de guérison qui se trouve sur la gauche, de l''autre côté de la porte principale.$B$BSi nous parvenons à mettre la main sur les clés de la prison de Fer-de-Lance qu''on peut trouver à A''shran, nous pourrons libérer les captifs.',
-    '', '',
+    'Wir sind nicht die Einzigen, die Gefangene haben, $n.$B$BDrüben in der Hordenbasis liegt deren Gefängnis gleich unterhalb der Heilerhütte links, wenn Ihr das Haupttor durchschreitet.$B$BFalls wir in Ashran ein paar dieser Gefängnisschlüssel des Kriegsspeers finden, könnten wir die Gefangenen befreien.',
+    'Wir sind nicht die Einzigen, die Gefangene haben, $n.$B$BDrüben in der Hordenbasis liegt deren Gefängnis gleich unterhalb der Heilerhütte links, wenn Ihr das Haupttor durchschreitet.$B$BFalls wir in Ashran ein paar dieser Gefängnisschlüssel des Kriegsspeers finden, könnten wir die Gefangenen befreien.',
     'No somos los únicos con prisioneros, $n.$B$BEn la base de la Horda está su prisión, bajo el puesto de auxilio que hay a la izquierda tras cruzar la puerta principal.$B$BSi encontramos algunas de esas llaves de prisión Lanza de guerra en Ashran, podremos liber.',
     'No somos los únicos con prisioneros, $n.$B$BEn la base de la Horda está su prisión, bajo el puesto de auxilio que hay a la izquierda tras cruzar la puerta principal.$B$BSi encontramos algunas de esas llaves de prisión Lanza de guerra en Ashran, podremos liber.',
-    '', ''
+    'Пленных берем не только мы, $n.$B$BНа базе Орды тоже есть тюрьма – она находится прямо под зданием лазарета, что слева от главных ворот.$B$BЕсли мы раздобудем в Ашране ключи от тюрьмы Копья Войны, то сумеем помочь этим пленникам выбраться на свободу.',
+    'Пленных берем не только мы, $n.$B$BНа базе Орды тоже есть тюрьма – она находится прямо под зданием лазарета, что слева от главных ворот.$B$BЕсли мы раздобудем в Ашране ключи от тюрьмы Копья Войны, то сумеем помочь этим пленникам выбраться на свободу.'
 ),
 (
     90534,
     'Il fait un peu chaud, aujourd''hui, vous ne trouvez pas ?',
     'Il fait un peu chaud, aujourd''hui, vous ne trouvez pas ?',
-    '', '',
+    'Ganz schön warm heute, findet Ihr nicht auch?',
+    'Ganz schön warm heute, findet Ihr nicht auch?',
     'Hoy hace calor, ¿no crees?',
     'Hoy hace calor, ¿no crees?',
-    '', ''
+    'Сегодня жарковато, да?',
+    'Сегодня жарковато, да?'
 ),
 (
     90385,
     'Difficile de combattre par ce froid, pas vrai ?',
     'Difficile de combattre par ce froid, pas vrai ?',
-    '', '',
+    'Die Kälte ist Euch offensichtlich unangenehm.',
+    'Die Kälte ist Euch offensichtlich unangenehm.',
     'El frío de verdad te molesta.',
     'El frío de verdad te molesta.',
-    '', ''
+    'Тебе явно не нравится холод.',
+    'Тебе явно не нравится холод.'
 ),
 (
     89897,
     'Nous ne sommes pas les seuls à faire des prisonniers, $c.$B$BLa base de l''Alliance dispose d''une prison, située sous le bâtiment principal.$B$BIl nous suffirait de trouver les clés de la prison de Bouclier-des-Tempêtes pour pouvoir libérer les prisonniers.',
     'Nous ne sommes pas les seuls à faire des prisonniers, $c.$B$BLa base de l''Alliance dispose d''une prison, située sous le bâtiment principal.$B$BIl nous suffirait de trouver les clés de la prison de Bouclier-des-Tempêtes pour pouvoir libérer les prisonniers.',
-    '', '',
+    'Wir sind nicht die Einzigen mit Gefangenen, $C.$B$BDrüben in der Basis der Allianz werden sie unterhalb des Hauptgebäudes gefangen gehalten.$B$BWir müssen nur diese Gefängnisschlüssel des Sturmschilds finden, um sie herauszuholen.',
+    'Wir sind nicht die Einzigen mit Gefangenen, $C.$B$BDrüben in der Basis der Allianz werden sie unterhalb des Hauptgebäudes gefangen gehalten.$B$BWir müssen nur diese Gefängnisschlüssel des Sturmschilds finden, um sie herauszuholen.',
     'No somos los únicos que tienen prisioneros, $c.$B$BEn la base de la Alianza, debajo del edificio principal, hay una prisión.$B$BSolo tenemos que encontrar esas llaves de la prisión de Escudo de Tormenta para liberarlos.',
     'No somos los únicos que tienen prisioneros, $c.$B$BEn la base de la Alianza, debajo del edificio principal, hay una prisión.$B$BSolo tenemos que encontrar esas llaves de la prisión de Escudo de Tormenta para liberarlos.',
-    '', ''
+    'Пленных берем не только мы, |3-6($c).$B$BНа базе Альянса тоже есть тюрьма – она находится прямо под главным зданием.$B$BЕсли мы раздобудем ключи от тюрьмы Преграды Ветров, то сумеем помочь этим пленникам выбраться на свободу.',
+    'Пленных берем не только мы, |3-6($c).$B$BНа базе Альянса тоже есть тюрьма – она находится прямо под главным зданием.$B$BЕсли мы раздобудем ключи от тюрьмы Преграды Ветров, то сумеем помочь этим пленникам выбраться на свободу.'
 );
 
 -- Artifact count gossips
@@ -1220,73 +1314,89 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     84476,
     'Pour l''instant, nous en avons récolté $9250w, mais il nous en faut au total $9706w.',
     'Pour l''instant, nous en avons récolté $9250w, mais il nous en faut au total $9706w.',
-    '', '',
+    'Momentan haben wir $9250w gesammelt. Wir brauchen insgesamt $9706w.',
+    'Momentan haben wir $9250w gesammelt. Wir brauchen insgesamt $9706w.',
     'Por el momento tenemos $9250w. Necesitamos un total de $9706w.',
     'Por el momento tenemos $9250w. Necesitamos un total de $9706w.',
-    '', ''
+    'Пока что у нас собрано $9250w. А всего нам нужно $9706w.',
+    'Пока что у нас собрано $9250w. А всего нам нужно $9706w.'
 ),
 (
     84631,
     'Pour l''instant, nous en avons récolté $9261w, mais il nous en faut au total $9708w.',
     'Pour l''instant, nous en avons récolté $9261w, mais il nous en faut au total $9708w.',
-    '', '',
+    'Momentan haben wir $9261w gesammelt. Wir brauchen insgesamt $9708w.',
+    'Momentan haben wir $9261w gesammelt. Wir brauchen insgesamt $9708w.',
     'Por el momento tenemos $9261w. Necesitamos un total de $9708w.',
     'Por el momento tenemos $9261w. Necesitamos un total de $9708w.',
-    '', ''
+    'Пока что у нас собрано $9261w. А всего нам нужно $9708w.',
+    'Пока что у нас собрано $9261w. А всего нам нужно $9708w.'
 ),
 (
     84926,
     'Pour l''instant, nous en avons récolté $9314w, mais il nous en faut au total $9705w.',
     'Pour l''instant, nous en avons récolté $9314w, mais il nous en faut au total $9705w.',
-    '', '',
+    'Momentan haben wir $9314w gesammelt. Wir brauchen insgesamt $9705w.',
+    'Momentan haben wir $9314w gesammelt. Wir brauchen insgesamt $9705w.',
     'Por el momento tenemos $9314w. Necesitamos un total de $9705w.',
     'Por el momento tenemos $9314w. Necesitamos un total de $9705w.',
-    '', ''
+    'Пока что у нас собрано $9314w. А всего нам нужно $9705w.',
+    'Пока что у нас собрано $9314w. А всего нам нужно $9705w.'
 ),
 (
     85336,
     'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
     'Pour l''instant, nous en avons récolté $9313w, mais il nous en faut au total $9705w.',
-    '', '',
+    'Momentan haben wir $9313w gesammelt. Wir brauchen insgesamt $9705w.',
+    'Momentan haben wir $9313w gesammelt. Wir brauchen insgesamt $9705w.',
     'Por el momento tenemos $9313w. Necesitamos un total de $9705w.',
     'Por el momento tenemos $9313w. Necesitamos un total de $9705w.',
-    '', ''
+    'Пока что у нас собрано $9313w. А всего нам нужно $9705w.',
+    'Пока что у нас собрано $9313w. А всего нам нужно $9705w.'
 ),
 (
     85339,
     'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
     'Pour l''instant, nous en avons récolté $9312w, mais il nous en faut au total $9707w.',
-    '', '',
+    'Momentan haben wir $9312w gesammelt. Wir brauchen insgesamt $9707w.',
+    'Momentan haben wir $9312w gesammelt. Wir brauchen insgesamt $9707w.',
     'Por el momento tenemos $9312w. Necesitamos un total de $9707w.',
     'Por el momento tenemos $9312w. Necesitamos un total de $9707w.',
-    '', ''
+    'Пока что у нас собрано $9312w. А всего нам нужно $9707w.',
+    'Пока что у нас собрано $9312w. А всего нам нужно $9707w.'
 ),
 (
     85340,
     'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
     'Pour l''instant, nous en avons récolté $9262w, mais il nous en faut au total $9708w.',
-    '', '',
+    'Momentan haben wir $9262w gesammelt. Wir brauchen insgesamt $9708w.',
+    'Momentan haben wir $9262w gesammelt. Wir brauchen insgesamt $9708w.',
     'Por el momento tenemos $9262w. Necesitamos un total de $9708w.',
     'Por el momento tenemos $9262w. Necesitamos un total de $9708w.',
-    '', ''
+    'Пока что у нас собрано $9262w. А всего нам нужно $9708w.',
+    'Пока что у нас собрано $9262w. А всего нам нужно $9708w.'
 ),
 (
     85341,
     'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
     'Pour l''instant, nous en avons récolté $9253w, mais il nous en faut au total $9706w.',
-    '', '',
+    'Momentan haben wir $9253w gesammelt. Wir brauchen insgesamt $9706w.',
+    'Momentan haben wir $9253w gesammelt. Wir brauchen insgesamt $9706w.',
     'Por el momento tenemos $9253w. Necesitamos un total de $9706w.',
     'Por el momento tenemos $9253w. Necesitamos un total de $9706w.',
-    '', ''
+    'Пока что у нас собрано $9253w. А всего нам нужно $9706w.',
+    'Пока что у нас собрано $9253w. А всего нам нужно $9706w.'
 ),
 (
     86036,
     'Pour l''instant, nous en avons récolté $9311w, mais il nous en faut au total $9707w.',
     'Pour l''instant, nous en avons récolté $9311w, mais il nous en faut au total $9707w.',
-    '', '',
+    'Momentan haben wir $9311w gesammelt. Wir brauchen insgesamt $9707w.',
+    'Momentan haben wir $9311w gesammelt. Wir brauchen insgesamt $9707w.',
     'Por el momento tenemos $9311w. Necesitamos un total de $9707w.',
     'Por el momento tenemos $9311w. Necesitamos un total de $9707w.',
-    '', ''
+    'Пока что у нас собрано $9311w. А всего нам нужно $9707w.',
+    'Пока что у нас собрано $9311w. А всего нам нужно $9707w.'
 );
 
 DELETE FROM creature_text WHERE entry IN (88675, 88676, 88771, 88772, 88679, 88682, 88696, 88697);
@@ -1329,168 +1439,168 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 (
     88675, 0, 0,
     'Ces gobelins de Gentepression... faudrait les enfermer. Ils feraient n''importe quoi pour de l''argent !',
-    '',
+    'Diese Goblins vom Dampfdruckkartell sind garstig. Sie tun alles, um ans schnelle Geld zu kommen!',
     'Esos goblins Bonvapor son lamentables. ¡Harían cualquier cosa por una moneda!',
-    ''
+    'Эти гоблины Хитрой Шестеренки до ужаса меркантильные. Они согласятся на любую сделку, будь она в их пользу.'
 ),
 (
     88675, 1, 0,
     'Ça y est, ils vendent des souvenirs !',
-    '',
+    'Sie haben angefangen, Andenken zu verkaufen!',
     '¡Empezaron a vender recuerdos!',
-    ''
+    'Они начали продавать сувениры!'
 ),
 (
     88675, 2, 0,
     'J''aimerais bien. Ils assemblent des bouts de reliques à la va-vite et vendent ça comme bijoux. Traiter des objets aussi inestimables de la sorte, franchement !',
-    '',
+    'Ich wünschte, es wäre nur ein Scherz. Sie haben Artefaktfragmente aufgefädelt und verkaufen sie als Schmuck. Die haben Nerven, so etwas Unbezahlbares auf solche Weise zu behandeln!',
     'Me gustaría que fuera broma. Engarzan fragmentos de artefacto y los venden como joyería. ¡Cómo pueden tratar así algo que no tiene precio!',
-    ''
+    'Нет, ты это видел? Они нанизывают на веревочки фрагменты артефакта и продают это как украшения. Как у них только духу хватает так транжирить бесценные вещи.'
 ),
 (
     88675, 3, 0,
     'Est-ce que Belloc en sait plus sur l''endroit où se trouve ce mystérieux artéfact ?',
-    '',
+    'Hat Bellok Fortschritte bei der Suche nach diesem rätselhaften Artefakt gemacht?',
     '¿Está Belloc más cerca de encontrar la ubicación de este misterioso artefacto?',
-    ''
+    'Беллоку удалось хотя бы примерно определить, где искать этот загадочный артефакт?'
 ),
 (
     88675, 4, 0,
     'Nous devons nous hâter si nous voulons le trouver avant le docteur Jones.',
-    '',
+    'Wir müssen uns beeilen, wenn wir etwas finden wollen, bevor es Dr. Jones in die Hände fällt.',
     'Debemos apresurarnos si queremos encontrarlo antes que el Dr. Jones.',
-    ''
+    'Нам бы поторопиться, а не то доктор Джонс прикарманит артефакт первым.'
 ),
 (
     88676, 0, 0,
     'Qu''est-ce qu''ils ont encore fait ?',
-    '',
+    'Was haben sie diesmal angestellt?',
     '¿Qué hicieron esta vez?',
-    ''
+    'Что они натворили на этот раз?'
 ),
 (
     88676, 1, 0,
     'On se remet à peine de notre assaut sur la Porte des ténèbres, et ils montent un business touristique ? C''est une plaisanterie !',
-    '',
+    'Wir haben uns kaum von dem Angriff aufs Dunkle Portal erholt, und die wollen hier Touristen abzocken? Das soll doch wohl ein Witz sein.',
     '¿Apenas nos estamos recuperando del asalto contra el Portal Oscuro y montan un negocio turístico? Tienes que estar bromeando...',
-    ''
+    'Мы еще не успели оправиться после осады Темного портала, а они уже расставляют лавочки для туристов. Они издеваются?'
 ),
 (
     88676, 2, 0,
     'Il a suivi quelques pistes, mais rien de vraiment concret pour l''instant.',
-    '',
+    'Er hatte einige Hinweise, aber bisher nichts wirklich Konkretes.',
     'Tiene algunas pistas, pero nada demasiado claro.',
-    ''
+    'Он нашел пару подсказок, но пока – никакой уверенности.'
 ),
 (
     88676, 3, 0,
     'Je suis d''accord. On ne sait pas ce dont l''Alliance serait capable avec une arme aussi puissante. Nous devons trouver plus de soutien avant que notre quête ne devienne une cause perdue.',
-    '',
+    'Stimmt, man weiß nicht, was die Allianz mit so einer mächtigen Waffe anfangen würde. Wir müssen um mehr Hilfe bitten, bevor unsere Sache verloren ist.',
     'Así es, no sabemos qué podría hacer la Alianza con un arma tan poderosa. Debemos solicitar más ayuda antes de que nestra causa esté perdida.',
-    ''
+    'Согласен, и так понятно, что может натворить Альянс с таким могущественным оружием. Нам нужна помощь, пока еще есть надежда.'
 ),
 (
     88771, 0, 0,
     'Nos espions nous ont appris que l''Alliance construit un engin de forage. Vous pensez que c''est pour la mine ?',
-    '',
+    'Schurkenspione haben uns gemeldet, dass die Allianz Maschinen baut, die Felsen durchbohren können. Glaubt Ihr, die sind für die Minen?',
     'Los pícaros espías nos informaron que la Alianza está construyendo maquinaria para perforar roca. ¿Crees que es para las minas?',
-    ''
+    'Шпионы сообщают, что Альянс возводит машины для бурения скал. Думаешь, они нацелились на шахты?'
 ),
 (
     88771, 0, 1,
     'Une trêve ? Avec l''Alliance ? Plutôt mourir.',
-    '',
+    'Waffenstillstand? Mit der Allianz? Im Leben nicht.',
     '¿Tregua? ¿Con de Alianza? Jamás',
-    ''
+    'Перемирие? С Альянсом? Дудки.'
 ),
 (
     88772, 0, 0,
     'Si seulement nous pouvions faire passer un zeppelin à travers le portail. Nous pourrions raser Bouclier-des-Tempêtes depuis les airs !',
-    '',
+    'Wenn wir doch nur einen Zeppelin durch das Portal bringen könnten. Wir könnten den Sturmschild vom Himmel aus vernichten!',
     'Si fuéramos capaces de traer un dirigible por el portal... ¡Podríamos eliminar Escudo de Tormenta desde el cielo!',
-    ''
+    'Если бы нам удалось пригнать дирижабль через портал. Тогда бы мы осадили Преграду Ветров с небес!'
 ),
 (
     88772, 0, 1,
     'Vous avez vu le nombre de chevaliers de la mort parmi nous ? Comment se fait-il que nous n''arrivions toujours pas à entrer dans Bouclier-des-Tempêtes ? N''utilisent-ils donc pas leur Peste nécrotique ?',
-    '',
+    'Habt Ihr gesehen, wie viele Todesritter sich in unseren Rängen befinden? Wieso können wir dann immer noch nicht in den Sturmschild eindringen? Setzen die etwa keine nekrotische Seuche ein?',
     '¿Viste cuántos caballeros de la Muerte hay en nuestras filas ? ¿Cómo es que aún no podemos penetrar Escudo de Tormenta? ¿No utilizan Peste necrótica?',
-    ''
+    'Ты только посмотри, сколько рыцарей смерти среди нас! Почему мы до сих пор не можем пробить Преграду Ветров? Они что, не используют Мертвящую чуму?'
 ),
 (
     88679, 0, 0,
     'C''est moche, ce qui s''est passé à la Porte des ténèbres. Vous tenez le coup ?',
-    '',
+    'Am Dunklen Portal ging es ganz schön ungemütlich zu. Wie habt Ihr es überstanden?',
     'Lo del Portal Oscuro fue bastante difícil. ¿Cómo te sientes?',
-    ''
+    'У Темного портала кипела нешуточная заварушка. Как ты держишься?'
 ),
 (
     88679, 1, 0,
     'Ça, c''est bien vrai. Enfin, tant que ce qu''on découvre n''essaie pas de nous arracher la tête !',
-    '',
+    'Das stimmt wohl. Das heißt, solange besagte Geschichte nicht mit einer Kampfaxt hinter uns herjagt!',
     'Es verdad. ¡Bueno, al menos cuando esa historia no te persigue con un hacha!',
-    ''
+    'А, это да. Хорошо хоть эта история не пытается метнуть в тебя топор!'
 ),
 (
     88679, 2, 0,
     'Donc à votre avis, de quelle nature est cet artéfact légendaire ?',
-    '',
+    'Also, was glaubt Ihr, welcher Natur dieses sagenhafte Artefakt ist?',
     '¿Cuál suponías que era la naturaleza de este legendario artefacto?',
-    ''
+    'Как ты думаешь, как появился этот легендарный артефакт?'
 ),
 (
     88679, 3, 0,
     'Cela me semble un peu tiré par les cheveux. Je n''ai rien vu qui puisse relier les titans à ce monde.',
-    '',
+    'Das scheint mir ein wenig weit hergeholt. Ich habe keinerlei Beweise gesehen, die eine Verbindung zwischen den Titanen und dieser Welt vermuten ließen.',
     'No parece muy verosímil. No he visto ninguna prueba que vincule a los titanes con este mundo.',
-    ''
+    'По-моему, ты загнула. С чего ты решила, что тут замешаны титаны?'
 ),
 (
     88682, 0, 0,
     'Quelques égratignures, mais j''en ai vu d''autres. Je suis surtout enthousiaste à l''idée de tout ce qu''il y a à découvrir à notre nouvel avant-poste !',
-    '',
+    'Ein paar Blessuren, aber das sind nicht meine ersten Kratzer. Ich bin nur begeistert, dass unser neuer Außenposten so eine faszinierende Geschichte hat, die es zu entdecken gilt!',
     'Algo lastimado por el desgaste, aunque no es mi primera vez. ¡Me encanta que nuestro nuevo puesto tenga una historia tan fascinante por descubrir!',
-    ''
+    'Бывало и лучше, но мне не впервой. Мне просто не верится, что у нашего новенького аванпоста такая невероятная история!'
 ),
 (
     88682, 1, 0,
     'S''il est aussi puissant que le pense le docteur Jones, il pourrait bien être d''origine titanesque.',
-    '',
+    'Wenn es so mächtig ist, wie Dr. Jones annimmt, könnte es vielleicht sogar von den Titanen stammen.',
     'Si es tan poderoso como piensa el Dr. Jones, podría ser de origen titánico.',
-    ''
+    'Если он так могуществен, как предполагает доктор Джонс, велик шанс, что его создали титаны.'
 ),
 (
     88682, 2, 0,
     'Peut-être, mais ne serait-il pas formidable de découvrir qu''ils sont arrivés jusqu''ici ? Pensez à tout ce que cela impliquerait !',
-    '',
+    'Das mag sein, aber wäre es nicht großartig, zu entdecken, dass der Einfluss der Titanen sich sogar bis hierher erstreckte? Denkt nur über die Auswirkungen nach!',
     'Puede ser, pero ¿no sería grandioso descubrir que los titanes llegaron incluso aquí? ¡Piensa en las implicaciones!',
-    ''
+    'Может, ты и прав, но как здорово было бы выяснить, что титаны побывали и тут! Ты только подумай, как это все меняет!'
 ),
 (
     88696, 0, 0,
     'C''est bien ce que nous craignions, nous devons pénétrer dans les mines. Qui sait quels dangers antiques nous y attendent...',
-    '',
+    'Wie wir befürchtet hatten, müssen wir uns in die Minen vorwagen. Wer weiß, welche uralten Gefahren dort drinnen lauern...',
     'Como temíamos, debemos adentrarnos en las minas. Quién sabe qué antiguos peligros habrá allí dentro...',
-    ''
+    'Наши худшие опасения подтвердились: придется лезть в шахты. Кто знает, какие древние ужасы нас там ожидают...'
 ),
 (
     88696, 0, 1,
     'Nous devons concentrer tous nos efforts sur les mines. Je suis d''accord avec le docteur Jones, c''est certainement là que se trouve l''artéfact. C''est forcément ça !',
-    '',
+    'Wir müssen unsere Bemühungen auf die Minen konzentrieren. Ich stimme Dr. Jones zu, dass sich das Artefakt dort befinden muss. Es muss einfach!',
     'Debemos centrar todos nuestros esfuerzos en las minas. Pienso, como el Dr. Jones, que allí está el artefacto. ¡Tiene que estar ahí!',
-    ''
+    'Мы должны сфокусироваться на шахтах. Я согласен с доктором Джонсом, артефакт где-то там. Иначе и быть не может!'
 ),
 (
     88697, 0, 0,
     'Comment sommes-nous censés remporter cette bataille contre la Horde sans armes de siège ?',
-    '',
+    'Wie sollen wir diese Schlacht gegen die Horde ohne Belagerungsmaschinen gewinnen?',
     '¿Cómo vamos a gagnar esta batalla contra la Horda sin máquinas de asedio?',
-    ''
+    'Как мы, скажите на милость, выиграем этот бой у Орды без осадных машин?'
 ),
 (
     88697, 0, 1,
     'Si seulement nous avions une canonnière. On pourrait raser Fer-de-Lance depuis les airs !',
-    '',
+    'Wenn wir doch nur ein Luftschiff hätten. Wir könnten den Kriegsspeer vom Himmel aus vernichten!',
     'Si tuviéramos un dirigible... ¡Podríamos eliminar Lanza de Guerra desde el cielo!',
-    ''
+    'Ах, если бы у нас было воздушное судно... Мы бы задали жару Копью Войны с неба!'
 );
