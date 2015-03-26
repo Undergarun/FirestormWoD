@@ -103,7 +103,14 @@ enum specialSpells
 
     // Horridon - ToT
     SPELL_HORRIDON_CHARGE               = 136769,
-    SPELL_DOUBLE_SWIPE                  = 136741
+    SPELL_DOUBLE_SWIPE                  = 136741,
+
+    /// Kargath Bladefist - Highmaul
+    ChainHurlJumpDest                   = 160061,
+    ChainHurlKnockBack                  = 160062,
+    ChainHurlJumpDestPlayer             = 159995,
+    ChainHurlAoEStunPlayer              = 160904,
+    ChainHurl                           = 159947
 };
 
 template<class T>
@@ -177,9 +184,6 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
         if (creature->AI())
             creature->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
     }
-    else if (unit.GetTypeId() == TYPEID_PLAYER)
-    {
-    }
 
     switch (m_Id)
     {
@@ -191,6 +195,13 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
                 break;
             unit.CastSpell(&unit, SPELL_THUNDERING_THROW_AOE, true);
             unit.CastSpell(&unit, SPELL_THUNDERING_THROW_STUN_PLAYER, true);
+            break;
+        case specialSpells::ChainHurlJumpDest:
+            unit.CastSpell(&unit, specialSpells::ChainHurlKnockBack, true);
+            unit.CastSpell(&unit, specialSpells::ChainHurl, false);
+            break;
+        case specialSpells::ChainHurlJumpDestPlayer:
+            unit.CastSpell(&unit, specialSpells::ChainHurlAoEStunPlayer, true);
             break;
         default:
             break;

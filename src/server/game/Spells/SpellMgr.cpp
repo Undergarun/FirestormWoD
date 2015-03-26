@@ -3375,11 +3375,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162304:///< Earth Breaker (Summon - Vul'gor)
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
+            ////////////////////////////////////////////////////////////////////////
+            /// TEMP
+            ////////////////////////////////////////////////////////////////////////
+            case 159947:///< Chain Hurl (Kargath)
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 159113:///< Impale (Kargath)
                 spellInfo->ChannelInterruptFlags = 0;
                 break;
             case 159265:///< Blade Dance (charge visual - Kargath)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 158986:///< Berserker Rush (Kargath)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

@@ -9,6 +9,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCosmeticAI.hpp"
+#include "ScriptedCreature.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -38,7 +39,9 @@ enum eHighmaulDatas
     RaidGrate002,
     RaidGrate003,
     RaidGrate004,
-    MaxRaidGrates
+    MaxRaidGrates,
+    HighmaulSweeperCount        = 2,
+    HighmaulSweeperMovesCount   = 9
 };
 
 enum eHighmaulCreatures
