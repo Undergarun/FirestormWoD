@@ -2568,7 +2568,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                     return SPELL_SPECIFIC_LETHAL_POISON;
                 case 2823:    ///< Deadly Poison
                 case 8679:    ///< Wound Poison
-                case 157605:  ///< Swift Poison
+                case 157584:  ///< Swift Poison
                     return SPELL_SPECIFIC_NON_LETHAL_POISON;
                 default:
                     break;
