@@ -3425,7 +3425,7 @@ class npc_feral_spirit : public CreatureScript
                 Unit* l_Owner = p_Creature->GetOwner();
                 if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors)
+                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
                         p_Creature->CastSpell(p_Creature, eSpells::RaptorTranform, true);
 
                     Unit* l_OwnerTarget = NULL;
