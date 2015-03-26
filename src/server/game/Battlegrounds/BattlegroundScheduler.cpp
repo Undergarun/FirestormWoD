@@ -607,83 +607,79 @@ namespace MS
                     return p_G1->m_JoinTime < p_G2->m_JoinTime;
                 });
 
-                int l_BestType = 0;
-                while (l_BestType >= 0)
+                int l_BestType = -1;
+
+                /// Find the potential battlegrounds.
+                FindPotentialBGs(static_cast<Bracket::Id>(l_BracketId), l_NumPlayersByBGTypes, l_PotentialGroups);
+
+                /// We clone our array of occurrences.
+                std::array<std::pair<float, std::size_t>, BattlegroundType::Max> l_Occurences;
+                for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+                    l_Occurences[i] = m_BattlegroundOccurences[l_BracketId][i];
+
+                /// We sort our battleground occurrences.
+                std::sort(std::begin(l_Occurences), std::end(l_Occurences), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B)
                 {
-                    /// Find the potential battlegrounds.
-                    FindPotentialBGs(static_cast<Bracket::Id>(l_BracketId), l_NumPlayersByBGTypes, l_PotentialGroups);
+                    return p_A.first < p_B.first;
+                });
 
-                    /// We clone our array of occurrences.
-                    std::array<std::pair<float, std::size_t>, BattlegroundType::Max> l_Occurences;
-                    for (std::size_t i = 0; i < BattlegroundType::Max; i++)
-                        l_Occurences[i] = m_BattlegroundOccurences[l_BracketId][i];
+                /// We iterate over the sorted occurrences to take a decision if possible.
+                for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+                {
+                    BattlegroundType::Type l_BGType = static_cast<BattlegroundType::Type>(l_Occurences[i].second);
 
-                    /// We sort our battleground occurrences.
-                    std::sort(std::begin(l_Occurences), std::end(l_Occurences), [](std::pair<float, std::size_t> const& p_A, std::pair<float, std::size_t> const& p_B)
+                    /// If testing flag is on, we take the first one.
+                    if (sBattlegroundMgr->isTesting() && (!l_PotentialGroups[l_BGType * 2 + TEAM_ALLIANCE].empty() || !l_PotentialGroups[l_BGType * 2 + TEAM_HORDE].empty()))
                     {
-                        return p_A.first < p_B.first;
-                    });
+                        l_BestType = l_BGType;
+                        break;
+                    }
 
-                    l_BestType = -1;
-
-                    /// We iterate over the sorted occurrences to take a decision if possible.
-                    for (std::size_t i = 0; i < BattlegroundType::Max; i++)
+                    /// If we are on a casual battleground, we want to check the occurrences and ratios.
+                    if (BattlegroundType::IsCasualBattleground(l_BGType))
                     {
-                        BattlegroundType::Type l_BGType = static_cast<BattlegroundType::Type>(l_Occurences[i].second);
+                        /// We get the battleground template.
+                        Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BGType);
+                        if (!l_Template)
+                            continue;
 
-                        /// If testing flag is on, we take the first one.
-                        if (sBattlegroundMgr->isTesting() && (!l_PotentialGroups[l_BGType * 2 + TEAM_ALLIANCE].empty() || !l_PotentialGroups[l_BGType * 2 + TEAM_HORDE].empty()))
+                        /// We check if the battleground can start.
+                        if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < l_Template->GetMinPlayersPerTeam() || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < l_Template->GetMinPlayersPerTeam())
+                            continue;
+
+                        /// If the actual ratio in the battleground is good enough and we are not making too much instances of this battleground, we choose it.
+                        float l_Ratio = std::abs(1 - l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] / l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE]);
+                        if (l_Ratio < 0.15f && l_Occurences[i].first < (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f)
                         {
                             l_BestType = l_BGType;
                             break;
                         }
+                    }
+                    /// If we are not caring about factions so we start.
+                    else if (BattlegroundType::IsArena(l_BGType))
+                    {
+                        /// We check if the number of players for each arena type is filled.
+                        if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < BattlegroundType::GetArenaType(l_BGType))
+                            continue;
+                        if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < BattlegroundType::GetArenaType(l_BGType))
+                            continue;
 
-                        /// If we are on a casual battleground, we want to check the occurrences and ratios.
-                        if (BattlegroundType::IsCasualBattleground(l_BGType))
+                        l_BestType = l_BGType;
+                        break;
+                    }
+                    /// From here there should only be rated battlegrounds.
+                    else if (BattlegroundType::IsRated(l_BGType))
+                    {
+                        switch (l_BGType)
                         {
-                            /// We get the battleground template.
-                            Battleground* l_Template = sBattlegroundMgr->GetBattlegroundTemplate(l_BGType);
-                            if (!l_Template)
+                        case BattlegroundType::RatedBg10v10:
+                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
                                 continue;
-
-                            /// We check if the battleground can start.
-                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < l_Template->GetMinPlayersPerTeam() || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < l_Template->GetMinPlayersPerTeam())
-                                continue;
-
-                            /// If the actual ratio in the battleground is good enough and we are not making too much instances of this battleground, we choose it.
-                            float l_Ratio = std::abs(1 - l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] / l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE]);
-                            if (l_Ratio < 0.15f && l_Occurences[i].first < (1.0f / BattlegroundType::NumBattlegrounds) + 0.05f)
-                            {
-                                l_BestType = l_BGType;
-                                break;
-                            }
-                        }
-                        /// If we are not caring about factions so we start.
-                        else if (BattlegroundType::IsArena(l_BGType))
-                        {
-                            /// We check if the number of players for each arena type is filled.
-                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < BattlegroundType::GetArenaType(l_BGType))
-                                continue;
-                            if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < BattlegroundType::GetArenaType(l_BGType))
-                                continue;
-
-                            l_BestType = l_BGType;
                             break;
                         }
-                        /// From here there should only be rated battlegrounds.
-                        else if (BattlegroundType::IsRated(l_BGType))
-                        {
-                            switch (l_BGType)
-                            {
-                            case BattlegroundType::RatedBg10v10:
-                                if (l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_ALLIANCE] < 10 || l_NumPlayersByBGTypes[l_BGType * 2 + TEAM_HORDE] < 10)
-                                    continue;
-                                break;
-                            }
 
-                            l_BestType = l_BGType;
-                            break;
-                        }
+                        l_BestType = l_BGType;
+                        break;
                     }
 
                     /// It's time to take a decision !
