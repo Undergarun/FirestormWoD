@@ -1,3 +1,5 @@
+SET NAMES utf8;
+
 DELETE FROM creature WHERE id IN (83435, 84471, 84466, 84650, 84645, 84646, 84651, 84652, 84470, 81883, 82200, 84906) AND map = 1191;
 DELETE FROM gameobject WHERE id IN (233285, 234082, 234083, 234067, 234081) AND map = 1191;
 
@@ -138,55 +140,67 @@ INSERT INTO locales_npc_text (entry, Text0_0_loc2, Text0_1_loc2, Text0_0_loc3, T
     84919,
     'Nous avons invoqué les portails, et ils sont opérationnels. Du boulot bien fait !',
     'Nous avons invoqué les portails, et ils sont opérationnels. Du boulot bien fait !',
-    '', '',
+    'Wir haben die Portale geöffnet und sie sind einsatzbereit. Gute Arbeit!',
+    'Wir haben die Portale geöffnet und sie sind einsatzbereit. Gute Arbeit!',
     'Hemos generado los portales, los cuales ya están en funcionamiento. ¡Buen trabajo!',
     'Hemos generado los portales, los cuales ya están en funcionamiento. ¡Buen trabajo!',
-    '', ''
+    'Мы создали порталы, и ими уже можно пользоваться. Отличная работа!',
+    'Мы создали порталы, и ими уже можно пользоваться. Отличная работа!'
 ),
 (
     85463,
     'Les démonistes sont parvenus à activer les portes, elles sont désormais opérationnelles. C''est du bon travail, $n.',
     'Les démonistes sont parvenus à activer les portes, elles sont désormais opérationnelles. C''est du bon travail, $n.',
-    '', '',
+    'Die Hexenmeister haben ihre Aktivierung der Portale beendet. Sie sind jetzt voll funktionsfähig. Gute Arbeit, $n.',
+    'Die Hexenmeister haben ihre Aktivierung der Portale beendet. Sie sind jetzt voll funktionsfähig. Gute Arbeit, $n.',
     'Los brujos terminaron de activar los portales y ya operan en su totalidad. Buen trabajo, $n.',
     'Los brujos terminaron de activar los portales y ya operan en su totalidad. Buen trabajo, $n.',
-    '', ''
+    'Чернокнижники открыли врата. Теперь ими можно пользоваться. Хорошая работа, $n.',
+    'Чернокнижники открыли врата. Теперь ими можно пользоваться. Хорошая работа, $n.'
 ),
 (
     84923,
     'Les chevaucheurs sont en patrouille. Merci de nous avoir procuré ces artéfacts, soldat.',
     'Les chevaucheurs sont en patrouille. Merci de nous avoir procuré ces artéfacts, soldat.',
-    '', '',
+    'Die Reiter wurden ausgesandt und verrichten ihren Dienst. Das Beschaffen der Artefakte war gute Arbeit, Soldat.',
+    'Die Reiter wurden ausgesandt und verrichten ihren Dienst. Das Beschaffen der Artefakte war gute Arbeit, Soldat.',
     'Los jinetes están de servicio. Buen trabajo consiguiendo esos artefactos, soldado.',
     'Los jinetes están de servicio. Buen trabajo consiguiendo esos artefactos, soldado.',
-    '', ''
+    'Всадники уже отправились на задание. Спасибо за артефакты, солдат.',
+    'Всадники уже отправились на задание. Спасибо за артефакты, солдат.'
 ),
 (
     89853,
     'Kronus est désormais des nôtres ! Bon travail, $n.',
     'Kronus est désormais des nôtres ! Bon travail, $n.',
-    '', '',
+    'Kronus ist geboren! Gute Arbeit, $n.',
+    'Kronus ist geboren! Gute Arbeit, $n.',
     '¡Kronus ha nacido! Buen trabajo, $n.',
     '¡Kronus ha nacido! Buen trabajo, $n.',
-    '', ''
+    'Крон возродился! Отличная работа, $n.',
+    'Крон возродился! Отличная работа, $n.'
 ),
 (
     83895,
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
     'Crograal va arpenter la route de la Gloire pour éliminer les forces de la Horde.',
-    '', '',
+    'Fangraal wurde geboren! In diesem Moment kämpft er sich über die Straße des Ruhms.',
+    'Fangraal wurde geboren! In diesem Moment kämpft er sich über die Straße des Ruhms.',
     '¡Nació Fangraal! En este momento avanza por el Camino de Gloria.',
     '¡Nació Fangraal! En este momento avanza por el Camino de Gloria.',
-    '', ''
+    'Фанграал возродился! Сейчас он уже продвигается по Дороге Славы.',
+    'Фанграал возродился! Сейчас он уже продвигается по Дороге Славы.'
 ),
 (
     90814,
     'Sur la pancarte, on peut lire :$B$B« Je suis le commandant $n, et ce marchand est mon préféré de Fer-de-Lance. »',
     'Sur la pancarte, on peut lire :$B$B« Je suis le commandant $n, et ce marchand est mon préféré de Fer-de-Lance. »',
-    '', '',
+    'Auf dem Schild steht:$B$B"Ich bin Kommandant $n und dies ist mein Lieblingshändler im Kriegsspeer."',
+    'Auf dem Schild steht:$B$B"Ich bin Kommandant $n und dies ist mein Lieblingshändler im Kriegsspeer."',
     'El letrero dice:$B$B"Soy $Gel:la; comandante $n y este es mi mercader favorito en Lanza de guerra".',
     'El letrero dice:$B$B"Soy $Gel:la; comandante $n y este es mi mercader favorito en Lanza de guerra".',
-    '', ''
+    'На вывеске написано:$B$B"Я командир $n, и это моя любимая торговка в Копье Войны."',
+    'На вывеске написано:$B$B"Я командир $n, и это моя любимая торговка в Копье Войны."'
 );
 
 DELETE FROM creature_text WHERE entry IN (83995, 82966, 83997, 82660, 82204, 81870, 83830, 82893, 81859, 83895, 80256, 88568, 88567);
@@ -246,254 +260,254 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 (
     83995, 0, 0,
     'Nous avons activé le |c00FFFF00|Hspell:178539|h[Portail de mage]|h|r !',
-    '',
+    'Wir haben das |c00FFFF00|Hspell:178539|h[Magierportal]|h|r aktiviert!',
     '¡Activamos el |c00FFFF00|Hspell:178539|h[portal de magos]|h|r!',
-    ''
+    'Мы открыли |c00FFFF00|Hspell:178539|h[Портал магов]|h|r!'
 ),
 (
     83995, 1, 0,
     'Le |c00FFFF00|Hspell:178539|h[Portail de mage]|h|r a été détruit par l''Alliance !',
-    '',
+    'Das |c00FFFF00|Hspell:178539|h[Magierportal]|h|r wurde von der Allianz zerstört!',
     '¡La Alianza destruyó el |c00FFFF00|Hspell:178539|h[portal de los magos]|h|r!',
-    ''
+    '|c00FFFF00|Hspell:178539|h[Портал магов]|h|r уничтожен Альянсом!'
 ),
 (
     82966, 0, 0,
     'Nous avons activé le |c00FFFF00|Hspell:178538|h[Portail de mage]|h|r !',
-    '',
+    'Wir haben das |c00FFFF00|Hspell:178538|h[Magierportal]|h|r aktiviert! Gute Arbeit!',
     '¡Activamos el |c00FFFF00|Hspell:178538|h[portal de magos]|h|r!',
-    ''
+    '|c00FFFF00|Hspell:178538|h[Портал магов]|h|r активирован! Так держать!'
 ),
 (
     82966, 1, 0,
     'Le |c00FFFF00|Hspell:178538|h[Portail de mage]|h|r a été détruit par la Horde !',
-    '',
+    'Das |c00FFFF00|Hspell:178538|h[Magierportal]|h|r wurde von der Horde zerstört!"',
     '¡La Horda destruyó el |c00FFFF00|Hspell:178538|h[portal de los magos]|h|r!',
-    ''
+    'Орда разрушила |c00FFFF00|Hspell:178538|h[Портал магов]|h|r!'
 ),
 (
     83997, 0, 0,
     'La |c00FFFF00|Hspell:178534|h[Porte de démoniste]|h|r a été activée ! Consultez votre carte pour en connaître les emplacements.',
-    '',
+    'Das |c00FFFF00|Hspell:178534|h[Hexenmeisterportal]|h|r wurde aktiviert! Schaut auf Eurer Karte nach, wo es sich befindet.',
     '¡Activaron el |c00FFFF00|Hspell:178534|h[portal del brujo]|h|r! Revisa las ubicaciones en tu mapa.',
-    ''
+    '|c00FFFF00|Hspell:178534|h[Врата чернокнижников]|h|r активированы! Все необходимые зоны отмечены на вашей карте.'
 ),
 (
     83997, 1, 0,
     'La |c00FFFF00|Hspell:178534|h[Porte de démoniste]|h|r a été détruite par l''Alliance !',
-    '',
+    'Das |c00FFFF00|Hspell:178534|h[Hexenmeisterportal]|h|r wurde von der Allianz vernichtet!',
     '¡La Alianza destruyó el |c00FFFF00|Hspell:178534|h[portal del brujo]|h|r!',
-    ''
+    '|c00FFFF00|Hspell:178534|h[Врата чернокнижников]|h|r уничтожены Альянсом!'
 ),
 (
     82660, 0, 0,
     'La |c00FFFF00|Hspell:178535|h[Porte de démoniste]|h|r a été activée ! Consultez votre carte pour en connaître les emplacements.',
-    '',
+    'Das |c00FFFF00|Hspell:178535|h[Hexenmeisterportal]|h|r wurde aktiviert! Schaut auf Eurer Karte nach, wo es sich befindet.',
     '¡Activaron el |c00FFFF00|Hspell:178535|h[portal del brujo]|h|r! Revisa las ubicaciones en tu mapa.',
-    ''
+    'Открылись |c00FFFF00|Hspell:178535|h[Врата чернокнижников]|h|r! Их местоположение отмечено на вашей карте.'
 ),
 (
     82660, 1, 0,
     'La |c00FFFF00|Hspell:178535|h[Porte de démoniste]|h|r a été détruite par la Horde !',
-    '',
+    'Das |c00FFFF00|Hspell:178535|h[Hexenmeisterportal]|h|r wurde von der Horde zerstört!',
     '¡La Horda destruyó el |c00FFFF00|Hspell:178535|h[portal del brujo]|h|r!',
-    ''
+    'Орда разрушила |c00FFFF00|Hspell:178535|h[Врата чернокнижников]|h|r!'
 ),
 (
     82204, 0, 0,
     '|c00FFFF00|Hspell:178359|h[Kronus]|h|r fait son entrée en scène !',
-    '',
+    '|c00FFFF00|Hspell:178359|h[Kronus]|h|r ist erwacht!',
     '¡|c00FFFF00|Hspell:178359|h[Kronus]|h|rse alzó!',
-    ''
+    '|c00FFFF00|Hspell:178359|h[Крон]|h|r восстал!'
 ),
 (
     82204, 1, 0,
     'Imbéciles ! L''Alliance a tué |c00FFFF00|Hspell:178359|h[Kronus]|h|r !',
-    '',
+    'Ihr Dummköpfe! Die Allianz hat |c00FFFF00|Hspell:178359|h[Kronus]|h|r getötet!',
     '¡Tontos! ¡La Alianza mató a |c00FFFF00|Hspell:178359|h[Kronus]|h|r!',
-    ''
+    'Идиоты! Альянс поверг |c00FFFF00|Hspell:178359|h[Крона]|h|r!'
 ),
 (
     81870, 0, 0,
     'Nous avons réussi ! |c00FFFF00|Hspell:178358|h[Crograal]|h|r parcourt A''shran pour liquider la pourriture de la Horde ! Ne le laissez pas mourir !',
-    '',
+    'Wir haben es geschafft! |c00FFFF00|Hspell:178358|h[Fangraal]|h|r marschiert nach Ashran, um den Hordenabschaum auszumerzen. Lasst ihn nicht sterben, Allianz!',
     '¡Lo logramos! |c00FFFF00|Hspell:178358|h[Fangraal]|h|r marcha sobre Ashran para deshacerse de la escoria de la Horda. ¡No debe morir, Alianza!',
-    ''
+    'Есть! |c00FFFF00|Hspell:178358|h[Фанграал]|h|r уже в пути к Ашрану! Он очистит эту гнилую Железную Орду! Альянс! Защищать его!'
 ),
 (
     81870, 1, 0,
     '|c00FFFF00|Hspell:178358|h[Crograal]|h|r a été tué par la Horde !',
-    '',
+    '|c00FFFF00|Hspell:178358|h[Fangraal]|h|r wurde von der Horde getötet!',
     '|c00FFFF00|Hspell:178358|h¡[Fangraal]|h|r fue asesinado por la Horda!',
-    ''
+    'Орда убила |c00FFFF00|Hspell:178358|h[Фанграала]|h|r!'
 ),
 (
     83830, 0, 0,
     'Les |c00FFFF00|Hspell:178536|h[Chevaucheurs de loups]|h|r sont de sortie !',
-    '',
+    'Die |c00FFFF00|Hspell:178536|h[Wolfsreiter]|h|r sind im Einsatz!',
     '¡Los |c00FFFF00|Hspell:178536|h[jinetes de lobo]|h|r salieron a cumplir con su deber!',
-    ''
+    '|c00FFFF00|Hspell:178536|h[Всадники на волках]|h|r готовы к бою!'
 ),
 (
     83830, 1, 0,
     'Les |c00FFFF00|Hspell:178536|h[Chevaucheurs de loups]|h|r ont été tués par l''Alliance !',
-    '',
+    'Die |c00FFFF00|Hspell:178536|h[Wolfsreiter]|h|r wurden von der Allianz getötet!',
     '¡La Alianza asesinó a los |c00FFFF00|Hspell:178536|h[jinetes de lobo]|h|r!',
-    ''
+    '|c00FFFF00|Hspell:178536|h[Всадники на волках]|h|r убиты Альянсом!'
 ),
 (
     82893, 0, 0,
     'Les |c00FFFF00|Hspell:178537|h[Chevaucheurs]|h|r sont de sortie !',
-    '',
+    'Die |c00FFFF00|Hspell:178537|h[Kavallerie]|h|r ist im Einsatz!',
     '¡Los |c00FFFF00|Hspell:178537|h[jinetes caballeros]|h|r salieron a cumplir con su deber!',
-    ''
+    '|c00FFFF00|Hspell:178537|h[Конные рыцари]|h|r исполнят свой долг!'
 ),
 (
     82893, 1, 0,
     'Les |c00FFFF00|Hspell:178537|h[Chevaucheurs]|h|r ont été tués par la Horde !',
-    '',
+    'Die |c00FFFF00|Hspell:178537|h[Kavallerie]|h|r wurde von der Horde vernichtet!',
     '¡La Horda asesinó a los |c00FFFF00|Hspell:178537|h[jinetes caballeros]|h|r!',
-    ''
+    '|c00FFFF00|Hspell:178537|h[Конные рыцари]|h|r исполнят свой долг!'
 ),
 (
     81859, 0, 0,
     'Merci, druides... vous avez la main verte.',
-    '',
+    'Ich danke Euch, Druiden... Ihr lebt im Einklang mit der Natur.',
     'Gracias, druidas... tienen el toque de la naturaleza.',
-    ''
+    'Спасибо вам, друиды... Вам даровано прикосновение природы.'
 ),
 (
     81859, 1, 0,
     'Et maintenant, allons débarrasser cette terre de la Horde.',
-    '',
+    'Und jetzt... vertreiben wir die Horde aus diesem Land.',
     'Y ahora, saquemos a los de la Horda de esta tierra.',
-    ''
+    'А теперь давайте очистим эти земли от Орды.'
 ),
 (
     83895, 0, 0,
     'Pour la Horde !',
-    '',
+    'Für die Horde!',
     '¡Por la Horda!',
-    ''
+    'За Орду!'
 ),
 (
     83895, 1, 0,
     'Lok''tar ogar ! Capturons ce dernier point et nos chasseurs de tête pourront neutraliser leurs |c00FFFF00|Hspell:178363|h[Gladiateurs de Bouclier-des-Tempêtes]|h|r, ensuite nous attaquerons le bastion de Bouclier-des-Tempêtes. Tremblelame doit mourir aujourdhui !',
-    '',
+    'Lok''tar ogar! Wir müssen nur diesen letzten Punkt erobern, dann können unsere Kopfjäger diese |c00FFFF00|Hspell:178363|h[Gladiatoren des Sturmschilds]|h|r ausschalten und wir können die Sturmschildfeste einnehmen. Heute wird Tremblade sterben!',
     '¡Lok''tar ogar! Debemos capturar este último punto y nuestros rebanacabezas podrán eliminar a esos |c00FFFF00|Hspell:178363|h[gladiadores Escudo de Tormenta]|h|r, y entonces podremos atacar el fuerte Escudo de Tormenta. ¡Hojatemblorosa morirá hoy!',
-    ''
+    'Лок''тар огар! Захватим эту последнюю позицию врага – и наши охотники за головами сокрушат |c00FFFF00|Hspell:178363|h[гладиаторов Преграды Ветров]|h|r. Мы сможем взять штурмом Крепость Преграды Ветров. Сегодня Тремблейд умрет!'
 ),
 (
     83895, 2, 0,
     'Battez en retraite !',
-    '',
+    'Rückzug!',
     '¡Retirada!',
-    ''
+    'Отступаем!'
 ),
 (
     83895, 2, 1,
     'Courez !',
-    '',
+    'Lauft!',
     '¡Corre!',
-    ''
+    'Бегите!'
 ),
 (
     80256, 0, 0,
     'Pour l''Alliance !',
-    '',
+    'Für die Allianz!',
     '¡Por la Alianza!',
-    ''
+    'За Альянс!'
 ),
 (
     80256, 1, 0,
     'Bravo, l''Alliance ! Si nous capturons la tour de Pluie-de-Braise sans tarder, nos sentinelles pourront neutraliser ces |c00FFFF00|Hspell:178362|h[Gladiateurs de Fer-de-Lance]|h|r. La victoire est proche !',
-    '',
+    'Gut gemacht, Allianz! Wenn wir jetzt noch den Funkendriftturm einnehmen, können wir unsere Schildwachen die |c00FFFF00|Hspell:178362|h[Gladiatoren des Kriegsspeers]|h|r ausschalten lassen. Der Sieg ist nah!',
     '¡Buen trabajo, Alianza! Si capturamos la Torre de Cascada Ígnea, podremos dejar que nuestros centinelas eliminen a esos |c00FFFF00|Hspell:178362|h[gladiadores Lanza de guerra]|h|r. ¡La victoria se acerca!',
-    ''
+    'Отлично, Альянс! Если мы захватим Башню Углепада, наши стражи смогут победить этих |c00FFFF00|Hspell:178362|h[гладиаторов Копья Войны]|h|r. Победа близка!'
 ),
 (
     80256, 2, 0,
     'Cette défaite nous couvre de honte. Replions-nous !',
-    '',
+    'Wir wurden schmählich geschlagen. Zieht Euch zurück!',
     'Esta derrota es humillante. ¡Retirada!',
-    ''
+    'Какое постыдное поражение. Отступаем!'
 ),
 (
     80256, 2, 1,
     'La discrétion est la base du courage. Maintenant, fuyez !',
-    '',
+    'Der bessere Teil der Tapferkeit ist Vorsicht. Und jetzt lauft!',
     'La discreción es la mejor parte del valor. ¡Ahora huyan!',
-    ''
+    'Осторожность – тоже добродетель. Бежим!'
 ),
 (
     88568, 0, 0,
     'Ces orcs ne boivent donc rien d''autre que de la bière ? Je suis un gobelin, il me faut un cocktail, c''est quand même pas trop demander !',
-    '',
+    'Trinken diese Orcs eigentlich nur Bier? Was muss ein Goblin tun, um hier einen netten Cocktail zu bekommen?',
     '¿Lo único que beben esos orcos es cerveza? ¿Qué tiene hacer un goblin para que le sirvan un buen cóctel?',
-    ''
+    'Эти орки кроме хмеля вообще ничего не пьют, что ли? Похоже, приличному гоблину в этой глуши придется забыть о коктейлях...'
 ),
 (
     88568, 1, 0,
     'Nostalgique ? Comment est-ce que cette urine de troll peut te rendre nostalgique ?',
-    '',
+    'Nostalgisch? Wie kann dieses Gesöff einen nostalgisch stimmen?',
     '¿Nostalgia? ¿Por qué te inspira nostalgia esa bazofia?',
-    ''
+    'Ностальгию? Вот это гнусное пойло? Ну-ка, расскажи!'
 ),
 (
     88568, 2, 0,
     'Wouah, étonnamment, c''est... exactement ça.',
-    '',
+    'Oha, das ist... überraschend treffend.',
     'Guau, es... sorprendentemente exacto.',
-    ''
+    'Хм... Удивительно точное сравнение.'
 ),
 (
     88568, 3, 0,
     'Mince, je pensais que ce serait sympa de venir ici avec la société. Monumentale erreur !',
-    '',
+    'Mann, ich dachte, hier mit der Gesellschaft rauszukommen, würde ein Spaziergang werden. Da hab ich ja sowas von falsch gelegen!',
     'Vaya, pensé que venir aquí con la Sociedad sería muy bonito. ¡Vaya equivocación!',
-    ''
+    'Я-то, наивный, надеялся, что с Обществом смогу тут нехило подняться по жизни. Как же я просчитался!'
 ),
 (
     88568, 4, 0,
     'C''est pas les piaules, le problème. Où que tu regardes, y a soit un ogre prêt à te briser le crâne, soit un de ces benêts de l''Alliance qui te pointe une épée sous le menton !',
-    '',
+    'Ich rede nicht von dieser Hütte. Überall, wo man sich hinwendet, versucht ein Oger einem dem Schädel mit einer Keule einzuschlagen, oder einer von diesen Allianzschlägern will einen mit dem Schwert aufspießen!',
     'No son las excavaciones lo que me preocupa. ¡Mires donde mires, o un ogro intenta aplastarte la cabeza o un matón de la Alianza quiere presentarte a su espada!',
-    ''
+    'Да я не про то тебе толкую. Сама посуди: куда ни сунешься, то какой-нибудь огр норовит тебе размозжить башку палицей, то эти невменяемые из Альянса того и гляди подымут тебя на копье!'
 ),
 (
     88568, 5, 0,
     'Moi, avoir les foies ? Pff ! C''est juste que la mort et le profit, c''est pas franchement compatible.',
-    '',
+    'Oh, ich habe keine Angst, Kleines. Aber der Tod sorgt immer dafür, dass die Gewinnspannen deutlich kleiner werden.',
     'Oh, yo no tengo miedo. Es solo que la muerte recorta muchísimo el margen de ganancia.',
-    ''
+    'Трушу? Ха. Вот еще. Просто преждевременная смерть не входит в мои планы.'
 ),
 (
     88567, 0, 0,
     'C''est pas si mal. Ça me rend nostalgique, un peu.',
-    '',
+    'So schlimm ist es doch gar nicht. Es macht mich sogar ein bisschen nostalgisch.',
     'No está tan mal. Me hace sentir nostalgia.',
-    ''
+    'Хмель как хмель. Пить можно. Даже ностальгию навевает.'
 ),
 (
     88567, 1, 0,
     'Ben, le goût me rappelle un peu celui de l''eau qui s''écoulait du système de refroidissement des machines qu''on avait à la maison. On n''avait rien d''autre à boire quand j''étais gamin.',
-    '',
+    'Nun, der Geschmack erinnert mich immer an das Kondenswasser der Maschinenkühlung daheim. Das war alles, was wir als Kinder zu trinken hatten.',
     'Bueno, el sabor es como el del agua que enfría las máquinas en casa. Cuando era niña no teníamos otra cosa para beber.',
-    ''
+    'Ну, этот вкус напоминает мне о детстве. Не доводилось пить отработанную воду из систем охлаждения? Нам приходилось, другой-то не было.'
 ),
 (
     88567, 2, 0,
     'Qu''est-ce qui te plaît pas ? Les piaules sont pas mal.',
-    '',
+    'Was stimmt mit diesem Ort nicht? Diese Hütte ist doch gar nicht so übel.',
     '¿Qué le pasa a este sitio? Las excavaciones no van mal.',
-    ''
+    'А чего тебе не нравится-то? Раскопки идут очень даже неплохо.'
 ),
 (
     88567, 3, 0,
     'Je croyais que le danger t''impressionnait pas ? Pourtant on dirait bien que t''as les foies, là.',
-    '',
+    'Ich dachte, Ihr hättet gesagt, dass Ihr der Gefahr ins Gesicht lacht? Hört sich eher so an, als ob Ihr Angst vor diesem Ort habt.',
     '¿No decías que hay que reírse ante el peligro? Parecería que le tienes miedo a este sitio.',
-    ''
+    'Кто-то, помнится, бахвалился, что всегда смеется в лицо опасности? Похоже, ты просто трусишь.'
 );
 
 DELETE FROM waypoint_data WHERE id IN (82201, 81859);
