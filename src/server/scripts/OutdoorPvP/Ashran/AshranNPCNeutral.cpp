@@ -665,6 +665,8 @@ class npc_ashran_faction_champions : public CreatureScript
             npc_ashran_faction_championsAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
                 m_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+
+                m_Rewarded = false;
             }
 
             enum eSpells
@@ -691,6 +693,8 @@ class npc_ashran_faction_champions : public CreatureScript
 
             EventMap m_Events;
             OutdoorPvP* m_OutdoorPvP;
+
+            bool m_Rewarded;
 
             void Reset() override
             {
@@ -749,12 +753,17 @@ class npc_ashran_faction_champions : public CreatureScript
                     return;
                 }
 
+                if (m_Rewarded)
+                    return;
+
                 ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
                 if (l_ZoneScript == nullptr)
                     return;
 
                 if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
                     l_Ashran->CastSpellOnTeam(me, TeamId::TEAM_ALLIANCE, eAshranSpells::SpellEventAllianceReward);
+
+                m_Rewarded = true;
             }
 
             void UpdateAI(uint32 const p_Diff) override
