@@ -2400,7 +2400,7 @@ class npc_fire_elemental : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
- 
+
         CreatureAI *GetAI(Creature* creature) const
         {
             return new npc_fire_elementalAI(creature);
@@ -3410,40 +3410,42 @@ class npc_feral_spirit : public CreatureScript
     public:
         npc_feral_spirit() : CreatureScript("npc_feral_spirit") { }
 
+        enum eSpells
+        {
+            SpiritLeap           = 58867,
+            SpiritWalk           = 58875,
+            GlyphOfSpiritRaptors = 147783,
+            RaptorTranform       = 147908
+        };
+
         struct npc_feral_spiritAI : public ScriptedAI
         {
-            npc_feral_spiritAI(Creature* creature) : ScriptedAI(creature) {}
-
-            uint32 SpiritBiteTimer;
-
-            void Reset()
+            npc_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                SpiritBiteTimer = 6000;
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (SpiritBiteTimer <= diff)
+                Unit* l_Owner = p_Creature->GetOwner();
+                if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    me->CastSpell(me->getVictim(), 58859, true);
-                    SpiritBiteTimer = 6000;
-                }
-                else
-                    SpiritBiteTimer -= diff;
+                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors)
+                        p_Creature->CastSpell(p_Creature, eSpells::RaptorTranform, true);
 
-                DoMeleeAttackIfReady();
+                    Unit* l_OwnerTarget = NULL;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        p_Creature->CastSpell(l_OwnerTarget, eSpells::SpiritLeap, true);
+
+                }
+
+                p_Creature->CastSpell(p_Creature, eSpells::SpiritWalk, true);
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_feral_spiritAI(creature);
+            return new npc_feral_spiritAI(p_Creature);
         }
 };
 
