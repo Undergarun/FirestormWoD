@@ -206,11 +206,7 @@ class npc_faction_boss : public CreatureScript
                 });
 
                 for (Player* l_Player : l_PlayerList)
-                {
-                    /// Must do a * 100 because of currency precision
-                    l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS, 250 * 100);
                     l_Player->RewardHonor(l_Player, 1, 50 * 100);
-                }
 
                 /// Trigger strongboxes loot for near players
                 if (me->GetEntry() == eCreatures::GrandMarshalTremblade)

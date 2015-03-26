@@ -1759,8 +1759,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision = false);
         void ResetCurrencyWeekCap();
         uint32 CalculateCurrencyWeekCap(uint32 id);
-        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
-        void UpdateConquestCurrencyCap(uint32 currency);
 
         bool HasUnlockedReagentBank();
         void UnlockReagentBank();
