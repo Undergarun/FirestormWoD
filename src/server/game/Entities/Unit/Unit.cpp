@@ -1395,6 +1395,11 @@ void Unit::CastCustomSpell(float x, float y, float z, uint32 spellId, int32 cons
     CastSpell(targets, spellInfo, &values, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
+void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
 void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem, constAuraEffectPtr triggeredByAura, uint64 originalCaster)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -18179,6 +18184,14 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     WorldPacket l_Data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(id);
+    SendMessageToSet(&l_Data, true);
+}
+
+void Unit::SetAIAnimKit(uint32 p_AnimKitID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
     SendMessageToSet(&l_Data, true);
 }
 

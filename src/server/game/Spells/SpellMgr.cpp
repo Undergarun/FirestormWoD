@@ -3381,6 +3381,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159947:///< Chain Hurl (Kargath)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+            case 159995:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
             case 159113:///< Impale (Kargath)
                 spellInfo->ChannelInterruptFlags = 0;
                 break;
@@ -3984,6 +3988,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159311:///< Flame Jet
             case 161517:///< Splitting Breath (DoT)
             case 176146:///< Volcanic Fallout
+            case 159413:///< Mauling Brew
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;

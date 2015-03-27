@@ -41,6 +41,9 @@ class instance_highmaul : public InstanceMapScript
                 for (uint8 l_I = eHighmaulDatas::RaidGrate001; l_I < eHighmaulDatas::MaxRaidGrates; ++l_I)
                     m_RaidGrateGuids[l_I]   = 0;
 
+                m_IronBombersCount          = 0;
+                m_DrunkenBileslingerCount   = 0;
+
                 m_TheButcherGuid            = 0;
                 m_BrackensporeGuid          = 0;
             }
@@ -57,6 +60,8 @@ class instance_highmaul : public InstanceMapScript
             uint64 m_CrowdAreatriggerGuid;
             uint64 m_MargokCosmeticGuid;
             uint64 m_RaidGrateGuids[4];
+            uint8  m_IronBombersCount;
+            uint8  m_DrunkenBileslingerCount;
 
             /// The Underbelly
             uint64 m_TheButcherGuid;
@@ -94,12 +99,69 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::MargokCosmetic:
                         m_MargokCosmeticGuid = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::IronBomberSpawner:
+                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                        break;
+                    case eHighmaulCreatures::IronBomber:
+                        if (!m_IronBombersCount)
+                            SendUpdateWorldState(eHighmaulWorldStates::IronBomberEnable, 1);
+                        ++m_IronBombersCount;
+                        SendUpdateWorldState(eHighmaulWorldStates::IronBomberRemaining, m_IronBombersCount);
+                        break;
+                    case eHighmaulCreatures::DrunkenBileslinger:
+                        if (!m_DrunkenBileslingerCount)
+                            SendUpdateWorldState(eHighmaulWorldStates::DrunkenBileslingerEnable, 1);
+                        ++m_DrunkenBileslingerCount;
+                        SendUpdateWorldState(eHighmaulWorldStates::DrunkenBileslingerRemaining, m_DrunkenBileslingerCount);
+                        break;
                     case eHighmaulCreatures::TheButcher:
                         m_TheButcherGuid = p_Creature->GetGUID();
                         break;
                     case eHighmaulCreatures::Brackenspore:
                         m_BrackensporeGuid = p_Creature->GetGUID();
                         break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnCreatureRemove(Creature* p_Creature) override
+            {
+                switch (p_Creature->GetEntry())
+                {
+                    case eHighmaulCreatures::IronBomber:
+                    {
+                        if (!m_IronBombersCount)
+                            break;
+
+                        ++m_IronBombersCount;
+                        SendUpdateWorldState(eHighmaulWorldStates::IronBomberRemaining, m_IronBombersCount);
+
+                        if (!m_IronBombersCount)
+                        {
+                            SendUpdateWorldState(eHighmaulWorldStates::IronBomberEnable, 0);
+                            break;
+                        }
+
+                        break;
+                    }
+                    case eHighmaulCreatures::DrunkenBileslinger:
+                    {
+                        if (!m_DrunkenBileslingerCount)
+                            break;
+
+                        --m_DrunkenBileslingerCount;
+                        SendUpdateWorldState(eHighmaulWorldStates::DrunkenBileslingerRemaining, m_DrunkenBileslingerCount);
+
+                        if (!m_DrunkenBileslingerCount)
+                        {
+                            SendUpdateWorldState(eHighmaulWorldStates::DrunkenBileslingerEnable, 0);
+                            break;
+                        }
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -235,6 +297,16 @@ class instance_highmaul : public InstanceMapScript
                 p_Buffer << uint32(eHighmaulWorldStates::IronBomberRemaining) << uint32(0);
                 p_Buffer << uint32(eHighmaulWorldStates::DrunkenBileslingerEnable) << uint32(0);
                 p_Buffer << uint32(eHighmaulWorldStates::DrunkenBileslingerRemaining) << uint32(0);
+            }
+
+            void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
+            {
+                Map::PlayerList const& l_Players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+                {
+                    if (Player* l_Player = l_Iter->getSource())
+                        l_Player->SendUpdateWorldState(p_Field, p_Value);
+                }
             }
         };
 

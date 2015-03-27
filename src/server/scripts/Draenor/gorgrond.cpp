@@ -782,12 +782,13 @@ class spell_drov_acid_breath : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                p_Targets.remove_if([l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == nullptr)
                         return true;
 
-                    if (!p_Object->isInFront(l_Caster, l_Restriction->ConeAngle))
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
                         return true;
 
                     return false;

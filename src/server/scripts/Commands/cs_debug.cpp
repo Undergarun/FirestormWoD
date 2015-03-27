@@ -57,6 +57,7 @@ class debug_commandscript: public CommandScript
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
                 { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
                 { "sscene",         SEC_ADMINISTRATOR,  false, &HandleDebugPlaySSceneCommand,      "", NULL },
+                { "oneshotanimkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlayOneShotAnimKit,     "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -393,6 +394,31 @@ class debug_commandscript: public CommandScript
 
             p_Handler->PSendSysMessage("Start playing standalone scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
             p_Handler->GetSession()->GetPlayer()->PlayStandaloneScene(id, 16, l_Location);
+
+            return true;
+        }
+
+        static bool HandleDebugPlayOneShotAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->PlayOneShotAnimKit(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->PlayOneShotAnimKit(l_ID);
 
             return true;
         }

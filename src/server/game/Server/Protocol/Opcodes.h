@@ -169,6 +169,7 @@ enum Opcodes
         SMSG_PVP_CREDIT                             = 0x13A9,   ///< 6.0.3 19116
         SMSG_PRE_RESURRECT                          = 0x0D2E,   ///< 6.0.3 19116
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x078D,   ///< 6.0.3 19116
+        SMSG_SET_AI_ANIM_KIT                        = 0x0335,   ///< 6.0.3 19116
         SMSG_PLAYER_BOUND                           = 0x078E,   ///< 6.0.3 19116
         SMSG_OVERRIDE_LIGHT                         = 0x01EA,   ///< 6.0.3 19116
         SMSG_PRINT_NOTIFICATION                     = 0x0B22,   ///< 6.0.3 19116

@@ -381,9 +381,13 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_somldering_stoneguard' W
 UPDATE creature_template SET ScriptName = 'npc_highmaul_imperator_margok' WHERE entry = 83268;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_kargath_bladefist_trigger' WHERE entry = 78846;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_drunken_bileslinger' WHERE entry = 78954;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_bomber' WHERE entry = 78926;
+UPDATE creature_template SET VehicleId = 3536, ScriptName = 'npc_highmaul_iron_bomber' WHERE entry = 78926;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_grunt' WHERE entry = 84946;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_grunt_second' WHERE entry = 79068;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_ogre_grunt' WHERE entry = 84958;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_ogre_grunt_second' WHERE entry = 84948;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_highmaul_sweeper' WHERE entry = 88874;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_chain_hurl_vehicle' WHERE entry = 79134;
 
 UPDATE creature, creature_equip_template SET
 creature.equipment_id = creature_equip_template.id
@@ -391,7 +395,7 @@ WHERE creature.id = creature_equip_template.entry;
 
 UPDATE creature SET spawntimesecs = 7200 WHERE map = 1228;
 
-DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 159948);
+DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521);
 INSERT INTO spell_script_names VALUES
 (162271, 'spell_highmaul_earth_breaker'),
 (159113, 'spell_highmaul_impale'),
@@ -399,18 +403,18 @@ INSERT INTO spell_script_names VALUES
 (159706, 'spell_highmaul_fire_pillar_activated'),
 (159028, 'spell_highmaul_berserker_rush'),
 (159947, 'spell_highmaul_chain_hurl'),
-(159948, 'spell_highmaul_chain_hurl_vehicle');
+(160521, 'spell_highmaul_vile_breath');
 
-DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948, 159995);
+DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 162231, 31, 0, 3, 80048),
 (13, 1, 177705, 31, 0, 3, 80048),
 (13, 1, 159712, 31, 0, 3, 78757),
 (13, 1, 160061, 31, 0, 3, 79260),
-(13, 1, 159948, 31, 0, 3, 79134),
-(13, 1, 159995, 31, 0, 3, 78926);
+(13, 1, 159948, 31, 0, 3, 79134);
 
-DELETE FROM areatrigger_template WHERE spell_id IN (161634, 159202);
+DELETE FROM areatrigger_template WHERE spell_id IN (161634, 159202, 159412);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUE
 (161634, 1, 6867, 4, 4, 16384, 'areatrigger_highmaul_molten_bomb'),
-(159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet');
+(159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
+(159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');

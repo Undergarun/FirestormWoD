@@ -110,7 +110,8 @@ enum specialSpells
     ChainHurlKnockBack                  = 160062,
     ChainHurlJumpDestPlayer             = 159995,
     ChainHurlAoEStunPlayer              = 160904,
-    ChainHurl                           = 159947
+    ChainHurl                           = 159947,
+    AnimChainHurl                       = 5917
 };
 
 template<class T>
@@ -199,6 +200,7 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
         case specialSpells::ChainHurlJumpDest:
             unit.CastSpell(&unit, specialSpells::ChainHurlKnockBack, true);
             unit.CastSpell(&unit, specialSpells::ChainHurl, false);
+            unit.PlayOneShotAnimKit(specialSpells::AnimChainHurl);
             break;
         case specialSpells::ChainHurlJumpDestPlayer:
             unit.CastSpell(&unit, specialSpells::ChainHurlAoEStunPlayer, true);

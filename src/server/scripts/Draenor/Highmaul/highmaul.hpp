@@ -55,6 +55,9 @@ enum eHighmaulCreatures
     BladespireSorcerer  = 80071,
     CrowdAreatrigger    = 79260,
     MargokCosmetic      = 83268,
+    IronBomberSpawner   = 79712,
+    IronBomber          = 78926,
+    DrunkenBileslinger  = 78954,
     /// The Underbelly
     TheButcher          = 77404,
     /// Gorian Strand
