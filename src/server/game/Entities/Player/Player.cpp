@@ -26418,6 +26418,9 @@ void Player::SendInitialPacketsAfterAddToMap()
      l_Data.FlushBits();
  
      SendDirectMessage(&l_Data);
+
+     if (Group* l_Group = GetGroup())
+         l_Group->SendUpdate();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
