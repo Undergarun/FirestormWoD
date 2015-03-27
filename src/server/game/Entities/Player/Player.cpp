@@ -32370,13 +32370,17 @@ bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLe
     SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Index, p_HeirloomEntry->ItemID);
     SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Index, l_HeirloomFlags);
 
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
+
+    if (sWorld->getIntConfig(CONFIG_REALM_ZONE) == REALM_ZONE_DEVELOPMENT)
+        return true;
+
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_HEIRLOOM);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
     l_Statement->setUInt32(1, p_HeirloomEntry->ID);
     l_Statement->setUInt32(2, l_HeirloomFlags);
     LoginDatabase.Execute(l_Statement);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS, l_Index + 1);
     return true;
 }
 
