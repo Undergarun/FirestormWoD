@@ -699,7 +699,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22 only 72054
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
     SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
-    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light
+    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light, Healing Touch
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26 related to player castable positive buff
     SPELL_ATTR6_UNK27                            = 0x08000000, // 27
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
@@ -2101,6 +2101,7 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_PACIFY    = 2,
     SPELL_PREVENTION_TYPE_UNK1      = 3, // Only a few spells have this, but most of the should be interruptable.
     SPELL_PREVENTION_TYPE_UNK2      = 4,
+    SPELL_PREVENTION_TYPE_UNK3      = 5
 };
 
 enum GameobjectTypes

@@ -404,6 +404,7 @@ class WorldSession
         void SendPetitionShowList(uint64 guid);
         void SendPetitionSignResult(uint64 p_PlayerGUID, uint64 p_ItemGUID, uint8 p_Result);
         void SendAlreadySigned(uint64 p_PlayerGUID);
+        void SendPetitionDeclined(uint64 p_PlayerGUID);
 
         void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false);
 
@@ -464,6 +465,13 @@ class WorldSession
 
         void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
         uint16 GetClientBuild() const { return m_ClientBuild; }
+
+        /// Return join date as unix timestamp
+        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+
+        /// Set join date as unix timestamp
+        /// @p_JoinDate : unix timestamp of the account creation
+        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         //////////////////////////////////////////////////////////////////////////
         /// Vote
@@ -814,7 +822,6 @@ class WorldSession
         void SendPlayerAmbiguousNotice(std::string name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
-        void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
@@ -1065,6 +1072,7 @@ class WorldSession
         void HandleSetFactionOpcode(WorldPacket& recvPacket);
         void HandleCategoryCooldownOpcode(WorldPacket& recvPacket);
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
+        void HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket);
         int32 HandleEnableNagleAlgorithm();
 
         // Black Market
@@ -1187,6 +1195,8 @@ class WorldSession
         uint8 m_expansion;
 
         uint16 m_ClientBuild;
+
+        uint32 m_AccountJoinDate;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

@@ -4,11 +4,13 @@ compiler:
   - clang
 
 git:
-  depth: 1
+  depth: 5
 
 branches:
   only:
     - WoD2
+    - WoD2_dev
+    - WoD2_hotfix
 
 before_install:
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake

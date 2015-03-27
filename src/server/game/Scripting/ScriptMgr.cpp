@@ -1877,6 +1877,13 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
+/// Called when a player changes his faction
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerFactionChanged(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFactionChanged(p_Player);
+}
+
 /// Called when a player loot an item
 /// @p_Player : Player instance
 /// @p_Item   : New looted item instance
@@ -1916,6 +1923,15 @@ void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID,
 void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
 {
     FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
+}
+
+/// Called when a player take damage
+/// @p_Player          : Player instance
+/// @p_DamageEffectTyp : Damage type
+/// @p_Damage          : Amount of damage taken
+void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -190,6 +190,9 @@ enum Opcodes
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x079D, ///< 6.1.2 19783
         SMSG_PLAY_SCENE                             = 0x09B1, ///< 6.1.2 19783
         SMSG_CANCEL_SCENE                           = 0x0AB8, ///< 6.1.2 19783
+        SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x01E3, ///< 6.1.2 19783
+        SMSG_SET_ITEM_PURCHASE_DATA                 = 0x0316, ///< 6.1.2 19783
+        SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x1E0D, ///< 6.1.2 19783
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0737, ///< 6.1.2 19783
@@ -258,7 +261,7 @@ enum Opcodes
         SMSG_ACHIEVEMENT_DELETED                    = 0x1CF2, ///< 6.1.2 19783
         SMSG_ACHIEVEMENT_EARNED                     = 0x06C0, ///< 6.1.2 19783
         SMSG_ACCOUNT_CRITERIA_UPDATE                = 0x1635, ///< 6.1.2 19783
-        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0000, ///< (unused)
+        SMSG_ACCOUNT_CRITERIA_UPDATE_ALL            = 0x0392, ///< 6.1.2 19783
         SMSG_CRITERIA_DELETED                       = 0x1E2F, ///< 6.1.2 19783
         SMSG_CRITERIA_UPDATE                        = 0x0716, ///< 6.1.2 19783
 
@@ -442,11 +445,12 @@ enum Opcodes
 
         /// Petition
         SMSG_PETITION_ALREADY_SIGNED                            = 0x0F18, ///< 6.1.2 19783
-        SMSG_PETITION_DECLINED                                  = 0x1C31, ///< 6.1.2 19783
-        SMSG_PETITION_QUERY_RESPONSE                            = 0x1872, ///< 6.1.2 19783
+        SMSG_PETITION_SIGN_RESULTS                              = 0x1C26, ///< 6.1.2 19783
+        SMSG_QUERY_PETITION_RESPONSE                            = 0x1872, ///< 6.1.2 19783
         SMSG_PETITION_SHOW_LIST                                 = 0x0B1F, ///< 6.1.2 19783
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x1CA2, ///< 6.1.2 19783
         SMSG_TURN_IN_PETITION_RESULTS                           = 0x0A45, ///< 6.1.2 19783
+        SMSG_PETITION_DECLINED                                  = 0x0000, ///< fake opcode
 
         /// Threat
         SMSG_THREAT_CLEAR                                       = 0x0F1D, ///< 6.1.2 19783
@@ -1179,6 +1183,7 @@ enum Opcodes
     CMSG_COMPLETE_MOVIE                         = 0x1E0A,   ///< 6.1.2 19783
     CMSG_SCENE_TRIGGER_EVENT                    = 0x0589,   ///< 6.1.2 19783
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74,   ///< 6.1.2 19783
+    CMSG_SHOW_TRADE_SKILL                       = 0x1735,   ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1202,6 +1207,7 @@ enum Opcodes
     CMSG_BUYBACK_ITEM                           = 0x1E84, ///< 6.1.2 19783
     CMSG_BUY_ITEM                               = 0x1CE5, ///< 6.1.2 19783
     CMSG_SELL_ITEM                              = 0x1931, ///< 6.1.2 19783
+    CMSG_ITEM_REFUND                            = 0x08B2, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Taxi
@@ -1210,6 +1216,7 @@ enum Opcodes
     CMSG_ENABLE_TAXI_NODE                       = 0x0926, ///< 6.1.2 19783
     CMSG_TAXI_HELLO                             = 0x0E02, ///< 6.1.2 19783
     CMSG_ACTIVATE_TAXI                          = 0x1E83, ///< 6.1.2 19783
+    CMSG_TAXI_NODE_STATUS_QUERY                 = 0x0CF1, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest
@@ -1687,7 +1694,6 @@ enum Opcodes
     CMSG_GRANT_LEVEL                                    = 0x0000,
     CMSG_HEARTH_AND_RESURRECT                           = 0x0000,
     CMSG_INSTANCE_LOCK_WARNING_RESPONSE                 = 0x0000,
-    CMSG_ITEM_REFUND                                    = 0x0000,
     CMSG_MANEUVER_START                                 = 0x0000,
     CMSG_MEETINGSTONE_INFO                              = 0x0000,
     CMSG_MINIGAME_MOVE                                  = 0x0000,
@@ -1856,7 +1862,6 @@ enum Opcodes
     SMSG_INVALIDATE_PLAYER                              = 0x0000,
     SMSG_INVALID_PROMOTION_CODE                         = 0x0000,
     SMSG_ITEM_ADD_PASSIVE                               = 0x0000,
-    SMSG_ITEM_REFUND_INFO_RESPONSE                      = 0x0000,
     SMSG_REMOVE_ITEM_PASSIVE                            = 0x0000,
     SMSG_SEND_ITEM_PASSIVES                             = 0x0000,
     SMSG_MAP_OBJ_EVENTS                                 = 0x0000,
@@ -1889,7 +1894,6 @@ enum Opcodes
     SMSG_STREAMING_MOVIES                               = 0x0000,
     SMSG_SUMMON_CANCEL                                  = 0x0000,
     SMSG_SUPPRESS_NPC_GREETINGS                         = 0x0000,
-    SMSG_TALENTS_INVOLUNTARILY_RESET                    = 0x1246, // 6.1.2 19783
     SMSG_TIME_ADJUSTMENT                                = 0x0000,
     SMSG_UPDATE_SERVER_PLAYER_POSITION                  = 0x0000,
     SMSG_WAIT_QUEUE_FINISH                              = 0x0000,

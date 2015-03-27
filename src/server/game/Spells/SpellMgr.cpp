@@ -3344,6 +3344,31 @@ void SpellMgr::LoadSpellCustomAttr()
             case 144757: /// Increased All Resist 05
                 spellInfo->AttributesEx11 &= ~SPELL_ATTR11_CAST_WITH_ITEM;
                 break;
+            case 170893:///< Kronus: Fracture
+            case 177607:///< Fangraal: Entangling Roots
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                break;
+            case 165712:///< Stormshield Gladiator: Devotion Aura
+                spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
+                break;
+            case 176172:///< Ancient Inferno: Molten Firestorm
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
+                break;
+            case 175093:///< Alliance Reward (Ashran events)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].BasePoints = 50;
+                break;
+            case 174094:///< Horde Reward (Ashran events)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].MiscValue = 1681;
+                break;
+            case 108683:///< Fire and Brimstone
+                /// I guess spellmod type is failed here because of -75% damage
+                spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
+                spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3769,9 +3794,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119539: ///< Chi Torpedo
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-            case 76671: ///< Mastery: Divine Bulwark
-                spellInfo->Effects[4].BasePoints = 8;
-                break;
             case 139139: ///< Insanity
                 spellInfo->ProcChance = 0;
                 break;
@@ -3937,7 +3959,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037:///< Noxious Spit (DoT)
             case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
+            case 161517:///< Splitting Breath (DoT)
+            case 176146:///< Volcanic Fallout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
                 break;
@@ -4358,9 +4383,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = -200;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE;
                 spellInfo->Effects[0].ValueMultiplier = -200;
-                break;
-            case 51690: ///< Killing Spree
-                spellInfo->Effects[3].Effect = SPELL_EFFECT_FORCE_DESELECT;
                 break;
             case 137619: ///< Marked for Death
                 spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
@@ -4952,6 +4974,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 90259: ///< Glyph of Frost Pillar
                 spellInfo->Effects[0].MiscValue = 0;
                 spellInfo->Effects[0].MiscValueB = 0;
+                spellInfo->Effects[1].BasePoints = -70;
                 break;
             case 49821: ///< Mind Sear
                 spellInfo->Effects[0].TargetA = TARGET_DEST_CHANNEL_TARGET;
@@ -5254,9 +5277,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
-                break;
-            case 20711: ///< Spirit of Redemption
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form

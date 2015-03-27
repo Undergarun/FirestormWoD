@@ -1080,7 +1080,7 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
@@ -2925,47 +2925,47 @@ class spell_pri_mind_blast: public SpellScriptLoader
         }
 };
 
-// Glyphe of Mind Blast - 87195
+/// Glyphe of Mind Blast - 87195
 class spell_pri_glyphe_of_mind_blast : public SpellScriptLoader
 {
-public:
-    spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
+    public:
+        spell_pri_glyphe_of_mind_blast() : SpellScriptLoader("spell_pri_glyphe_of_mind_blast") { }
 
-    class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
-
-        void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+        class spell_pri_glyphe_of_mind_blast_AuraScript : public AuraScript
         {
-            PreventDefaultAction();
+            PrepareAuraScript(spell_pri_glyphe_of_mind_blast_AuraScript);
 
-            Unit* l_Caster = GetCaster();
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
 
-            if (!l_Caster)
-                return;
+                Unit* l_Caster = GetCaster();
 
-            if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
-                return;
+                if (!l_Caster)
+                    return;
 
-            if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
-                return;
+                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                    return;
 
-            if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
-                return;
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PRIEST_SPELL_MIND_BLAST || !GetSpellInfo())
+                    return;
 
-            l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
-        }
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
+                    return;
 
-        void Register()
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), PRIEST_GLYPH_OF_MIND_BLAST, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectProc += AuraEffectProcFn(spell_pri_glyphe_of_mind_blast_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            return new spell_pri_glyphe_of_mind_blast_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pri_glyphe_of_mind_blast_AuraScript();
-    }
 };
 
 enum MindFlay
@@ -3286,11 +3286,11 @@ class spell_pri_divine_aegis : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT) && !(p_EventInfo.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
+                if (!(p_EventInfo.GetHitMask() & PROC_EX_CRITICAL_HIT))
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetTarget();
+                Unit* l_Target = p_EventInfo.GetActionTarget();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -3299,8 +3299,23 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     return;
 
                 int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+                int32 l_PreviousAmount = 0;
 
-                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
+                /// Divine Aegis previous amount for stack.
+                if (AuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                    l_PreviousAmount = l_PreviousShield->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, NULL, NULL, true);
+                
+                /// Apply the previous amount after casting to no apply the bonus multiple times.
+                if (AuraEffectPtr l_AcutalShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                {
+                    l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
+
+                    /// The maximum size of a Divine Aegis is 40% of the maximum health of the target.
+                    if (l_AcutalShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
+                        l_AcutalShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
+                }
             }
 
             void Register()

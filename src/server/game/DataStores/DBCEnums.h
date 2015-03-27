@@ -402,8 +402,8 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR               = 401, // ARCHAEOLOGY Cataclysm
     CURRENCY_TYPE_IRONPAW                          = 402, // Cook token MoP
     CURRENCY_TYPE_WORLD_TREE                       = 416, // 4.2 token Molten front
-    CURRENCY_TYPE_CONQUEST_META_ARENA              = 483, // PvP
-    CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // PvP
+    CURRENCY_TYPE_CONQUEST_META_ARENA_BG           = 483, // PvP
+    CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // Deprecated since WoD (merge of arena/rbg weekcap)
     CURRENCY_TYPE_DARKMOON_TICKET                  = 515, // Darkmoon fair
     CURRENCY_TYPE_MOTE_OF_DARKNESS                 = 614, // 4.3.4 token Dragon soul
     CURRENCY_TYPE_CORRUPTED_ESSENCE                = 615, // 4.3.4 Deathwing token
@@ -411,7 +411,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_PANDAREN             = 676, // ARCHAEOLOGY MoP
     CURRENCY_TYPE_ARCHAEOLOGY_MOGU                 = 677, // ARCHAEOLOGY MoP
     CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE         = 697, // LFR roll chance MoP
-    CURRENCY_TYPE_CONQUEST_META_RANDOM_BG          = 692, //
     CURRENCY_TYPE_ZEN_JEWEL                        = 698, // Jewelcrafting token MoP NYI
     CURRENCY_TYPE_LESSER_CHARM_GOOD_FORTUNE        = 738, // LFR roll chance MoP
     CURRENCY_TYPE_MOGU_RUNE_FATE                   = 752, // roll chance token for T15 boss
@@ -420,6 +419,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_TIMELESS_COIN                    = 777, // timeless isle token
     CURRENCY_TYPE_BLOODY_COIN                      = 789, // timeless isle token
     ///< WoD Currency
+    CURRENCY_TYPE_CONQUEST_META_ASHRAN             = 692, ///< Deprecated CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, we use it for Ashran
     CURRENCY_TYPE_BLACK_IRON_FRAGEMENT             = 810, //
     CURRENCY_TYPE_DRAENOR_CLANS_ARCHAEOLOGY        = 821, // ARCHAEOLOGY WoD
     CURRENCY_TYPE_APEXIS_CRYSTAL                   = 823, // Set currency

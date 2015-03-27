@@ -20,11 +20,15 @@
 #include "Buildings/Alliance/ABarracks.hpp"
 #include "Buildings/Alliance/ATradingPost.hpp"
 #include "Buildings/Alliance/ATailoringEmporium.hpp"
+#include "Buildings/Alliance/AAlchemyLab.hpp"
+#include "Buildings/Alliance/ATheTannery.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
 #include "Buildings/Horde/HWarMill.hpp"
 #include "Buildings/Horde/HTailoringEmporium.hpp"
+#include "Buildings/Horde/HAlchemyLab.hpp"
+#include "Buildings/Horde/HTheTannery.hpp"
 
 #include <random>
 
@@ -419,6 +423,14 @@ void AddSC_Garrison_NPC()
         /// TailoringEmporium
         new MS::Garrison::npc_ChristopherMacdonald;
         new MS::Garrison::npc_KaylieMacdonald;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_MaryKearie;
+        new MS::Garrison::npc_PeterKearie;
+
+        /// The tannery
+        new MS::Garrison::npc_AndersLongstitch;
+        new MS::Garrison::npc_MarianneLevine;
     }
 
     /// Horde
@@ -446,5 +458,13 @@ void AddSC_Garrison_NPC()
         /// Tailoring Emporium
         new MS::Garrison::npc_WarraTheWeaver;
         new MS::Garrison::npc_Turga;
+
+        /// Alchemy lab
+        new MS::Garrison::npc_AlbertDeHyde;
+        new MS::Garrison::npc_KeyanaTone;
+
+        /// The tannery
+        new MS::Garrison::npc_MurneGreenhoof;
+        new MS::Garrison::npc_Yanney;
     }
 }

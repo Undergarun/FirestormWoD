@@ -855,6 +855,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         if (pet && pet->isAlive())
             pet->AI()->OwnerDamagedBy(this);
+
+        sScriptMgr->OnPlayerTakeDamage(victim->ToPlayer(), damagetype, damage, damageSchoolMask, cleanDamage);
     }
 
     if (damagetype != NODAMAGE)
@@ -7259,12 +7261,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!procSpell)
                         return false;
 
-                    // Healing Touch, and Regrowth increase the damage done by your next 2 Moonfire or Sunfire casts by 50% or by your next 2 melee abilities by 25%.
-                    if (procSpell->Id == 5185 || procSpell->Id == 8936)
-                    {
-                        triggered_spell_id = 108381;
-                        target = this;
-                    }
                     // Wrath, Starfire, Starsurge, and melee abilities increase healing done by your next healing spell by 30%. Tranquility is not affected.
                     else if ((procFlag & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS) || (procSpell->Id == 5176 || procSpell->Id == 2912 || procSpell->Id == 78674))
                     {
@@ -9818,26 +9814,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Will of the Necropolis
-        case 81164:
-        {
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (GetHealthPct() >= 30.0f)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(81164))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(81164, 0, 45 * IN_MILLISECONDS);
-
-            // Rune Tap
-            if (ToPlayer()->HasSpellCooldown(48982))
-                ToPlayer()->RemoveSpellCooldown(48982, true);
-
-            break;
-        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:
@@ -11562,7 +11538,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // 77514 - Mastery : Frozen Heart
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST))
     {
         if (HasAura(77514))
         {
@@ -11572,7 +11548,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask &  SPELL_SCHOOL_MASK_SHADOW))
     {
         if (HasAura(77515))
         {
@@ -11607,20 +11583,20 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     }
 
     // 77492 - Mastery : Total Eclipse
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_NATURE && HasAura(77492) && HasAura(48517)) // Solar Eclipse
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_NATURE) && HasAura(77492) && HasAura(48517)) // Solar Eclipse
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
-    else if (GetTypeId() == TYPEID_PLAYER && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_ARCANE && HasAura(77492) && HasAura(48518)) // Lunar Eclipse
+    else if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_ARCANE) && HasAura(77492) && HasAura(48518)) // Lunar Eclipse
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 1.87f;
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
 
-    // Chaos Bolt - 116858 and Soul Fire - 6353
+    // Chaos Bolt - 116858, Chaos Bolt (Fire and Brimstone) - 157701 and Soul Fire - 6353
     // damage is increased by your critical strike chance
-    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 6353 || spellProto->Id == 104027))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && (spellProto->Id == 116858 || spellProto->Id == 157701 || spellProto->Id == 6353 || spellProto->Id == 104027))
     {
         float crit_chance;
         crit_chance = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + GetFirstSchoolInMask(spellProto->GetSchoolMask()));
@@ -12274,10 +12250,11 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         switch (spellProto->Id)
                         {
-                            case 6353:  // Soul Fire
-                            case 104027:// Soul Fire (Metamorphosis)
-                            case 116858:// Chaos Bolt ...
-                            case 31117: // Unstable Affliction dispell
+                            case 6353:  ///< Soul Fire
+                            case 104027:///< Soul Fire (Metamorphosis)
+                            case 116858:///< Chaos Bolt ...
+                            case 157701:///< Chaos Bolt (Fire and Brimstone)
+                            case 31117: ///< Unstable Affliction dispell
                                 // ... are always critical hit
                                 return 100.0f;
                                 break;
@@ -12403,7 +12380,7 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 {
     int32 l_CritPct = 200; // 200% for all melee damage type...
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     if (p_AttackType == WeaponAttackType::RangedAttack)
@@ -12429,7 +12406,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 {
     int32 l_CritPct = 200; // 200% for all spell damage type...
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
@@ -12447,7 +12424,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 {
     int32 l_CritPct = 200; // 200% for all healing type...
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && GetMapId() != 1191)
+    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
         l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
 
     l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
@@ -12461,7 +12438,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
     // For totems get healing bonus from owner (statue isn't totem in fact)
-    if (GetTypeId() == TYPEID_UNIT && isTotem())
+    if (GetTypeId() == TYPEID_UNIT && (isTotem() || (GetEntry() == 60849 && spellProto->Id == 115175)))
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonusDone(victim, spellProto, healamount, effIndex, damagetype, stack);
 
@@ -13092,7 +13069,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 77514 - Mastery : Frozen Heart
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_FROST)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_FROST))
     {
         if (HasAura(77514))
         {
@@ -13103,7 +13080,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 77515 - Mastery : Dreadblade
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && spellProto->SchoolMask == SPELL_SCHOOL_MASK_SHADOW)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && spellProto && (spellProto->SchoolMask & SPELL_SCHOOL_MASK_SHADOW))
     {
         if (HasAura(77515))
         {
@@ -16757,8 +16734,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             GetOwner()->EnergizeBySpell(GetOwner(), 53253, 20, POWER_FOCUS);
 
     // Fix Drop charge for Killing Machine
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143))
-        RemoveAura(51124);
+    if (GetTypeId() == TYPEID_PLAYER && HasAura(51124) && getClass() == CLASS_DEATH_KNIGHT && procSpell && (procSpell->Id == 49020 || procSpell->Id == 49143 || procSpell->Id == 66198 || procSpell->Id == 66196))
+    {
+        if (!haveOffhandWeapon())
+            RemoveAura(51124);
+        else if (procSpell->Id == 66198 || procSpell->Id == 66196)
+            RemoveAura(51124);
+    }
 
     // Fix Drop charge for Blindsight
     if (GetTypeId() == TYPEID_PLAYER && HasAura(121152) && getClass() == CLASS_ROGUE && procSpell && procSpell->Id == 111240)
@@ -18274,6 +18256,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             l_Loot->generateMoneyLoot(l_KilledCreature->GetCreatureTemplate()->mingold, l_KilledCreature->GetCreatureTemplate()->maxgold);
         }
 
+        l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
         l_KillerPlayer->RewardPlayerAndGroupAtKill(l_KilledVictim, false);
     }
 
@@ -20388,7 +20371,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
         {
             // Glyph of the Spectral Wolf
             if (HasAura(58135))
-                return 30162;
+                return 60247;
             break;
         }
         case FORM_METAMORPHOSIS:
@@ -20425,35 +20408,40 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
     return modelid;
 }
 
-uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
+uint32 Unit::GetModelForTotem(PlayerTotemType p_TotemType)
 {
-    switch (totemType)
+    PlayerTotemType l_OriginalTotemType = p_TotemType;
+
+    switch (p_TotemType)
     {
         case SUMMON_TYPE_TOTEM_FIRE2:
         case SUMMON_TYPE_TOTEM_FIRE3:
         case SUMMON_TYPE_TOTEM_FIRE4:
-            totemType = SUMMON_TYPE_TOTEM_FIRE;
+            p_TotemType = SUMMON_TYPE_TOTEM_FIRE;
             break;
         case SUMMON_TYPE_TOTEM_EARTH2:
         case SUMMON_TYPE_TOTEM_EARTH3:
-            totemType = SUMMON_TYPE_TOTEM_EARTH;
+            p_TotemType = SUMMON_TYPE_TOTEM_EARTH;
             break;
         case SUMMON_TYPE_TOTEM_WATER2:
-            totemType = SUMMON_TYPE_TOTEM_WATER;
+            p_TotemType = SUMMON_TYPE_TOTEM_WATER;
             break;
         case SUMMON_TYPE_TOTEM_AIR2:
         case SUMMON_TYPE_TOTEM_AIR3:
         case SUMMON_TYPE_TOTEM_AIR4:
         case SUMMON_TYPE_TOTEM_AIR5:
-            totemType = SUMMON_TYPE_TOTEM_AIR;
+            p_TotemType = SUMMON_TYPE_TOTEM_AIR;
             break;
     }
+
+    if (l_OriginalTotemType == SUMMON_TYPE_TOTEM_FIRE4 && HasAura(147772)) // Searing Totem - Glyph of the Flaming Serpent
+        return 46820; // Vol'Jin Serpent
 
     switch (getRace())
     {
         case RACE_ORC:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30758;
@@ -20468,7 +20456,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_DWARF:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30754;
@@ -20483,7 +20471,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_TROLL:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30762;
@@ -20493,14 +20481,12 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
                     return 30763;
                 case SUMMON_TYPE_TOTEM_AIR:     // air
                     return 30760;
-                case 3211: // Custom MoP Script - Hack Fix Searing Totem
-                    return 30762;
             }
             break;
         }
         case RACE_TAUREN:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 4589;
@@ -20515,7 +20501,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_DRAENEI:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 19074;
@@ -20530,7 +20516,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_GOBLIN:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 30783;
@@ -20545,7 +20531,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_NEUTRAL:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;
@@ -20560,7 +20546,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_ALLI:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;
@@ -20575,7 +20561,7 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
         }
         case RACE_PANDAREN_HORDE:
         {
-            switch (totemType)
+            switch (p_TotemType)
             {
                 case SUMMON_TYPE_TOTEM_FIRE:    // fire
                     return 41670;

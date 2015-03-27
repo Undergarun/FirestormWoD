@@ -1266,6 +1266,9 @@ void GameObject::Use(Unit* p_User)
         return;
     }
 
+    if (GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE)
+        p_User->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     switch (GetGoType())
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
@@ -1496,7 +1499,10 @@ void GameObject::Use(Unit* p_User)
             if (!player)
                 return;
 
-            if (player->GetGUID() != GetOwnerGUID())
+            uint64 l_PlayerGUID = player->GetGUID();
+            uint64 l_OwnerGUID = GetOwnerGUID();
+
+            if (l_PlayerGUID != l_OwnerGUID)
                 return;
 
             switch (getLootState())
@@ -1762,6 +1768,9 @@ void GameObject::Use(Unit* p_User)
             Player* player = p_User->ToPlayer();
             if (!player)
                 break;
+
+            loot.clear();
+            loot.FillLoot(GetGOInfo()->GetLootId(), LootTemplates_Gameobject, player, true);
 
             player->SendLoot(GetGUID(), LOOT_FISHINGHOLE);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, GetGOInfo()->entry);

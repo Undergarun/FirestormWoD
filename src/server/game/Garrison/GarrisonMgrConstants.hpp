@@ -239,7 +239,13 @@ namespace MS { namespace Garrison
             TradingPost__TradingPost_Level3             = 145,
             TailoringEmporium_TailoringEmporium_Level1  = 94,
             TailoringEmporium_TailoringEmporium_Level2  = 127,
-            TailoringEmporium_TailoringEmporium_Level3  = 128
+            TailoringEmporium_TailoringEmporium_Level3  = 128,
+            AlchemyLab__AlchemyLab_Level1               = 76,
+            AlchemyLab__AlchemyLab_Level2               = 119,
+            AlchemyLab__AlchemyLab_Level3               = 120,
+            TheTannery_TheTannery_Level1                = 90,
+            TheTannery_TheTannery_Level2                = 121,
+            TheTannery_TheTannery_Level3                = 122
         };
     }
 

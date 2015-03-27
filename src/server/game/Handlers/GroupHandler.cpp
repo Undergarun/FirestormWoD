@@ -956,6 +956,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 {
     assert(p_Player && p_Data);
 
+    p_FullUpdate = true; ///< Avoid LOT of problems with group update.
+
     if (p_FullUpdate)
     {
         uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
@@ -1008,7 +1010,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         size_t l_AuraPos = p_Data->wpos();
         *p_Data << uint32(l_AuraCount);
 
-        *p_Data << uint32(0);
+        *p_Data << uint32(p_Player->GetPhaseMask());
         *p_Data << uint32(0);
         p_Data->appendPackGUID(0);
 

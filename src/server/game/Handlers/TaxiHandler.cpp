@@ -29,21 +29,12 @@
 #include "WaypointMovementGenerator.h"
 #include "GarrisonMgr.hpp"
 
-void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXINODE_STATUS_QUERY");
+    uint64 l_UnitGuid;
+    p_RecvData.readPackGUID(l_UnitGuid);
 
-    ObjectGuid guid;
-
-    uint8 bitsOrder[8] = { 4, 7, 3, 1, 2, 0, 6, 5 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 1, 5, 3, 7, 0, 6, 4 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
-
-    SendTaxiStatus(guid);
+    SendTaxiStatus(l_UnitGuid);
 }
 
 void WorldSession::SendTaxiStatus(uint64 p_Guid)

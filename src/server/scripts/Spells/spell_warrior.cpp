@@ -257,34 +257,6 @@ class spell_warr_glyph_of_hindering_strikes: public SpellScriptLoader
         }
 };
 
-/// Stampeding Shout - 122294
-class spell_warr_stampeding_shout: public SpellScriptLoader
-{
-    public:
-        spell_warr_stampeding_shout() : SpellScriptLoader("spell_warr_stampeding_shout") { }
-
-        class spell_warr_stampeding_shout_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_stampeding_shout_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* target = GetHitUnit())
-                    target->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_stampeding_shout_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_stampeding_shout_SpellScript();
-        }
-};
-
 /// Shield Block - 2565
 class spell_warr_shield_block: public SpellScriptLoader
 {
@@ -313,7 +285,12 @@ class spell_warr_shield_block: public SpellScriptLoader
         }
 };
 
-/// Storm Bolt - 107570
+enum StormBoltSpells
+{
+    SpellStormBoltOffHand = 107570
+};
+
+/// Storm Bolt - 107570, Storm Bolt (Off Hand) - 145585
 class spell_warr_storm_bolt: public SpellScriptLoader
 {
     public:
@@ -325,14 +302,15 @@ class spell_warr_storm_bolt: public SpellScriptLoader
 
             void HandleOnCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetExplTargetUnit())
-                    {
-                        if (!l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), EFFECT_0))
-                            l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (GetSpellInfo()->Id == StormBoltSpells::SpellStormBoltOffHand && !l_Target->IsImmunedToSpellEffect(l_SpellInfo, EFFECT_0))
+                    l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
             }
 
             void HandleOnHit()
@@ -470,7 +448,7 @@ class spell_warr_second_wind: public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->GetHealthPct() <= 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                    if (l_Caster->GetHealthPct() < 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
                         l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
                 }
             }
@@ -495,6 +473,23 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             return new spell_warr_second_wind_AuraScript();
         }
+};
+
+/// Second Wind (aura) - 29838
+class PlayerScript_second_wind : public PlayerScript
+{
+public:
+    PlayerScript_second_wind() :PlayerScript("PlayerScript_second_wind") {}
+
+    void OnModifyHealth(Player * p_Player, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_WARRIOR && p_Player->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+        {
+            /// Remove aura if player has more than 35% life
+            if (p_Player->GetHealthPct() >= 35.0f)
+                p_Player->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
+        }
+    }
 };
 
 /// Sudden Death - 52437
@@ -1495,61 +1490,61 @@ enum WhirlwindSpells
 /// Whirlwind - 1680
 class spell_warr_whirlwind: public SpellScriptLoader
 {
-public:
-    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
+    public:
+        spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
 
-    class spell_warr_whirlwind_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
-
-        void HandleOnHit()
+        class spell_warr_whirlwind_SpellScript : public SpellScript
         {
-            Player* l_Player = GetCaster()->ToPlayer();
-            Unit* l_Target = GetHitUnit();
-            if (!l_Player || !l_Target)
-                return;
+            PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
-        }
-
-        void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
-        {
-            Player* l_Player = GetCaster()->ToPlayer();
-
-            if (l_Player == nullptr)
-                return;
-
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
-                PreventHitDefaultEffect(p_EffIndex);
-        }
-
-        void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
-        {
-            Player* l_Player = GetCaster()->ToPlayer();
-
-            if (l_Player == nullptr)
-                return;
-
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            void HandleOnHit()
             {
-                PreventHitDefaultEffect(p_EffIndex);
-                l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Player || !l_Target)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Player->CastSpell(l_Target, WhirlwindSpells::SpellWarrWirlwindOffHand, true);
             }
-        }
 
-        void Register()
+            void HandleNormalizedWeaponDamage(SpellEffIndex p_EffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                    PreventHitDefaultEffect(p_EffIndex);
+            }
+
+            void HandleWeaponPercentDamage(SpellEffIndex p_EffIndex)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+                {
+                    PreventHitDefaultEffect(p_EffIndex);
+                    l_Player->CastSpell(l_Player, WhirlwindSpells::SpellWarrWirlwindSpeArms, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+                OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+                OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
-            OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+            return new spell_warr_whirlwind_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_whirlwind_SpellScript();
-    }
 };
 
 enum ShieldChargeSpells
@@ -1724,30 +1719,49 @@ class spell_warr_blood_bath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_bath_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            void HandleOnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
-                if (!l_ProcInfo.GetDamageInfo() || !l_ProcInfo.GetDamageInfo()->GetDamage() || !l_ProcInfo.GetDamageInfo()->GetSpellInfo())
+                if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage() || !p_ProcInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (l_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
                     return;
 
-                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
+                Unit* l_Target = p_ProcInfo.GetActionTarget();
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
+                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH_DAMAGE);
+
+                /// 30% additional damage as a bleed over 6 sec
+
+                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
+
+                if (AuraEffectPtr l_PreviousBloodbath = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    if (Unit* l_Caster = GetCaster())
-                    {
-                        // 30% additional damage as a bleed over 6 sec
-                        int32 l_Damage = (l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints / 100) / 6;
+                    int32 l_PeriodicDamage = l_PreviousBloodbath->GetAmount();
+                    int32 l_Duration = l_Target->GetAura(SPELL_BLOOD_BATH_DAMAGE, l_Caster->GetGUID())->GetDuration();
+                    int32 l_Amplitude = l_PreviousBloodbath->GetAmplitude();
 
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+                    int32 l_PreviousTotalDamage = 0;
 
-                        if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
-                            l_BloodbathActual->SetAmount(l_Damage);
-                    }
+                    if (l_Amplitude)
+                        l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
+                    l_Damage += l_PreviousTotalDamage;
                 }
+
+                if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
+                    l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
+
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+
+                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                    l_BloodbathActual->SetAmount(l_Damage);
             }
 
             void Register()
@@ -1859,7 +1873,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_rend();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
-    new spell_warr_stampeding_shout();
     new spell_warr_shield_block();
     new spell_warr_storm_bolt();
     new spell_warr_colossus_smash();
@@ -1895,4 +1908,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
+
+    /// Playerscripts
+    new PlayerScript_second_wind();
 }

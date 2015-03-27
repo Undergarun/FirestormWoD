@@ -103,6 +103,8 @@ namespace MS
             /// We check if the type is in the range of instanciable battlegrounds.
             if (p_BgType < BattlegroundType::Total && !BattlegroundType::IsArena(p_BgType))
                 return m_BattlegroundTemplates[p_BgType];
+            else if (BattlegroundType::IsArena(p_BgType))
+                return m_BattlegroundTemplates[BattlegroundType::AllArenas];
             return nullptr;
         }
 

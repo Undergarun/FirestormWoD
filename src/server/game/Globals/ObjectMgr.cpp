@@ -7224,6 +7224,49 @@ void ObjectMgr::LoadCurrencyOnKill()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature currency definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadPersonnalCurrencyOnKill()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_PersonnalCurrOnKillStore.clear();
+
+    uint32 l_Count = 0;
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT `creature_id`, `CurrencyId1`,  `CurrencyId2`,  `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3` FROM `creature_loot_currency_personnal`");
+    if (!l_Result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 personnal creature currency definitions. DB table `creature_loot_currency_personnal` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        uint32 l_Entry = l_Fields[0].GetUInt32();
+
+        CurrencyOnKillEntry l_CurrOnKill;
+        l_CurrOnKill[l_Fields[1].GetUInt16()] = l_Fields[4].GetInt32();
+        l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
+        l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
+
+        if (!GetCreatureTemplate(l_Entry))
+            continue;
+
+        for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
+        {
+            if (!sCurrencyTypesStore.LookupEntry(i->first))
+                continue;
+        }
+
+        m_PersonnalCurrOnKillStore[l_Entry] = l_CurrOnKill;
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personnal creature currency definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadReputationOnKill()
 {
     uint32 oldMSTime = getMSTime();
