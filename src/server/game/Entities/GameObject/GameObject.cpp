@@ -1266,6 +1266,9 @@ void GameObject::Use(Unit* p_User)
         return;
     }
 
+    if (GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE)
+        p_User->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     switch (GetGoType())
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
@@ -1853,9 +1856,6 @@ void GameObject::Use(Unit* p_User)
                     p_User->GetTypeId(), p_User->GetGUIDLow(), p_User->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
-
-    if (GetGoType() != GAMEOBJECT_TYPE_FISHINGNODE)
-        p_User->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
 
     if (!spellId)
         return;
