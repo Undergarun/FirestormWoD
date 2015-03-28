@@ -50,7 +50,7 @@ enum Spells
     SPELL_ABRUPT_RESTORATION = 163705,
     SPELL_TAINTED_BLOOD = 163740,
     // Noxx
-    SPELL_GUT_SHOT = 167115,
+    SPELL_GUT_SHOT = 163334,
     SPELL_OGRE_TRAP_THROWING_VISUAL = 163307,
     SPELL_OGRE_TRAP_OPEN_TEETH = 177391,
     SPELL_OGRE_TRAP_CLOSED_TEETH = 177396,
@@ -175,6 +175,102 @@ private:
     int modifier;
     int Event;
 };
+
+Position trainspawn = {6617.87f, -1200.69f, 9.801f, 3.089053f};
+Position trainmove = { 6407.73f, -1200.30f, 9.800f, 3.126752f};
+
+enum trainevent
+{
+    NPC_TRAIN = 83673,
+
+    EVENT_BEGIN = 942,
+    EVENT_PROCEED_1 = 943,
+    EVENT_PROCEED_2 = 945,
+};
+
+class iron_docks_grimrail_spawning_trigger : public CreatureScript
+{
+public:
+    iron_docks_grimrail_spawning_trigger() : CreatureScript("iron_docks_grimrail_spawning_trigger") { }
+
+    struct mob_iron_docksAI : public ScriptedAI
+    {
+        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        {
+            canEvent = false;
+        }
+
+        int32 timerperexplosion;
+        bool canEvent;
+
+        void Reset()
+        {
+            timerperexplosion = 0;
+            me->setFaction(35);
+        }
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 20.0f) && !canEvent)
+            {
+                canEvent = true;
+                events.ScheduleEvent(EVENT_BEGIN, 1000);
+            }
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            events.Update(diff);
+
+            if (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_BEGIN:
+                    train = me->SummonCreature(NPC_TRAIN, trainspawn, TEMPSUMMON_MANUAL_DESPAWN);
+                    train->SetReactState(REACT_PASSIVE);
+                    train->setFaction(16);
+                    train->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                    if (train)
+                    train->SetSpeed(MOVE_RUN, 20.0f, true);
+                    train->SetSpeed(MOVE_WALK, 20.0f, true);
+                    train->GetMotionMaster()->MovePoint(0, trainmove.GetPositionX(), trainmove.GetPositionY(), trainmove.GetPositionZ());
+
+                    events.ScheduleEvent(EVENT_PROCEED_1, 15000);
+                    break;
+                case EVENT_PROCEED_1:
+                    noxxe = train->SummonCreature(NPC_NOX, train->GetPositionX(), train->GetPositionY(), train->GetPositionZ(), train->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                    augur = train->SummonCreature(NPC_DUGURU, train->GetPositionX(), train->GetPositionY(), train->GetPositionZ(), train->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                    mokgar = train->SummonCreature(NPC_MAKOGG, train->GetPositionX(), train->GetPositionY(), train->GetPositionZ(), train->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                    events.ScheduleEvent(EVENT_PROCEED_2, 11000);
+                    break;
+                case EVENT_PROCEED_2:
+                    if (mokgar && augur && noxxe)
+                    {
+                        mokgar->GetMotionMaster()->MoveJump(6508.25f, -1127.71f, 4.958f, 12.0f, 8.0f, 10.0f);
+                        augur->GetMotionMaster()->MoveJump(6512.83f, -1129.69f, 4.958f, 12.0f, 8.0f, 10.0f);
+                        noxxe->GetMotionMaster()->MoveJump(6504.74f, -1131.18f, 4.958f, 12.0f, 8.0f, 10.0f);
+
+                        mokgar->SetHomePosition(6508.25f, -1127.71f, 4.958f, 1.614914f);
+                        augur->SetHomePosition(6512.83f, -1129.69f, 4.958f, 1.614914f);
+                        noxxe->SetHomePosition(6504.74f, -1131.18f, 4.958f, 1.614914f);
+                    }
+                    break;
+                }
+            }
+        }
+
+    private:
+        Creature* train;
+        Creature* mokgar;
+        Creature* noxxe;
+        Creature* augur;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_iron_docksAI(creature);
+    }
+};
 #define flamingslashinterval urand(9000, 12000)
 #define lavasweepinterval urand(8000, 12000)
 #define jumpercablesinterval 15000
@@ -221,22 +317,26 @@ class boss_grimrail_makogg : public CreatureScript
                     {
                         if (DUGURU->isDead() && NOXX->isDead())
                             DUGURU->m_Events.AddEvent(new aftergrimrail_event(DUGURU, 0), DUGURU->m_Events.CalculateTime(8000));
+                        else
+                        {
+                            me->SetLootRecipient(NULL);
+                        }
                     }
                 } 
             }
             void MoveInLineOfSight(Unit* who)
             {
-                if (pinstance && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 35.0f) && !intro)
+                if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 35.0f) && !intro)
                 {
                     intro = true;
                     Talk(SAY_INTRO_MAKOGG);
 
-                    if (Creature* l_Skulloc = pinstance->instance->GetCreature(pinstance->GetData64(DATA_SKULLOC)))
+                    if (Creature* skulloc = pinstance->instance->GetCreature(pinstance->GetData64(DATA_SKULLOC)))
                     {
-                        if (l_Skulloc->GetVehicleKit() != nullptr && l_Skulloc->GetVehicleKit()->GetPassenger(0) != nullptr)
+                        if (skulloc->GetVehicleKit() && skulloc->GetVehicleKit()->GetPassenger(0))
                         {
-                            if (Creature* l_Turret = l_Skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
-                                l_Turret->m_Events.KillAllEvents(true); ///< Stops bombardment
+                            if (Creature* turret = skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
+                                turret->m_Events.KillAllEvents(true); ///< Stops bombardment
                         }
                     }
 
@@ -277,8 +377,10 @@ class boss_grimrail_makogg : public CreatureScript
                             events.ScheduleEvent(EVENT_FLAMING_SLASH, flamingslashinterval);
                             break;
                         case EVENT_LAVA_SWEEP:
-                            Talk(SAY_SPELL01_MAKOGG);              
-                            me->SummonCreature(TRIGGER_LAVA_SWEEP, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 8000);
+                            Talk(SAY_SPELL01_MAKOGG);
+                            for (uint8 i = 0; i <= urand(2, 3); i++)
+                                me->SummonCreature(TRIGGER_LAVA_SWEEP, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 8000);
+
                             events.ScheduleEvent(EVENT_LAVA_SWEEP, lavasweepinterval);
                             break;
                     }
@@ -440,6 +542,38 @@ public:
         return new iron_docks_spells();
     }
 };
+class spell_tainted_blood_damage_target_change : public SpellScriptLoader
+{
+public:
+    spell_tainted_blood_damage_target_change() : SpellScriptLoader("spell_tainted_blood_damage_target_change") { }
+
+    class iron_docks_spells : public SpellScript
+    {
+        PrepareSpellScript(iron_docks_spells);
+
+        bool Load()
+        {
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+           // spell->Effects[0].TargetA = 0;
+            spell->Effects[0].TargetB = TARGET_UNIT_NEARBY_ENEMY;
+            return true;
+        }
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+        }
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new iron_docks_spells();
+    }
+};
 class boss_grimrail_noxx : public CreatureScript
 {
 public:
@@ -484,6 +618,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
+            summons.DespawnAll();
 
                 if (Creature* Makog = pinstance->instance->GetCreature(pinstance->GetData64(DATA_GRIMRAIL_MAKOGG)))
                 {
@@ -491,6 +626,10 @@ public:
                     {
                         if (DUGURU->isDead() && Makog->isDead())
                             DUGURU->m_Events.AddEvent(new aftergrimrail_event(DUGURU, 0), DUGURU->m_Events.CalculateTime(8000));
+                        else
+                        {
+                            me->SetLootRecipient(NULL);
+                        }
                     }
                 }
         }
@@ -500,6 +639,7 @@ public:
             {
                 if (Creature* DUGURU = pinstance->instance->GetCreature(pinstance->GetData64(DATA_GRIMRAIL_DUGURU)))
                 {
+                    summons.DespawnAll();
                     makogg->Respawn();
                     makogg->GetAI()->Reset();
 
@@ -525,15 +665,26 @@ public:
             {
                 switch (eventId)
                 {
+                case EVENT_GUT_SHOT:
+                    if (me->getVictim())
+                    me->CastSpell(me->getVictim(), SPELL_GUT_SHOT);
+
+                    events.ScheduleEvent(EVENT_GUT_SHOT, urand(5000, 8000));
+                    break;
                 case EVENT_OGRE_TRAP:           
                     Talk(SAY_SPELL03);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
-                        for (int i = 0; i < 8; i++)
+                        float l_Range = 5.0f;
+                        float l_Angle = 0.0f;
+                        float l_Step = (2 * M_PI) / 8;
+                        for (uint8 l_I = 0; l_I < 8; ++l_I)
                         {
-                            Creature* trap = me->SummonCreature(CREATURE_OGRE_TRAP, target->GetPositionX() + i + frand(0.50, 2.0f), target->GetPositionY() + i + frand(2.0f, 3.0f), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
-                            //trap->GetMotionMaster()->MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 10.0f, 10.0f, 10.0f);
+                            float l_X = target->GetPositionX() + (l_Range * cos(l_Angle));
+                            float l_Y = target->GetPositionY() + (l_Range * sin(l_Angle));
+                            me->SummonCreature(CREATURE_OGRE_TRAP, l_X, l_Y, target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                            l_Angle += l_Step;
                         }
                     }
                     events.ScheduleEvent(EVENT_OGRE_TRAP, ogretrapsinterval);
@@ -556,7 +707,7 @@ public:
                 }
             }
 
-            DoSpellAttackIfReady(SPELL_GUT_SHOT);
+            //DoSpellAttackIfReady(SPELL_GUT_SHOT);
         }
     private:
 
@@ -753,6 +904,10 @@ public:
                 {
                     if (noxx->isDead() && Makog->isDead())
                         noxx->m_Events.AddEvent(new aftergrimrail_event(noxx, 0), noxx->m_Events.CalculateTime(8000));
+                    else
+                    {
+                        me->SetLootRecipient(NULL);
+                    }
                 }
             }
         }
@@ -894,6 +1049,7 @@ public:
                 if (GetTarget())
                 {
                     GetTarget()->CastSpell(GetTarget(), SPELL_ABRUPT_RESTORATION);
+                    GetTarget()->HealBySpell(GetTarget(), sSpellMgr->GetSpellInfo(SPELL_ABRUPT_RESTORATION), GetTarget()->GetHealth() * 0.15, true);
                 }
             }
         }
@@ -920,6 +1076,7 @@ void AddSC_boss_grimrail()
     new iron_docks_lava_sweep_trigger();
     new iron_docks_ogre_trap();
     new iron_docks_bomb_trap();
+    new iron_docks_grimrail_spawning_trigger();
 
     // spells
     new spell_flaming_slash_damage_targets();
@@ -928,4 +1085,5 @@ void AddSC_boss_grimrail()
     new spell_flaming_slash_damage_target_change();
     new spell_sanguine_sphere();
     new aura_sanguine_removal();
+    new spell_tainted_blood_damage_target_change();
 }

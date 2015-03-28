@@ -165,14 +165,18 @@ public:
 
         Vehicle* vehicle;
         InstanceScript* pinstance = me->GetInstanceScript();
-        int32 diffforshreddingstrike;
+        uint32 diffforshreddingstrike;
         void Reset() override
         {
             _Reset();
             events.Reset();
             ASSERT(vehicle);  
-           
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
+            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN | UNIT_FLAG2_FEIGN_DEATH);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+
             DespawnCreaturesInArea(NPC_GROMKAR_FLAMESLINGER, me);
             me->SetReactState(REACT_AGGRESSIVE); 
             diffforshreddingstrike = 300;
@@ -207,14 +211,22 @@ public:
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
+                events.CancelEvent(EVENT_SAVAGE_MAULING);
+                events.CancelEvent(EVENT_BLOODLETTING_HOWL);
+                events.CancelEvent(EVENT_SHREDDING_SWIPES);
+
+                me->RemoveAllAuras();
                 me->SetHealth(me->GetMaxHealth());
                 me->CastSpell(me, 103750); // feign death
                 me->CastSpell(me, 166925); // cosmetic feign death
 
-                if (Creature* wolf = pinstance->instance->GetCreature(pinstance->GetData64(DATA_MOUNT_WOLF)))
-                {
-                    wolf->GetVehicleKit()->RemoveAllPassengers();
-                }
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+
+                me->GetVehicleKit()->RemoveAllPassengers();
 
                 if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
                     nokgar->AI()->Talk(SAY_SPELL04);
@@ -285,6 +297,7 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
                         me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 8.0, 4.0f);
+                        me->Attack(target, true);
                         me->CastSpell(target, SPELL_SAVAGE_MAULING);
 
                         events.ScheduleEvent(EVENT_SAVAGE_MAULING, urand(10000, 15000));
@@ -301,7 +314,7 @@ public:
                     Position RandomLocationForTrigger;
                     me->GetRandomNearPosition(RandomLocationForTrigger, 20.0F);
 
-                    me->SummonCreature(SHREDDING_SWIPES_TRIGGER, RandomLocationForTrigger, TEMPSUMMON_MANUAL_DESPAWN);
+                   // me->SummonCreature(SHREDDING_SWIPES_TRIGGER, RandomLocationForTrigger, TEMPSUMMON_MANUAL_DESPAWN);
                     events.ScheduleEvent(EVENT_SHREDDING_SWIPES, urand(8000, 30000));
                     events.ScheduleEvent(EVENT_SHREDDING_SWIPES_PART_2, 500);
                     break;
@@ -430,6 +443,11 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
+            summons.DespawnAll();
+            if (Creature* wolf = pinstance->instance->GetCreature(pinstance->GetData64(DATA_MOUNT_WOLF)))
+            {
+                wolf->DespawnOrUnsummon(2000);
+            }
 
             me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));      
         }
@@ -437,6 +455,7 @@ public:
         {
             if (Creature* wolf = pinstance->instance->GetCreature(pinstance->GetData64(DATA_MOUNT_WOLF)))
             {
+                summons.DespawnAll();
                 wolf->DespawnOrUnsummon(1000);
                 me->DespawnOrUnsummon(1000);
 
@@ -582,9 +601,37 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
+//SPELL_INITMIDATED
+class iron_docks_intimidated : public SpellScriptLoader
+{
+public:
+    iron_docks_intimidated() : SpellScriptLoader("iron_docks_intimidated") { }
+
+    class iron_docks_spells : public SpellScript
+    {
+        PrepareSpellScript(iron_docks_spells);
+
+
+        SpellCastResult CheckTarget()
+        {
+            if (GetCaster()->GetEntry() == BOSS_FLESHRENDER_NOKGAR)
+            {
+                return SPELL_FAILED_DONT_REPORT;
+            }
+            else
+                return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(iron_docks_spells::CheckTarget);
+        }
+    };
+};
 void AddSC_boss_nokgar()
 {
     new boss_nokgar();
     new iron_docks_flameslinger();
     new boss_mount_wolf();
+    new iron_docks_intimidated();
 }

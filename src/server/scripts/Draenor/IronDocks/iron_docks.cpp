@@ -104,7 +104,6 @@ enum Spells
 };
 enum Events
 {
-
     // Thunderlord wrangler
     EVENT_CULTTRAPS = 1000,
     EVENT_SPEAR_THROW = 1001,
@@ -334,6 +333,13 @@ public:
             events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);         
             events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
         }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
+        }
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
@@ -372,7 +378,7 @@ public:
                     break;
                     */
                 case EVENT_LEG_SHOT:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_LEG_SHOT);
 
                     events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
@@ -409,6 +415,13 @@ public:
             events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
 
             me->RemoveAura(SPELL_SELF_STUN);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -474,6 +487,13 @@ public:
             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
 
             events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -606,6 +626,13 @@ public:
             events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
             events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
             events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -872,7 +899,7 @@ public:
             {
                 if (!(*itr)->HasAura(SPELL_BURNING_ARROW_DAMAGE))
                 {
-                    (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE);
+                    (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE, true);
                     m_Targets.push_back((*itr)->GetGUID());
                 }
             }
@@ -946,12 +973,11 @@ public:
         }
     }
 
-    iron_docks_area_trigger_burning_arrow* GetAI() const
+    iron_docks_area_trigger_barbed_arrow* GetAI() const
     {
-        return new iron_docks_area_trigger_burning_arrow();
+        return new iron_docks_area_trigger_barbed_arrow();
     }
 };
-
 class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 {
 public:
@@ -1227,13 +1253,13 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHARGING_SLASH:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
 
                     events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                     {
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
                         random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
@@ -1273,6 +1299,13 @@ public:
             case 0:
                 me->MonsterYell("CRUSH THEM!!", LANG_UNIVERSAL, me->GetGUID());
                 break;
+            }
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
             }
         }
         void UpdateAI(uint32 const diff)
@@ -1799,7 +1832,7 @@ public:
 class explosion_iron_star : public BasicEvent
 {
 public:
-    explicit explosion_iron_star(Unit* unit, int value) : obj(unit), modifier(value)
+    explicit explosion_iron_star(Unit* unit, Unit* unit2,int value) : obj(unit), obj2(unit2), modifier(value)
     {
     }
 
@@ -1812,12 +1845,18 @@ public:
                     obj->ToCreature()->DespawnOrUnsummon();
                 obj->CastSpell(obj, SPELL_QUIET_SUICIDE);
                 break;
+            case 1:
+                if (obj && obj2 && obj2->IsInWorld())
+                    obj2->EnterVehicle(obj, 0, true);
+               // obj->GetVehicleKit()->RemoveAllPassengers();
+                break;
             }       
         return true;
     }
 private:
     Creature* storm;
     Unit* obj;
+    Unit* obj2;
     int modifier;
     int Event;
 };
@@ -1836,18 +1875,23 @@ public:
                 return;
 
             GetCaster()->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
-            GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             GetCaster()->GetAI()->DoAction(ACTION_QUIET_DEATH);
-            GetCaster()->GetVehicleKit()->RemoveAllPassengers();
+
+            //Unit* pl = GetCaster()->GetVehicleKit()->GetPassenger(0);
 
             GetCaster()->SetSpeed(MOVE_RUN, 12.0f, true);
 
-            GetCaster()->m_Events.AddEvent(new explosion_iron_star(GetCaster(), 0), GetCaster()->m_Events.CalculateTime(6000));
+            GetCaster()->m_Events.AddEvent(new explosion_iron_star(GetCaster(), NULL,0), GetCaster()->m_Events.CalculateTime(6000));
+            //if (pl && pl->IsInWorld())
+            //GetCaster()->m_Events.AddEvent(new explosion_iron_star(GetCaster(), pl, 1), GetCaster()->m_Events.CalculateTime(500));
 
             // START VISUAL EVENT
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                instance->SetData(DATA_SECOND_EVENT, uint32(true));         
+                instance->SetData(DATA_SECOND_EVENT, uint32(true));
+
+            GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void Register()
@@ -1880,6 +1924,9 @@ public:
             timerperexplosion = 0;
             me->setFaction(35);
             canKill = false;
+
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
         void DoAction(int32 const action)
         {
@@ -1887,25 +1934,15 @@ public:
             {
             case ACTION_QUIET_DEATH:
                 timerperexplosion = 12000;
-                me->setFaction(16);
+                me->setFaction(35);
+                me->SetSpeed(MOVE_RUN, 12.0f, true);
+                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+
+                me->GetAI()->DoAction(ACTION_QUIET_DEATH);
+
                 break;
             }
         }
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (who->GetEntry() != me->GetEntry())
-            {
-                if (who && who->GetTypeId() != TYPEID_PLAYER && me->IsWithinDistInMap(who, 4.0f, true))
-                {
-                    me->Kill(who);
-                }
-            }
-            else
-            {
-                printf("ssss");
-            }
-        }
-
         void UpdateAI(uint32 const diff)
         {
             /*
