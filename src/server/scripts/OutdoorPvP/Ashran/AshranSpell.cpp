@@ -52,7 +52,7 @@ class spell_ashran_blade_twister: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_blade_twister_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -92,7 +92,7 @@ class spell_ashran_emberfall_living_bomb: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_ashran_emberfall_living_bomb_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
@@ -158,7 +158,7 @@ class spell_ashran_faction_rewards : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_faction_rewards_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_ashran_faction_rewards_SpellScript::HandleOnHit);
@@ -214,7 +214,7 @@ class spell_ashran_booming_shout : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_booming_shout_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_booming_shout_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -244,7 +244,7 @@ class spell_ashran_curse_of_krong : public SpellScriptLoader
                     l_Target->DealDamage(l_Target, l_Target->CountPctFromMaxHealth(p_AurEff->GetAmount()), nullptr, DOT);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_curse_of_krong_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -310,8 +310,11 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                             break;
                     }
 
-                    uint32 l_Count = ((OutdoorPvPAshran*)l_ZoneScript)->GetArtifactCollected(l_TeamID, l_Type);
-                    p_AurEff->ChangeAmount(l_Count);
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    {
+                        uint32 l_Count = l_Ashran->GetArtifactCollected(l_TeamID, l_Type);
+                        p_AurEff->ChangeAmount(l_Count);
+                    }
                 }
             }
 
@@ -346,7 +349,7 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_ashran_artifacts_collected_AuraScript::UpdateCurrentCount, EFFECT_0, SPELL_AURA_DUMMY);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_ashran_artifacts_collected_AuraScript::SetMaxCount, EFFECT_1, SPELL_AURA_DUMMY);
@@ -359,6 +362,385 @@ class spell_ashran_artifacts_collected : public SpellScriptLoader
         }
 };
 
+/// Stone Empowerment - 170896
+class spell_ashran_stone_empowerment : public SpellScriptLoader
+{
+    public:
+        spell_ashran_stone_empowerment() : SpellScriptLoader("spell_ashran_stone_empowerment") { }
+
+        enum eSpell
+        {
+            StoneEmpowermentProc = 170897
+        };
+
+        class spell_ashran_stone_empowerment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_stone_empowerment_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                /// Caster is Kronus, target are enemies
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActionTarget() == l_Caster)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpell::StoneEmpowermentProc, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ashran_stone_empowerment_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_stone_empowerment_AuraScript();
+        }
+};
+
+/// Summon Disposable Pocket Flying Machine - 168232 (Alliance)
+/// Summon Disposable Pocket Flying Machine - 170407 (Horde)
+class spell_ashran_pocket_flying_machine : public SpellScriptLoader
+{
+    public:
+        spell_ashran_pocket_flying_machine() : SpellScriptLoader("spell_ashran_pocket_flying_machine") { }
+
+        class spell_ashran_pocket_flying_machine_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_pocket_flying_machine_SpellScript);
+
+            enum eSpells
+            {
+                DistrubutionAlliance    = 168232,
+                DistrubitionHorde       = 170407
+            };
+
+            void HandleScriptEffect()
+            {
+                if (GetHitUnit() == nullptr)
+                    return;
+
+                if (Player* l_Player = GetHitUnit()->ToPlayer())
+                {
+                    ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(l_Player->GetZoneId());
+                    if (l_ZoneScript == nullptr)
+                        return;
+
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    {
+                        uint32 l_ArtifactCount = l_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
+                        l_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
+
+                        uint32 l_Modulo = l_ArtifactCount % eArtifactsDatas::MaxArtifactCounts;
+                        uint32 l_Count = l_ArtifactCount / eArtifactsDatas::MaxArtifactCounts;
+                        uint8 l_Rand = urand(0, eArtifactsDatas::MaxArtifactCounts - 1);
+
+                        uint32 l_SpellID = GetSpellInfo()->Id;
+                        for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
+                        {
+                            if (l_SpellID == eSpells::DistrubutionAlliance)
+                            {
+                                if (l_I == l_Rand)
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count + l_Modulo);
+                                else
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_ALLIANCE, l_I, l_Count);
+                            }
+                            else
+                            {
+                                if (l_I == l_Rand)
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count + l_Modulo);
+                                else
+                                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, l_I, l_Count);
+                            }
+                        }
+
+                        l_Ashran->RewardHonorAndReputation(l_ArtifactCount, l_Player);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_ashran_pocket_flying_machine_SpellScript::HandleScriptEffect);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_pocket_flying_machine_SpellScript();
+        }
+};
+
+/// Vile Blood - 162908
+class spell_ashran_vile_blood : public SpellScriptLoader
+{
+    public:
+        spell_ashran_vile_blood() : SpellScriptLoader("spell_ashran_vile_blood") { }
+
+        enum eSpell
+        {
+            VileBloodProc = 167129
+        };
+
+        class spell_ashran_vile_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_vile_blood_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                /// Caster is Kronus, target are enemies
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActionTarget() == l_Caster)
+                    return;
+
+                uint32 l_ID = p_EventInfo.GetDamageInfo()->GetSpellInfo() ? p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id : 0;
+                if (l_ID == eSpell::VileBloodProc)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpell::VileBloodProc, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_ashran_vile_blood_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_vile_blood_AuraScript();
+        }
+};
+
+/// Splitting Breath - 161520
+class spell_ashran_splitting_breath : public SpellScriptLoader
+{
+    public:
+        spell_ashran_splitting_breath() : SpellScriptLoader("spell_ashran_splitting_breath") { }
+
+        class spell_ashran_splitting_breath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_splitting_breath_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 21544
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Restriction->ConeAngle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_splitting_breath_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_splitting_breath_SpellScript();
+        }
+};
+
+/// Shadow Claws - 176542
+class spell_ashran_shadow_claws : public SpellScriptLoader
+{
+    public:
+        spell_ashran_shadow_claws() : SpellScriptLoader("spell_ashran_shadow_claws") { }
+
+        class spell_ashran_shadow_claws_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_shadow_claws_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 24395
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.remove_if([l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Restriction->ConeAngle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_shadow_claws_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_shadow_claws_SpellScript();
+        }
+};
+
+/// Darkness Within - 158830
+class spell_ashran_darkness_within : public SpellScriptLoader
+{
+    public:
+        spell_ashran_darkness_within() : SpellScriptLoader("spell_ashran_darkness_within") { }
+
+        class spell_ashran_darkness_within_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_darkness_within_AuraScript);
+
+            enum eSpell
+            {
+                SpellDarknessWithinSearcher = 158844
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpell::SpellDarknessWithinSearcher, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ashran_darkness_within_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_darkness_within_AuraScript();
+        }
+};
+
+/// Earth Smash - 176187
+class spell_ashran_earth_smash : public SpellScriptLoader
+{
+    public:
+        spell_ashran_earth_smash() : SpellScriptLoader("spell_ashran_earth_smash") { }
+
+        class spell_ashran_earth_smash_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ashran_earth_smash_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 24334
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Radius = GetSpellInfo()->Effects[0].CalcRadius(l_Caster);
+                p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->IsInAxe(l_Caster, l_Restriction->Width, l_Radius))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ashran_earth_smash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_129);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ashran_earth_smash_SpellScript();
+        }
+};
+
+/// Preserved Discombobulator Ray - 168224
+class spell_ashran_preserved_discombobulator_ray : public SpellScriptLoader
+{
+    public:
+        spell_ashran_preserved_discombobulator_ray() : SpellScriptLoader("spell_ashran_preserved_discombobulator_ray") { }
+
+        class spell_ashran_preserved_discombobulator_ray_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_preserved_discombobulator_ray_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->Dismount();
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_ashran_preserved_discombobulator_ray_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ashran_preserved_discombobulator_ray_AuraScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -367,4 +749,12 @@ void AddSC_AshranSpells()
     new spell_ashran_booming_shout();
     new spell_ashran_curse_of_krong();
     new spell_ashran_artifacts_collected();
+    new spell_ashran_stone_empowerment();
+    new spell_ashran_pocket_flying_machine();
+    new spell_ashran_vile_blood();
+    new spell_ashran_splitting_breath();
+    new spell_ashran_shadow_claws();
+    new spell_ashran_darkness_within();
+    new spell_ashran_earth_smash();
+    new spell_ashran_preserved_discombobulator_ray();
 }

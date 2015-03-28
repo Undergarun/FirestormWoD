@@ -824,14 +824,17 @@ void Group::Disband(bool hideDestroy /* = false */)
     Player* player;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        player = ObjectAccessor::FindPlayer(citr->guid);
+        player = HashMapHolder<Player>::Find(citr->guid);
         if (!player)
             continue;
 
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
         if (isBGGroup() || isBFGroup())
-            player->RemoveFromBattlegroundOrBattlefieldRaid();
+        {
+            if (player->IsInWorld())
+                player->RemoveFromBattlegroundOrBattlefieldRaid();
+        }
         else
         {
             //we can remove player who is in battleground from his original group
@@ -842,7 +845,7 @@ void Group::Disband(bool hideDestroy /* = false */)
         }
 
         // quest related GO state dependent from raid membership
-        if (isRaidGroup())
+        if (isRaidGroup() && player->IsInWorld())
             player->UpdateForQuestWorldObjects();
 
         if (!player->GetSession())
@@ -1825,7 +1828,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
     for (member_citerator l_MemberIT = m_memberSlots.begin(); l_MemberIT != m_memberSlots.end(); ++l_MemberIT)
     {
-        Player * l_Member      = ObjectAccessor::FindPlayer(l_MemberIT->guid);
+        Player * l_Member      = HashMapHolder<Player>::Find(l_MemberIT->guid);
         uint8    l_OnlineState = (l_Member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
 
         l_OnlineState = l_OnlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);

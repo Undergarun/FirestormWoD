@@ -2568,7 +2568,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                     return SPELL_SPECIFIC_LETHAL_POISON;
                 case 2823:    ///< Deadly Poison
                 case 8679:    ///< Wound Poison
-                case 157605:  ///< Swift Poison
+                case 157584:  ///< Swift Poison
                     return SPELL_SPECIFIC_NON_LETHAL_POISON;
                 default:
                     break;
@@ -2638,55 +2638,65 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
 {
-    int32 castTime = 0;
+    int32 l_CastTime = 0;
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (caster && CastTimeMax > 0)
+    if (p_Caster && CastTimeMax > 0)
     {
-        castTime = CastTimeMax;
-        if (CastTimeMaxLevel > int32(caster->getLevel()))
-            castTime = CastTimeMin + int32(caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        l_CastTime = CastTimeMax;
+        if (CastTimeMaxLevel > int32(p_Caster->getLevel()))
+            l_CastTime = CastTimeMin + int32(p_Caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
-        castTime = CastTimeEntry->CastTime;
+        l_CastTime = CastTimeEntry->CastTime;
 
-    if (!castTime)
+    if (!l_CastTime)
         return 0;
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
+    /// Swift Riding Crop
+    if (p_Caster && p_Caster->HasAura(170495))
+    {
+        if (SpellCategoriesEntry const* l_Cat = GetSpellCategories())
+        {
+            if (l_Cat->Mechanic == MECHANIC_MOUNT) ///< Mount
+                return 0;
+        }
+    }
 
-    // Kil'Jaeden's Cunning
-    if (caster && caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && caster->isMoving() && !caster->HasAura(119048))
-        castTime += CalculatePct(castTime, 50);
+    if (p_Caster)
+        p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    // Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && caster && caster->HasAura(20552))
-        castTime = 500;
+    /// Fix Cultivation - with Herb Gathering
+    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
+        l_CastTime = 500;
 
-    // Glyph of Capacitor Totem
-    if (caster && Id == 118905)
-        if (Unit* owner = caster->GetOwner())
-            if (owner->HasAura(55442))
-                castTime -= 2000;
+    /// Glyph of Capacitor Totem
+    if (p_Caster && Id == 118905)
+    {
+        if (Unit* l_Owner = p_Caster->GetOwner())
+        {
+            if (l_Owner->HasAura(55442))
+                l_CastTime -= 2000;
+        }
+    }
 
-    // Glyph of the Righteous Retreat
-    if (caster && Id == 8690)
-        if (caster->HasAura(115933) && (caster->HasAura(642) || caster->HasAura(110700)))
-            castTime /= 2;
+    /// Glyph of the Righteous Retreat
+    if (p_Caster && Id == 8690)
+    {
+        if (p_Caster->HasAura(115933) && (p_Caster->HasAura(642)))
+            l_CastTime /= 2;
+    }
 
-    // Elegon - Overloaded
-    if (caster && caster->HasAura(117204))
-        if (AuraPtr overloaded = caster->GetAura(117204))
-            castTime -= CalculatePct(castTime, (20 * overloaded->GetStackAmount()));
+    /// Elegon - Overloaded
+    if (p_Caster && p_Caster->HasAura(117204))
+    {
+        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+            l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
+    }
 
-    // Glyph of Denounce
-    if (Id == 2812 && caster && caster->HasAura(115654))
-        castTime -= 1000;
-
-    return (castTime > 0) ? uint32(castTime) : 0;
+    return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
 }
 
 uint32 SpellInfo::GetMaxTicks() const

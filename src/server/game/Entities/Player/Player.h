@@ -580,7 +580,8 @@ enum PlayerFieldByte2Flags
     PLAYER_BYTES_2_OFFSET_FACIAL_STYLE      = 0,
     PLAYER_BYTES_2_OFFSET_PARTY_TYPE        = 1,
     PLAYER_BYTES_2_OFFSET_BANK_BAG_SLOTS    = 2,
-    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3
+    PLAYER_BYTES_2_OFFSET_REST_STATE        = 3,
+    PLAYER_BYTES_2_INVISIBILITY_GLOW        = 0x40
 };
 
 enum PlayerBytes3Offsets
@@ -1758,8 +1759,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision = false);
         void ResetCurrencyWeekCap();
         uint32 CalculateCurrencyWeekCap(uint32 id);
-        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
-        void UpdateConquestCurrencyCap(uint32 currency);
 
         bool HasUnlockedReagentBank();
         void UnlockReagentBank();

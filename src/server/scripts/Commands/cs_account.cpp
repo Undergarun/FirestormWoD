@@ -443,7 +443,7 @@ public:
 
         // Check for invalid specified GM level.
         gm = (isAccountNameGiven) ? atoi(arg2) : atoi(arg1);
-        if (gm > SEC_CONSOLE)
+        if (gm > SEC_GAMEMASTER)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -470,12 +470,12 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (l_GMRealmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
+        //if (l_GMRealmID == -1) && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
 
             stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(playerSecurity - 1));
+            stmt->setUInt8(1, std::min((uint8)SEC_GAMEMASTER, (uint8)(playerSecurity - 1)));
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 

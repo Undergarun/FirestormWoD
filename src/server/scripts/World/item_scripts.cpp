@@ -550,6 +550,46 @@ namespace ProfessionBookSpellLearnSpells
 
 }
 
+class player_draenor_profession : public PlayerScript
+{
+    public:
+        player_draenor_profession()
+            : PlayerScript("player_draenor_profession")
+        {
+#define MakeVector(a) std::vector<uint32>(a, a + (sizeof(a) / sizeof(a[0])))
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(156606, MakeVector(ProfessionBookSpellLearnSpells::AlchemyLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158737, MakeVector(ProfessionBookSpellLearnSpells::BlacksmithingLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158716, MakeVector(ProfessionBookSpellLearnSpells::EnchantingLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158739, MakeVector(ProfessionBookSpellLearnSpells::EngineeringLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158748, MakeVector(ProfessionBookSpellLearnSpells::InscriptionLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158750, MakeVector(ProfessionBookSpellLearnSpells::JewelCraftingLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158752, MakeVector(ProfessionBookSpellLearnSpells::LeatherWorkingLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158758, MakeVector(ProfessionBookSpellLearnSpells::TailoringLearnedRecipes)));
+#undef MakeVector
+        }
+
+        /// Called when a player logs in.
+        /// @p_Player : Player instance
+        void OnLogin(Player* p_Player) override
+        {
+            for (auto l_Pair : m_SpellPerProfessions)
+            {
+                if (p_Player->HasSpell(l_Pair.first))
+                {
+                    for (auto l_SpellID : l_Pair.second)
+                    {
+                        if (!p_Player->HasSpell(l_SpellID))
+                            p_Player->learnSpell(l_SpellID, false);
+                    }
+                }
+            }
+        }
+
+    private:
+        std::vector<std::pair<uint32, std::vector<uint32>>> m_SpellPerProfessions;
+
+};
+
 class spell_draenor_profession : public SpellScriptLoader
 {
     public:
@@ -620,4 +660,5 @@ void AddSC_item_scripts()
     new item_captured_frog();
     new item_sylvanas_music_box();
     new spell_draenor_profession();
+    new player_draenor_profession();
 }

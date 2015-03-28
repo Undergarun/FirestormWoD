@@ -3278,3 +3278,27 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
     return time_t(0);
 }
 
+void Map::LoadAllGrids(float p_MinX, float p_MaxX, float p_MinY, float p_MaxY, Player* p_Player)
+{
+    float l_Step = 5.0f;
+    float l_CurrX = p_MinX;
+    float l_CurrY = p_MinY;
+
+    /// Process X axis
+    do
+    {
+        /// Process Y axis
+        do
+        {
+            CellCoord l_CellCoord = JadeCore::ComputeCellCoord(l_CurrX, l_CurrY);
+            Cell l_Cell(l_CellCoord);
+            EnsureGridLoadedForActiveObject(l_Cell, p_Player);
+            l_CurrY += l_Step;
+        }
+        while (l_CurrY < p_MaxY);
+
+        l_CurrY = p_MinY;
+        l_CurrX += l_Step;
+    }
+    while (l_CurrX < p_MaxX);
+}

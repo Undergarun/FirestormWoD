@@ -35,6 +35,21 @@ enum BMMailAuctionAnswers
     BM_AUCTION_WON                 = 1
 };
 
+/// Last update : 6.0.3 19342
+namespace BlackMarketBidResult
+{
+    enum
+    {
+        BidPlaced            = 0,
+        ItemNotFound         = 1,
+        AlreadyBid           = 2,
+        HigherBid            = 4,
+        NotEnoughMoney       = 7,
+        RestrictedAccount    = 9,
+        DatabaseError        = 6
+    };
+}
+
 #define BLACKMARKET_AUCTION_HOUSE 7
 
 struct BMAuctionTemplate

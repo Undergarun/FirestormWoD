@@ -57,6 +57,8 @@ enum eAshranSpells
     /// Rewarding spells
     SpellAllianceReward             = 178531,   ///< Trigger horde strongbox (120151)
     SpellHordeReward                = 178533,   ///< Trigger alliance strongbox (118065)
+    SpellEventHordeReward           = 175094,   ///< Dented Ashmaul Strongbox (118093)
+    SpellEventAllianceReward        = 175093,   ///< Dented Ashmaul Strongbox (118094)
 
     /// Misc
     SpellSpiritHeal                 = 22011,
@@ -212,6 +214,7 @@ enum eCreatures
     GaulDunFirok            = 81726,    ///< Gaul Dun Firok <Alliance Champion>
     MarshalKarshStormforge  = 82880,
     MarshalGabriel          = 82878,
+    LifelessAncient         = 81883,
 
     /// Horde
     WarspearBloodGuard      = 83699,
@@ -227,6 +230,7 @@ enum eCreatures
     MukmarRaz               = 81725,    ///< Muk'Mar Raz <Horde Champion>
     GeneralAevd             = 82882,
     WarlordNoktyn           = 82883,
+    UnderpoweredEarthFury   = 82200,
 
     /// Artifact Fragments NPCs
     /// Horde
@@ -238,7 +242,23 @@ enum eCreatures
     Marketa                 = 82660,    ///< Alliance warlock leader
     Ecilam                  = 82966,    ///< Alliance mage leader
     ValantBrightsworn       = 82893,    ///< Alliance paladin leader
-    Anenga                  = 81870     ///< Alliance druid leader
+    Anenga                  = 81870,    ///< Alliance druid leader
+
+    /// Artifacts events related
+    /// Alliance
+    PortalMageA             = 83435,
+    VignetteDummyA          = 84471,
+    Kauper                  = 84466,
+    FalconAtherton          = 84652,
+    DeckerWatts             = 84651,
+    Frangraal               = 81859,
+    /// Horde
+    PortalMageH             = 83948,
+    VignetteDummyH          = 84683,
+    ZaramSunraiser          = 84468,
+    GaylePlagueheart        = 84645,
+    IlyaPlagueheart         = 84646,
+    Kronus                  = 82201
 };
 
 enum eArtifactsDatas
@@ -262,14 +282,27 @@ enum eArtifactsDatas
 
 enum eGameObjects
 {
+    /// Marketplace Graveyard
     GraveyardBannerHorde    = 233518,
     GraveyardBannerAlliance = 233517,
     GraveyardControlBanner  = 231201,
+
+    /// Road of Glory
     CapturePointBanner      = 230876,
     BonfireWithSmokeLarge1  = 233531,
     Smallfire1              = 233534,
     FXFireMediumLowSlow     = 233535,
-    AncientArtifact         = 233825
+
+    /// Misc
+    AncientArtifact         = 233825,
+
+    /// Artifact events
+    PortalToStormshield     = 233285,
+    PortalToWarspear        = 237624,
+    HordeGateway1           = 234082,
+    HordeGateway2           = 234083,
+    AllianceGateway1        = 234067,
+    AllianceGateway2        = 234081
 };
 
 enum eAshranActions
@@ -360,25 +393,22 @@ enum eSpecialSpawns
     /// Tower guardians (Emberfall Tower & Archmage Overwatch)
     HordeTowerGuardian = eSpawns::ArchmageOverwatchSpawnsIDs,
     AllianceTowerGuardian,
-    MaxTowerGuardians = 2,
 
     /// Faction bosses (High Warlord Volrath & Grand Marshal Tremblade)
-    HordeFactionBoss = AllianceTowerGuardian + 1,
+    HordeFactionBoss,
     AllianceFactionBoss,
-    MaxFactionBosses = 2,
 
     /// Flight masters (after a faction boss died)
-    HordeTaxiToBase1 = AllianceFactionBoss + 1,
+    HordeTaxiToBase1,
     HordeTaxiToBase2,
     HordeFlightMaster,
     AllianceTaxiToBase1,
     AllianceTaxiToBase2,
     AllianceFlightMaster,
-    MaxTaxiToBases = 3,
 
     /// Spirit healers
     /// Two are statics
-    AllianceBaseSpiritHealer = AllianceFlightMaster + 1,
+    AllianceBaseSpiritHealer,
     HordeBaseSpiritHealer,
     /// Three are dynamics
     EmberfallTowerSpiritHealer,
@@ -395,7 +425,47 @@ enum eSpecialSpawns
     HordeGeneralAevd,
     AllianceMarshalGabriel,
     AllianceMarshalKarshStormforge,
-    MaxBossGuardian = 2
+
+    /// Alliance events
+    /// Mage portals
+    AllianceMagePortal1,
+    AllianceMagePortal2,
+    AllianceVignetteDummy,
+    AllianceKauper,
+    AlliancePortalToStormshield,
+    /// Warlock Gateways
+    AllianceFalconAtherton,
+    AllianceDeckerWatts,
+    AllianceWarlockGateway1,
+    AllianceWarlockGateway2,
+
+    /// Horde events
+    /// Mage portals
+    HordeMagePortal1,
+    HordeMagePortal2,
+    HordeVignetteDummy,
+    HordeZaramSunraiser,
+    HordePortalToWarspear,
+    /// Warlock Gateways
+    HordeGaylePlagueheart,
+    HordeIlyaPlagueheart,
+    HordeWarlockGateway1,
+    HordeWarlockGateway2,
+
+    /// Horde and Alliance Guardians
+    AllianceGuardian,
+    HordeGuardian,
+    AllianceFangraal,
+    HordeKronus,
+
+    /// Max spawn count
+    MaxTowerGuardians           = 2,
+    MaxFactionBosses            = 2,
+    MaxTaxiToBases              = 3,
+    MaxBossGuardian             = 2,
+    MagePortalsCreatures        = 4,
+    WarlockGatewaysCreatures    = 2,
+    WarlockGatewaysObjects      = 2
 };
 
 enum eFactions
@@ -410,10 +480,79 @@ enum eFactions
     WrynnsVanguard      = 1682
 };
 
+enum eAshranVignettes
+{
+    VignetteKronus              = 367,
+    VignetteFangraal            = 368,
+    VignetteWarlockGateway1     = 431,
+    VignetteStormshieldPortal   = 432,
+    VignetteWarlockGateway2     = 435,
+    VignetteWarspearPortal      = 436,
+    VignetteKorlok              = 643
+};
+
 struct AshranGraveyard
 {
     uint32 m_ID;
     TeamId m_StartTeam;
+};
+
+creature_type const g_AllianceFangraal  = { eCreatures::Frangraal,  Team::ALLIANCE, eAshranDatas::AshranMapID, 3993.69f, -4097.46f, 57.5987f, 1.03238f };
+creature_type const g_HordeKronus       = { eCreatures::Kronus,     Team::HORDE,    eAshranDatas::AshranMapID, 5062.01f, -4202.66f, 49.1949f, 1.59762f };
+
+creature_type const g_AllianceGuardian  = { eCreatures::LifelessAncient,        Team::ALLIANCE, eAshranDatas::AshranMapID, 3983.90f, -4117.12f, 58.0536f, 1.10755f };
+creature_type const g_HordeGuardian     = { eCreatures::UnderpoweredEarthFury,  Team::HORDE,    eAshranDatas::AshranMapID, 5064.02f, -4232.31f, 41.4964f, 2.03435f };
+
+go_type const g_WarlockGatewaysGob[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysObjects] =
+{
+    /// Alliance
+    {
+        { eGameObjects::AllianceGateway1, eAshranDatas::AshranMapID, 4167.15f, -4541.17f, 78.3000f, 0.31959f, 0.0f, 0.0f, 0.0f, 0.0f },
+        { eGameObjects::AllianceGateway2, eAshranDatas::AshranMapID, 4941.93f, -3745.08f, 2.05739f, 5.75514f, 0.0f, 0.0f, 0.0f, 0.0f }
+    },
+    /// Horde
+    {
+        { eGameObjects::HordeGateway1, eAshranDatas::AshranMapID, 4768.854f, -3714.03f, 1.33882f, 0.5902176f, 0.0f, 0.0f, 0.0f, 0.0f },
+        { eGameObjects::HordeGateway2, eAshranDatas::AshranMapID, 4028.808f, -4498.14f, 85.7033f, 1.9328010f, 0.0f, 0.0f, 0.0f, 0.0f }
+    }
+};
+
+creature_type const g_WarlockGatewaysSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysCreatures] =
+{
+    /// Alliance
+    {
+        { eCreatures::FalconAtherton,   Team::ALLIANCE, eAshranDatas::AshranMapID, 4172.79f, -4538.52f, 78.1886f, 0.749476f },
+        { eCreatures::DeckerWatts,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4949.16f, -3748.60f, 2.85976f, 5.726880f }
+    },
+    /// Horde
+    {
+        { eCreatures::GaylePlagueheart, Team::HORDE, eAshranDatas::AshranMapID, 4025.942f, -4491.694f, 85.82835f, 1.9133300f },
+        { eCreatures::IlyaPlagueheart,  Team::HORDE, eAshranDatas::AshranMapID, 4773.523f, -3710.321f, 1.422153f, 0.8231511f }
+    }
+};
+
+go_type const g_MagePortalsGob[MS::Battlegrounds::TeamsCount::Value] =
+{
+    { eGameObjects::PortalToStormshield,    eAshranDatas::AshranMapID, 4645.94f, -4097.77f, 22.6435f, 5.14771f, 0.0f, 0.0f, 0.0f, 0.0f },  ///< Alliance
+    { eGameObjects::PortalToWarspear,       eAshranDatas::AshranMapID, 4428.61f, -4082.23f, 28.1979f, 1.69192f, 0.0f, 0.0f, 0.0f, 0.0f }   ///< Horde
+};
+
+creature_type const g_MagePortalsSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MagePortalsCreatures] =
+{
+    /// Alliance
+    {
+        { eCreatures::PortalMageA,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4641.67f, -4099.74f, 22.49f, 0.423455f   },
+        { eCreatures::PortalMageA,      Team::ALLIANCE, eAshranDatas::AshranMapID, 4649.82f, -4100.56f, 22.49f, 2.602931f   },
+        { eCreatures::VignetteDummyA,   Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.04f, -4098.80f, 22.70f, 0.0f        },
+        { eCreatures::Kauper,           Team::ALLIANCE, eAshranDatas::AshranMapID, 4646.18f, -4093.56f, 22.63f, 1.534031f   }
+    },
+    /// Horde
+    {
+        { eCreatures::PortalMageH,      Team::HORDE, eAshranDatas::AshranMapID, 4432.37f, -4084.51f, 28.15f, 2.839093f  },
+        { eCreatures::PortalMageH,      Team::HORDE, eAshranDatas::AshranMapID, 4424.04f, -4084.11f, 28.15f, 0.283151f  },
+        { eCreatures::VignetteDummyH,   Team::HORDE, eAshranDatas::AshranMapID, 4428.70f, -4082.89f, 28.28f, 0.0f       },
+        { eCreatures::ZaramSunraiser,   Team::HORDE, eAshranDatas::AshranMapID, 4428.91f, -4078.07f, 28.20f, 1.69192f  }
+    }
 };
 
 uint32 const g_MaxArtifactsToCollect[eArtifactsDatas::MaxArtifactCounts] =

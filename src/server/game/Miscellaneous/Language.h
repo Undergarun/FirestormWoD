@@ -1268,8 +1268,8 @@ enum TrinityStrings
 
     /// Ashran
     LangDisplaySlainCounter                 = 14065,
-    LangKorlokIsAwakening                   = 14066,
-    LangSendKorlokTheOgreKingEvent          = 14067,
+    LangKorlokIsAwakening,
+    LangSendKorlokTheOgreKingEvent,
     LangAshranReserved1,
     LangAshranReserved2,
     LangAshranReserved3,

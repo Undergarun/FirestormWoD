@@ -207,7 +207,7 @@ class npc_jeron_emberfall : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_jeron_emberfallAI(p_Creature);
         }
@@ -254,7 +254,7 @@ class npc_ashran_warspear_shaman : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_warspear_shamanAI(p_Creature);
         }
@@ -354,7 +354,7 @@ class npc_ashran_illandria_belore : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_illandria_beloreAI(p_Creature);
         }
@@ -427,7 +427,7 @@ class npc_ashran_examiner_rahm_flameheart : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_examiner_rahm_flameheartAI(p_Creature);
         }
@@ -454,7 +454,7 @@ class npc_ashran_centurion_firescream : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_centurion_firescreamAI(p_Creature);
         }
@@ -481,7 +481,7 @@ class npc_ashran_legionnaire_hellaxe : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_legionnaire_hellaxeAI(p_Creature);
         }
@@ -492,6 +492,30 @@ class npc_ashran_kalgan : public CreatureScript
 {
     public:
         npc_ashran_kalgan() : CreatureScript("npc_ashran_kalgan") { }
+
+        enum eGossip
+        {
+            RidersSummoned = 84923
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarriorPaladin))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::RidersSummoned, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         struct npc_ashran_kalganAI : public ScriptedAI
         {
@@ -510,12 +534,15 @@ class npc_ashran_kalgan : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarriorPaladin, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_kalganAI(p_Creature);
         }
@@ -526,6 +553,30 @@ class npc_ashran_fura : public CreatureScript
 {
     public:
         npc_ashran_fura() : CreatureScript("npc_ashran_fura") { }
+
+        enum eGossip
+        {
+            PortalInvoked = 84919
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::PortalInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         struct npc_ashran_furaAI : public ScriptedAI
         {
@@ -544,12 +595,15 @@ class npc_ashran_fura : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_furaAI(p_Creature);
         }
@@ -560,6 +614,30 @@ class npc_ashran_nisstyr : public CreatureScript
 {
     public:
         npc_ashran_nisstyr() : CreatureScript("npc_ashran_nisstyr") { }
+
+        enum eGossip
+        {
+            GatewaysInvoked = 85463
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::GatewaysInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         struct npc_ashran_nisstyrAI : public ScriptedAI
         {
@@ -578,12 +656,15 @@ class npc_ashran_nisstyr : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_nisstyrAI(p_Creature);
         }
@@ -594,6 +675,30 @@ class npc_ashran_atomik : public CreatureScript
 {
     public:
         npc_ashran_atomik() : CreatureScript("npc_ashran_atomik") { }
+
+        enum eGossip
+        {
+            KronusInvoked = 89853
+        };
+
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
+        {
+            ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(p_Creature->GetZoneId());
+            if (l_ZoneScript == nullptr)
+                return false;
+
+            if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+            {
+                if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman))
+                {
+                    p_Player->PlayerTalkClass->ClearMenus();
+                    p_Player->SEND_GOSSIP_MENU(eGossip::KronusInvoked, p_Creature->GetGUID());
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         struct npc_ashran_atomikAI : public ScriptedAI
         {
@@ -612,14 +717,688 @@ class npc_ashran_atomik : public CreatureScript
                 uint32 l_ArtifactCount = p_Player->GetCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, true);
                 p_Player->ModifyCurrency(CurrencyTypes::CURRENCY_TYPE_ARTIFACT_FRAGEMENT, -int32(l_ArtifactCount * CURRENCY_PRECISION), false);
 
-                ((OutdoorPvPAshran*)l_ZoneScript)->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
-                ((OutdoorPvPAshran*)l_ZoneScript)->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    l_Ashran->AddCollectedArtifacts(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman, l_ArtifactCount);
+                    l_Ashran->RewardHonorAndReputation(l_ArtifactCount, p_Player);
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_ashran_atomikAI(p_Creature);
+        }
+};
+
+/// Zaram Sunraiser <Portal Guardian> - 84468
+class npc_ashran_zaram_sunraiser : public CreatureScript
+{
+    public:
+        npc_ashran_zaram_sunraiser() : CreatureScript("npc_ashran_zaram_sunraiser") { }
+
+        enum eSpells
+        {
+            SpellMoltenArmor    = 79849,
+            SpellFlamestrike    = 79856,
+            SpellFireball       = 79854,
+            SpellBlastWave      = 79857
+        };
+
+        enum eEvents
+        {
+            EventFlamestrike = 1,
+            EventFireball,
+            EventBlastWave
+        };
+
+        struct npc_ashran_zaram_sunraiserAI : public ScriptedAI
+        {
+            npc_ashran_zaram_sunraiserAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::SpellMoltenArmor, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellMoltenArmor, true);
+
+                m_Events.ScheduleEvent(eEvents::EventFlamestrike, 7000);
+                m_Events.ScheduleEvent(eEvents::EventFireball, 3000);
+                m_Events.ScheduleEvent(eEvents::EventBlastWave, 9000);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForMage);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFlamestrike:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::SpellFlamestrike, false);
+                        m_Events.ScheduleEvent(eEvents::EventFlamestrike, 15000);
+                        break;
+                    case eEvents::EventFireball:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellFireball, false);
+                        m_Events.ScheduleEvent(eEvents::EventFireball, 10000);
+                        break;
+                    case eEvents::EventBlastWave:
+                        me->CastSpell(me, eSpells::SpellBlastWave, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlastWave, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_zaram_sunraiserAI(p_Creature);
+        }
+};
+
+/// Gayle Plagueheart <Gateway Guardian> - 84645
+/// Ilya Plagueheart <Gateway Guardian> - 84646
+class npc_ashran_horde_gateway_guardian : public CreatureScript
+{
+    public:
+        npc_ashran_horde_gateway_guardian() : CreatureScript("npc_ashran_horde_gateway_guardian") { }
+
+        enum eSpells
+        {
+            SpellChaosBolt  = 79939,
+            SpellFelArmor   = 165735,
+            SpellImmolate   = 79937,
+            SpellIncinerate = 79938
+        };
+
+        enum eEvents
+        {
+            EventChaosBolt = 1,
+            EventImmolate,
+            EventIncinerate
+        };
+
+        struct npc_ashran_horde_gateway_guardianAI : public ScriptedAI
+        {
+            npc_ashran_horde_gateway_guardianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::SpellFelArmor, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellFelArmor, true);
+
+                m_Events.ScheduleEvent(eEvents::EventImmolate, 1000);
+                m_Events.ScheduleEvent(eEvents::EventIncinerate, 2000);
+                m_Events.ScheduleEvent(eEvents::EventChaosBolt, 5000);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForWarlock);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventChaosBolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellChaosBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventChaosBolt, 12000);
+                        break;
+                    case eEvents::EventImmolate:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellImmolate, false);
+                        m_Events.ScheduleEvent(eEvents::EventImmolate, 9000);
+                        break;
+                    case eEvents::EventIncinerate:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellIncinerate, false);
+                        m_Events.ScheduleEvent(eEvents::EventIncinerate, 5000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_horde_gateway_guardianAI(p_Creature);
+        }
+};
+
+/// Kronus <Horde Guardian> - 82201
+class npc_ashran_kronus : public CreatureScript
+{
+    public:
+        npc_ashran_kronus() : CreatureScript("npc_ashran_kronus") { }
+
+        enum eSpells
+        {
+            AshranLaneMobScalingAura    = 164310,
+
+            SpellFractureSearcher       = 170892,
+            SpellFractureMissile        = 170893,   ///< Trigger 170894
+            SpellGroundPound            = 170905,   ///< Periodic Trigger 177605
+            SpellRockShield             = 175058,
+            SpellStoneEmpowermentAura   = 170896
+        };
+
+        enum eEvents
+        {
+            EventFracture = 1,
+            EventGroundPound,
+            EventRockShield,
+            EventMove
+        };
+
+        struct npc_ashran_kronusAI : public ScriptedAI
+        {
+            npc_ashran_kronusAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1000);
+
+                /// Kronus no longer scales their health based the number of players he's fighting.
+                /// Each faction guardian's health now scales based on the number of enemy players active at the time when they're summoned.
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                uint32 l_PlayerCount = 0;
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                    l_PlayerCount = l_Ashran->CountPlayersForTeam(TeamId::TEAM_ALLIANCE);
+
+                if (AuraPtr l_Scaling = me->AddAura(eSpells::AshranLaneMobScalingAura, me))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(eAshranDatas::HealthPCTAddedByHostileRef * l_PlayerCount);
+                }
+            }
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+                me->CastSpell(me, eSpells::SpellStoneEmpowermentAura, true);
+
+                me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                Position l_Pos;
+                me->GetPosition(&l_Pos);
+                me->SetHomePosition(l_Pos);
+
+                m_Events.ScheduleEvent(eEvents::EventFracture, 5000);
+                m_Events.ScheduleEvent(eEvents::EventGroundPound, 12000);
+                m_Events.ScheduleEvent(eEvents::EventRockShield, 9000);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Damage < me->GetHealth())
+                    return;
+
+                ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (l_ZoneScript == nullptr)
+                    return;
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_ZoneScript)
+                {
+                    if (l_Ashran->IsArtifactEventLaunched(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman))
+                    {
+                        l_Ashran->CastSpellOnTeam(me, TeamId::TEAM_ALLIANCE, eAshranSpells::SpellEventAllianceReward);
+                        l_Ashran->EndArtifactEvent(TeamId::TEAM_HORDE, eArtifactsDatas::CountForDruidShaman);
+                    }
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::SpellFractureSearcher)
+                    me->CastSpell(p_Target, eSpells::SpellFractureMissile, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    me->SetWalk(true);
+                    me->LoadPath(me->GetEntry());
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventFracture:
+                        me->CastSpell(me, eSpells::SpellFractureSearcher, true);
+                        m_Events.ScheduleEvent(eEvents::EventFracture, 16000);
+                        break;
+                    case eEvents::EventGroundPound:
+                        me->CastSpell(me, eSpells::SpellGroundPound, false);
+                        m_Events.ScheduleEvent(eEvents::EventGroundPound, 43000);
+                        break;
+                    case eEvents::EventRockShield:
+                        me->CastSpell(me, eSpells::SpellRockShield, true);
+                        m_Events.ScheduleEvent(eEvents::EventRockShield, 39000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_kronusAI(p_Creature);
+        }
+};
+
+/// Underpowered Earth Fury <Horde Guardian> - 82200
+class npc_ashran_underpowered_earth_fury : public CreatureScript
+{
+    public:
+        npc_ashran_underpowered_earth_fury() : CreatureScript("npc_ashran_underpowered_earth_fury") { }
+
+        struct npc_ashran_underpowered_earth_furyAI : public ScriptedAI
+        {
+            npc_ashran_underpowered_earth_furyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eData
+            {
+                WarspearShaman = 82438
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                std::list<Creature*> l_WarspearShamans;
+                me->GetCreatureListWithEntryInGrid(l_WarspearShamans, eData::WarspearShaman, 20.0f);
+
+                for (Creature* l_Creature : l_WarspearShamans)
+                {
+                    if (l_Creature->AI())
+                        l_Creature->AI()->Reset();
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_underpowered_earth_furyAI(p_Creature);
+        }
+};
+
+/// Warspear Gladiator - 85811
+class npc_ashran_warspear_gladiator : public CreatureScript
+{
+    public:
+        npc_ashran_warspear_gladiator() : CreatureScript("npc_ashran_warspear_gladiator") { }
+
+        enum eSpells
+        {
+            SpellCleave         = 119419,
+            SpellDevotionAura   = 165712,
+            SpellMortalStrike   = 19643,
+            SpellNet            = 81210,
+            SpellSnapKick       = 15618
+        };
+
+        enum eEvents
+        {
+            EventCleave = 1,
+            EventMortalStrike,
+            EventNet,
+            EventSnapKick
+        };
+
+        struct npc_ashran_warspear_gladiatorAI : public ScriptedAI
+        {
+            npc_ashran_warspear_gladiatorAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->CastSpell(me, eSpells::SpellDevotionAura, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->CastSpell(me, eSpells::SpellDevotionAura, true);
+                me->CastSpell(p_Attacker, eSpells::SpellNet, true);
+
+                m_Events.ScheduleEvent(eEvents::EventCleave, 3000);
+                m_Events.ScheduleEvent(eEvents::EventMortalStrike, 5000);
+                m_Events.ScheduleEvent(eEvents::EventNet, 8000);
+                m_Events.ScheduleEvent(eEvents::EventSnapKick, 9000);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCleave:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellCleave, true);
+                        m_Events.ScheduleEvent(eEvents::EventCleave, 15000);
+                        break;
+                    case eEvents::EventMortalStrike:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellMortalStrike, true);
+                        m_Events.ScheduleEvent(eEvents::EventMortalStrike, 10000);
+                        break;
+                    case eEvents::EventNet:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellNet, true);
+                        m_Events.ScheduleEvent(eEvents::EventNet, 20000);
+                        break;
+                    case eEvents::EventSnapKick:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellSnapKick, true);
+                        m_Events.ScheduleEvent(eEvents::EventSnapKick, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_warspear_gladiatorAI(p_Creature);
+        }
+};
+
+/// Excavator Rustshiv - 88568
+class npc_ashran_excavator_rustshiv : public CreatureScript
+{
+    public:
+        npc_ashran_excavator_rustshiv() : CreatureScript("npc_ashran_excavator_rustshiv") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth,
+            Fifth,
+            Sixth
+        };
+
+        enum eData
+        {
+            ExcavatorHardtooth  = 88567,
+            ActionInit          = 0,
+            ActionLoop          = 1,
+            EventLoop           = 1
+        };
+
+        struct npc_ashran_excavator_rustshivAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_excavator_rustshivAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorHardtooth, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        if (m_Init)
+                            break;
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks()
+            {
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(18 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(36 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(67 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+                AddTimedDelayedOperation(84 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fifth); });
+                AddTimedDelayedOperation(101 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Sixth); });
+            }
+
+            void LastOperationCalled() override
+            {
+                m_Events.ScheduleEvent(eData::EventLoop, 31 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eData::EventLoop)
+                {
+                    if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorHardtooth, 15.0f))
+                    {
+                        if (l_Creature->AI())
+                        {
+                            l_Creature->AI()->DoAction(eData::ActionLoop);
+                            ScheduleAllTalks();
+                        }
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_excavator_rustshivAI(p_Creature);
+        }
+};
+
+/// Excavator Hardtooth - 88567
+class npc_ashran_excavator_hardtooth : public CreatureScript
+{
+    public:
+        npc_ashran_excavator_hardtooth() : CreatureScript("npc_ashran_excavator_hardtooth") { }
+
+        enum eTalks
+        {
+            First,
+            Second,
+            Third,
+            Fourth
+        };
+
+        enum eData
+        {
+            ExcavatorRustshiv   = 88568,
+            ActionInit          = 0,
+            ActionLoop          = 1
+        };
+
+        struct npc_ashran_excavator_hardtoothAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_excavator_hardtoothAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            bool m_Init;
+
+            void Reset() override
+            {
+                m_Init = false;
+
+                if (Creature* l_Creature = me->FindNearestCreature(eData::ExcavatorRustshiv, 15.0f))
+                {
+                    if (l_Creature->AI())
+                    {
+                        m_Init = true;
+                        l_Creature->AI()->DoAction(eData::ActionInit);
+                        ScheduleAllTalks();
+                    }
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eData::ActionInit:
+                        m_Init = true;
+                        ScheduleAllTalks();
+                        break;
+                    case eData::ActionLoop:
+                        ScheduleAllTalks();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void ScheduleAllTalks()
+            {
+                AddTimedDelayedOperation(10 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::First); });
+                AddTimedDelayedOperation(27 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Second); });
+                AddTimedDelayedOperation(76 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Third); });
+                AddTimedDelayedOperation(93 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Fourth); });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_excavator_hardtoothAI(p_Creature);
+        }
+};
+
+/// Vol'jin's Spear Battle Standard - 85383
+class npc_ashran_voljins_spear_battle_standard : public CreatureScript
+{
+    public:
+        npc_ashran_voljins_spear_battle_standard() : CreatureScript("npc_ashran_voljins_spear_battle_standard") { }
+
+        struct npc_ashran_voljins_spear_battle_standardAI : public ScriptedAI
+        {
+            npc_ashran_voljins_spear_battle_standardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                me->DespawnOrUnsummon();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_voljins_spear_battle_standardAI(p_Creature);
         }
 };
 
@@ -635,4 +1414,12 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_fura();
     new npc_ashran_nisstyr();
     new npc_ashran_atomik();
+    new npc_ashran_zaram_sunraiser();
+    new npc_ashran_horde_gateway_guardian();
+    new npc_ashran_kronus();
+    new npc_ashran_underpowered_earth_fury();
+    new npc_ashran_warspear_gladiator();
+    new npc_ashran_excavator_rustshiv();
+    new npc_ashran_excavator_hardtooth();
+    new npc_ashran_voljins_spear_battle_standard();
 }

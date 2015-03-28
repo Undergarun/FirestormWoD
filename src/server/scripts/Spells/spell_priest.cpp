@@ -3290,7 +3290,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     return;
 
                 Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetTarget();
+                Unit* l_Target = p_EventInfo.GetActionTarget();
 
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
@@ -3299,8 +3299,23 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                     return;
 
                 int32 l_Amount = p_EventInfo.GetHealInfo()->GetHeal();
+                int32 l_PreviousAmount = 0;
 
-                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, nullptr, nullptr, true);
+                /// Divine Aegis previous amount for stack.
+                if (AuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                    l_PreviousAmount = l_PreviousShield->GetAmount();
+
+                l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, NULL, NULL, true);
+                
+                /// Apply the previous amount after casting to no apply the bonus multiple times.
+                if (AuraEffectPtr l_AcutalShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                {
+                    l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
+
+                    /// The maximum size of a Divine Aegis is 40% of the maximum health of the target.
+                    if (l_AcutalShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
+                        l_AcutalShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
+                }
             }
 
             void Register()

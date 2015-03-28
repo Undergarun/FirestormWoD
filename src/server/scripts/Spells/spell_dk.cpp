@@ -86,7 +86,8 @@ enum DeathKnightSpells
     DK_SPELL_EMPOWERED_OBLITERATE               = 157409,
     DK_SPELL_FREEZING_FOG_AURA                  = 59052,
     DK_SPELL_ENHANCED_DEATH_COIL                = 157343,
-    DK_SPELL_SHADOW_OF_DEATH                    = 164047
+    DK_SPELL_SHADOW_OF_DEATH                    = 164047,
+    DK_SPELL_DEATH_COIL                         = 47541
 };
 
 enum DeathKnightPresence
@@ -329,7 +330,7 @@ class spell_dk_desecrated_ground: public SpellScriptLoader
         }
 };
 
-// Festering Strike - 85948
+/// Festering Strike - 85948
 class spell_dk_festering_strike: public SpellScriptLoader
 {
     public:
@@ -341,46 +342,47 @@ class spell_dk_festering_strike: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+                int32 l_extraDuration = GetSpellInfo()->Effects[EFFECT_2].BasePoints * IN_MILLISECONDS;
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
                 {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraBloodPlague->GetDuration() + 6000;
-                            l_AuraBloodPlague->SetDuration(dur);
+                    uint32 l_Dur = std::min(l_AuraBloodPlague->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_AuraBloodPlague->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraBloodPlague->GetMaxDuration()))
-                                l_AuraBloodPlague->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_AuraBloodPlague->GetMaxDuration()))
+                        l_AuraBloodPlague->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraFrostFever->GetDuration() + 6000;
-                            l_AuraFrostFever->SetDuration(dur);
+                if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_AuraFrostFever->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_AuraFrostFever->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraFrostFever->GetMaxDuration()))
-                                l_AuraFrostFever->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_AuraFrostFever->GetMaxDuration()))
+                        l_AuraFrostFever->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_AuraChainsOfIce = l_Target->GetAura(DK_SPELL_CHAINS_OF_ICE, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_AuraChainsOfIce->GetDuration() + 6000;
-                            l_AuraChainsOfIce->SetDuration(dur);
+                if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_NecroticPlague->GetDuration() + l_extraDuration, 2 * MINUTE * IN_MILLISECONDS);
+                    l_NecroticPlague->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
-                                l_AuraChainsOfIce->SetMaxDuration(dur);
-                        }
+                    if (l_Dur > uint32(l_NecroticPlague->GetMaxDuration()))
+                        l_NecroticPlague->SetMaxDuration(l_Dur);
+                }
 
-                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
-                        {
-                            uint32 dur = l_NecroticPlague->GetDuration() + 6000;
-                            l_NecroticPlague->SetDuration(dur);
+                if (AuraPtr l_AuraChainsOfIce = l_Target->GetAura(DK_SPELL_CHAINS_OF_ICE, l_Player->GetGUID()))
+                {
+                    uint32 l_Dur = std::min(l_AuraChainsOfIce->GetDuration() + l_extraDuration, 20 * IN_MILLISECONDS);
+                    l_AuraChainsOfIce->SetDuration(l_Dur);
 
-                            if (dur > uint32(l_NecroticPlague->GetMaxDuration()))
-                                l_NecroticPlague->SetMaxDuration(dur);
-                        }
-                    }
+                    if (l_Dur > uint32(l_AuraChainsOfIce->GetMaxDuration()))
+                        l_AuraChainsOfIce->SetMaxDuration(l_Dur);
                 }
             }
             void Register()
@@ -1438,7 +1440,7 @@ class spell_dk_death_gate: public SpellScriptLoader
         }
 };
 
-// Blood Boil - 50842
+/// Blood Boil - 50842
 class spell_dk_blood_boil: public SpellScriptLoader
 {
     public:
@@ -1451,59 +1453,78 @@ class spell_dk_blood_boil: public SpellScriptLoader
             int32 m_FrostFever  = 0;
             int32 m_BloodPlague = 0;
 
+            SpellCastResult CheckTarget()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return SPELL_FAILED_SUCCESS;
+
+                Unit* l_Target = l_Player->GetSelectedUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                if (!l_Player->IsValidAttackTarget(l_Target))
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+
+                if (l_Player->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleBeforeCast()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Player* l_Player = l_Caster->ToPlayer())
-                    {
-                        if (Unit* l_Target = l_Player->GetSelectedUnit())
-                        {
-                            if (!l_Player->IsValidAttackTarget(l_Target))
-                                return;
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                                m_BloodPlague = l_AuraBloodPlague->GetDuration();
+                if (l_Player == nullptr)
+                    return;
 
-                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                                m_FrostFever = l_AuraFrostFever->GetDuration();
-                        }
-                    }
-                }
+                Unit* l_Target = l_Player->GetSelectedUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Player->GetGUID()))
+                    m_BloodPlague = l_AuraBloodPlague->GetDuration();
+
+                if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Player->GetGUID()))
+                    m_FrostFever = l_AuraFrostFever->GetDuration();
             }
 
             void HandleHitTarget(SpellEffIndex /* effIndex */)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if ((!l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID())->GetDuration() < m_FrostFever) && m_FrostFever > 0)
                 {
-                    if (Unit* l_Target = GetHitUnit())
+                    l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
+                    if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
                     {
-                        if ((!l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID())->GetDuration() < m_FrostFever) && m_FrostFever > 0)
-                        {
-                            l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
-                            if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                            {
-                                // Don't Refresh diseases
-                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                                    l_AuraFrostFever->SetDuration(m_FrostFever);
-                            }
-                        }
-
-                        // Blood plague
-                        if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID())->GetDuration() < m_BloodPlague) && m_BloodPlague > 0)
-                        {
-                            l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
-                            if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                            {
-                                // Don't Refresh diseases
-                                if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                                    l_AuraBloodPlague->SetDuration(m_BloodPlague);
-                            }
-                        }
-
-                        l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                        // Don't Refresh diseases
+                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                            l_AuraFrostFever->SetDuration(m_FrostFever);
                     }
                 }
+
+                // Blood plague
+                if ((!l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()) || l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID())->GetDuration() < m_BloodPlague) && m_BloodPlague > 0)
+                {
+                    l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
+                    if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                    {
+                        // Don't Refresh diseases
+                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                            l_AuraBloodPlague->SetDuration(m_BloodPlague);
+                    }
+                }
+
+                l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
             }
 
             void HandleAfterCast()
@@ -1517,6 +1538,7 @@ class spell_dk_blood_boil: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dk_blood_boil_SpellScript::CheckTarget);
                 BeforeCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleBeforeCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_blood_boil_SpellScript::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleAfterCast);
@@ -2143,6 +2165,55 @@ class spell_dk_chilblains_aura : public SpellScriptLoader
         }
 };
 
+/// Will of the Necropolis - 81164
+class spell_dk_will_of_the_necropolis : public SpellScriptLoader
+{
+    public:
+        spell_dk_will_of_the_necropolis() : SpellScriptLoader("spell_dk_will_of_the_necropolis") { }
+
+        class spell_dk_will_of_the_necropolis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
+
+            enum eSpell
+            {
+                TimerAura   = 157335, ///< 30s
+                RuneTap     = 171049
+            };
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpell::TimerAura))
+                    return;
+
+                if (!l_Caster->HealthBelowPctDamaged(GetSpellInfo()->Effects[EFFECT_0].BasePoints, p_EventInfo.GetDamageInfo()->GetDamage()))
+                    return;
+
+                /// This effect cannot occur more than once every 30 sec.
+                l_Caster->CastSpell(l_Caster, eSpell::TimerAura, true);
+
+                l_Caster->CastSpell(l_Caster, eSpell::RuneTap, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_will_of_the_necropolis_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_will_of_the_necropolis_AuraScript();
+        }
+};
+
 /// Dark Succor - 178819
 class spell_dk_dark_succor : public SpellScriptLoader
 {
@@ -2218,7 +2289,53 @@ class spell_dk_mark_of_sindragosa : public SpellScriptLoader
         }
 };
 
-//Death Coil - 47541
+enum DeathCoilSpells
+{
+    SpellGlyphOfDeathsEmbrace = 58679
+};
+
+/// 58677 - Glyph of Death's Embrace
+class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_deaths_embrace() : SpellScriptLoader("spell_dk_glyph_of_deaths_embrace") { }
+
+        class spell_dk_glyph_of_deaths_embrace_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_deaths_embrace_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = p_EventInfo.GetDamageInfo()->GetVictim();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+
+                if (l_Target->IsHostileTo(l_Caster))
+                    return;
+
+
+                if (l_Target->GetOwner() && l_Target->isGuardian() && p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == DK_SPELL_DEATH_COIL)
+                    l_Caster->CastSpell(l_Caster, DeathCoilSpells::SpellGlyphOfDeathsEmbrace, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_deaths_embrace_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_deaths_embrace_AuraScript();
+        }
+};
+
+/// Death Coil - 47541
 class spell_dk_death_coil : public SpellScriptLoader
 {
     public:
@@ -2395,6 +2512,66 @@ class spell_dk_improved_death_grip : public SpellScriptLoader
         }
 };
 
+/// Army Transform - 127517
+class spell_dk_army_transform : public SpellScriptLoader
+{
+    public:
+        spell_dk_army_transform() : SpellScriptLoader("spell_dk_army_transform") { }
+
+        class spell_dk_army_transform_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_army_transform_SpellScript);
+
+            enum eArmyTransformSpells
+            {
+                GlyphOfFullMenagerie        = 58642,
+                TransformFleahBeast         = 127533,
+                TransformGeist              = 127534,
+                TransformNothrendSkeleton   = 127528,
+                TransformSkeleton           = 127527,
+                TransformSpikedGhoul        = 127525,
+                TransformSuperZombie        = 127526
+            };
+
+            bool Load() override
+            {
+                return GetCaster()->isGuardian();
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Owner = GetCaster()->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return SPELL_FAILED_SPELL_UNAVAILABLE;
+
+                if (l_Owner->HasAura(eArmyTransformSpells::GlyphOfFullMenagerie))
+                    return SPELL_CAST_OK;
+
+                return SPELL_FAILED_SPELL_UNAVAILABLE;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                static uint32 const ArmyTransforms[6] = { TransformFleahBeast, TransformGeist, TransformNothrendSkeleton, TransformSkeleton, TransformSpikedGhoul, TransformSuperZombie };
+                Unit *l_Caster = GetCaster();
+
+                l_Caster->CastSpell(l_Caster, ArmyTransforms[urand(0, 5)], true);
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_army_transform_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_army_transform_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_dk_army_transform_SpellScript();
+        }
+};
+
 /// Areatrigger defile - 152280
 class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 {
@@ -2534,6 +2711,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_glyph_of_the_geist();
     new spell_dk_glyph_of_the_skeleton();
     new spell_dk_improved_death_grip();
+    new spell_dk_glyph_of_deaths_embrace();
+    new spell_dk_will_of_the_necropolis();
 
     /// Player script
     new PlayerScript_Blood_Tap();
