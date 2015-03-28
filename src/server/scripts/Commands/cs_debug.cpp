@@ -2469,12 +2469,13 @@ class debug_commandscript: public CommandScript
                 if (l_Template->Name1.find(l_SearchString) != std::string::npos)
                 {
                     int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
+                    uint32 l_Count = l_Template->IsWeapon() ? 2 : 1; // Give 2x each weapon
 
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_TeamIndex + 1 << " ," << l_Template->ItemId << " , 1)", l_FirstEntry = false;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_TeamIndex + 1 << " ," << l_Template->ItemId << " ," << l_Count << ")", l_FirstEntry = false;
                     }
                 }
             }
