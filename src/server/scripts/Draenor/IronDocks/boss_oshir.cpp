@@ -388,7 +388,7 @@ public:
                             if (wolf_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = wolf_dests.begin();
+                            std::list<Creature*>::iterator it = wolf_dests.begin();
                             std::advance(it, urand(0, wolf_dests.size() - 1));
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
@@ -406,9 +406,8 @@ public:
                             if (rylak_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = rylak_dests.begin();
+                            std::list<Creature*>::iterator it = rylak_dests.begin();
                             std::advance(it, urand(0, rylak_dests.size() - 1));
-
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
                             //me->CastSpell((*it), SPELL_BREAKOUT, true);
