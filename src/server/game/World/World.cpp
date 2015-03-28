@@ -1616,6 +1616,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Currency Loot Templates...");
     sObjectMgr->LoadCurrencyOnKill();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Currency Loot Templates Personnal...");
+    sObjectMgr->LoadPersonnalCurrencyOnKill();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Reputation OnKill Data...");
     sObjectMgr->LoadReputationOnKill();
 

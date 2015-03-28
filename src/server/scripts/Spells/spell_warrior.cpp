@@ -257,34 +257,6 @@ class spell_warr_glyph_of_hindering_strikes: public SpellScriptLoader
         }
 };
 
-/// Stampeding Shout - 122294
-class spell_warr_stampeding_shout: public SpellScriptLoader
-{
-    public:
-        spell_warr_stampeding_shout() : SpellScriptLoader("spell_warr_stampeding_shout") { }
-
-        class spell_warr_stampeding_shout_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_stampeding_shout_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* target = GetHitUnit())
-                    target->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_stampeding_shout_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_stampeding_shout_SpellScript();
-        }
-};
-
 /// Shield Block - 2565
 class spell_warr_shield_block: public SpellScriptLoader
 {
@@ -476,7 +448,7 @@ class spell_warr_second_wind: public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->GetHealthPct() <= 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+                    if (l_Caster->GetHealthPct() < 35.0f && !l_Caster->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
                         l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_SECOND_WIND_REGEN, true);
                 }
             }
@@ -501,6 +473,23 @@ class spell_warr_second_wind: public SpellScriptLoader
         {
             return new spell_warr_second_wind_AuraScript();
         }
+};
+
+/// Second Wind (aura) - 29838
+class PlayerScript_second_wind : public PlayerScript
+{
+public:
+    PlayerScript_second_wind() :PlayerScript("PlayerScript_second_wind") {}
+
+    void OnModifyHealth(Player * p_Player, int32 p_Value)
+    {
+        if (p_Player->getClass() == CLASS_WARRIOR && p_Player->HasAura(WARRIOR_SPELL_SECOND_WIND_REGEN))
+        {
+            /// Remove aura if player has more than 35% life
+            if (p_Player->GetHealthPct() >= 35.0f)
+                p_Player->RemoveAura(WARRIOR_SPELL_SECOND_WIND_REGEN);
+        }
+    }
 };
 
 /// Sudden Death - 52437
@@ -1740,20 +1729,22 @@ class spell_warr_blood_bath : public SpellScriptLoader
                 if (l_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
                     return;
 
-                if (Unit* l_Target = l_ProcInfo.GetActionTarget())
-                {
-                    if (Unit* l_Caster = GetCaster())
-                    {
-                        // 30% additional damage as a bleed over 6 sec
-                        int32 l_Damage = (l_ProcInfo.GetDamageInfo()->GetDamage() * sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH)->Effects[EFFECT_0].BasePoints / 100) / 6;
+                Unit* l_Target = l_ProcInfo.GetActionTarget();
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
 
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
-                        l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+                /// 30% additional damage as a bleed over 6 sec
 
-                        if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
-                            l_BloodbathActual->SetAmount(l_Damage);
-                    }
-                }
+                if (l_SpellInfo == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                    return;
+
+                int32 l_Damage = ((l_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100) / 6;
+
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
+                l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);
+
+                if (AuraEffectPtr l_BloodbathActual = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                    l_BloodbathActual->SetAmount(l_Damage);
             }
 
             void Register()
@@ -1865,7 +1856,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_rend();
     new spell_warr_victorious_state();
     new spell_warr_glyph_of_hindering_strikes();
-    new spell_warr_stampeding_shout();
     new spell_warr_shield_block();
     new spell_warr_storm_bolt();
     new spell_warr_colossus_smash();
@@ -1901,4 +1891,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
+
+    /// Playerscripts
+    new PlayerScript_second_wind();
 }

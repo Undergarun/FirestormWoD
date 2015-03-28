@@ -416,35 +416,6 @@ class spell_warl_grimoire_of_supremacy: public SpellScriptLoader
         }
 };
 
-// Soulburn : Health Funnel - 104220
-class spell_warl_soulburn_health_funnel: public SpellScriptLoader
-{
-    public:
-        spell_warl_soulburn_health_funnel() : SpellScriptLoader("spell_warl_soulburn_health_funnel") { }
-
-        class spell_warl_soulburn_health_funnel_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_soulburn_health_funnel_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
-                    if (caster->HasAura(WARLOCK_SOULBURN_AURA))
-                        caster->RemoveAurasDueToSpell(WARLOCK_SOULBURN_AURA);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_soulburn_health_funnel_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_soulburn_health_funnel_SpellScript();
-        }
-};
-
 // Soulburn : Seed of Corruption - Damage - 87385
 class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
 {
@@ -748,45 +719,6 @@ class spell_warl_rain_of_fire_damage: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_rain_of_fire_damage_SpellScript();
-        }
-};
-
-// Voidwalker : Shield of Shadow - 103130
-class spell_warl_shield_of_shadow: public SpellScriptLoader
-{
-    public:
-        spell_warl_shield_of_shadow() : SpellScriptLoader("spell_warl_shield_of_shadow") { }
-
-        class spell_warl_shield_of_shadow_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_shield_of_shadow_AuraScript);
-
-            void OnUpdate(uint32 /*diff*/, AuraEffectPtr /*aurEff*/)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Pet* pet = _player->GetPet())
-                    {
-                        if (pet->GetEntry() == ENTRY_VOIDWALKER)
-                        {
-                            if (!pet->HasSpell(WARLOCK_SHIELD_OF_SHADOW))
-                                pet->addSpell(WARLOCK_SHIELD_OF_SHADOW);
-                            if (!pet->HasSpell(WARLOCK_THREATENING_PRESENCE))
-                                pet->addSpell(WARLOCK_THREATENING_PRESENCE);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectUpdate += AuraEffectUpdateFn(spell_warl_shield_of_shadow_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_shield_of_shadow_AuraScript();
         }
 };
 
@@ -1130,13 +1062,20 @@ class spell_warl_molten_core_dot: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* l_Caster = GetCaster())
-                    if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
-                    {
-                        const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
-                        if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
-                            l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
-                    }
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                {
+                    const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_MOLTEN_CORE_AURA);
+                    if (l_SpellInfo != nullptr && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+                }
+
+                /// Generates 2 Demonic Fury every time it deals damage.
+                l_Caster->ModifyPower(POWER_DEMONIC_FURY, 2 * l_Caster->GetPowerCoeff(POWER_DEMONIC_FURY));
             }
 
             void Register()
@@ -3026,7 +2965,7 @@ public:
     }
 };
 
-// dark soul - 77801
+/// Dark Soul - 77801
 class spell_warl_dark_soul : public SpellScriptLoader
 {
 public:
@@ -3047,7 +2986,7 @@ public:
 
                 if (!l_Player->HasAura(WARLOCK_GLYPH_OF_DARK_SOUL))
                     l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_OldCooldown, true);
-                else                 // Case of GLYPH_OF_DARK_SOUL
+                else ///< Case of GLYPH_OF_DARK_SOUL
                     l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, l_NewCooldown, true);
 
                 if (AuraPtr l_DarkSoul = l_Player->GetAura(GetSpellInfo()->Id))
@@ -3155,7 +3094,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt_dispel();
     new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
-    new spell_warl_soulburn_health_funnel();
     new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulburn_seed_of_corruption();
     new spell_warl_soulburn_override();
@@ -3163,7 +3101,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_glyph_of_imp_swarm();
     new spell_warl_unbound_will();
     new spell_warl_rain_of_fire_damage();
-    new spell_warl_shield_of_shadow();
     new spell_warl_agony();
     new spell_warl_grimoire_of_sacrifice();
     new spell_warl_flames_of_xoroth();

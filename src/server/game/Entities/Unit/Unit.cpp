@@ -855,6 +855,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         if (pet && pet->isAlive())
             pet->AI()->OwnerDamagedBy(this);
+
+        sScriptMgr->OnPlayerTakeDamage(victim->ToPlayer(), damagetype, damage, damageSchoolMask, *cleanDamage);
     }
 
     if (damagetype != NODAMAGE)
@@ -18280,6 +18282,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             l_Loot->generateMoneyLoot(l_KilledCreature->GetCreatureTemplate()->mingold, l_KilledCreature->GetCreatureTemplate()->maxgold);
         }
 
+        l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
         l_KillerPlayer->RewardPlayerAndGroupAtKill(l_KilledVictim, false);
     }
 

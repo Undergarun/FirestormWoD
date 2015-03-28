@@ -5257,9 +5257,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
-            case 20711: ///< Spirit of Redemption
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(9);

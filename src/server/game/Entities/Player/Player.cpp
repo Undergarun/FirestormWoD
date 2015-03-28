@@ -90,13 +90,13 @@
 
 enum SkillFieldOffset
 {
-    SKILL_OFFSET_LINEID = 0 * 64,
-    SKILL_OFFSET_STEP = 1 * 64,
-    SKILL_OFFSET_RANK = 2 * 64,
-    SKILL_OFFSET_UNK = 3 * 64,
-    SKILL_OFFSET_MAX_RANK = 4 * 64,
-    SKILL_OFFSET_MODIFIER = 5 * 64,
-    SKILL_OFFSET_TALENT = 6 * 64,
+    SKILL_OFFSET_LINEID     = 0 * 64,
+    SKILL_OFFSET_STEP       = 1 * 64,
+    SKILL_OFFSET_RANK       = 2 * 64,
+    SKILL_OFFSET_UNK        = 3 * 64,
+    SKILL_OFFSET_MAX_RANK   = 4 * 64,
+    SKILL_OFFSET_MODIFIER   = 5 * 64,
+    SKILL_OFFSET_TALENT     = 6 * 64,
 };
 
 enum CharacterFlags
@@ -4050,6 +4050,10 @@ void Player::GiveGatheringXP()
         gain = 750 * level - 58250;
     else if (level > 84 && level < 90)
         gain = 1720 * level - 138800; // (7400 - 14280),  Guessed, @TODO : find blizzlike formula (7400 - 14280)
+    else if (level > 89 && level < 95)
+        gain = -225 * level + 23100;
+    else if (level > 94 && level < 100)
+        gain = -228 * level + 24512;    ///< Guessed
 
     float GatheringXpRate = 1;
 
@@ -4059,7 +4063,6 @@ void Player::GiveGatheringXP()
         GatheringXpRate = sWorld->getRate(RATE_XP_GATHERING);
 
     gain *= GatheringXpRate;
-
     GiveXP(gain, nullptr);
 }
 
@@ -7685,13 +7688,15 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-            int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
 
-            // Since 4.0.x, we have bonus skill point reward with somes items
-            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == (int32)(sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10))
-                craft_skill_gain = _spell_idx->second->skill_gain;
+            if (_spell_idx->second->skill_gain)
+                craft_skill_gain *= _spell_idx->second->skill_gain;
 
-            return UpdateSkillPro(_spell_idx->second->skillId, skill_gain_chance, craft_skill_gain);
+            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
+                _spell_idx->second->max_value,
+                (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
+                _spell_idx->second->min_value),
+                craft_skill_gain);
         }
     }
     return false;
@@ -7741,63 +7746,67 @@ bool Player::UpdateFishingSkill()
 // levels sync. with spell requirement for skill levels to learn
 // bonus abilities in sSkillLineAbilityStore
 // Used only to avoid scan DBC at each skill grow
-static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
-static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
+static uint32 g_BonusSkillLevels[] = {75, 150, 225, 300, 375, 450, 525, 600, 700};
+static const size_t g_BonusSkillLevelsSize = sizeof(g_BonusSkillLevels) / sizeof(uint32);
 
-bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
+bool Player::UpdateSkillPro(uint16 p_SkillId, int32 p_Chance, uint32 p_Step)
 {
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId, Chance / 10.0f);
-    if (!SkillId)
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", p_SkillId, p_Chance / 10.0f);
+
+    if (!p_SkillId)
         return false;
 
-    if (Chance <= 0)                                         // speedup in 0 chance case
+    if (p_Chance <= 0)                                         // speedup in 0 chance case
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
         return false;
     }
 
-    SkillStatusMap::iterator itr = mSkillStatus.find(SkillId);
-    if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
+    SkillStatusMap::iterator l_It = mSkillStatus.find(p_SkillId);
+    if (l_It == mSkillStatus.end() || l_It->second.uState == SKILL_DELETED)
         return false;
 
-    uint16 field = itr->second.pos / 2;
-    uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
+    uint16 l_SkillField       = l_It->second.pos / 2;
+    uint8  l_SkillFieldOffset = l_It->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset);
+    uint16 l_CurrentSkillValue    = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset);
+    uint16 l_CurrentSkillMaxValue = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + l_SkillField, l_SkillFieldOffset);
 
-    if (!max || !value || value >= max)
+    if (!l_CurrentSkillMaxValue || !l_CurrentSkillValue || l_CurrentSkillValue >= l_CurrentSkillMaxValue)
         return false;
 
-    int32 Roll = irand(1, 1000);
+    int32 l_Roll = irand(1, 1000);
 
-    if (Roll <= Chance)
+    if (l_Roll <= p_Chance)
     {
-        uint16 new_value = value + step;
-        if (new_value > max)
-            new_value = max;
+        uint16 l_NewSkillValue = l_CurrentSkillValue + p_Step;
+        if (l_NewSkillValue > l_CurrentSkillMaxValue)
+            l_NewSkillValue = l_CurrentSkillMaxValue;
 
-        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, new_value);
-        if (itr->second.uState != SKILL_NEW)
-            itr->second.uState = SKILL_CHANGED;
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + l_SkillField, l_SkillFieldOffset, l_NewSkillValue);
 
-        for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
+        if (l_It->second.uState != SKILL_NEW)
+            l_It->second.uState = SKILL_CHANGED;
+
+        for (size_t l_I = 0; l_I < g_BonusSkillLevelsSize; ++l_I)
         {
-            uint32 bsl = bonusSkillLevels[i];
-            if (value < bsl && new_value >= bsl)
+            uint32 l_BonusSkillLevel = g_BonusSkillLevels[l_I];
+            if (l_CurrentSkillValue < l_BonusSkillLevel && l_NewSkillValue >= l_BonusSkillLevel)
             {
-                learnSkillRewardedSpells(SkillId, new_value);
+                learnSkillRewardedSpells(p_SkillId, l_NewSkillValue);
                 break;
             }
         }
 
-        UpdateSkillEnchantments(SkillId, value, new_value);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, SkillId);
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", Chance / 10.0f);
+        UpdateSkillEnchantments(p_SkillId, l_CurrentSkillValue, l_NewSkillValue);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, p_SkillId);
+
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", p_Chance / 10.0f);
+
         return true;
     }
 
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", p_Chance / 10.0f);
     return false;
 }
 
@@ -7872,10 +7881,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_TALENT + field, offset, 0);
 
@@ -7890,6 +7899,16 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
                         removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+        }
+
+        if (step == 0 && newVal == 0 && maxVal == 0)
+        {
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
+            // update step
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
+            // update value
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
         }
     }
     else if (newVal)                                        //add
@@ -11372,6 +11391,127 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         case LOOT_INSIGNIA:    loot_type = LOOT_SKINNING; break;
         case LOOT_FISHINGHOLE: loot_type = LOOT_FISHING; break;
         default: break;
+    }
+
+    /// In WoD, more you have fishing skill more the fish is bigger
+    if (loot_type == LOOT_FISHING || loot_type == LOOT_FISHINGHOLE)
+    {
+        uint32 l_SmallFishChance    = 100;
+        uint32 l_MediumFishChance   = 0;
+        uint32 l_BigFishChance      = 0;
+
+        uint32 l_FishingSKill = GetSkillValue(SKILL_FISHING);
+
+        /// http://www.wowhead.com/achievement=9462/draenor-angler#comments
+        if (l_FishingSKill >= 100 && l_FishingSKill < 525)
+        {
+            l_SmallFishChance  = 80;
+            l_MediumFishChance = 20;
+        }
+        else if(l_FishingSKill >= 525 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 10;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 10;
+        }
+        else if (l_FishingSKill >= 650 && l_FishingSKill < 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50;
+        }
+        else if (l_FishingSKill >= 700)
+        {
+            l_SmallFishChance   = 0;
+            l_MediumFishChance  = 50;
+            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+        }
+
+        enum class FishType
+        {
+            None,
+            Small,
+            Medium,
+            Big
+        };
+
+        /// Fish with vairous size :
+        /// -------------------------------------------
+        /// - Crescent Saberfish
+        /// - Blackwater Whiptail
+        /// - Abyssal Gulper Eel
+        /// - Sea Scorpion
+        /// - Fire Ammonite
+        /// - Blind Lake Sturgeon
+        /// - Fat Sleeper
+        /// - Jawless Skulker
+        /// - Savage Piranha
+        std::vector<uint32> g_SmallFish { 111589, 111650, 111651, 111652, 111656, 111658, 111659, 111662, 118564 };
+        std::vector<uint32> g_MediumFish{ 111595, 111663, 111664, 111665, 111666, 111667, 111668, 111669, 118565 };
+        std::vector<uint32> g_BigFish   { 111601, 111670, 111671, 111672, 111673, 111674, 111675, 111676, 118566 };
+
+        auto GetFishType = [g_SmallFish, g_MediumFish, g_BigFish](uint32 p_ItemID) -> FishType
+        {
+            if (std::find(g_SmallFish.begin(), g_SmallFish.end(), p_ItemID) != g_SmallFish.end())
+                return FishType::Small;
+            if (std::find(g_MediumFish.begin(), g_MediumFish.end(), p_ItemID) != g_MediumFish.end())
+                return FishType::Medium;
+            if (std::find(g_BigFish.begin(), g_BigFish.end(), p_ItemID) != g_BigFish.end())
+                return FishType::Big;
+
+            return FishType::None;
+        };
+
+        std::vector<LootItem*> l_Fishs;
+
+        for (uint32 l_I = 0; l_I < loot->Items.size(); ++l_I)
+        {
+            LootItem * l_LootItem = &loot->Items[l_I];
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
+
+            if (!l_ItemTemplate)
+                return;
+
+            if (l_ItemTemplate->SubClass != ITEM_SUBCLASS_MEAT)
+                continue;
+
+            if (GetFishType(l_LootItem->itemid) == FishType::None)
+                continue;
+
+#ifdef _MSC_VER
+            char * l_Size[] = { "None", "Small", "Medium", "Big" };
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+#endif
+            l_Fishs.push_back(l_LootItem);
+            l_LootItem->needs_quest = true;
+        }
+
+        if (l_Fishs.size())
+        {
+            for (auto l_Template : l_Fishs)
+            {
+                bool l_RoolResult = false;
+                switch (GetFishType(l_Template->itemid))
+                {
+                    case FishType::Small:  l_RoolResult = roll_chance_i(l_SmallFishChance);  break;
+                    case FishType::Medium: l_RoolResult = roll_chance_i(l_MediumFishChance); break;
+                    case FishType::Big:    l_RoolResult = roll_chance_i(l_BigFishChance);    break;
+
+                    default:
+                        break;
+                }
+
+                if (l_RoolResult)
+                {
+#ifdef _MSC_VER
+                    ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Template->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_Template->itemid);
+#endif
+                    l_Template->needs_quest = false;
+                }
+            }
+        }
     }
 
     // need know merged fishing/corpse loot type for achievements
@@ -21596,6 +21736,15 @@ InstanceSave* Player::GetInstanceSave(uint32 p_MapID)
         }
     }
 
+    if (!l_Bind || !l_Bind->perm)
+    {
+        if (Group* l_Group = GetGroup())
+        {
+            if (InstanceGroupBind* l_GroupBind = l_Group->GetBoundInstance(this))
+                l_Save = l_GroupBind->save;
+        }
+    }
+
     return l_Save;
 }
 
@@ -25353,6 +25502,9 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             {
                 int days = catrec / 1000;
                 recTime = (86400 * days) * IN_MILLISECONDS;
+
+                if (rec == 0 && catrec == 1000)
+                    catrec = recTime;
             }
         }
 
@@ -27266,6 +27418,49 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
     return recruitAFriend;
 }
 
+void Player::RewardPersonnalCurrencies(Unit* p_Victim)
+{
+    if (!p_Victim || p_Victim->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    if (!p_Victim->ToCreature())
+        return;
+
+    if (!p_Victim->ToCreature()->GetEntry())
+        return;
+
+    if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
+    {
+        uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
+        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+            return;
+    }
+
+    CurrencyOnKillEntry const* l_Curr = sObjectMgr->GetPersonnalCurrencyOnKillEntry(p_Victim->ToCreature()->GetEntry());
+    if (!l_Curr)
+        return;
+
+    bool l_Result = true;
+    if (p_Victim->ToCreature()->AI())
+        p_Victim->ToCreature()->AI()->CurrenciesRewarder(l_Result);
+
+    if (!l_Result)
+        return;
+
+    for (CurrencyOnKillEntry::const_iterator l_Iter = l_Curr->begin(); l_Iter != l_Curr->end(); ++l_Iter)
+    {
+        int32 l_Pct = 100;
+        Unit::AuraEffectList const& l_Auras = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator l_I = l_Auras.begin(); l_I != l_Auras.end(); ++l_I)
+        {
+            if (l_Iter->first == (*l_I)->GetMiscValue())
+                l_Pct += (*l_I)->GetAmount();
+        }
+
+        ModifyCurrency(l_Iter->first, CalculatePct(l_Iter->second, l_Pct));
+    }
+}
+
 void Player::RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround)
 {
     if (Group *pGroup = GetGroup())
@@ -28525,6 +28720,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
 
+            /// Bug fixed in commit ed9e9fafb28bed40118a238849e0332726843cb6
+            /// but we need to fix early learning of the last wod profession
+            /// palier
+            if (max == 675)
+                max = 700;
+
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
             {
@@ -28561,13 +28762,16 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, skill);
             uint16 step = 0;
 
-            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY)
-                step = max / 75;
+            if (pSkill->categoryId == SKILL_CATEGORY_SECONDARY || pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
+            {
+                if (max <= 600)
+                    step = max / 75;
+                else
+                    step = (600 / 75) + ((max - 600) / 100);
+            }
 
             if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
             {
-                step = max / 75;
-
                 if (professionCount < DEFAULT_MAX_PRIMARY_TRADE_SKILL)
                     SetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE + professionCount++, skill);
             }
@@ -28603,7 +28807,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             continue;
 
         uint16 value = 0;
-        uint16 max = 0;
+        uint16 max = 75;
         uint16 step = 0;
 
         uint16 field = count / 2;
@@ -30814,6 +31018,13 @@ void Player::RemovePassiveTalentSpell(uint32 spellId)
 {
     switch (spellId)
     {
+        case 46584: // Raise dead
+            if (Pet* l_Pet = this->GetPet())
+            {
+                if (l_Pet->GetEntry() == 26125)
+                    l_Pet->UnSummon();
+            }
+            break;
         case 1463:  // Incanter's Ward
             RemoveAura(118858);
             break;

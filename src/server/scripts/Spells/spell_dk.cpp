@@ -372,7 +372,7 @@ class spell_dk_festering_strike: public SpellScriptLoader
                                 l_AuraChainsOfIce->SetMaxDuration(dur);
                         }
 
-                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE, l_Player->GetGUID()))
+                        if (AuraPtr l_NecroticPlague = l_Target->GetAura(DK_SPELL_NECROTIC_PLAGUE_APPLY_AURA, l_Player->GetGUID()))
                         {
                             uint32 dur = l_NecroticPlague->GetDuration() + 6000;
                             l_NecroticPlague->SetDuration(dur);
@@ -809,7 +809,7 @@ class spell_dk_improved_blood_presence: public SpellScriptLoader
         }
 };
 
-// Unholy Presence - 48265 and Improved Unholy Presence - 50392
+// Unholy Presence - 48265
 class spell_dk_unholy_presence: public SpellScriptLoader
 {
     public:
@@ -833,8 +833,8 @@ class spell_dk_unholy_presence: public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dk_unholy_presence_AuraScript::OnApply, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_unholy_presence_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1749,47 +1749,89 @@ class spell_dk_icy_touch: public SpellScriptLoader
 };
 
 // Empowered Obliterate - 157409
-// Called by Icy Touch - 45477 & Howling Blast - 49184
-class spell_dk_empowered_obliterate : public SpellScriptLoader
+// Called by Icy Touch - 45477
+class spell_dk_empowered_obliterate_icy_touch : public SpellScriptLoader
 {
-public:
-    spell_dk_empowered_obliterate() : SpellScriptLoader("spell_dk_empowered_obliterate") { }
+    public:
+        spell_dk_empowered_obliterate_icy_touch() : SpellScriptLoader("spell_dk_empowered_obliterate_icy_touch") { }
 
-    class spell_dk_empowered_obliterate_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_empowered_obliterate_SpellScript);
-
-        bool m_HasAura = false;
-
-        void HandleOnPrepare()
+        class spell_dk_empowered_obliterate_icy_touch_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_dk_empowered_obliterate_icy_touch_SpellScript);
+
+            bool m_HasAura = false;
+
+            void HandleOnPrepare()
             {
-                if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
-                    m_HasAura = true;
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                        m_HasAura = true;
+                }
             }
-        }
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+
+                if (m_HasAura && l_SpellInfo != nullptr)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_icy_touch_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_icy_touch_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
-
-            if (m_HasAura && l_SpellInfo != nullptr)
-                SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            return new spell_dk_empowered_obliterate_icy_touch_SpellScript();
         }
+};
 
-        void Register()
+/// Empowered Obliterate - 157409
+/// Howling Blast - 49184
+class spell_dk_empowered_obliterate_howling_blast : public SpellScriptLoader
+{
+    public:
+        spell_dk_empowered_obliterate_howling_blast() : SpellScriptLoader("spell_dk_empowered_obliterate_howling_blast") { }
+
+        class spell_dk_empowered_obliterate_howling_blast_SpellScript : public SpellScript
         {
-            OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_SpellScript::HandleOnPrepare);
-            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
+            PrepareSpellScript(spell_dk_empowered_obliterate_howling_blast_SpellScript);
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_dk_empowered_obliterate_SpellScript();
-    }
+            bool m_HasAura = false;
+
+            void HandleOnPrepare()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->HasAura(DK_SPELL_EMPOWERED_OBLITERATE) && l_Caster->HasAura(DK_SPELL_FREEZING_FOG_AURA))
+                        m_HasAura = true;
+                }
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+
+                if (m_HasAura && l_SpellInfo != nullptr)
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+            }
+
+            void Register()
+            {
+                OnPrepare += SpellOnPrepareFn(spell_dk_empowered_obliterate_howling_blast_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_empowered_obliterate_howling_blast_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_empowered_obliterate_howling_blast_SpellScript();
+        }
 };
 
 // Plaguebearer - 161497
@@ -1968,7 +2010,12 @@ class PlayerScript_Runic_Empowerment_Corrupion_Runic : public PlayerScript
                 float l_Chance = l_Amount * -l_DiffValue / 10;
 
                 if (roll_chance_f(l_Chance))
-                    p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+                {
+                    if (AuraPtr l_AuraRunicCorruption = p_Player->GetAura(DK_SPELL_RUNIC_CORRUPTION))
+                        l_AuraRunicCorruption->SetDuration(l_AuraRunicCorruption->GetDuration() + l_AuraRunicCorruption->GetMaxDuration());
+                    else
+                        p_Player->CastSpell(p_Player, DK_SPELL_RUNIC_CORRUPTION, true);
+                }
             }
         }
 };
@@ -2439,7 +2486,8 @@ class spell_areatrigger_dk_defile : public AreaTriggerEntityScript
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
-    new spell_dk_empowered_obliterate();
+    new spell_dk_empowered_obliterate_icy_touch();
+    new spell_dk_empowered_obliterate_howling_blast();
     new spell_dk_glyph_of_death_and_decay();
     new spell_dk_death_barrier();
     new spell_dk_plague_strike();

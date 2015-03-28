@@ -1032,11 +1032,6 @@ public:
     {
         return new spell_iron_docks();
     }
-};
-class aura_sanguine_removal : public SpellScriptLoader
-{
-public:
-    aura_sanguine_removal() : SpellScriptLoader("aura_sanguine_removal") { }
 
     class iron_docks_auras : public AuraScript
     {
@@ -1055,7 +1050,7 @@ public:
         }
 
         void Register()
-        {      
+        {
             AfterEffectRemove += AuraEffectRemoveFn(iron_docks_auras::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -1084,6 +1079,5 @@ void AddSC_boss_grimrail()
     new iron_docks_flame_wave_restriction();
     new spell_flaming_slash_damage_target_change();
     new spell_sanguine_sphere();
-    new aura_sanguine_removal();
     new spell_tainted_blood_damage_target_change();
 }

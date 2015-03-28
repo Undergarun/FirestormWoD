@@ -2117,62 +2117,110 @@ public:
     }
 };
 
-// Holy Shield - 152261
+enum SealOfJusticeSpells
+{
+    SpellSealOfJusticeProc = 20170
+};
+
+/// Seal of Justice - 20164
+class spell_pal_seal_of_justice : public SpellScriptLoader
+{
+    public:
+        spell_pal_seal_of_justice() : SpellScriptLoader("spell_pal_seal_of_justice") { }
+
+        class spell_pal_seal_of_justice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_seal_of_justice_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                {
+                    if (!(p_EventInfo.GetDamageInfo()->GetSpellInfo()->DmgClass & SPELL_DAMAGE_CLASS_MELEE))
+                        return;
+
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id == PALADIN_SPELL_JUDGMENT) ///< It does not apply on Judgements.
+                        return;
+                }
+
+                l_Caster->CastSpell(p_EventInfo.GetDamageInfo()->GetVictim(), SealOfJusticeSpells::SpellSealOfJusticeProc, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_justice_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_seal_of_justice_AuraScript();
+        }
+};
+
+/// Holy Shield - 152261
 class spell_pal_holy_shield: public SpellScriptLoader
 {
-public:
-    spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
+    public:
+        spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
 
-    class spell_pal_holy_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pal_holy_shield_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+        class spell_pal_holy_shield_AuraScript : public AuraScript
         {
-            amount = 0;
-        }
+            PrepareAuraScript(spell_pal_holy_shield_AuraScript);
 
-        void Register()
+            void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+            {
+                amount = 0;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+            return new spell_pal_holy_shield_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pal_holy_shield_AuraScript();
-    }
 };
 
 // Beacon of Faith - 156910
 class spell_pal_beacon_of_faith: public SpellScriptLoader
 {
-public:
-    spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
+    public:
+        spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
 
-    class spell_pal_beacon_of_faith_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pal_beacon_of_faith_SpellScript);
-
-        SpellCastResult CheckCast()
+        class spell_pal_beacon_of_faith_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
+            PrepareSpellScript(spell_pal_beacon_of_faith_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetExplTargetUnit())
-                    if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
-                        return SPELL_FAILED_BAD_TARGETS;
-            return SPELL_CAST_OK;
-        }
+                if (l_Target->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT, l_Caster->GetGUID()))
+                    return SPELL_FAILED_BAD_TARGETS;
+                return SPELL_CAST_OK;
+            }
 
-        void Register()
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_faith_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_faith_SpellScript::CheckCast);
+            return new spell_pal_beacon_of_faith_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pal_beacon_of_faith_SpellScript();
-    }
 };
 
 // Light of Dawn - 85222
@@ -2312,6 +2360,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_holy_shock();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
+    new spell_pal_seal_of_justice();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();

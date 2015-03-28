@@ -1087,6 +1087,11 @@ class iron_docks_siege_master_olugar : public CreatureScript
 public:
     iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
 
+    enum eTalk
+    {
+        RandomText
+    };
+
     struct mob_iron_docksAI : public ScriptedAI
     {
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
@@ -1110,13 +1115,11 @@ public:
             {
                 if (rp <= diff)
                 {
-                    me->MonsterSay("Stop showin' off.", LANG_UNIVERSAL, me->GetGUID());
-
+                    Talk(eTalk::RandomText);
                     rp = 16000;
                 }
                 else
                     rp -= diff;
-
             }
 
             if (!UpdateVictim())
