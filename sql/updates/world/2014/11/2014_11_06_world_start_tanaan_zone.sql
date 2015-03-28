@@ -508,6 +508,7 @@
 		#79097/NPC - Kargath Bladefist
 
 			UPDATE `creature_template` SET `ScriptName` = 'npc_kargath_bladefist' WHERE `entry` = 79097;
+			UPDATE `creature_template` SET `unit_flags` = 33554692 WHERE `entry` = 79097;
 
 		#82057/NPC - Shattered Hand Brawler
 
@@ -1082,7 +1083,31 @@
 			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78563, 34446);
 			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78563;
 
-		-- Phases
+		#34421/Quest - Bled Dry
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34421;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34421;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34421;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78573, 34421);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78573;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34421;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34421;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78559, 34421);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78559;
+
+		#34427/Quest - A Potential Ally
+
+			DELETE FROM `creature_questrelation` WHERE `quest` = 34427;
+			DELETE FROM `gameobject_questrelation` WHERE `quest` = 34427;
+			UPDATE `item_template` SET `StartQuest`=0 WHERE `StartQuest` = 34427;
+			INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (78560, 34427);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry` = 78560;
+			DELETE FROM `creature_involvedrelation` WHERE `quest` = 34427;
+			DELETE FROM `gameobject_involvedrelation` WHERE `quest` = 34427;
+			INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (78996, 34427);
+			UPDATE `creature_template` SET `npcflag`=`npcflag`|2 WHERE `entry`=78996;
+
+		-- Phases (1st try)
 
 			UPDATE creature SET phasemask = 4294967295 WHERE map = 1265;
 			UPDATE gameobject SET phasemask = 65535 WHERE map = 1265;
@@ -1099,10 +1124,31 @@
 			( 78430, 79316, 78553, 78568, 78556, 78554, 78569, 79315, 79675, 78558, 78559)
 			AND areaId = 7041 AND position_x < 3963 AND position_x > 3931 AND position_y < -2501 AND position_y > -2537;
 			UPDATE gameobject SET phasemask = 2 WHERE id = 231197;
+			UPDATE gameobject SET phasemask = 65536 WHERE id IN (232239, 232240, 232241, 232242) AND map = 1265;
 
 		-- Phases (2nd try)
 
-			UPDATE gameobject SET phasemask = 32768 WHERE id = 237667;
+			UPDATE gameobject SET phasemask = 1 WHERE id = 237670;
+			UPDATE gameobject SET phasemask = 2 WHERE id = 234622;
+			UPDATE creature SET phasemask = 4 WHERE id = 81695;
+			UPDATE gameobject SET phasemask = 8 WHERE id = 232538;
+			UPDATE creature SET phasemask = 8 WHERE id = 81696;
+			UPDATE gameobject SET phasemask = 8 WHERE id = 233707;
+			UPDATE creature SET phasemask = 16 WHERE id IN (82647, 78333);
+-- 			UPDATE creature SET phasemask = 32 WHERE id IN => platform group
+-- 			UPDATE creature SET phasemask = 64 WHERE id IN => house group
+			UPDATE creature SET phasemask = 128 WHERE id = 85142;
+			UPDATE creature SET phasemask = 256 WHERE id = 82871;
+			UPDATE creature SET phasemask = 512 WHERE id = 78529;
+			UPDATE creature SET phasemask = 1024 WHERE id = 85141;
+--			UPDATE creature SET phasemask = 2048 WHERE id IN => altar group
+			UPDATE creature SET phasemask = 4096 WHERE id = 78556;
+			UPDATE gameobject SET phasemask = 8192 WHERE id = 231137;
+			UPDATE gameobject SET phasemask = 131072 WHERE id IN (231958, 231957) AND map = 1265;
+			UPDATE gameobject SET phasemask = 1048576 WHERE id IN (232239, 232240, 232241, 232242) AND map = 1265;
+			UPDATE gameobject SET phasemask = 2097152 WHERE id = 231197 AND areaid = 7042;
+			UPDATE gameobject SET phasemask = 536870912 WHERE id = 237667;
+			UPDATE gameobject SET phasemask = 1073741824 WHERE id = 231261;
 		-- Misc
 
 			DELETE FROM creature WHERE id IN
@@ -1117,7 +1163,7 @@
 			(82188, 81990, 82007, 82010, 81994, 82011, 81997, 82082, 82191, 82012, 82014, 82002,
 			81996, 81998, 79062, 81993, 81995, 82000, 82001, 82003, 82004, 82005, 82008, 82025,
 			82016, 82260, 82264, 82014, 82009, 82075, 82017, 82189, 82263, 82259, 81993, 82006,
-			82013, 78569);
+			82013, 78569, 79315, 82187);
 			UPDATE quest_template_objective SET `index` = 0 WHERE id = 273635;
 			UPDATE quest_template_objective SET flags = 0 WHERE questid = 34393;
 			UPDATE `quest_template` SET `Flags` = 8 WHERE `Id` = 35241;
@@ -1197,6 +1243,8 @@
 			DELETE FROM creature_template_addon WHERE entry = 78820;
 			DELETE FROM creature_template_addon WHERE entry IN (78883, 82075, 82082, 82188, 82191);
 			UPDATE `quest_template` SET `Flags` = 1376264 WHERE `Id` = 35933;
+			UPDATE creature_template SET faction = 35 WHERE entry = 80804;
+			UPDATE creature_template SET faction = 35 WHERE entry = 85146;
 
 
 		-- Adjust Scriptnames

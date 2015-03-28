@@ -23,6 +23,7 @@ namespace TanaanQuests
         QuestAzerothsLastStand               = 35933,
         QuestKargatharProvingGrounds         = 34425,
         QuestAPotentialAlly                  = 34478,
+        QuestAPotentialAllyHorde             = 34427,
         QuestKillYourHundred                 = 34429,
         QuestMastersOfShadowAlly             = 34431,
         QuestMastersOfShadowHorde            = 34737,
@@ -54,6 +55,7 @@ namespace TanaanSceneObjects
         SceneBuildingExplosion               = 902,
         SceneBridgeDestruction               = 903,
         SceneDamExplosion                    = 910,
+        SceneFinaleIronBastion               = 912,
         SceneFromCaveToRidge                 = 922,
         SceneGulDanReavel                    = 925,
         SceneWaterPortal                     = 928,
@@ -67,6 +69,50 @@ namespace TanaanSceneObjects
         SceneChoGallsFreedom                 = 961,
         SceneTeronGorsFreedom                = 962,
         SceneSoulTrain                       = 1018
+    };
+}
+
+namespace TanaanPhases
+{
+    enum
+    {
+        PhaseBase                            = 0x00000001,
+        PhasePortal                          = 0x00000002, ///< Area 1 (7037)
+        PhaseChoGall                         = 0x00000004, ///< Area 1 (7037)
+        PhaseTeronGor                        = 0x00000008, ///< Area 1 (7037) 0x0000000F
+        PhaseGulDan                          = 0x00000010, ///< Area 1 (7037)
+        PhaseEscortGroup                     = 0x00000020, ///< Area 1 (7037)
+        PhaseGroupHouse                      = 0x00000040, ///< Area 2 (7041)
+        PhaseEasternCageAlly                 = 0x00000080, ///< Area 2 (7041) 0x000000F0
+        PhaseSouthernCageAlly                = 0x00000100, ///< Area 2 (7041)
+        PhaseEasternCageHorde                = 0x00000200, ///< Area 2 (7041)
+        PhaseSouthernCageHorde               = 0x00000400, ///< Area 2 (7041)
+        PhaseAltarGroup                      = 0x00000800, ///< Area 2 (7041) 0x00000F00
+        PhaseAriokAltar                      = 0x00001000, ///< Area 2 (7041)
+        PhaseBridge                          = 0x00002000, ///< Area 3 (7129)
+        PhaseKhadgarBridge                   = 0x00004000, ///< Area 4 (7040) 0x0000F000
+        PhaseGroupKillYourHundred            = 0x00008000, ///< Area 4 (7040)
+        PhaseExarchMalaadar                  = 0x00010000, ///< Area 4 (7040)
+        PhaseArenaOrcs                       = 0x00020000, ///< Area 4 (7040)
+        PhaseArenaPrisonnersAlly             = 0x00040000, ///< Area 4 (7040) 0x000F0000
+        PhaseArenaPrisonnersHorde            = 0x00080000, ///< Area 4 (7040)
+        PhaseAfterArena                      = 0x00100000, ///< Area 4 (7040)
+        PhaseRocks                           = 0x00200000, ///< Area 5 (7042)
+        PhaseOlinLiadrin                     = 0x00400000, ///< Area 5 (7042) 0x00F00000
+        PhaseYrelQuestGiver                  = 0x00800000, ///< Area 5 (7042)
+        PhaseYrelQuestTaker                  = 0x01000000, ///< Area 5 (7042)
+        PhaseGroupPool                       = 0x02000000, ///< Area 6 (7043)
+        PhaseLiadrinCordana                  = 0x04000000, ///< Area 6 (7043) 0x0F000000
+        PhaseThaelinQuestGiver               = 0x08000000, ///< Area 6 (7043)
+        PhaseThaelinTurret                   = 0x10000000, ///< Area 7 (7044)
+        PhasePortalDestroyed                 = 0x20000000, ///< Area 7 (7044)
+        PhaseCannonTurret                    = 0x40000000, ///< Area 8 (7045)
+        PhaseQuestGiversHorde                = 0x00000200, ///< Area 2 (7041) ( Also PhaseEasternCageHorde )
+        PhaseQuestGiversAlly                 = 0x00000080, ///< Area 2 (7041) ( Also PhaseEasternCageAlly  )
+        PhaseCaveGroup                       = 0x00200000, ///< Area 5 (7042) ( Also PhaseRocks            )
+        PhaseCaveLastRock                    = 0x00000004, ///< Area 6 (7043) ( Also PhaseChoGall          )
+        PhasePoolMobs                        = 0x02000000, ///< Area 6 (7043) ( Also PhaseGroupPool        )
+        PhaseFinalePhase                     = 0x00000008, ///< Area 8 (7045) ( Also PhaseTeronGor         )
     };
 }
 
@@ -177,7 +223,12 @@ namespace TanaanZones
         MapTanaan                            = 1265,
         ZoneTanaanJungle                     = 7025,
         AreaTheDarkPortal                    = 7037,
+        AreaHearthBlood                      = 7041,
+        AreaTarThogBridge                    = 7129,
+        AreaKargatharProvingGrounds          = 7040,
+        AreaUmbralHalls                      = 7042,
         AreaBlackRockQuarry                  = 7043,
+        AreaPathOfGlory                      = 7044,
         TerrainSwapID                        = 1307
     };
 }
@@ -220,38 +271,7 @@ namespace TanaanSpells
         SpellIronBastionProgressE            = 163528,
         SpellIronBastionProgressF            = 163529,
         SpellIronBastionProgressG            = 163530,
-    };
-}
-
-
-namespace TanaanPhases
-{
-    enum
-    {
-        PhaseBase                            = 0x000001,
-        PhasePortal                          = 0x000002,
-        PhaseChoGall                         = 0x000004,
-        PhaseTeronGor                        = 0x000008,
-        PhaseGulDan                          = 0x000010,
-        PhaseEscortGroup                     = 0x000020,
-        PhaseHouseGroup                      = 0x000040,
-        PhaseEastCage                        = 0x000080,
-        PhaseSouthCage                       = 0x000100,
-        PhaseAltarGroup                      = 0x000200,
-//         Phaseunk                            = 0x000400,
-//         Phaseunk                            = 0x000800,
-//         Phaseunk                            = 0x001000,
-//         Phaseunk                            = 0x002000,
-//         Phaseunk                            = 0x004000,
-//         Phaseunk                            = 0x008000,
-//         Phaseunk                            = 0x010000,
-//         Phaseunk                            = 0x020000,
-//         Phaseunk                            = 0x040000,
-//         Phaseunk                            = 0x080000,
-//         Phaseunk                            = 0x100000,
-//         Phaseunk                            = 0x200000,
-//         Phaseunk                            = 0x400000,
-//         Phaseunk                            = 0x800000,
+        SpellDissociateFaction               = 149211 ///< Originally called "[UNUSED]Talk with Cordana" (unlimited aura dummy)
     };
 }
 
