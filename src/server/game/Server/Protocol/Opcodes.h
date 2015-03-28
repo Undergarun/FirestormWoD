@@ -986,7 +986,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_LOG_STREAMING_ERROR                    = 0x12D6, ///< 6.1.2 19783
     CMSG_QUEUED_MESSAGES_END                    = 0x0000, ///<
-    CMSG_LOG_DISCONNECT                         = 0x012D, ///< 6.1.2 19783
+    CMSG_LOG_DISCONNECT                         = 0x12D5, ///< 6.1.2 19783
     CMSG_PING                                   = 0x12DE, ///< 6.1.2 19783
     CMSG_AUTH_CONTINUED_SESSION                 = 0x0000, ///<
     CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x0000, ///<
