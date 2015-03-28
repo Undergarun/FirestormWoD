@@ -395,7 +395,7 @@ WHERE creature.id = creature_equip_template.entry;
 
 UPDATE creature SET spawntimesecs = 7200 WHERE map = 1228;
 
-DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521);
+DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 159213);
 INSERT INTO spell_script_names VALUES
 (162271, 'spell_highmaul_earth_breaker'),
 (159113, 'spell_highmaul_impale'),
@@ -403,7 +403,8 @@ INSERT INTO spell_script_names VALUES
 (159706, 'spell_highmaul_fire_pillar_activated'),
 (159028, 'spell_highmaul_berserker_rush'),
 (159947, 'spell_highmaul_chain_hurl'),
-(160521, 'spell_highmaul_vile_breath');
+(160521, 'spell_highmaul_vile_breath'),
+(159213, 'spell_highmaul_monsters_brawl');
 
 DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES

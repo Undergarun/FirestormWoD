@@ -95,7 +95,8 @@ class boss_kargath_bladefist : public CreatureScript
         enum eMoves
         {
             MoveFrontGate = 1,
-            MoveChargeOnPlayer
+            MoveChargeOnPlayer,
+            JumpInArena
         };
 
         enum eCosmeticEvents
@@ -139,7 +140,6 @@ class boss_kargath_bladefist : public CreatureScript
             BerserkerRushDamage     = 159001,   ///< Triggers damaging spell 159002 every 2s
             /// Chain Hurl
             ChainHurlJumpAndKnock   = 160061,
-            MonstersBrawlTimer      = 159213,
 
             SpellBerserker          = 26662,
 
@@ -258,9 +258,8 @@ class boss_kargath_bladefist : public CreatureScript
                             float l_Y = l_Trigger->GetPositionY();
                             float l_Z = l_Trigger->GetPositionZ();
 
-                            me->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, 25.0f, 10.0f);
+                            me->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, 30.0f, 20.0f, 0.90f, eMoves::JumpInArena);
                             Talk(eTalks::Intro1);
-                            m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
                         }
 
                         break;
@@ -313,12 +312,20 @@ class boss_kargath_bladefist : public CreatureScript
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
 
-                if (p_ID == eMoves::MoveFrontGate)
+                switch (p_ID)
                 {
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                    me->SetWalk(false);
-                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
+                    case eMoves::MoveFrontGate:
+                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetWalk(false);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
+                        me->CastSpell(me, eSpells::KargathChantingSound, true);
+                        break;
+                    case eMoves::JumpInArena:
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::OrientationForFight, 500);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -377,13 +384,12 @@ class boss_kargath_bladefist : public CreatureScript
                 {
                     case eCosmeticEvents::OrientationForFight:
                     {
+                        me->SetFacingTo(0.90f);
                         me->SetOrientation(0.90f);
 
                         Position l_Pos;
                         me->GetPosition(&l_Pos);
                         me->SetHomePosition(l_Pos);
-
-                        me->CastSpell(me, eSpells::KargathChantingSound, true);
                         break;
                     }
                     case eCosmeticEvents::ChainHurlVehicleEnter:
@@ -722,6 +728,9 @@ class npc_highmaul_vulgor : public CreatureScript
                         me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_BATTLEROAR);
                         AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, Emote::EMOTE_STATE_READY1H); });
+
+                        /// Just in case...
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, Emote::EMOTE_STATE_READY1H); });
                         break;
                     }
                     default:
@@ -1611,9 +1620,9 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
             TypeLeft
         };
 
-        struct npc_highmaul_highmaul_sweeperAI : public ScriptedAI
+        struct npc_highmaul_highmaul_sweeperAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_highmaul_sweeperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_highmaul_sweeperAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
 
             uint8 m_MoveID;
             uint8 m_SweeperType;
@@ -1627,6 +1636,7 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
             }
 
             void DoAction(int32 const p_Action) override
@@ -1655,7 +1665,17 @@ class npc_highmaul_highmaul_sweeper : public CreatureScript
                     me->GetMotionMaster()->MovePoint(m_MoveID, g_HighmaulSweeperMoves[m_SweeperType][m_MoveID]);
                 }
                 else if (m_MoveID == 0 && m_ComeBack)
+                {
+                    /// End of move
                     m_ComeBack = false;
+                    me->RemoveAura(eSpells::ArenaSweeper);
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetFacingTo(me->GetHomePosition().m_orientation); });
+                }
+                else if (m_ComeBack && m_MoveID > 0)
+                {
+                    --m_MoveID;
+                    me->GetMotionMaster()->MovePoint(m_MoveID, g_HighmaulSweeperMoves[m_SweeperType][m_MoveID]);
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1680,9 +1700,10 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
     public:
         npc_highmaul_chain_hurl_vehicle() : CreatureScript("npc_highmaul_chain_hurl_vehicle") { }
 
-        enum eSpell
+        enum eSpells
         {
-            ChainHurlJumpDest = 159995
+            ChainHurlJumpDest   = 159995,
+            MonstersBrawlTimer  = 159213
         };
 
         struct npc_highmaul_chain_hurl_vehicleAI : public ScriptedAI
@@ -1694,7 +1715,8 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                 if (p_Apply || p_Passenger == nullptr)
                     return;
 
-                p_Passenger->CastSpell(g_ArenaStandsPos, eSpell::ChainHurlJumpDest, true);
+                p_Passenger->CastSpell(g_ArenaStandsPos, eSpells::ChainHurlJumpDest, true);
+                me->CastSpell(me, eSpells::MonstersBrawlTimer, true);
             }
         };
 
@@ -2214,6 +2236,46 @@ class spell_highmaul_vile_breath : public SpellScriptLoader
         }
 };
 
+/// Monster's Brawl - 159213
+class spell_highmaul_monsters_brawl : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_monsters_brawl() : SpellScriptLoader("spell_highmaul_monsters_brawl") { }
+
+        enum eAction
+        {
+            KickOutPlayers
+        };
+
+        class spell_highmaul_monsters_brawl_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_monsters_brawl_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
+                    return;
+
+                std::list<Creature*> l_SweeperList;
+                l_Target->GetCreatureListWithEntryInGrid(l_SweeperList, eHighmaulCreatures::HighmaulSweeper, 150.0f);
+
+                for (Creature* l_Sweeper : l_SweeperList)
+                    l_Sweeper->AI()->DoAction(eAction::KickOutPlayers);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_monsters_brawl_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_monsters_brawl_AuraScript();
+        }
+};
+
 /// Molten Bomb - 161634
 class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 {
@@ -2346,6 +2408,7 @@ void AddSC_boss_kargath_bladefist()
     new spell_highmaul_berserker_rush();
     new spell_highmaul_chain_hurl();
     new spell_highmaul_vile_breath();
+    new spell_highmaul_monsters_brawl();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();
