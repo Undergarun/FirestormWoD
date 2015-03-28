@@ -9877,7 +9877,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         if (!l_CharacterTemplate->m_Level)
             l_CharacterTemplate->m_Level = 1;
 
-        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i", l_ID);
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ItemResult)
         {
             do
@@ -9902,7 +9902,7 @@ void ObjectMgr::LoadCharacterTemplateData()
             while (l_ItemResult->NextRow());
         }
 
-        QueryResult l_SpellsResult = WorldDatabase.PQuery("SELECT spellId FROM character_template_spell WHERE id = %i", l_ID);
+        QueryResult l_SpellsResult = WorldDatabase.PQuery("SELECT spellId FROM character_template_spell WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_SpellsResult)
         {
             do
@@ -9922,7 +9922,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         }
 
         // NYI - will fix later
-        QueryResult l_ReputationResult = WorldDatabase.PQuery("SELECT factionID, reputation FROM character_template_reputation WHERE id = %i", l_ID);
+        QueryResult l_ReputationResult = WorldDatabase.PQuery("SELECT factionID, reputation FROM character_template_reputation WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ReputationResult)
         {
             do

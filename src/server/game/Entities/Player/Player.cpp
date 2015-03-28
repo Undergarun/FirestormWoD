@@ -1332,9 +1332,26 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
     {
+        std::list<CharacterTemplate::TemplateItem const*> l_RemainingTemplates;
         for (auto& l_Item : l_Template->m_TemplateItems)
-            if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
-                StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+        {
+            if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item.m_ItemID))
+            {
+                // Give bags first to the players, then the equipment
+                if (l_Proto->Class == ITEM_CLASS_CONTAINER)
+                {
+                    if (!l_Item.m_Faction || (l_Item.m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item.m_Faction == 2 && GetTeam() == HORDE))
+                        StoreNewItemInBestSlots(l_Item.m_ItemID, l_Item.m_Count);
+
+                    continue;
+                }
+            }
+            l_RemainingTemplates.push_back(&l_Item);
+        }
+
+        for (auto l_Item : l_RemainingTemplates)
+            if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
+                StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count);
     }
     else
     {
