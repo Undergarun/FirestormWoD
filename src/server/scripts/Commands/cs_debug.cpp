@@ -2433,8 +2433,11 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleDebugDumpCharTemplate(ChatHandler* p_Handler, char const* /*p_Args*/)
+        static bool HandleDebugDumpCharTemplate(ChatHandler* p_Handler, char const* p_Args)
         {
+            if (!p_Args)
+                return false;
+
             FILE* l_Output = fopen("./templates.sql", "w+");
             if (!l_Output)
                 return false;
@@ -2458,7 +2461,7 @@ class debug_commandscript: public CommandScript
 
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
-            std::string l_SearchString = "Primal Combatant's"; /// Case sensitive search
+            std::string l_SearchString = p_Args; /// Case sensitive search
             
             l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template_item VALUES";
@@ -2469,13 +2472,16 @@ class debug_commandscript: public CommandScript
                 if (l_Template->Name1.find(l_SearchString) != std::string::npos)
                 {
                     int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
-                    uint32 l_Count = l_Template->IsWeapon() ? 2 : 1; // Give 2x each weapon
+                    uint32 l_Count = 1;
 
                     for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
                     {
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
-                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_TeamIndex + 1 << " ," << l_Template->ItemId << " ," << l_Count << ")", l_FirstEntry = false;
+                        {
+                            l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
+                        }
                     }
                 }
             }

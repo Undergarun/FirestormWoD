@@ -537,7 +537,12 @@ enum AuraType
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling aura (used in beta test)
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
-    TOTAL_AURAS                                             = 479   // 6.0.2
+    SPELL_AURA_479                                          = 479,  // 6.1.X
+    SPELL_AURA_480                                          = 480,  // 6.1.X
+    SPELL_AURA_481                                          = 481,  // 6.1.X
+    SPELL_AURA_482                                          = 482,  // 6.1.X
+    SPELL_AURA_483                                          = 483,  // 6.1.X
+    TOTAL_AURAS                                             = 484   // 6.1.2
 };
 
 enum AuraObjectType

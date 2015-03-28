@@ -1316,7 +1316,11 @@ enum SpellEffects
     SPELL_EFFECT_TEACH_FOLLOWER_ABILITY             = 244,
     SPELL_EFFECT_UPGRADE_HEIRLOOM                   = 245,
     SPELL_EFFECT_246                                = 246,
-    TOTAL_SPELL_EFFECTS                             = 247
+    SPELL_EFFECT_247                                = 247,
+    SPELL_EFFECT_248                                = 248,
+    SPELL_EFFECT_249                                = 249,
+    SPELL_EFFECT_250                                = 250,
+    TOTAL_SPELL_EFFECTS                             = 251
 };
 
 enum PetTameResult
