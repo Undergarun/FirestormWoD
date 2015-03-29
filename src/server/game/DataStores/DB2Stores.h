@@ -132,5 +132,5 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID);
-
+std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID);
 #endif

@@ -115,7 +115,8 @@ DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(Battl
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
-SpellTotemMap sSpellTotemMap;
+TaxiNodesByMap      sTaxiNodesByMap;
+SpellTotemMap       sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
@@ -385,6 +386,9 @@ void LoadDB2Stores(const std::string& dataPath)
             if (!node)
                 continue;
 
+            // Needed for getting the current flight path
+            sTaxiNodesByMap[node->map_id].push_back(node);
+
             TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
             if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
@@ -526,3 +530,9 @@ HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID)
     std::unordered_map<uint32, HeirloomEntry const*>::const_iterator l_Iter =  HeirloomEntryByItemID.find(p_ItemID);
     return l_Iter != HeirloomEntryByItemID.end() ? l_Iter->second : nullptr;
 };
+
+std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
+{
+    TaxiNodesByMap::const_iterator l_Iter = sTaxiNodesByMap.find(l_MapID);
+    return l_Iter != sTaxiNodesByMap.end() ? &l_Iter->second : nullptr;
+}

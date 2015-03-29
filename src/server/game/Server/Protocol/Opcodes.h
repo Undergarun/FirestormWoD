@@ -272,8 +272,8 @@ enum Opcodes
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x0EBF, ///< 6.1.2 19783
         SMSG_NEW_TAXI_PATH                          = 0x080F, ///< 6.1.2 19783
-        SMSG_SHOW_TAXI_NODES                        = 0x12A1, ///< 6.1.2 19783
-        SMSG_ACTIVATE_TAXI_REPLY                    = 0x1321, ///< 6.1.2 19783
+        SMSG_SHOW_TAXI_NODES                        = 0x0FB8, ///< 6.1.2 19783
+        SMSG_ACTIVATE_TAXI_REPLY                    = 0x0C61, ///< 6.1.2 19783
 
         /// Loot
         SMSG_LOOT_LIST                              = 0x08E2, ///< 6.1.2 19783
