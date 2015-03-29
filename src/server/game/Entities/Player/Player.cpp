@@ -32541,7 +32541,7 @@ TaxiNodesEntry const* Player::GetNearestTaxiNode() const
         if (l_Dist > l_Dist2)
         {
             l_Dist = l_Dist2;
-            l_Closest = (*l_NodesList)[l_I];
+            l_Closest = l_CurrentNode;
         }
     }
 
