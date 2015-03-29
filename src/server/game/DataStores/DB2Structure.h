@@ -58,7 +58,7 @@ struct GroupFinderActivityEntry
 struct GroupFinderCategoryEntry
 {
     uint32 ID;                                                      ///< 0
-	char*  Name;                                                    ///< 1
+    char*  Name;                                                    ///< 1
 };
 
 struct GlyphRequiredSpecEntry
