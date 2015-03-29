@@ -313,9 +313,8 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket.readPackGUID(l_VendorGuid);
     p_RecvPacket >> l_Nodes[1];
 
-    if (TaxiNodesEntry const* l_TaxiNode = GetPlayer()->GetNearestTaxiNode())
-        l_Nodes[0] = l_TaxiNode->ID;
-    else
+    l_Nodes[0] = sObjectMgr->GetNearestTaxiNode(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY(), GetPlayer()->GetPositionZ(), GetPlayer()->GetMapId(), GetPlayer()->GetTeam());
+    if (!l_Nodes[0])
         return;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", l_Nodes[0], l_Nodes[1]);

@@ -3483,7 +3483,6 @@ class Player : public Unit, public GridObject<Player>
 
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
         void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
-        TaxiNodesEntry const* GetNearestTaxiNode() const;
 
     protected:
         void OnEnterPvPCombat();
