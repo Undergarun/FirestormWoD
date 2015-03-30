@@ -3057,7 +3057,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 break;
             }
             case CRITERIA_CONDITION_MAP_DIFFICULTY:                     // 20
-                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetDifficulty()) != (l_ReqValue + 1))
+                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetDifficultyID()) != (l_ReqValue + 1))
                     return false;
                 break;
             case CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP:          // 21
@@ -3246,7 +3246,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 break;
             }
             case CRITERIA_CONDITION_RAID_DIFFICULTY:                    // 68
-                if (!p_ReferencePlayer || p_ReferencePlayer->GetMap()->GetDifficulty() != Difficulty(l_ReqValue))
+                if (!p_ReferencePlayer || p_ReferencePlayer->GetMap()->GetDifficultyID() != Difficulty(l_ReqValue))
                     return false;
                 break;
             case CRITERIA_CONDITION_TARGET_MIN_LEVEL:                   // 70

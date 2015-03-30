@@ -73,7 +73,7 @@ bool Corpse::Create(uint32 guidlow, Map* map)
 
     auto l_MapDifficulty = map->GetMapDifficulty();
     if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
 
     return true;
 }
@@ -106,7 +106,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     auto l_MapDifficulty = GetMap()->GetMapDifficulty();
     if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : GetMap()->GetDifficulty();
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : GetMap()->GetDifficultyID();
 
     return true;
 }

@@ -270,12 +270,14 @@ public:
         bool intro;
         std::list<Creature*> wolf_dests;
         std::list<Creature*> rylak_dests;
+        int32 hppact;
         void Reset() override
         {
             _Reset();
             wolf_dests.clear();
             rylak_dests.clear();
 
+            hppact = me->GetHealthPct() * 0.95;
             DespawnCreaturesInArea(CREATURE_WOLF, me);
             DespawnCreaturesInArea(CREATURE_RYLAK, me);
 
@@ -313,10 +315,15 @@ public:
         }
         void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo) override
         {
-            if (me->HasAura(SPELL_FEEDING_AURA))
+            if (hppact)
             {
-                if (me->HealthBelowPctDamaged(5.0f, damage))
-                    me->RemoveAura(SPELL_FEEDING_FRENZY);                    
+                if (me->HealthBelowPctDamaged(hppact, damage))
+                {
+                    me->CastStop();
+                    me->RemoveAllAuras();
+                    me->RemoveAura(SPELL_FEEDING_FRENZY);
+                    me->RemoveAura(162424);
+                }
             }
         }
         void JustDied(Unit* /*killer*/) override
@@ -352,6 +359,10 @@ public:
                     me->RemoveAura(SPELL_FEEDING_FRENZY);
                     break;
                 case EVENT_FEEDING_FRENZY:
+                    me->RemoveAura(SPELL_FEEDING_FRENZY);
+
+                    hppact = me->GetHealthPct() * 0.95;
+
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         me->CastSpell(target, SPELL_FEEDING_FRENZY);
 
@@ -377,7 +388,7 @@ public:
                             if (wolf_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = wolf_dests.begin();
+                            std::list<Creature*>::iterator it = wolf_dests.begin();
                             std::advance(it, urand(0, wolf_dests.size() - 1));
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
@@ -386,7 +397,7 @@ public:
                             if ((*it)->GetAI())
                             {
                                 (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                wolf_dests.remove(*it);
+                                wolf_dests.erase(it);
                             }
                             break;
                         }
@@ -395,9 +406,8 @@ public:
                             if (rylak_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = rylak_dests.begin();
+                            std::list<Creature*>::iterator it = rylak_dests.begin();
                             std::advance(it, urand(0, rylak_dests.size() - 1));
-
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
                             //me->CastSpell((*it), SPELL_BREAKOUT, true);
@@ -405,7 +415,7 @@ public:
                             if ((*it)->GetAI())
                             {
                                 (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                rylak_dests.remove(*it);
+                                rylak_dests.erase(it);
                             }
                             break;
                         }          

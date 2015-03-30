@@ -1031,7 +1031,7 @@ class ObjectMgr
                 return &itr->second;
             else
             {
-                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, NONE_DIFFICULTY));
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DIFFICULTY_NONE));
                 if (itr != _dungeonEncounterStore.end())
                     return &itr->second;
             }

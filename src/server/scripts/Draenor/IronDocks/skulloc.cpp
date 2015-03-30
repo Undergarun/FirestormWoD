@@ -65,10 +65,11 @@ enum Spells
 enum Events
 {
     // Skulloc
-    EVENT_BACKDRAFT = 50,
+    EVENT_BACKDRAFT = 955,
     EVENT_CANNON_BARRAGE = 51,
     EVENT_CANNON_BARRAGE_2 = 52,
     EVENT_CANNON_BARRAGE_PRE = 53,
+    EVENT_CANNON_BARRAGE_CANCEL = 912,
 
     // Karomar
     EVENT_BERSERKER_LEAP = 53,
@@ -79,6 +80,7 @@ enum Events
 
     // Zuggosh
     EVENT_RAPID_FIRE = 56,
+    EVENT_RAPID_FIRE_CHANGE_TARGET = 85,
 };
 enum Actions
 {
@@ -90,8 +92,8 @@ enum Creatures
 };
 enum Talks
 {
-    TALK_KORAMAR_12 = 33, // How dare you marching into my docks, and so bravery set foot onto my ship.. nothing will stop the Iron Horde least of all you.. enjoy your death weaklings. (46911)
-    TALK_KORAMAR_13 = 34, // Zoggosh.. ready the ready the rocks! This.. Ends... Now! (46912)
+    TALK_KORAMAR_12 = 50, // How dare you marching into my docks, and so bravery set foot onto my ship.. nothing will stop the Iron Horde least of all you.. enjoy your death weaklings. (46911)
+    TALK_KORAMAR_13 = 51, // Zoggosh.. ready the ready the rocks! This.. Ends... Now! (46912)
     TALK_ZOGGOSH_03 = 11, // Yes sir.. (44049)
     TALK_KORAMAR_VENGENCE = 60,
 };
@@ -102,7 +104,7 @@ enum Talks
 #define bladestormwinterval 14000
 #define berserkerleapinterval 24000
 #define rapidfireinterval 8000 
-Position backdraftnpc = { 6859.93f, -989.91f, 23.054f, 3.00 };
+Position backdraftnpc = { 6859.93f, -989.91f, 23.054f, 3.000260f };
 
 class pre_last_boss_event : public BasicEvent
 {
@@ -203,7 +205,7 @@ public:
             }
 
             events.ScheduleEvent(EVENT_CANNON_BARRAGE_PRE, cannonbarrageinterval + 10000);
-            events.ScheduleEvent(EVENT_BACKDRAFT, backdraftinterval);
+            events.ScheduleEvent(EVENT_BACKDRAFT, 15000);
         }
         void JustReachedHome()
         {
@@ -231,12 +233,6 @@ public:
         {
             _JustDied();
         }
-        void DoAction(int32 const action)
-        {
-            /*switch (action)
-            {
-            }*/
-        }
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
@@ -253,11 +249,16 @@ public:
                 {
                 case EVENT_CANNON_BARRAGE_PRE:
                     me->CastSpell(me, SPELL_GRONN_SMASH);
-                    events.ScheduleEvent(EVENT_CANNON_BARRAGE, 2000);
-                    events.ScheduleEvent(EVENT_CANNON_BARRAGE_PRE, 30000);
+                    events.ScheduleEvent(EVENT_CANNON_BARRAGE, 6000);
+                    events.ScheduleEvent(EVENT_CANNON_BARRAGE_CANCEL, 30000);
+                    events.ScheduleEvent(EVENT_CANNON_BARRAGE_PRE, 50000);
                     break;
                 case EVENT_CANNON_BARRAGE:        
                     me->AddAura(SPELL_CANNON_BARRAGE_AURA, me);
+                    events.ScheduleEvent(EVENT_CANNON_BARRAGE, 12000);
+                    break;
+                case EVENT_CANNON_BARRAGE_CANCEL:
+                    events.CancelEvent(EVENT_CANNON_BARRAGE);
                     break;
                 case EVENT_BACKDRAFT:
                     if (Creature* backdrafttrigger = me->FindNearestCreature(TRIGGER_BACKDRAFT, 300.0f, true))
@@ -265,6 +266,7 @@ public:
                         backdrafttrigger->SetUnitMovementFlags(MOVEMENTFLAG_ROOT);
                         backdrafttrigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         backdrafttrigger->SetLevel(101);
+                        backdrafttrigger->setFaction(14);
 
                         backdrafttrigger->CastSpell(backdrafttrigger, SPELL_BACKDRAFT);
                         events.ScheduleEvent(EVENT_BACKDRAFT, backdraftinterval);
@@ -295,16 +297,18 @@ public:
             me->SetUnitMovementFlags(MOVEMENTFLAG_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->setFaction(16);
 
             me->Kill(me);
             me->Respawn();
         }
         Vehicle* vehicle;
+        Unit* Rtarget = NULL;
         InstanceScript* instance;
         void Reset() override
         {
             _Reset();
-            me->setFaction(16);
+            Rtarget = NULL;
 
             ASSERT(vehicle);
         }
@@ -322,7 +326,7 @@ public:
         {
             _EnterCombat();
 
-            events.ScheduleEvent(EVENT_RAPID_FIRE, rapidfireinterval);
+            events.ScheduleEvent(EVENT_RAPID_FIRE_CHANGE_TARGET, 2000);
         }
         void JustDied(Unit* /*killer*/) override
         {
@@ -341,6 +345,10 @@ public:
                 if (Creature* zuggosh = instance->instance->GetCreature(instance->GetData64(DATA_ZUGGOSH)))
                     zuggosh->AI()->Talk(TALK_KORAMAR_VENGENCE);
 
+                me->DespawnOrUnsummon(500);
+                me->getHostileRefManager().clearReferences();
+                me->CombatStop();
+                me->setFaction(35);
                 events.CancelEvent(EVENT_RAPID_FIRE);
                 break;
             }
@@ -359,12 +367,23 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_RAPID_FIRE:
+                case EVENT_RAPID_FIRE_CHANGE_TARGET:
+                    events.CancelEvent(EVENT_RAPID_FIRE);
+
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                     {
-                        me->CastSpell(target, SPELL_RAPID_FIRE);
+                        Rtarget = target;
                     }
-                    events.ScheduleEvent(EVENT_RAPID_FIRE, rapidfireinterval);
+
+                    events.ScheduleEvent(EVENT_RAPID_FIRE_CHANGE_TARGET, 10000);
+                    events.ScheduleEvent(EVENT_RAPID_FIRE, 1500);
+                    break;
+                case EVENT_RAPID_FIRE:
+                    if (Rtarget != NULL && Rtarget && Rtarget->IsInWorld() && Rtarget->IsWithinDistInMap(me, 200.0f, true))
+                    {
+                        me->CastSpell(Rtarget, SPELL_RAPID_FIRE);
+                    }
+                    events.ScheduleEvent(EVENT_RAPID_FIRE, 1500);
                     break;
                 }
             }
@@ -477,17 +496,27 @@ public:
     {
         PrepareAuraScript(iron_docks_auras);
 
+        bool Load()
+        {
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+            spell->Effects[0].Amplitude = 500;
+            //spell->Effects[0].TargetA = TARGET_DEST_DEST;
+            return true;
+        }
         void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {
             PreventDefaultAction();
-            if (GetCaster())
-            {
-                if (Player* player = GetCaster()->FindNearestPlayer(50.0f, true))
+            
+                if (GetCaster())
                 {
-                    GetCaster()->CastSpell(player, SPELL_BERSERKER_LEAP_JUMP);
-                    GetCaster()->CastSpell(player, SPELL_BERSERKER_LEAP_LIGHTNING_VISUAL);
-                }
-            }
+                    if (Player* player = GetCaster()->FindNearestPlayer(50.0f, true))
+                    {
+                        GetCaster()->CastSpell(player, SPELL_BERSERKER_LEAP_JUMP);
+                        //GetCaster()->GetMotionMaster()->MoveJump(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 20.0f, 10.0f, 10.0f);
+                        GetCaster()->CastSpell(player, SPELL_BERSERKER_LEAP_LIGHTNING_VISUAL);
+                    }
+               }
+            
         }
         void Register()
         {
@@ -596,6 +625,39 @@ public:
     };
 
     AuraScript* GetAuraScript() const
+    {
+        return new iron_docks_spells();
+    }
+};
+class spell_rapid_fire_damage : public SpellScriptLoader
+{
+public:
+    spell_rapid_fire_damage() : SpellScriptLoader("spell_rapid_fire_damage") { }
+
+    class iron_docks_spells : public SpellScript
+    {
+        PrepareSpellScript(iron_docks_spells);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetCaster() || !GetHitUnit())
+                return;
+
+            if (GetCaster()->GetEntry() != BOSS_TURRET)
+                return;
+
+                SetHitDamage(urand(2500, 3000));
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(iron_docks_spells::HandleDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
     {
         return new iron_docks_spells();
     }
@@ -730,4 +792,5 @@ void AddSC_boss_skulloc()
     new spell_gronn_smash();
     new spell_barrage_targets();
     new koramar_berserker_jump();
+    new spell_rapid_fire_damage();
 }

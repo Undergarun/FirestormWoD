@@ -1,0 +1,75 @@
+DELETE FROM creature_text WHERE entry IN (81305, 83616, 83578, 81603, 83697, 83612, 83613, 80816, 80808, 84520, 86231, 83026);
+INSERT INTO creature_text VALUES
+(81305, 0, 0, 'Start the funeral pyres!', 14, 0, 100, 0, 0, 46057, 'NokgarAggro'),
+(81305, 1, 0, 'My blade thirsts for more.', 14, 0, 100, 0, 0, 46061, 'NokgarSlay0'),
+(81305, 1, 1, 'Revel in the slaughter!', 14, 0, 100, 0, 0, 46060, 'NokgarSlay1'),
+(81305, 2, 0, 'You will burn with me.', 14, 0, 100, 0, 0, 46058, 'NokgarDeath'),
+(81305, 3, 0, 'Warsong arrows sing from the sky! They''ll be the last thing you hear as I crush your skull.', 14, 0, 100, 0, 0, 46059, 'NokgarIntro'),
+(81305, 4, 0, 'Let them have it!', 14, 0, 100, 0, 0, 46062, 'NokgarSpell01'),
+(81305, 5, 0, 'That''s it? You barely drew blood!', 14, 0, 100, 0, 0, 46063, 'NokgarSpell02'),
+(81305, 6, 0, 'Terror overwhelms you, death is near.', 14, 0, 100, 0, 0, 46064, 'NokgarSpell03'),
+(81305, 7, 0, 'A death worthy of a warrior!', 14, 0, 100, 0, 0, 46065, 'NokgarSpell04'),
+
+(83616, 8, 0, 'Sir, they''ve breached the gates! Nok''gar... He''s dead!! We should pick up anchor and set sail for Talador right now!', 14, 0, 100, 0, 0, 44027, 'Zoggosh01'),
+(83616, 10, 0, 'But sir, this is the last of the gronn that we have! Blackhand will have our hides if we show up empty handed!', 14, 0, 100, 0, 0, 44048, 'Zoggosh02'),
+(83616, 11, 0, 'Yessir!', 14, 0, 100, 0, 0, 44049, 'Zoggosh03'),
+(83616, 12, 0, 'Sir... they''re messing with the iron stars!', 14, 0, 100, 0, 0, 44050, ''),
+(83616, 13, 0, 'Igniting the cannons, sir!', 14, 0, 100, 0, 0, 44051, ''),
+(83616, 14, 0, 'Sir, he''s out of ammunition! I''m reloading, I''m reloading!', 14, 0, 100, 0, 0, 44052, 'Zoggosh04'),
+(83616, 15, 0, 'Sir, half of our army has been taken out! Don''t you think we should--', 14, 0, 100, 0, 0, 44053, 'Zoggosh05'),
+(83616, 16, 0, 'Captain, they''re almost here! What do we do now?!', 14, 0, 100, 0, 0, 44054, 'Zoggosh06'),
+(83616, 17, 0, 'Uhhh... Are you sure you want to let that thing out of its cage? I don''t think we have fed it since we found it.', 14, 0, 100, 0, 0, 44055, 'Zoggosh07'),
+(83616, 18, 0, 'Good idea, sir!', 14, 0, 100, 0, 0, 44056, ''),
+(83616, 19, 0, 'Oh...', 14, 0, 100, 0, 0, 44057, ''),
+(83616, 20, 0, 'Aye aye, sir!', 14, 0, 100, 0, 0, 44058, 'Zoggosh08'),
+(83616, 21, 0, 'Yes, captain!', 14, 0, 100, 0, 0, 44059, ''),
+(83616, 60, 0, 'Koramar, no! I will avenge you!', 14, 0, 100, 0, 0, 44060, 'Zoggosh09'),
+
+(83578, 0, 0, 'CRUSH THEM!!!', 14, 0, 100, 0, 0, 0, 'OgronLaborer'),
+
+(81603, 0, 0, 'Grom''kar archers, fire at will!', 14, 0, 100, 0, 0, 0, 'ChampionDruna1'),
+(81603, 0, 1, 'Light ''em up!', 14, 0, 100, 0, 0, 0, 'Champion Druna2'),
+
+(83697, 0, 0, 'You''ll never make it out alive!', 14, 0, 100, 0, 0, 0, 'GromkarDeckhand'),
+
+(83612, 0, 0, '%s prepares a |cFFFF0404|Hspell:168148|h[Cannon Barrage]|h|r! Get behind cover to survive!', 41, 0, 100, 0, 0, 0, 'SkullocWarn'),
+
+(83613, 0, 0, 'FIRE... FIRE! AIM, THEN FIRE!', 14, 0, 100, 0, 0, 0, 'Koramar0'),
+(83613, 23, 0, 'Calm yourself, Zoggosh. We will do no such thing. If these weaklings are so eager to die, then we should oblige.', 14, 0, 100, 0, 0, 43899, 'Koramar23'),
+(83613, 24, 0, 'Zoggosh, do not question my authority. This isn''t just ANY gronn. This is Skulloc, Son of Gruul. The blood of a champion courses through his veins. I''m not concerned with these... paltry whelps.', 14, 0, 100, 0, 0, 43900, 'Koramar24'),
+(83613, 25, 0, 'Hah. Would you look at that. Maybe I... underestimated them. Zoggosh! Prepare Skulloc! Let them have a taste of what he has to offer.', 14, 0, 100, 0, 0, 43901, 'Koramar25'),
+(83613, 26, 0, 'FIRE... FIRE! AIM, THEN FIRE!', 14, 0, 100, 0, 0, 46903, 'Koramar26'),
+(83613, 27, 0, 'What is wrong with you?! Keep firing you oaf!', 14, 0, 100, 0, 0, 46904, 'Koramar27'),
+(83613, 28, 0, 'Argghhhh! Forget it! They''ll never make it past the tracks. Makogg, Ahri''ok - front and center! There''s some new meat for you to tenderize.', 14, 0, 100, 0, 0, 43905, ''),
+(83613, 29, 0, 'That was an insignificant loss. Let them exhaust themselves, preying against our weak -- against those who are unworthy of serving in Blackhand''s army! Blood and honor, Zoggosh. That is all that orcs understand.', 14, 0, 100, 0, 0, 43906, ''),
+(83613, 31, 0, 'I''m not playing these games anymore. Bring in the saberon and we''ll be done with it.', 14, 0, 100, 0, 0, 43908, ''),
+(83613, 32, 0, 'Put a muzzle on it.', 14, 0, 100, 0, 0, 43909, ''),
+(83613, 33, 0, 'I didn''t mean the cat.', 14, 0, 100, 0, 0, 43910, ''),
+(83613, 50, 0, 'How dare you march into MY DOCKS and so brazenly set foot on MY SHIP. Nothing will stop the Iron Horde, least of all you. Enjoy your death, weaklings. Zoggosh, man the machine turret!', 14, 0, 100, 0, 0, 46911, ''),
+(83613, 51, 0, 'Zoggosh, ready your axe. This ends now!', 14, 0, 100, 0, 0, 46912, ''),
+(83613, 94, 0, 'So WEAK!', 14, 0, 100, 0, 0, 43913, ''),
+(83613, 94, 1, 'Bow before the might of the Iron Horde!', 14, 0, 100, 0, 0, 43914, ''),
+(83613, 95, 0, 'Inconcivable...', 14, 0, 100, 0, 0, 43989, ''),
+
+(80816, 0, 0, 'Your blood washes over me!', 14, 0, 100, 0, 0, 0, 'AhriokDugru'),
+(80816, 0, 1, 'No! None shall possess my potency!', 14, 0, 100, 0, 0, 0, 'AhriokDugru'),
+(80816, 0, 2, 'Right away, captain! It will be my pleasure.', 14, 0, 100, 0, 0, 0, 'AhriokDugru'),
+(80816, 0, 3, 'You dare contest my power??? Our blood surges with energy!', 14, 0, 100, 0, 0, 0, 'AhriokDugru'),
+
+(80808, 1, 0, 'Now you ain''t so tall no more!', 14, 0, 100, 0, 0, 46130, 'NeesaNoxSpell01'),
+(80808, 2, 0, 'You''d better step back. I''m calling in the Bombsquad!', 14, 0, 100, 0, 0, 46131, 'NeesaNoxSpell02'),
+(80808, 3, 0, 'Tick tick tick... BOOM!', 14, 0, 100, 0, 0, 46129, 'NeesaNoxSlay'),
+(80808, 4, 0, 'Ahhhhhhhh! I''m hit!', 14, 0, 100, 0, 0, 46127, 'NeesaNoxDeath'),
+(80808, 5, 0, 'Time is money, friend! And it looks like you''s outta both!', 14, 0, 100, 0, 0, 46132, 'NeesaNoxSpell03'),
+(80808, 50, 0, 'Ooooh! Is there killin'' ta be done? Lemme at''em!', 14, 0, 100, 0, 0, 46128, 'NeesaNoxIntro'),
+
+(84520, 0, 0, 'Get in there and show me what you''ve got.', 12, 0, 100, 0, 0, 0, 'PitwardenGwarnok0'),
+(84520, 0, 1, 'No quarter. No mercy.', 12, 0, 100, 0, 0, 0, 'PitwardenGwarnok1'),
+(84520, 0, 2, 'You think you have what it takes to bear the standard of the Iron Horde?', 12, 0, 100, 0, 0, 0, 'PitwardenGwarnok2'),
+
+(86231, 60, 0, 'Hah!', 14, 0, 100, 0, 0, 45800, ''),
+(86231, 61, 0, 'This... is... far, from over...', 14, 0, 100, 0, 0, 45799, ''),
+(86231, 62, 0, 'You will burn!', 14, 0, 100, 0, 0, 45801, ''),
+
+(83026, 0, 0, 'Get these war machines ready for the siege.', 12, 0, 100, 0, 0, 0, ''),
+(83026, 0, 1, 'Stop showin'' off.', 12, 0, 100, 0, 0, 0, '');

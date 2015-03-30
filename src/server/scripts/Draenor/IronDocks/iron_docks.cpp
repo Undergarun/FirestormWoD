@@ -104,7 +104,6 @@ enum Spells
 };
 enum Events
 {
-
     // Thunderlord wrangler
     EVENT_CULTTRAPS = 1000,
     EVENT_SPEAR_THROW = 1001,
@@ -272,7 +271,7 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
 
                     events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
@@ -334,6 +333,13 @@ public:
             events.ScheduleEvent(EVENT_IRON_SHOT, ironshotinterval);         
             events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
         }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
+        }
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
@@ -372,7 +378,7 @@ public:
                     break;
                     */
                 case EVENT_LEG_SHOT:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_LEG_SHOT);
 
                     events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
@@ -409,6 +415,13 @@ public:
             events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, demoralizingshoutinterval);
 
             me->RemoveAura(SPELL_SELF_STUN);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -474,6 +487,13 @@ public:
             me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
 
             events.ScheduleEvent(EVENT_HATCHET_TOSS, hatchettossinterval);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -606,6 +626,13 @@ public:
             events.ScheduleEvent(EVENT_GREASE_VIAL, greesevialinterval);
             events.ScheduleEvent(EVENT_FLING_HAMMER, flinghammerinterval);
             events.ScheduleEvent(EVENT_HIGH_EXPLOSIVE_GRENADE, highexplosiveinterval);
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
+            }
         }
         void UpdateAI(uint32 const diff)
         {
@@ -872,7 +899,7 @@ public:
             {
                 if (!(*itr)->HasAura(SPELL_BURNING_ARROW_DAMAGE))
                 {
-                    (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE);
+                    (*itr)->CastSpell((*itr), SPELL_BURNING_ARROW_DAMAGE, true);
                     m_Targets.push_back((*itr)->GetGUID());
                 }
             }
@@ -905,7 +932,7 @@ public:
     iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow")
     {
     }
-    uint32 diff;
+    uint32 diff = 500;
     std::list<uint64> m_Targets;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -946,12 +973,11 @@ public:
         }
     }
 
-    iron_docks_area_trigger_burning_arrow* GetAI() const
+    iron_docks_area_trigger_barbed_arrow* GetAI() const
     {
-        return new iron_docks_area_trigger_burning_arrow();
+        return new iron_docks_area_trigger_barbed_arrow();
     }
 };
-
 class iron_docks_spell_burning_arrow_aura : public SpellScriptLoader
 {
 public:
@@ -984,7 +1010,7 @@ public:
         }
 
     private:
-        uint32 time;
+        int time;
 
         void Register()
         {
@@ -1061,6 +1087,11 @@ class iron_docks_siege_master_olugar : public CreatureScript
 public:
     iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
 
+    enum eTalk
+    {
+        RandomText
+    };
+
     struct mob_iron_docksAI : public ScriptedAI
     {
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
@@ -1084,13 +1115,11 @@ public:
             {
                 if (rp <= diff)
                 {
-                    me->MonsterSay("Stop showin' off.", LANG_UNIVERSAL, me->GetGUID());
-
+                    Talk(eTalk::RandomText);
                     rp = 16000;
                 }
                 else
                     rp -= diff;
-
             }
 
             if (!UpdateVictim())
@@ -1227,13 +1256,13 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHARGING_SLASH:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
 
                     events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                     {
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
                         random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
@@ -1273,6 +1302,13 @@ public:
             case 0:
                 me->MonsterYell("CRUSH THEM!!", LANG_UNIVERSAL, me->GetGUID());
                 break;
+            }
+        }
+        void MoveInLineOfSight(Unit* who) override
+        {
+            if (who->GetEntry() == NPC_IRON_STAR && me->IsWithinDistInMap(who, 1.2f))
+            {
+                who->Kill(me);
             }
         }
         void UpdateAI(uint32 const diff)
@@ -1796,6 +1832,37 @@ public:
         return new iron_docks_spells();
     }
 };
+class explosion_iron_star : public BasicEvent
+{
+public:
+    explicit explosion_iron_star(Unit* unit, Unit* unit2,int value) : obj(unit), obj2(unit2), modifier(value)
+    {
+    }
+
+    bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
+    {
+            switch (modifier)
+            {
+            case 0:
+                if (obj)
+                    obj->ToCreature()->DespawnOrUnsummon();
+                obj->CastSpell(obj, SPELL_QUIET_SUICIDE);
+                break;
+            case 1:
+                if (obj && obj2 && obj2->IsInWorld())
+                    obj2->EnterVehicle(obj, 0, true);
+               // obj->GetVehicleKit()->RemoveAllPassengers();
+                break;
+            }       
+        return true;
+    }
+private:
+    Creature* storm;
+    Unit* obj;
+    Unit* obj2;
+    int modifier;
+    int Event;
+};
 class iron_docks_spell_charge_forward : public SpellScriptLoader
 {
 public:
@@ -1810,14 +1877,24 @@ public:
             if (!GetCaster())
                 return;
 
+            GetCaster()->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
+
+            GetCaster()->GetAI()->DoAction(ACTION_QUIET_DEATH);
+
+            //Unit* pl = GetCaster()->GetVehicleKit()->GetPassenger(0);
+
+            GetCaster()->SetSpeed(MOVE_RUN, 12.0f, true);
+
+            GetCaster()->m_Events.AddEvent(new explosion_iron_star(GetCaster(), NULL,0), GetCaster()->m_Events.CalculateTime(6000));
+            //if (pl && pl->IsInWorld())
+            //GetCaster()->m_Events.AddEvent(new explosion_iron_star(GetCaster(), pl, 1), GetCaster()->m_Events.CalculateTime(500));
+
             // START VISUAL EVENT
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 instance->SetData(DATA_SECOND_EVENT, uint32(true));
- 
-                GetCaster()->GetAI()->DoAction(ACTION_QUIET_DEATH);
-                GetCaster()->GetVehicleKit()->RemoveAllPassengers();
-                
-                GetCaster()->SetSpeed(MOVE_RUN, 12.0f, true);         
+
+            GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void Register()
@@ -1842,7 +1919,7 @@ public:
         {
         }
 
-        uint32 timerperexplosion;
+        int32 timerperexplosion;
         bool canKill;
 
         void Reset()
@@ -1850,6 +1927,9 @@ public:
             timerperexplosion = 0;
             me->setFaction(35);
             canKill = false;
+
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
         void DoAction(int32 const action)
         {
@@ -1857,35 +1937,37 @@ public:
             {
             case ACTION_QUIET_DEATH:
                 timerperexplosion = 12000;
-                me->setFaction(16);
-
+                me->setFaction(35);
+                me->SetSpeed(MOVE_RUN, 12.0f, true);
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                me->GetAI()->DoAction(ACTION_QUIET_DEATH);
+
                 break;
             }
         }
         void UpdateAI(uint32 const diff)
         {
+            /*
             std::list<Creature*> hostileCreatures;
 
             std::list<Creature*> list_p;
-            JadeCore::AllCreaturesInRange check(me, 1.0f);
+            JadeCore::AllCreaturesInRange check(me, 4.0f);
             JadeCore::CreatureListSearcher<JadeCore::AllCreaturesInRange> searcher(me, list_p, check);
             me->VisitNearbyObject(1.0f, searcher);
 
+            if (hostileCreatures.empty())
+                return;
+
+            printf("works");
+
             for (std::list<Creature*>::const_iterator itr = list_p.begin(); itr != list_p.end(); itr++)
             {
-                if ((*itr) == me)
-                    return;
+                me->Kill((*itr));
 
-               // me->Kill((*itr));
+                printf("work 222222222222s");
             }
-            if (canKill && timerperexplosion <= diff)
-            {
-                me->CastSpell(me, SPELL_QUIET_SUICIDE);
-            }
-            else
-                timerperexplosion -= diff;
+            */
         }
     };
 

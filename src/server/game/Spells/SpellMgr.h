@@ -701,8 +701,8 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = NONE_DIFFICULTY) const;
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[NONE_DIFFICULTY].size(); }
+        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE) const;
+        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[DIFFICULTY_NONE].size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         TalentsPlaceHoldersSpell GetTalentPlaceHoldersSpell() const { return mPlaceHolderSpells; }

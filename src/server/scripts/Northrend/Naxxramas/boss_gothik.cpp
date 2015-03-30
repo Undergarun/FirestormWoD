@@ -254,7 +254,7 @@ class boss_gothik : public CreatureScript
 
             void DoGothikSummon(uint32 entry)
             {
-                if (GetDifficulty() == LEGACY_MAN25_DIFFICULTY)
+                if (GetDifficulty() == DIFFICULTY_25_N)
                 {
                     switch (entry)
                     {
@@ -417,9 +417,9 @@ class boss_gothik : public CreatureScript
                         case EVENT_SUMMON:
                             if (waves[waveCount].entry)
                             {
-                                if ((waves[waveCount].mode == 2) && (GetDifficulty() == LEGACY_MAN25_DIFFICULTY))
+                                if ((waves[waveCount].mode == 2) && (GetDifficulty() == DIFFICULTY_25_N))
                                    DoGothikSummon(waves[waveCount].entry);
-                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == LEGACY_MAN10_DIFFICULTY))
+                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == DIFFICULTY_10_N))
                                     DoGothikSummon(waves[waveCount].entry);
                                 else if (waves[waveCount].mode == 1)
                                     DoGothikSummon(waves[waveCount].entry);
@@ -440,9 +440,9 @@ class boss_gothik : public CreatureScript
 
                                 if (waves[waveCount].mode == 1)
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                                else if ((waves[waveCount].mode == 2) && (GetDifficulty() == LEGACY_MAN25_DIFFICULTY))
+                                else if ((waves[waveCount].mode == 2) && (GetDifficulty() == DIFFICULTY_25_N))
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == LEGACY_MAN10_DIFFICULTY))
+                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == DIFFICULTY_10_N))
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
                                 else
                                     events.ScheduleEvent(EVENT_SUMMON, 0);
