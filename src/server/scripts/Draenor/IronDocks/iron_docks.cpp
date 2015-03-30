@@ -1531,26 +1531,27 @@ public:
                 if (deckhands)
                 {
                     deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    deckhandslist.push_back(deckhands);
+                    m_DeckhandList.push_back(deckhands->GetGUID());
                 }
             }
         }
-        int visual;
-        std::list<Creature*> deckhandslist;
+
+        std::list<uint64> m_DeckhandList;
 
         void Reset()
         {
-            visual = 6000;
-            me->SetSpeed(MOVE_RUN, 0.5, true);
+            me->SetSpeed(MOVE_RUN, 0.5f, true);
 
-            if (!deckhandslist.empty())
-                for (auto itr : deckhandslist)
+            for (uint64 l_Guid : m_DeckhandList)
+            {
+                if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
                 {
-                    if (itr->isAlive())
-                    {
-                        itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    }
+                    if (!l_DeckHand->isAlive())
+                        continue;
+
+                    l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
                 }
+            }
         }
         void EnterCombat(Unit* who)
         {
@@ -1567,16 +1568,19 @@ public:
         {
             if (!UpdateVictim())
             {
-                if (!deckhandslist.empty())
-                    for (auto itr : deckhandslist)
+                for (uint64 l_Guid : m_DeckhandList)
+                {
+                    if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
                     {
-                        if (!itr->isMoving())
-                            itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    }
-            }
+                        if (l_DeckHand->isMoving())
+                            continue;
 
-            if (!UpdateVictim())
+                        l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                    }
+                }
+
                 return;
+            }
 
             events.Update(diff);
 
