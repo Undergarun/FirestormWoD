@@ -777,7 +777,7 @@ struct ResearchLootEntry
     float x;
     float y;
     float z;
-    uint8 race;
+    uint8 ResearchBranchID;
 };
 
 struct GarrisonPlotBuildingContent
