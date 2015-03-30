@@ -751,7 +751,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
         return true;
     }
     /// If group size before player removal <= 2 then disband it
-    else if (!m_memberMgr.getSize())
+    else
     {
         Disband();
         return false;

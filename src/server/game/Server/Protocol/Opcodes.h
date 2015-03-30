@@ -516,9 +516,11 @@ enum Opcodes
         SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x1D35, ///< 6.1.2 19783
 
         /// Twitter
-        SMSG_REQUEST_TWITTER_STATUS_RESPONSE                    = 0x0E1D, ///< 6.1.2 19783
+        SMSG_REQUEST_TWITTER_STATUS_RESPONSE                    = 0x0000,
         SMSG_OAUTH_SAVED_DATA                                   = 0x0CBB, ///< 6.1.2 19783
 
+        /// Toys
+        SMSG_ACCOUNT_TOYS_UPDATE                    = 0x0E1D, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1918,7 +1920,6 @@ enum Opcodes
     SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
     SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000, ///<
     CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0000, ///<
-    SMSG_ACCOUNT_TOYS_UPDATE                    = 0x0000, ///<
 };
 
 /// Player state
