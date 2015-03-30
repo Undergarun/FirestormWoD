@@ -23613,9 +23613,6 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
@@ -23635,9 +23632,6 @@ void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
@@ -23657,10 +23651,7 @@ void Player::TextEmote(std::string const& p_Text)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
-        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId())
+        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId() && !l_Target->isGameMaster())
             continue;
 
         if (WorldSession* l_Session = l_Target->GetSession())
