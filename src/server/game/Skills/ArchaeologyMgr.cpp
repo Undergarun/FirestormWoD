@@ -22,8 +22,6 @@
 #include "Containers.h"
 #include "ObjectMgr.h"
 
-const static uint8 _races[12] = { 1, 2, 3, 4, 5, 6, 7, 8, 27, 29, 229, 231 };
-
 const static int q_patt[2][2] = { { 0, 1 }, { 3, 2 } };
 
 namespace JadeCore
@@ -93,7 +91,7 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
 
         if (site.loot_id == 0)
         {
-            switch (entry.race)
+            switch (entry.ResearchBranchID)
             {
                 case 1: site.loot_id = 204282; break;
                 case 2: site.loot_id = 207188; break;
@@ -107,6 +105,9 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
                 case 29: site.loot_id = 218950; break;
                 case 229: site.loot_id = 211163; break;
                 case 231: site.loot_id = 211174; break;
+                case 315: site.loot_id = 234105; break; ///@Todo
+                case 350: site.loot_id = 226521; break; ///@Todo
+                case 382: site.loot_id = 234106; break; ///@Todo
                 default: site.loot_id = 0; break;
             }
         }
@@ -300,7 +301,7 @@ void ArchaeologyMgr::ShowResearchProjects()
             newvalue |= (*itr);
             _player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + count / 2, newvalue);
 
-            if (count >= MAX_RESEARCH_PROJECTS)
+            if (count >= sResearchBranchStore.GetNumRows())
                 break;
         }
         else
@@ -361,6 +362,12 @@ ResearchWithLevelResult ArchaeologyMgr::CanResearchWithLevel(uint32 siteId)
                     if (skill_now < skill_cap || (cur_level < level_cap))
                         return RS_RESULT_HIDE;
                     break;
+                case 1116: // Draenor
+                    skill_cap = 1;
+                    level_cap = 90;
+                    if (skill_now < skill_cap || (cur_level < level_cap))
+                        return RS_RESULT_HIDE;
+                    break;
                 default:
                     return RS_RESULT_FAIL;
             }
@@ -406,7 +413,7 @@ void ArchaeologyMgr::GenerateResearchSites()
     }
 
     for (ResearchSitesMap::iterator l_Iterator = _researchSites.begin(); l_Iterator != _researchSites.end(); ++l_Iterator)
-        JadeCore::Containers::RandomResizeSet(l_Iterator->second, RESEARCH_SITES_PER_MAP);
+       JadeCore::Containers::RandomResizeSet(l_Iterator->second, RESEARCH_SITES_PER_MAP);
 
     _archaeologyChanged = true;
     ShowResearchSites();
@@ -460,13 +467,20 @@ void ArchaeologyMgr::GenerateResearchProjects()
         tempProjects[entry->branchId].insert(entry->ID);
     }
 
-    for (int i = 0; i < 12; i++)
+    for (uint32 l_I = 0; l_I < sResearchBranchStore.GetNumRows(); ++l_I)
     {
-        uint32 raceIndex = _races[i];
-        if (tempProjects.find(raceIndex) == tempProjects.end())
+        ResearchBranchEntry const* l_Entry = sResearchBranchStore.LookupEntry(l_I);
+
+        if (!l_Entry)
             continue;
 
-        ProjectSet& proj = tempProjects[raceIndex];
+        if (tempProjects.find(l_Entry->ID) == tempProjects.end())
+            continue;
+
+        if (!_player->HasCurrency(l_Entry->CurrencyID))
+            continue;
+
+        ProjectSet& proj = tempProjects[l_Entry->ID];
         if (proj.empty())
             continue;
 
@@ -664,7 +678,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
                     _researchSites[l_MapID].insert(uint32(atoi(l_Tokens[l_I])));
             }
         }
-        while (p_ResultProjects->NextRow());
+        while (p_ResultSites->NextRow());
     }
 
     ValidateSites();
@@ -673,6 +687,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     if (l_Fields[0].GetCString())
     {
         Tokenizer tokens(l_Fields[0].GetCString(), ' ', MAX_RESEARCH_SITES);
+
         if (tokens.size() == MAX_RESEARCH_SITES)
         {
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
@@ -686,10 +701,13 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     _researchProjects.clear();
     if (l_Fields[1].GetCString())
     {
-        Tokenizer tokens(l_Fields[0].GetCString(), ' ', MAX_RESEARCH_PROJECTS);
-        if (tokens.size() == MAX_RESEARCH_PROJECTS)
-            for (uint8 i = 0; i < MAX_RESEARCH_PROJECTS; ++i)
+        Tokenizer tokens(l_Fields[0].GetCString(), ' ', sResearchBranchStore.GetNumRows());
+
+        if (tokens.size() == sResearchBranchStore.GetNumRows())
+        {
+            for (uint8 i = 0; i < sResearchBranchStore.GetNumRows(); ++i)
                 _researchProjects.insert(uint32(atoi(tokens[i])));
+        }
     }
 
     ValidateProjects();
@@ -797,7 +815,7 @@ uint16 ArchaeologyMgr::GetRandomActiveSiteInMap(uint32 mapId)
 
 void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p_SiteID)
 {
-    uint32 l_Race = 0;
+    uint32 l_ResearchBranchID = 0;
     ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
     if (!l_Loot.empty())
     {
@@ -807,16 +825,15 @@ void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p
             if (l_Entry.id != p_SiteID)
                 continue;
 
-            l_Race = uint32(l_Entry.race);
+            l_ResearchBranchID = uint32(l_Entry.ResearchBranchID);
             break;
         }
     }
 
-    WorldPacket l_Data(SMSG_RESEARCH_COMPLETE, 13);
-
+    WorldPacket l_Data(SMSG_ARCHAEOLOGY_SURVERY_CAST, 13);
     l_Data << uint32(p_Count);
     l_Data << uint32(6);
-    l_Data << l_Race;
+    l_Data << uint32(l_ResearchBranchID);
 
     _player->GetSession()->SendPacket(&l_Data);
 }
