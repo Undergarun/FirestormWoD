@@ -36,7 +36,8 @@ namespace TanaanQuests
         QuestYrelHorde                       = 34740,
         QuestYrelTanaan                      = 34434,
         QuestTheBattleOfTheForge             = 34439,
-        QuestTakingATripToTheTopOfTheTank    = 35747
+        QuestTakingATripToTheTopOfTheTank    = 35747,
+        QuestGaNarOfTheFrostwolf             = 34442
     };
 }
 
@@ -65,9 +66,11 @@ namespace TanaanSceneObjects
         SceneLiadrinAndOlinEnter             = 948,
         SceneKargathYells                    = 951,
         SceneNerZhulReveal                   = 952,
+        SceneHordeBoat                       = 953,
         SceneCaveIn                          = 956,
         SceneChoGallsFreedom                 = 961,
         SceneTeronGorsFreedom                = 962,
+        SceneAllianceBoat                    = 968,
         SceneSoulTrain                       = 1018
     };
 }
