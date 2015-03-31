@@ -597,50 +597,6 @@ void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
     mSpellDifficultySearcherMap[spellId] = id;
 }
 
-uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
-{
-    // Dbc supprimée au passage a MoP
-    return spellId;
-    /*if (!GetSpellInfo(spellId))
-    return spellId;
-
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
-    return spellId;
-
-    uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
-    if (mode >= MAX_DIFFICULTY)
-    {
-    sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
-    return spellId; //return source spell
-    }
-
-    uint32 difficultyId = GetSpellDifficultyId(spellId);
-    if (!difficultyId)
-    return spellId; //return source spell, it has only REGULAR_DIFFICULTY
-
-    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
-    if (!difficultyEntry)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
-    return spellId; //return source spell
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > HEROIC_DIFFICULTY)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
-    mode -= 2;
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0)
-    {
-    sLog->outError(LOG_FILTER_SQL, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
-    return spellId;
-    }
-
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
-    return uint32(difficultyEntry->SpellID[mode]);*/
-}
-
 SpellInfo const* SpellMgr::GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const
 {
     return GetSpellInfo(p_SpellId, p_Difficulty);
@@ -3384,6 +3340,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159995:///< Chain Hurl (Kargath)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                break;
+            case 160061:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValue = 250;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
                 break;
             case 159113:///< Impale (Kargath)
                 spellInfo->ChannelInterruptFlags = 0;
@@ -3393,6 +3356,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 158986:///< Berserker Rush (Kargath)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 160953:///< Fire Bomb (Iron Bomber - Kargath)
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE;
+                break;
+            case 159414:///< Mauling Brew (Drunken Bileslinger - Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 159412:///< Mauling Brew (Drunken Bileslinger - Kargath)
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

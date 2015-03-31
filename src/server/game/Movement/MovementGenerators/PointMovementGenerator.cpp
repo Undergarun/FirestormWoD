@@ -201,6 +201,7 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
             unit.CastSpell(&unit, specialSpells::ChainHurlKnockBack, true);
             unit.CastSpell(&unit, specialSpells::ChainHurl, false);
             unit.PlayOneShotAnimKit(specialSpells::AnimChainHurl);
+            unit.SetControlled(true, UnitState::UNIT_STATE_ROOT);
             break;
         case specialSpells::ChainHurlJumpDestPlayer:
             unit.CastSpell(&unit, specialSpells::ChainHurlAoEStunPlayer, true);

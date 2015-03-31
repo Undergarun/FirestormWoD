@@ -6030,9 +6030,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_CASTER_AURASTATE;
 
         // Note: spell 62473 requres casterAuraSpell = triggering spell
-        if (!((m_spellInfo->Id == 48020 || m_spellInfo->Id == 114794) && m_spellInfo->CasterAuraSpell == 62388) && m_spellInfo->CasterAuraSpell && !m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->CasterAuraSpell, m_caster)))
+        if (!((m_spellInfo->Id == 48020 || m_spellInfo->Id == 114794) && m_spellInfo->CasterAuraSpell == 62388) && m_spellInfo->CasterAuraSpell && !m_caster->HasAura(m_spellInfo->CasterAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
-        if (m_spellInfo->ExcludeCasterAuraSpell && m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->ExcludeCasterAuraSpell, m_caster)))
+        if (m_spellInfo->ExcludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->ExcludeCasterAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         if (reqCombat && m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())

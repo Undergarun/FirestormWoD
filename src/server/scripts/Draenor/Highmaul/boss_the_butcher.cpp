@@ -28,6 +28,18 @@ class boss_the_butcher : public CreatureScript
             MeetHookJump    = 156127
         };
 
+        enum eTalks
+        {
+            Intro,
+            Aggro,
+            BoundingCleave,
+            Frenzy,
+            Cleave,
+            Berserk,
+            Slay,
+            Wipe
+        };
+
         struct boss_the_butcherAI : public BossAI
         {
             boss_the_butcherAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTheButcher) { }

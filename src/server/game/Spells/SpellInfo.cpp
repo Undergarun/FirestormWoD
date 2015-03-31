@@ -2112,10 +2112,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             return SPELL_FAILED_TARGET_AURASTATE;
     }
 
-    if (TargetAuraSpell && !unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(TargetAuraSpell, caster)))
+    if (TargetAuraSpell && !unitTarget->HasAura(TargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
-    if (ExcludeTargetAuraSpell && unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(ExcludeTargetAuraSpell, caster)))
+    if (ExcludeTargetAuraSpell && unitTarget->HasAura(ExcludeTargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))

@@ -135,7 +135,7 @@ class instance_highmaul : public InstanceMapScript
                         if (!m_IronBombersCount)
                             break;
 
-                        ++m_IronBombersCount;
+                        --m_IronBombersCount;
                         SendUpdateWorldState(eHighmaulWorldStates::IronBomberRemaining, m_IronBombersCount);
 
                         if (!m_IronBombersCount)

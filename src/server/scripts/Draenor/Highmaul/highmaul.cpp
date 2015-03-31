@@ -98,75 +98,6 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
         }
 };
 
-/// Area Trigger for Crowd - 79260
-class npc_highmaul_areatrigger_for_crowd : public CreatureScript
-{
-    public:
-        npc_highmaul_areatrigger_for_crowd() : CreatureScript("npc_highmaul_areatrigger_for_crowd") { }
-
-        enum eAction
-        {
-            StartIntro
-        };
-
-        enum eSpell
-        {
-            ElevatorSoundTrigger = 166694
-        };
-
-        struct npc_highmaul_areatrigger_for_crowdAI : public ScriptedAI
-        {
-            npc_highmaul_areatrigger_for_crowdAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                m_IntroStarted  = false;
-                m_Instance      = p_Creature->GetInstanceScript();
-                m_CheckTimer    = 1000;
-            }
-
-            bool m_IntroStarted;
-            InstanceScript* m_Instance;
-
-            uint32 m_CheckTimer;
-
-            void Reset() override
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!m_CheckTimer || m_IntroStarted)
-                    return;
-
-                if (m_CheckTimer <= p_Diff)
-                {
-                    if (Player* l_Player = me->FindNearestPlayer(10.0f))
-                    {
-                        m_IntroStarted = true;
-
-                        me->CastSpell(me, eSpell::ElevatorSoundTrigger, true);
-
-                        if (Creature* l_Jhorn = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::JhornTheMad)))
-                            l_Jhorn->AI()->DoAction(eAction::StartIntro);
-
-                        if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
-                            l_Thoktar->AI()->DoAction(eAction::StartIntro);
-                    }
-                    else
-                        m_CheckTimer = 1000;
-                }
-                else
-                    m_CheckTimer -= p_Diff;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const override
-        {
-            return new npc_highmaul_areatrigger_for_crowdAI(p_Creature);
-        }
-};
-
 /// Jhorn the Mad - 83377
 class npc_highmaul_jhorn_the_mad : public CreatureScript
 {
@@ -440,7 +371,6 @@ void AddSC_highmaul()
 {
     /// NPCs
     new npc_highmaul_gharg_arena_master();
-    new npc_highmaul_areatrigger_for_crowd();
     new npc_highmaul_jhorn_the_mad();
     new npc_highmaul_thoktar_ironskull();
     new npc_highmaul_imperator_margok();

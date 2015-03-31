@@ -74,7 +74,7 @@ INSERT INTO locales_gossip_menu_option (menu_id, id, option_text_loc2, option_te
     'Мы готовы, Гарг!'
 );
 
-DELETE FROM creature_text WHERE entry IN (83377, 83378, 80048, 83268, 78714);
+DELETE FROM creature_text WHERE entry IN (83377, 83378, 80048, 83268, 78714, 78926);
 INSERT INTO creature_text VALUES
 (83377, 0, 0, 'This''s gotta be a mistake! These puny squishies be the scourge of Nagrand? They look like Elekk poodoo.', 14, 0, 100, 0, 0, 43580, 'JhornIntro1'),
 (83377, 1, 0, 'Ha! Today''s games honor great sorcerer king! We gonna see his bloody victory over the orcs at the Battle of Red Spires!', 14, 0, 100, 0, 0, 43581, 'JhornIntro2'),
@@ -114,9 +114,12 @@ INSERT INTO creature_text VALUES
 (78714, 8, 0, 'You break so easily...', 14, 0, 100, 0, 0, 44523, 'KargathKill1'),
 (78714, 8, 1, 'You''ll always be remembered as a smudge on my boot.', 14, 0, 100, 0, 0, 44524, 'KargathKill2'),
 (78714, 8, 2, 'No mercy.', 14, 0, 100, 0, 0, 44525, 'KargathKill3'),
-(78714, 9, 0, 'And that''s... one hundred.', 12, 0, 100, 0, 0, 44516, 'KargathDeath');
+(78714, 9, 0, 'And that''s... one hundred.', 12, 0, 100, 0, 0, 44516, 'KargathDeath'),
 
-DELETE FROM locales_creature_text WHERE entry IN (83377, 83378, 80048, 83268, 78714);
+(78926, 0, 0, 'Time to die!', 12, 0, 100, 0, 0, 0, 'IronBomber1'),
+(78926, 0, 1, 'You''re coming with me!', 12, 0, 100, 0, 0, 0, 'IronBomber2');
+
+DELETE FROM locales_creature_text WHERE entry IN (83377, 83378, 80048, 83268, 78714, 78926);
 --                                                       French     German     Spanish    Russian
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
 (
@@ -363,6 +366,20 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Und das... sind Einhundert.',
     'Y con este... son cien.',
     'А-а-а-а-а... Теперь сто...'
+),
+(
+    78926, 0, 0,
+    'Votre heure est venue !',
+    'Zeit, zu sterben!',
+    '¡Hora de morir!',
+    'Время умирать!'
+),
+(
+    78926, 0, 1,
+    'Venez avec moi !',
+    'Ihr kommt mit mir!',
+    '¡Tú vienes conmigo!',
+    'Ты пойдешь со мной!'
 );
 
 UPDATE gameobject_template SET faction = 1735, flags = 40, ScriptName = 'go_highmaul_arena_elevator' WHERE entry = 233098;
@@ -395,7 +412,7 @@ WHERE creature.id = creature_equip_template.entry;
 
 UPDATE creature SET spawntimesecs = 7200 WHERE map = 1228;
 
-DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 159213);
+DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131);
 INSERT INTO spell_script_names VALUES
 (162271, 'spell_highmaul_earth_breaker'),
 (159113, 'spell_highmaul_impale'),
@@ -404,18 +421,21 @@ INSERT INTO spell_script_names VALUES
 (159028, 'spell_highmaul_berserker_rush'),
 (159947, 'spell_highmaul_chain_hurl'),
 (160521, 'spell_highmaul_vile_breath'),
-(159213, 'spell_highmaul_monsters_brawl');
+(160131, 'spell_highmaul_obscured');
 
-DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948);
+DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948, 160904);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
 (13, 1, 162231, 31, 0, 3, 80048),
 (13, 1, 177705, 31, 0, 3, 80048),
 (13, 1, 159712, 31, 0, 3, 78757),
 (13, 1, 160061, 31, 0, 3, 79260),
-(13, 1, 159948, 31, 0, 3, 79134);
+(13, 1, 159948, 31, 0, 3, 79134),
+(13, 1, 160904, 31, 0, 3, 0);
 
 DELETE FROM areatrigger_template WHERE spell_id IN (161634, 159202, 159412);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUE
 (161634, 1, 6867, 4, 4, 16384, 'areatrigger_highmaul_molten_bomb'),
 (159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
+
+UPDATE creature SET spawntimesecs = 45 WHERE id IN (84946, 79068, 84958, 84948);
