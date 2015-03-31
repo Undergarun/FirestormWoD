@@ -351,6 +351,31 @@ namespace MS { namespace Skill { namespace Archaeology
         PropagateResearchSites();
     }
 
+    /// Generate research site list in a continent
+    /// @p_MapID     : Continent ID
+    /// @p_SiteCount : Desired site count
+    void Manager::GenerateResearchSitesForContinent(uint32 p_MapId, uint32 p_SitesCount)
+    {
+        if (sResearchSiteSet.empty())
+            return;
+
+        m_ResearchSites[p_MapId].clear();
+
+        for (std::set<ResearchSiteEntry const*>::const_iterator l_Iterator = sResearchSiteSet.begin(); l_Iterator != sResearchSiteSet.end(); ++l_Iterator)
+        {
+            if ((*l_Iterator)->mapId != p_MapId)
+                continue;
+
+            if (CanResearchWithLevel((*l_Iterator)->ID))
+                m_ResearchSites[p_MapId].insert((*l_Iterator)->ID);
+        }
+
+        JadeCore::Containers::RandomResizeSet(m_ResearchSites[p_MapId], p_SitesCount);
+
+        _archaeologyChanged = true;
+        PropagateResearchSites();
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -521,8 +546,8 @@ namespace MS { namespace Skill { namespace Archaeology
 
         if (l_DigSite.SiteLootCount < l_DigSite.SiteMaxLootCount)
         {
-            l_DigSite.SiteLootCount++;
             SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            l_DigSite.SiteLootCount++;
 
             if (!GenerateDigitLoot(l_ResearchSiteID, l_DigSite))
                 return 0;
@@ -795,13 +820,13 @@ namespace MS { namespace Skill { namespace Archaeology
 
         for (std::map<uint32, ResearchZoneEntry>::const_iterator l_It = l_ZoneMap.begin(); l_It != l_ZoneMap.end(); ++l_It)
         {
-            if ((*l_It).first == siteId)
+            if ((*l_It).first == p_SiteID)
             {
                 uint32 l_ContinentID = (*l_It).second.map;
                 uint32 l_ZoneID      = (*l_It).second.zone;
 
                 /// Search zone specific conditions
-                std::vector<ResearchConditions>::iterator l_ResearchConditionsIt = std::find(l_Conditions.begin(), l_Conditions.end(), [l_ContinentID, l_ZoneID](ResearchConditions const& p_Elem) -> bool
+                std::vector<ResearchConditions>::iterator l_ResearchConditionsIt = std::find_if(l_Conditions.begin(), l_Conditions.end(), [l_ContinentID, l_ZoneID](ResearchConditions & p_Elem) -> bool
                 {
                     if (p_Elem.ContinentID == l_ContinentID && p_Elem.ZoneID == l_ZoneID)
                         return true;
@@ -812,7 +837,7 @@ namespace MS { namespace Skill { namespace Archaeology
                 /// Search continent conditions
                 if (l_ResearchConditionsIt == l_Conditions.end())
                 {
-                    l_ResearchConditionsIt = std::find(l_Conditions.begin(), l_Conditions.end(), [l_ContinentID](ResearchConditions const& p_Elem) -> bool
+                    l_ResearchConditionsIt = std::find_if(l_Conditions.begin(), l_Conditions.end(), [l_ContinentID](ResearchConditions & p_Elem) -> bool
                     {
                         if (p_Elem.ContinentID == l_ContinentID && p_Elem.ZoneID == 0)
                             return true;

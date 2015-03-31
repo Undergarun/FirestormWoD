@@ -136,20 +136,20 @@ void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
 {
     WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY);
 
-    CompletedProjectMap& l_Projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
+    MS::Skill::Archaeology::CompletedProjectMap& l_Projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
     uint32 l_Count = l_Projects.size();
 
     l_Data << uint32(l_Count);
 
     if (l_Count > 0)
     {
-        for (CompletedProjectMap::iterator l_Iter = l_Projects.begin(); l_Iter != l_Projects.end(); ++l_Iter)
+        for (MS::Skill::Archaeology::CompletedProjectMap::iterator l_Iter = l_Projects.begin(); l_Iter != l_Projects.end(); ++l_Iter)
         {
             if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first))
             {
                 l_Data << uint32((*l_Iter).first);
-                l_Data << uint32((*l_Iter).second.first_date);
-                l_Data << uint32((*l_Iter).second.count);
+                l_Data << uint32((*l_Iter).second.FirstCompletedDate);
+                l_Data << uint32((*l_Iter).second.CompletionCount);
             }
             else
                 l_Data << uint32(0) << uint32(0) << uint32(0);

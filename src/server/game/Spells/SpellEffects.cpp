@@ -66,7 +66,7 @@
 #include "InstanceScript.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "ArchaeologyMgr.h"
+#include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
@@ -7553,7 +7553,7 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
 
     std::random_shuffle(l_Maps.begin(), l_Maps.end());
 
-    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInMap(l_Maps[0]);
+    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInContinent(l_Maps[0]);
     ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
     if (l_Loot.empty())
         return;
@@ -7596,7 +7596,7 @@ void Spell::EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex)
     uint32 l_MapId = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_SiteCount = m_spellInfo->Effects[p_EffIndex].BasePoints;
 
-    l_Target->GetArchaeologyMgr().GenerateResearchSitesForMap(l_MapId, l_SiteCount);
+    l_Target->GetArchaeologyMgr().GenerateResearchSitesForContinent(l_MapId, l_SiteCount);
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)

@@ -145,7 +145,7 @@ namespace MS { namespace Skill { namespace Archaeology
         uint32 RequiredSkill;       ///< Required skill value
     };
 
-    ResearchConditions gResearchConditions[] =
+    static ResearchConditions gResearchConditions[] =
     {
         /// ContinentIDOrZoneID        ZoneID               RequiredLevel LevelAdditional RequiredSkill
         { Continents::EasternKingdoms, 0,                         0,          29,               0 },
@@ -183,6 +183,10 @@ namespace MS { namespace Skill { namespace Archaeology
             /// Generate a research site in a continent
             /// @p_MapID : Continent ID
             void GenerateResearchSiteInContinent(uint32 p_MapID);
+            /// Generate research site list in a continent
+            /// @p_MapID     : Continent ID
+            /// @p_SiteCount : Desired site count
+            void GenerateResearchSitesForContinent(uint32 p_MapId, uint32 p_SitesCount);
 
             /// Propagate research projects into the player dynamic update fields
             void PropagateResearchProjects();
