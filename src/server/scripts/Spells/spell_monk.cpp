@@ -3972,6 +3972,11 @@ class spell_monk_detox: public SpellScriptLoader
         }
 };
 
+enum RisingSunKickSpells
+{
+    PoolOfMists = 173841
+};
+
 /// Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
@@ -3987,6 +3992,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (!GetCaster())
                     return;
 
+                int32 l_PctModifier = 0;
                 float l_Low = 0;
                 float l_High = 0;
 
@@ -4003,7 +4009,14 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
                     l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
 
-                SetHitDamage(int32(frand(8.0f * l_Low, 8.0f * l_High)));
+                if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
+                    l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
+
+                int32 l_Bp = int32(frand(8.0f * l_Low, 8.0f * l_High));
+
+                l_Bp += CalculatePct(l_Bp, l_PctModifier);
+
+                SetHitDamage(l_Bp);
             }
 
             void Register()
