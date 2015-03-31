@@ -118,7 +118,7 @@ const struct RewriteItem Win32Patchs[] =
     //{ 0x0021ECDD, sizeof(jam_guild_check_data_win32),            jam_guild_check_data_win32             },        ///< bypass jam guild dispatch socket check
 };
 
-const uint8_t client_packets_check_data_mac64[] = { 0xB9, 0x00 };   ///< jmp to bypass socket check
+const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00 };   ///< jmp to bypass socket check
 const uint8_t jam_dispatch_check_data_mac64[]   = { 0xEB, 0x19 };   ///< jmp to bypass socket check
 const uint8_t jam_quest_check_data_mac64[]      = { 0xEB, 0x53 };   ///< jmp to bypass socket check
 const uint8_t jam_spell_check_data_mac64[]      = { 0xEB, 0x19 };   ///< jmp to bypass socket check
@@ -126,20 +126,20 @@ const uint8_t jam_guild_check_data_mac64[]      = { 0xEB, 0x58 };   ///< jmp to 
 
 const struct RewriteItem Mac64Patchs[] =
 {
-    { 0x013761DA, sizeof(config_data),                           config_data                       },             ///< Change default configuration file
-    { 0x0133D195, sizeof(build_date_data),                       build_date_data                   },             ///< Change build date
-    { 0x013616B6, sizeof(bnet_portal_data),                      bnet_portal_data                  },             ///< Change bnet portal
-    { 0x0136090C, sizeof(bnet_agent_data),                       bnet_agent_data                   },             ///< Change bnet agent
-    { 0x014927D0, sizeof(bnet_logon_data),                       bnet_logon_data                   },             ///< Change bnet logon
-    { 0x01374AD1, sizeof(bnet_versions_data),                    bnet_versions_data                },             ///< Change bnet versions data
-    { 0x01374AFD, sizeof(bnet_cdns_data),                        bnet_cdns_data                    },             ///< Change bnet cdns data
-    { 0x00FEEEFD, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket check
-    { 0x01042437, sizeof(jam_quest_check_data_mac64),            jam_quest_check_data_mac64        },             ///< Bypass jam quest socket check
-    { 0x0104D156, sizeof(jam_spell_check_data_mac64),            jam_spell_check_data_mac64        },             ///< Bypass jam spell socket check
-    { 0x01028017, sizeof(jam_guild_check_data_mac64),            jam_guild_check_data_mac64        },             ///< Bypass jam guild socket check
-    { 0x005F8277, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
-    { 0x005F8471, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
-    { 0x005F8492, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
+    { 0x014AA0E0, sizeof(config_data),                           config_data                       },             ///< Change default configuration file
+    { 0x01469FE1, sizeof(build_date_data),                       build_date_data                   },             ///< Change build date
+    { 0x01494509, sizeof(bnet_portal_data),                      bnet_portal_data                  },             ///< Change bnet portal
+    { 0x0149374F, sizeof(bnet_agent_data),                       bnet_agent_data                   },             ///< Change bnet agent
+    { 0x015E0DA0, sizeof(bnet_logon_data),                       bnet_logon_data                   },             ///< Change bnet logon
+    { 0x014A89EA, sizeof(bnet_versions_data),                    bnet_versions_data                },             ///< Change bnet versions data
+    { 0x014A8A16, sizeof(bnet_cdns_data),                        bnet_cdns_data                    },             ///< Change bnet cdns data
+    { 0x00108C3D6, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket check
+    //{ 0x01042437, sizeof(jam_quest_check_data_mac64),            jam_quest_check_data_mac64        },             ///< Bypass jam quest socket check
+    //{ 0x0104D156, sizeof(jam_spell_check_data_mac64),            jam_spell_check_data_mac64        },             ///< Bypass jam spell socket check
+    //{ 0x01028017, sizeof(jam_guild_check_data_mac64),            jam_guild_check_data_mac64        },             ///< Bypass jam guild socket check
+    { 0x0064896C, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
+    { 0x006489BE, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
+    { 0x006489D7, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
 };
 #endif
 
