@@ -30,8 +30,9 @@ enum ResearchWithLevelResult
 
 struct DigitSite
 {
-    uint8 count;
     uint16 site_id;
+    uint8 SiteLootCount;
+    uint8 SiteMaxLootCount;
     uint32 loot_id;
     float loot_x;
     float loot_y;
@@ -41,10 +42,10 @@ struct DigitSite
     {
         site_id = loot_id = 0;
         loot_x = loot_y = loot_z = 0.0f;
-        count = 0;
+        SiteLootCount = 0;
+        SiteMaxLootCount = 0;
     }
 
-    bool empty() { return site_id == 0; }
 };
 
 struct ProjectCost
@@ -114,7 +115,7 @@ class ArchaeologyMgr
 
         uint16 GetRandomActiveSiteInMap(uint32 mapId);
 
-        void SendSearchComplete(bool finished, uint8 count, uint16 siteId);
+        void SendArchaeologySurveryCast(bool finished, uint8 count, uint8 p_MaxCount, uint16 siteId);
         void SendSearchSiteComplete(uint16 siteId);
 
     private:

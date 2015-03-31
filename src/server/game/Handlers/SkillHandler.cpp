@@ -148,8 +148,8 @@ void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
             if (ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry((*l_Iter).first))
             {
                 l_Data << uint32((*l_Iter).first);
-                l_Data << uint32((*l_Iter).second.count);
                 l_Data << uint32((*l_Iter).second.first_date);
+                l_Data << uint32((*l_Iter).second.count);
             }
             else
                 l_Data << uint32(0) << uint32(0) << uint32(0);

@@ -157,7 +157,8 @@ enum Opcodes
         SMSG_RESPOND_INSPECT_ACHIEVEMENTS           = 0x1BA2,   ///< 6.0.3 19116
         SMSG_RESET_FAILED_NOTIFY                    = 0x1B01,   ///< 6.0.3 19116
         SMSG_SETUP_RESEARCH_HISTORY                 = 0x0A25,   ///< 6.0.3 19116
-        SMSG_ARCHAEOLOGY_SURVERY_CAST               = 0x0B3A,   ///< 6.0.3 19116
+        SMSG_RESEARCH_COMPLETE                      = 0x0B3A,   ///< 6.0.3 19116
+        SMSG_ARCHAEOLOGY_SURVERY_CAST               = 0x0008,   ///< 6.0.3 19116
         SMSG_REQUEST_CEMETERY_LIST_RESPONSE         = 0x059E,   ///< 6.0.3 19116
         SMSG_PLAYED_TIME                            = 0x038B,   ///< 6.0.3 19116
         SMSG_BREAK_TARGET                           = 0x11A2,   ///< 6.0.3 19116

@@ -124,6 +124,7 @@ bool ArchaeologyMgr::GenerateDigitLoot(uint16 zoneid, DigitSite &site)
     site.loot_x = entry->x;
     site.loot_y = entry->y;
     site.loot_z = entry->z;
+    site.SiteMaxLootCount = lootList.size();
 
     return true;
 }
@@ -184,17 +185,17 @@ uint32 ArchaeologyMgr::GetSurveyBotEntry(float &orientation)
 
     if (dist_now >= ARCHAEOLOGY_DIG_SITE_FAR_DIST)
     {
-        SendSearchComplete(false, site.count, site.site_id);
+        SendArchaeologySurveryCast(false, site.SiteLootCount, site.SiteMaxLootCount, site.site_id);
         return ARCHAEOLOGY_DIG_SITE_FAR_SURVEYBOT;
     }
     if (dist_now >= ARCHAEOLOGY_DIG_SITE_MED_DIST)
     {
-        SendSearchComplete(false, site.count, site.site_id);
+        SendArchaeologySurveryCast(false, site.SiteLootCount, site.SiteMaxLootCount, site.site_id);
         return ARCHAEOLOGY_DIG_SITE_MEDIUM_SURVEYBOT;
     }
     if (dist_now >= ARCHAEOLOGY_DIG_SITE_CLOSE_DIST)
     {
-        SendSearchComplete(false, site.count, site.site_id);
+        SendArchaeologySurveryCast(false, site.SiteLootCount, site.SiteMaxLootCount, site.site_id);
         return ARCHAEOLOGY_DIG_SITE_CLOSE_SURVEYBOT;
     }
 
@@ -203,18 +204,19 @@ uint32 ArchaeologyMgr::GetSurveyBotEntry(float &orientation)
 
     _player->SummonGameObject(site.loot_id, site.loot_x, site.loot_y, site.loot_z, 0, 0, 0, 0, 0, 30000);
 
-    if (site.count < 5)
+    if (site.SiteLootCount < site.SiteMaxLootCount)
     {
-        site.count++;
+        site.SiteLootCount++;
+        SendArchaeologySurveryCast(true, site.SiteLootCount, site.SiteMaxLootCount, site.site_id);
+
         if (!GenerateDigitLoot(zoneid, site))
             return 0;
 
-        SendSearchComplete(true, site.count, site.site_id);
         ShowResearchSites();
     }
     else
     {
-        SendSearchComplete(true, (site.count + 1), site.site_id);
+        SendArchaeologySurveryCast(true, (site.SiteLootCount + 1), site.SiteMaxLootCount, site.site_id);
         site.clear();
         UseResearchSite(zoneid);
     }
@@ -275,7 +277,7 @@ void ArchaeologyMgr::ShowResearchSites()
         {
             if (_digSites[i].site_id == id)
             {
-                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, _digSites[i].count);
+                _player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_RESEARCH_SITE + 1, count, _digSites[i].SiteLootCount);
                 break;
             }
             else
@@ -477,7 +479,7 @@ void ArchaeologyMgr::GenerateResearchProjects()
         if (tempProjects.find(l_Entry->ID) == tempProjects.end())
             continue;
 
-        if (!_player->HasCurrency(l_Entry->CurrencyID))
+        if (!_player->GetCurrency(l_Entry->CurrencyID, sCurrencyTypesStore.LookupEntry(l_Entry->CurrencyID)->HasPrecision()))
             continue;
 
         ProjectSet& proj = tempProjects[l_Entry->ID];
@@ -541,9 +543,17 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS, projectId, 1);
 
+    uint32 l_FirstCompleted  = 0;
+    uint32 l_CompletionCount = 0;
+
      // Already Completed
     if (_completedProjects.find(projectId) != _completedProjects.end())
+    {
         ++_completedProjects[projectId].count;
+
+        l_FirstCompleted  = _completedProjects[projectId].first_date;
+        l_CompletionCount = _completedProjects[projectId].count;
+    }
     else
     {
         CompletedProject project;
@@ -551,7 +561,17 @@ bool ArchaeologyMgr::SolveResearchProject(uint32 projectId)
         project.first_date = time(NULL);
 
         _completedProjects.insert(std::make_pair(projectId, project));
+
+        l_FirstCompleted  = project.first_date;
+        l_CompletionCount = project.count;
     }
+
+    WorldPacket l_Packet(SMSG_RESEARCH_COMPLETE, 12);
+    l_Packet << uint32(projectId);
+    l_Packet << uint32(l_FirstCompleted);
+    l_Packet << uint32(l_CompletionCount);
+
+    _player->SendDirectMessage(&l_Packet);
 
     // Add new project
     ProjectSet tempProjects;
@@ -594,7 +614,7 @@ void ArchaeologyMgr::SaveArchaeology(SQLTransaction& p_Transaction)
     l_Statement->setUInt32(0, _player->GetGUIDLow());
 
     for (uint8 j = 0; j < MAX_RESEARCH_SITES; ++j)
-        l_StringStream << uint32(_digSites[j].count) << " ";
+        l_StringStream << uint32(_digSites[j].SiteLootCount) << " ";
 
     l_Statement->setString(1, l_StringStream.str().c_str());
     l_StringStream.str("");
@@ -691,7 +711,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
         if (tokens.size() == MAX_RESEARCH_SITES)
         {
             for (uint8 i = 0; i < MAX_RESEARCH_SITES; ++i)
-                _digSites[i].count = uint32(atoi(tokens[i]));
+                _digSites[i].SiteLootCount = uint32(atoi(tokens[i]));
         }
     }
 
@@ -701,7 +721,7 @@ void ArchaeologyMgr::LoadArchaeology(PreparedQueryResult p_Result, PreparedQuery
     _researchProjects.clear();
     if (l_Fields[1].GetCString())
     {
-        Tokenizer tokens(l_Fields[0].GetCString(), ' ', sResearchBranchStore.GetNumRows());
+        Tokenizer tokens(l_Fields[1].GetCString(), ' ', sResearchBranchStore.GetNumRows());
 
         if (tokens.size() == sResearchBranchStore.GetNumRows())
         {
@@ -813,9 +833,13 @@ uint16 ArchaeologyMgr::GetRandomActiveSiteInMap(uint32 mapId)
     return sitesId.front();
 }
 
-void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p_SiteID)
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void ArchaeologyMgr::SendArchaeologySurveryCast(bool p_Finished, uint8 p_Count, uint8 p_MaxCount, uint16 p_SiteID)
 {
     uint32 l_ResearchBranchID = 0;
+
     ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
     if (!l_Loot.empty())
     {
@@ -832,8 +856,10 @@ void ArchaeologyMgr::SendSearchComplete(bool p_Finished, uint8 p_Count, uint16 p
 
     WorldPacket l_Data(SMSG_ARCHAEOLOGY_SURVERY_CAST, 13);
     l_Data << uint32(p_Count);
-    l_Data << uint32(6);
+    l_Data << uint32(p_MaxCount);
     l_Data << uint32(l_ResearchBranchID);
+    l_Data.WriteBit(p_Finished);
+    l_Data.FlushBits();
 
     _player->GetSession()->SendPacket(&l_Data);
 }
