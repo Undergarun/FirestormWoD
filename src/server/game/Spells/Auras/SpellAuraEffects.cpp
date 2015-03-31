@@ -535,6 +535,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
+    &AuraEffect::HandleNULL,                                      //479 SPELL_AURA_479
+    &AuraEffect::HandleNULL,                                      //480 SPELL_AURA_480
+    &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
+    &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
+    &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
