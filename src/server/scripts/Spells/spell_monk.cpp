@@ -3972,7 +3972,7 @@ class spell_monk_detox: public SpellScriptLoader
         }
 };
 
-// /Rising Sun Kick - 107428
+/// Rising Sun Kick - 107428
 class spell_monk_rising_sun_kick: public SpellScriptLoader
 {
     public:

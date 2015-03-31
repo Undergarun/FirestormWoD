@@ -781,52 +781,54 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
     }
-    // Stance of the Wise Serpent - 115070
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(115070) && spellProto
+    // Stance of the Spirited Crane - 154436
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436) && spellProto
         && spellProto->Id != 124098 && spellProto->Id != 107270 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993) // Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
+        && spellProto->Id != 130651 && spellProto->Id != 117993) ///< Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
     {
-        int32 bp = damage / 2;
-        std::list<Unit*> targetList;
-        std::list<Creature*> tempList;
-        std::list<Creature*> statueList;
-        Creature* statue = nullptr;
+        int32 l_Bp = damage / 2;
+        std::list<Unit*> l_TargetList;
+        std::list<Creature*> l_TempList;
+        std::list<Creature*> l_StatueList;
+        Creature* l_Statue = nullptr;
 
-        ToPlayer()->GetRaidMembers(targetList);
+        ToPlayer()->GetRaidMembers(l_TargetList);
 
-        if (targetList.size() > 1)
+        if (l_TargetList.size() > 1)
         {
-            targetList.remove(this); // Remove Player
-            targetList.sort(JadeCore::HealthPctOrderPred());
-            targetList.resize(1);
+            l_TargetList.remove(this); ///< Remove Player
+            l_TargetList.sort(JadeCore::HealthPctOrderPred());
+            l_TargetList.resize(1);
         }
 
-        ToPlayer()->GetCreatureListWithEntryInGrid(tempList, 60849, 100.0f);
-        ToPlayer()->GetCreatureListWithEntryInGrid(statueList, 60849, 100.0f);
+        ToPlayer()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
+        ToPlayer()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
 
-        // Remove other players jade statue
-        for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
+        /// Remove other players jade statue
+        for (std::list<Creature*>::iterator i = l_TempList.begin(); i != l_TempList.end(); ++i)
         {
-            Unit* owner = (*i)->GetOwner();
-            if (owner && owner == ToPlayer() && (*i)->isSummon())
+            Unit* l_Owner = (*i)->GetOwner();
+            if (l_Owner && l_Owner == ToPlayer() && (*i)->isSummon())
                 continue;
 
-            statueList.remove((*i));
+            l_StatueList.remove((*i));
         }
 
-        // In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
-        for (auto itr : targetList)
+        /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
+        for (auto itr : l_TargetList)
         {
-            CastCustomSpell(itr, 117895, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence - statue
+            CastCustomSpell(itr, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
 
-            if (statueList.size() == 1)
+            if (l_StatueList.size() == 1)
             {
-                for (auto itrBis : statueList)
-                    statue = itrBis;
+                for (auto itrBis : l_StatueList)
+                    l_Statue = itrBis;
 
-                if (statue && (statue->isPet() || statue->isGuardian()))
-                    if (statue->GetOwner() && statue->GetOwner()->GetGUID() == GetGUID())
-                        statue->CastCustomSpell(itr, 117895, &bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); // Eminence - statue
+                if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
+                {
+                    if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == GetGUID())
+                        l_Statue->CastCustomSpell(itr, 117895, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence - statue
+                }
             }
         }
     }
