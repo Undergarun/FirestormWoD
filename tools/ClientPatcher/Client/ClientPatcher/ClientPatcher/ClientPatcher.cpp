@@ -118,11 +118,12 @@ const struct RewriteItem Win32Patchs[] =
     //{ 0x0021ECDD, sizeof(jam_guild_check_data_win32),            jam_guild_check_data_win32             },        ///< bypass jam guild dispatch socket check
 };
 
-const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00 };   ///< jmp to bypass socket check
-const uint8_t jam_dispatch_check_data_mac64[]   = { 0xEB, 0x19 };   ///< jmp to bypass socket check
-const uint8_t jam_quest_check_data_mac64[]      = { 0xEB, 0x53 };   ///< jmp to bypass socket check
-const uint8_t jam_spell_check_data_mac64[]      = { 0xEB, 0x19 };   ///< jmp to bypass socket check
-const uint8_t jam_guild_check_data_mac64[]      = { 0xEB, 0x58 };   ///< jmp to bypass socket check
+const uint8_t client_packets_check_data_mac64[]     = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
+const uint8_t client_packets_check2_data_mac64[]    = { 0xE9 };                                                         ///< jmp to bypass socket check
+const uint8_t jam_dispatch_check_data_mac64[]       = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
+const uint8_t jam_quest_check_data_mac64[]          = { 0xEB, 0x53 };                                                   ///< jmp to bypass socket check
+const uint8_t jam_spell_check_data_mac64[]          = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
+const uint8_t jam_guild_check_data_mac64[]          = { 0xEB, 0x58 };                                                   ///< jmp to bypass socket check
 
 const struct RewriteItem Mac64Patchs[] =
 {
@@ -138,8 +139,6 @@ const struct RewriteItem Mac64Patchs[] =
     //{ 0x0104D156, sizeof(jam_spell_check_data_mac64),            jam_spell_check_data_mac64        },             ///< Bypass jam spell socket check
     //{ 0x01028017, sizeof(jam_guild_check_data_mac64),            jam_guild_check_data_mac64        },             ///< Bypass jam guild socket check
     { 0x0064896C, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
-    { 0x006489BE, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
-    { 0x006489D7, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
 };
 #endif
 
