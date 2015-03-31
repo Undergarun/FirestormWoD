@@ -631,7 +631,8 @@ enum EGameObjectFields
 
 enum GameObjectDynamicFields
 {
-    GAMEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x000,
+    GAMEOBJECT_DYNAMIC_UNK = OBJECT_DYNAMIC_END + 0x000,
+    GAMEOBJECT_DYNAMIC_END = OBJECT_DYNAMIC_END + 0x001,
 };
 
 // > Object > DynamicObject

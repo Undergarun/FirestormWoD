@@ -146,37 +146,39 @@ enum SpellEffectImplicitTargetTypes
 // Spell clasification
 enum SpellSpecificType
 {
-    SPELL_SPECIFIC_NORMAL                   = 0,
-    SPELL_SPECIFIC_SEAL                     = 1,
-    SPELL_SPECIFIC_BLESSING                 = 2,
-    SPELL_SPECIFIC_AURA                     = 3,
-    SPELL_SPECIFIC_STING                    = 4,
-    SPELL_SPECIFIC_CURSE                    = 5,
-    SPELL_SPECIFIC_ASPECT                   = 6,
-    SPELL_SPECIFIC_TRACKER                  = 7,
-    SPELL_SPECIFIC_WARLOCK_ARMOR            = 8,
-    SPELL_SPECIFIC_MAGE_ARMOR               = 9,
-    SPELL_SPECIFIC_ELEMENTAL_SHIELD         = 10,
-    SPELL_SPECIFIC_MAGE_POLYMORPH           = 11,
-    SPELL_SPECIFIC_JUDGEMENT                = 13,
-    SPELL_SPECIFIC_PRIEST_SANCTUM           = 14,
-    SPELL_SPECIFIC_WARLOCK_CORRUPTION       = 17,
-    SPELL_SPECIFIC_WELL_FED                 = 18,
-    SPELL_SPECIFIC_FOOD                     = 19,
-    SPELL_SPECIFIC_DRINK                    = 20,
-    SPELL_SPECIFIC_FOOD_AND_DRINK           = 21,
-    SPELL_SPECIFIC_PRESENCE                 = 22,
-    SPELL_SPECIFIC_CHARM                    = 23,
-    SPELL_SPECIFIC_SCROLL                   = 24,
-    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE    = 25,
-    SPELL_SPECIFIC_WARRIOR_ENRAGE           = 26,
-    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT     = 27,
-    SPELL_SPECIFIC_HAND                     = 28,
-    SPELL_SPECIFIC_PHASE                    = 29,
-    SPELL_SPECIFIC_BANE                     = 30,
-    SPELL_SPECIFIC_CHAKRA                   = 31,
-    SPELL_SPECIFIC_EXOTIC_MUNITION          = 32,
-    SPELL_SPECIFIC_LONE_WOLF_BUFF           = 33
+    SPELL_SPECIFIC_NORMAL,
+    SPELL_SPECIFIC_SEAL,
+    SPELL_SPECIFIC_BLESSING,
+    SPELL_SPECIFIC_AURA,
+    SPELL_SPECIFIC_STING,
+    SPELL_SPECIFIC_CURSE,
+    SPELL_SPECIFIC_ASPECT,
+    SPELL_SPECIFIC_TRACKER,
+    SPELL_SPECIFIC_WARLOCK_ARMOR,
+    SPELL_SPECIFIC_MAGE_ARMOR,
+    SPELL_SPECIFIC_ELEMENTAL_SHIELD,
+    SPELL_SPECIFIC_MAGE_POLYMORPH,
+    SPELL_SPECIFIC_JUDGEMENT,
+    SPELL_SPECIFIC_PRIEST_SANCTUM,
+    SPELL_SPECIFIC_WARLOCK_CORRUPTION,
+    SPELL_SPECIFIC_WELL_FED,
+    SPELL_SPECIFIC_FOOD,
+    SPELL_SPECIFIC_DRINK,
+    SPELL_SPECIFIC_FOOD_AND_DRINK,
+    SPELL_SPECIFIC_PRESENCE,
+    SPELL_SPECIFIC_CHARM,
+    SPELL_SPECIFIC_SCROLL,
+    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE,
+    SPELL_SPECIFIC_WARRIOR_ENRAGE,
+    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT,
+    SPELL_SPECIFIC_HAND,
+    SPELL_SPECIFIC_PHASE,
+    SPELL_SPECIFIC_BANE,
+    SPELL_SPECIFIC_CHAKRA,
+    SPELL_SPECIFIC_EXOTIC_MUNITION,
+    SPELL_SPECIFIC_LONE_WOLF_BUFF,
+    SPELL_SPECIFIC_LETHAL_POISON,
+    SPELL_SPECIFIC_NON_LETHAL_POISON
 };
 
 enum SpellCustomAttributes
@@ -489,6 +491,7 @@ public:
     bool IsAllowingDeadTarget() const;
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
+    bool IsHealingSpell() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;

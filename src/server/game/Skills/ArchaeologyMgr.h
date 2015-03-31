@@ -12,9 +12,8 @@
 
 class Player;
 
-#define MAX_RESEARCH_SITES                      20
 #define RESEARCH_SITES_PER_MAP                  4
-#define MAX_RESEARCH_PROJECTS                   12
+#define MAX_RESEARCH_SITES                      (RESEARCH_SITES_PER_MAP * 6) // Kalimdor, EasternKingdoms, Outland, Northrend, Pandaria, Draenor
 #define ARCHAEOLOGY_DIG_SITE_FAR_DIST           40
 #define ARCHAEOLOGY_DIG_SITE_MED_DIST           20
 #define ARCHAEOLOGY_DIG_SITE_CLOSE_DIST         8
@@ -31,8 +30,9 @@ enum ResearchWithLevelResult
 
 struct DigitSite
 {
-    uint8 count;
     uint16 site_id;
+    uint8 SiteLootCount;
+    uint8 SiteMaxLootCount;
     uint32 loot_id;
     float loot_x;
     float loot_y;
@@ -42,10 +42,10 @@ struct DigitSite
     {
         site_id = loot_id = 0;
         loot_x = loot_y = loot_z = 0.0f;
-        count = 0;
+        SiteLootCount = 0;
+        SiteMaxLootCount = 0;
     }
 
-    bool empty() { return site_id == 0; }
 };
 
 struct ProjectCost
@@ -115,13 +115,13 @@ class ArchaeologyMgr
 
         uint16 GetRandomActiveSiteInMap(uint32 mapId);
 
-        void SendSearchComplete(bool finished, uint8 count, uint16 siteId);
+        void SendArchaeologySurveryCast(bool finished, uint8 count, uint8 p_MaxCount, uint16 siteId);
         void SendSearchSiteComplete(uint16 siteId);
 
     private:
         Player* _player;
         std::vector<ProjectCost> costData;
-        DigitSite _digSites[20];
+        DigitSite _digSites[MAX_RESEARCH_SITES];
         ResearchSitesMap _researchSites;
         ResearchProjectSet _researchProjects;
         CompletedProjectMap _completedProjects;

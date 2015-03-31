@@ -1,0 +1,2 @@
+DELETE FROM trinity_string WHERE entry = 14088;
+INSERT INTO trinity_string  (entry, content_default, content_loc2) VALUES (14088, "Your client isn't update to the last build. Please download our last launcher on the website.", "Votre jeu n'est pas à jour. Merci de télécharger la dernière version du launcher sur notre site internet.");

@@ -287,13 +287,6 @@ inline uint8 GetClassBySpec(uint32 spec)
     (1<<(CLASS_MAGE-1))    |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)) |(1<<(CLASS_MONK-1)))
 
-enum eclipseState
-{
-    ECLIPSE_NONE,
-    ECLIPSE_LUNAR,
-    ECLIPSE_SOLAR,
-};
-
 // valid classes for creature_template.unit_class
 enum UnitClass
 {
@@ -616,7 +609,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK4                             = 0x00000010, //  4 This will no longer cause guards to attack on use??
     SPELL_ATTR4_UNK5                             = 0x00000020, //  5
     SPELL_ATTR4_NOT_STEALABLE                    = 0x00000040, //  6 although such auras might be dispellable, they cannot be stolen
-    SPELL_ATTR4_TRIGGERED                        = 0x00000080, //  7 spells forced to be triggered
+    SPELL_ATTR4_CAN_CAST_WHILE_CASTING           = 0x00000080, //  7 spells forced to be triggered
     SPELL_ATTR4_FIXED_DAMAGE                     = 0x00000100, //  8 ignores taken percent damage mods? MaNGOS3 name
     SPELL_ATTR4_TRIGGER_ACTIVATE                 = 0x00000200, //  9 initially disabled / trigger activate from event (Execute, Riposte, Deep Freeze end other)
     SPELL_ATTR4_SPELL_VS_EXTEND_COST             = 0x00000400, // 10 Rogue Shiv have this flag
@@ -706,7 +699,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22 only 72054
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
     SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
-    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light
+    SPELL_ATTR6_UNK25                            = 0x02000000, // 25 Exorcism, Flash of Light, Healing Touch
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26 related to player castable positive buff
     SPELL_ATTR6_UNK27                            = 0x08000000, // 27
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
@@ -825,7 +818,7 @@ enum SpellAttr9
 
 enum SpellAttr10
 {
-    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Brittle Bones, Asira Dismount
+    SPELL_ATTR10_UNK0                             = 0x00000001, // 0 Deep Wounds, Ignite, Blood Plague, Frost Fever, Ebon Plague, Scarlet Fever, Asira Dismount
     SPELL_ATTR10_UNK1                             = 0x00000002, // 1 Combustion, Hemorrhage
     SPELL_ATTR10_UNK2                             = 0x00000004, // 2 Throw Spear, Unholy Shot, Crack Shot!, Throw Knife, Ice Arrow
     SPELL_ATTR10_UNK3                             = 0x00000008, // 3 Spirit Bond, Fel Armor
@@ -1292,7 +1285,7 @@ enum SpellEffects
     SPELL_EFFECT_DEATH_GRIP                         = 213,
     SPELL_EFFECT_214                                = 214,
     SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY            = 215,
-    SPELL_EFFECT_216                                = 216,
+    SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_219                                = 219,
@@ -2108,6 +2101,7 @@ enum SpellPreventionType
     SPELL_PREVENTION_TYPE_PACIFY    = 2,
     SPELL_PREVENTION_TYPE_UNK1      = 3, // Only a few spells have this, but most of the should be interruptable.
     SPELL_PREVENTION_TYPE_UNK2      = 4,
+    SPELL_PREVENTION_TYPE_UNK3      = 5
 };
 
 enum GameobjectTypes
@@ -2173,6 +2167,7 @@ enum GameObjectFlags
     GO_FLAG_NOT_SELECTABLE  = 0x00000010,                   // not selectable even in GM mode
     GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
     GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_ACTIVATED       = 0x00000100,                   ///< Used in garrison for work order recipes
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400
 };
@@ -4399,7 +4394,7 @@ enum AiReaction
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
-    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have limited it's duration to 10s
+    DRTYPE_NONE         = 0,                                // this spell is not diminished, but may have its duration limited
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
@@ -4407,33 +4402,15 @@ enum DiminishingReturnsType
 // Diminishing Return Groups
 enum DiminishingGroup
 {
-    DIMINISHING_NONE                = 0,
-    DIMINISHING_BANISH              = 1,
-    DIMINISHING_CHARGE              = 2,
-    DIMINISHING_OPENING_STUN        = 3,                    // Cheap Shot and Pounce
-    DIMINISHING_CONTROLLED_STUN     = 4,
-    DIMINISHING_CONTROLLED_ROOT     = 5,
-    DIMINISHING_CYCLONE             = 6,
-    DIMINISHING_DISARM              = 7,
-    DIMINISHING_DISORIENT           = 8,                    // Several spells where name cant be generalized.
-    DIMINISHING_ENTRAPMENT          = 9,
-    DIMINISHING_FEAR                = 10,
-    DIMINISHING_HORROR              = 11,
-    DIMINISHING_MIND_CONTROL        = 12,
-    DIMINISHING_RANDOM_ROOT         = 13,
-    DIMINISHING_RANDOM_STUN         = 14,
-    DIMINISHING_SCATTER_SHOT        = 15,
-    DIMINISHING_SILENCE             = 16,
-    DIMINISHING_SLEEP               = 17,
-    DIMINISHING_TAUNT               = 18,
-    DIMINISHING_LIMITONLY           = 19,
-    DIMINISHING_DRAGONS_BREATH      = 20,
-    DIMINISHING_DEEP_FREEZE         = 21,
-    DIMINISHING_RING_OF_FROST       = 22,
-    DIMINISHING_PARALYTIC_POISON    = 23,
-    DIMINISHING_ICE_WARD            = 24,
-    DIMINISHING_DOMINATE_MIND       = 25,
-    DIMINISHING_BIND_ELEMENTAL      = 26
+    DIMINISHING_NONE             = 0,
+    DIMINISHING_ROOT             = 1,
+    DIMINISHING_STUN             = 2,
+    DIMINISHING_INCAPACITATE     = 3,
+    DIMINISHING_DISORIENT        = 4,
+    DIMINISHING_SILENCE          = 5,
+    DIMINISHING_AOE_KNOCKBACK    = 6,
+    DIMINISHING_TAUNT            = 7,
+    DIMINISHING_LIMITONLY        = 8
 };
 
 enum SummonCategory
@@ -4699,7 +4676,7 @@ enum SpellFamilyNames
     // Found on SpellClassOptions.db2
     SPELLFAMILY_UNK4        = 54,
     SPELLFAMILY_UNK5        = 56,
-    SPELLFAMILY_UNK6        = 57,                           // Special Ability
+    SPELLFAMILY_WARLOCK_PET = 57,                           // Special Ability
     SPELLFAMILY_UNK7        = 66,                           // 2 Only
     SPELLFAMILY_UNK8        = 71,                           // 2 Only
     SPELLFAMILY_UNK9        = 78,
@@ -4855,7 +4832,7 @@ enum MountResult
 
 enum SPELL_WEIGHT_TYPE
 {
-    SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x00,
+    SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x01,
     SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES = 0x02,
 };
 

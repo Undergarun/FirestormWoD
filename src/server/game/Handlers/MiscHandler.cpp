@@ -53,12 +53,14 @@
 #include "Group.h"
 #include "AccountMgr.h"
 #include "Spell.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "TicketMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
+
+#include "BattlegroundPacketFactory.hpp"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1092,11 +1094,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA");
-
-    uint64 l_CharacterGUID = 0;
-
-    uint32 l_Time               = 0;
+    uint64 l_CharacterGUID      = 0;
+    int32  l_Time               = 0;
     uint32 l_DataType           = 0;
     uint32 l_CompressedSize     = 0;
     uint32 l_UncompressedSize   = 0;
@@ -1107,11 +1106,11 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
     l_DataType = p_Packet.ReadBits(3);
 
+    p_Packet.FlushBits();
+
     p_Packet >> l_CompressedSize;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "UAD: type %u, time %u, decompressedSize %u", l_DataType, l_Time, l_UncompressedSize);
-
-    ///< Erase
+    /// Erase
     if (l_UncompressedSize == 0)
     {
         SetAccountData(AccountDataType(l_DataType), 0, "");
@@ -1120,9 +1119,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
     if (l_UncompressedSize > 0xFFFF)
     {
-        ///< Unnneded warning spam in this case
+        /// Unneeded warning Spam in this case
         p_Packet.rfinish();
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Account data packet too big, size %u", l_UncompressedSize);
         return;
     }
 
@@ -1132,9 +1130,8 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
     uLongf l_RealSize = l_UncompressedSize;
     if (uncompress(const_cast<uint8*>(l_Data.contents()), &l_RealSize, const_cast<uint8*>(p_Packet.contents() + p_Packet.rpos()), p_Packet.size() - p_Packet.rpos()) != Z_OK)
     {
-        ///< Unnneded warning spam in this case
+        /// Unneeded warning Spam in this case
         p_Packet.rfinish();
-        sLog->outError(LOG_FILTER_NETWORKIO, "UAD: Failed to decompress account data");
         return;
     }
 
@@ -1144,15 +1141,11 @@ void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)
 
 void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_ACCOUNT_DATA");
-
     uint64 l_CharacterGuid = 0;
-    uint32 l_Type;
+    uint32 l_Type = 0;
 
     p_Packet.readPackGUID(l_CharacterGuid);
     l_Type = p_Packet.ReadBits(3);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: type %u", l_Type);
 
     if (l_Type > NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -1166,22 +1159,19 @@ void WorldSession::HandleRequestAccountData(WorldPacket& p_Packet)
     l_CompressedData.resize(l_DestSize);
 
     if (l_Size && compress(const_cast<uint8*>(l_CompressedData.contents()), &l_DestSize, (uint8*)l_AccountData->Data.c_str(), l_Size) != Z_OK)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
         return;
-    }
 
     l_CompressedData.resize(l_DestSize);
 
     WorldPacket l_Response(SMSG_UPDATE_ACCOUNT_DATA, 4+4+4+3+3+5+8+l_DestSize);
 
     l_Response.appendPackGUID(l_CharacterGuid);
-    l_Response << uint32(l_AccountData->Time);      /// unix time
-    l_Response << uint32(l_Size);                   /// decompressed length
+    l_Response << uint32(l_AccountData->Time);      ///< Unix time
+    l_Response << uint32(l_Size);                   ///< Decompressed length
     l_Response.WriteBits(l_Type, 3);
     l_Response.FlushBits();
-    l_Response << uint32(l_DestSize);               /// compressed length
-    l_Response.append(l_CompressedData);            /// compressed data
+    l_Response << uint32(l_DestSize);               ///< Compressed length
+    l_Response.append(l_CompressedData);            ///< Compressed data
 
     SendPacket(&l_Response);
 }
@@ -1377,7 +1367,7 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& p_Packet)
         return;
     }
 
-    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, 1, l_ActionBar);
+    m_Player->SetByteValue(PLAYER_FIELD_LIFETIME_MAX_RANK, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, l_ActionBar);
 }
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
@@ -1812,10 +1802,10 @@ void WorldSession::HandleResetInstancesOpcode(WorldPacket& /*p_RecvData*/)
     if (Group* l_Group = m_Player->GetGroup())
     {
         if (l_Group->IsLeader(m_Player->GetGUID()))
-            l_Group->ResetInstances(INSTANCE_RESET_ALL, false, m_Player);
+            l_Group->ResetInstances(INSTANCE_RESET_ALL, false, false, m_Player);
     }
     else
-        m_Player->ResetInstances(INSTANCE_RESET_ALL, false);
+        m_Player->ResetInstances(INSTANCE_RESET_ALL, false, false);
 }
 
 void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
@@ -1827,18 +1817,30 @@ void WorldSession::HandleResetChallengeModeOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_SET_DUNGEON_DIFFICULTY");
-
     uint32 mode;
     recvData >> mode;
 
-    if (mode != CHALLENGE_MODE_DIFFICULTY && mode >= MAX_DUNGEON_DIFFICULTY)
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(mode);
+    if (!difficultyEntry)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: player %d sent an invalid instance mode %d!", m_Player->GetGUIDLow(), mode);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent an invalid instance mode %d!", m_Player->GetGUIDLow(), mode);
         return;
     }
 
-    if (Difficulty(mode) == m_Player->GetDungeonDifficulty())
+    if (difficultyEntry->InstanceType != MAP_INSTANCE)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent an non-dungeon instance mode %d!", m_Player->GetGUIDLow(), difficultyEntry->ID);
+        return;
+    }
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent unselectable instance mode %d!", m_Player->GetGUIDLow(), difficultyEntry->ID);
+        return;
+    }
+
+    Difficulty difficultyID = Difficulty(difficultyEntry->ID);
+    if (difficultyID == m_Player->GetDungeonDifficultyID())
         return;
 
     // cannot reset while in an instance
@@ -1870,15 +1872,15 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recvData)
                 }
             }
 
-            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, m_Player);
-            group->SetDungeonDifficulty(Difficulty(mode));
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, false, m_Player);
+            group->SetDungeonDifficultyID(difficultyID);
             m_Player->SendDungeonDifficulty();
         }
     }
     else
     {
-        m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false);
-        m_Player->SetDungeonDifficulty(Difficulty(mode));
+        m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, false);
+        m_Player->SetDungeonDifficultyID(difficultyID);
         m_Player->SendDungeonDifficulty();
     }
 }
@@ -1891,17 +1893,38 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_Difficulty;
     p_RecvData >> l_IsLegacyDifficulty;
 
-    if (!l_IsLegacyDifficulty && (l_Difficulty < NORMAL_DIFFICULTY || l_Difficulty > MYTHIC_DIFFICULTY))
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(l_Difficulty);
+    if (!difficultyEntry)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d sent an invalid instance mode %d!", m_Player->GetGUIDLow(), l_Difficulty);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent an invalid instance mode %u!",
+                       m_Player->GetGUIDLow(), l_Difficulty);
         return;
     }
 
-    if (l_IsLegacyDifficulty && (l_Difficulty < LEGACY_MAN10_DIFFICULTY || l_Difficulty > LEGACY_MAN25_HEROIC_DIFFICULTY))
+    if (difficultyEntry->InstanceType != MAP_RAID)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d sent an invalid instance mode %d!", m_Player->GetGUIDLow(), l_Difficulty);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent an non-dungeon instance mode %u!",
+                       m_Player->GetGUIDLow(), difficultyEntry->ID);
         return;
     }
+
+    if (!(difficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent unselectable instance mode %u!",
+                       m_Player->GetGUIDLow(), difficultyEntry->ID);
+        return;
+    }
+
+    if (((difficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY) >> 5) != l_IsLegacyDifficulty)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetDungeonDifficultyOpcode: %d sent not matching legacy difficulty %u!",
+                       m_Player->GetGUIDLow(), difficultyEntry->ID);
+        return;
+    }
+
+    Difficulty difficultyID = Difficulty(difficultyEntry->ID);
+    if (difficultyID == (l_IsLegacyDifficulty ? m_Player->GetLegacyRaidDifficultyID() : m_Player->GetRaidDifficultyID()))
+        return;
 
     // cannot reset while in an instance
     Map* l_Map = m_Player->FindMap();
@@ -1910,12 +1933,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", m_Player->GetGUIDLow());
         return;
     }
-
-    if (!l_IsLegacyDifficulty && Difficulty(l_Difficulty) == m_Player->GetRaidDifficulty())
-        return;
-
-    if (l_IsLegacyDifficulty && Difficulty(l_Difficulty) == m_Player->GetLegacyRaidDifficulty())
-        return;
 
     Group* group = m_Player->GetGroup();
     if (group)
@@ -1937,28 +1954,26 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& p_RecvData)
                     return;
                 }
             }
+
             // the difficulty is set even if the instances can't be reset
-            //_player->SendDungeonDifficulty();
-            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, m_Player);
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, l_IsLegacyDifficulty, m_Player);
 
             if (l_IsLegacyDifficulty)
-                group->SetLegacyRaidDifficulty(Difficulty(l_Difficulty));
+                group->SetLegacyRaidDifficultyID(Difficulty(l_Difficulty));
             else
-                group->SetRaidDifficulty(Difficulty(l_Difficulty));
-
-            m_Player->SendRaidDifficulty();
+                group->SetRaidDifficultyID(Difficulty(l_Difficulty));
         }
     }
     else
     {
-        m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true);
+        m_Player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, l_IsLegacyDifficulty);
 
         if (l_IsLegacyDifficulty)
-            m_Player->SetLegacyRaidDifficulty(Difficulty(l_Difficulty));
+            m_Player->SetLegacyRaidDifficultyID(Difficulty(l_Difficulty));
         else
-            m_Player->SetRaidDifficulty(Difficulty(l_Difficulty));
+            m_Player->SetRaidDifficultyID(Difficulty(l_Difficulty));
 
-        m_Player->SendRaidDifficulty();
+        m_Player->SendRaidDifficulty(l_IsLegacyDifficulty);
     }
 }
 
@@ -2088,7 +2103,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& p_Packet)
         return;
 
     if (Battleground* l_Battleground = m_Player->GetBattleground())
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, l_Battleground, l_Healer);
+        MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, l_Battleground, l_Healer);
     else if (Battlefield * l_Battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(m_Player->GetZoneId()))
         l_Battlefield->SendAreaSpiritHealerQueryOpcode(m_Player, l_Healer);
     else if (OutdoorPvP* l_OutdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(m_Player->GetZoneId()))
@@ -2303,6 +2318,8 @@ void WorldSession::HandleSetFactionOpcode(WorldPacket& recvPacket)
 
     if (m_Player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
         m_Player->KilledMonsterCredit(64594);
+
+    sScriptMgr->OnPlayerFactionChanged(m_Player);
 
     m_Player->SendMovieStart(116);
 }

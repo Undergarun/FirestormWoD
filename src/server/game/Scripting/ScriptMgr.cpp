@@ -470,27 +470,49 @@ bool ScriptMgr::OnAreaTrigger(Player * p_Player, const AreaTriggerEntry * p_Trig
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+
+/// Assign script to Areatrigger
+void ScriptMgr::InitScriptEntity(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
+    if (p_AreaTrigger->GetScript())
+        return;
+
+    AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
+    if (l_AreaTriggerScript == nullptr)
+        return;
+
+    p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
+}
 /// Proc when AreaTrigger is created.
 /// @p_AreaTrigger : AreaTrigger instance
 void ScriptMgr::OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger)
 {
     ASSERT(p_AreaTrigger);
-
-    // On creation, we look for instantiating a new script, locally to the AreaTrigger.
-    if (!p_AreaTrigger->GetScript())
-    {
-        AreaTriggerEntityScript* l_AreaTriggerScript = ScriptRegistry<AreaTriggerEntityScript>::GetScriptById(p_AreaTrigger->GetMainTemplate()->m_ScriptId);
-        if (l_AreaTriggerScript == nullptr)
-            return;
-
-        p_AreaTrigger->SetScript(l_AreaTriggerScript->GetAI());
-    }
-
-    // This checks is usefull if you run out of memory.
-    if (!p_AreaTrigger->GetScript())
+    
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
         return;
 
-    p_AreaTrigger->GetScript()->OnCreate(p_AreaTrigger);
+    l_Script->OnCreate(p_AreaTrigger);
+}
+/// Procs before creation to specify position and linear destination of the areatrigger
+/// @p_AreaTrigger: Areatrigger Instance
+/// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+/// @p_SourcePosition: Spawn location of the Areatrigger
+/// @p_DestinationPostion: Linear destination of the Areatrigger
+/// @p_PathToLinearDestination: Linear path without the endpoint
+void ScriptMgr::OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination)
+{
+    ASSERT(p_AreaTrigger);
+
+    AreaTriggerEntityScript* l_Script = p_AreaTrigger->GetScript();
+    if (!l_Script)
+        return;
+
+    l_Script->OnSetCreatePosition(p_AreaTrigger, p_Caster, p_SourcePosition, p_DestinationPosition, p_PathToLinearDestination);
 }
 /// Proc when AreaTrigger is updated.
 /// @p_AreaTrigger : AreaTrigger instance
@@ -1289,11 +1311,11 @@ void ScriptMgr::OnSocketClose(WorldSocket * p_Socket, bool p_WasNew)
 /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who send the packet
 /// @p_Packet : Sent packet
-void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet)
+void ScriptMgr::OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session)
 {
     ASSERT(p_Socket);
 
-    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet);
+    FOREACH_SCRIPT(ServerScript)->OnPacketReceive(p_Socket, p_Packet, p_Session);
 }
 /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
 /// @p_Socket : Socket who received the packet
@@ -1593,13 +1615,15 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(p_Killer, p_Killed);
 }
 
-/// Called when a player kills another player
+/// Called when power change is modify (SetPower)
 /// @p_Player : Player instance
 /// @p_Power  : Power type
-/// @p_Value  : New value
-void ScriptMgr::OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value)
+/// @p_OldValue  : Old value
+/// @p_NewValue  : New value
+/// @p_Regen  : If it's a regen modification
+void ScriptMgr::OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_Value);
+    FOREACH_SCRIPT(PlayerScript)->OnModifyPower(p_Player, p_Power, p_OldValue, p_NewValue, p_Regen);
 }
 
 /// Called when a player kills another player
@@ -1674,6 +1698,14 @@ void ScriptMgr::OnPlayerDuelStart(Player * p_Player1, Player * p_Player2)
 void ScriptMgr::OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(p_Winner, p_Looser, p_CompletionType);
+}
+
+/// Called when the player get Teleport
+/// @p_Player : Player
+/// @p_SpellID : SpellID
+void ScriptMgr::OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTeleport(p_Player, p_SpellInfo);
 }
 
 /// The following methods are called when a player sends a chat message. (World)
@@ -1765,6 +1797,7 @@ void ScriptMgr::OnPlayerLogin(Player * p_Player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(p_Player);
 }
+
 /// Called when a player logs out.
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerLogout(Player * p_Player)
@@ -1782,6 +1815,14 @@ void ScriptMgr::OnPlayerCreate(Player * p_Player)
 void ScriptMgr::OnPlayerDelete(uint64 p_GUID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDelete(p_GUID);
+}
+
+/// Called when a update() of a player is done
+/// @p_Player : Player instance
+/// @p_Diff : diff time
+void ScriptMgr::OnPlayerUpdate(Player* p_Player, uint32 p_Diff)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdate(p_Player, p_Diff);
 }
 
 /// Called when a player is bound to an instance
@@ -1808,7 +1849,7 @@ void ScriptMgr::OnPlayerUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32
 /// @p_Player : Player instance
 void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnPlayerUpdateMovement(p_Player);
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
 }
 
 /// Called when player accepts some quest
@@ -1825,6 +1866,7 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestReward(p_Player, p_Quest);
 }
+
 /// Called when a player validates some quest objective
 /// @p_Player      : Player instance
 /// @p_QuestID     : Quest ID
@@ -1858,12 +1900,33 @@ void ScriptMgr::OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_For
     FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(p_Player, p_Form);
 }
 
+/// Called when a player changes his faction
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerFactionChanged(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFactionChanged(p_Player);
+}
+
 /// Called when a player loot an item
 /// @p_Player : Player instance
 /// @p_Item   : New looted item instance
 void ScriptMgr::OnPlayerItemLooted(Player* p_Player, Item * p_Item)
 {
     FOREACH_SCRIPT(PlayerScript)->OnItemLooted(p_Player, p_Item);
+}
+
+/// Called when a player enter in combat
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerEnterInCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEnterInCombat(p_Player);
+}
+
+/// Called when a player leave combat status
+/// @p_Player : Player instance
+void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLeaveCombat(p_Player);
 }
 
 /// Called when a player receive a scene triggered event
@@ -1875,9 +1938,31 @@ void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID,
     FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
 }
 
+/// Called when a player cancels a scene who takes camera controls
+/// @p_Player          : Player instance
+/// @p_SceneInstanceID : Standalone scene instance ID
 void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
+}
+
+/// Called when a player regen a power
+/// @p_Player         : Player instance
+/// @p_Power          : Power to be regenerate
+/// @p_AddValue       : amount of power to regenerate
+/// @p_PreventDefault : avoid default regeneration
+void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnRegenPower(p_Player, p_Power, p_AddValue, p_PreventDefault);
+}
+
+/// Called when a player take damage
+/// @p_Player          : Player instance
+/// @p_DamageEffectTyp : Damage type
+/// @p_Damage          : Amount of damage taken
+void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
 }
 
 //////////////////////////////////////////////////////////////////////////

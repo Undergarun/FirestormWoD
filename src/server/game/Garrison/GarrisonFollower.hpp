@@ -5,10 +5,11 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_FOLLOWER_HPP_GARRISON
-#define GARRISON_MGR_FOLLOWER_HPP_GARRISON
+#ifndef GARRISON_FOLLOWER_HPP_GARRISON
+#define GARRISON_FOLLOWER_HPP_GARRISON
 
 #include "Common.h"
+#include "ByteBuffer.h"
 
 #include <vector>
 
@@ -48,4 +49,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_FOLLOWER_HPP_GARRISON
+#endif  ///< GARRISON_FOLLOWER_HPP_GARRISON

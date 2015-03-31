@@ -403,6 +403,7 @@ class WorldSession
         void SendPetitionShowList(uint64 guid);
         void SendPetitionSignResult(uint64 p_PlayerGUID, uint64 p_ItemGUID, uint8 p_Result);
         void SendAlreadySigned(uint64 p_PlayerGUID);
+        void SendPetitionDeclined(uint64 p_PlayerGUID);
 
         void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false);
 
@@ -418,6 +419,7 @@ class WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
+        void ResetClientTimeDelay() { m_clientTimeDelay = 0; }
         uint32 getDialogStatus(Player* player, Object* questgiver, uint32 defstatus);
 
         time_t m_timeOutTime;
@@ -459,6 +461,16 @@ class WorldSession
         }
 
         z_stream_s* GetCompressionStream() { return _compressionStream; }
+
+        void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
+        uint16 GetClientBuild() const { return m_ClientBuild; }
+
+        /// Return join date as unix timestamp
+        uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
+
+        /// Set join date as unix timestamp
+        /// @p_JoinDate : unix timestamp of the account creation
+        void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
         //////////////////////////////////////////////////////////////////////////
         /// Vote
@@ -809,7 +821,6 @@ class WorldSession
         void SendPlayerAmbiguousNotice(std::string name);
         void SendChatRestrictedNotice(ChatRestrictionType restriction);
         void HandleTextEmoteOpcode(WorldPacket& recvPacket);
-        void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleUnregisterAddonPrefixesOpcode(WorldPacket& recvPacket);
         void HandleAddonRegisteredPrefixesOpcode(WorldPacket& recvPacket);
@@ -927,7 +938,7 @@ class WorldSession
         void HandleLfgLockInfoRequestOpcode(WorldPacket& recvData);
         void HandleLfgJoinOpcode(WorldPacket& recvData);
         void HandleLfgLeaveOpcode(WorldPacket& recvData);
-        void HandleLfgSetRolesOpcode(WorldPacket& recvData);
+        void HandleDfSetRolesOpcode(WorldPacket& recvData);
         void HandleLfgProposalResultOpcode(WorldPacket& recvData);
         void HandleLfgSetBootVoteOpcode(WorldPacket& recvData);
         void HandleLfgTeleportOpcode(WorldPacket& recvData);
@@ -1049,6 +1060,7 @@ class WorldSession
         void HandleSetFactionOpcode(WorldPacket& recvPacket);
         void HandleCategoryCooldownOpcode(WorldPacket& recvPacket);
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
+        void HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket);
         int32 HandleEnableNagleAlgorithm();
 
         // Black Market
@@ -1064,6 +1076,7 @@ class WorldSession
         //////////////////////////////////////////////////////////////////////////
         void HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData);
         void HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData);
+        void HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData);
         void HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData);
@@ -1073,6 +1086,9 @@ class WorldSession
         void HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData);
         void HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData);
+        void HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData);
 
         void SendGarrisonOpenArchitect(uint64 p_CreatureGUID);
         void SendGarrisonOpenMissionNpc(uint64 p_CreatureGUID);
@@ -1114,6 +1130,9 @@ class WorldSession
         void HandleGetChallengeModeRewards(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
+
+        /// Auto sort bags.
+        void HandleSortBags(WorldPacket& p_RecvData);
 
     private:
         void InitializeQueryCallbackParameters();
@@ -1159,6 +1178,10 @@ class WorldSession
         uint32 _accountId;
         uint8 m_expansion;
 
+        uint16 m_ClientBuild;
+
+        uint32 m_AccountJoinDate;
+
         //////////////////////////////////////////////////////////////////////////
         /// Premium
         //////////////////////////////////////////////////////////////////////////
@@ -1186,6 +1209,7 @@ class WorldSession
         LocaleConstant m_sessionDbcLocale;
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
+        std::atomic<uint32> m_clientTimeDelay;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;

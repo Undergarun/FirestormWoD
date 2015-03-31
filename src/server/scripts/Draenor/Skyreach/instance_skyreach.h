@@ -12,7 +12,6 @@ namespace MS
         enum RandomSpells
         {
             INSTANCE_BOOTSTRAPPER = 171344,
-            DRAENOR_SCALING_AURA = 156832,
             FORGETFUL = 152828,
             SABOTEUR = 152983,
             STEALTH_AND_INVISIBILITY_DETECTION = 141048,

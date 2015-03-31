@@ -253,7 +253,7 @@ class boss_lei_shi : public CreatureScript
                     Talk(TALK_SLAY);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!pInstance)
                     return;
@@ -312,16 +312,16 @@ class boss_lei_shi : public CreatureScript
 
                     switch (me->GetMap()->GetSpawnMode())
                     {
-                        case LEGACY_MAN10_DIFFICULTY:
+                        case DIFFICULTY_10_N:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case LEGACY_MAN25_DIFFICULTY:
+                        case DIFFICULTY_25_N:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case LEGACY_MAN10_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_10_HC:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case LEGACY_MAN25_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_25_HC:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         default:

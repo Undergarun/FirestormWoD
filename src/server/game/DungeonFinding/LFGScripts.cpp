@@ -58,7 +58,7 @@ void LFGPlayerScript::OnLogin(Player* player)
 void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool /*permanent*/)
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-    if (mapEntry->IsDungeon() && difficulty > REGULAR_5_DIFFICULTY)
+    if (mapEntry->IsDungeon() && difficulty > DIFFICULTY_NORMAL)
         sLFGMgr->InitializeLockedDungeons(player);
 }
 
@@ -124,11 +124,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         if (method == GROUP_REMOVEMETHOD_LEAVE && state != LFG_STATE_FINISHED_DUNGEON && player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
-            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, false);
-        /*
-        else if (group->isLfgKickActive())
-            // Update internal kick cooldown of kicked
-        */
+            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1);
         sLFGMgr->SendUpdateStatus(player, updateData);

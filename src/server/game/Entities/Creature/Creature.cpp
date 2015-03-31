@@ -37,7 +37,7 @@
 #include "Formulas.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceScript.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Util.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -275,37 +275,27 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
 
     // get difficulty 1 mode entry
     // Si l'entry heroic du mode de joueur est introuvable, on utilise l'entry du mode normal correpondant au nombre de joueurs du mode
-    CreatureTemplate const* cinfo = normalInfo;
-    uint8 diff = uint8(GetMap()->GetSpawnMode());
-    if (diff)
+    CreatureTemplate const* cinfo = nullptr;
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(GetMap()->GetSpawnMode());
+
+    while (!cinfo && difficultyEntry)
     {
-        if (normalInfo->DifficultyEntry[diff - 1])
+        int32 idx = difficultyEntry->ID - 1;
+        if (idx == -1)
+            break;
+        if (normalInfo->DifficultyEntry[idx])
         {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
+            break;
         }
-
-        if (cinfo == normalInfo && (diff == LEGACY_MAN25_HEROIC_DIFFICULTY || diff == RAID_TOOL_DIFFICULTY) && normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1])
-        {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
-        }
-
-        if (cinfo == normalInfo &&  diff == LEGACY_MAN10_HEROIC_DIFFICULTY && normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1])
-        {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
-        }
+        if (!difficultyEntry->FallbackDifficultyID)
+            break;
+ 
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
+
+    if (!cinfo)
+        cinfo = normalInfo;
 
     SetEntry(Entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
@@ -474,6 +464,8 @@ bool Creature::UpdateEntry(uint32 p_Entry, uint32 p_Team, const CreatureData* p_
     // TODO: Shouldn't we check whether or not the creature is in water first?
     if (l_CreatureTemplate->InhabitType & INHABIT_WATER && IsInWater())
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
+    loot.SetSource(GetGUID());
 
     return true;
 }
@@ -898,7 +890,7 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     auto l_MapDifficulty = map->GetMapDifficulty();
     if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
 
     return true;
 }
@@ -1319,23 +1311,30 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
         level = bg_level;
 
     SetLevel(level);
+    UpdateStatsForLevel();
+}
 
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cinfo->unit_class);
+void Creature::UpdateStatsForLevel()
+{
+    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
+    CreatureBaseStats const* l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
 
-    // health
-    float healthmod = _GetHealthMod(rank);
+    uint32 l_Rank = isPet() ? 0 : l_CreatureTemplate->rank;
 
-    uint32 basehp = stats->GenerateHealth(cinfo);
-    uint32 health = uint32(basehp * healthmod);
+    /// Health
+    float l_HeathMod = _GetHealthMod(l_Rank);
 
-    SetCreateHealth(health);
-    SetMaxHealth(health);
-    SetHealth(health);
+    uint32 l_BaseHP = l_Stats->GenerateHealth(l_CreatureTemplate);
+    uint32 l_Health = uint32(l_BaseHP * l_HeathMod);
+
+    SetCreateHealth(l_Health);
+    SetMaxHealth(l_Health);
+    SetHealth(l_Health);
     ResetPlayerDamageReq();
 
-    // mana
-    uint32 mana = stats->GenerateMana(cinfo);
-    SetCreateMana(mana);
+    /// Mana
+    uint32 l_Mana = l_Stats->GenerateMana(l_CreatureTemplate);
+    SetCreateMana(l_Mana);
 
     switch (getClass())
     {
@@ -1351,30 +1350,30 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
             break;
         default:
             setPowerType(POWER_MANA);
-            SetMaxPower(POWER_MANA, mana);
-            SetPower(POWER_MANA, mana);
+            SetMaxPower(POWER_MANA, l_Mana);
+            SetPower(POWER_MANA, l_Mana);
             break;
     }
 
-    SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
-    SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
+    SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)l_Health);
+    SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)l_Mana);
 
-    //damage
-    float basedamage = stats->GenerateBaseDamage(cinfo);
-    float weaponBaseMinDamage = basedamage;
-    float weaponBaseMaxDamage = basedamage * 1.5f;
+    /// Damage
+    float l_BaseDamage          = l_Stats->GenerateBaseDamage(l_CreatureTemplate);
+    float l_WeaponBaseMinDamage = l_BaseDamage;
+    float l_WeaponBaseMaxDamage = l_BaseDamage * 1.5f;
 
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::OffAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, weaponBaseMinDamage);
-    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, weaponBaseMaxDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MINDAMAGE, l_WeaponBaseMinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::RangedAttack, MAXDAMAGE, l_WeaponBaseMaxDamage);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
-    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER,        BASE_VALUE, l_Stats->AttackPower);
+    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, l_Stats->RangedAttackPower);
 }
 
 float Creature::_GetHealthMod(int32 Rank)

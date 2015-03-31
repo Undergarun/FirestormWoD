@@ -177,6 +177,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
@@ -562,6 +564,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
@@ -598,10 +602,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     // Override spell Id, client send base spell and not the overrided id
-    if (!spellInfo->OverrideSpellList.empty())
+    uint8 l_Count = std::numeric_limits<uint8>::max();
+    while (!spellInfo->OverrideSpellList.empty())
     {
+        if (!l_Count)
+            break;
+
         for (auto itr : spellInfo->OverrideSpellList)
         {
+            if (!l_Count)
+                break;
+
             if (m_Player->HasSpell(itr))
             {
                 SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
@@ -612,6 +623,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 }
                 break;
             }
+
+            --l_Count;
         }
     }
 
@@ -893,6 +906,8 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     if (!l_Unit->IsInWorld())
         return;
 
+    m_Player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     l_Unit->HandleSpellClick(m_Player);
 }
 
@@ -900,9 +915,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
-    uint32 displayId = recvData.read<uint32>();
 
     recvData.readPackGUID(guid);
+    uint32 displayId = recvData.read<uint32>();
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -937,11 +952,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         data << uint8(player->getRace());
         data << uint8(player->getGender());
         data << uint8(player->getClass());
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0)); // skin
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1)); // face
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2)); // hair
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3)); // haircolor
-        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, 0));     // facialhair
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID)); // skin
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID)); // face
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID)); // hair
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID)); // haircolor
+        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));     // facialhair
         data.appendPackGUID(guildGuid);
 
         data << uint32(11);
@@ -973,9 +988,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             {
                 // Display Transmogrifications on player's clone
                 if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                    data << uint32(proto->DisplayInfoID);
+                    data << uint32(proto->ItemId);
                 else
-                    data << uint32(item->GetTemplate()->DisplayInfoID);
+                    data << uint32(item->GetTemplate()->ItemId);
             }
             else
                 data << uint32(0);
@@ -1141,6 +1156,8 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])

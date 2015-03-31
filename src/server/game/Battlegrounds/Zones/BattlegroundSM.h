@@ -134,8 +134,8 @@ enum SMBattlegroundObjectTypes
 
 enum BG_SM_Score
 {
-    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_SM_MAX_TEAM_SCORE                = 1600
+    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1200,
+    BG_SM_MAX_TEAM_SCORE                = 1500
 };
 
 enum SMBattlegroundMineCartState
@@ -232,11 +232,10 @@ class BattlegroundSM : public Battleground
         /* Battleground Events */
         void EventReopenDepot(uint32 p_Diff);
 
-        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[p_TeamID]; }
 
     private:
         void EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart);
-        void UpdatePointsCount(uint32 p_Team);
         void SummonMineCart(uint32 p_Diff);
         void FirstMineCartSummon(uint32 p_Diff);
         void MineCartsMoves();

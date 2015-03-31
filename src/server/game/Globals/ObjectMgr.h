@@ -777,7 +777,7 @@ struct ResearchLootEntry
     float x;
     float y;
     float z;
-    uint8 race;
+    uint8 ResearchBranchID;
 };
 
 struct GarrisonPlotBuildingContent
@@ -997,6 +997,14 @@ class ObjectMgr
             return NULL;
         }
 
+        CurrencyOnKillEntry const* GetPersonnalCurrencyOnKillEntry(uint32 p_ID) const
+        {
+            CurOnKillContainer::const_iterator l_Iter = m_PersonnalCurrOnKillStore.find(p_ID);
+            if (l_Iter != m_PersonnalCurrOnKillStore.end())
+                return &l_Iter->second;
+            return NULL;
+        }
+
         PointOfInterest const* GetPointOfInterest(uint32 id) const
         {
             PointOfInterestContainer::const_iterator itr = _pointsOfInterestStore.find(id);
@@ -1023,7 +1031,7 @@ class ObjectMgr
                 return &itr->second;
             else
             {
-                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, NONE_DIFFICULTY));
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DIFFICULTY_NONE));
                 if (itr != _dungeonEncounterStore.end())
                     return &itr->second;
             }
@@ -1051,11 +1059,13 @@ class ObjectMgr
         void LoadFollowerQuests();
         std::vector<uint32> FollowerQuests;
 
+        void LoadQuestForItem();
+        std::map<uint32, std::vector<std::pair<uint32, uint8>>> QuestForItem;    ///< <ItemID, [<QuestID, ObjectiveIndex>]>
+
         void LoadGameobjectQuestRelations();
         void LoadGameobjectInvolvedRelations();
         void LoadCreatureQuestRelations();
         void LoadCreatureInvolvedRelations();
-
 
         QuestRelations* GetGOQuestRelationMap()
         {
@@ -1162,6 +1172,7 @@ class ObjectMgr
         void LoadReputationOnKill();
         void LoadReputationSpilloverTemplate();
         void LoadCurrencyOnKill();
+        void LoadPersonnalCurrencyOnKill();
 
         void LoadPointsOfInterest();
         void LoadQuestPOI();
@@ -1593,14 +1604,17 @@ class ObjectMgr
         {
             return m_GarrisonID++;
         }
+
         uint32 GetNewGarrisonBuildingID()
         {
             return m_GarrisonBuildingID++;
         }
+
         uint32 GetNewGarrisonFollowerID()
         {
             return m_GarrisonFollowerID++;
         }
+
         uint32 GetNewGarrisonMissionID()
         {
             return m_GarrisonMissionID++;
@@ -1671,6 +1685,7 @@ class ObjectMgr
         RepOnKillContainer _repOnKillStore;
         RepSpilloverTemplateContainer _repSpilloverTemplateStore;
         CurOnKillContainer _curOnKillStore;
+        CurOnKillContainer m_PersonnalCurrOnKillStore;
 
         GossipMenusContainer _gossipMenusStore;
         GossipMenuItemsContainer _gossipMenuItemsStore;

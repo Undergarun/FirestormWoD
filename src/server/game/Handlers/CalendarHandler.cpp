@@ -120,7 +120,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
                 InstanceSave* l_Save = l_Itr->second.save;
                 l_Data << uint64(l_Save->GetInstanceId());
                 l_Data << uint32(l_Save->GetMapId());
-                l_Data << uint32(l_Save->GetDifficulty());
+                l_Data << uint32(l_Save->GetDifficultyID());
                 l_Data << uint32(l_Save->GetResetTime());
             }
         }

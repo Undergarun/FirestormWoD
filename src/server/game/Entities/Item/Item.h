@@ -437,10 +437,8 @@ class Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
-        bool CanBeTransmogrified() const;
-        bool CanTransmogrify() const;
-        bool SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const;
-        static bool CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier);
+        static bool SubclassesCompatible(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
+        static bool CanTransmogrifyItemWithItem(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 

@@ -484,6 +484,7 @@ class boss_chogall : public CreatureScript
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTION_ABSOLUTE_VISUAL);
                             pPlayer->RemoveAurasDueToSpell(SPELL_CORRUPTED_BLOOD_AURA);
+                            pPlayer->RemoveAurasDueToSpell(SPELL_FESTERING_BLOOD);
                         }
                         break;
                     }
@@ -1031,7 +1032,7 @@ class npc_chogall_corrupting_adherent : public CreatureScript
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {
@@ -1514,6 +1515,43 @@ class spell_chogall_worshipping: public SpellScriptLoader
         }
 };
 
+/// Festering Blood - 82914
+class spell_chogall_festering_blood : public SpellScriptLoader
+{
+    public:
+        spell_chogall_festering_blood() : SpellScriptLoader("spell_chogall_festering_blood") { }
+
+        class spell_chogall_festering_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_chogall_festering_blood_AuraScript);
+
+            enum eData
+            {
+                BastionOfTwilight = 671
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Target = GetTarget();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->GetMapId() != eData::BastionOfTwilight)
+                    p_AurEff->GetBase()->Remove();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_chogall_festering_blood_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_chogall_festering_blood_AuraScript();
+        }
+};
+
 void AddSC_boss_chogall()
 {
     new boss_chogall();
@@ -1538,4 +1576,5 @@ void AddSC_boss_chogall()
     new spell_chogall_spilled_blood_of_the_old_god_corruption();
     new spell_chogall_corruption_of_the_old_god_corruption();
     new spell_chogall_worshipping();
+    new spell_chogall_festering_blood();
 }

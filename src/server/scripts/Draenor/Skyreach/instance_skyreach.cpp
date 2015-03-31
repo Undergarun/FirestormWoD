@@ -281,6 +281,9 @@ namespace MS
 
                     ++m_CreatureKilled;
                     SendScenarioProgressUpdate(CriteriaProgressData(ScenarioDatas::EnnemiesCriteriaId, m_CreatureKilled, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                    if (m_CreatureKilled >= ScenarioDatas::MaxEnnemiesToKill)
+                        m_ConditionCompleted = true;
                 }
 
                 bool SetBossState(uint32 p_ID, EncounterState p_State)

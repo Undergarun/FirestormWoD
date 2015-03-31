@@ -575,10 +575,9 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     // random damage
     if (p_Caster)
     {
-        // bonus amount from combo points
-        if (p_Caster->m_movedPlayer && l_ComboDamage)
-            if (uint8 comboPoints = p_Caster->m_movedPlayer->GetComboPoints())
-                l_Value += l_ComboDamage * comboPoints;
+        /// Bonus amount from combo points
+        if (p_Caster && l_ComboDamage)
+            l_Value += l_ComboDamage * p_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
         l_Value = p_Caster->ApplyEffectModifiers(_spellInfo, _effIndex, l_Value);
 
@@ -1142,7 +1141,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
     // SpecializationSpellsEntry
-    SpecializationSpellEntry const* specializationInfo = NULL;
+    SpecializationSpellEntry const* specializationInfo = nullptr;
     for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
     {
         specializationInfo = sSpecializationSpellStore.LookupEntry(i);
@@ -1433,6 +1432,26 @@ bool SpellInfo::IsPositive() const
     return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE);
 }
 
+bool SpellInfo::IsHealingSpell() const
+{
+    return (HasEffect(SPELL_EFFECT_HEALTH_LEECH)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL_MECHANICAL)
+        || HasEffect(SPELL_EFFECT_HEAL_PCT)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL)
+        || HasAura(SPELL_AURA_OBS_MOD_HEALTH)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALING)
+        || HasAura(SPELL_AURA_MOD_HEALING_PCT)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
+        || HasAura(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
+        || HasAura(SPELL_AURA_MOD_BASE_HEALTH_PCT)
+        || HasAura(SPELL_AURA_PERIODIC_HEAL));
+}
+
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
     switch (effIndex)
@@ -1476,7 +1495,6 @@ bool SpellInfo::CanTriggerPoisonAdditional() const
         {
             case 1766:  // Kick
             case 1943:  // Rupture
-            case 51722: // Dismantle
             case 703:   // Garrote
                 return true;
             default:
@@ -1558,8 +1576,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 
     switch (aura->Id)
     {
-        case 94528: // Flare
-        case 76577: // Smoke Bomb
+        case 94528: ///< Flare
             return false;
         default:
             break;
@@ -1662,6 +1679,8 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_CHAKRA:
         case SPELL_SPECIFIC_EXOTIC_MUNITION:
         case SPELL_SPECIFIC_LONE_WOLF_BUFF:
+        case SPELL_SPECIFIC_LETHAL_POISON:
+        case SPELL_SPECIFIC_NON_LETHAL_POISON:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -2111,7 +2130,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -2540,6 +2559,23 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if (Id == 48266 || Id == 48263 || Id == 48265)
                 return SPELL_SPECIFIC_PRESENCE;
             break;
+        case SPELLFAMILY_ROGUE:
+        {
+            switch (Id)
+            {
+                case 3408:    ///< Crippling Poison
+                case 108211:  ///< Leeching Poison
+                    return SPELL_SPECIFIC_LETHAL_POISON;
+                case 2823:    ///< Deadly Poison
+                case 8679:    ///< Wound Poison
+                case 157584:  ///< Swift Poison
+                    return SPELL_SPECIFIC_NON_LETHAL_POISON;
+                default:
+                    break;
+            }
+
+            break;
+        }
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -2602,55 +2638,65 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
 {
-    int32 castTime = 0;
+    int32 l_CastTime = 0;
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (caster && CastTimeMax > 0)
+    if (p_Caster && CastTimeMax > 0)
     {
-        castTime = CastTimeMax;
-        if (CastTimeMaxLevel > int32(caster->getLevel()))
-            castTime = CastTimeMin + int32(caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        l_CastTime = CastTimeMax;
+        if (CastTimeMaxLevel > int32(p_Caster->getLevel()))
+            l_CastTime = CastTimeMin + int32(p_Caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
-        castTime = CastTimeEntry->CastTime;
+        l_CastTime = CastTimeEntry->CastTime;
 
-    if (!castTime)
+    if (!l_CastTime)
         return 0;
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
+    /// Swift Riding Crop
+    if (p_Caster && p_Caster->HasAura(170495))
+    {
+        if (SpellCategoriesEntry const* l_Cat = GetSpellCategories())
+        {
+            if (l_Cat->Mechanic == MECHANIC_MOUNT) ///< Mount
+                return 0;
+        }
+    }
 
-    // Kil'Jaeden's Cunning
-    if (caster && caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && caster->isMoving() && !caster->HasAura(119048))
-        castTime += CalculatePct(castTime, 50);
+    if (p_Caster)
+        p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    // Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && caster && caster->HasAura(20552))
-        castTime = 500;
+    /// Fix Cultivation - with Herb Gathering
+    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
+        l_CastTime = 500;
 
-    // Glyph of Capacitor Totem
-    if (caster && Id == 118905)
-        if (Unit* owner = caster->GetOwner())
-            if (owner->HasAura(55442))
-                castTime -= 2000;
+    /// Glyph of Capacitor Totem
+    if (p_Caster && Id == 118905)
+    {
+        if (Unit* l_Owner = p_Caster->GetOwner())
+        {
+            if (l_Owner->HasAura(55442))
+                l_CastTime -= 2000;
+        }
+    }
 
-    // Glyph of the Righteous Retreat
-    if (caster && Id == 8690)
-        if (caster->HasAura(115933) && (caster->HasAura(642) || caster->HasAura(110700)))
-            castTime /= 2;
+    /// Glyph of the Righteous Retreat
+    if (p_Caster && Id == 8690)
+    {
+        if (p_Caster->HasAura(115933) && (p_Caster->HasAura(642)))
+            l_CastTime /= 2;
+    }
 
-    // Elegon - Overloaded
-    if (caster && caster->HasAura(117204))
-        if (AuraPtr overloaded = caster->GetAura(117204))
-            castTime -= CalculatePct(castTime, (20 * overloaded->GetStackAmount()));
+    /// Elegon - Overloaded
+    if (p_Caster && p_Caster->HasAura(117204))
+    {
+        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+            l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
+    }
 
-    // Glyph of Denounce
-    if (Id == 2812 && caster && caster->HasAura(115654))
-        castTime -= 1000;
-
-    return (castTime > 0) ? uint32(castTime) : 0;
+    return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
 }
 
 uint32 SpellInfo::GetMaxTicks() const
@@ -3266,7 +3312,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellTargetRestrictionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3278,7 +3324,7 @@ SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() cons
 
 SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellEquippedItemsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3290,7 +3336,7 @@ SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 
 SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellInterruptsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3302,7 +3348,7 @@ SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 
 SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellLevelsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3344,7 +3390,7 @@ SpellTotemsEntry const* SpellInfo::GetSpellTotems() const
 
 SpellAuraOptionsEntry const* SpellInfo::GetSpellAuraOptions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellAuraOptionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3366,7 +3412,7 @@ SpellCastingRequirementsEntry const* SpellInfo::GetSpellCastingRequirements() co
 
 SpellCategoriesEntry const* SpellInfo::GetSpellCategories() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCategoriesStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3383,7 +3429,7 @@ SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCooldownsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3615,8 +3661,6 @@ bool SpellInfo::IsIgnoringCombat() const
         // Blackjack
         case 79124:
         case 79126:
-        // Redirect
-        case 73981:
         // Venomous Wounds
         case 79136:
         // Master Poisoner
@@ -3719,20 +3763,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    switch (Id)
-    {
-        case 50274: // Spore Cloud
-        case 90315: // Tailspin
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return 5.f;
-        case 5760:  // Mind-Numbing
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
-            return 2.f;
-    }
-
     return 1.f;
 }
 
@@ -3858,18 +3888,16 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 {
     switch (Id)
     {
-        case 703:   // Garrote
-        case 1943:  // Rupture
-        case 2818:  // Deadly Poison (DoT)
-        case 3409:  // Crippling Poison
-        case 5760:  // Mind-Numbling Poison
-        case 8680:  // Wound Poison
-        case 79136: // Venomous Wound (damage)
-        case 89775: // Hemorrhage (DoT)
-        case 112961:// Leeching Poison
-        case 113780:// Deadly Poison (direct damage)
-        case 113952:// Paralytic Poison
-        case 122233:// Crimson Tempest (DoT)
+        case 703:   ///< Garrote
+        case 1943:  ///< Rupture
+        case 2818:  ///< Deadly Poison (DoT)
+        case 3409:  ///< Crippling Poison
+        case 8680:  ///< Wound Poison
+        case 16511: ///< Hemorrhage (DoT)
+        case 79136: ///< Venomous Wound (damage)
+        case 112961:///< Leeching Poison
+        case 113780:///< Deadly Poison (direct damage)
+        case 122233:///< Crimson Tempest (DoT)
             return true;
         default:
             break;
@@ -3880,51 +3908,62 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 
 bool SpellInfo::IsCanBeStolen() const
 {
-    // some of the rules for those spells that can be stolen by Dark Simulacrum
-    // spells should use mana
-    if (PowerType != POWER_MANA)
-        return false;
-
-    // and should have mana cost
-    if (!ManaCost && !ManaCostPercentage)
-        return false;
-
-    // special rules
+    /// Special rules, some aren't using mana but can be stolen
     switch (Id)
     {
-        case 633:   // Lay on Hands
-        case 22812: // Barkskin
-        case 24275: // Hammer of Wrath
-        case 31935: // Avenger's Shield
-        case 53563: // Beacon of the Light
-        case 156910: // Beacon of the Faith
+        case 633:   ///< Lay on Hands
+        case 22812: ///< Barkskin
+        case 24275: ///< Hammer of Wrath
+        case 31935: ///< Avenger's Shield
+        case 53563: ///< Beacon of Light
             return false;
+        case 642:   ///< Divine Shield
+        case 5484:  ///< Howl of Terror
+        case 12472: ///< Icy Veins
+        case 51490: ///< Thunderstorm
+        case 64044: ///< Psychic Horror
+            return true;
         default:
             break;
     }
 
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
+    /// Some of the rules for those spells that can be stolen by Dark Simulacrum
+    /// Spells should use mana
+    bool l_UseMana = false;
+    for (auto l_Iter : SpellPowers)
     {
-        switch (Effects[x].Effect)
+        if (l_Iter->PowerType != POWER_MANA)
+            return false;
+
+        /// And should have mana cost
+        if (!l_Iter->Cost && !l_Iter->CostBasePercentage)
+            return false;
+
+        l_UseMana = true;
+        break;
+    }
+
+    if (!l_UseMana)
+        return false;
+
+    for (uint8 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+    {
+        switch (Effects[l_I].Effect)
         {
             case SPELL_EFFECT_SUMMON:
             case SPELL_EFFECT_SUMMON_PET:
             case SPELL_EFFECT_CAST_BUTTON:
             case SPELL_EFFECT_TAMECREATURE:
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            case SPELL_EFFECT_KNOCK_BACK:
                 return false;
             case SPELL_EFFECT_SCHOOL_DAMAGE:
                 if (DmgClass == SPELL_DAMAGE_CLASS_MELEE)
                     return false;
                 break;
-            default:
+            case SPELL_EFFECT_APPLY_AURA:
+                if (Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                    return false;
                 break;
-        }
-        switch (Effects[x].ApplyAuraName)
-        {
-            case SPELL_AURA_MOD_SHAPESHIFT:
-                return false;
             default:
                 break;
         }
@@ -3946,7 +3985,7 @@ bool SpellInfo::IsNeedAdditionalLosChecks() const
         case 23455: // Holy Nova
         case 87204: // Sin and Punishment proc
         case 117418: // Fists of Fury
-        case 120086: // Fists of Fury
+        case 120086: // Fists of Fury (Stun)
             return true;
         default:break;
     }
@@ -3977,7 +4016,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(115192))
         return false;
 
-    // Hearthstone shoudn't call subterfuge effect
+    /// Hearthstone shouldn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
         m_caster->RemoveAura(115191);
@@ -3996,7 +4035,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
         !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        // Mounts shouldn't call subterfuge effect
+        /// Mounts shouldn't call subterfuge effect
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
@@ -4016,11 +4055,14 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(115191))
         return false;
 
-    switch(Id)
+    switch (Id)
     {
-        case 3600:  // Earthbind Totem
-        case 99:    // Demoralizing Roar
-        case 50256:
+        case 99:    ///< Incapaciting Roar
+        case 2643:  ///< Multi-shot
+        case 3600:  ///< Earthbind
+        case 12323: ///< Piercing Howl
+        case 50256: ///< Invigorating Roar (Special Ability)
+        case 64695: ///< Earthgrab
             return false;
         default:
             break;
@@ -4028,8 +4070,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     if (IsTargetingArea())
     {
-        // dispel etc spells
-        switch(Effects[EFFECT_0].Effect)
+        /// Dispel etc spells
+        switch (Effects[EFFECT_0].Effect)
         {
             case SPELL_EFFECT_DISPEL:
             case SPELL_EFFECT_DISPEL_MECHANIC:
@@ -4239,9 +4281,7 @@ bool SpellInfo::IsLethalPoison() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
             return true;
         default:
             break;

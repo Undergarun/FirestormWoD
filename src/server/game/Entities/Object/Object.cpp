@@ -773,10 +773,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerSpline)
         {
-            uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
-
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
-            if (l_MoveTemplate.m_path_size != 0)
+            if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR && l_MoveTemplate.m_path_size != 0)
             {
                 *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
@@ -793,7 +791,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << uint32(l_MainTemplate->m_SplineDatas.TimeToTarget);               ///< Time To Target
+                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+
+                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
@@ -1066,6 +1066,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_GAMEOBJECT:
+            flags = GameObjectDynamicUpdateFieldFlags;
+            visibleFlag |= UF_FLAG_PUBLIC;
+            break;
         default:
             flags = nullptr;
             break;
@@ -1939,6 +1943,17 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     return distsq < maxdist * maxdist;
 }
 
+float WorldObject::GetObjectSize() const
+{
+    if (GetTypeId() == TYPEID_GAMEOBJECT)
+    {
+        if (auto l_GameObjectTemplate = ToGameObject()->GetGOInfo())
+            return l_GameObjectTemplate->size;
+    }
+
+    return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
+}
+
 bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
 {
     float dx = GetPositionX() - x;
@@ -2073,6 +2088,22 @@ bool WorldObject::IsInAxe(const WorldObject* obj1, const WorldObject* obj2, floa
 
     // not using sqrt() for performance
     return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
+}
+
+bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Range) const
+{
+    if (p_Object == nullptr)
+        return false;
+
+    if (!p_Width)
+        p_Width = GetObjectSize() / 2.0f;
+
+    float l_X = p_Object->GetPositionX() + (p_Range * cos(p_Object->GetOrientation()));
+    float l_Y = p_Object->GetPositionY() + (p_Range * sin(p_Object->GetOrientation()));
+    float l_Angle = p_Object->GetAngle(l_X, l_Y);
+
+    /// Not using sqrt() for performance
+    return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * p_Range, p_Object->GetPositionY() + sin(l_Angle) * p_Range);
 }
 
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
@@ -3114,7 +3145,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                     break;
                 case ENTRY_VOIDWALKER:
                 case ENTRY_VOIDLORD:
-                    bp = 119907;// Disarm
+                    bp = 119907;// Disarm Removed since 6.0.2 please clean me
                     break;
                 case ENTRY_SUCCUBUS:
                     bp = 119909; // Whiplash
@@ -3158,7 +3189,7 @@ void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
     SendDirectMessage(&l_Data);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth, bool p_GarrisonPlotObject)
 {
     if (!IsInWorld())
         return NULL;
@@ -3178,6 +3209,14 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
 
     go->SetRespawnTime(respawnTime);
+
+    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
+    /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
+    ///   doesn't exist WTF !!                                                                         ///
+    /// - Need to wait how this thing will elvove to adapt it                                          ///
+    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
+    if (p_GarrisonPlotObject)
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_UNK, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);
@@ -3792,6 +3831,7 @@ void WorldObject::DestroyForNearbyPlayers()
 
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
+        player->GetVignetteMgr().OnWorldObjectDisappear(this);
     }
 }
 

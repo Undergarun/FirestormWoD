@@ -70,6 +70,14 @@ namespace MS { namespace Garrison { namespace Sites
             /// @p_Owner : Garrison owner
             virtual bool CanUseGarrisonCache(Player * p_Owner) override;
 
+            /// Can upgrade the garrison
+            /// @p_Owner                : Garrison owner
+            /// @p_CurrentGarrisonLevel : Current garrison level
+            virtual bool CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel) override;
+            /// On upgrade the garrison
+            /// @p_Owner : Garrison owner
+            virtual void OnUpgrade(Player * p_Owner) override;
+
             /// When a mission start
             /// @p_Owner     : Garrison owner
             /// @p_MissionID : Started mission ID

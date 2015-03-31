@@ -24,6 +24,7 @@
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
 #include "TransportMgr.h"
+#include "Battleground.h"
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -460,13 +461,13 @@ void LoadDBCStores(const std::string& dataPath)
 
     /// Fill data
     {
-        sMapDifficultyMap[MAKE_PAIR32(0, 0)] = MapDifficulty(0, 0, 0, false);                                                                               // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
+        sMapDifficultyMap[0][0] = MapDifficulty(DIFFICULTY_NONE, 0, 0, 0, false);                                                                              // Map 0 is missingg from MapDifficulty.dbc use this till its ported to sql
 
         for (uint32 i = 0; i < sMapDifficultyStore.GetNumRows(); ++i)
         {
             if (MapDifficultyEntry const* l_MapDiffculty = sMapDifficultyStore.LookupEntry(i))
             {
-                sMapDifficultyMap[MAKE_PAIR32(l_MapDiffculty->MapId, l_MapDiffculty->Difficulty)] = MapDifficulty(l_MapDiffculty->ResetTime,
+                sMapDifficultyMap[l_MapDiffculty->MapId][l_MapDiffculty->Difficulty] = MapDifficulty(l_MapDiffculty->Difficulty, l_MapDiffculty->ResetTime,
                     l_MapDiffculty->MaxPlayers, l_MapDiffculty->ItemBonusTreeDifficulty, l_MapDiffculty->AreaTriggerText[0] > 0);
             }
         }
@@ -492,8 +493,8 @@ void LoadDBCStores(const std::string& dataPath)
     {
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
         {
-            if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
-                ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+            if (entry->bracketId > MS::Battlegrounds::Brackets::Count)
+                ASSERT(false && "Need update Brackets::Count by DBC data");
         }
     }
 
@@ -774,7 +775,7 @@ SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect, uint3
     if (itr->second.effects[difficulty][effect])
         return itr->second.effects[difficulty][effect];
 
-    return itr->second.effects[NONE_DIFFICULTY][effect];
+    return itr->second.effects[DIFFICULTY_NONE][effect];
 }
 
 SpellEffectScalingEntry const* GetSpellEffectScalingEntry(uint32 effectId)
@@ -979,42 +980,68 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                        // Client have map coords swapped
 }
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID)
 {
-    MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId, difficulty));
-    return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
+    auto l_It = sMapDifficultyMap.find(p_MapID);
+    if (l_It == sMapDifficultyMap.end())
+        return nullptr;
+
+    if (l_It->second.empty())
+        return nullptr;
+
+    for (auto& l_Pair : l_It->second)
+    {
+        DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(l_Pair.first);
+        if (!l_Difficulty)
+            continue;
+
+        if (l_Difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+            return &l_Pair.second;
+    }
+
+    return &l_It->second.begin()->second;
+}
+
+MapDifficulty const* GetMapDifficultyData(uint32 p_MapID, Difficulty p_Difficulty)
+{
+    auto l_It = sMapDifficultyMap.find(p_MapID);
+    if (l_It == sMapDifficultyMap.end())
+        return nullptr;
+
+    auto diffItr = l_It->second.find(p_Difficulty);
+    if (diffItr == l_It->second.end())
+        return nullptr;
+
+    return &diffItr->second;
 }
 
 // @todo: add support for the new difficulty SCENARIO_HEROIC_DIFFICULTY, SCENARIO_DIFFICULTY, and DYNAMIC_DIFFICULTY
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_Difficulty)
 {
-    uint32 tmpDiff = difficulty;
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
-    if (!mapDiff)
-    {
-        if (tmpDiff == LEGACY_MAN25_HEROIC_DIFFICULTY)
-            tmpDiff = LEGACY_MAN25_DIFFICULTY;
-        else if (tmpDiff == LEGACY_MAN10_HEROIC_DIFFICULTY)
-            tmpDiff = LEGACY_MAN10_DIFFICULTY;
-        else
-        {
-            tmpDiff = REGULAR_5_DIFFICULTY;
-        }
+    DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Difficulty);
+    if (!l_DifficultyEntry)
+        return GetDefaultMapDifficulty(mapId);
 
-        // Pull new data
-        mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));     // We are 10 normal or 25 normal
-        if (!mapDiff)
-        {
-            tmpDiff = LEGACY_MAN10_DIFFICULTY;
-            mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
-        }
+    uint32 l_TempDifficulty = l_Difficulty;
+    MapDifficulty const* l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty));
+
+    while (!l_MapDifficulty)
+    {
+        l_TempDifficulty = l_DifficultyEntry->FallbackDifficultyID;
+        l_DifficultyEntry = sDifficultyStore.LookupEntry(l_TempDifficulty);
+
+        if (!l_DifficultyEntry)
+            return GetDefaultMapDifficulty(mapId);
+
+        // pull new data
+        l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty)); // we are 10 normal or 25 normal
     }
 
-    difficulty = Difficulty(tmpDiff);
-    return mapDiff;
+    l_Difficulty = Difficulty(l_TempDifficulty);
+    return l_MapDifficulty;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
+/*vPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvPDifficultyEntry const* maxEntry = NULL;              // Used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
@@ -1036,9 +1063,9 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 lev
     }
 
     return maxEntry;
-}
+}*/
 
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
+/*vPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id)
 {
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
@@ -1046,7 +1073,19 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
                 return entry;
 
     return NULL;
-}
+}*/
+
+/*std::size_t GetBracketSizeByMapId(uint32 p_MapId)
+{
+    std::size_t l_Size = 0;
+
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+        if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
+            if (entry->mapId == p_MapId)
+                l_Size++;
+
+    return l_Size;
+}*/
 
 std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
 {

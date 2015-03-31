@@ -26,6 +26,7 @@
 #include "ByteBuffer.h"
 #include "Unit.h"
 #include "AchievementMgr.h"
+#include "Arena.h"
 
 class Creature;
 class GameObject;
@@ -37,6 +38,475 @@ class Unit;
 
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
+
+#define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
+
+namespace MS
+{
+    namespace Battlegrounds
+    {
+        namespace TeamsCount
+        {
+            enum
+            {
+                Value = 2
+            };
+        }
+
+        /// Correponds to the spells related to battlegrounds.        
+        namespace Spells
+        {
+            enum Type
+            {
+                DeserterBuff = 26013
+            };
+        }
+
+        /// This enum is for INTERNAL purpose, do not use it as a client battleground type id.
+        namespace BattlegroundType
+        {
+            enum Type
+            {
+                /// Begin iterators.
+                Begin                = 0,
+                /// Battlegrounds.
+                AlteracValley        = 0,
+                Warsong              = 1,
+                ArathiBassin         = 2,
+                EyeOfTheStorm        = 3,
+                TwinPeaks            = 4,
+                BattleForGilneas     = 5,
+                StrandOfTheAncients  = 6,
+                IsleOfConquest       = 7,
+                KotmoguTemple        = 8,
+                SilvershardMines     = 9,
+                DeepwindGorge        = 10,
+                /// Arenas.
+                Arena2v2             = 11,
+                Arena3v3             = 12,
+                Arena5v5             = 13,
+                ArenaSkirmish2v2     = 14,
+                ArenaSkirmish3v3     = 15,
+                /// Rated battlegrounds.
+                RatedBg10v10         = 16,
+                /// Instanciable arenas.
+                TigersPeaks          = 17,
+                TolvironArena        = 18,
+                BladeEdgeArena       = 19,
+                DalaranArena         = 20,
+                RuinsOfLordaeron     = 21,
+                NagrandArena         = 22,
+                /// End iterators.
+                End                  = 23,
+                RatedBg15v15,
+                RatedBg25v25,
+                RandomBattleground,
+                AllArenas,
+                Ctf3,
+                /// Arena types.
+                /// Non instanciable.
+                Total,
+                None = End,
+                Max = End,
+                EndArena = ArenaSkirmish3v3,
+                BeginArena = Arena2v2,
+                NumBattlegrounds = Arena2v2,
+                TheRingOfValor, /// Deprecated.
+            };
+
+            /// Check if the BattlegroundType given is a casual battleground.
+            /// @p_Type : The type of the battleground.
+            static bool IsCasualBattleground(Type p_Type)
+            {
+                return p_Type < BattlegroundType::NumBattlegrounds || p_Type == BattlegroundType::RandomBattleground;
+            }
+
+            /// Check if the BattlegroundType given is an instance of an arena.
+            /// @p_Type : The type of the battleground.
+            static bool IsArena(Type p_Type)
+            {
+                return p_Type >= BeginArena && p_Type <= EndArena;
+            }
+
+            /// Check if the BattlegroundType given is a rated battleground.
+            /// @p_Type : The type of the battleground.
+            static bool IsRated(Type p_Type)
+            {
+                return (p_Type == RatedBg10v10 || p_Type == RatedBg15v15 || p_Type == RatedBg25v25) || (p_Type >= Arena2v2 && p_Type <= Arena5v5);
+            }
+            
+            /// Return the ArenaType of the battleground.
+            /// @p_Type : The type of the battleground.
+            static ArenaType GetArenaType(Type p_Type)
+            {
+                switch (p_Type)
+                {
+                case BattlegroundType::Arena2v2:
+                case BattlegroundType::ArenaSkirmish2v2:
+                    return ArenaType::Arena2v2;
+                case BattlegroundType::Arena3v3:
+                case BattlegroundType::ArenaSkirmish3v3:
+                    return ArenaType::Arena3v3;
+                case BattlegroundType::Arena5v5:
+                default:
+                    return ArenaType::Arena5v5;
+                }
+            }
+
+            /// Return true if the arena type is skirmish.
+            static bool IsSkirmish(Type p_Type)
+            {
+                switch (p_Type)
+                {
+                case BattlegroundType::ArenaSkirmish2v2:
+                case BattlegroundType::ArenaSkirmish3v3:
+                    return true;
+                default:
+                    return false;
+                }
+            }
+        }
+
+        struct Bracket
+        {
+            using Id = uint32;
+            Id m_Id;
+            uint32 m_MinLevel;
+            uint32 m_MaxLevel;
+        };
+
+        /// We don't want this variables to be accessible outside of the file.
+        namespace
+        {
+            static std::map<uint32, BattlegroundType::Type> k_MapIdToBattlegroundType =
+            {
+                { 489, BattlegroundType::Warsong },
+                { 529, BattlegroundType::ArathiBassin },
+                { 566, BattlegroundType::EyeOfTheStorm },
+                { 30, BattlegroundType::AlteracValley },
+                { 761, BattlegroundType::BattleForGilneas },
+                { 726, BattlegroundType::TwinPeaks },
+                { 727, BattlegroundType::SilvershardMines },
+                { 998, BattlegroundType::KotmoguTemple },
+                { 1105, BattlegroundType::DeepwindGorge },
+                { 607, BattlegroundType::StrandOfTheAncients },
+                { 628, BattlegroundType::IsleOfConquest }
+            };
+
+            static const Bracket k_Brackets[] =
+            {
+                /// Normals.
+                { 0, 0, 9 },
+                { 1, 15, 19 },
+                { 2, 10, 19 },
+                { 3, 25, 29 },
+                { 4, 20, 29 },
+                { 5, 35, 39 },
+                { 6, 30, 39 },
+                { 7, 45, 49 },
+                { 8, 40, 49 },
+                { 9, 55, 59 },
+                { 10, 50, 59 },
+                { 11, 60, 69 },
+                { 12, 70, 79 },
+                { 13, 80, 89 },
+                { 14, 90, 90 },
+                { 15, 90, 99 },
+                { 16, 100, 100 },
+                { 17, 150, 150 }
+            };
+        }
+
+        namespace Maps
+        {
+            static BattlegroundType::Type FindAssociatedType(uint32 p_MapId)
+            {
+                auto l_Itr = k_MapIdToBattlegroundType.find(p_MapId);
+                if (l_Itr != std::end(k_MapIdToBattlegroundType))
+                    return l_Itr->second;
+
+                return BattlegroundType::None;
+            }
+        }
+
+        namespace Brackets
+        {
+            enum
+            {
+                Count = sizeof (k_Brackets) / sizeof (k_Brackets[0])
+            };
+
+            static Bracket const* FindForLevel(std::size_t p_Level)
+            {
+                for (std::size_t i = 0; i < Count; i++)
+                {
+                    if (k_Brackets[i].m_MinLevel <= p_Level && p_Level <= k_Brackets[i].m_MaxLevel)
+                        return &k_Brackets[i];
+                }
+
+                return nullptr;
+            }
+
+            static Bracket const* RetreiveFromId(Bracket::Id p_Id)
+            {
+                return &k_Brackets[p_Id];
+            }
+        }
+
+        static BattlegroundTypeId GetIdFromType(BattlegroundType::Type p_Type)
+        {
+            switch (p_Type)
+            {
+            case BattlegroundType::Warsong:
+                return BATTLEGROUND_WS;
+            case BattlegroundType::ArathiBassin:
+                return BATTLEGROUND_AB;
+            case BattlegroundType::AlteracValley:
+                return BATTLEGROUND_AV;
+            case BattlegroundType::EyeOfTheStorm:
+                return BATTLEGROUND_EY;
+            case BattlegroundType::StrandOfTheAncients:
+                return BATTLEGROUND_SA;
+            case BattlegroundType::IsleOfConquest:
+                return BATTLEGROUND_IC;
+            case BattlegroundType::TwinPeaks:
+                return BATTLEGROUND_TP;
+            case BattlegroundType::BattleForGilneas:
+                return BATTLEGROUND_BFG;
+            case BattlegroundType::RandomBattleground:
+                return BATTLEGROUND_RB;
+            case BattlegroundType::KotmoguTemple:
+                return BATTLEGROUND_KT;
+            case BattlegroundType::Ctf3:
+                return BATTLEGROUND_CTF3;
+            case BattlegroundType::SilvershardMines:
+                return BATTLEGROUND_SM;
+            case BattlegroundType::DeepwindGorge:
+                return BATTLEGROUND_DG;
+            case BattlegroundType::TigersPeaks:
+                return BATTLEGROUND_TTP;
+            case BattlegroundType::TolvironArena:
+                return BATTLEGROUND_TV;
+            case BattlegroundType::BladeEdgeArena:
+                return BATTLEGROUND_BE;
+            case BattlegroundType::DalaranArena:
+                return BATTLEGROUND_DS;
+            case BattlegroundType::RuinsOfLordaeron:
+                return BATTLEGROUND_RL;
+            case BattlegroundType::NagrandArena:
+                return BATTLEGROUND_NA;
+            case BattlegroundType::TheRingOfValor:
+                return BATTLEGROUND_RV;
+            case BattlegroundType::RatedBg10v10:
+                return BATTLEGROUND_RATED_10_VS_10;
+            case BattlegroundType::RatedBg15v15:
+                return BATTLEGROUND_RATED_15_VS_15;
+            case BattlegroundType::RatedBg25v25:
+                return BATTLEGROUND_RATED_25_VS_25;
+            case BattlegroundType::AllArenas:
+                return BATTLEGROUND_AA;
+            default:
+                return BATTLEGROUND_TYPE_NONE;
+            }
+        }
+
+        static BattlegroundType::Type GetTypeFromId(BattlegroundTypeId p_BgTypeId, uint8 p_ArenaType, bool p_IsSkirmish = false)
+        {
+            switch (p_BgTypeId)
+            {
+            case BATTLEGROUND_WS:
+                return BattlegroundType::Warsong;
+            case BATTLEGROUND_AB:
+                return BattlegroundType::ArathiBassin;
+            case BATTLEGROUND_AV:
+                return BattlegroundType::AlteracValley;
+            case BATTLEGROUND_EY:
+                return BattlegroundType::EyeOfTheStorm;
+            case BATTLEGROUND_SA:
+                return BattlegroundType::StrandOfTheAncients;
+            case BATTLEGROUND_IC:
+                return BattlegroundType::IsleOfConquest;
+            case BATTLEGROUND_TP:
+                return BattlegroundType::TwinPeaks;
+            case BATTLEGROUND_BFG:
+                return BattlegroundType::BattleForGilneas;
+            case BATTLEGROUND_RB:
+                return BattlegroundType::RandomBattleground;
+            case BATTLEGROUND_KT:
+                return BattlegroundType::KotmoguTemple;
+            case BATTLEGROUND_CTF3:
+                return BattlegroundType::Ctf3;
+            case BATTLEGROUND_SM:
+                return BattlegroundType::SilvershardMines;
+            case BATTLEGROUND_DG:
+                return BattlegroundType::DeepwindGorge;
+            case BATTLEGROUND_RATED_10_VS_10:
+                return BattlegroundType::RatedBg10v10;
+            case BATTLEGROUND_RATED_15_VS_15:
+                return BattlegroundType::RatedBg15v15;
+            case BATTLEGROUND_RATED_25_VS_25:
+                return BattlegroundType::RatedBg25v25;
+            case BATTLEGROUND_AA:
+            case BATTLEGROUND_NA:
+            case BATTLEGROUND_TV:
+            case BATTLEGROUND_TTP:
+            case BATTLEGROUND_RL:
+            case BATTLEGROUND_BE:
+            case BATTLEGROUND_DS:
+            case BATTLEGROUND_RV:
+                switch (p_ArenaType)
+                {
+                case ArenaType::Arena2v2:
+                    return p_IsSkirmish ? BattlegroundType::ArenaSkirmish2v2 : BattlegroundType::Arena2v2;
+                case ArenaType::Arena3v3:
+                    return p_IsSkirmish ? BattlegroundType::ArenaSkirmish3v3 : BattlegroundType::Arena3v3;
+                case ArenaType::Arena5v5:
+                    return BattlegroundType::Arena5v5;
+                default:
+                    return BattlegroundType::None;
+                }
+            default:
+                return BattlegroundType::None;
+            }
+        }
+
+        static BattlegroundType::Type GetSchedulerType(BattlegroundTypeId p_BgTypeId)
+        {
+            switch (p_BgTypeId)
+            {
+            case BATTLEGROUND_WS:
+                return BattlegroundType::Warsong;
+            case BATTLEGROUND_AB:
+                return BattlegroundType::ArathiBassin;
+            case BATTLEGROUND_AV:
+                return BattlegroundType::AlteracValley;
+            case BATTLEGROUND_EY:
+                return BattlegroundType::EyeOfTheStorm;
+            case BATTLEGROUND_SA:
+                return BattlegroundType::StrandOfTheAncients;
+            case BATTLEGROUND_IC:
+                return BattlegroundType::IsleOfConquest;
+            case BATTLEGROUND_TP:
+                return BattlegroundType::TwinPeaks;
+            case BATTLEGROUND_BFG:
+                return BattlegroundType::BattleForGilneas;
+            case BATTLEGROUND_RB:
+                return BattlegroundType::RandomBattleground;
+            case BATTLEGROUND_KT:
+                return BattlegroundType::KotmoguTemple;
+            case BATTLEGROUND_CTF3:
+                return BattlegroundType::Ctf3;
+            case BATTLEGROUND_SM:
+                return BattlegroundType::SilvershardMines;
+            case BATTLEGROUND_DG:
+                return BattlegroundType::DeepwindGorge;
+            case BATTLEGROUND_RATED_10_VS_10:
+                return BattlegroundType::RatedBg10v10;
+            case BATTLEGROUND_RATED_15_VS_15:
+                return BattlegroundType::RatedBg15v15;
+            case BATTLEGROUND_RATED_25_VS_25:
+                return BattlegroundType::RatedBg25v25;
+            case BATTLEGROUND_AA:
+                return BattlegroundType::AllArenas;
+            case BATTLEGROUND_NA:
+                return BattlegroundType::NagrandArena;
+            case BATTLEGROUND_TV:
+                return BattlegroundType::TolvironArena;
+            case BATTLEGROUND_TTP:
+                return BattlegroundType::TigersPeaks;
+            case BATTLEGROUND_RL:
+                return BattlegroundType::RuinsOfLordaeron;
+            case BATTLEGROUND_BE:
+                return BattlegroundType::BladeEdgeArena;
+            case BATTLEGROUND_DS:
+                return BattlegroundType::DalaranArena;
+            case BATTLEGROUND_RV:
+                return BattlegroundType::TheRingOfValor;
+            default:
+                return BattlegroundType::None;
+            }
+        }
+
+        static bool IsArenaType(BattlegroundType::Type p_BgType)
+        {
+            return (p_BgType == BattlegroundType::AllArenas ||
+                p_BgType == BattlegroundType::BladeEdgeArena ||
+                p_BgType == BattlegroundType::NagrandArena ||
+                p_BgType == BattlegroundType::TigersPeaks ||
+                p_BgType == BattlegroundType::TolvironArena ||
+                p_BgType == BattlegroundType::DalaranArena ||
+                p_BgType == BattlegroundType::TheRingOfValor ||
+                p_BgType == BattlegroundType::RuinsOfLordaeron);
+        }
+
+        static uint8 BGArenaType(BattlegroundType::Type p_BgType)
+        {
+            switch (p_BgType)
+            {
+            case BattlegroundType::Arena2v2:
+            case BattlegroundType::ArenaSkirmish2v2:
+                return ArenaType::Arena2v2;
+            case BattlegroundType::Arena3v3:
+            case BattlegroundType::ArenaSkirmish3v3:
+                return ArenaType::Arena3v3;
+            case BattlegroundType::Arena5v5:
+                return ArenaType::Arena5v5;
+            default:
+                return 0;
+            }
+        }
+    }
+}
+struct GroupQueueInfo;                                      // type predefinition
+struct PlayerQueueInfo                                      // stores information for players in queue
+{
+    /// Internal structure.
+    struct Pair
+    {
+        uint32 LastOnlineTime;      /// For tracking and removing offline players from queue after 5 minutes.
+        GroupQueueInfo* GroupInfo;  /// Information of the group currently queued.
+    };  
+
+    std::list<Pair> Infos;
+};
+
+struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
+{
+    std::map<uint64, PlayerQueueInfo*> m_Players;             // player queue info map
+    uint32  m_Team;                                           // Player team (ALLIANCE/HORDE)
+    MS::Battlegrounds::BattlegroundType::Type m_BgTypeId;                            // battleground type id
+    bool    m_IsRatedBG;                                      // rated battleground
+    bool    m_IsSkirmish;                                     // skirmish arena
+    bool    m_IsRandom;
+    ArenaType   m_ArenaType;                                  // 2v2, 3v3, 5v5 or 0 when BG
+    uint32  m_JoinTime;                                       // time when group was added
+    uint32  m_RemoveInviteTime;                               // time when we will remove invite for players in group
+    uint32  m_IsInvitedToBGInstanceGUID;                      // was invited to certain BG
+    uint32  m_ArenaTeamRating;                                // if rated match, inited to the rating of the team
+    uint32  m_ArenaMatchmakerRating;                          // if rated match, inited to the rating of the team
+    uint32  m_OpponentsTeamRating;                            // for rated arena matches
+    uint32  m_OpponentsMatchmakerRating;                      // for rated arena matches
+    Group* m_Group;
+    uint64 m_WantedBGs;
+    uint32 m_BracketId;
+
+    uint32 GetTeam() const
+    {
+        return m_Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE;
+    }
+};
+
+/// - See Script_GetBattlefieldStatus clientside (queueType)
+/// - Last update 6.0.3 19116
+enum class BattlegroundQueueType : uint8
+{
+    Battleground = 0,
+    Arena = 1,
+    WorldPvP = 2,
+    WarGame = 3,
+    Cheat = 4,
+    ArenaSkirmish = 5
+};
 
 enum BattlegroundSounds
 {
@@ -201,33 +671,6 @@ struct BattlegroundObjectInfo
     uint32      spellid;
 };
 
-// handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
-enum BattlegroundQueueTypeId
-{
-    BATTLEGROUND_QUEUE_NONE           = 0,
-    BATTLEGROUND_QUEUE_AV             = 1,
-    BATTLEGROUND_QUEUE_WS             = 2,
-    BATTLEGROUND_QUEUE_AB             = 3,
-    BATTLEGROUND_QUEUE_EY             = 4,
-    BATTLEGROUND_QUEUE_SA             = 5,
-    BATTLEGROUND_QUEUE_IC             = 6,
-    BATTLEGROUND_QUEUE_TP             = 7,
-    BATTLEGROUND_QUEUE_BFG            = 8,
-    BATTLEGROUND_QUEUE_RB             = 9,
-    BATTLEGROUND_QUEUE_2v2            = 10,
-    BATTLEGROUND_QUEUE_3v3            = 11,
-    BATTLEGROUND_QUEUE_5v5            = 12,
-    BATTLEGROUND_QUEUE_KT             = 13,
-    BATTLEGROUND_QUEUE_CTF3           = 14,
-    BATTLEGROUND_QUEUE_SM             = 15,
-    BATTLEGROUND_QUEUE_DG             = 16,
-    BATTLEGROUND_QUEUE_RATED_10_VS_10 = 17,
-    BATTLEGROUND_QUEUE_RATED_15_VS_15 = 18,
-    BATTLEGROUND_QUEUE_RATED_25_VS_25 = 19,
-    BATTLEGROUND_QUEUE_SKIRMISH_2V2   = 20,
-    BATTLEGROUND_QUEUE_SKIRMISH_3V3   = 21,
-    MAX_BATTLEGROUND_QUEUE_TYPES
-};
 
 /// - See Blizzard_PVPUI.lua, ARENA_DATA array
 /// - Last update : 6.0.3 19116
@@ -297,7 +740,6 @@ enum BattlegroundTeamId
     BG_TEAM_ALLIANCE        = 0,
     BG_TEAM_HORDE           = 1
 };
-#define BG_TEAMS_COUNT  2
 
 enum BattlegroundStartingEvents
 {
@@ -413,12 +855,13 @@ class Battleground
         char const* GetName() const         { return m_Name; }
         uint64 GetGUID() const { return m_Guid; }
         BattlegroundTypeId GetTypeID(bool GetRandom = false) const { return GetRandom ? m_RandomTypeID : m_TypeID; }
-        BattlegroundBracketId GetBracketId() const { return m_BracketId; }
+        MS::Battlegrounds::Bracket::Id GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetElapsedTime() const       { return m_StartTime; }
         uint32 GetRemainingTime() const     { return m_EndTime; }
+        uint32 GetExpirationDate() const    { return 0; } ///< Handled differently.
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -438,6 +881,11 @@ class Battleground
         bool IsRatedBG() const              { return m_IsRatedBg; }
         bool IsSkirmish() const             { return m_IsSkirmish; }
 
+        bool CanGroupEnter(GroupQueueInfo const* p_Group) const
+        {
+            return GetStatus() <= BattlegroundStatus::STATUS_IN_PROGRESS && static_cast<int>(GetMaxPlayersPerTeam() - GetInvitedCount(p_Group->m_Team) - m_PlayersCount[p_Group->GetTeam()] - p_Group->m_Players.size()) >= 0;
+        }
+
         uint32 GetBonusHonorFromKill(uint32 kills) const;
 
         // Set methods:
@@ -446,7 +894,7 @@ class Battleground
         void InitGUID();
         void SetRandomTypeID(BattlegroundTypeId TypeID) { m_RandomTypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
-        void SetBracket(PvPDifficultyEntry const* bracketEntry);
+        void SetBracket(MS::Battlegrounds::Bracket const* bracketEntry);
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
@@ -473,9 +921,6 @@ class Battleground
         void SetMaxPlayersPerTeam(uint32 MaxPlayers) { m_MaxPlayersPerTeam = MaxPlayers; }
         void SetMinPlayersPerTeam(uint32 MinPlayers) { m_MinPlayersPerTeam = MinPlayers; }
 
-        void AddToBGFreeSlotQueue();                        //this queue will be useful when more battlegrounds instances will be available
-        void RemoveFromBGFreeSlotQueue();                   //this method could delete whole BG instance, if another free is available
-
         void DecreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? --m_InvitedAlliance : --m_InvitedHorde; }
         void IncreaseInvitedCount(uint32 team)      { (team == ALLIANCE) ? ++m_InvitedAlliance : ++m_InvitedHorde; }
 
@@ -485,7 +930,6 @@ class Battleground
 
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
-        uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
@@ -584,7 +1028,7 @@ class Battleground
         // used for rated arena battles
         int32 GetArenaTeamRatingChangeByIndex(uint32 index) const
         {
-            if (index >= BG_TEAMS_COUNT)
+            if (index >= MS::Battlegrounds::TeamsCount::Value)
                 return 0;
 
             return m_ArenaTeamRatingChanges[index];
@@ -592,7 +1036,7 @@ class Battleground
 
         uint32 GetArenaMatchmakerRatingByIndex(uint32 index) const
         {
-            if (index >= BG_TEAMS_COUNT)
+            if (index >= MS::Battlegrounds::TeamsCount::Value)
                 return 0;
 
             return m_ArenaTeamMMR[index];
@@ -671,7 +1115,7 @@ class Battleground
         void SetDeleteThis() { m_SetDeleteThis = true; }
 
         // virtual score-array - get's used in bg-subclasses
-        int32 m_TeamScores[BG_TEAMS_COUNT];
+        int32 m_TeamScores[MS::Battlegrounds::TeamsCount::Value];
 
         void RewardXPAtKill(Player* killer, Player* victim);
         bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
@@ -741,8 +1185,9 @@ class Battleground
         uint32 m_ResetStatTimer;
         uint32 m_ValidStartPositionTimer;
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
+        int32 m_CreationTime;
         uint32 m_LastResurrectTime;
-        BattlegroundBracketId m_BracketId;
+        MS::Battlegrounds::Bracket::Id m_BracketId;
         uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
@@ -801,16 +1246,16 @@ class Battleground
         uint32 m_InvitedHorde;
 
         // Raid Group
-        Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
+        Group* m_BgRaids[MS::Battlegrounds::TeamsCount::Value];                   // 0 - alliance, 1 - horde
 
         // Players count by team
-        uint32 m_PlayersCount[BG_TEAMS_COUNT];
+        uint32 m_PlayersCount[MS::Battlegrounds::TeamsCount::Value];
 
         // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamIds[MS::Battlegrounds::TeamsCount::Value];
 
-        int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
-        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
+        int32 m_ArenaTeamRatingChanges[MS::Battlegrounds::TeamsCount::Value];
+        uint32 m_ArenaTeamMMR[MS::Battlegrounds::TeamsCount::Value];
 
         // Limits
         uint32 m_LevelMin;
@@ -823,10 +1268,10 @@ class Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        float m_TeamStartLocX[BG_TEAMS_COUNT];
-        float m_TeamStartLocY[BG_TEAMS_COUNT];
-        float m_TeamStartLocZ[BG_TEAMS_COUNT];
-        float m_TeamStartLocO[BG_TEAMS_COUNT];
+        float m_TeamStartLocX[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocY[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocZ[MS::Battlegrounds::TeamsCount::Value];
+        float m_TeamStartLocO[MS::Battlegrounds::TeamsCount::Value];
         float m_StartMaxDist;
         uint32 m_holiday;
         uint32 ScriptId;

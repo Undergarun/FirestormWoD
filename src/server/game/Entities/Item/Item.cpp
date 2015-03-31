@@ -300,6 +300,8 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     if (!itemProto)
         return false;
 
+    loot.SetSource(GetGUID());
+
     // For Item Upgrade
     /*if (CanUpgrade())
     {
@@ -672,7 +674,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
     /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
-    if (p_ItemBonusDifficulty == Difficulty::HEROIC_5_DIFFICULTY)
+    if (p_ItemBonusDifficulty == Difficulty::DIFFICULTY_HEROIC)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
@@ -1313,168 +1315,116 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified() const
+bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
 {
-    ItemTemplate const* proto = GetTemplate();
-
-    if (!proto)
+    ///   Source     Destination
+    if (!p_Transmogrifier || !p_Transmogrified)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-        return false;
-
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
-        return false;
-
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
-        return false;
-
-    return true;
-}
-
-bool Item::CanTransmogrify() const
-{
-    ItemTemplate const* proto = GetTemplate();
-
-    if (!proto)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
-        return false;
-
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-        return false;
-
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
-        return false;
-
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+    /// Patch 5.2 - Throne of Thunder
+    /// One-Handed
+    /// One-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
         return true;
 
-    return true;
-}
-
-bool Item::SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const
-{
-    //   Source     Destination
-    if (!proto1 || !proto2)
-        return false;
-
-    // Patch 5.2 - Throne of Thunder
-    // One-Handed
-    // One-handed axes, maces, and swords can be Transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
+    /// Two-Handed
+    /// Two-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
         return true;
 
-    // Two-Handed
-    // Two-handed axes, maces, and swords can be Transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
+    /// Ranged
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
         return true;
 
-    // Ranged
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
-        return true;
-
-    // Polearm and Staff
-    // Staves and polearms can be transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
+    /// Polearm and Staff
+    /// Staves and polearms can be transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
         return true;
 
     return false;
 }
 
-bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)
+bool Item::CanTransmogrifyItemWithItem(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
 {
-    if (!transmogrifier || !transmogrified)
+    if (!p_Transmogrified || !p_Transmogrifier)
         return false;
 
-    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
-
-    if (proto1->ItemId == proto2->ItemId)
+    if (p_Transmogrified->ItemId == p_Transmogrifier->ItemId)
         return false;
 
-    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+    if (!p_Transmogrifier->CanTransmogrify() || !p_Transmogrified->CanBeTransmogrified())
         return false;
 
-    if (proto1->InventoryType == INVTYPE_BAG ||
-        proto1->InventoryType == INVTYPE_RELIC ||
-        proto1->InventoryType == INVTYPE_BODY ||
-        proto1->InventoryType == INVTYPE_FINGER ||
-        proto1->InventoryType == INVTYPE_TRINKET ||
-        proto1->InventoryType == INVTYPE_AMMO ||
-        proto1->InventoryType == INVTYPE_QUIVER ||
-        proto1->InventoryType == INVTYPE_NON_EQUIP ||
-        proto1->InventoryType == INVTYPE_TABARD)
+    if (p_Transmogrified->InventoryType == INVTYPE_BAG ||
+        p_Transmogrified->InventoryType == INVTYPE_RELIC ||
+        p_Transmogrified->InventoryType == INVTYPE_BODY ||
+        p_Transmogrified->InventoryType == INVTYPE_FINGER ||
+        p_Transmogrified->InventoryType == INVTYPE_TRINKET ||
+        p_Transmogrified->InventoryType == INVTYPE_AMMO ||
+        p_Transmogrified->InventoryType == INVTYPE_QUIVER ||
+        p_Transmogrified->InventoryType == INVTYPE_NON_EQUIP ||
+        p_Transmogrified->InventoryType == INVTYPE_TABARD)
         return false;
 
-    if (proto2->InventoryType == INVTYPE_BAG ||
-        proto2->InventoryType == INVTYPE_RELIC ||
-        proto2->InventoryType == INVTYPE_BODY ||
-        proto2->InventoryType == INVTYPE_FINGER ||
-        proto2->InventoryType == INVTYPE_TRINKET ||
-        proto2->InventoryType == INVTYPE_AMMO ||
-        proto2->InventoryType == INVTYPE_QUIVER ||
-        proto2->InventoryType == INVTYPE_NON_EQUIP ||
-        proto2->InventoryType == INVTYPE_TABARD)
+    if (p_Transmogrifier->InventoryType == INVTYPE_BAG ||
+        p_Transmogrifier->InventoryType == INVTYPE_RELIC ||
+        p_Transmogrifier->InventoryType == INVTYPE_BODY ||
+        p_Transmogrifier->InventoryType == INVTYPE_FINGER ||
+        p_Transmogrifier->InventoryType == INVTYPE_TRINKET ||
+        p_Transmogrifier->InventoryType == INVTYPE_AMMO ||
+        p_Transmogrifier->InventoryType == INVTYPE_QUIVER ||
+        p_Transmogrifier->InventoryType == INVTYPE_NON_EQUIP ||
+        p_Transmogrifier->InventoryType == INVTYPE_TABARD)
         return false;
 
-    if (proto1->Class != proto2->Class)
+    if (p_Transmogrified->Class != p_Transmogrifier->Class)
         return false;
 
-    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()) &&
-        (proto1->SubClass != proto2->SubClass && !transmogrifier->SubclassesCompatible(proto1, proto2)))
+    if (p_Transmogrified->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (p_Transmogrified->Class != ITEM_CLASS_WEAPON || !p_Transmogrifier->IsRangedWeapon() || !p_Transmogrified->IsRangedWeapon()) &&
+        (p_Transmogrified->SubClass != p_Transmogrifier->SubClass && !Item::SubclassesCompatible(p_Transmogrified, p_Transmogrifier)))
         return false;
 
-    if (proto1->InventoryType != proto2->InventoryType)
+    if (p_Transmogrified->InventoryType != p_Transmogrifier->InventoryType)
     {
-        if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
+        if (p_Transmogrified->Class == ITEM_CLASS_WEAPON && p_Transmogrifier->Class == ITEM_CLASS_WEAPON)
         {
-            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND ||
-                proto1->InventoryType == INVTYPE_WEAPONOFFHAND || proto1->InventoryType == INVTYPE_RANGED || proto1->InventoryType == INVTYPE_RANGEDRIGHT) &&
-                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||
-                proto2->InventoryType == INVTYPE_WEAPONOFFHAND || proto2->InventoryType == INVTYPE_RANGED || proto2->InventoryType == INVTYPE_RANGEDRIGHT)))
+            if (!((p_Transmogrified->InventoryType == INVTYPE_WEAPON || p_Transmogrified->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                p_Transmogrified->InventoryType == INVTYPE_WEAPONOFFHAND || p_Transmogrified->InventoryType == INVTYPE_RANGED || p_Transmogrified->InventoryType == INVTYPE_RANGEDRIGHT) &&
+                (p_Transmogrifier->InventoryType == INVTYPE_WEAPON || p_Transmogrifier->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                p_Transmogrifier->InventoryType == INVTYPE_WEAPONOFFHAND || p_Transmogrifier->InventoryType == INVTYPE_RANGED || p_Transmogrifier->InventoryType == INVTYPE_RANGEDRIGHT)))
                 return false;
         }
-        else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        else if (p_Transmogrified->Class == ITEM_CLASS_ARMOR && p_Transmogrifier->Class == ITEM_CLASS_ARMOR)
         {
-            if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
-                (proto2->InventoryType == INVTYPE_CHEST || proto2->InventoryType == INVTYPE_ROBE)))
+            if (!((p_Transmogrified->InventoryType == INVTYPE_CHEST || p_Transmogrified->InventoryType == INVTYPE_ROBE) &&
+                (p_Transmogrifier->InventoryType == INVTYPE_CHEST || p_Transmogrifier->InventoryType == INVTYPE_ROBE)))
                 return false;
         }
     }
 
-    // Check armor types
-    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR))
+    /// Check armor types
+    if (p_Transmogrified->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (p_Transmogrified->Class == ITEM_CLASS_ARMOR || p_Transmogrifier->Class == ITEM_CLASS_ARMOR))
     {
-        uint32 skill1 = proto1->GetSkill();
-        uint32 skill2 = proto2->GetSkill();
+        uint32 skill1 = p_Transmogrified->GetSkill();
+        uint32 skill2 = p_Transmogrifier->GetSkill();
 
         if ((skill1 == SKILL_PLATE_MAIL || skill1 == SKILL_LEATHER ||
             skill1 == SKILL_MAIL || skill1 == SKILL_CLOTH) ||

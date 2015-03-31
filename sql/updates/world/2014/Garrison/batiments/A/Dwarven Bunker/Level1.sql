@@ -26,6 +26,8 @@ INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(8
 
 UPDATE creature_template SET ScriptName="npc_KristenStoneforge_Garr", gossip_menu_id = 17025, `npcflag`=`npcflag`|4227 WHERE entry = 77377;
 
+UPDATE creature_loot_template SET ChanceOrQuestChance = ChanceOrQuestChance * -1 WHERE item=113681 AND ChanceOrQuestChance  < 0;
+
 DELETE FROM `npc_vendor` WHERE `entry` = 77377 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (77377, 0, 113789, 0, 0, 5287, 1), 

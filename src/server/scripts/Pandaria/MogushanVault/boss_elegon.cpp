@@ -568,7 +568,7 @@ class boss_elegon : public CreatureScript
                     caster->SendSpellMiss(me, spell->Id, SPELL_MISS_MISS);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
 
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
@@ -1035,7 +1035,7 @@ class mob_empyreal_focus : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealth() < damage)
                 {
@@ -1122,7 +1122,7 @@ class mob_celestial_protector : public CreatureScript
                     AttackStart(player);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (!stabilityFluxCasted)
                 {
@@ -2069,9 +2069,9 @@ class spell_total_annihilation: public SpellScriptLoader
                     if (!caster->GetInstanceScript()->instance->IsHeroic())
                         return;
 
-                    uint8 diffic = caster->GetMap()->GetDifficulty();
+                    uint8 diffic = caster->GetMap()->GetDifficultyID();
 
-                    if ((!targetCount &&  diffic == LEGACY_MAN10_DIFFICULTY) || (targetCount < 3 && diffic == LEGACY_MAN25_DIFFICULTY))
+                    if ((!targetCount &&  diffic == DIFFICULTY_10_N) || (targetCount < 3 && diffic == DIFFICULTY_25_N))
                         caster->CastSpell(caster, SPELL_CATASTROPHIC_ANOMALY, false);
                 }
             }

@@ -60,9 +60,18 @@ class ScriptMgr
 
     /// AreaTriggerScript
     public:
+        /// Assign script to Areatrigger
+        void InitScriptEntity(AreaTrigger* p_AreaTrigger);
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         void OnCreateAreaTriggerEntity(AreaTrigger * p_AreaTrigger);
+        /// Procs before creation to specify position and linear destination of the areatrigger
+        /// @p_AreaTrigger: Areatrigger Instance
+        /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
+        /// @p_SourcePosition: Spawn location of the Areatrigger
+        /// @p_DestinationPostion: Linear destination of the Areatrigger
+        /// @p_PathToLinearDestination: Linear path without the endpoint
+        void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination);
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
@@ -399,9 +408,11 @@ class ScriptMgr
         void OnSocketClose(WorldSocket * p_Socket, bool p_WasNew);
 
         /// Called when a packet is sent to a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
-        /// @p_Socket : Socket who send the packet
-        /// @p_Packet : Sent packet
-        void OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet);
+        /// @p_Socket  : Socket who send the packet
+        /// @p_Packet  : Sent packet
+        /// @p_Session : Session who receive the packet /!\ CAN BE NULLPTR
+        void OnPacketReceive(WorldSocket * p_Socket, WorldPacket p_Packet, WorldSession* p_Session = nullptr);
+
         /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
         /// @p_Socket : Socket who received the packet
         /// @p_Packet : Received packet
@@ -546,26 +557,31 @@ class ScriptMgr
         /// @p_SourceInfo : Condition  source
         bool OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo);
 
-    /// PlayerScript
+        /// PlayerScript
     public:
+        
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPVPKill(Player * p_Killer, Player * p_Killed);
+        
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnCreatureKill(Player * p_Killer, Creature * p_Killed);
+        
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
         void OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed);
-
-        /// Called when a player kills another player
+        
+        /// Called when power change is modify (SetPower)
         /// @p_Player : Player instance
         /// @p_Power  : Power type
-        /// @p_Value  : New value
-        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_Value);
+        /// @p_OldValue  : Old value
+        /// @p_NewValue  : New value
+        /// @p_Regen  : If it's a regen modification
+        void OnModifyPower(Player * p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen);
 
         /// Called when a player kills another player
         /// @p_Player : Player instance
@@ -613,6 +629,11 @@ class ScriptMgr
         /// @p_Looser         : Duel looser
         /// @p_CompletionType : Duel Completion Type
         void OnPlayerDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType);
+
+        /// Called when the player get Teleport
+        /// @p_Player : Player
+        /// @p_SpellID : SpellID
+        void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo);
 
         /// The following methods are called when a player sends a chat message. (World)
         /// @p_Player  : Player instance
@@ -673,15 +694,23 @@ class ScriptMgr
         /// Called when a player logs in.
         /// @p_Player : Player instance
         void OnPlayerLogin(Player * p_Player);
+
         /// Called when a player logs out.
         /// @p_Player : Player instance
         void OnPlayerLogout(Player * p_Player);
+
         /// Called when a player is created.
         /// @p_Player : Player instance
         void OnPlayerCreate(Player * p_Player);
+
         /// Called when a player is deleted.
         /// @p_GUID : Player instance
         void OnPlayerDelete(uint64 p_GUID);
+
+        /// Called when a update() of a player is done
+        /// @p_Player : Player instance
+        /// @p_Diff : diff time
+        void OnPlayerUpdate(Player * p_Player, uint32 p_Diff);
 
         /// Called when a player is bound to an instance
         /// @p_Player     : Player instance
@@ -728,10 +757,22 @@ class ScriptMgr
         /// @p_Form   : New shapeshift from
         void OnPlayerChangeShapeshift(Player * p_Player, ShapeshiftForm p_Form);
 
+        /// Called when a player changes his faction
+        /// @p_Player : Player instance
+        void OnPlayerFactionChanged(Player* p_Player);
+
         /// Called when a player loot an item
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
         void OnPlayerItemLooted(Player* p_Player, Item * p_Item);
+
+        /// Called when a player enter in combat
+        /// @p_Player : Player instance
+        void OnPlayerEnterInCombat(Player * p_Player);
+
+        /// Called when a player leave combat status
+        /// @p_Player : Player instance
+        void OnPlayerLeaveCombat(Player * p_Player);
 
         /// Called when a player receive a scene triggered event
         /// @p_Player          : Player instance
@@ -743,6 +784,20 @@ class ScriptMgr
         /// @p_Player          : Player instance
         /// @p_SceneInstanceID : Standalone scene instance ID
         void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId);
+
+        /// Called when a player regen a power
+        /// @p_Player         : Player instance
+        /// @p_Power          : Power to be regenerate
+        /// @p_AddValue       : amount of power to regenerate
+        /// @p_PreventDefault : avoid default regeneration
+        void OnPlayerRegenPower(Player * p_Player, Powers const p_Power, float& p_AddValue, bool& p_PreventDefault);
+
+        /// Called when a player take damage
+        /// @p_Player          : Player instance
+        /// @p_DamageEffectTyp : Damage type
+        /// @p_Damage          : Amount of damage taken
+        void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage);
+
 
     /// BattlegroundScript
     public:

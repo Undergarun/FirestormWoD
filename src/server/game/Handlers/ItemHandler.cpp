@@ -998,7 +998,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
@@ -1034,7 +1034,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(0);                                  ///< Extended cost ID
             l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
 
-            l_ItemDataBuffer.WriteBit(true);                                ///< Do not filter on vendor
+            l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();
 
             l_ItemCount++;
@@ -1167,14 +1167,6 @@ void WorldSession::HandleBuyReagentBankOpcode(WorldPacket& p_RecvData)
 
     m_Player->ModifyMoney(-int64(l_RegentBankPrice));
     m_Player->UnlockReagentBank();
-}
-
-void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
-{
-    if (!m_Player->HasUnlockedReagentBank())
-        return;
-
-    /// TODO
 }
 
 void WorldSession::HandleDepositAllReagentsOpcode(WorldPacket& p_RecvData)
@@ -1792,34 +1784,25 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recvData)
 void WorldSession::HandleItemRefundInfoRequest(WorldPacket& p_Packet)
 {
     uint64 l_Guid = 0;
-
     p_Packet.readPackGUID(l_Guid);
 
-    Item * l_Item = m_Player->GetItemByGuid(l_Guid);
-
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
     if (!l_Item)
         return;
 
-    GetPlayer()->SendRefundInfo(l_Item);
+    m_Player->SendRefundInfo(l_Item);
 }
 
-void WorldSession::HandleItemRefund(WorldPacket& recvData)
+void WorldSession::HandleItemRefund(WorldPacket& p_Packet)
 {
-    ObjectGuid itemGuid;
+    uint64 l_Guid = 0;
+    p_Packet.readPackGUID(l_Guid);
 
-    uint8 bitsOrder[8] = { 4, 7, 6, 5, 0, 3, 2, 1 };
-    recvData.ReadBitInOrder(itemGuid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 2, 1, 4, 3, 5, 6, 0, 7 };
-    recvData.ReadBytesSeq(itemGuid, bytesOrder);
-
-    Item* item = m_Player->GetItemByGuid(itemGuid);
-    if (!item)
+    Item* l_Item = m_Player->GetItemByGuid(l_Guid);
+    if (!l_Item)
         return;
 
-    GetPlayer()->RefundItem(item);
+    m_Player->RefundItem(l_Item);
 }
 
 void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
@@ -1852,7 +1835,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& p_RecvData)
 
 void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 {
-    uint64 l_NpcGUID;
+    uint64 l_NpcGUID = 0;
     uint32 l_ItemCount = 0;
 
     p_Packet >> l_ItemCount;
@@ -1913,82 +1896,85 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
             p_Packet.readPackGUID(l_SrcVoidItemGUIDs[l_I]);         ///< Source Void Item GUID
     }
 
-    // Validate
+    /// Validate
     if (!m_Player->GetNPCIfCanInteractWith(l_NpcGUID, UNIT_NPC_FLAG_TRANSMOGRIFIER))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Unit (GUID: %u) not found or player can't interact with it.", GUID_LOPART(l_NpcGUID));
         return;
-    }
 
     float cost = 0;
     for (uint8 l_I = 0; l_I < l_ItemCount; ++l_I)
     {
-        // slot of the transmogrified item
+        /// Slot of the transmogrified item
         if (l_Slots[l_I] < EQUIPMENT_SLOT_START || l_Slots[l_I] >= EQUIPMENT_SLOT_END)
             return;
 
-        // entry of the transmogrifier item, if it's not 0
-        if (l_ItemIDs[l_I])
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(l_ItemIDs[l_I]);
-            if (!proto)
-                return;
+        Item* l_ItemTransmogrifier = nullptr;
+        ItemTemplate const* l_Template = nullptr;
 
-            if (!m_Player->HasItemCount(l_ItemIDs[l_I], 1, false))
-                return;
-        }
-
-        Item* itemTransmogrifier = NULL;
-        // guid of the transmogrifier item, if it's not 0
+        /// Guid of the transmogrifier item, if it's not 0
         if (l_SrcItemGUIDs[l_I])
         {
-            itemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
-            if (!itemTransmogrifier)
+            l_ItemTransmogrifier = m_Player->GetItemByGuid(l_SrcItemGUIDs[l_I]);
+            if (!l_ItemTransmogrifier)
+                return;
+
+            l_Template = l_ItemTransmogrifier->GetTemplate();
+            if (!l_Template)
                 return;
         }
         else if (l_SrcVoidItemGUIDs[l_I])
         {
-            /// TODO
+            uint32 l_GuidLow = GUID_LOPART(l_SrcVoidItemGUIDs[l_I]) & ~0xF0000000;
+            uint8 l_Placeholder = 0;    ///< Useless but necessary
+            VoidStorageItem* l_Item = m_Player->GetVoidStorageItem(l_GuidLow, l_Placeholder);
+            if (!l_Item)
+                return;
+
+            l_Template = sObjectMgr->GetItemTemplate(l_Item->ItemEntry);
+            if (!l_Template)
+                return;
         }
 
-        // transmogrified item
-        Item* itemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
-        if (!itemTransmogrified)
+        /// Transmogrified item
+        Item* l_ItemTransmogrified = m_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, l_Slots[l_I]);
+        if (!l_ItemTransmogrified)
             return;
 
-        if (!l_ItemIDs[l_I]) // reset look
+        if (!l_ItemIDs[l_I]) ///< Reset look
         {
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-            itemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
+            l_ItemTransmogrified->RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
         }
         else
         {
-            if (!itemTransmogrifier)
+            if (!l_Template)
                 return;
 
-            if (!Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
+            if (!Item::CanTransmogrifyItemWithItem(l_ItemTransmogrified->GetTemplate(), l_Template))
                 return;
 
-            // All okay, proceed
-            itemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_ItemIDs[l_I]);
-            itemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
-            m_Player->SetVisibleItemSlot(l_Slots[l_I], itemTransmogrified);
+            /// All okay, proceed
+            l_ItemTransmogrified->SetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, l_Template->ItemId);
+            l_ItemTransmogrified->SetFlag(ITEM_FIELD_MODIFIERS_MASK, ITEM_TRANSMOGRIFIED);
+            m_Player->SetVisibleItemSlot(l_Slots[l_I], l_ItemTransmogrified);
 
-            itemTransmogrified->UpdatePlayedTime(m_Player);
+            l_ItemTransmogrified->UpdatePlayedTime(m_Player);
 
-            itemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrified->SetNotRefundable(m_Player);
-            itemTransmogrified->ClearSoulboundTradeable(m_Player);
+            l_ItemTransmogrified->SetOwnerGUID(m_Player->GetGUID());
+            l_ItemTransmogrified->SetNotRefundable(m_Player);
+            l_ItemTransmogrified->ClearSoulboundTradeable(m_Player);
 
-            if (itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_EQUIPED || itemTransmogrifier->GetTemplate()->Bonding == BIND_WHEN_USE)
-                itemTransmogrifier->SetBinding(true);
+            if (l_ItemTransmogrifier != nullptr)
+            {
+                if (l_Template->Bonding == BIND_WHEN_EQUIPED || l_Template->Bonding == BIND_WHEN_USE)
+                    l_ItemTransmogrifier->SetBinding(true);
 
-            itemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
-            itemTransmogrifier->SetNotRefundable(m_Player);
-            itemTransmogrifier->ClearSoulboundTradeable(m_Player);
+                l_ItemTransmogrifier->SetOwnerGUID(m_Player->GetGUID());
+                l_ItemTransmogrifier->SetNotRefundable(m_Player);
+                l_ItemTransmogrifier->ClearSoulboundTradeable(m_Player);
+            }
 
-            cost += itemTransmogrified->GetSpecialPrice();
+            cost += l_ItemTransmogrified->GetSpecialPrice();
         }
     }
 
@@ -1999,9 +1985,9 @@ void WorldSession::HandleTransmogrifyItems(WorldPacket & p_Packet)
 
     cost *= costModifier;
 
-    // trusting the client, if it got here it has to have enough money
-    // ... unless client was modified
-    if (cost) // 0 cost if reverting look
+    /// Trusting the client, if it got here it has to have enough money
+    /// ... unless client was modified
+    if (cost) ///< 0 cost if reverting look
         m_Player->ModifyMoney(-int64(cost));
 }
 
@@ -2142,4 +2128,238 @@ void WorldSession::HandleSetLootSpecialization(WorldPacket& p_RecvData)
     uint32 l_SpecID = p_RecvData.read<uint32>();
     GetPlayer()->SetLootSpecId(l_SpecID);
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID, l_SpecID);
+}
+
+/// This anonymous namespace contains utility functions for handling BagAutoSort.
+namespace
+{
+    /// Look in the bag if the item can be store or stacked.
+    bool StoreItemAndStack(Player* p_Player, Item* p_Item, uint8 p_BagSlot)
+    {
+        uint16 l_Src = p_Item->GetPos();
+
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Result = p_Player->CanStoreItem(p_BagSlot, NULL_SLOT, l_Dest, p_Item, false);
+        if (l_Result == EQUIP_ERR_OK && !(l_Dest.size() == 1 && l_Dest[0].pos == l_Src))
+        {
+            p_Player->RemoveItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+            p_Player->StoreItem(l_Dest, p_Item, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool BankItemAndStack(Player* p_Player, Item* p_Item, uint8 p_BagSlot)
+    {
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = p_Player->CanBankItem(p_BagSlot, NULL_SLOT, l_Dest, p_Item, false);
+
+        if (l_Msg != EQUIP_ERR_OK)
+            return false;
+
+        p_Player->RemoveItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+        p_Player->BankItem(l_Dest, p_Item, true);
+
+        return true;
+    }
+
+    bool ReagentBankItemAndStack(Player* p_Player, Item* p_Item, uint8 p_BagSlot)
+    {
+        ItemPosCountVec l_Dest;
+        InventoryResult l_Msg = p_Player->CanReagentBankItem(p_BagSlot, NULL_SLOT, l_Dest, p_Item, false);
+
+        if (l_Msg != EQUIP_ERR_OK)
+            return false;
+
+        p_Player->RemoveItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+        p_Player->BankItem(l_Dest, p_Item, true);
+
+        return true;
+    }
+
+    /// Loop through all the bags to see if it can be stack or not.
+    void StoreItemInBags(Player* p_Player, Item* p_Item)
+    {
+        if (StoreItemAndStack(p_Player, p_Item, INVENTORY_SLOT_BAG_0))
+            return;
+
+        for (uint32 l_I = INVENTORY_SLOT_ITEM_START; l_I < INVENTORY_SLOT_ITEM_END; l_I++)
+        {
+            if (StoreItemAndStack(p_Player, p_Item, l_I))
+                break;
+        }
+    }
+
+    /// Loop through all the bags to see if it can be stack or not.
+    void StoreItemInBanks(Player* p_Player, Item* p_Item)
+    {
+        if (BankItemAndStack(p_Player, p_Item, NULL_SLOT))
+            return;
+
+        for (uint32 l_I = BANK_SLOT_BAG_START; l_I < BANK_SLOT_BAG_END; l_I++)
+        {
+            if (BankItemAndStack(p_Player, p_Item, l_I))
+                break;
+        }
+    }
+
+    /// Loop through all the bags to see if it can be stack or not.
+    void StoreItemInReagentBanks(Player* p_Player, Item* p_Item)
+    {
+        for (uint32 l_I = REAGENT_BANK_SLOT_BAG_START; l_I < REAGENT_BANK_SLOT_BAG_END; l_I++)
+        {
+            if (ReagentBankItemAndStack(p_Player, p_Item, l_I))
+                break;
+        }
+    }
+}
+
+void WorldSession::HandleSortBags(WorldPacket& p_RecvData)
+{
+    WorldPacket data(SMSG_BAG_SORT_RESULT);
+    this->SendPacket(&data);
+
+    Player* l_Player = this->m_Player;
+
+    if (!l_Player)
+        return;
+
+    /// First pass to stack items.
+    l_Player->ApplyOnBagsItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        StoreItemInBags(p_Player, p_Item);
+        return true;
+    });
+
+    using t_uint32Pair = std::pair<uint32, Item*>;
+    std::unordered_map<uint32, uint32> l_ItemsQuality;
+    std::multimap<uint32, Item*> l_Items;
+
+    /// Second pass, we collect the informations for sorting.
+    l_Player->ApplyOnBagsItems([&l_Items, &l_ItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
+        if (!l_Proto)
+            return true;
+
+        /// We get the number of non-distinct items and item level for sorting.
+        l_Items.insert(std::make_pair(p_Item->GetEntry(), p_Item));
+        l_ItemsQuality[p_Item->GetEntry()] = p_Player->GetEquipItemLevelFor(l_Proto, p_Item);
+
+        return true;
+    });
+
+    /// We get advantage of the multimap properties to sort our items.
+    std::multimap<uint32, t_uint32Pair> l_ResultMap;
+    for (auto const& l_Pair : l_Items)
+        l_ResultMap.insert(std::make_pair(l_ItemsQuality[l_Pair.first], l_Pair));
+
+    /// Third pass to swap all the items correctly.
+    auto l_Itr = std::begin(l_ResultMap);
+    l_Player->ApplyOnBagsItems([&l_ResultMap, &l_Itr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    {
+        if (l_Itr == std::end(l_ResultMap))
+            return false;
+
+        uint16 l_Pos = l_Itr->second.second->GetPos();
+        p_Player->SwapItem(l_Pos, (p_BagSlot << 8) | p_ItemSlot);
+        l_Itr++;
+
+        return true;
+    });
+}
+
+void WorldSession::HandleSortReagentBankBagsOpcode(WorldPacket& p_RecvData)
+{
+    WorldPacket data(SMSG_BAG_SORT_RESULT);
+    this->SendPacket(&data);
+
+    Player* l_Player = this->m_Player;
+
+    if (!l_Player)
+        return;
+
+    /// First pass to stack items.
+    l_Player->ApplyOnBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        StoreItemInBanks(p_Player, p_Item);
+        return true;
+    });
+
+    /*l_Player->ApplyOnReagentBankItems([](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        StoreItemInReagentBanks(p_Player, p_Item);
+        return true;
+    });*/
+
+    using t_uint32Pair = std::pair<uint32, Item*>;
+    std::unordered_map<uint32, uint32> l_BankItemsQuality;
+    std::multimap<uint32, Item*> l_BankItems;
+    /*std::unordered_map<uint32, uint32> l_ReagentBankItemsQuality;
+    std::multimap<uint32, Item*> l_ReagentBankItems;*/
+
+    /// Second pass, we collect the informations for sorting.
+    l_Player->ApplyOnBankItems([&l_BankItems, &l_BankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
+        if (!l_Proto)
+            return true;
+
+        /// We get the number of non-distinct items and item level for sorting.
+        l_BankItems.insert(std::make_pair(p_Item->GetEntry(), p_Item));
+        l_BankItemsQuality[p_Item->GetEntry()] = p_Player->GetEquipItemLevelFor(l_Proto, p_Item);
+
+        return true;
+    });
+
+    /*l_Player->ApplyOnReagentBankItems([&l_ReagentBankItems, &l_ReagentBankItemsQuality](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8)
+    {
+        ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(p_Item->GetEntry());
+        if (!l_Proto)
+            return true;
+
+        /// We get the number of non-distinct items and item level for sorting.
+        l_ReagentBankItems.insert(std::make_pair(p_Item->GetEntry(), p_Item));
+        l_ReagentBankItemsQuality[p_Item->GetEntry()] = p_Player->GetEquipItemLevelFor(l_Proto, p_Item);
+
+        return true;
+    });*/
+
+    /// We get advantage of the multimap properties to sort our items.
+    std::multimap<uint32, t_uint32Pair> l_BankResultMap; ///< Bank items.
+    for (auto const& l_Pair : l_BankItems)
+        l_BankResultMap.insert(std::make_pair(l_BankItemsQuality[l_Pair.first], l_Pair));
+
+    /*std::multimap<uint32, t_uint32Pair> l_ReagentBankResultMap; /// Reagent bank items.
+    for (auto const& l_Pair : l_ReagentBankItems)
+        l_ReagentBankResultMap.insert(std::make_pair(l_ReagentBankItemsQuality[l_Pair.first], l_Pair));*/
+
+    /// Third pass to swap all the items correctly.
+    auto l_BankItr = std::begin(l_BankResultMap);
+    l_Player->ApplyOnBankItems([&l_BankResultMap, &l_BankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    {
+        if (l_BankItr == std::end(l_BankResultMap))
+            return false;
+
+        uint16 l_Pos = l_BankItr->second.second->GetPos();
+        p_Player->SwapItem(l_Pos, (p_BagSlot << 8) | p_ItemSlot);
+        l_BankItr++;
+
+        return true;
+    });
+
+    /*auto l_ReagentBankItr = std::begin(l_ReagentBankResultMap);
+    l_Player->ApplyOnBankItems([&l_ReagentBankResultMap, &l_ReagentBankItr](Player* p_Player, Item* p_Item, uint8 p_BagSlot, uint8 p_ItemSlot)
+    {
+        if (l_ReagentBankItr == std::end(l_ReagentBankResultMap))
+            return false;
+
+        uint16 l_Pos = l_ReagentBankItr->second.second->GetPos();
+        p_Player->SwapItem(l_Pos, (p_BagSlot << 8) | p_ItemSlot);
+        l_ReagentBankItr++;
+
+        return true;
+    });*/
 }

@@ -205,6 +205,7 @@ enum WorldBoolConfigs
     CONFIG_ANTISPAM_ENABLED,
     CONFIG_DISABLE_RESTART,
     CONFIG_TEMPLATES_ENABLED,
+    CONFIG_AOE_LOOT_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -253,7 +254,6 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
-    CONFIG_HEROIC_CHARACTERS_PER_REALM,
     CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
@@ -267,6 +267,7 @@ enum WorldIntConfigs
     CONFIG_CURRENCY_MAX_HONOR_POINTS,
     CONFIG_CURRENCY_START_CONQUEST_POINTS,
     CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP,
+    CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP,
     CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD,
     CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD,
     CONFIG_CURRENCY_RESET_HOUR,
@@ -397,6 +398,7 @@ enum WorldIntConfigs
     CONFIG_PVP_ITEM_LEVEL_MIN,
     CONFIG_PVP_ITEM_LEVEL_MAX,
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
+    CONFIG_LAST_CLIENT_BUILD,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -734,7 +736,27 @@ class World
         uint16 GetConfigMaxSkillValue() const
         {
             uint8 lvl = uint8(getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-            return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl*5;
+
+            if (lvl >= 1 && lvl < 10)
+                return 75;
+            else if (lvl >= 10 && lvl < 20)
+                return 150;
+            else if (lvl >= 20 && lvl < 35)
+                return 225;
+            else if (lvl >= 35 && lvl < 50)
+                return 300;
+            else if (lvl >= 50 && lvl < 65)
+                return 375;
+            else if (lvl >= 65 && lvl < 75)
+                return 450;
+            else if (lvl >= 75 && lvl < 81)
+                return 525;
+            else if (lvl >= 81 && lvl < 90)
+                return 600;
+            else if (lvl >= 90)
+                return 700;
+
+            return 0;
         }
 
         void SetInitialWorldSettings();
@@ -909,14 +931,14 @@ class World
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
-        void InitServerAutoRestartTime();
+        //void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
-        void AutoRestartServer();
+        //void AutoRestartServer();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;

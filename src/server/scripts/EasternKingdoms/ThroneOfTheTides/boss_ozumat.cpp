@@ -243,7 +243,7 @@ class npc_neptulon : public CreatureScript
                 EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* pAttacker, uint32 &damage)
+            void DamageTaken(Unit* pAttacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

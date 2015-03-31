@@ -20,6 +20,8 @@
     \ingroup Trinityd
 */
 
+#include <thread>
+
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
@@ -48,6 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+#include <Reporting/Reporter.hpp>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -576,6 +579,10 @@ int Master::Run()
 
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
+
+    ///- Initializing the Reporter.
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
 
     ///- Start the databases
     if (!_StartDB())

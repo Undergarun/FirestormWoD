@@ -286,7 +286,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, 7000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_SHADOW_BOLT, urand(5500, 6000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_P1_EMPOWER_CULTIST, urand(20000, 30000), 0, PHASE_ONE);
-                if (GetDifficulty() != LEGACY_MAN10_DIFFICULTY)
+                if (GetDifficulty() != DIFFICULTY_10_N)
                     events.ScheduleEvent(EVENT_DOMINATE_MIND_H, 30000);
 
                 Talk(SAY_AGGRO);
@@ -359,7 +359,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void DamageTaken(Unit* /*damageDealer*/, uint32& damage)
+            void DamageTaken(Unit* /*damageDealer*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 // phase transition
                 if (events.IsInPhase(PHASE_ONE) && int32(damage) > me->GetPower(POWER_MANA))

@@ -238,9 +238,10 @@ class OutdoorPvP : public ZoneScript
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
 
-        void OnGameObjectCreate(GameObject* go);
-        void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*) {}
+        void OnGameObjectCreate(GameObject* p_GameObject);
+        void OnGameObjectRemove(GameObject* p_GameObject);
+        void OnCreatureCreate(Creature* p_Creature) { }
+        void OnCreatureRemove(Creature* p_Creature) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -252,6 +253,9 @@ class OutdoorPvP : public ZoneScript
         virtual void HandleKill(Player* killer, Unit* killed);
         virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
         virtual void HandlePlayerKilled(Player* p_Player) { }
+
+        /// Handle some custom PvP loots
+        virtual void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container) { }
 
         // checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
@@ -278,6 +282,8 @@ class OutdoorPvP : public ZoneScript
         OutdoorGraveyard* GetGraveyardById(uint32 p_ID);
         void SetGraveyardNumber(uint32 p_Count) { m_GraveyardList.resize(p_Count); }
 
+        uint64 GetCreature(uint32 p_Type);
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp
@@ -291,6 +297,8 @@ class OutdoorPvP : public ZoneScript
         //       type,   guid
         std::map<uint32, uint64> m_Creatures;
         std::map<uint64, uint32> m_CreatureTypes;
+        std::map<uint32, uint64> m_Objects;
+        std::map<uint64, uint32> m_ObjectTypes;
 
         bool m_sendUpdate;
 
@@ -299,12 +307,12 @@ class OutdoorPvP : public ZoneScript
         uint32 m_LastResurectTimer;         ///< Timer for resurrect players every 30s
 
         // world state stuff
-        virtual void SendRemoveWorldStates(Player* /*player*/) {}
+        virtual void SendRemoveWorldStates(Player* /*p_Player*/) {}
 
-        void BroadcastPacket(WorldPacket & data) const;
+        void BroadcastPacket(WorldPacket& data) const;
 
-        virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
-        virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        virtual void HandlePlayerEnterZone(Player* p_Player, uint32 p_ZoneID);
+        virtual void HandlePlayerLeaveZone(Player* p_Player, uint32 p_ZoneID);
 
         virtual void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) { }
         virtual void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) { }
@@ -312,7 +320,7 @@ class OutdoorPvP : public ZoneScript
         virtual void HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID) { }
         virtual void HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID) { }
 
-        virtual void HandlePlayerResurrects(Player* player, uint32 zone);
+        virtual void HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID) { }
 
         void AddCapturePoint(OPvPCapturePoint* cp)
         {
@@ -346,6 +354,14 @@ class OutdoorPvP : public ZoneScript
         }
         bool AddCreature(uint32 p_Type, uint32 p_Entry, uint32 p_Team, uint32 p_MapID, float p_X, float p_Y, float p_Z, float p_O, uint32 p_SpawnTime = 0);
         bool DelCreature(uint32 p_Type);
+
+        bool AddObject(uint32 p_Type, go_type p_Data)
+        {
+            return AddObject(p_Type, p_Data.entry, p_Data.map, p_Data.x, p_Data.y, p_Data.z, p_Data.o, p_Data.rot0, p_Data.rot1, p_Data.rot2, p_Data.rot3);
+        }
+        bool AddObject(uint32 p_Type, uint32 p_Entry, uint32 p_Map, float p_X, float p_Y, float p_Z, float p_O,
+            float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3);
+        bool DelObject(uint32 p_Type);
 };
 
 class OutdoorGraveyard

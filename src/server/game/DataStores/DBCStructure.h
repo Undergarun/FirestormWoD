@@ -536,15 +536,26 @@ struct DurabilityQualityEntry
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    //char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
-    //uint32    m_AnimID;                                   // 2        m_AnimID
-    uint32  Flags;                                          // 3        m_EmoteFlags
-    uint32  EmoteType;                                      // 4        m_EmoteSpecProc
-    uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
-    //uint32    m_EventSoundID;                             // 6        m_EventSoundID
-    //uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
+    uint32  Id;                                         // 0        m_ID
+    char*   EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    uint32  m_AnimID;                                   // 2        m_AnimID
+    uint32  Flags;                                      // 3        m_EmoteFlags
+    uint32  EmoteType;                                  // 4        m_EmoteSpecProc
+    uint32  UnitStandState;                             // 5        m_EmoteSpecProcParam
+    uint32  m_EventSoundID;                             // 6        m_EventSoundID
+    uint32  SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
+
+/// @see EmoteType in EmotesEntry
+namespace EmoteTypes
+{
+    enum
+    {
+        OneStep,
+        EmoteLoop,
+        StateLoop       ///< Also related to m_EventSoundID, client play the sound only when EmoteType == StateLoop
+    };
+}
 
 struct EmotesTextEntry
 {
@@ -1075,14 +1086,6 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
-enum MapFlags : uint32
-{
-    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
-    MAP_FLAG_DEV                    = 0x00000002,
-    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
-    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
-};
-
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
@@ -1136,6 +1139,8 @@ struct MapEntry
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870 || MapID == 1116;
     }
+
+    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
 };
 
 struct MapDifficultyEntry
@@ -1146,7 +1151,7 @@ struct MapDifficultyEntry
     char*   AreaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
     uint32  ResetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
     uint32  MaxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
-    //uint32    LockID;                                     // 6        m_LockID
+    uint32  LockID;                                         // 6        m_LockID
     uint32  ItemBonusTreeDifficulty;                        // 7
 };
 
@@ -1214,7 +1219,7 @@ struct PvPDifficultyEntry
     uint32  maxLevel;                                       // 4        m_MaxLevel
 
     // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
+    uint32 GetBracketId() const { return bracketId; }
 };
 
 struct QuestSortEntry
@@ -1641,7 +1646,7 @@ struct SpellTargetRestrictionsEntry
     uint32  Id;                                             // 0        m_ID
     uint32  SpellId;                                        // 1        m_spellId
     uint32  DifficultyID;                                   // 2        m_DifficultyID
-    float   MaxTargetRadius;                                // 3        m_ConeAngle
+    float   ConeAngle;                                      // 3        m_ConeAngle
     float   Width;                                          // 4        m_Width
     uint32  MaxAffectedTargets;                             // 5        m_maxTargets
     uint32  MaxTargetLevel;                                 // 6        m_maxTargetLevel
@@ -1685,12 +1690,11 @@ struct SpellItemEnchantmentEntry
     uint32  requiredSkill;                                  // 16       m_requiredSkillID
     uint32  requiredSkillValue;                             // 17       m_requiredSkillRank
     uint32  requiredLevel;                                  // 18       m_MinLevel
-    //uint32    m_MaxLevel;                                 // 19       m_MaxLevel
-    // uint32   m_ItemLevel;                                // 20       m_ItemLevel
-    // int32    m_ScalingClass;                             // 21       m_ScalingClass
-    // int32    m_ScalingClassRestricted                    // 22       m_ScalingClassRestricted
-    // float    m_EffectScalingPoints[3]                    // 23 -25   m_EffectScalingPoints
-
+    uint32  m_MaxLevel;                                     // 19       m_MaxLevel
+    uint32  m_ItemLevel;                                    // 20       m_ItemLevel
+    int32   m_ScalingClass;                                 // 21       m_ScalingClass
+    int32   m_ScalingClassRestricted;                       // 22       m_ScalingClassRestricted
+    float   m_EffectScalingPoints[3];                       // 23 -25   m_EffectScalingPoints
 };
 
 //@todo
@@ -1740,7 +1744,7 @@ struct TaxiNodesEntry
     char*   name;                                           // 5        m_Name_lang
     uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
     //uint32    m_ConditionID                               // 8        m_ConditionID
-    //uint32    m_Flags                                     // 9        m_Flags
+    uint32    m_Flags;                                      // 9        m_Flags
     //float     m_MapOffset                                 // 10       m_MapOffset
     //float     m_MapOffset                                 // 11       m_MapOffset
 };
@@ -2408,13 +2412,17 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
-    {}
+    MapDifficulty()
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+    {
+    }
 
-    MapDifficulty(uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
-        : ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
-    {}
+    MapDifficulty(uint32 p_DifficultyID, uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
+        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+    {
+    }
 
+    uint32 DifficultyID;
     uint32 ResetTime;
     uint32 MaxPlayers;
     uint32 ItemBonusTreeDifficulty;

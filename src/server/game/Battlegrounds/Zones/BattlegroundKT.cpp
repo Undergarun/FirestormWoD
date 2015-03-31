@@ -22,7 +22,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "WorldPacket.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -140,9 +140,9 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
         if (m_OrbKeepers[i] == source->GetGUID())
             return;
 
-    PlaySoundToAll(source->GetBGTeam() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetBGTeam() == ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
-    source->CastSpell(source, source->GetBGTeam() == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA: BG_KT_HORDE_INSIGNIA, true);
+    source->CastSpell(source, source->GetBGTeam() == ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA: BG_KT_HORDE_INSIGNIA, true);
 
     UpdatePlayerScore(source, SCORE_ORB_HANDLES, 1);
 
@@ -154,7 +154,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
         aura->RemoveAllAuras();
 
-    PSendMessageToAll(LANG_BG_KT_PICKEDUP, source->GetBGTeam() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source, GetOrbString(index).c_str());
+    PSendMessageToAll(LANG_BG_KT_PICKEDUP, source->GetBGTeam() == ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source, GetOrbString(index).c_str());
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -174,7 +174,7 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
             break;
     }
 
-    PlaySoundToAll(source->GetBGTeam() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetBGTeam() == ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
     source->RemoveAurasDueToSpell(BG_KT_ORBS_SPELLS[index]);
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
     source->RemoveAurasDueToSpell(BG_KT_HORDE_INSIGNIA);
@@ -189,7 +189,7 @@ void BattlegroundKT::EventPlayerDroppedOrb(Player* source)
 
     UpdateWorldState(BG_KT_ICON_A, 0);
 
-    PSendMessageToAll(LANG_BG_KT_DROPPED, source->GetBGTeam() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source, GetOrbString(index).c_str());
+    PSendMessageToAll(LANG_BG_KT_DROPPED, source->GetBGTeam() == ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source, GetOrbString(index).c_str());
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -285,7 +285,7 @@ void BattlegroundKT::Reset()
     for (uint32 i = 0; i < MAX_ORBS; ++i)
         m_OrbKeepers[i] = 0;
 
-    bool isBGWeekend = BattlegroundMgr::IsBGWeekend(GetTypeID());
+    bool isBGWeekend = MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID());
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;

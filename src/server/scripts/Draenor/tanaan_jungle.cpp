@@ -1444,7 +1444,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
                 me->SetAttackTime(WeaponAttackType::BaseAttack, 1800 + urand(0, 400));
             }
 
-            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage) override
+            void DamageTaken(Unit* p_DoneBy, uint32& p_Damage, const SpellInfo* l_Spellinfo) override
             {
                 if (p_DoneBy->ToCreature())
                 {
@@ -3160,7 +3160,7 @@ class npc_thaelin_darkanvil_tanaan : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCheckTalk, 5000);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, const SpellInfo* l_Spellinfo) override
             {
                 if (p_Damage >= me->GetHealth())
                     me->SetFullHealth();

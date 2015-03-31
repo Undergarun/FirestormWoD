@@ -131,7 +131,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
     // just ignore us
-    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficulty() != GetPlayer()->GetDungeonDifficulty())
+    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficultyID() != GetPlayer()->GetDungeonDifficultyID())
     {
         SendPartyResult(PARTY_CMD_INVITE, l_TargetName, ERR_IGNORING_YOU_S);
         return;
@@ -1026,6 +1026,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 {
     assert(p_Player && p_Data);
 
+    p_FullUpdate = true; ///< Avoid LOT of problems with group update.
+
     if (p_FullUpdate)
     {
         uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
@@ -1078,7 +1080,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
         size_t l_AuraPos = p_Data->wpos();
         *p_Data << uint32(l_AuraCount);
 
-        *p_Data << uint32(0);
+        *p_Data << uint32(p_Player->GetPhaseMask());
         *p_Data << uint32(0);
         p_Data->appendPackGUID(0);
 

@@ -2,9 +2,7 @@ DELETE FROM creature WHERE map=1152;
 DELETE FROM instance_template WHERE map=1152;
 INSERT INTO instance_template (`map`, `parent`, `script`, `allowMount`) VALUES(1152, 1116, "instance_Garrison_H1", 1);
 
----------------------------------------------------------
 -- Creature Spawn (All phase)
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(76872, 1152, 5620.18, 4506.769, 119.3535, 1.515481, 268435455, 65535, 0, 4227, 12, 32768, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 257, 0);
 
@@ -269,9 +267,7 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(86775, 1152, 5737.327, 4538.995, 138.0327, 1.249388, 268435455, 65535, 0, 1, 0, 0, 2048, 0, 2099) ON DUPLICATE KEY UPDATE `id` = VALUES(`id`), `map` = VALUES(`map`), `position_x` = VALUES(`position_x`), `position_y` = VALUES(`position_y`), `position_z` = VALUES(`position_z`), `orientation` = VALUES(`orientation`), `spawnMask` = VALUES(`spawnMask`), `phaseMask` = VALUES(`phaseMask`), `equipment_id` = VALUES(`equipment_id`), `npcflag` = VALUES(`npcflag`), `npcflag2` = VALUES(`npcflag2`), `unit_flags` = VALUES(`unit_flags`), `unit_flags2` = VALUES(`unit_flags2`), `unit_flags3` = VALUES(`unit_flags3`), `WorldEffectID` = VALUES(`WorldEffectID`);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0) ON DUPLICATE KEY UPDATE `guid` = VALUES(`guid`), `mount` = VALUES(`mount`), `bytes1` = VALUES(`bytes1`), `bytes2` = VALUES(`bytes2`), `emote` = VALUES(`emote`);
 
----------------------------------------------------------
 -- Movable peons
----------------------------------------------------------
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5574.6655, 4595.129, 136.6, 1.262363, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
 
@@ -287,23 +283,17 @@ INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras
 INSERT INTO creature (`id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawnMask`, `phaseMask`, `equipment_id`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `WorldEffectID`) VALUES(79605, 1152, 5571.142090, 4608.910645, 136.7, 5.4288, 268435455, 65535, 0, 0, 12, 0, 4196352, 0, 0);
 INSERT INTO creature_addon (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES(LAST_INSERT_ID(), 0, 0, 1, 0, "162907");
 
----------------------------------------------------------
 -- Creature EXP
----------------------------------------------------------
 UPDATE creature_template SET `exp`=5 WHERE entry IN(76872,76928,77908,77908,78320,78466,78487,79407,79605,79619,79740,79774,79781,86775,74808,80223,80222,79916,79925,79925,79925,79925,79925,79925,80151,80288,80288,80288,80288,80288,80288,80299,80299,80299,80299,80432,80436,80436,80436,80436,80436,80437,80437,80437,80437,80437,80438,80438,80438,80438,80438,80438,80440,80440,80440,80440,80440,80440,80440,80440,80600,80772,81166,81688,83482,84967,85882,86470,88649);
 
----------------------------------------------------------
 -- Builders & peon
----------------------------------------------------------
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(78467, 1, 5956, 0, 0);
 REPLACE INTO creature_equip_template (entry, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`) VALUES(79605, 1, 5956, 0, 0);
 UPDATE creature_template_addon SET auras="" WHERE entry=78467;
 UPDATE creature_template SET ScriptName="npc_FrostwallPeon_Dynamic" WHERE entry = 79605;
 UPDATE creature_template SET ScriptName="npc_FrostwallPeon" WHERE entry = 78467;
 
----------------------------------------------------------
 -- Fix vendors flags
----------------------------------------------------------
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=84967;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80772;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=80151;
@@ -311,9 +301,7 @@ UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=79619;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76928;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry`=76872;
 
----------------------------------------------------------
 -- Npc Gossips & script
----------------------------------------------------------
 REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, `probability`) VALUES(80223, 0, 0, "Be sure to check back for more resources later, commander. The peons will keep putting them in this chest while you are away.", 12, 0, 100);
 INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(82232, "BOLD! Is that what this garrison says to you, commander? No! It does not! But then this is why I was hired.$b$bUsing the small plots we can build a striking array of structures like... an apothecary! Yes, an apothecary. Or perhaps a smithy or a workshop.$b$bIf we use the large plots, we could outfit you with a barracks for your troops that will strike fear into the hearts of your enemies and sleep into the faces of your soldiers.$b$bThe sky is the limit, as is the width and length.", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_1` = VALUES(`text0_1`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 UPDATE creature_template SET ScriptName="npc_LadySena_Garrison" WHERE entry=80223;	
@@ -343,7 +331,7 @@ INSERT INTO npc_text (`ID`, `text0_1`, `lang0`, `prob0`, `WDBVerified`) VALUES(8
 DELETE FROM `gossip_menu` WHERE `entry` = 16462;
 REPLACE INTO gossip_menu (entry, `text_id`) VALUES(16462, 82110);
 UPDATE creature_template SET gossip_menu_id = 16462, AIName="SmartAI" WHERE entry=80151;
-REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 1, 0, "Let me browse your goods.", 1, 0, 0, "", 1);
+REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 1, 0, "I have lost my garrison hearthstone, can you give me another?", 1, 0, 0, "", 1);
 REPLACE INTO gossip_menu_option (menu_id, id, `option_icon`, `option_text`, `option_id`, `box_coded`, `box_money`, `box_text`, `npc_option_npcflag`) VALUES(16462, 2, 1, "I would like to buy from you.", 3, 0, 0, "", 1);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`='15' AND `SourceGroup`='16462' AND `SourceEntry`='1';
 INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES ( '15','16462','1','0','0','2','0','110560','1','0','1','0','',NULL);
@@ -371,9 +359,7 @@ REPLACE INTO creature_text (entry, `groupid`, `id`, `text`, `type`, `language`, 
 INSERT INTO npc_text (`ID`, `text0_0`, `lang0`, `prob0`, `WDBVerified`) VALUES(88704, "Something need doing?", 0, 100, 19342) ON DUPLICATE KEY UPDATE `ID` = VALUES(`ID`), `text0_0` = VALUES(`text0_0`), `lang0` = VALUES(`lang0`), `prob0` = VALUES(`prob0`), `WDBVerified` = VALUES(`WDBVerified`);
 UPDATE creature_template SET ScriptName="npc_SeniorPeonII_Garrison", gossip_menu_id =0 WHERE entry=86775;
 
----------------------------------------------------------
 -- Quest lines
----------------------------------------------------------
 UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34824; -- What We Got
 UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34822; -- What We Need
 UPDATE quest_template SET PrevQuestId = 34378, NextQuestIdChain=34461, NextQuestId=34461, ExclusiveGroup=-34824 WHERE Id = 34823; -- The Ogron Live?
@@ -387,16 +373,12 @@ INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ('161384','spel
 UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34861; -- We Need An Army
 UPDATE quest_template SET PrevQuestId = 34461 WHERE Id = 34462; -- Winds of Change
 
----------------------------------------------------------
 -- Random movement
----------------------------------------------------------
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80438 and map=1152;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=80437 and map=1152;
 UPDATE creature SET MovementType=1, spawndist=40 WHERE id=77908 and map=1152;
 
----------------------------------------------------------
 -- Waypoints
----------------------------------------------------------
 DELETE FROM `waypoint_data` WHERE id = 600002;
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','1','5572.93','4602','136.588','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600002','2','5582','4595.09','136.588','0','0','0','0','100','0');
@@ -488,9 +470,7 @@ insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','31','5737','4534.97','137.932','0','0','0','0','100','0');
 insert into `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `wpguid`) values('600011','32','5737.33','4539','138.033','0','0','0','0','100','0');
 
----------------------------------------------------------
 -- Vendor
----------------------------------------------------------
 DELETE FROM `npc_vendor` WHERE `entry` = 84967 AND `type` = 1;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
 (84967, 0, 20815, 0, 0, 0, 1), 

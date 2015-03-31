@@ -210,6 +210,14 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG      = 0x00200000,
     ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG         = 0x00400000,
     ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000,
+    ITEM_FLAGS_EXTRA_CRAFTING_REAGENT        = 0x80000000
+};
+
+enum ItemFlags3
+{
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS     = 0x080,   // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
+    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP    = 0x100,
+    ITEM_FLAG3_HEIRLOOM_QUALITY             = 0x200,   // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
 };
 
 enum ItemFlagsCustom
@@ -793,9 +801,6 @@ struct ItemTemplate
             case ITEM_QUALITY_HEIRLOOM:
                 l_ItemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
                 break;
-            case ITEM_QUALITY_RARE:
-                l_ItemLevel -= 13;
-                break;
             case ITEM_QUALITY_EPIC:
             case ITEM_QUALITY_LEGENDARY:
             default:
@@ -895,6 +900,45 @@ struct ItemTemplate
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
+
+    bool CanBeTransmogrified() const
+    {
+        if (Quality == ITEM_QUALITY_LEGENDARY)
+            return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+            return false;
+
+        return true;
+    }
+
+    bool CanTransmogrify() const
+    {
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+            return false;
+
+        if (Quality == ITEM_QUALITY_LEGENDARY)
+            return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+            return true;
+
+        return true;
+    }
 };
 
 extern float GetCurveValue(uint32 CurveParameter, float level);

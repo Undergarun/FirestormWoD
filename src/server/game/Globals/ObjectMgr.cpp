@@ -264,7 +264,8 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
     _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1)
+    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
+    m_HiVignetteGuid(1)
 {}
 
 ObjectMgr::~ObjectMgr()
@@ -414,8 +415,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                           66             67          68         69           70           71         72            73           74          75         76          77
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            78           79         80               81               82           83
-                                             "questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            78           79         80          81               82               83              84            85
+                                             "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -511,6 +512,9 @@ void ObjectMgr::LoadCreatureTemplates()
             creatureTemplate.questItems[i] = fields[index++].GetUInt32();
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
+        creatureTemplate.VignetteID         = fields[index++].GetUInt32();
+        creatureTemplate.TrackingQuestID    = fields[index++].GetUInt32();
+
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
@@ -939,6 +943,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     {
         sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
         const_cast<CreatureTemplate*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
+    if (cInfo->VignetteID && !sVignetteStore.LookupEntry(cInfo->VignetteID))
+    {
+        sLog->outError(LOG_FILTER_SQL, "Creature(Entry: %u) has a non - existing vignette id (%u)", cInfo->VignetteID);
+        const_cast<CreatureTemplate*>(cInfo)->VignetteID = 0;
     }
 
     const_cast<CreatureTemplate*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
@@ -3320,8 +3330,8 @@ void ObjectMgr::LoadAreaTriggerTemplates()
 
     //                                                      0           1          2        3        4          5         6            7               8                   9
     QueryResult l_Result = WorldDatabase.Query("SELECT `spell_id`, `eff_index`, `entry`, `type`, `scale_x`, `scale_y`, `flags`, `move_curve_id`, `scale_curve_id`, `morph_curve_id`,"
-    //                                                         10            11        12      13       14       15       16        17      18          19
-                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName` FROM `areatrigger_template`");
+    //                                                         10            11        12      13       14       15       16        17      18          19                20
+                                                       "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual` FROM `areatrigger_template`");
     if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
@@ -3377,6 +3387,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
         }
 
         l_Template.m_ScriptId = sObjectMgr->GetScriptId(l_Fields[l_Index++].GetCString());
+        l_Template.m_CreatureVisualEntry = l_Fields[l_Index++].GetUInt32();
 
         m_AreaTriggerTemplates[l_Template.m_Entry].push_back(l_Template);
         m_AreaTriggerTemplatesSpell[l_Template.m_SpellID].push_back(l_Template);
@@ -5822,6 +5833,10 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
+        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
+        if (node->m_Flags == 0)
+            continue;
+
         float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
         if (found)
         {
@@ -6904,8 +6919,8 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
     WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
         "(%d, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x=%f AND y=%f AND z=%f AND o=%f", 
-                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f", 
+                                                p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X - 0.5f, p_Data.X + 0.5f, p_Data.Y - 0.5f, p_Data.Y + 0.5f, p_Data.Z - 0.5f, p_Data.Z + 0.5f);
 
     if (!l_Result)
         return;
@@ -7207,6 +7222,49 @@ void ObjectMgr::LoadCurrencyOnKill()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature currency definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadPersonnalCurrencyOnKill()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    m_PersonnalCurrOnKillStore.clear();
+
+    uint32 l_Count = 0;
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT `creature_id`, `CurrencyId1`,  `CurrencyId2`,  `CurrencyId3`, `CurrencyCount1`, `CurrencyCount2`, `CurrencyCount3` FROM `creature_loot_currency_personnal`");
+    if (!l_Result)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 personnal creature currency definitions. DB table `creature_loot_currency_personnal` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        uint32 l_Entry = l_Fields[0].GetUInt32();
+
+        CurrencyOnKillEntry l_CurrOnKill;
+        l_CurrOnKill[l_Fields[1].GetUInt16()] = l_Fields[4].GetInt32();
+        l_CurrOnKill[l_Fields[2].GetUInt16()] = l_Fields[5].GetInt32();
+        l_CurrOnKill[l_Fields[3].GetUInt16()] = l_Fields[6].GetInt32();
+
+        if (!GetCreatureTemplate(l_Entry))
+            continue;
+
+        for (CurrencyOnKillEntry::const_iterator i = l_CurrOnKill.begin(); i != l_CurrOnKill.end(); ++i)
+        {
+            if (!sCurrencyTypesStore.LookupEntry(i->first))
+                continue;
+        }
+
+        m_PersonnalCurrOnKillStore[l_Entry] = l_CurrOnKill;
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personnal creature currency definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadReputationOnKill()
@@ -8626,7 +8684,7 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.entry             = fields[0].GetUInt16();
+        gMenu.entry             = fields[0].GetUInt32();
         gMenu.text_id           = fields[1].GetUInt32();
 
         if (!GetGossipText(gMenu.text_id))
@@ -9426,9 +9484,6 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 void ObjectMgr::LoadResearchSiteZones()
 {
-    /// todo remove
-    return;
-
     uint32 counter = 0;
 
     for (auto itr : sResearchSiteSet)
@@ -9488,7 +9543,7 @@ void ObjectMgr::LoadResearchSiteLoot()
             dg.x = fields[1].GetFloat();
             dg.y = fields[2].GetFloat();
             dg.z = fields[3].GetFloat();
-            dg.race = fields[4].GetUInt8();
+            dg.ResearchBranchID = fields[4].GetUInt8();
         }
 
         _researchLoot.push_back(dg);
@@ -10214,6 +10269,23 @@ void ObjectMgr::LoadFollowerQuests()
             continue;
 
         FollowerQuests.push_back(l_Quest->Id);
+    }
+}
+
+void ObjectMgr::LoadQuestForItem()
+{
+    const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
+    for (ObjectMgr::QuestMap::const_iterator l_It = l_QuestTemplates.begin(); l_It != l_QuestTemplates.end(); ++l_It)
+    {
+        Quest * l_Quest = l_It->second;
+
+        for (auto l_Objective : l_Quest->QuestObjectives)
+        {
+            if (l_Objective.Type != QUEST_OBJECTIVE_TYPE_ITEM)
+                continue;
+
+            QuestForItem[l_Objective.ObjectID].push_back(std::pair<uint32, uint8>(l_Quest->Id, l_Objective.Index));
+        }
     }
 }
 

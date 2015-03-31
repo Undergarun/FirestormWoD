@@ -183,6 +183,8 @@ struct CreatureTemplate
     bool    RacialLeader;
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
+    uint32  VignetteID;
+    uint32  TrackingQuestID;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
@@ -478,6 +480,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
+        void UpdateStatsForLevel();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }

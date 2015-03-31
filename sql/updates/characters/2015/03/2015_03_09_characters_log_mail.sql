@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS `log_mail`;
+CREATE TABLE `log_mail`
+(
+    `id` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Identifier',
+    `messageType` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+    `stationery` TINYINT(3) NOT NULL DEFAULT '41',
+    `mailTemplateId` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+    `sender` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+    `receiver` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+    `subject` LONGTEXT , `body` LONGTEXT,
+    `has_items` TINYINT UNSIGNED NOT NULL DEFAULT '0',
+    `expire_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+    `deliver_time` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+    `money` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+    `cod` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0', 
+    `checked` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`)
+); 

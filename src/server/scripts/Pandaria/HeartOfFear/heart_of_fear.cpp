@@ -52,7 +52,7 @@ class mob_kor_thik_slicer : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
             }
 
-            void DamageTaken(Unit* killer, uint32& damage)
+            void DamageTaken(Unit* killer, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if(!eventScheduled)
                 {
@@ -1634,7 +1634,7 @@ public:
                     if (pInstance)
                     {
                         uint32 mode = pInstance->instance->GetSpawnMode();
-                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, mode == RAID_TOOL_DIFFICULTY ? 3000 : Is25ManRaid() ? 2000 : 5000);
+                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, mode == DIFFICULTY_LFR ? 3000 : Is25ManRaid() ? 2000 : 5000);
                     }
                 }
             }

@@ -207,37 +207,19 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         }
 
                         uint32 difficulty = instance->GetSpawnMode();
-                        bool turnOver = (difficulty == LEGACY_MAN10_DIFFICULTY || difficulty == LEGACY_MAN10_HEROIC_DIFFICULTY || difficulty == RAID_TOOL_DIFFICULTY);
+                        bool turnOver = (difficulty == DIFFICULTY_10_N || difficulty == DIFFICULTY_10_HC || difficulty == DIFFICULTY_LFR);
 
                         // In 10N, 10H or LFR, there are only 3 guardians
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)
                         {
-                            uint8 choice;
-                            Creature* guardian = 0;
-                            bool loop = true;
-                            do
+                            std::vector<uint32> l_Gardians { NPC_JADE, NPC_AMETHYST, NPC_COBALT };
+                            Creature* l_Creature = instance->GetCreature(GetData64(l_Gardians[urand(0, 2)]));
+                            if (l_Creature != nullptr)
                             {
-                                choice = urand(0, 3);
-                                guardian = instance->GetCreature(stoneGuardGUIDs[choice]);
-                                // Jasper will always remain for loot purpose
-                                if (guardian && guardian->GetEntry() != NPC_JASPER)
-                                    loop = false;
-
-                            } while (loop);
-
-                            uint8 i = 0;
-                            for (auto itr : stoneGuardGUIDs)
-                            {
-                                if (i == choice)
-                                {
-                                    if (Creature* stoneGuard = instance->GetCreature(itr))
-                                    {
-                                        stoneGuard->DespawnOrUnsummon();
-                                        --guardianAliveCount;
-                                    }
-                                }
-                                ++i;
+                                l_Creature->DespawnOrUnsummon();
+                                --guardianAliveCount;
                             }
+
                         }
                         break;
                     }

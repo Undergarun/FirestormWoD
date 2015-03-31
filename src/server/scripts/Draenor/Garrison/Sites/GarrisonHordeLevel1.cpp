@@ -110,7 +110,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Quest : Started quest
     void InstanceScript_GarrisonHordeLevel1::OnQuestStarted(Player * p_Owner, const Quest * p_Quest)
     {
-
+        /// Hack fix for storehouse, need more work
+        if (p_Owner && p_Quest && p_Quest->GetQuestId() == Quests::Horde_LostInTransition)
+            p_Owner->CompleteQuest(Quests::Horde_LostInTransition);
     }
     /// When the garrison owner reward a quest
     /// @p_Owner : Garrison owner
@@ -181,6 +183,40 @@ namespace MS { namespace Garrison { namespace Sites
             return true;
 
         return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Can upgrade the garrison
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonHordeLevel1::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    {
+        if (p_CurrentGarrisonLevel != 1)
+            return false;
+
+        if (p_Owner->getLevel() < 93)
+            return false;
+
+        if (!p_Owner->HasQuest(Quests::Horde_BiggerIsBetter))
+            return false;
+
+        return true;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonHordeLevel1::OnUpgrade(Player * p_Owner)
+    {
+        GarrSiteLevelEntry const* l_Entry = p_Owner->GetGarrison()->GetGarrisonSiteLevelEntry();
+
+        if (!l_Entry)
+            return;
+
+        p_Owner->AddMovieDelayedTeleport(l_Entry->CreationMovie, l_Entry->MapID, 5754.82f, 4495.425f, 132.50f, 2.90f);
+        p_Owner->SendMovieStart(l_Entry->CreationMovie);
+        p_Owner->CompleteQuest(Quests::Horde_BiggerIsBetter);
     }
 
     //////////////////////////////////////////////////////////////////////////

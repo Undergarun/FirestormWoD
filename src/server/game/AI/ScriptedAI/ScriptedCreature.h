@@ -88,7 +88,7 @@ struct ScriptedAI : public CreatureAI
     void AttackStartNoMove(Unit* target);
 
     // Called at any Damage from any attacker (before damage apply)
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo) {}
 
     //Called at World update tick
     virtual void UpdateAI(uint32 const p_Diff);
@@ -215,17 +215,17 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty == LEGACY_MAN25_DIFFICULTY || _difficulty == LEGACY_MAN25_HEROIC_DIFFICULTY || _difficulty == RAID_TOOL_DIFFICULTY; }
-    bool IsLFR() const { return _difficulty == RAID_TOOL_DIFFICULTY; }
+    bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC || _difficulty == DIFFICULTY_LFR; }
+    bool IsLFR() const { return _difficulty == DIFFICULTY_LFR; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
     {
         switch (_difficulty)
         {
-            case REGULAR_5_DIFFICULTY:
+            case DIFFICULTY_NORMAL:
                 return normal5;
-            case HEROIC_5_DIFFICULTY:
+            case DIFFICULTY_HEROIC:
                 return heroic10;
             default:
                 break;
@@ -239,9 +239,9 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case LEGACY_MAN10_DIFFICULTY:
+            case DIFFICULTY_10_N:
                 return normal10;
-            case LEGACY_MAN25_DIFFICULTY:
+            case DIFFICULTY_25_N:
                 return normal25;
             default:
                 break;
@@ -255,13 +255,13 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case LEGACY_MAN10_DIFFICULTY:
+            case DIFFICULTY_10_N:
                 return normal10;
-            case LEGACY_MAN25_DIFFICULTY:
+            case DIFFICULTY_25_N:
                 return normal25;
-            case LEGACY_MAN10_HEROIC_DIFFICULTY:
+            case DIFFICULTY_10_HC:
                 return heroic10;
-            case LEGACY_MAN25_HEROIC_DIFFICULTY:
+            case DIFFICULTY_25_HC:
                 return heroic25;
             default:
                 break;

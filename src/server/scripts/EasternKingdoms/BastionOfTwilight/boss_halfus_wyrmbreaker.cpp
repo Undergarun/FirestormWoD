@@ -484,7 +484,7 @@ class npc_proto_behemoth : public CreatureScript
                     events.ScheduleEvent(EVENT_FIREBALL, 20000);
             }
             
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!pInstance)
                     return;
