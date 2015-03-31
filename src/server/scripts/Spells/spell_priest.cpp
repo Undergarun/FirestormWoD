@@ -2780,7 +2780,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         }
 };
 
-// Call by Mind Spike 73510 - Mind Sear 48045 - Shadow Word: Death 32379
+// Call by Mind Spike 73510 - Mind Sear 49821 - Shadow Word: Death 32379 - Shadow Word: Death (glyph) 129176
 // Clarity of Power - 155246
 class spell_pri_clarity_of_power: public SpellScriptLoader
 {
@@ -2791,18 +2791,24 @@ public:
     {
         PrepareSpellScript(spell_pri_clarity_of_power_SpellScript);
 
-        void HandleOnHit()
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Unit *l_Target = GetHitUnit())
-                    if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
-                        if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) // Shadow word: pain / Vampiric touch
-                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(PRIEST_SPELL_CLARITY_OF_POWER)->Effects[EFFECT_0].BasePoints));
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Caster->HasAura(PRIEST_SPELL_CLARITY_OF_POWER))
+            {
+                if (!(l_Target->HasAura(PRIEST_SHADOW_WORD_PAIN)) && !(l_Target->HasAura(PRIEST_VAMPIRIC_TOUCH))) ///< Shadow word: pain or Vampiric touch
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_Caster->GetAura(PRIEST_SPELL_CLARITY_OF_POWER)->GetEffect(EFFECT_0)->GetAmount()));
+            }
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_pri_clarity_of_power_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_clarity_of_power_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
