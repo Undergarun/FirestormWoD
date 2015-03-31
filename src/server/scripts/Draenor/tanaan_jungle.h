@@ -225,7 +225,7 @@ namespace TanaanZones
     enum
     {
         MapTanaan                            = 1265,
-        MapGarrison                          = 1116,
+        MapDraenor                          = 1116,
         ZoneTanaanJungle                     = 7025,
         AreaTheDarkPortal                    = 7037,
         AreaHearthBlood                      = 7041,

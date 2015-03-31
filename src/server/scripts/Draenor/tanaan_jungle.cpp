@@ -882,7 +882,7 @@ class playerScript_scene_alliance_boat : public PlayerScript
                 return;
 
             if (p_Event == "Teleport")
-                p_Player->TeleportTo(TanaanZones::MapGarrison, 5538.213379f, 5015.2690f, 13.0f, p_Player->GetOrientation());
+                p_Player->TeleportTo(TanaanZones::MapDraenor, 5538.213379f, 5015.2690f, 13.0f, p_Player->GetOrientation());
         }
 };
 playerScript_scene_alliance_boat* g_SceneAllianceBoatPlayerScript = nullptr;
@@ -938,7 +938,7 @@ class playerScript_scene_horde_boat : public PlayerScript
                 return;
 
             if (p_Event == "Teleport")
-                p_Player->TeleportTo(TanaanZones::MapGarrison, 2308.9621f, 454.9409f, 6.0f, p_Player->GetOrientation());
+                p_Player->TeleportTo(TanaanZones::MapDraenor, 2308.9621f, 454.9409f, 6.0f, p_Player->GetOrientation());
         }
 };
 playerScript_scene_horde_boat* g_SceneHordeBoatPlayerScript = nullptr;
@@ -1199,6 +1199,23 @@ class playerScript_enter_tanaan : public PlayerScript
         {
             if (p_QuestId == TanaanQuests::QuestThePortalPower && p_ObjectiveId == TanaanQuestObjectives::ObjEnterGulDanPrison)
                 p_Player->PlayScene(TanaanSceneObjects::SceneGulDanReavel, p_Player);
+        }
+};
+
+
+/// Tanaan entering
+class playerScript_add_tanaan_for_max_level : public PlayerScript
+{
+    public:
+        playerScript_add_tanaan_for_max_level() : PlayerScript("playerScript_add_tanaan_for_max_level") { }
+
+        void OnLogin(Player* p_Player) override
+        {
+            if (p_Player->GetMapId() != TanaanZones::MapTanaan && p_Player->getLevel() == 100 && p_Player->GetQuestStatus(TanaanQuests::QuestStartDraenor) == QUEST_STATUS_NONE)
+            {
+                if (const Quest* l_StartDraenor = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestStartDraenor))
+                    p_Player->AddQuest(l_StartDraenor, nullptr);
+            }
         }
 };
 
@@ -4253,6 +4270,7 @@ void AddSC_tanaan_jungle()
     new gob_main_cannon_trigger();
     new map_dark_portal_entrance();
     new playerScript_enter_tanaan();
+    new playerScript_add_tanaan_for_max_level();
     new spell_tanaan_inferno();
 
     g_BlazeOfGloryPlayerScript      = new playerScript_blaze_of_glory();

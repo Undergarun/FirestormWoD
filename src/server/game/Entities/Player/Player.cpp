@@ -4226,9 +4226,9 @@ void Player::GiveLevel(uint8 level)
         if (quest)
             AddQuest(quest, NULL);
     }
-    else if (level == 90)
+    else if (level >= 90 && GetQuestStatus(36881) == QUEST_STATUS_NONE)
     {
-        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(36881)) // Add quest for starting oD missions and go to Draenor
+        if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(36881)) // Add quest for starting WoD missions and go to Draenor
         {
             if (GetQuestStatus(36881) == QUEST_STATUS_NONE || GetQuestStatus(36881) == QUEST_STATUS_FAILED)
                 AddQuest(l_Quest, NULL);
