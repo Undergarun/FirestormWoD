@@ -1401,7 +1401,7 @@ class spell_pri_purify: public SpellScriptLoader
         }
 };
 
-// Devouring Plague - 2944
+/// Devouring Plague - 2944
 class spell_pri_devouring_plague: public SpellScriptLoader
 {
     public:
@@ -1442,9 +1442,9 @@ class spell_pri_devouring_plague: public SpellScriptLoader
                                 l_Player->RemoveAura(PRIEST_SHADOW_ORB_DUMMY);
                             
                             // Case of Void Entropy running on Target -> refresh this effect to its full 1 min duration.
-                            if (l_Target->HasAura(PRIEST_SPELL_VOID_ENTROPY))
+                            if (l_Target->HasAura(PRIEST_SPELL_VOID_ENTROPY, l_Player->GetGUID()))
                             {
-                                if (AuraPtr l_VoidEntropy = l_Target->GetAura(PRIEST_SPELL_VOID_ENTROPY))
+                                if (AuraPtr l_VoidEntropy = l_Target->GetAura(PRIEST_SPELL_VOID_ENTROPY, l_Player->GetGUID()))
                                     l_VoidEntropy->RefreshDuration();
                             }
 
