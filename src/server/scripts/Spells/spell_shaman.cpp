@@ -1807,6 +1807,53 @@ class spell_sha_feral_spirit: public SpellScriptLoader
         }
 };
 
+/// Spirit Hunt - 58877
+class spell_sha_pet_spirit_hunt: public SpellScriptLoader
+{
+    public:
+        spell_sha_pet_spirit_hunt() : SpellScriptLoader("spell_sha_pet_spirit_hunt") { }
+
+        enum eSpells
+        {
+            SpiritHuntHeal = 58879
+        };
+
+        class spell_sha_pet_spirit_hunt_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_pet_spirit_hunt_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                Unit* l_Owner = l_Caster->GetOwner();
+                if (!l_Owner)
+                    return;
+
+                int32 l_TakenDamage = p_EventInfo.GetDamageInfo()->GetDamage();
+                if (!l_TakenDamage)
+                    return;
+
+                int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
+                l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_pet_spirit_hunt_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_pet_spirit_hunt_AuraScript();
+        }
+};
+
 /// 88766 - Fulmination
 class spell_sha_fulmination_proc: public SpellScriptLoader
 {
@@ -2186,6 +2233,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flametongue();
     new spell_sha_improoved_flame_shock();
     new spell_sha_feral_spirit();
+    new spell_sha_pet_spirit_hunt();
     new spell_sha_fulmination_proc();
     new spell_sha_enhanced_chain_lightning();
     new spell_sha_echo_of_elements();

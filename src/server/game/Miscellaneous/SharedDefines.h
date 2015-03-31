@@ -1284,7 +1284,7 @@ enum SpellEffects
     SPELL_EFFECT_212                                = 212,
     SPELL_EFFECT_DEATH_GRIP                         = 213,
     SPELL_EFFECT_214                                = 214,
-    SPELL_EFFECT_215                                = 215,
+    SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY            = 215,
     SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
     SPELL_EFFECT_217                                = 217,
     SPELL_EFFECT_218                                = 218,
@@ -4842,7 +4842,7 @@ enum MountResult
 
 enum SPELL_WEIGHT_TYPE
 {
-    SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x00,
+    SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS = 0x01,
     SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES = 0x02,
 };
 

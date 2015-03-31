@@ -287,7 +287,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.0.3
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
     &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214                     Create Garrison
-    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_215                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY Unlock talents for powerleveled chars in retail
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
@@ -446,7 +446,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         break;
                     // Consumption
                     case 28865:
-                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY ? 2750 : 4250);
+                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL ? 2750 : 4250);
                         break;
                     // percent from health with min
                     case 25599: // Thundercrash
@@ -4880,7 +4880,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_originalCaster->CastSpell(unitTarget, 58689, true);
                             m_originalCaster->CastSpell(unitTarget, 58692, true);
                         }
-                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY)
+                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL)
                         {
                             m_originalCaster->CastSpell(unitTarget, 58695, true);
                             m_originalCaster->CastSpell(unitTarget, 58696, true);
@@ -7954,7 +7954,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
-    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficulty());
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficultyID());
     if (l_SpellInfo == nullptr)
         return;
 

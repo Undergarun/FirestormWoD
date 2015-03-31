@@ -177,6 +177,8 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
@@ -562,6 +564,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
@@ -1152,6 +1156,8 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])

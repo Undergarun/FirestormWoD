@@ -5647,39 +5647,10 @@ void AuraEffect::HandleIncreaseRatingPct(AuraApplication const* p_AurApp, uint8 
     if (l_Target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* l_Player = l_Target->ToPlayer();
-    if (l_Player == nullptr)
-        return;
-
     for (uint32 l_Rating = 0; l_Rating < MAX_COMBAT_RATING; ++l_Rating)
     {
         if (GetMiscValue() & (1 << l_Rating))
-        {
-            int32 l_BonusRating = CalculatePct(l_Player->GetRatingValue(CombatRating(l_Rating)), GetAmount());
-
-            if (!p_Apply)
-                l_BonusRating = int32(l_Player->GetRatingValue(CombatRating(l_Rating)) / (1.0f + (GetAmount() / 100.0f)));
-
-            float l_RatingChange = l_BonusRating * l_Player->GetRatingMultiplier(CombatRating(l_Rating));
-
-            switch (CombatRating(l_Rating))
-            {
-                case CR_HASTE_MELEE:
-                    l_Player->ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, l_RatingChange, p_Apply);
-                    l_Player->ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, l_RatingChange, p_Apply);
-                    break;
-                case CR_HASTE_RANGED:
-                    l_Player->ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, l_RatingChange, p_Apply);
-                    break;
-                case CR_HASTE_SPELL:
-                    l_Player->ApplyCastTimePercentMod(l_RatingChange, p_Apply);
-                    break;
-                default:
-                    break;
-            }
-
-            l_Player->UpdateRating(CombatRating(l_Rating));
-        }
+            l_Target->ToPlayer()->UpdateRating(CombatRating(l_Rating));
     }
 }
 
@@ -8134,6 +8105,7 @@ void AuraEffect::HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcE
 
     target->CastSpell(target, triggerSpellId, true, NULL, CONST_CAST(AuraEffect, shared_from_this()), GetCasterGUID());
 }
+
 
 void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& /*eventInfo*/)
 {

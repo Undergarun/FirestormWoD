@@ -858,6 +858,7 @@ class WorldSession
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
         void HandleCompleteMovieOpcode(WorldPacket & p_Packet);
         void HandleSceneTriggerEventOpcode(WorldPacket & p_Packet);
+        void HandleSceneCancelOpcode(WorldPacket & p_Packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 

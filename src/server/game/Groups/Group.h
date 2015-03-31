@@ -325,16 +325,16 @@ class Group
         uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
-        Difficulty GetDifficulty(bool isRaid) const;
-        Difficulty GetDungeonDifficulty() const;
-        Difficulty GetRaidDifficulty() const;
-        Difficulty GetLegacyRaidDifficulty() const;
-        void SetDungeonDifficulty(Difficulty difficulty);
-        void SetRaidDifficulty(Difficulty difficulty);
-        void SetLegacyRaidDifficulty(Difficulty difficulty);        
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const;
+        Difficulty GetRaidDifficultyID() const;
+        Difficulty GetLegacyRaidDifficultyID() const;
+        void SetDungeonDifficultyID(Difficulty difficulty);
+        void SetRaidDifficultyID(Difficulty difficulty);
+        void SetLegacyRaidDifficultyID(Difficulty difficulty);        
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
-        void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
+        void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
         // -no description-
         //void SendInit(WorldSession* session);

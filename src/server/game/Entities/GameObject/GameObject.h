@@ -1032,6 +1032,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
 
         void Use(Unit* user);
 
+        bool m_AllowAnim;
+        void SetCancelAnim(bool p_Disable);
+
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = NULL);

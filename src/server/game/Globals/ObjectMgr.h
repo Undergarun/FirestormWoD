@@ -777,7 +777,7 @@ struct ResearchLootEntry
     float x;
     float y;
     float z;
-    uint8 race;
+    uint8 ResearchBranchID;
 };
 
 struct GarrisonPlotBuildingContent
@@ -1031,7 +1031,7 @@ class ObjectMgr
                 return &itr->second;
             else
             {
-                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, NONE_DIFFICULTY));
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DIFFICULTY_NONE));
                 if (itr != _dungeonEncounterStore.end())
                     return &itr->second;
             }
@@ -1634,7 +1634,6 @@ class ObjectMgr
         {
             return m_StandaloneSceneInstanceID++;
         }
-
 
     private:
         // first free id for selected id type

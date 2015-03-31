@@ -934,7 +934,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 212 SPELL_EFFECT_212
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 213 SPELL_EFFECT_DEATH_GRIP
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 214 SPELL_EFFECT_214
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_215
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 216 SPELL_EFFECT_216
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 217 SPELL_EFFECT_217
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 218 SPELL_EFFECT_218
@@ -3312,7 +3312,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellTargetRestrictionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3324,7 +3324,7 @@ SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() cons
 
 SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellEquippedItemsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3336,7 +3336,7 @@ SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 
 SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellInterruptsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3348,7 +3348,7 @@ SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 
 SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellLevelsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3390,7 +3390,7 @@ SpellTotemsEntry const* SpellInfo::GetSpellTotems() const
 
 SpellAuraOptionsEntry const* SpellInfo::GetSpellAuraOptions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellAuraOptionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3412,7 +3412,7 @@ SpellCastingRequirementsEntry const* SpellInfo::GetSpellCastingRequirements() co
 
 SpellCategoriesEntry const* SpellInfo::GetSpellCategories() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCategoriesStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3429,7 +3429,7 @@ SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DIFFICULTY_NONE)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCooldownsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)

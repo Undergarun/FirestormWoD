@@ -205,7 +205,8 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_RESPOND_INSPECT_ACHIEVEMENTS,                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_RESET_FAILED_NOTIFY,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_SETUP_RESEARCH_HISTORY,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_RESEARCH_COMPLETE,                               STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_RESEARCH_COMPLETE,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_ARCHAEOLOGY_SURVERY_CAST,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_REQUEST_CEMETERY_LIST_RESPONSE,                  STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PLAYED_TIME,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_BREAK_TARGET,                                    STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1097,6 +1098,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_CHAR_RACE_OR_FACTION_CHANGE,                     STATUS_AUTHED,      PROCESS_THREADUNSAFE,   &WorldSession::HandleCharRaceOrFactionChange    );
     DEFINE_OPCODE_HANDLER(CMSG_GET_MIRRORIMAGE_DATA,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleMirrorImageDataRequest     );
     DEFINE_OPCODE_HANDLER(CMSG_SHOW_TRADE_SKILL,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleShowTradeSkillOpcode       );
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RESEARCH_HISTORY,                        STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleArcheologyRequestHistory   );
 
     //////////////////////////////////////////////////////////////////////////
     /// Bank
@@ -1236,6 +1238,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_READ_ITEM,                                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleReadItem                   );
     DEFINE_OPCODE_HANDLER(CMSG_COMPLETE_MOVIE,                                  STATUS_LOGGEDIN,    PROCESS_THREADSAFE,     &WorldSession::HandleCompleteMovieOpcode        );
     DEFINE_OPCODE_HANDLER(CMSG_SCENE_TRIGGER_EVENT,                             STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleSceneTriggerEventOpcode    );
+    DEFINE_OPCODE_HANDLER(CMSG_SCENE_PLAYBACK_CANCELED,                         STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleSceneCancelOpcode          );
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1741,7 +1744,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCategoryCooldownOpcode    );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_GM_TICKET,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestGmTicket           );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
-    //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RESEARCH_HISTORY,                STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleArcheologyRequestHistory  );
     //DEFINE_OPCODE_HANDLER(CMSG_RESET_CHALLENGE_MODE,                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleResetChallengeModeOpcode  );
     //DEFINE_OPCODE_HANDLER(CMSG_RESET_FACTION_CHEAT,                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     //DEFINE_OPCODE_HANDLER(CMSG_SEND_SOR_REQUEST_VIA_ADDRESS,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

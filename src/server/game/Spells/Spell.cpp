@@ -586,6 +586,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_runesState = 0;
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
+    m_channeledDuration = 0;                                // will be setup in Spell::handle_immediate
     m_periodicDamageModifier = 0.0f;
 
     m_channelTargetEffectMask = 0;
@@ -3324,10 +3325,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     {
                         // Haste modifies duration of channeled spells
                         if (m_spellInfo->IsChanneled())
-                        {
-                            if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                                m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
-                        }
+                            m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
                         else if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                         {
                             int32 origDuration = duration;
@@ -4041,12 +4039,13 @@ void Spell::handle_immediate()
             // Apply duration mod
             if (Player* modOwner = m_caster->GetSpellModOwner())
                 modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+
             // Apply haste mods
-            if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
-                m_caster->ModSpellCastTime(m_spellInfo, duration, this);
+            m_caster->ModSpellCastTime(m_spellInfo, duration, this);
 
             m_spellState = SPELL_STATE_CASTING;
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
+            m_channeledDuration = duration;
             SendChannelStart(duration);
         }
         else if (duration == -1)
@@ -4880,7 +4879,8 @@ void Spell::SendSpellGo()
     if ((m_caster->GetTypeId() == TYPEID_PLAYER)
         && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
         && m_spellInfo->RuneCostID
-        && m_spellInfo->GetMainPower() == POWER_RUNES)
+        && m_spellInfo->GetMainPower() == POWER_RUNES
+        && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
         l_CastFlags |= CAST_FLAG_NO_GCD;                    ///< same as in SMSG_SPELL_START
         l_CastFlags |= CAST_FLAG_RUNE_LIST;                 ///< rune cooldowns list
@@ -6559,7 +6559,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (map->IsDungeon())
                 {
                     uint32 mapId = m_caster->GetMap()->GetId();
-                    Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
+                    Difficulty difficulty = m_caster->GetMap()->GetDifficultyID();
                     if (map->IsRaid())
                         if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
                             if (InstancePlayerBind* casterBind = m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
@@ -7781,7 +7781,10 @@ void Spell::DelayedChannel()
         return;
 
     //check pushback reduce
-    int32 delaytime = CalculatePct(m_spellInfo->GetDuration(), 25); // channeling delay is normally 25% of its time per hit
+    // should be affected by modifiers, not take the dbc duration.
+    int32 duration = ((m_channeledDuration > 0) ? m_channeledDuration : m_spellInfo->GetDuration());
+
+    int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
     m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;

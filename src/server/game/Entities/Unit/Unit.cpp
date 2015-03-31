@@ -15088,12 +15088,16 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (!spellProto || castTime < 0)
         return;
 
+    if (spellProto->IsChanneled() && !(spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
+        return;
+
     Unit* owner = GetOwner();
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
-    if (!(spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) && ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
+    if (!((spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) || (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))) &&
+        ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
     {
         castTime = int32(float(castTime) * GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         // Gargoyle Strike should be affected by DeathKnight haste
@@ -15104,6 +15108,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
         castTime = int32(float(castTime) * m_modAttackSpeedPct[WeaponAttackType::RangedAttack]);
     else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
+
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)

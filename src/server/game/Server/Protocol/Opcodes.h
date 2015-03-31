@@ -214,6 +214,7 @@ enum Opcodes
         SMSG_LOGOUT_CANCEL_ACK                      = 0x08B2, ///< 6.1.2 19783
         SMSG_LOGOUT_COMPLETE                        = 0x0E95, ///< 6.1.2 19783
         SMSG_GOSSIP_POI                             = 0x1CA1, ///< 6.1.2 19783
+        SMSG_ARCHAEOLOGY_SURVERY_CAST               = 0x160F, ///< 6.1.2 19783
 
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x1CB2, ///< 6.1.2 19783
@@ -1186,6 +1187,7 @@ enum Opcodes
     CMSG_SCENE_TRIGGER_EVENT                    = 0x0589,   ///< 6.1.2 19783
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74,   ///< 6.1.2 19783
     CMSG_SHOW_TRADE_SKILL                       = 0x1735,   ///< 6.1.2 19783
+    CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C, ///< 6.1.2 8000
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles

@@ -2053,7 +2053,7 @@ void ObjectMgr::LoadGameobjects()
         if (data.spawnMask & ~spawnMasks[data.mapid])
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
-        data.phaseMask      = fields[18].GetUInt16();
+        data.phaseMask      = fields[18].GetUInt32();
         int16 gameEvent     = fields[19].GetInt8();
         uint32 PoolId        = fields[20].GetUInt32();
 
@@ -9484,9 +9484,6 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 void ObjectMgr::LoadResearchSiteZones()
 {
-    /// todo remove
-    return;
-
     uint32 counter = 0;
 
     for (auto itr : sResearchSiteSet)
@@ -9546,7 +9543,7 @@ void ObjectMgr::LoadResearchSiteLoot()
             dg.x = fields[1].GetFloat();
             dg.y = fields[2].GetFloat();
             dg.z = fields[3].GetFloat();
-            dg.race = fields[4].GetUInt8();
+            dg.ResearchBranchID = fields[4].GetUInt8();
         }
 
         _researchLoot.push_back(dg);

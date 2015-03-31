@@ -2461,15 +2461,16 @@ class Player : public Unit, public GridObject<Player>
 
         void SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type);
 
-        Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_LegacyRaidDifficulty : m_dungeonDifficulty; }
-        Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
-        Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
-        Difficulty GetLegacyRaidDifficulty() const { return m_LegacyRaidDifficulty; }
-        Difficulty GetStoredRaidDifficulty() const { return m_raidMapDifficulty; } // only for use in difficulty packet after exiting to raid map
-        void SetDungeonDifficulty(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
-        void SetRaidDifficulty(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
-        void SetLegacyRaidDifficulty(Difficulty p_LegacyRaidDifficulty) { m_LegacyRaidDifficulty = p_LegacyRaidDifficulty; }
-        void StoreRaidMapDifficulty() { m_raidMapDifficulty = GetMap()->GetDifficulty(); }
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
+        Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
+        Difficulty GetLegacyRaidDifficultyID() const { return m_LegacyRaidDifficulty; }
+        void SetDungeonDifficultyID(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
+        void SetRaidDifficultyID(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
+        void SetLegacyRaidDifficultyID(Difficulty raid_difficulty) { m_LegacyRaidDifficulty = raid_difficulty; }
+        static Difficulty CheckLoadedDungeonDifficultyID(Difficulty difficulty);
+        static Difficulty CheckLoadedRaidDifficultyID(Difficulty difficulty);
+        static Difficulty CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty);
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step);
@@ -2496,7 +2497,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateItemLevel();
         void UpdateAllRatings();
-        uint32 GetRatingValue(CombatRating p_CombatRating) const { return m_baseRatingValue[p_CombatRating]; }
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2564,8 +2564,8 @@ class Player : public Unit, public GridObject<Player>
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
         void SendDungeonDifficulty();
-        void SendRaidDifficulty(int32 forcedDifficulty = -1);
-        void ResetInstances(uint8 method, bool isRaid);
+        void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
+        void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify();
@@ -3100,7 +3100,7 @@ class Player : public Unit, public GridObject<Player>
         BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
-        InstanceSave* GetInstanceSave(uint32 mapid, bool raid);
+        InstanceSave* GetInstanceSave(uint32 mapid);
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
         InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);

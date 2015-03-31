@@ -66,6 +66,8 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
     m_groupLootTimer = 0;
     lootingGroupLowGUID = 0;
 
+    m_AllowAnim = true;
+
     ResetLootMode(); // restore default loot mode
 }
 
@@ -126,7 +128,7 @@ void GameObject::RemoveFromOwner()
         return;
     }
 
-    const char * ownerType = "creature";
+    const char* ownerType = "creature";
     if (IS_PLAYER_GUID(ownerGUID))
         ownerType = "player";
     else if (IS_PET_GUID(ownerGUID))
@@ -260,7 +262,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     auto l_MapDifficulty     = map->GetMapDifficulty();
     if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
 
     switch (goinfo->type)
     {
@@ -1124,6 +1126,14 @@ bool GameObject::ActivateToQuest(Player* target) const
     return false;
 }
 
+void GameObject::SetCancelAnim(bool p_Disable)
+{
+    if (p_Disable)
+        m_AllowAnim = false;
+    else
+        m_AllowAnim = true;
+}
+
 void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 {
     GameObjectTemplate const* trapInfo = sObjectMgr->GetGameObjectTemplate(trapEntry);
@@ -1260,7 +1270,7 @@ void GameObject::Use(Unit* p_User)
 
     if (GetEntry() == 192819)
     {
-        if (Creature *c = p_User->FindNearestCreature(23472, 50.00f))
+        if (Creature* c = p_User->FindNearestCreature(23472, 50.00f))
             if (Player* plr = p_User->ToPlayer())
                 plr->TeleportTo(p_User->GetMapId(), c->GetPositionX(), c->GetPositionY(), c->GetPositionZ(), 3.14f);
         return;
@@ -1297,19 +1307,20 @@ void GameObject::Use(Unit* p_User)
             return;
         }
         case GAMEOBJECT_TYPE_TRAP:                          //6
+        {
+            if (GameObjectTemplate const* goInfo = GetGOInfo())
             {
-                if (GameObjectTemplate const* goInfo = GetGOInfo())
-                {
-                    if (goInfo->trap.spell)
-                        CastSpell(p_User, goInfo->trap.spell);
+                if (goInfo->trap.spell)
+                    CastSpell(p_User, goInfo->trap.spell);
 
-                    m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4));   // template or 4 seconds
+                m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
 
-                    if (goInfo->trap.charges == 1)         // Deactivate after trigger
-                        SetLootState(GO_JUST_DEACTIVATED);
-                }
-                return;
+                if (goInfo->trap.charges == 1)         // Desactivate after trigger
+                    SetLootState(GO_JUST_DEACTIVATED);
             }
+
+            return;
+        }
         //Sitting: Wooden bench, chairs enzz
         case GAMEOBJECT_TYPE_CHAIR:                         //7
         {
@@ -1405,7 +1416,7 @@ void GameObject::Use(Unit* p_User)
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
-            const GameObjectTemplate * l_Info = GetGOInfo();
+            const GameObjectTemplate* l_Info = GetGOInfo();
             if (!l_Info)
                 break;
 
@@ -1457,11 +1468,14 @@ void GameObject::Use(Unit* p_User)
             SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED, p_User);
 
-            // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (l_Info->goober.customAnim)
-                SendCustomAnim(GetGoAnimProgress());
-            else
-                SetGoState(GO_STATE_ACTIVE);
+            if (m_AllowAnim)
+            {
+                // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
+                if (l_Info->goober.customAnim)
+                    SendCustomAnim(GetGoAnimProgress());
+                else
+                    SetGoState(GO_STATE_ACTIVE);
+            }
 
             m_cooldownTime = time(NULL) + l_Info->GetAutoCloseTime();
 
@@ -1582,6 +1596,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             Unit* owner = GetOwner();
 
@@ -1702,6 +1718,8 @@ void GameObject::Use(Unit* p_User)
                 return;
 
             Player* player = p_User->ToPlayer();
+            if (!player)
+                break;
 
             Player* targetPlayer = ObjectAccessor::FindPlayer(player->GetSelection());
 
