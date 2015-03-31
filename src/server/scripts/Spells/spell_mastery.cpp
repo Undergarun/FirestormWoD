@@ -766,7 +766,7 @@ class spell_mastery_icicles_hit: public SpellScriptLoader
         }
 };
 
-// Called by Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
+// Called by Clarity of Will - 152118, Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
 // Mastery : Shield Discipline - 77484
 class spell_mastery_shield_discipline: public SpellScriptLoader
 {

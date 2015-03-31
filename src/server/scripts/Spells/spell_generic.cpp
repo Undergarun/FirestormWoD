@@ -1399,7 +1399,7 @@ class spell_gen_luck_of_the_draw: public SpellScriptLoader
                             if (group->isLFGGroup())
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
+                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficultyID()))
                                             if (randomDungeon && randomDungeon->type == TYPEID_RANDOM_DUNGEON)
                                                 return; // in correct dungeon
 

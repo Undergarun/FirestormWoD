@@ -3491,7 +3491,8 @@ class AreaTrigger_ice_trap_effect : public AreaTriggerEntityScript
 
 enum class HunterFreezingTrap : uint32
 {
-    SpellIncapacitate   = 3355
+    SpellIncapacitate   = 3355,
+    SpellGlyphOfSolace  = 119407
 };
 
 /// Freezing Trap - 1499
@@ -3524,6 +3525,8 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 
                 if (l_Target != nullptr)
                 {
+                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
+                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, l_AreaTriggerCaster->GetGUID());
                     l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                     p_AreaTrigger->Remove(0);
                 }

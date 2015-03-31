@@ -866,9 +866,10 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_HomebindTimer = 0;
     m_InstanceValid = true;
-    m_dungeonDifficulty = REGULAR_5_DIFFICULTY;
-    m_raidDifficulty = NORMAL_DIFFICULTY;
-    m_LegacyRaidDifficulty = LEGACY_MAN10_DIFFICULTY;
+    m_dungeonDifficulty = DIFFICULTY_NORMAL;
+    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_LegacyRaidDifficulty = DIFFICULTY_10_N;
+    m_raidMapDifficulty = DIFFICULTY_NORMAL_RAID;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -7419,28 +7420,35 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
+    float oldRating = m_baseRatingValue[cr];
     m_baseRatingValue[cr] += (apply ? value : -value);
 
     // explicit affected values
+    float const multiplier = GetRatingMultiplier(cr);
+    float const oldVal = oldRating * multiplier;
+    float const newVal = m_baseRatingValue[cr] * multiplier;
     switch (cr)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, RatingChange, apply);
-            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, RatingChange, apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::BaseAttack, newVal, true);
+            ApplyAttackTimePercentMod(WeaponAttackType::OffAttack, newVal, true);
             if (getClass() == CLASS_DEATH_KNIGHT)
                 UpdateAllRunesRegen();
             break;
         }
         case CR_HASTE_RANGED:
         {
-            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, value * GetRatingMultiplier(cr), apply);
+            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, oldVal, false);
+            ApplyAttackTimePercentMod(WeaponAttackType::RangedAttack, newVal, true);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            ApplyCastTimePercentMod(value * GetRatingMultiplier(cr), apply);
+            ApplyCastTimePercentMod(oldVal, false);
+            ApplyCastTimePercentMod(newVal, true);
             break;
         }
         default:
@@ -8548,7 +8556,7 @@ void Player::RewardReputation(Unit* victim, float rate)
             InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(map->GetId());
             if (instance)
             {
-                AccessRequirement const* pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficulty());
+                AccessRequirement const* pAccessRequirement = sObjectMgr->GetAccessRequirement(map->GetId(), ((InstanceMap*)map)->GetDifficultyID());
                 if (pAccessRequirement)
                 {
                     if (!map->IsRaid() && pAccessRequirement->levelMin == 80)
@@ -9014,14 +9022,19 @@ void Player::SendCurrencies()
 void Player::SendPvpRewards()
 {
     WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
+
     l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);                         ///< Count of gived all conquest points in week
     l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);                        ///< Max Conquest points cap
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);                       ///< Count of gived conquest points from Rated BG in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);                      ///< Conquest points cap for Rated BG
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true);                 ///< Count of gived conquest points from Random BG in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, true);                ///< Conquest points cap for Random BG
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);                     ///< Count of gived conquest points from Arena in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);                    ///< Conquest points cap for Arena
+
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                  ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                 ///< Max Conquest points cap
+
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                    ///< Ashran currency week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                   ///< Ashran currency weekcap
+
+    l_Packet << (uint32)0;                                                                              ///< Count of gived all conquest rewarded in battlegrounds, deprecated
+    l_Packet << (uint32)0;                                                                              ///< battleground currency weekcap, deprecated
+
     l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100;   ///< Conquest points from Rated BG win
     l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100;       ///< Conquest points from Arena win
 
@@ -9087,8 +9100,9 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && count >= 0 &&
-        (id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG ||
-        id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RANDOM_BG || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
+            (id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
+            || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG
+            || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
         return;
 
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
@@ -9251,9 +9265,6 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision)
         itr = _currencyStorage.find(id);
     }
 
-    if (id == CURRENCY_TYPE_CONQUEST_POINTS)
-        return std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, usePrecision), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, usePrecision));
-
     return itr->second.weekCap / precision;
 }
 
@@ -9283,70 +9294,18 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
 
     switch (entry->ID)
     {
-        // should add precision mod = 100
-        case CURRENCY_TYPE_CONQUEST_META_ARENA:
-        case CURRENCY_TYPE_CONQUEST_META_RBG: // Temp
-            cap = JadeCore::Currency::ConquestRatingCalculator(GetMaxRating()) * CURRENCY_PRECISION;
+        case CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG:
+            cap = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP);
             break;
-        // should add precision mod = 100
-        case CURRENCY_TYPE_CONQUEST_META_RANDOM_BG:
-            cap = JadeCore::Currency::BgConquestRatingCalculator(GetMaxRating()) * CURRENCY_PRECISION;
+        case CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ASHRAN:
+            cap = sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
             break;
-        // No week cap for Justice Points
-        case CURRENCY_TYPE_JUSTICE_POINTS:
-            cap = 0;
-            break;
-        case CURRENCY_TYPE_VALOR_POINTS:
-            cap = 1000 * CURRENCY_PRECISION;
+        case CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS:
+            cap = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP) + sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
             break;
     }
 
     return cap;
-}
-
-uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
-{
-    uint32 cap = currency->TotalCap;
-
-    switch (currency->ID)
-    {
-        case CURRENCY_TYPE_HONOR_POINTS:
-        {
-            uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS) * CURRENCY_PRECISION;
-            if (honorcap > 0)
-                cap = honorcap;
-            break;
-        }
-        case CURRENCY_TYPE_JUSTICE_POINTS:
-        {
-            uint32 justicecap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS) * CURRENCY_PRECISION;
-            if (justicecap > 0)
-                cap = justicecap;
-            break;
-        }
-    }
-
-    return cap;
-}
-
-void Player::UpdateConquestCurrencyCap(uint32 currency)
-{
-    uint32 currenciesToUpdate[2] = { currency, CURRENCY_TYPE_CONQUEST_POINTS };
-
-    for (uint32 i = 0; i < 2; ++i)
-    {
-        CurrencyTypesEntry const* currencyEntry = sCurrencyTypesStore.LookupEntry(currenciesToUpdate[i]);
-        if (!currencyEntry)
-            continue;
-
-        uint32 precision = (currencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
-        uint32 cap = GetCurrencyWeekCap(currencyEntry->ID);
-
-        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-        packet << uint32(currenciesToUpdate[i]);
-        packet << uint32(cap / precision);
-        GetSession()->SendPacket(&packet);
-    }
 }
 
 void Player::SetInGuild(uint32 guildId)
@@ -9535,7 +9494,7 @@ void Player::_GarrisonSetIn()
     if (!l_GarrisonSiteEntry)
         return;
 
-    Difficulty l_DungeonDiff = REGULAR_5_DIFFICULTY;
+    Difficulty l_DungeonDiff = DIFFICULTY_NORMAL;
     std::swap(l_DungeonDiff, m_dungeonDifficulty);
 
     SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
@@ -14558,7 +14517,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     Map const* map = lootedObject->GetMap();
     if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
+            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficultyID()))
                 lootedObjectInDungeon = true;
 
     if (!lootedObjectInDungeon)
@@ -19997,21 +19956,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     uint32 mapId = fields[15].GetUInt16();
     uint32 instanceId = fields[52].GetUInt32();
 
-    uint32 dungeonDiff = fields[39].GetUInt8();
-    if (dungeonDiff >= MAX_DUNGEON_DIFFICULTY)
-        dungeonDiff = REGULAR_5_DIFFICULTY;
-
-    uint32 raidDiff = fields[67].GetUInt8();
-    if (raidDiff < NORMAL_DIFFICULTY || raidDiff > MYTHIC_DIFFICULTY)
-        raidDiff = NORMAL_DIFFICULTY;
-    SetRaidDifficulty(Difficulty(raidDiff));
-
-    uint32 l_LegacyRaidDiff = fields[68].GetUInt8();
-    if (l_LegacyRaidDiff < LEGACY_MAN10_DIFFICULTY || l_LegacyRaidDiff > LEGACY_MAN25_HEROIC_DIFFICULTY)
-        l_LegacyRaidDiff = LEGACY_MAN10_DIFFICULTY;
-    SetLegacyRaidDifficulty(Difficulty(l_LegacyRaidDiff));
-
-    SetDungeonDifficulty(Difficulty(dungeonDiff));
+    SetDungeonDifficultyID(CheckLoadedDungeonDifficultyID(Difficulty(fields[39].GetUInt8())));
+    SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[67].GetUInt8())));
+    SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
 
@@ -20167,7 +20114,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
         // fix crash (because of if (Map* map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
         if (instanceId)
-            if (InstanceSave* save = GetInstanceSave(mapId, mapEntry->IsRaid()))
+            if (InstanceSave* save = GetInstanceSave(mapId))
                 if (save->GetInstanceId() != instanceId)
                     instanceId = 0;
     }
@@ -20222,7 +20169,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     }
 
     SetMap(map);
-    StoreRaidMapDifficulty();
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
@@ -21655,8 +21601,9 @@ void Player::_LoadGroup(PreparedQueryResult result)
             if (getLevel() >= LEVELREQUIREMENT_HEROIC)
             {
                 // the group leader may change the instance difficulty while the player is offline
-                SetDungeonDifficulty(group->GetDungeonDifficulty());
-                SetRaidDifficulty(group->GetRaidDifficulty());
+                SetDungeonDifficultyID(group->GetDungeonDifficultyID());
+                SetRaidDifficultyID(group->GetRaidDifficultyID());
+                SetLegacyRaidDifficultyID(group->GetLegacyRaidDifficultyID());
             }
         }
     }
@@ -21748,16 +21695,31 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
         return NULL;
 }
 
-InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
+InstanceSave* Player::GetInstanceSave(uint32 p_MapID)
 {
-    InstancePlayerBind* pBind = GetBoundInstance(mapid, GetDifficulty(raid));
-    InstanceSave* pSave = pBind ? pBind->save : NULL;
-    if (!pBind || !pBind->perm)
-        if (Group* group = GetGroup())
-            if (InstanceGroupBind* groupBind = group->GetBoundInstance(this))
-                pSave = groupBind->save;
+    MapEntry const     * l_MapEntry = sMapStore.LookupEntry(p_MapID);
+    InstancePlayerBind * l_Bind     = GetBoundInstance(p_MapID, GetDifficultyID(l_MapEntry));
+    InstanceSave       * l_Save     = l_Bind ? l_Bind->save : NULL;
 
-    return pSave;
+    if (!l_Bind || !l_Bind->perm)
+    {
+        if (Group* l_Group = GetGroup())
+        {
+            if (InstanceGroupBind* l_GroupBind = l_Group->GetBoundInstance(this))
+                l_Save = l_GroupBind->save;
+        }
+    }
+
+    if (!l_Bind || !l_Bind->perm)
+    {
+        if (Group* l_Group = GetGroup())
+        {
+            if (InstanceGroupBind* l_GroupBind = l_Group->GetBoundInstance(this))
+                l_Save = l_GroupBind->save;
+        }
+    }
+
+    return l_Save;
 }
 
 void Player::UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload)
@@ -21792,7 +21754,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
 {
     if (save)
     {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficulty()][save->GetMapId()];
+        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
         if (bind.save)
         {
             // update the save when the group kills a boss
@@ -21834,8 +21796,8 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
         bind.save = save;
         bind.perm = permanent;
         if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficulty(), save->GetMapId(), permanent);
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
+        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
         return &bind;
     }
     else
@@ -21873,7 +21835,7 @@ void Player::SendRaidInfo()
                 l_Counter++;
 
                 l_Buffer << uint32(l_Save->GetMapId());
-                l_Buffer << uint32(l_Save->GetDifficulty());
+                l_Buffer << uint32(l_Save->GetDifficultyID());
                 l_Buffer << uint64(l_Save->GetInstanceId());
                 l_Buffer << uint32(l_Save->GetResetTime() - l_Now);
                 l_Buffer << uint32(l_Save->GetEncounterMask());
@@ -21943,7 +21905,7 @@ void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLe
     {
         for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
-            if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficulty(), itr->first))
+            if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficultyID(), itr->first))
                 group->BindToInstance(itr->second.save, itr->second.perm, false);
 
             // permanent binds are not removed
@@ -22020,7 +21982,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
                     missingLeaderAchievement = ar->leader_achievement;
         }
 
-        Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
+        Difficulty target_difficulty = GetDifficultyID(mapEntry);
         MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!mapDiff)
             return false;
@@ -22171,9 +22133,9 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX));
         stmt->setUInt16(index++, (uint16)GetMapId());
         stmt->setUInt32(index++, (uint32)GetInstanceId());
-        stmt->setUInt8(index++, GetDungeonDifficulty());
-        stmt->setUInt8(index++, GetRaidDifficulty());
-        stmt->setUInt8(index++, GetLegacyRaidDifficulty());
+        stmt->setUInt8(index++, GetDungeonDifficultyID());
+        stmt->setUInt8(index++, GetRaidDifficultyID());
+        stmt->setUInt8(index++, GetLegacyRaidDifficultyID());
         stmt->setFloat(index++, finiteAlways(GetPositionX()));
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
         stmt->setFloat(index++, finiteAlways(GetPositionZ()));
@@ -22289,9 +22251,9 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             stmt->setUInt16(index++, (uint16)GetMapId());
             stmt->setUInt32(index++, (uint32)GetInstanceId());
-            stmt->setUInt8(index++, GetDungeonDifficulty());
-            stmt->setUInt8(index++, GetRaidDifficulty());
-            stmt->setUInt8(index++, GetLegacyRaidDifficulty());
+            stmt->setUInt8(index++, GetDungeonDifficultyID());
+            stmt->setUInt8(index++, GetRaidDifficultyID());
+            stmt->setUInt8(index++, GetLegacyRaidDifficultyID());
             stmt->setFloat(index++, finiteAlways(GetPositionX()));
             stmt->setFloat(index++, finiteAlways(GetPositionY()));
             stmt->setFloat(index++, finiteAlways(GetPositionZ()));
@@ -22301,9 +22263,9 @@ void Player::SaveToDB(bool create /*=false*/)
         {
             stmt->setUInt16(index++, (uint16)GetTeleportDest().GetMapId());
             stmt->setUInt32(index++, (uint32)0);
-            stmt->setUInt8(index++, GetDungeonDifficulty());
-            stmt->setUInt8(index++, GetRaidDifficulty());
-            stmt->setUInt8(index++, GetLegacyRaidDifficulty());
+            stmt->setUInt8(index++, GetDungeonDifficultyID());
+            stmt->setUInt8(index++, GetRaidDifficultyID());
+            stmt->setUInt8(index++, GetLegacyRaidDifficultyID());
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionX()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionY()));
             stmt->setFloat(index++, finiteAlways(GetTeleportDest().GetPositionZ()));
@@ -23364,21 +23326,16 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 void Player::SendDungeonDifficulty()
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << uint32(GetDungeonDifficulty());
+    data << uint32(GetDungeonDifficultyID());
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendRaidDifficulty(int32 forcedDifficulty)
+void Player::SendRaidDifficulty(bool p_Legacy, int32 forcedDifficulty)
 {
     WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
-    data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
-    data << uint8(0);
+    data << uint32(forcedDifficulty == -1 ? (p_Legacy ? GetLegacyRaidDifficultyID () : GetRaidDifficultyID()) : forcedDifficulty);
+    data << uint8(p_Legacy);
     GetSession()->SendPacket(&data);
-
-    WorldPacket data2(SMSG_SET_RAID_DIFFICULTY, 4);
-    data2 << uint32(GetLegacyRaidDifficulty());
-    data2 << uint8(1);
-    GetSession()->SendPacket(&data2);
 }
 
 void Player::SendResetFailedNotify()
@@ -23388,12 +23345,19 @@ void Player::SendResetFailedNotify()
 }
 
 /// Reset all solo instances and optionally send a message on success for each
-void Player::ResetInstances(uint8 method, bool isRaid)
+void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
 {
     // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_JOIN
 
     // we assume that when the difficulty changes, all instances that can be reset will be
-    Difficulty diff = GetDifficulty(isRaid);
+    Difficulty diff = GetDungeonDifficultyID();
+    if (isRaid)
+    {
+        if (!isLegacy)
+            diff = GetRaidDifficultyID();
+        else
+            diff = GetLegacyRaidDifficultyID();
+    }
 
     for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
     {
@@ -23408,7 +23372,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->instanceType == MAP_RAID || diff == HEROIC_DIFFICULTY)
+            if (entry->instanceType == MAP_RAID || diff == DIFFICULTY_HEROIC_RAID)
             {
                 ++itr;
                 continue;
@@ -23666,9 +23630,6 @@ void Player::Say(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
@@ -23688,9 +23649,6 @@ void Player::Yell(std::string const& p_Text, uint32 const p_LangID)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
         if (WorldSession* l_Session = l_Target->GetSession())
         {
             WorldPacket l_Data;
@@ -23710,10 +23668,7 @@ void Player::TextEmote(std::string const& p_Text)
 
     for (Player* l_Target : l_PlayerList)
     {
-        if (!HaveAtClient(l_Target))
-            continue;
-
-        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId())
+        if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != GetTeamId() && !l_Target->isGameMaster())
             continue;
 
         if (WorldSession* l_Session = l_Target->GetSession())
@@ -26260,17 +26215,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data << uint32(1);                                          // added in 3.1.2
     GetSession()->SendPacket(&l_Data);
 
-    bool l_IsInInstance = GetGroup() && (GetMap()->IsDungeon() || GetMap()->IsRaid());
+    bool l_IsInInstance = GetMap()->GetMapDifficulty() ? GetMap()->GetMapDifficulty()->MaxPlayers : false;
 
     l_Data.Initialize(SMSG_WORLD_SERVER_INFO, 4 * 5);
-
-    if (GetMap()->IsDungeon())
-        l_Data << uint32(GetDungeonDifficulty());                             ///< DifficultyID
-    else if (GetMap()->IsRaid())
-        l_Data << uint32(GetRaidDifficulty());                                ///< DifficultyID
-    else
-        l_Data << uint32(0);                                                  ///< DifficultyID
-
+    l_Data << uint32(GetMap()->GetDifficultyID());                            ///< DifficultyID
     l_Data << uint8(0);                                                       ///< Is Tournament Realm
     l_Data << uint32(sWorld->GetNextWeeklyQuestsResetTime() - (2 * WEEK));    ///< Last Weekly Reset
     l_Data.WriteBit(false);                                                   ///< Has Restricted Account Max Level
@@ -26279,7 +26227,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
 
     if (l_IsInInstance)
-        l_Data << uint32(GetGroup()->GetMembersCount());
+        l_Data << uint32(GetMap()->GetMapDifficulty()->MaxPlayers);
 
     GetSession()->SendPacket(&l_Data);
 
@@ -26401,24 +26349,20 @@ void Player::SendInitialPacketsAfterAddToMap()
     for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); iter++)
         (*iter)->RecalculateAmount((*iter)->GetCaster(), true);
 
-    // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
     {
-        if (GetMap()->GetDifficulty() != GetRaidDifficulty())
-        {
-            StoreRaidMapDifficulty();
-            SendRaidDifficulty(GetStoredRaidDifficulty());
-        }
+        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
+        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, GetMap()->GetDifficultyID());
     }
-    else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
-        SendRaidDifficulty();
+    else if (GetMap()->IsNonRaidDungeon())
+        SendDungeonDifficulty();
 
     GetSession()->SendPetBattleJournal();
 
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
-        m_archaeologyMgr.ShowResearchSites();
-        m_archaeologyMgr.ShowResearchProjects();
+        m_archaeologyMgr.PropagateResearchSites();
+        m_archaeologyMgr.PropagateResearchProjects();
     }
 
     SendDeathRuneUpdate();
@@ -26484,6 +26428,9 @@ void Player::SendInitialPacketsAfterAddToMap()
      l_Data.FlushBits();
  
      SendDirectMessage(&l_Data);
+
+     if (Group* l_Group = GetGroup())
+         l_Group->SendUpdate();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -31883,7 +31830,7 @@ void Player::CutOffItemLevel(bool p_RescaleItems)
         l_MinLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MIN);
         l_MaxLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MAX);
     }
-    else if (l_Map->GetDifficulty() == CHALLENGE_MODE_DIFFICULTY && l_Map->IsDungeon())
+    else if (l_Map->GetDifficultyID() == DIFFICULTY_CHALLENGE && l_Map->IsDungeon())
     {
         l_MaxLevel = sWorld->getIntConfig(CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX);
     }
@@ -32413,4 +32360,65 @@ void Player::AddDailyLootCooldown(uint32 p_Entry)
     l_Statement->setUInt32(0, GetGUIDLow());
     l_Statement->setUInt32(1, p_Entry);
     CharacterDatabase.Execute(l_Statement);
+}
+
+Difficulty Player::GetDifficultyID(MapEntry const* p_MapEntry) const
+{
+    if (!p_MapEntry->IsRaid())
+        return m_dungeonDifficulty;
+
+    MapDifficulty const* l_DefaultDifficulty = GetDefaultMapDifficulty(p_MapEntry->MapID);
+    if (!l_DefaultDifficulty)
+        return m_LegacyRaidDifficulty;
+
+    DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(l_DefaultDifficulty->DifficultyID);
+    if (!l_Difficulty || l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY)
+        return m_LegacyRaidDifficulty;
+
+    return m_raidDifficulty;
+}
+
+Difficulty Player::CheckLoadedDungeonDifficultyID(Difficulty difficulty)
+{
+    DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+    if (!l_DifficultyEntry)
+        return DIFFICULTY_NORMAL;
+
+    if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
+        return DIFFICULTY_NORMAL;
+
+    if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
+        return DIFFICULTY_NORMAL;
+
+    return difficulty;
+}
+
+Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty p_Difficulty)
+{
+    DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
+    if (!l_DifficultyEntry)
+        return DIFFICULTY_NORMAL_RAID;
+
+    if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
+        return DIFFICULTY_NORMAL_RAID;
+
+    if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+        return DIFFICULTY_NORMAL_RAID;
+
+    return p_Difficulty;
+}
+
+Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty p_Difficulty)
+{
+    DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
+    if (!l_DifficultyEntry)
+        return DIFFICULTY_10_N;
+
+    if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
+        return DIFFICULTY_10_N;
+
+    if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
+        return DIFFICULTY_10_N;
+
+    return p_Difficulty;
 }

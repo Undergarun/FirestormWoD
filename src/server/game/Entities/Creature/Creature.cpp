@@ -275,37 +275,27 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
 
     // get difficulty 1 mode entry
     // Si l'entry heroic du mode de joueur est introuvable, on utilise l'entry du mode normal correpondant au nombre de joueurs du mode
-    CreatureTemplate const* cinfo = normalInfo;
-    uint8 diff = uint8(GetMap()->GetSpawnMode());
-    if (diff)
+    CreatureTemplate const* cinfo = nullptr;
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(GetMap()->GetSpawnMode());
+
+    while (!cinfo && difficultyEntry)
     {
-        if (normalInfo->DifficultyEntry[diff - 1])
+        int32 idx = difficultyEntry->ID - 1;
+        if (idx == -1)
+            break;
+        if (normalInfo->DifficultyEntry[idx])
         {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
+            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
+            break;
         }
-
-        if (cinfo == normalInfo && (diff == LEGACY_MAN25_HEROIC_DIFFICULTY || diff == RAID_TOOL_DIFFICULTY) && normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1])
-        {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN25_DIFFICULTY - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
-        }
-
-        if (cinfo == normalInfo &&  diff == LEGACY_MAN10_HEROIC_DIFFICULTY && normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1])
-        {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[LEGACY_MAN10_DIFFICULTY - 1]);
-
-            // check and reported at startup, so just ignore (restore normalInfo)
-            if (!cinfo)
-                cinfo = normalInfo;
-        }
+        if (!difficultyEntry->FallbackDifficultyID)
+            break;
+ 
+        difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
+
+    if (!cinfo)
+        cinfo = normalInfo;
 
     SetEntry(Entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
@@ -900,7 +890,7 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
 
     auto l_MapDifficulty = map->GetMapDifficulty();
     if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
 
     return true;
 }

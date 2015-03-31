@@ -158,6 +158,7 @@ enum Opcodes
         SMSG_RESET_FAILED_NOTIFY                    = 0x1B01,   ///< 6.0.3 19116
         SMSG_SETUP_RESEARCH_HISTORY                 = 0x0A25,   ///< 6.0.3 19116
         SMSG_RESEARCH_COMPLETE                      = 0x0B3A,   ///< 6.0.3 19116
+        SMSG_ARCHAEOLOGY_SURVERY_CAST               = 0x0008,   ///< 6.0.3 19116
         SMSG_REQUEST_CEMETERY_LIST_RESPONSE         = 0x059E,   ///< 6.0.3 19116
         SMSG_PLAYED_TIME                            = 0x038B,   ///< 6.0.3 19116
         SMSG_BREAK_TARGET                           = 0x11A2,   ///< 6.0.3 19116
@@ -1181,6 +1182,7 @@ enum Opcodes
     CMSG_SCENE_TRIGGER_EVENT                    = 0x11B9,   ///< 6.0.3 19116
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
     CMSG_SHOW_TRADE_SKILL                       = 0x07AD,   ///< 6.0.3 19116
+    CMSG_REQUEST_RESEARCH_HISTORY               = 0x13D9,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1706,7 +1708,6 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                     = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                          = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                         = 0x0000,
-    CMSG_REQUEST_RESEARCH_HISTORY                       = 0x0000,
     CMSG_RESET_CHALLENGE_MODE                           = 0x0000,
     CMSG_RESET_FACTION_CHEAT                            = 0x0000,
     CMSG_SAVE_PLAYER                                    = 0x0000,

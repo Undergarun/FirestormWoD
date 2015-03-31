@@ -1719,26 +1719,43 @@ class spell_warr_blood_bath : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_blood_bath_Aurascript);
 
-            void HandleOnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
+            void HandleOnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_ProcInfo)
             {
                 PreventDefaultAction();
 
-                if (!l_ProcInfo.GetDamageInfo() || !l_ProcInfo.GetDamageInfo()->GetDamage() || !l_ProcInfo.GetDamageInfo()->GetSpellInfo())
+                if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage() || !p_ProcInfo.GetDamageInfo()->GetSpellInfo())
                     return;
 
-                if (l_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
+                if (p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_BLOOD_BATH_DAMAGE)
                     return;
 
-                Unit* l_Target = l_ProcInfo.GetActionTarget();
+                Unit* l_Target = p_ProcInfo.GetActionTarget();
                 Unit* l_Caster = GetCaster();
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH);
+                SpellInfo const* l_SpellInfoDamage = sSpellMgr->GetSpellInfo(SPELL_BLOOD_BATH_DAMAGE);
 
                 /// 30% additional damage as a bleed over 6 sec
 
-                if (l_SpellInfo == nullptr || l_Target == nullptr || l_Caster == nullptr)
+                if (l_SpellInfo == nullptr || l_SpellInfoDamage == nullptr || l_Target == nullptr || l_Caster == nullptr)
                     return;
 
-                int32 l_Damage = ((l_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100) / 6;
+                int32 l_Damage = (p_ProcInfo.GetDamageInfo()->GetDamage() * l_SpellInfo->Effects[EFFECT_0].BasePoints) / 100;
+
+                if (AuraEffectPtr l_PreviousBloodbath = l_Target->GetAuraEffect(SPELL_BLOOD_BATH_DAMAGE, EFFECT_0, l_Caster->GetGUID()))
+                {
+                    int32 l_PeriodicDamage = l_PreviousBloodbath->GetAmount();
+                    int32 l_Duration = l_Target->GetAura(SPELL_BLOOD_BATH_DAMAGE, l_Caster->GetGUID())->GetDuration();
+                    int32 l_Amplitude = l_PreviousBloodbath->GetAmplitude();
+
+                    int32 l_PreviousTotalDamage = 0;
+
+                    if (l_Amplitude)
+                        l_PreviousTotalDamage = l_PeriodicDamage * (l_Duration / l_Amplitude);
+                    l_Damage += l_PreviousTotalDamage;
+                }
+
+                if (l_SpellInfoDamage->Effects[EFFECT_0].Amplitude)
+                    l_Damage /= (l_SpellInfoDamage->GetMaxDuration() / l_SpellInfoDamage->Effects[EFFECT_0].Amplitude);
 
                 l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_SNARE, true);
                 l_Caster->CastSpell(l_Target, SPELL_BLOOD_BATH_DAMAGE, true);

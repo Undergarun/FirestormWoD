@@ -66,7 +66,7 @@
 #include "InstanceScript.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "ArchaeologyMgr.h"
+#include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
@@ -448,7 +448,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         break;
                     // Consumption
                     case 28865:
-                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY ? 2750 : 4250);
+                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL ? 2750 : 4250);
                         break;
                     // percent from health with min
                     case 25599: // Thundercrash
@@ -4882,7 +4882,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_originalCaster->CastSpell(unitTarget, 58689, true);
                             m_originalCaster->CastSpell(unitTarget, 58692, true);
                         }
-                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficulty() == REGULAR_5_DIFFICULTY)
+                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL)
                         {
                             m_originalCaster->CastSpell(unitTarget, 58695, true);
                             m_originalCaster->CastSpell(unitTarget, 58696, true);
@@ -7556,7 +7556,7 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
 
     std::random_shuffle(l_Maps.begin(), l_Maps.end());
 
-    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInMap(l_Maps[0]);
+    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInContinent(l_Maps[0]);
     ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
     if (l_Loot.empty())
         return;
@@ -7599,7 +7599,7 @@ void Spell::EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex)
     uint32 l_MapId = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_SiteCount = m_spellInfo->Effects[p_EffIndex].BasePoints;
 
-    l_Target->GetArchaeologyMgr().GenerateResearchSitesForMap(l_MapId, l_SiteCount);
+    l_Target->GetArchaeologyMgr().GenerateResearchSitesForContinent(l_MapId, l_SiteCount);
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
@@ -7956,7 +7956,7 @@ void Spell::EffectForcePlayerInteraction(SpellEffIndex p_EffIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
         return;
 
-    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficulty());
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[p_EffIndex].TriggerSpell, m_caster->GetMap()->GetDifficultyID());
     if (l_SpellInfo == nullptr)
         return;
 

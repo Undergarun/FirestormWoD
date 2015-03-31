@@ -195,10 +195,7 @@ class spell_pri_confession: public SpellScriptLoader
 
                         for (Player* l_Target : l_PlayerList)
                         {
-                            if (!l_Caster->HaveAtClient(l_Target))
-                                continue;
-
-                            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != l_Caster->GetTeamId())
+                            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && l_Target->GetTeamId() != l_Caster->GetTeamId() && !l_Target->isGameMaster())
                                 continue;
 
                             if (WorldSession* l_Session = l_Target->GetSession())

@@ -133,11 +133,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, HEROIC_DIFFICULTY))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_HEROIC_RAID))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, LEGACY_MAN10_HEROIC_DIFFICULTY))
+                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_10_HC))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, LEGACY_MAN25_HEROIC_DIFFICULTY))
+                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_25_HC))
                             isFlagInvalid = true;
                         break;
                     case MAP_BATTLEGROUND:
@@ -311,17 +311,17 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 if (mapEntry->IsDungeon())
                 {
                     uint8 disabledModes = itr->second.flags;
-                    Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
+                    Difficulty targetDifficulty = player->GetDifficultyID(mapEntry);
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
-                        case REGULAR_5_DIFFICULTY:
+                        case DIFFICULTY_NORMAL:
                             return disabledModes & DUNGEON_STATUSFLAG_NORMAL;
-                        case HEROIC_DIFFICULTY:
+                        case DIFFICULTY_HEROIC_RAID:
                             return disabledModes & DUNGEON_STATUSFLAG_HEROIC;
-                        case LEGACY_MAN10_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_10_HC:
                             return disabledModes & RAID_STATUSFLAG_10MAN_HEROIC;
-                        case LEGACY_MAN25_HEROIC_DIFFICULTY:
+                        case DIFFICULTY_25_HC:
                             return disabledModes & RAID_STATUSFLAG_25MAN_HEROIC;
                     }
                 }

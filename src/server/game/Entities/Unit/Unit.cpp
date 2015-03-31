@@ -9819,26 +9819,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        // Will of the Necropolis
-        case 81164:
-        {
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (GetHealthPct() >= 30.0f)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(81164))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(81164, 0, 45 * IN_MILLISECONDS);
-
-            // Rune Tap
-            if (ToPlayer()->HasSpellCooldown(48982))
-                ToPlayer()->RemoveSpellCooldown(48982, true);
-
-            break;
-        }
         // Persistent Shield (Scarab Brooch trinket)
         // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
         case 26467:
@@ -15113,12 +15093,16 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     if (!spellProto || castTime < 0)
         return;
 
+    if (spellProto->IsChanneled() && !(spellProto->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION))
+        return;
+
     Unit* owner = GetOwner();
     // called from caster
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
-    if (!(spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) && ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
+    if (!((spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) || (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))) &&
+        ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
     {
         castTime = int32(float(castTime) * GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         // Gargoyle Strike should be affected by DeathKnight haste
@@ -15129,6 +15113,7 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
         castTime = int32(float(castTime) * m_modAttackSpeedPct[WeaponAttackType::RangedAttack]);
     else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
         castTime = 500;
+
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
