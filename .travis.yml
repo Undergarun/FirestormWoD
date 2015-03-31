@@ -16,7 +16,7 @@ before_install:
   - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
   - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential gcc-4.9 g++-4.9 make cmake openssl
+  - sudo apt-get -qq install build-essential gcc-4.8 g++-4.8 make cmake openssl
   - sudo apt-get -qq install libmysqlclient15-dev libmysql++-dev libssl-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev libtool
   - git clone git@github.com:MilleniumStudio/ms_framework.git dep/ms_framework
   - cd dep/ms_framework
