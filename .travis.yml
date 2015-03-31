@@ -21,7 +21,6 @@ before_install:
 
 
 install:
-  # - mysql -uroot -e 'create database test_mysql;'
   - git clone git@github.com:MilleniumStudio/ms_framework.git dep/ms_framework
   - cd dep/ms_framework
   - git submodule init
@@ -31,20 +30,27 @@ install:
   - make -j
   - sudo make install
   - cd ../../../
+  - mysql -uroot -e 'create database test_mysql;'
 
-#before_script:
-#  - mysql -uroot < sql/create/create_mysql.sql
-#  - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
-#  - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
-#  - mysql -utrinity -ptrinity world < sql/base/world_database.sql
-#  - mysql -utrinity -ptrinity monitoring < sql/base/monitoring_database.sql
-#  - cat sql/updates/world/2015/*/*.sql | mysql -utrinity -ptrinity world
-#  - mysql -uroot < sql/create/drop_mysql.sql
+before_script:
+  - mysql -uroot < sql/create/create_mysql.sql
+  - mysql -umsstudio -pmsstudio auth < sql/base/auth_database.sql
+  - mysql -umsstudio -pmsstudio characters < sql/base/characters_database.sql
+  - mysql -umsstudio -pmsstudio world < sql/base/world_database.sql
+  - mysql -umsstudio -pmsstudio monitoring < sql/base/monitoring_database.sql
+#  - cat sql/updates/world/2015/*/*.sql | mysql -msstudio -msstudio world
 
 script:
   - mkdir build && cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
   - make -j 12
+  - cd ..
+
+#after_success:
+#  -
+
+after_script:
+  - mysql -uroot < sql/create/drop_mysql.sql
 
 notifications:
   slack: millenium-studio:hJlKAYRaplFP8GVoH5a7FPqv
