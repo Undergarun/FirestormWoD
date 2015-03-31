@@ -173,7 +173,8 @@ namespace TanaanQuestObjectives
         ObjGurranMastersOfShadowAlly         = 272927,
         ObjAnkovaMastersOfShadowsHorde       = 272984,
         ObjAnkovaMastersOfShadowsAlly        = 272929,
-        ObjIronHordeSlain                    = 273041
+        ObjIronHordeSlain                    = 273041,
+        ObjTopOfTheTank                      = 274029
     };
 }
 
@@ -224,6 +225,7 @@ namespace TanaanZones
     enum
     {
         MapTanaan                            = 1265,
+        MapGarrison                          = 1116,
         ZoneTanaanJungle                     = 7025,
         AreaTheDarkPortal                    = 7037,
         AreaHearthBlood                      = 7041,

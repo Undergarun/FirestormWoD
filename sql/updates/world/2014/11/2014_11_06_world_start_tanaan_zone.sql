@@ -621,6 +621,21 @@
 
 			UPDATE `creature_template` SET `ScriptName` = 'npc_tanaan_khadgar_final' WHERE `entry` = 78563;
 
+		#86780/NPC - Napestone Riverbeast
+
+			UPDATE creature_template SET faction = 14, scriptname = "npc_tanaan_napestone_riverbeast" WHERE entry = 86780;
+
+		#82530/NPC - Mandragora
+
+			UPDATE creature_template SET minlevel = 90, maxlevel = 90, faction = 14, scriptname = "npc_tanaan_mandragora" WHERE entry = 82530;
+
+		#80574/NPC - Overseer Gotrigg
+
+			UPDATE creature_template SET scriptname = "npc_tanaan_overseer_gotrigg" WHERE entry = 80574;
+
+		#80803 - 85145 - 85146 - 80804/NPC - Liberated Tanaan Prisonner
+
+			UPDATE creature_template SET scriptname = "npc_tanaan_arena_helper" WHERE entry IN (80803, 80804, 85145, 85146);
 		-- Game Objects
 
 		#233104/Game Object - Stasis Rune

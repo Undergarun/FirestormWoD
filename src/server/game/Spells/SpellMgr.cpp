@@ -3460,10 +3460,13 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 166452:
+            case 161299: ///< Impact Spit
+                spellInfo->Effects[0].TriggerSpell = 161304;
+                break;
+            case 166452: ///< Tormented Soul
                 spellInfo->Effects[1].Effect = 0;
                 break;
-            case 164042:
+            case 164042: ///< Taste of Iron Game Aura
                 spellInfo->Effects[2].Effect = 0;
                 spellInfo->Effects[3].Effect = 0;
                 break;
