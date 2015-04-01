@@ -409,7 +409,7 @@ enum AuraType
     SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT    = 348,  // NYI
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
     SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 350,  // NYI
-    PELL_AURA_MOD_CURRENCY_LOOT                             = 351,
+    SPELL_AURA_MOD_CURRENCY_LOOT                            = 351,
     SPELL_AURA_ALLOW_WORGEN_TRANSFORM                       = 352,
     SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // Used by Camouflage
     SPELL_AURA_MOD_HEALING_DONE_FROM_PCT_HEALTH             = 354,  // Restoration Shaman mastery - mod healing based on target's health (less = more healing)
@@ -480,13 +480,13 @@ enum AuraType
     SPELL_AURA_MODIFY_MANA_POOL_PCT                         = 419,  // SPELL_AURA_MODIFY_MANA_POOL_PCT
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
     SPELL_AURA_MOD_ABSORPTION_PCT                           = 421,  // 5.4.0 unk aura (NYI)
-    SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 unk aura (NYI) wind Storm Iron Qon phase 2
+    SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 
     SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura (NYI) "Balance: Spell Damage and Hit Chance increased.Mana cost of all damage spells reduced by 100 % ."
     SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related
     SPELL_AURA_425                                          = 425,  // 5.4.0 unused
     SPELL_AURA_426                                          = 426,  // 5.4.0 unk aura (NYI) Brawl queue
     SPELL_AURA_427                                          = 427,  // 5.4.0 Entering Battleground (91318)
-    SPELL_AURA_LINKED_2                                     = 428,  // SPELL_AURA_LINKED_2
+    SPELL_AURA_LINKED_2                                     = 428,  // 5.4.0 SPELL_AURA_LINKED_2
     SPELL_AURA_MOD_PET_DAMAGE_DONE                          = 429,  // 5.4.0 unk aura (NYI) see 144364
     SPELL_AURA_430                                          = 430,  // 5.4.0 SPELL_AURA_PLAY_SCENE_SCRIPT ?
     SPELL_AURA_431                                          = 431,  // 5.4.0 unk aura (NYI) Contested Territory 142869
@@ -530,18 +530,18 @@ enum AuraType
     SPELL_AURA_469                                          = 469,  // 6.0.X
     SPELL_AURA_470                                          = 470,  // 6.0.X
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
-    SPELL_AURA_472                                          = 472,  // 6.0.X
-    SPELL_AURA_473                                          = 473,  // 6.0.X
+    SPELL_AURA_472                                          = 472,  // 6.0.X 174627 Fixate
+    SPELL_AURA_DONT_LOOSE_DURABILITY                        = 473,  // 6.0.X
     SPELL_AURA_474                                          = 474,  // 6.0.X Upgrade (170733) used on bonus loot item in quest
     SPELL_AURA_475                                          = 475,  // 6.0.X used for garr ability check comments http://fr.wowhead.com/spell=169606#english-comments
     SPELL_AURA_MOD_CURRENCY_GAIN_PCT                        = 476,  // 6.0.X SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     SPELL_AURA_477                                          = 477,  // 6.0.X Draenor Scaling aura (used in beta test)
     SPELL_AURA_478                                          = 478,  // 6.0.X Gladiator stance (new warrior stance in WoD)
-    SPELL_AURA_479                                          = 479,  // 6.1.X
-    SPELL_AURA_480                                          = 480,  // 6.1.X
-    SPELL_AURA_481                                          = 481,  // 6.1.X
-    SPELL_AURA_482                                          = 482,  // 6.1.X
-    SPELL_AURA_483                                          = 483,  // 6.1.X
+    SPELL_AURA_479                                          = 479,  // 6.1.2 unused
+    SPELL_AURA_480                                          = 480,  // 6.1.2 unused
+    SPELL_AURA_481                                          = 481,  // 6.1.2
+    SPELL_AURA_482                                          = 482,  // 6.1.2 S.E.L.F.I.E. Camera
+    SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
     TOTAL_AURAS                                             = 484   // 6.1.2
 };
 
