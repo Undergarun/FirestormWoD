@@ -570,7 +570,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
         }
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if (dungeon->difficulty > DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+        else if (dungeon->difficulty > DifficultyNormal && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
         {
             //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
             lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
@@ -1783,7 +1783,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND, dungeons, "");
         Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
 
-        if (dungeon->difficulty == DIFFICULTY_LFR && grp != nullptr && !grp->isRaidGroup())
+        if (dungeon->difficulty == DifficultyRaidTool && grp != nullptr && !grp->isRaidGroup())
             grp->ConvertToRaid();
 
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
@@ -1811,7 +1811,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 grp = new Group();
                 grp->Create(player);
 
-                if (dungeon->difficulty == DIFFICULTY_LFR)
+                if (dungeon->difficulty == DifficultyRaidTool)
                     grp->ConvertToRaid();
 
                 grp->ConvertToLFG();
@@ -1862,7 +1862,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
 
-        if (dungeon->difficulty == DIFFICULTY_LFR)
+        if (dungeon->difficulty == DifficultyRaidTool)
             grp->SetRaidDifficultyID(Difficulty(dungeon->difficulty));
         grp->SetDungeonDifficultyID(Difficulty(dungeon->difficulty));
 
@@ -1880,23 +1880,23 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
 
         switch (grp->GetLegacyRaidDifficultyID())
         {
-            case DIFFICULTY_10_N:
-            case DIFFICULTY_10_HC:
+            case Difficulty10N:
+            case Difficulty10HC:
                 maxPlayersToTeleport = 10;
                 break;
 
-            case DIFFICULTY_LFR:
-            case DIFFICULTY_25_N:
-            case DIFFICULTY_25_HC:
+            case DifficultyRaidTool:
+            case Difficulty25N:
+            case Difficulty25HC:
                 maxPlayersToTeleport = 25;
                 break;
 
-            case DIFFICULTY_40:
+            case Difficulty40:
                 maxPlayersToTeleport = 40;
                 break;
         }
 
-        if (dungeon->difficulty == DIFFICULTY_LFR)
+        if (dungeon->difficulty == DifficultyRaidTool)
             maxPlayersToTeleport = 25;
 
         // Teleport players
@@ -2417,7 +2417,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     }
 
     // Update achievements
-    if (dungeon->difficulty == DIFFICULTY_HEROIC_RAID)
+    if (dungeon->difficulty == DifficultyRaidHeroic)
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
 
     LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());

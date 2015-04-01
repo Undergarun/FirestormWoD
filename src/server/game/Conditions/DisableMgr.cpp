@@ -133,11 +133,11 @@ void LoadDisables()
                         break;
                     case MAP_INSTANCE:
                     case MAP_RAID:
-                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_HEROIC_RAID))
+                        if (flags & DUNGEON_STATUSFLAG_HEROIC && !GetMapDifficultyData(entry, DifficultyRaidHeroic))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_10_HC))
+                        else if (flags & RAID_STATUSFLAG_10MAN_HEROIC && !GetMapDifficultyData(entry, Difficulty10HC))
                             isFlagInvalid = true;
-                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, DIFFICULTY_25_HC))
+                        else if (flags & RAID_STATUSFLAG_25MAN_HEROIC && !GetMapDifficultyData(entry, Difficulty25HC))
                             isFlagInvalid = true;
                         break;
                     case MAP_BATTLEGROUND:
@@ -315,13 +315,13 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
                     switch (targetDifficulty)
                     {
-                        case DIFFICULTY_NORMAL:
+                        case DifficultyNormal:
                             return disabledModes & DUNGEON_STATUSFLAG_NORMAL;
-                        case DIFFICULTY_HEROIC_RAID:
+                        case DifficultyRaidHeroic:
                             return disabledModes & DUNGEON_STATUSFLAG_HEROIC;
-                        case DIFFICULTY_10_HC:
+                        case Difficulty10HC:
                             return disabledModes & RAID_STATUSFLAG_10MAN_HEROIC;
-                        case DIFFICULTY_25_HC:
+                        case Difficulty25HC:
                             return disabledModes & RAID_STATUSFLAG_25MAN_HEROIC;
                     }
                 }

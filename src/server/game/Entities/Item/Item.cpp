@@ -674,7 +674,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
     /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
-    if (p_ItemBonusDifficulty == Difficulty::DIFFICULTY_HEROIC)
+    if (p_ItemBonusDifficulty == Difficulty::DifficultyHeroic)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);

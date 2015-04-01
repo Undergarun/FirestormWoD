@@ -122,7 +122,7 @@ public:
                 //THIS GOB IS A TRAP - What shall i do? =(
                 //Cast it spell? Copyed Heigan method
                 pFloorEruption->SendCustomAnim(pFloorEruption->GetGoAnimProgress());
-                pFloorEruption->CastSpell(NULL, Difficulty(instance->GetSpawnMode()) == DIFFICULTY_10_N ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
+                pFloorEruption->CastSpell(NULL, Difficulty(instance->GetSpawnMode()) == Difficulty::Difficulty10N ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
 
                 //Get all immediatly nearby floors
                 std::list<GameObject*> nearFloorList;

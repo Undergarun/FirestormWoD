@@ -73,7 +73,7 @@ enum Shadowmourne
     SPELL_THIRST_QUENCHED                   = 72154,
 };
 
-uint32 const vampireAuras[3][MAX_DIFFICULTY] =
+uint32 const vampireAuras[3][Difficulty::MaxDifficulties] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
@@ -826,8 +826,10 @@ class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == DIFFICULTY_10_N)
+            {
+                if (lanaThelAI->GetDifficulty() == Difficulty::Difficulty10N)
                     return !lanaThelAI->WasVampire(source->GetGUID());
+            }
 
             return false;
         }
@@ -844,8 +846,10 @@ class achievement_once_bitten_twice_shy_v : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == DIFFICULTY_10_N)
+            {
+                if (lanaThelAI->GetDifficulty() == Difficulty::Difficulty10N)
                     return lanaThelAI->WasVampire(source->GetGUID());
+            }
 
             return false;
         }
@@ -862,8 +866,10 @@ class achievement_once_bitten_twice_shy_n25 : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == DIFFICULTY_25_N)
+            {
+                if (lanaThelAI->GetDifficulty() == Difficulty::Difficulty25N)
                     return !lanaThelAI->WasVampire(source->GetGUID());
+            }
 
             return false;
         }
@@ -880,8 +886,10 @@ class achievement_once_bitten_twice_shy_v25 : public AchievementCriteriaScript
                 return false;
 
             if (LanaThelAI* lanaThelAI = CAST_AI(LanaThelAI, target->GetAI()))
-                if (lanaThelAI->GetDifficulty() == DIFFICULTY_25_N)
+            {
+                if (lanaThelAI->GetDifficulty() == Difficulty::Difficulty25N)
                     return lanaThelAI->WasVampire(source->GetGUID());
+            }
 
              return false;
         }

@@ -866,10 +866,10 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_HomebindTimer = 0;
     m_InstanceValid = true;
-    m_dungeonDifficulty = DIFFICULTY_NORMAL;
-    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
-    m_LegacyRaidDifficulty = DIFFICULTY_10_N;
-    m_raidMapDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_dungeonDifficulty = DifficultyNormal;
+    m_raidDifficulty = DifficultyRaidNormal;
+    m_LegacyRaidDifficulty = Difficulty10N;
+    m_raidMapDifficulty = DifficultyRaidNormal;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -1084,7 +1084,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
         m_transport->RemovePassenger(this);
 
     // clean up player-instance binds, may unload some instance saves
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 }
@@ -9494,7 +9494,7 @@ void Player::_GarrisonSetIn()
     if (!l_GarrisonSiteEntry)
         return;
 
-    Difficulty l_DungeonDiff = DIFFICULTY_NORMAL;
+    Difficulty l_DungeonDiff = DifficultyNormal;
     std::swap(l_DungeonDiff, m_dungeonDifficulty);
 
     SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
@@ -21611,7 +21611,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
 
 void Player::_LoadBoundInstances(PreparedQueryResult result)
 {
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         m_boundInstances[i].clear();
 
     Group* group = GetGroup();
@@ -21641,7 +21641,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
                 sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed or not dungeon map %d", GetName(), GetGUIDLow(), mapId);
                 deleteInstance = true;
             }
-            else if (difficulty >= MAX_DIFFICULTY)
+            else if (difficulty >= Difficulty::MaxDifficulties)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
                 deleteInstance = true;
@@ -21825,7 +21825,7 @@ void Player::SendRaidInfo()
     ByteBuffer l_Buffer;
     time_t l_Now = time(NULL);
 
-    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
+    for (uint8 l_Iter = 0; l_Iter < Difficulty::MaxDifficulties; ++l_Iter)
     {
         for (BoundInstancesMap::iterator l_Itr = m_boundInstances[l_Iter].begin(); l_Itr != m_boundInstances[l_Iter].end(); ++l_Itr)
         {
@@ -21861,7 +21861,7 @@ void Player::SendSavedInstances()
     bool hasBeenSaved = false;
     WorldPacket data;
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
         {
@@ -21881,7 +21881,7 @@ void Player::SendSavedInstances()
     if (!hasBeenSaved)
         return;
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
         {
@@ -21901,7 +21901,7 @@ void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLe
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
@@ -23372,7 +23372,7 @@ void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->instanceType == MAP_RAID || diff == DIFFICULTY_HEROIC_RAID)
+            if (entry->instanceType == MAP_RAID || diff == DifficultyRaidHeroic)
             {
                 ++itr;
                 continue;
@@ -31830,7 +31830,7 @@ void Player::CutOffItemLevel(bool p_RescaleItems)
         l_MinLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MIN);
         l_MaxLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MAX);
     }
-    else if (l_Map->GetDifficultyID() == DIFFICULTY_CHALLENGE && l_Map->IsDungeon())
+    else if (l_Map->GetDifficultyID() == DifficultyChallenge && l_Map->IsDungeon())
     {
         l_MaxLevel = sWorld->getIntConfig(CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX);
     }
@@ -32382,13 +32382,13 @@ Difficulty Player::CheckLoadedDungeonDifficultyID(Difficulty difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     return difficulty;
 }
@@ -32397,13 +32397,13 @@ Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty p_Difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_NORMAL_RAID;
+        return DifficultyRaidNormal;
 
     if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_NORMAL_RAID;
+        return DifficultyRaidNormal;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
-        return DIFFICULTY_NORMAL_RAID;
+        return DifficultyRaidNormal;
 
     return p_Difficulty;
 }
@@ -32412,13 +32412,13 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty p_Difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_10_N;
+        return Difficulty10N;
 
     if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_10_N;
+        return Difficulty10N;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
-        return DIFFICULTY_10_N;
+        return Difficulty10N;
 
     return p_Difficulty;
 }

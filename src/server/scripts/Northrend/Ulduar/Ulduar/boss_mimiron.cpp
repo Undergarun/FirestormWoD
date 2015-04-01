@@ -1642,10 +1642,10 @@ class spell_rapid_burst: public SpellScriptLoader
                 {
                     switch (caster->GetMap()->GetDifficultyID())
                     {
-                        case DIFFICULTY_10_N:
+                        case Difficulty::Difficulty10N:
                             caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_10, SPELL_RAPID_BURST_RIGHT_10), true, NULL, aurEff);
                             break;
-                        case DIFFICULTY_25_N:
+                        case Difficulty::Difficulty25N:
                             caster->CastSpell(GetTarget(), RAND(SPELL_RAPID_BURST_LEFT_25, SPELL_RAPID_BURST_RIGHT_25), true, NULL, aurEff);
                             break;
                         default:

@@ -1063,7 +1063,7 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
 {
     uint32 conditionEffMask = cond->SourceGroup;
 
-    for (uint32 l_Difficulty = Difficulty::DIFFICULTY_NONE; l_Difficulty < Difficulty::MAX_DIFFICULTY; l_Difficulty++)
+    for (uint32 l_Difficulty = Difficulty::DifficultyNone; l_Difficulty < Difficulty::MaxDifficulties; l_Difficulty++)
     {
         SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellForDifficulty(cond->SourceEntry, static_cast<Difficulty>(l_Difficulty)));
         ASSERT(spellInfo);
@@ -1972,7 +1972,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_SPAWNMASK:
         {
-            if (cond->ConditionValue1 > SPAWNMASK_RAID_ALL)
+            if (cond->ConditionValue1 > SpawnMask::SpawnMaskLegacyRaidAll)
             {
                 sLog->outError(LOG_FILTER_SQL, "Map Difficulty condition has non existing map difficulty in value1 (%u), skipped", cond->ConditionValue1);
                 return false;

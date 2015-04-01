@@ -1031,7 +1031,7 @@ class ObjectMgr
                 return &itr->second;
             else
             {
-                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DIFFICULTY_NONE));
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DifficultyNone));
                 if (itr != _dungeonEncounterStore.end())
                     return &itr->second;
             }
@@ -1795,8 +1795,8 @@ class ObjectMgr
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
 
-        std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-        std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+        std::set<uint32> _difficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
+        std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::set<uint32> _overwriteExtendedCosts;
 

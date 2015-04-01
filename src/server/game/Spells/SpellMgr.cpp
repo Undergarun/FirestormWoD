@@ -1329,7 +1329,7 @@ void SpellMgr::LoadSpellRanks()
     // cleanup core data before reload - remove reference to ChainNode from SpellInfo
     for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
     {
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             if (mSpellInfoMap[difficulty][itr->first])
                 mSpellInfoMap[difficulty][itr->first]->ChainEntry = NULL;
@@ -1423,7 +1423,7 @@ void SpellMgr::LoadSpellRanks()
             mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
             mSpellChains[addedSpell].rank = itr->second;
             mSpellChains[addedSpell].prev = GetSpellInfo(prevRank);
-            for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+            for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
                 if (mSpellInfoMap[difficulty][addedSpell])
                     mSpellInfoMap[difficulty][addedSpell]->ChainEntry = &mSpellChains[addedSpell];
             prevRank = addedSpell;
@@ -2919,7 +2919,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellAuraOption->m_SpellID].insert(l_SpellAuraOption->m_DifficultyID);
 
-            if (l_SpellAuraOption->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellAuraOption->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellAuraOptionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellAuraOption->m_SpellID, l_SpellAuraOption->m_DifficultyID), l_SpellAuraOption->Id));
         }
     }
@@ -2931,7 +2931,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellCategories->SpellId].insert(l_SpellCategories->m_DifficultyID);
 
-            if (l_SpellCategories->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellCategories->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellCategoriesStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCategories->SpellId, l_SpellCategories->m_DifficultyID), l_SpellCategories->Id));
         }
     }
@@ -2943,7 +2943,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellCooldown->m_SpellID].insert(l_SpellCooldown->m_DifficultyID);
 
-            if (l_SpellCooldown->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellCooldown->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellCooldownsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCooldown->m_SpellID, l_SpellCooldown->m_DifficultyID), l_SpellCooldown->Id));
         }
     }
@@ -2955,7 +2955,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellEffect->EffectSpellId].insert(l_SpellEffect->EffectDifficulty);
 
-            if (l_SpellEffect->EffectDifficulty != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellEffect->EffectDifficulty != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellEffectStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEffect->EffectSpellId, l_SpellEffect->EffectDifficulty), l_SpellEffect->Id));
         }
     }
@@ -2967,7 +2967,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellEquippedItem->SpellID].insert(l_SpellEquippedItem->DifficultyID);
 
-            if (l_SpellEquippedItem->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellEquippedItem->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellEquippedItemsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEquippedItem->SpellID, l_SpellEquippedItem->DifficultyID), l_SpellEquippedItem->Id));
         }
     }
@@ -2979,7 +2979,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellInterrupt->SpellID].insert(l_SpellInterrupt->DifficultyID);
 
-            if (l_SpellInterrupt->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellInterrupt->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellInterruptsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellInterrupt->SpellID, l_SpellInterrupt->DifficultyID), l_SpellInterrupt->Id));
 
         }
@@ -2992,7 +2992,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellLevel->SpellID].insert(l_SpellLevel->DifficultyID);
 
-            if (l_SpellLevel->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellLevel->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellLevelsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellLevel->SpellID, l_SpellLevel->DifficultyID), l_SpellLevel->Id));
         }
     }
@@ -3004,7 +3004,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellTargetRestriction->SpellId].insert(l_SpellTargetRestriction->DifficultyID);
 
-            if (l_SpellTargetRestriction->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellTargetRestriction->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellTargetRestrictionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellTargetRestriction->SpellId, l_SpellTargetRestriction->DifficultyID), l_SpellTargetRestriction->Id));
         }
     }
@@ -3015,7 +3015,7 @@ void SpellMgr::LoadSpellInfoStore()
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
     for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
@@ -3034,7 +3034,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!spellPower)
             continue;
 
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             SpellInfo* spell = mSpellInfoMap[difficulty][spellPower->SpellId];
             if (!spell)
@@ -3050,7 +3050,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!l_TalentEntry)
             continue;
 
-        SpellInfo * l_SpellInfo = mSpellInfoMap[DIFFICULTY_NONE][l_TalentEntry->SpellID];
+        SpellInfo * l_SpellInfo = mSpellInfoMap[DifficultyNone][l_TalentEntry->SpellID];
         if (l_SpellInfo)
             l_SpellInfo->m_TalentIDs.push_back(l_TalentEntry->Id);
 
@@ -3068,7 +3068,7 @@ void SpellMgr::LoadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoStore()
 {
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
     {
         for (uint32 i = 0; i < mSpellInfoMap[difficulty].size(); ++i)
         {
@@ -3081,7 +3081,7 @@ void SpellMgr::UnloadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
     {
         for (uint32 i = 0; i < mSpellInfoMap[difficulty].size(); ++i)
         {
@@ -3098,7 +3098,7 @@ void SpellMgr::LoadSpellCustomAttr()
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             spellInfo = mSpellInfoMap[difficulty][i];
             if (!spellInfo)
@@ -5958,7 +5958,7 @@ const SpellInfo* SpellMgr::GetSpellInfo(uint32 p_SpellID, Difficulty p_Difficult
 {
     if (p_SpellID < GetSpellInfoStoreSize())
     {
-        if (p_Difficulty != DIFFICULTY_NONE)
+        if (p_Difficulty != DifficultyNone)
         {
             /// If spell isn't available in difficulty we want, check fallback difficulty ...
             DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(p_Difficulty);
@@ -5972,7 +5972,7 @@ const SpellInfo* SpellMgr::GetSpellInfo(uint32 p_SpellID, Difficulty p_Difficult
             }
         }
 
-        return mSpellInfoMap[DIFFICULTY_NONE][p_SpellID];
+        return mSpellInfoMap[DifficultyNone][p_SpellID];
     }
 
     return nullptr;

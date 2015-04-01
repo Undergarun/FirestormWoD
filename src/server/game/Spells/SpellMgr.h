@@ -700,8 +700,8 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = DIFFICULTY_NONE) const;
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[DIFFICULTY_NONE].size(); }
+        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = DifficultyNone) const;
+        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[DifficultyNone].size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         TalentsPlaceHoldersSpell GetTalentPlaceHoldersSpell() const { return mPlaceHolderSpells; }
@@ -791,7 +791,7 @@ class SpellMgr
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
-        SpellInfoMap               mSpellInfoMap[MAX_DIFFICULTY];
+        SpellInfoMap               mSpellInfoMap[Difficulty::MaxDifficulties];
         SpellClassList             mSpellClassInfo;
         SpecializatioPerkMap       mSpecializationPerks;
         TalentSpellSet             mTalentSpellInfo;

@@ -3000,11 +3000,11 @@ uint32 InstanceMap::GetMaxPlayers() const
 {
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
-        if (mapDiff->MaxPlayers || GetDifficultyID() == DIFFICULTY_NORMAL)    // Normal case (expect that regular difficulty always have correct maxplayers)
+        if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
             return mapDiff->MaxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DIFFICULTY_NORMAL);
+            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DifficultyNormal);
             return normalDiff ? normalDiff->MaxPlayers : 0;
         }
     }
@@ -3012,23 +3012,23 @@ uint32 InstanceMap::GetMaxPlayers() const
     {
         switch (GetDifficultyID())
         {
-            case Difficulty::DIFFICULTY_N_SCENARIO:
-            case Difficulty::DIFFICULTY_HC_SCENARIO:
+            case Difficulty::DifficultyNScenario:
+            case Difficulty::DifficultyHCScenario:
                 return 3;
-            case Difficulty::DIFFICULTY_NORMAL:
-            case Difficulty::DIFFICULTY_HEROIC:
-            case Difficulty::DIFFICULTY_CHALLENGE:
+            case Difficulty::DifficultyNormal:
+            case Difficulty::DifficultyHeroic:
+            case Difficulty::DifficultyChallenge:
                 return 5;
-            case Difficulty::DIFFICULTY_10_N:
-            case Difficulty::DIFFICULTY_10_HC:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 return 10;
-            case Difficulty::DIFFICULTY_25_N:
-            case Difficulty::DIFFICULTY_25_HC:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
                 return 25;
-            case Difficulty::DIFFICULTY_NORMAL_RAID:
-            case Difficulty::DIFFICULTY_MYTHIC_RAID:
+            case Difficulty::DifficultyRaidNormal:
+            case Difficulty::DifficultyRaidHeroic:
                 return 30;
-            case Difficulty::DIFFICULTY_HEROIC_RAID:
+            case Difficulty::DifficultyRaidMythic:
                 return 20;
             default:
                 break;

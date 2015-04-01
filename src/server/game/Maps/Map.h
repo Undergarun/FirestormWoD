@@ -378,13 +378,14 @@ class Map : public GridRefManager<NGridType>
 
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
         bool IsHeroic() const;
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == Difficulty25N || i_spawnMode == Difficulty25HC); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsLFR() const { return i_spawnMode == DifficultyRaidTool; }
+        bool IsChallengeMode() const { return i_spawnMode == DifficultyChallenge; }
+        bool IsMythic() const { return i_spawnMode == DifficultyRaidMythic; }
 
-        bool IsLFR() const { return i_spawnMode == DIFFICULTY_LFR; }
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
-        bool IsChallengeMode() const { return i_spawnMode == DIFFICULTY_CHALLENGE; }
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
