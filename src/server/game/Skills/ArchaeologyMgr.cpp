@@ -726,7 +726,7 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             ++m_CompletedProjects[p_ProjectID].CompletionCount;
 
-            l_FirstCompleted = m_CompletedProjects[p_ProjectID].FirstCompletedDate;
+            l_FirstCompleted  = m_CompletedProjects[p_ProjectID].FirstCompletedDate;
             l_CompletionCount = m_CompletedProjects[p_ProjectID].CompletionCount;
         }
         else
@@ -737,11 +737,14 @@ namespace MS { namespace Skill { namespace Archaeology
 
             m_CompletedProjects.insert(std::make_pair(p_ProjectID, l_NewCompletedProjectEntry));
 
-            l_FirstCompleted = l_NewCompletedProjectEntry.FirstCompletedDate;
+            l_FirstCompleted  = l_NewCompletedProjectEntry.FirstCompletedDate;
             l_CompletionCount = l_NewCompletedProjectEntry.CompletionCount;
         }
 
         SendResearchComplete(p_ProjectID, l_FirstCompleted, l_CompletionCount);
+
+        /// Source : http://www.wow-professions.com/wowguides/wow-archaeology-guide.html
+        m_Player->UpdateSkill(SKILL_ARCHAEOLOGY, l_ResearchProjectEntry->rare ? 15 : 5);
 
         // Add new project
         ProjectSet l_CandidateProjectsListPerBranch;
