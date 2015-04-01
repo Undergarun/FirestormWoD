@@ -3331,12 +3331,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162304:///< Earth Breaker (Summon - Vul'gor)
                 spellInfo->Effects[EFFECT_0].Effect = 0;
                 break;
-            ////////////////////////////////////////////////////////////////////////
-            /// TEMP
-            ////////////////////////////////////////////////////////////////////////
-            case 159947:///< Chain Hurl (Kargath)
-                spellInfo->MaxAffectedTargets = 1;
-                break;
             case 159995:///< Chain Hurl (Kargath)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;

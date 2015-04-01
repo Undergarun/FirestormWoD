@@ -303,13 +303,13 @@ class boss_kargath_bladefist : public CreatureScript
 
                 Talk(eTalks::Aggro);
 
-                ///m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
-                ///m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
+                m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
+                m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
                 m_Events.ScheduleEvent(eEvents::EventOpenGrates, 4000);
                 m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 48000);
-                ///m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
-                ///m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
-                ///m_Events.ScheduleEvent(eEvents::EventSpawnIronBombers, 60000);
+                m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
+                m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
+                m_Events.ScheduleEvent(eEvents::EventSpawnIronBombers, 60000);
 
                 if (IsMythic())
                     m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
@@ -2756,11 +2756,6 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
             bool Load() override
             {
-                ////////////////////////////////////////////////////////////////////////
-                /// TEMP
-                ////////////////////////////////////////////////////////////////////////
-                return false;
-
                 for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
                     m_Targets[l_I] = 0;
 
