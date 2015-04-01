@@ -214,12 +214,12 @@ struct ItemEffectEntry
 };
 
 #define MAX_HEIRLOOM_UPGRADE_LEVEL 2
-
+/// 6.1.2
 struct HeirloomEntry
 {
     uint32 ID;
     uint32 ItemID;
-    char* Description[2]; // 0 = horde, 1 = ally, if 0 is NULL then 1 is for both
+    char* Description[2];                                   ///> 0 = horde, 1 = ally, if 0 is NULL then 1 is for both
     uint32 MaxHeirloomUpgrade;
     uint32 OldHeirloomID[2];
     uint32 HeroicVersion;
