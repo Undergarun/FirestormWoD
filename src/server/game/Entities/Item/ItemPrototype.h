@@ -136,7 +136,7 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN           = 0x00000080, // No default 30 seconds cooldown when equipped
     ITEM_PROTO_FLAG_UNK3                        = 0x00000100, // ?
     ITEM_PROTO_FLAG_WRAPPER                     = 0x00000200, // Item can wrap other items
-    ITEM_PROTO_FLAG_UNK4                        = 0x00000400, // ?
+    ITEM_PROTO_FLAG_IGNORE_BAG_SPACE            = 0x00000400, ///< ? source: SimulationCraft
     ITEM_PROTO_FLAG_PARTY_LOOT                  = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_PROTO_FLAG_REFUNDABLE                  = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
     ITEM_PROTO_FLAG_CHARTER                     = 0x00002000, // Item is guild or arena charter
@@ -210,6 +210,7 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG      = 0x00200000,
     ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG         = 0x00400000,
     ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000,
+    ITEM_FLAGS_EXTRA_HEROIC                  = 0x40000000,  ///< Source Simulationcraft (MoP Heroic item)
     ITEM_FLAGS_EXTRA_CRAFTING_REAGENT        = 0x80000000
 };
 
