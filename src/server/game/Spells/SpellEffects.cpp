@@ -6555,10 +6555,24 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     m_caster->ToPlayer()->SendLoot(itemTarget->GetGUID(), LOOT_MILLING);
 }
 
-void Spell::EffectSkill(SpellEffIndex /*effIndex*/)
+void Spell::EffectSkill(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
+
+    if (m_spellInfo->Effects[effIndex].MiscValue == SKILL_ARCHAEOLOGY)
+    {
+        Player * l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+        if (!l_Player || !l_Player->HasSkill(SKILL_ARCHAEOLOGY) || !m_targets.GetGOTarget())
+            return;
+
+        if (!l_Player->GetArchaeologyMgr().IsLastArtifactGameObject(m_targets.GetGOTarget()->GetEntry()))
+            return;
+
+        l_Player->UpdateSkill(SKILL_ARCHAEOLOGY, 1);
+        l_Player->GetArchaeologyMgr().ResetLastArtifactGameObject();
+    }
 }
 
 /* There is currently no need for this effect. We handle it in Battleground.cpp
