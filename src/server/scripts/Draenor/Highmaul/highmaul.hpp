@@ -15,6 +15,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Vehicle.h"
+#include "MoveSplineInit.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP

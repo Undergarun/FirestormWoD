@@ -4,8 +4,8 @@ DELETE FROM instance_template WHERE map = 1228;
 INSERT INTO instance_template VALUE
 (1228, 1116, 'instance_highmaul', 1);
 
-UPDATE creature SET spawnmask = 248 WHERE map = 1228;
-UPDATE gameobject SET spawnmask = 248 WHERE map = 1228;
+UPDATE creature SET spawnmask = 245760 WHERE map = 1228;
+UPDATE gameobject SET spawnmask = 245760 WHERE map = 1228;
 
 DELETE FROM areatrigger_teleport WHERE id = 10272;
 INSERT INTO areatrigger_teleport VALUE
@@ -406,13 +406,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_ogre_grunt_second' WHERE
 UPDATE creature_template SET ScriptName = 'npc_highmaul_highmaul_sweeper' WHERE entry = 88874;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_chain_hurl_vehicle' WHERE entry = 79134;
 
-UPDATE creature, creature_equip_template SET
-creature.equipment_id = creature_equip_template.id
-WHERE creature.id = creature_equip_template.entry;
-
-UPDATE creature SET spawntimesecs = 7200 WHERE map = 1228;
-
-DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131);
+DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131, 163392, 163302, 163130, 163408, 159001);
 INSERT INTO spell_script_names VALUES
 (162271, 'spell_highmaul_earth_breaker'),
 (159113, 'spell_highmaul_impale'),
@@ -421,7 +415,12 @@ INSERT INTO spell_script_names VALUES
 (159028, 'spell_highmaul_berserker_rush'),
 (159947, 'spell_highmaul_chain_hurl'),
 (160521, 'spell_highmaul_vile_breath'),
-(160131, 'spell_highmaul_obscured');
+(160131, 'spell_highmaul_obscured'),
+(163392, 'spell_highmaul_crowd_minion_killed'),
+(163302, 'spell_highmaul_roar_of_the_crowd'),
+(163130, 'spell_highmaul_inflamed'),
+(163408, 'spell_highmaul_heckle'),
+(159001, 'spell_highmaul_berserker_rush_periodic');
 
 DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948, 160904);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES
@@ -437,5 +436,3 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (161634, 1, 6867, 4, 4, 16384, 'areatrigger_highmaul_molten_bomb'),
 (159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
-
-UPDATE creature SET spawntimesecs = 45 WHERE id IN (84946, 79068, 84958, 84948);

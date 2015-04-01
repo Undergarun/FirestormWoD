@@ -3355,6 +3355,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 158986:///< Berserker Rush (Kargath)
+            case 162497:///< On the Hunt (Ravenous Bloodmaw - Kargath)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 160953:///< Fire Bomb (Iron Bomber - Kargath)
@@ -3366,6 +3367,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 159412:///< Mauling Brew (Drunken Bileslinger - Kargath)
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 161218:///< Maul (Ravenous Bloodmaw - Kargath)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
+            case 163408:///< Heckle (Kargath)
+                spellInfo->CasterAuraSpell = 0;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

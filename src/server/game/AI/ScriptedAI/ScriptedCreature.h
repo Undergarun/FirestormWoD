@@ -204,19 +204,14 @@ struct ScriptedAI : public CreatureAI
 
     bool EnterEvadeIfOutOfCombatArea(uint32 const diff);
 
-    // return true for heroic mode. i.e.
-    //   - for dungeon in mode 10-heroic,
-    //   - for raid in mode 10-Heroic
-    //   - for raid in mode 25-heroic
-    // DO NOT USE to check raid in mode 25-normal.
-    bool IsHeroic() const { return _isHeroic; }
-
     // return the dungeon or raid difficulty
     Difficulty GetDifficulty() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty == Difficulty25N || _difficulty == Difficulty25HC || _difficulty == DifficultyRaidTool; }
-    bool IsLFR() const { return _difficulty == DifficultyRaidTool; }
+    bool Is25ManRaid() const { return _difficulty == Difficulty::Difficulty25N || _difficulty == Difficulty::Difficulty25HC || _difficulty == Difficulty::DifficultyRaidTool; }
+    bool IsLFR() const { return _difficulty == Difficulty::DifficultyRaidTool || _difficulty == Difficulty::DifficultyRaidLFR; }
+    bool IsHeroic() const { return me->GetMap()->IsHeroic(); }
+    bool IsMythic() const { return me->GetMap()->IsMythic(); }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
@@ -274,7 +269,6 @@ struct ScriptedAI : public CreatureAI
         Difficulty _difficulty;
         uint32 _evadeCheckCooldown;
         bool _isCombatMovementAllowed;
-        bool _isHeroic;
 };
 
 struct Scripted_NoMovementAI : public ScriptedAI

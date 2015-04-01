@@ -80,6 +80,51 @@ uint32 const g_CrowdEmotes[8] =
 };
 
 float const g_InArenaZ = 60.0f;
+float const g_ArenaFloor = 55.30f;
+
+void CastSpellToPlayers(Creature* p_Source, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+{
+    if (p_Source == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Source->GetMap()->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+        {
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+            else
+                l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
+        }
+    }
+}
+
+void ResetAllPlayersFavor(Creature* p_Source)
+{
+    if (p_Source == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Source->GetMap()->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->SetPower(Powers::POWER_ALTERNATE_POWER, 0);
+    }
+}
+
+void GrantFavorToAllPlayers(Creature* p_Source, int32 p_Value, uint32 p_SpellID)
+{
+    if (p_Source == nullptr)
+        return;
+
+    Map::PlayerList const& l_Players = p_Source->GetMap()->GetPlayers();
+    for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            l_Player->EnergizeBySpell(l_Player, p_SpellID, p_Value, Powers::POWER_ALTERNATE_POWER);
+    }
+}
 
 /// Kargath Bladefist <Warlord of the Shattered Hand> - 78714
 class boss_kargath_bladefist : public CreatureScript
@@ -108,7 +153,8 @@ class boss_kargath_bladefist : public CreatureScript
             InterruptByPillar,
             SpawnIronBombers,
             SpawnDrukenBileslinger,
-            EndOfChainHurl
+            EndOfChainHurl,
+            FreeRavenous = 0
         };
 
         enum eMoves
@@ -139,6 +185,7 @@ class boss_kargath_bladefist : public CreatureScript
             PlayChogallScene        = 178333,
             KargathDiesCrowdSound   = 166861,
             KargathChantingSound    = 168278,
+            InThePit                = 161423,
 
             /// Fight
             /// Impale
@@ -157,7 +204,8 @@ class boss_kargath_bladefist : public CreatureScript
             BerserkerRushSearcher   = 163180,
             SpellBerserkerRush      = 158986,
             BerserkerRushIncreasing = 159028,   ///< Increase speed and damage done every 2s
-            BerserkerRushDamage     = 159001,   ///< Triggers damaging spell 159002 every 2s
+            BerserkerRushDamageTick = 159001,   ///< Triggers damaging spell 159002 every 2s
+            BerserkerRushDamage     = 159002,
             /// Chain Hurl
             ChainHurlJumpAndKnock   = 160061,
             Chain                   = 159531,
@@ -183,14 +231,16 @@ class boss_kargath_bladefist : public CreatureScript
             EventBerserkerRush,
             EventChainHurl,
             EventBerserker,
-            EventSpawnIronBombers
+            EventSpawnIronBombers,
+            EventFreeTiger
         };
 
         enum eCreatures
         {
             KargathBladefist    = 78846,    ///< Used for Blade Dance
             ChainHurlVehicle    = 79134,
-            FirePillar          = 78757
+            FirePillar          = 78757,
+            RavenousBloodmaw    = 79296
         };
 
         struct boss_kargath_bladefistAI : public BossAI
@@ -235,6 +285,9 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite50);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite75);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
+
+                    ResetAllPlayersFavor(me);
                 }
             }
 
@@ -250,18 +303,26 @@ class boss_kargath_bladefist : public CreatureScript
 
                 Talk(eTalks::Aggro);
 
-                m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
-                m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
+                ///m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
+                ///m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
                 m_Events.ScheduleEvent(eEvents::EventOpenGrates, 4000);
                 m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 48000);
-                m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
-                m_Events.ScheduleEvent(eEvents::EventSpawnIronBombers, 60000);
+                ///m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
+                ///m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
+                ///m_Events.ScheduleEvent(eEvents::EventSpawnIronBombers, 60000);
+
+                if (IsMythic())
+                    m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
 
                 me->CastSpell(me, eSpells::FirePillarTargetSelect, true);
 
                 if (m_Instance)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+
+                    if (IsMythic())
+                        CastSpellToPlayers(me, nullptr, eSpells::SpellRoarOfTheCrowd, true);
+                }
             }
 
             void JustDied(Unit* p_Killer) override
@@ -287,6 +348,9 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite50);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite75);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
+
+                    ResetAllPlayersFavor(me);
                 }
             }
 
@@ -320,7 +384,7 @@ class boss_kargath_bladefist : public CreatureScript
                     {
                         Talk(eTalks::FlamePillar);
                         me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
-                        me->RemoveAura(eSpells::BerserkerRushDamage);
+                        me->RemoveAura(eSpells::BerserkerRushDamageTick);
                         me->InterruptNonMeleeSpells(true, eSpells::SpellBerserkerRush);
 
                         if (Creature* l_Pillar = me->FindNearestCreature(eCreatures::FirePillar, 10.0f))
@@ -371,6 +435,7 @@ class boss_kargath_bladefist : public CreatureScript
                 Reset();
 
                 DeactivatePillars();
+                ResetRavenousBloodmaws();
 
                 if (m_Instance)
                 {
@@ -445,12 +510,20 @@ class boss_kargath_bladefist : public CreatureScript
                         me->GetMotionMaster()->MovePoint(0, l_Pos);
 
                         me->CastSpell(me, eSpells::BerserkerRushIncreasing, true);
-                        me->CastSpell(me, eSpells::BerserkerRushDamage, true);
+                        me->CastSpell(me, eSpells::BerserkerRushDamageTick, true);
                         break;
                     }
                     case eSpells::ChainHurlStunAura:
                     {
                         DoModifyThreatPercent(p_Target, -100);
+                        break;
+                    }
+                    case eSpells::BerserkerRushDamage:
+                    {
+                        if (p_Target->isAlive() || !IsMythic())
+                            break;
+
+                        GrantFavorToAllPlayers(me, -25, eSpells::BerserkerRushDamage);
                         break;
                     }
                     default:
@@ -583,6 +656,45 @@ class boss_kargath_bladefist : public CreatureScript
                         SpawnIronBombers(5);
                         break;
                     }
+                    case eEvents::EventFreeTiger:
+                    {
+                        if (!IsMythic())
+                            break;
+
+                        std::list<Creature*> l_TigerList;
+                        me->GetCreatureListWithEntryInGrid(l_TigerList, eCreatures::RavenousBloodmaw, 300.0f);
+
+                        if (l_TigerList.empty())
+                            break;
+
+                        l_TigerList.remove_if([this](Creature* p_Creature) -> bool
+                        {
+                            if (p_Creature == nullptr || !p_Creature->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE))
+                                return true;
+
+                            return false;
+                        });
+
+                        if (l_TigerList.empty())
+                            break;
+
+                        JadeCore::RandomResizeList(l_TigerList, 1);
+
+                        for (Creature* l_Ravenous : l_TigerList)
+                        {
+                            if (l_Ravenous->IsAIEnabled)
+                                l_Ravenous->AI()->DoAction(eActions::FreeRavenous);
+
+                            for (uint8 l_I = eHighmaulDatas::RaidGrate001; l_I < eHighmaulDatas::MaxRaidGrates; ++l_I)
+                            {
+                                if (GameObject* l_RaidGrate = me->FindNearestGameObject(eHighmaulGameobjects::RaidGrate1 + l_I, 5.0f))
+                                    l_RaidGrate->SetGoState(GOState::GO_STATE_READY);
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -661,6 +773,24 @@ class boss_kargath_bladefist : public CreatureScript
 
                     me->SummonCreature(eHighmaulCreatures::DrunkenBileslinger, g_DrunkenBileslingerSpawns[0]);
                     me->SummonCreature(eHighmaulCreatures::DrunkenBileslinger, g_DrunkenBileslingerSpawns[1]);
+                }
+            }
+
+            void ResetRavenousBloodmaws()
+            {
+                std::list<Creature*> l_RavenousList;
+                me->GetCreatureListWithEntryInGrid(l_RavenousList, eCreatures::RavenousBloodmaw, 300.0f);
+
+                for (Creature* l_Tiger : l_RavenousList)
+                {
+                    if (l_Tiger->IsAIEnabled)
+                    {
+                        l_Tiger->InterruptNonMeleeSpells(true);
+                        l_Tiger->AI()->Reset();
+                        l_Tiger->Respawn();
+                        l_Tiger->GetMotionMaster()->Clear();
+                        l_Tiger->GetMotionMaster()->MoveTargetedHome();
+                    }
                 }
             }
         };
@@ -1154,7 +1284,12 @@ class npc_highmaul_fire_pillar : public CreatureScript
 
             FlameJet                = 159202,   ///< AreaTrigger
             KargathTrigger          = 159070,
-            KargathTrigger2         = 159073
+            KargathTrigger2         = 159073,
+
+            /// Only for Mythic mode
+            FlameGoutPeriodic       = 162574,   ///< Trigger 162576 (searcher) every 5s
+            FlameGoutSearcher       = 162576,
+            FlameGoutMissile        = 162577
         };
 
         enum eData
@@ -1184,6 +1319,8 @@ class npc_highmaul_fire_pillar : public CreatureScript
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_LOOTING | eUnitFlags::UNIT_FLAG_TAXI_FLIGHT);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT | eUnitFlags::UNIT_FLAG_PLAYER_CONTROLLED);
+
+                me->RemoveAura(eSpells::FlameGoutPeriodic);
             }
 
             void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
@@ -1194,6 +1331,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::FirePillarSelector:
+                    {
                         me->CastSpell(me, eSpells::FirePillarSteamTimer, true);
                         me->CastSpell(me, eSpells::FirePillarActivated, true);
                         me->CastSpell(me, eSpells::FirePillarKnockback, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
@@ -1202,6 +1340,26 @@ class npc_highmaul_fire_pillar : public CreatureScript
                         me->PlayOneShotAnimKit(eData::AnimKit1);
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKit(eData::AnimKit2); });
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::FlameJet, true); });
+
+                        if (me->GetMap()->IsMythic())
+                            me->CastSpell(me, eSpells::FlameGoutPeriodic, true);
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::FlameGoutSearcher:
+                        me->CastSpell(p_Target, eSpells::FlameGoutMissile, true);
                         break;
                     default:
                         break;
@@ -1214,24 +1372,14 @@ class npc_highmaul_fire_pillar : public CreatureScript
                 {
                     case eActions::DeactivatePillar:
                     {
-                        /// Deactivate Pillar
-                        me->RemoveAllAreasTrigger();
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
-                        me->RemoveAllAuras();
-                        me->SetAIAnimKit(0);
-                        me->PlayOneShotAnimKit(eData::AnimKit3);
+                        DeactivatePillar();
                         break;
                     }
                     case eActions::DeactivatePillarOther:
                     {
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            /// Deactivate Pillar
-                            me->RemoveAllAreasTrigger();
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
-                            me->RemoveAllAuras();
-                            me->SetAIAnimKit(0);
-                            me->PlayOneShotAnimKit(eData::AnimKit3);
+                            DeactivatePillar();
 
                             if (Creature* l_Kargath = me->FindNearestCreature(eHighmaulCreatures::KargathBladefist, 15.0f))
                                 l_Kargath->SetControlled(false, UnitState::UNIT_STATE_ROOT);
@@ -1242,6 +1390,17 @@ class npc_highmaul_fire_pillar : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void DeactivatePillar()
+            {
+                /// Deactivate Pillar
+                me->RemoveAllAreasTrigger();
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
+                me->RemoveAllAuras();
+                me->SetAIAnimKit(0);
+                me->PlayOneShotAnimKit(eData::AnimKit3);
+                me->RemoveAura(eSpells::FlameGoutPeriodic);
             }
         };
 
@@ -1257,31 +1416,155 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
     public:
         npc_highmaul_ravenous_bloodmaw() : CreatureScript("npc_highmaul_ravenous_bloodmaw") { }
 
-        enum eSpell
+        enum eSpells
         {
-            Generic1HMeleeInstakill = 162445
+            SpellMaul       = 161218,
+            SpellInThePit   = 161423,
+            OnTheHunt       = 162497,
+            SpellInflamed   = 163130
         };
 
-        struct npc_highmaul_ravenous_bloodmawAI : public ScriptedAI
+        enum eActions
         {
-            npc_highmaul_ravenous_bloodmawAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            FreeRavenous,
+            InterruptRavenous
+        };
 
-            uint32 m_CheckPlayer;
+        enum eEvent
+        {
+            CheckPlayer = 1
+        };
+
+        struct npc_highmaul_ravenous_bloodmawAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_ravenous_bloodmawAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_ChaseTarget = 0;
+            }
+
+            uint64 m_ChaseTarget;
+
+            EventMap m_Events;
 
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
-                m_CheckPlayer = 1000;
+                m_Events.Reset();
+                m_Events.ScheduleEvent(eEvent::CheckPlayer, 500);
+
+                m_ChaseTarget = 0;
+
+                me->RemoveAura(eSpells::SpellInflamed);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::OnTheHunt:
+                        m_ChaseTarget = p_Target->GetGUID();
+                        me->SetWalk(true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                switch (p_Action)
+                {
+                    case eActions::FreeRavenous:
+                    {
+                        if (!me->GetMap()->IsMythic())
+                            break;
+
+                        m_Events.CancelEvent(eEvent::CheckPlayer);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+                        float l_X = me->GetPositionX() + (8.0f * cos(me->GetOrientation()));
+                        float l_Y = me->GetPositionY() + (8.0f * sin(me->GetOrientation()));
+                        me->GetMotionMaster()->MoveJump(l_X, l_Y, g_ArenaFloor, 15.0f, 25.0f, me->GetOrientation());
+
+                        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::OnTheHunt, false); });
+                        break;
+                    }
+                    case eActions::InterruptRavenous:
+                    {
+                        if (me->HasAura(eSpells::SpellInflamed))
+                            break;
+
+                        m_ChaseTarget = 0;
+                        me->CastSpell(me, eSpells::SpellInflamed, true);
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        {
+                            Position l_Pos;
+                            float l_X = me->GetPositionX() + (7.0f * cos(me->GetOrientation()));
+                            float l_Y = me->GetPositionY() + (7.0f * sin(me->GetOrientation()));
+
+                            l_Pos.m_positionX = l_X;
+                            l_Pos.m_positionY = l_Y;
+
+                            /// Creating the circle path from the center
+                            me->GetMotionMaster()->Clear();
+                            me->SetWalk(false);
+                            me->SetSpeed(UnitMoveType::MOVE_RUN, 2.0f);
+
+                            Movement::MoveSplineInit l_Init(*me);
+                            FillCirclePath(l_Pos, 7.0f, me->GetPositionZ(), l_Init.Path(), true);
+                            l_Init.SetWalk(true);
+                            l_Init.SetCyclic();
+                            l_Init.Launch();
+                        });
+
+                        GrantFavorToAllPlayers(me, 10, eSpells::SpellInflamed);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed == nullptr)
+                    return;
+
+                /// Switch target if killed the hunted one
+                if (p_Killed->GetGUID() == m_ChaseTarget)
+                    me->CastSpell(me, eSpells::OnTheHunt, false);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!m_CheckPlayer)
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                /// Update Berserker Rush move
+                if (!me->HasAura(eSpells::SpellInflamed))
+                {
+                    if (Player* l_Target = Player::GetPlayer(*me, m_ChaseTarget))
+                    {
+                        if (l_Target->IsWithinMeleeRange(me, 2.0f) && l_Target->isAlive())
+                            me->CastSpell(l_Target, eSpells::SpellMaul, true);
+
+                        Position l_Pos;
+                        l_Target->GetPosition(&l_Pos);
+                        me->GetMotionMaster()->MovePoint(0, l_Pos);
+                    }
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (m_CheckPlayer <= p_Diff)
+                if (m_Events.ExecuteEvent() == eEvent::CheckPlayer)
                 {
                     std::list<Player*> l_PlrList;
                     me->GetPlayerListInGrid(l_PlrList, 2.0f);
@@ -1289,15 +1572,36 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                     for (Player* l_Player : l_PlrList)
                     {
                         if (!l_Player->isAlive())
-                            continue;
+                        {
+                            if (l_Player->HasAura(eSpells::SpellInThePit))
+                                l_Player->RemoveAura(eSpells::SpellInThePit);
 
-                        me->CastSpell(l_Player, eSpell::Generic1HMeleeInstakill, true);
+                            continue;
+                        }
+
+                        if (!l_Player->HasAura(eSpells::SpellInThePit))
+                            l_Player->CastSpell(l_Player, eSpells::SpellInThePit, true);
+
+                        me->CastSpell(l_Player, eSpells::SpellMaul, false);
                     }
 
-                    m_CheckPlayer = 1000;
+                    m_Events.ScheduleEvent(eEvent::CheckPlayer, 500);
                 }
-                else
-                    m_CheckPlayer -= p_Diff;
+            }
+
+            void FillCirclePath(Position const& p_Center, float p_Radius, float p_Z, Movement::PointsArray& p_Path, bool p_Clockwise)
+            {
+                float l_Step = p_Clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
+                float l_Angle = p_Center.GetAngle(me->GetPositionX(), me->GetPositionY());
+
+                for (uint8 l_Iter = 0; l_Iter < 16; l_Angle += l_Step, ++l_Iter)
+                {
+                    G3D::Vector3 l_Point;
+                    l_Point.x = p_Center.GetPositionX() + p_Radius * cosf(l_Angle);
+                    l_Point.y = p_Center.GetPositionY() + p_Radius * sinf(l_Angle);
+                    l_Point.z = p_Z;
+                    p_Path.push_back(l_Point);
+                }
             }
         };
 
@@ -1385,7 +1689,8 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
         enum eEvents
         {
             EventMaulingBrew = 1,
-            EventVileBreath
+            EventVileBreath,
+            EventHeckle
         };
 
         struct npc_highmaul_drunken_bileslingerAI : public ScriptedAI
@@ -1414,6 +1719,7 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                     m_ClassicEvent.Reset();
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 3000);
+                    m_FightEvent.ScheduleEvent(eEvents::EventHeckle, 6000);
                 }
             }
 
@@ -1450,10 +1756,18 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (m_FightEvent.ExecuteEvent() == eEvents::EventVileBreath)
+                switch (m_FightEvent.ExecuteEvent())
                 {
-                    me->CastSpell(me, eSpells::VileBreath, false);
-                    m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 10000);
+                    case eEvents::EventVileBreath:
+                        me->CastSpell(me, eSpells::VileBreath, false);
+                        m_FightEvent.ScheduleEvent(eEvents::EventVileBreath, 10000);
+                        break;
+                    case eEvents::EventHeckle:
+                        me->CastSpell(me, eSpells::Heckle, false);
+                        m_FightEvent.ScheduleEvent(eEvents::EventHeckle, 10000);
+                        break;
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1483,9 +1797,10 @@ class npc_highmaul_iron_bomber : public CreatureScript
             Heckle              = 163408    ///< Reduces the favor within Roar of the Crowd.
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventIronBomb = 1
+            EventIronBomb = 1,
+            EventHeckle
         };
 
         enum eDatas
@@ -1505,6 +1820,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
 
             bool m_HasBomb;
             EventMap m_Events;
+            EventMap m_FightEvents;
 
             void Reset() override
             {
@@ -1515,7 +1831,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 m_HasBomb = false;
 
                 m_Events.Reset();
-                m_Events.ScheduleEvent(eEvent::EventIronBomb, urand(3000, 6000));
+                m_Events.ScheduleEvent(eEvents::EventIronBomb, urand(3000, 6000));
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -1524,6 +1840,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 {
                     m_Events.Reset();
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    m_FightEvents.ScheduleEvent(eEvents::EventHeckle, 6000);
                 }
 
                 if (m_HasBomb)
@@ -1557,14 +1874,20 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 /// Iron Bombs are out of combat
                 m_Events.Update(p_Diff);
 
-                if (m_Events.ExecuteEvent() == eEvent::EventIronBomb)
+                if (m_Events.ExecuteEvent() == eEvents::EventIronBomb)
                 {
                     me->CastSpell(me, eSpells::SpellIronBomb, false);
-                    m_Events.ScheduleEvent(eEvent::EventIronBomb, urand(5000, 9000));
+                    m_Events.ScheduleEvent(eEvents::EventIronBomb, urand(5000, 9000));
                 }
 
                 if (!UpdateVictim())
                     return;
+
+                if (m_FightEvents.ExecuteEvent() == eEvents::EventHeckle)
+                {
+                    me->CastSpell(me, eSpells::Heckle, false);
+                    m_FightEvents.ScheduleEvent(eEvents::EventHeckle, 6000);
+                }
 
                 DoMeleeAttackIfReady();
             }
@@ -1581,6 +1904,11 @@ class npc_highmaul_iron_grunt : public CreatureScript
 {
     public:
         npc_highmaul_iron_grunt() : CreatureScript("npc_highmaul_iron_grunt") { }
+
+        enum eSpell
+        {
+            CrowdMinionKilled = 163392
+        };
 
         struct npc_highmaul_iron_gruntAI : public MS::AI::CosmeticAI
         {
@@ -1602,6 +1930,8 @@ class npc_highmaul_iron_grunt : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
+                if (me->GetMap()->IsMythic())
+                    CastSpellToPlayers(me, nullptr, eSpell::CrowdMinionKilled, true);
             }
 
             void LastOperationCalled() override
@@ -1632,9 +1962,10 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
     public:
         npc_highmaul_iron_grunt_second() : CreatureScript("npc_highmaul_iron_grunt_second") { }
 
-        enum eSpell
+        enum eSpells
         {
-            Grapple = 159188
+            Grapple             = 159188,
+            CrowdMinionKilled   = 163392
         };
 
         enum eEvent
@@ -1672,6 +2003,8 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
+                if (me->GetMap()->IsMythic())
+                    CastSpellToPlayers(me, nullptr, eSpells::CrowdMinionKilled, true);
             }
 
             void LastOperationCalled() override
@@ -1691,7 +2024,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
                 if (m_Events.ExecuteEvent() == eEvent::EventGrapple)
                 {
                     if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, eSpell::Grapple, true);
+                        me->CastSpell(l_Target, eSpells::Grapple, true);
                     m_Events.ScheduleEvent(eEvent::EventGrapple, 6000);
                 }
 
@@ -2021,9 +2354,10 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
     public:
         npc_highmaul_areatrigger_for_crowd() : CreatureScript("npc_highmaul_areatrigger_for_crowd") { }
 
-        enum eAction
+        enum eActions
         {
-            StartIntro
+            StartIntro,
+            VulgorDied = 2
         };
 
         enum eSpells
@@ -2120,11 +2454,29 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
 
                         me->CastSpell(me, eSpells::ElevatorSoundTrigger, true);
 
-                        if (Creature* l_Jhorn = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::JhornTheMad)))
-                            l_Jhorn->AI()->DoAction(eAction::StartIntro);
+                        if (Creature* l_Vulgor = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Vulgor)))
+                        {
+                            if (l_Vulgor->isAlive())
+                            {
+                                if (Creature* l_Jhorn = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::JhornTheMad)))
+                                    l_Jhorn->AI()->DoAction(eActions::StartIntro);
 
-                        if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
-                            l_Thoktar->AI()->DoAction(eAction::StartIntro);
+                                if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
+                                    l_Thoktar->AI()->DoAction(eActions::StartIntro);
+                            }
+                            /// Handle the case if Vul'gor already died
+                            else
+                            {
+                                if (Creature* l_Jhorn = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::JhornTheMad)))
+                                    l_Jhorn->AI()->DoAction(eActions::VulgorDied);
+
+                                if (Creature* l_Thoktar = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::ThoktarIronskull)))
+                                    l_Thoktar->AI()->DoAction(eActions::VulgorDied);
+
+                                if (Creature* l_MargokCosmetic = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::MargokCosmetic)))
+                                    l_MargokCosmetic->AI()->DoAction(eActions::VulgorDied);
+                            }
+                        }
                     }
                     else
                         m_CheckTimer = 1000;
@@ -2634,7 +2986,7 @@ class spell_highmaul_vile_breath : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_vile_breath_SpellScript();
         }
@@ -2666,9 +3018,204 @@ class spell_highmaul_obscured : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_obscured_AuraScript();
+        }
+};
+
+/// Crowd Minion Killed - 163392
+class spell_highmaul_crowd_minion_killed : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_crowd_minion_killed() : SpellScriptLoader("spell_highmaul_crowd_minion_killed") { }
+
+        class spell_highmaul_crowd_minion_killed_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_crowd_minion_killed_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, 1, Powers::POWER_ALTERNATE_POWER);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_highmaul_crowd_minion_killed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_crowd_minion_killed_SpellScript();
+        }
+};
+
+/// Roar of the Crowd - 163302
+class spell_highmaul_roar_of_the_crowd : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_roar_of_the_crowd() : SpellScriptLoader("spell_highmaul_roar_of_the_crowd") { }
+
+        enum eSpells
+        {
+            CrowdFavorite25     = 163366,   ///< Mod damage PCT done, and mod pet damage PCT done
+            CrowdFavorite50     = 163368,   ///< Mod damage PCT done, and mod pet damage PCT done
+            CrowdFavorite75     = 163369,   ///< Mod damage PCT done, and mod pet damage PCT done
+            CrowdFavorite100    = 163370    ///< Mod damage PCT done, and mod pet damage PCT done
+        };
+
+        enum eDatas
+        {
+            Favor25     = 25,
+            Favor50     = 50,
+            Favor75     = 75,
+            Favor100    = 100
+        };
+
+        class spell_highmaul_roar_of_the_crowd_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_roar_of_the_crowd_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    int32 l_Favor = l_Caster->GetPower(Powers::POWER_ALTERNATE_POWER);
+
+                    /// 0 ... 24
+                    if (l_Favor < eDatas::Favor25)
+                    {
+                        l_Caster->RemoveAura(eSpells::CrowdFavorite25);
+                        l_Caster->RemoveAura(eSpells::CrowdFavorite50);
+                        l_Caster->RemoveAura(eSpells::CrowdFavorite75);
+                        l_Caster->RemoveAura(eSpells::CrowdFavorite100);
+                    }
+                    /// 25 ... 49
+                    else if (l_Favor < eDatas::Favor50)
+                        l_Caster->CastSpell(l_Caster, eSpells::CrowdFavorite25, true);
+                    /// 50 ... 74
+                    else if (l_Favor < eDatas::Favor75)
+                        l_Caster->CastSpell(l_Caster, eSpells::CrowdFavorite50, true);
+                    /// 75 ... 99
+                    else if (l_Favor < eDatas::Favor100)
+                        l_Caster->CastSpell(l_Caster, eSpells::CrowdFavorite75, true);
+                    /// 100
+                    else
+                        l_Caster->CastSpell(l_Caster, eSpells::CrowdFavorite100, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_roar_of_the_crowd_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_roar_of_the_crowd_AuraScript();
+        }
+};
+
+/// Inflamed - 163130
+class spell_highmaul_inflamed : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_inflamed() : SpellScriptLoader("spell_highmaul_inflamed") { }
+
+        enum eSpell
+        {
+            OnTheHunt = 162497
+        };
+
+        class spell_highmaul_inflamed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_inflamed_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+                if (l_Target == nullptr)
+                    return;
+
+                if (Creature* l_Ravenous = l_Target->ToCreature())
+                {
+                    l_Ravenous->GetMotionMaster()->Clear();
+                    l_Ravenous->CastSpell(l_Ravenous, eSpell::OnTheHunt, false);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_inflamed_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_inflamed_AuraScript();
+        }
+};
+
+/// Heckle - 163408
+class spell_highmaul_heckle : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_heckle() : SpellScriptLoader("spell_highmaul_heckle") { }
+
+        class spell_highmaul_heckle_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_heckle_SpellScript);
+
+            void HandleDummy(SpellEffIndex p_EffIndex)
+            {
+                if (Creature* l_Caster = GetCaster()->ToCreature())
+                    GrantFavorToAllPlayers(l_Caster, -2, GetSpellInfo()->Id);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_highmaul_heckle_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_heckle_SpellScript();
+        }
+};
+
+/// Berserker Rush - 159001
+class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_berserker_rush_periodic() : SpellScriptLoader("spell_highmaul_berserker_rush_periodic") { }
+
+        class spell_highmaul_berserker_rush_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_berserker_rush_periodic_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Creature* l_Caster = GetTarget()->ToCreature())
+                {
+                    /// Grants one point of Favor every second
+                    if (p_AurEff->GetTickNumber() % 2)
+                        GrantFavorToAllPlayers(l_Caster, 1, GetSpellInfo()->Id);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_berserker_rush_periodic_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_berserker_rush_periodic_AuraScript();
         }
 };
 
@@ -2717,6 +3264,16 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
             BerserkerRushAura   = 159028
         };
 
+        enum eCreature
+        {
+            RavenousBloodmaw = 79296
+        };
+
+        enum eAction
+        {
+            InterruptRavenous = 1
+        };
+
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
@@ -2731,10 +3288,16 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
                 for (Unit* l_Unit : l_TargetList)
                     l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
 
-                if (Creature* l_Kargath = l_Caster->FindNearestCreature(eHighmaulCreatures::KargathBladefist, 7.0f))
+                if (Creature* l_Kargath = l_Caster->FindNearestCreature(eHighmaulCreatures::KargathBladefist, 6.0f))
                 {
                     if (l_Kargath->HasAura(eSpells::BerserkerRushAura))
                         l_Kargath->RemoveAura(eSpells::BerserkerRushAura, l_Kargath->GetGUID(), 0, AuraRemoveMode::AURA_REMOVE_BY_ENEMY_SPELL);
+                }
+
+                if (Creature* l_Ravenous = l_Caster->FindNearestCreature(eCreature::RavenousBloodmaw, 6.0f))
+                {
+                    if (l_Ravenous->IsAIEnabled)
+                        l_Ravenous->AI()->DoAction(eAction::InterruptRavenous);
                 }
             }
         }
@@ -2809,6 +3372,11 @@ void AddSC_boss_kargath_bladefist()
     new spell_highmaul_chain_hurl();
     new spell_highmaul_vile_breath();
     new spell_highmaul_obscured();
+    new spell_highmaul_crowd_minion_killed();
+    new spell_highmaul_roar_of_the_crowd();
+    new spell_highmaul_inflamed();
+    new spell_highmaul_heckle();
+    new spell_highmaul_berserker_rush_periodic();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();

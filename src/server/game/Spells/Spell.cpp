@@ -6847,9 +6847,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         // Drink
         switch (m_spellInfo->GetSpellSpecific())
         {
-            case SPELL_SPECIFIC_DRINK:
-            case SPELL_SPECIFIC_FOOD:
-            case SPELL_SPECIFIC_FOOD_AND_DRINK:
+            case SpellSpecificType::SpellSpecificDrink:
+            case SpellSpecificType::SpellSpecificFood:
+            case SpellSpecificType::SpellSpecificFoodAndDrink:
                 return SPELL_FAILED_CHARMED;
         default:
             break;
