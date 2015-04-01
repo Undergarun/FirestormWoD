@@ -625,11 +625,11 @@ enum Opcodes
         SMSG_WHO                                    = 0x11CC, ///< 6.1.2 19783
 
         /// Chat
-        SMSG_CHAT_SERVER_MESSAGE                    = 0x0000, ///< 6.1.2 19783
-        SMSG_CHAT_RESTRICTED                        = 0x0000, ///< 6.1.2 19783
+        SMSG_CHAT_SERVER_MESSAGE                    = 0x14E3, ///< 6.1.2 19783
+        SMSG_CHAT_RESTRICTED                        = 0x19E8, ///< 6.1.2 19783
         SMSG_CHAT_RECONNECT                         = 0x0000, ///< (unused)
-        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x0000, ///< 6.1.2 19783
-        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x0000, ///< 6.1.2 19783
+        SMSG_CHAT_PLAYER_NOTFOUND                   = 0x19D0, ///< 6.1.2 19783
+        SMSG_CHAT_PLAYER_AMBIGUOUS                  = 0x18E3, ///< 6.1.2 19783
         SMSG_CHAT_NOT_IN_PARTY                      = 0x0000, ///< (unused)
         SMSG_CHAT_IS_DOWN                           = 0x0000, ///< (unused)
         SMSG_CHAT_IGNORED_ACCOUNT_MUTED             = 0x0000, ///< (unused)
