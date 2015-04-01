@@ -590,7 +590,7 @@ namespace MS { namespace Skill { namespace Archaeology
             return 0;
         }
 
-        if (l_AtPos >= 20)
+        if (l_AtPos >= Archaeology::Constants::MaxResearchSites)
         {
             sLog->outAshran("ArcheologyMgr::GetSurveyBotEntry, l_AtPos (%u) >= 20 for site %u !", l_AtPos, l_ResearchSiteID);
             return 0;
