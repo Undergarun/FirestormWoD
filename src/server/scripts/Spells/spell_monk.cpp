@@ -3435,19 +3435,31 @@ enum FistsOfFurySpells
     //SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-/// Fists of Fury - 113656
-class spell_monk_fists_of_fury: public SpellScriptLoader
+/// Fists of Fury (damage) - 117418
+class spell_monk_fists_of_fury_damage : public SpellScriptLoader
 {
     public:
-        spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
+        spell_monk_fists_of_fury_damage() : SpellScriptLoader("spell_monk_fists_of_fury_damage") { }
 
-        class spell_monk_fists_of_fury_AuraScript : public AuraScript
+        class spell_monk_fists_of_fury_damage_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_monk_fists_of_fury_AuraScript);
+            PrepareSpellScript(spell_monk_fists_of_fury_damage_SpellScript);
 
-            void CalculateDamageAmount(constAuraEffectPtr /*p_AurEff*/, int32 & p_Amount, bool & /*p_CanBeRecalculated*/)
+            uint8   m_TotalTargets = 0;
+
+            void TotalTarget(std::list<WorldObject*>& p_Targets)
+            {
+                m_TotalTargets = p_Targets.size();
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
+                    return;
+
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
                     return;
 
                 float l_Low = 0;
@@ -3455,21 +3467,26 @@ class spell_monk_fists_of_fury: public SpellScriptLoader
 
                 if (Player* l_Player = GetCaster()->ToPlayer())
                     l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
-                p_Amount += ((5 * 5.875f * l_Low + 5 * 5.875f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
 
+                if (l_Target->HasAura(113656))
+                    SetHitDamage((7.755f * l_Low + 7.755f * l_High) / 2);
+                else
+                    SetHitDamage(((7.755f * l_Low + 7.755f * l_High) / 2) / m_TotalTargets);
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_fists_of_fury_AuraScript::CalculateDamageAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_fists_of_fury_damage_SpellScript::TotalTarget, EFFECT_0, TARGET_UNIT_CONE_ENEMY_24);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_monk_fists_of_fury_AuraScript();
+            return new spell_monk_fists_of_fury_damage_SpellScript();
         }
 };
+
 
 /// Fists of Fury (Stun) - 120086
 class spell_monk_fists_of_fury_stun: public SpellScriptLoader
@@ -3481,9 +3498,9 @@ class spell_monk_fists_of_fury_stun: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_fists_of_fury_stun_SpellScript);
 
-            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            void RemoveInvalidTargets(std::list<WorldObject*>& p_Targets)
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id, GetCaster()->GetGUID()));
             }
 
             void Register()
@@ -4293,7 +4310,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_rushing_jade_wind();
     new spell_monk_rushing_jade_wind_damage();
     new spell_monk_rushing_jade_wind_heal();
-    new spell_monk_fists_of_fury();
     new spell_monk_jab();
     new spell_monk_tiger_palm();
     new spell_monk_blackout_kick();
@@ -4304,6 +4320,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_detox();
     new spell_monk_glyph_of_rapid_rolling();
     new spell_monk_afterlife();
+    new spell_monk_fists_of_fury_damage();
+    new spell_monk_fists_of_fury_stun();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
