@@ -183,8 +183,11 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -570,8 +573,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -1162,10 +1168,14 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
+
                 default:
                     break;
             }

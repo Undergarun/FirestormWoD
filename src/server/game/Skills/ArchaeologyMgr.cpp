@@ -610,17 +610,17 @@ namespace MS { namespace Skill { namespace Archaeology
 
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteFarDist)
         {
-            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Far_SurveyBot;
         }
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteMedDist)
         {
-            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Med_SurveyBot;
         }
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteCloseDist)
         {
-            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Close_SurveyBot;
         }
 
