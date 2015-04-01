@@ -200,6 +200,11 @@ namespace MS { namespace Skill { namespace Archaeology
             /// Get survey bot entry (GoB spawned when the player use his skill)
             /// @p_Orientation : Destination GoB spawn orientation
             uint32 GetSurveyBotEntry(float & p_Orientation);
+            /// Is the last found artifact game object
+            /// @p_GameObjectEntry : GameObject entry
+            bool IsLastArtifactGameObject(uint32 p_GameObjectEntry);
+            /// Reset last found artifact game object
+            void ResetLastArtifactGameObject();
 
             /// Add a cost to the current project
             /// @p_Entry      : ItemID or CurrencyID
@@ -257,6 +262,7 @@ namespace MS { namespace Skill { namespace Archaeology
             ResearchSitesMap    m_ResearchSites;                                        ///< Research sites
             ResearchProjectSet  m_ResearchProjects;                                     ///< Research projects
             CompletedProjectMap m_CompletedProjects;                                    ///< List of completed projects
+            uint32              m_LastArtifactGameObjectEntry;                          ///< Last found artifact gameobject entry
 
             bool _archaeologyChanged;
 

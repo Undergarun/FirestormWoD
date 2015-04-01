@@ -82,7 +82,7 @@ namespace MS { namespace Skill { namespace Archaeology
 {
     /// Constructor
     Manager::Manager(Player* p_Player)
-        : m_Player(p_Player)
+        : m_Player(p_Player), m_LastArtifactGameObjectEntry(0)
     {
         for (uint8 l_I = 0; l_I < Archaeology::Constants::MaxResearchSites; ++l_I)
             m_DigSites[l_I].Reset();
@@ -610,24 +610,22 @@ namespace MS { namespace Skill { namespace Archaeology
 
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteFarDist)
         {
-            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Far_SurveyBot;
         }
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteMedDist)
         {
-            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Med_SurveyBot;
         }
         if (l_CurrentDistance >= Archaeology::Constants::DigSiteCloseDist)
         {
-            SendArchaeologySurveryCast(false, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
+            SendArchaeologySurveryCast(true, l_DigSite.SiteLootCount, l_DigSite.SiteMaxLootCount, l_DigSite.SiteID);
             return Archaeology::GameObjects::DigSite_Close_SurveyBot;
         }
 
-        if (l_SkillValue < 50)
-            m_Player->UpdateSkill(SKILL_ARCHAEOLOGY, 1);
-
         m_Player->SummonGameObject(l_DigSite.LootGameObjectID, l_DigSite.LootGameObjectX, l_DigSite.LootGameObjectY, l_DigSite.LootGameObjectZ, 0, 0, 0, 0, 0, 30000);
+        m_LastArtifactGameObjectEntry = l_DigSite.LootGameObjectID;
 
         if (l_DigSite.SiteLootCount < l_DigSite.SiteMaxLootCount)
         {
@@ -650,7 +648,20 @@ namespace MS { namespace Skill { namespace Archaeology
 
         return 0;
     }
-   
+
+    /// Is the last found artifact game object
+    /// @p_GameObjectEntry : GameObject entry
+    bool Manager::IsLastArtifactGameObject(uint32 p_GameObjectEntry)
+    {
+        return m_LastArtifactGameObjectEntry == p_GameObjectEntry;
+    }
+
+    /// Reset last found artifact game object
+    void Manager::ResetLastArtifactGameObject()
+    {
+        m_LastArtifactGameObjectEntry = 0;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
