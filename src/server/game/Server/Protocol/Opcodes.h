@@ -1142,8 +1142,8 @@ enum Opcodes
     CMSG_SET_WATCHED_FACTION                    = 0x1E82, ///< 6.1.2 19783
     CMSG_SET_FACTION_INACTIVE                   = 0x1862, ///< 6.1.2 19783
     CMSG_AREATRIGGER                            = 0x0BDB, ///< 6.1.2 19783
-    CMSG_GAMEOBJECT_REPORT_USE                  = 0x18B2, ///< 6.1.2 19783
-    CMSG_GAMEOBJECT_USE                         = 0x08B1, ///< 6.1.2 19783
+    CMSG_GAMEOBJECT_REPORT_USE                  = 0x08B1, ///< 6.1.2 19783
+    CMSG_GAMEOBJECT_USE                         = 0x18B2, ///< 6.1.2 19783
     CMSG_SAVE_CUF_PROFILES                      = 0x0EC7, ///< 6.1.2 19783
     CMSG_SPELLCLICK                             = 0x1DB2, ///< 6.1.2 19783
     CMSG_REPOP_REQUEST                          = 0x0D36, ///< 6.1.2 19783
