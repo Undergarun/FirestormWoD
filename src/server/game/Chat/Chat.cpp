@@ -731,9 +731,6 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     ObjectGuid targetGuid = target_guid;
 
-    bool bit5264 = false;
-    bool sendRealmId = true;
-
     data->Initialize(SMSG_CHAT, 100);                   // guess size
     *data << uint8(type);
     *data << uint8(language);
