@@ -2737,33 +2737,14 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
                             if (l_CurrentStackAmount >= 1)
                             {
-                                std::list<Unit*> l_FriendlyUnitListTemp;
-                                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, 20.0f);
-                                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_FriendlyUnitListTemp, l_Check);
-                                l_Caster->VisitNearbyObject(20.0f, l_Searcher);
+                                Unit* l_NewTarget = l_Target->GetNextRandomRaidMemberOrPet(20.0f);
 
-                                if (!l_FriendlyUnitListTemp.empty())
-                                {
-                                    std::list<Unit*> l_FriendlyUnitList;
+                                if (l_NewTarget == nullptr)
+                                    return;
 
-                                    for (auto l_Itr : l_FriendlyUnitListTemp)
-                                    {
-                                        if (l_Caster->IsValidAssistTarget(l_Itr))
-                                            l_FriendlyUnitList.push_back(l_Itr);
-                                    }
-
-                                    if (!l_FriendlyUnitList.empty())
-                                    {
-                                        JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
-
-                                        for (auto l_Itr : l_FriendlyUnitList)
-                                        {
-                                            l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                                            if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
-                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
-                                        }
-                                    }
-                                }
+                                l_Caster->CastSpell(l_NewTarget, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                                if (AuraPtr l_PrayerOfMendingAura = l_NewTarget->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                                    l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
                             }
                             l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
                         }
