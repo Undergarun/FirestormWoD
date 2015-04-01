@@ -758,24 +758,12 @@ class playerScript_a_potential_ally : public PlayerScript
     public:
         playerScript_a_potential_ally() : PlayerScript("playerScript_a_potential_ally") { }
 
+        std::map<uint64, uint32> m_PlayerSceneInstanceId;
+
         void OnLogin(Player* p_Player) override
         {
             if (p_Player->HasQuest(TanaanQuests::QuestAPotentialAlly) || p_Player->HasQuest(TanaanQuests::QuestAPotentialAllyHorde))
             {
-                Position l_Pos;
-                p_Player->GetPosition(&l_Pos);
-
-                m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-            }
-        }
-
-        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
-        {
-            if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
-            {
-                if (m_PlayerSceneInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneInstanceId.end())
-                    p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
-
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);
 
@@ -825,9 +813,6 @@ class playerScript_a_potential_ally : public PlayerScript
                 }
             }
         }
-
-    private:
-        std::map<uint64, uint32> m_PlayerSceneInstanceId;
 };
 playerScript_a_potential_ally* g_APotentialAllyPlayerScript = nullptr;
 
@@ -838,38 +823,6 @@ class playerScript_scene_alliance_boat : public PlayerScript
         playerScript_scene_alliance_boat() : PlayerScript("playerScript_scene_alliance_boat") { }
 
         std::map<uint64, uint32> m_PlayerSceneInstanceId;
-
-        void OnLogin(Player* p_Player) override
-        {
-            if (p_Player->HasQuest(TanaanQuests::QuestAPotentialAlly) || p_Player->HasQuest(TanaanQuests::QuestAPotentialAllyHorde))
-            {
-                Position l_Pos;
-                p_Player->GetPosition(&l_Pos);
-
-                m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-            }
-        }
-
-        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
-        {
-            if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
-            {
-                if (m_PlayerSceneInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneInstanceId.end())
-                    p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
-
-                Position l_Pos;
-                p_Player->GetPosition(&l_Pos);
-
-                m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-            }
-        }
-
-        void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
-        {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly &&
-                m_PlayerSceneInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneInstanceId.end())
-                p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
-        }
 
         void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
@@ -894,38 +847,6 @@ class playerScript_scene_horde_boat : public PlayerScript
         playerScript_scene_horde_boat() : PlayerScript("playerScript_scene_horde_boat") { }
 
         std::map<uint64, uint32> m_PlayerSceneInstanceId;
-
-        void OnLogin(Player* p_Player) override
-        {
-            if (p_Player->HasQuest(TanaanQuests::QuestAPotentialAlly) || p_Player->HasQuest(TanaanQuests::QuestAPotentialAllyHorde))
-            {
-                Position l_Pos;
-                p_Player->GetPosition(&l_Pos);
-
-                m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-            }
-        }
-
-        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
-        {
-            if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
-            {
-                if (m_PlayerSceneInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneInstanceId.end())
-                    p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
-
-                Position l_Pos;
-                p_Player->GetPosition(&l_Pos);
-
-                m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-            }
-        }
-
-        void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
-        {
-            if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly &&
-                m_PlayerSceneInstanceId.find(p_Player->GetGUID()) != m_PlayerSceneInstanceId.end())
-                p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
-        }
 
         void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
@@ -1172,6 +1093,12 @@ class playerScript_enter_tanaan : public PlayerScript
                 UpdatePhaseMask(p_Player);
         }
 
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        {
+            if (p_Player->GetZoneId() == TanaanZones::ZoneTanaanJungle)
+                UpdatePhaseMask(p_Player);
+        }
+
         void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
         {
             switch (p_Quest->GetQuestId())
@@ -1201,7 +1128,6 @@ class playerScript_enter_tanaan : public PlayerScript
                 p_Player->PlayScene(TanaanSceneObjects::SceneGulDanReavel, p_Player);
         }
 };
-
 
 /// Tanaan entering
 class playerScript_add_tanaan_for_max_level : public PlayerScript
@@ -1385,7 +1311,7 @@ class npc_archmage_khadgar : public CreatureScript
             {
                 if (!m_PlayerTimers.empty())
                 {
-                    for (std::map<uint64, uint32>::iterator l_Itr = m_PlayerTimers.begin(); l_Itr != m_PlayerTimers.end(); l_Itr++)
+                    for (auto l_Itr = m_PlayerTimers.begin(); l_Itr != m_PlayerTimers.end(); l_Itr++)
                     {
                         Player* l_Player = me->GetPlayer(*me, l_Itr->first);
 
@@ -1394,7 +1320,7 @@ class npc_archmage_khadgar : public CreatureScript
 
                         if (!l_Itr->second)
                         {
-                            m_PlayerTimers.erase(l_Itr);
+                            l_Itr = m_PlayerTimers.erase(l_Itr);
                             continue;
                         }
                         else
@@ -1938,6 +1864,16 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                         p_Creature->AI()->SetGUID(p_Player->GetGUID(), 2);
                         p_Creature->AI()->DoAction(TanaanActions::ActionEventSceneArena);
                     }
+                    break;
+                }
+                case TanaanQuests::QuestAPotentialAlly:
+                case TanaanQuests::QuestAPotentialAllyHorde:
+                {
+                    Position l_Pos;
+                    p_Player->GetPosition(&l_Pos);
+
+                    if (g_APotentialAllyPlayerScript)
+                        g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
                     break;
                 }
                 default:
@@ -3620,7 +3556,7 @@ class npc_black_rock_trigger : public CreatureScript
             {
                 if (!m_PlayerTimers.empty())
                 {
-                    for (std::map<uint64, uint32>::iterator l_Itr = m_PlayerTimers.begin(); l_Itr != m_PlayerTimers.end(); l_Itr++)
+                    for (auto l_Itr = m_PlayerTimers.begin(); l_Itr != m_PlayerTimers.end(); l_Itr++)
                     {
                         Player* l_Player = me->GetPlayer(*me, l_Itr->first);
 
@@ -3629,7 +3565,7 @@ class npc_black_rock_trigger : public CreatureScript
 
                         if (!l_Itr->second)
                         {
-                            m_PlayerTimers.erase(l_Itr);
+                            l_Itr = m_PlayerTimers.erase(l_Itr);
                             continue;
                         }
                         else
