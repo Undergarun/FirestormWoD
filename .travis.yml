@@ -1,4 +1,3 @@
-#Test to trigger travis build !
 language: cpp
 compiler:
   - clang
@@ -11,43 +10,48 @@ branches:
     - WoD2
     - WoD2_dev
     - WoD2_hotfix
+    - 6.1.2
 
 before_install:
-  - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
-  - echo "yes" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository ppa:kalakris/cmake -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential make cmake openssl gcc-4.8 g++-4.8
-  - sudo apt-get -qq install libssl-dev libmysqlclient15-dev libmysql++-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev libtool
+  - sudo apt-get -qq install build-essential gcc-4.8 g++-4.8 make cmake openssl
+  - sudo apt-get -qq install libmysqlclient15-dev libmysql++-dev libssl-dev libace-dev libreadline6-dev zlib1g-dev libbz2-dev libtool
+
+
+install:
   - git clone git@github.com:MilleniumStudio/ms_framework.git dep/ms_framework
   - cd dep/ms_framework
   - git submodule init
   - git submodule update --remote
-  - mkdir build
-  - cd build
+  - mkdir build && cd build
   - cmake ..
   - make -j
   - sudo make install
   - cd ../../../
+  - mysql -uroot -e 'create database test_mysql;'
 
-install:
-  # - mysql -uroot -e 'create database test_mysql;'
-  - mkdir build
-  - cd build
-  - cmake .. -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release
-  - cd ..
-
-#before_script:
-#  - mysql -uroot < sql/create/create_mysql.sql
-#  - mysql -utrinity -ptrinity auth < sql/base/auth_database.sql
-#  - mysql -utrinity -ptrinity characters < sql/base/characters_database.sql
-#  - mysql -utrinity -ptrinity world < sql/base/world_database.sql
-#  - mysql -utrinity -ptrinity monitoring < sql/base/monitoring_database.sql
-#  - cat sql/updates/world/2015/*/*.sql | mysql -utrinity -ptrinity world
-#  - mysql -uroot < sql/create/drop_mysql.sql
+before_script:
+  - mysql -uroot < sql/create/create_mysql.sql
+  - mysql -umsstudio -pmsstudio auth < sql/base/auth_database.sql
+  - mysql -umsstudio -pmsstudio characters < sql/base/characters_database.sql
+  - mysql -umsstudio -pmsstudio world < sql/base/world_database.sql
+  - mysql -umsstudio -pmsstudio monitoring < sql/base/monitoring_database.sql
+  - cat sql/updates/character/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio characters
+  - cat sql/updates/world/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio world
 
 script:
-  - cd build
-  - make -j20
+  - mkdir build && cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_WARNINGS=0 -DWITH_COREDEBUG=0 -DTOOLS=0
+  - make -j 12
+  - cd ..
+
+#after_success:
+#  -
+
+after_script:
+  - mysql -uroot < sql/create/drop_mysql.sql
 
 notifications:
   slack: millenium-studio:hJlKAYRaplFP8GVoH5a7FPqv

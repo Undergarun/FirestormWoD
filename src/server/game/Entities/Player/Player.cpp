@@ -26393,8 +26393,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (GetSkillValue(SKILL_ARCHAEOLOGY))
     {
-        m_archaeologyMgr.ShowResearchSites();
-        m_archaeologyMgr.ShowResearchProjects();
+        m_archaeologyMgr.PropagateResearchSites();
+        m_archaeologyMgr.PropagateResearchProjects();
     }
 
     SendDeathRuneUpdate();
