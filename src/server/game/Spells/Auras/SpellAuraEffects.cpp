@@ -4953,9 +4953,18 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
     {
         if (GetMiscValueB() & 1 << i || !GetMiscValueB()) // 0 is also used for all stats
         {
-            target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
             if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->isPet())
-                target->ApplyStatPercentBuffMod(Stats(i), float(GetAmount()), apply);
+            {
+                float l_CurrentAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << i, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+                float l_NewAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << i, apply ? nullptr : shared_from_this());
+
+                target->ApplyStatPercentBuffMod(Stats(i), l_CurrentAmount, false);
+                target->ApplyStatPercentBuffMod(Stats(i), l_NewAmount, true);
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, l_CurrentAmount, false);
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, l_NewAmount, true);
+            }
+            else
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
         }
     }
 
@@ -5360,16 +5369,22 @@ void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
+    Player* l_Player = target->ToPlayer();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (!l_Player)
     {
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
         return;
     }
 
-    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (GetAmount()), apply);
-    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (GetAmount()), apply);
-    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (GetAmount()), apply);
+    float l_CurrentAmount = l_Player->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = l_Player->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, l_NewAmount, true);
+    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, l_NewAmount, true);
+    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, l_NewAmount, true);
 
     // included in Player::UpdateSpellCritChance calculation
     target->ToPlayer()->UpdateAllSpellCritChances();
@@ -5518,8 +5533,16 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
+    {
         if (GetMiscValue() & (1 << rating))
-            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), GetAmount(), apply);
+        {
+            float l_CurrentAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << rating, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+            float l_NewAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << rating, apply ? nullptr : shared_from_this());
+
+            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_CurrentAmount, false);
+            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_NewAmount, true);
+        }
+    }
 }
 
 void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5549,7 +5572,10 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, true);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5562,7 +5588,10 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, true);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const

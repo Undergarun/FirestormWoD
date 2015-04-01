@@ -2094,12 +2094,13 @@ class Unit : public WorldObject
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
         uint32 GetDoTsByCaster(uint64 casterGUID) const;
 
-        int32 GetTotalAuraModifier(AuraType auratype) const;
+        int32 GetTotalAuraModifier(AuraType auratype, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;
         int32 GetMaxPositiveAuraModifier(AuraType auratype);
         int32 GetMaxNegativeAuraModifier(AuraType auratype) const;
 
-        int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
+        int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
+        int32 GetTotalAuraModifierByMiscBMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
         float GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask) const;
         int32 GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr except = NULLAURA_EFFECT) const;
         int32 GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
