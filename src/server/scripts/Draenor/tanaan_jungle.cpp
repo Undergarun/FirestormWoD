@@ -84,7 +84,7 @@ class playerScript_cave_in : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -130,7 +130,7 @@ class playerScript_kill_your_hundred : public PlayerScript
             }
         }
 
-        void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKillYourHundred)
             {
@@ -212,7 +212,7 @@ class playerScript_kill_your_hundred : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -331,7 +331,7 @@ class playerScript_cavern_teleport : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -399,7 +399,7 @@ class playerScript_map_shift : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -454,7 +454,7 @@ class playerScript_gunpowder_plot : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -524,7 +524,7 @@ class playerScript_taste_of_iron : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -576,7 +576,7 @@ class playerScript_the_home_stretch : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -618,7 +618,7 @@ class playerscript_bridge_destruction : public PlayerScript
             }
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasFirstScript = std::count_if(m_PlayerSceneFirstInstanceId.begin(), m_PlayerSceneFirstInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -682,7 +682,7 @@ class playerScript_blaze_of_glory : public PlayerScript
             }
         }
 
-        void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
             {
@@ -704,7 +704,7 @@ class playerScript_blaze_of_glory : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasScript = std::count_if(m_PlayerSceneInstanceId.begin(), m_PlayerSceneInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -769,7 +769,7 @@ class playerScript_a_potential_ally : public PlayerScript
             }
         }
 
-        void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
             {
@@ -790,7 +790,7 @@ class playerScript_a_potential_ally : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasScript = std::count_if(m_PlayerSceneInstanceId.begin(), m_PlayerSceneInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -850,7 +850,7 @@ class playerScript_scene_alliance_boat : public PlayerScript
             }
         }
 
-        void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
             {
@@ -871,7 +871,7 @@ class playerScript_scene_alliance_boat : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasScript = std::count_if(m_PlayerSceneInstanceId.begin(), m_PlayerSceneInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -906,7 +906,7 @@ class playerScript_scene_horde_boat : public PlayerScript
             }
         }
 
-        void OnQuestAccept(Player * p_Player, const Quest * p_Quest) override
+        void OnQuestAccept(Player* p_Player, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAlly || p_Quest->GetQuestId() == TanaanQuests::QuestAPotentialAllyHorde)
             {
@@ -927,7 +927,7 @@ class playerScript_scene_horde_boat : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
-        void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+        void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasScript = std::count_if(m_PlayerSceneInstanceId.begin(), m_PlayerSceneInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
             {
@@ -1236,7 +1236,7 @@ class npc_archmage_khadgar : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             switch (p_Quest->GetQuestId())
             {
@@ -1494,7 +1494,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
 
                     if (!l_EnemyList.empty())
                     {
-                        Creature * l_Grunt = *l_EnemyList.begin();
+                        Creature* l_Grunt = *l_EnemyList.begin();
 
                         me->SetFacingToObject(l_Grunt);
                         me->GetAI()->AttackStart(l_Grunt);
@@ -2120,7 +2120,7 @@ class npc_blood_ritual_orb : public CreatureScript
     public:
         npc_blood_ritual_orb() : CreatureScript("npc_blood_ritual_orb") { }
 
-        bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature) override
         {
             if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
             {
@@ -2310,7 +2310,7 @@ class npc_archmage_khadgar_shadowmoon : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             switch (p_Quest->GetQuestId())
             {
@@ -2487,7 +2487,7 @@ class npc_tanaan_yrel : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestYrelTanaan || p_Quest->GetQuestId() == TanaanQuests::QuestYrelHorde)
             {
@@ -2645,7 +2645,7 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
             return new npc_exarch_maladaar_tanaan_caveAI(p_Creature);
         }
 
-        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly)
             {
@@ -2744,7 +2744,7 @@ class npc_cordana_felsong_blackrock : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
             {
@@ -2834,7 +2834,7 @@ class npc_lady_liadrin_blackrock : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde)
             {
@@ -3052,7 +3052,7 @@ class npc_farseer_drek_thar : public CreatureScript
             return true;
         }
 
-        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge && g_MapShiftPlayerScript)
             {
@@ -3420,7 +3420,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
         {
         }
 
-        bool OnQuestAccept(Player * p_Player, Creature * p_Creature, const Quest * p_Quest) override
+        bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
         {
             if (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
             {
@@ -3437,7 +3437,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
             return false;
         }
 
-        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             if (p_Quest->GetQuestId() != TanaanQuests::QuestTakingATripToTheTopOfTheTank)
                 return true;
@@ -3698,7 +3698,7 @@ class npc_tanaan_khadgar_final : public CreatureScript
         {
         }
 
-        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option) override
+        bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
         {
             switch (p_Quest->GetQuestId())
             {
