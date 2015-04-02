@@ -521,7 +521,7 @@ enum Opcodes
         SMSG_OAUTH_SAVED_DATA                                   = 0x0CBB, ///< 6.1.2 19783
 
         /// Toys
-        SMSG_ACCOUNT_TOYS_UPDATE                    = 0x0E1D, ///< 6.1.2 19783
+        SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0E1D, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
