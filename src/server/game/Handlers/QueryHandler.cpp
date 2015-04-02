@@ -180,7 +180,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << uint32(itemCount);                          // quest item count
         data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         data << uint32(ci->expansionUnknown);               // unknown meaning
-        data << uint32(0);                                  // QuestTrackingId
+        data << uint32(ci->TrackingQuestID);                // QuestTrackingId
 
         if (SubName.size())
             data << SubName;                                // Sub Name
