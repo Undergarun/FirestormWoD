@@ -66,7 +66,7 @@
 #include "InstanceScript.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "ArchaeologyMgr.h"
+#include "ArchaeologyMgr.hpp"
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 
@@ -2675,7 +2675,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
                     // Update player XP
                     // Patch 4.0.1 (2010-10-12): Gathering herbs and Mining will give XP
-                    if (skillId == SKILL_MINING || skillId == SKILL_HERBALISM)
+                    if (skillId == SKILL_MINING || skillId == SKILL_HERBALISM || skillId == SKILL_ARCHAEOLOGY)
                         player->GiveGatheringXP();
                 }
             }
@@ -6550,10 +6550,24 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     m_caster->ToPlayer()->SendLoot(itemTarget->GetGUID(), LOOT_MILLING);
 }
 
-void Spell::EffectSkill(SpellEffIndex /*effIndex*/)
+void Spell::EffectSkill(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
+
+    if (m_spellInfo->Effects[effIndex].MiscValue == SKILL_ARCHAEOLOGY)
+    {
+        Player * l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+        if (!l_Player || !l_Player->HasSkill(SKILL_ARCHAEOLOGY) || !m_targets.GetGOTarget())
+            return;
+
+        if (!l_Player->GetArchaeologyMgr().IsLastArtifactGameObject(m_targets.GetGOTarget()->GetEntry()))
+            return;
+
+        l_Player->UpdateSkill(SKILL_ARCHAEOLOGY, 1);
+        l_Player->GetArchaeologyMgr().ResetLastArtifactGameObject();
+    }
 }
 
 /* There is currently no need for this effect. We handle it in Battleground.cpp
@@ -7553,7 +7567,7 @@ void Spell::EffectTeleportToDigsite(SpellEffIndex p_EffectIndex)
 
     std::random_shuffle(l_Maps.begin(), l_Maps.end());
 
-    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInMap(l_Maps[0]);
+    uint16  l_SiteId = l_Target->GetArchaeologyMgr().GetRandomActiveSiteInContinent(l_Maps[0]);
     ResearchLootVector const& l_Loot = sObjectMgr->GetResearchLoot();
     if (l_Loot.empty())
         return;
@@ -7596,7 +7610,7 @@ void Spell::EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex)
     uint32 l_MapId = m_spellInfo->Effects[p_EffIndex].MiscValue;
     uint32 l_SiteCount = m_spellInfo->Effects[p_EffIndex].BasePoints;
 
-    l_Target->GetArchaeologyMgr().GenerateResearchSitesForMap(l_MapId, l_SiteCount);
+    l_Target->GetArchaeologyMgr().GenerateResearchSitesForContinent(l_MapId, l_SiteCount);
 }
 
 void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)

@@ -9484,9 +9484,6 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
 
 void ObjectMgr::LoadResearchSiteZones()
 {
-    /// todo remove
-    return;
-
     uint32 counter = 0;
 
     for (auto itr : sResearchSiteSet)
@@ -9546,7 +9543,7 @@ void ObjectMgr::LoadResearchSiteLoot()
             dg.x = fields[1].GetFloat();
             dg.y = fields[2].GetFloat();
             dg.z = fields[3].GetFloat();
-            dg.race = fields[4].GetUInt8();
+            dg.ResearchBranchID = fields[4].GetUInt32();
         }
 
         _researchLoot.push_back(dg);

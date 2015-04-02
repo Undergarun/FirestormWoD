@@ -177,12 +177,17 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -562,12 +567,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -1152,14 +1162,20 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
+
                 default:
                     break;
             }

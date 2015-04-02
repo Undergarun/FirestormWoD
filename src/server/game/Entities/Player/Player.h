@@ -20,7 +20,7 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
-#include "ArchaeologyMgr.h"
+#include "ArchaeologyMgr.hpp"
 #include "Arena.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
@@ -1636,7 +1636,7 @@ class Player : public Unit, public GridObject<Player>
         void WhisperAddon(const std::string& text, const std::string& prefix, Player* receiver);
         void BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgType, std::string const& p_Text, uint32 p_LangID, char const* p_AddonPrefix = nullptr, std::string const& p_Channel = "") const;
 
-        ArchaeologyMgr& GetArchaeologyMgr() { return m_archaeologyMgr; }
+        MS::Skill::Archaeology::Manager& GetArchaeologyMgr() { return m_archaeologyMgr; }
 
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
@@ -3895,7 +3895,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_lastPlayedEmote;
 
-        ArchaeologyMgr m_archaeologyMgr;
+        MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
         // Store callback
         PreparedQueryResultFuture _storeGoldCallback;
