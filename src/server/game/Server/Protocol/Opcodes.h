@@ -267,8 +267,8 @@ enum Opcodes
         SMSG_CRITERIA_UPDATE                        = 0x0716, ///< 6.1.2 19783
 
         /// Friends
-        SMSG_CONTACT_LIST                           = 0x0210, ///< 6.1.2 19783
-        SMSG_FRIEND_STATUS                          = 0x1BEA, ///< 6.1.2 19783
+        SMSG_CONTACT_LIST                           = 0x039F, ///< 6.1.2 19783
+        SMSG_FRIEND_STATUS                          = 0x0F03, ///< 6.1.2 19783
 
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x0EBF, ///< 6.1.2 19783
