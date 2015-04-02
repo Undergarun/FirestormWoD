@@ -54,8 +54,8 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_AndersLongstitch::OnGossipHello(Player * p_Player, Creature * p_Creature)
     {
-        if (!p_Player->HasQuest(Quests::Alliance_YoutFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YoutFirstLeatherworkingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YoutFirstLeatherworkingWorkOrder, 4);
+        if (!p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstLeatherworkingWorkOrder, 4);
 
         p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
@@ -122,10 +122,10 @@ namespace MS { namespace Garrison
     /// @p_Creature   : Target GameObject instance
     bool npc_MarianneLevine::OnGossipHello(Player * p_Player, Creature * p_Creature)
     {
-        if (p_Player->HasQuest(Quests::Alliance_YoutFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YoutFirstLeatherworkingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YoutFirstLeatherworkingWorkOrder, 4);
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
+            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstLeatherworkingWorkOrder, 4);
 
-        if (p_Player->HasQuest(Quests::Alliance_YoutFirstLeatherworkingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YoutFirstLeatherworkingWorkOrder))
+        if (p_Player->HasQuest(Quests::Alliance_YourFirstLeatherworkingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstLeatherworkingWorkOrder))
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
