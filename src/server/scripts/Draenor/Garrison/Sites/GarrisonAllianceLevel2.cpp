@@ -71,7 +71,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Owner instance
     void InstanceScript_GarrisonAllianceLevel2::OnOwnerEnter(Player * p_Owner)
     {
-
+        /// Achievement "More Plots" alliance side
+        if (p_Owner->GetTeamId() == TEAM_ALLIANCE && !p_Owner->GetAchievementMgr().HasAchieved(9100))
+            p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9100), nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////
