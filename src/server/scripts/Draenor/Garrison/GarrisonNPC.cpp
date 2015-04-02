@@ -30,6 +30,7 @@
 #include "Buildings/Horde/HTailoringEmporium.hpp"
 #include "Buildings/Horde/HAlchemyLab.hpp"
 #include "Buildings/Horde/HTheTannery.hpp"
+#include "Buildings/Horde/HEnchanterStudy.hpp"
 
 #include <random>
 
@@ -471,5 +472,9 @@ void AddSC_Garrison_NPC()
         /// The tannery
         new MS::Garrison::npc_MurneGreenhoof;
         new MS::Garrison::npc_Yanney;
+
+        /// Enchanter's Study
+        new MS::Garrison::npc_YuklaGreenshadow;
+        new MS::Garrison::npc_Garra;
     }
 }

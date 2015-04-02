@@ -68,8 +68,8 @@ namespace MS { namespace Garrison
         Horde_BiggerIsBetter                      = 36567,
         Horde_YourFirstTailoringWorkOrder         = 37575,
         Horde_YoutFirstAlchemyWorkOrder           = 37568,
-        Horde_YoutFirstLeatherworkingWorkOrder    = 37574
-
+        Horde_YoutFirstLeatherworkingWorkOrder    = 37574,
+        Horde_YourFirstEnchantingWorkOrder        = 37570
     };
 
     /// Garrison achievement related
