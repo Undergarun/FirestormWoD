@@ -3341,6 +3341,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 165907:
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+                break;
             case 161299: ///< Impact Spit
                 spellInfo->Effects[0].TriggerSpell = 161304;
                 break;
