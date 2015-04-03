@@ -734,7 +734,7 @@ class npc_highmaul_underbelly_vagrant : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                m_Events.ScheduleEvent(eEvent::EventPilfer, urand(6000, 8000));
+                m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
 
                 m_TimedDelayedOperations.clear();
             }
@@ -754,9 +754,9 @@ class npc_highmaul_underbelly_vagrant : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvent::EventPilfer:
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::SpellPilfer, false);
-                        m_Events.ScheduleEvent(eEvent::EventPilfer, urand(12000, 15000));
+                        m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
                         break;
                     default:
                         break;

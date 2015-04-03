@@ -2922,6 +2922,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
     }
 
+    if (missInfo != SpellMissInfo::SPELL_MISS_NONE)
+    {
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+            m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
+    }
+
     if (spellHitTarget)
     {
         SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);

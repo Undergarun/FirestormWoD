@@ -3373,6 +3373,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 175598:///< Devouring Leap (Night-Twisted Devout)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
+            case 156127:///< Meat Hook (The Butcher)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 100.0f;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

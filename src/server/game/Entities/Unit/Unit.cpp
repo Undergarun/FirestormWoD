@@ -18180,6 +18180,25 @@ void Unit::SetAIAnimKit(uint32 p_AnimKitID)
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
+void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
+{
+    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+
+    l_Data.WriteVector3(p_Source);
+    l_Data.WriteVector3(p_Orientation);
+    l_Data.WriteVector3(p_Target);
+    l_Data.appendPackGUID(p_TargetGuid);
+
+    l_Data << int32(p_Visual);
+    l_Data << float(p_TravelSpeed);
+    l_Data << float(0.0f);  ///< UnkFloat
+
+    l_Data.WriteBit(p_SpeedAsTime);
+    l_Data.FlushBits();
+
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
 {
     /// Prevent killing unit twice (and giving reward from kill twice)

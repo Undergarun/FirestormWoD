@@ -820,6 +820,9 @@ enum Opcodes
         SMSG_PET_UNLEARNED_SPELLS                   = 0x011B,   ///< 6.0.3 19116
         SMSG_PET_LEARNED_SPELLS                     = 0x1822,   ///< 6.0.3 19116
 
+        /// Visuals
+        SMSG_PLAY_ORPHAN_SPELL_VISUAL               = 0x0BF9,   ///< 6.0.3 19116
+
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1795,7 +1798,6 @@ enum Opcodes
     SMSG_PET_BATTLE_REQUEST_FAILED                      = 0x0000,
     SMSG_PET_BATTLE_SLOT_UPDATE                         = 0x0000,
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
-    SMSG_PLAY_ORPHAN_SPELL_VISUAL                       = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                             = 0x0000,

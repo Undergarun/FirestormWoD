@@ -111,6 +111,9 @@ struct ScriptedAI : public CreatureAI
     // Called when spell hits a target
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
+    /// Called when spell miss a target
+    void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
+
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 id) {}
 
@@ -293,6 +296,7 @@ class BossAI : public ScriptedAI
         void SummonedCreatureDespawn(Creature* summon);
 
         virtual void UpdateAI(uint32 const diff);
+        void UpdateOperations(uint32 const p_Diff);
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
@@ -304,6 +308,22 @@ class BossAI : public ScriptedAI
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) { _JustDied(); }
         void JustReachedHome() { _JustReachedHome(); }
+
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        {
+            m_EmptyWarned = false;
+            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 
     protected:
         void _Reset();
