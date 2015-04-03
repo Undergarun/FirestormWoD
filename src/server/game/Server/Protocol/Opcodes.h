@@ -562,7 +562,7 @@ enum Opcodes
         SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x1194, ///< 6.1.2 19783
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000, ///< (unused)
         SMSG_GUILD_REWARDS_LIST                     = 0x1494, ///< 6.1.2 19783
-        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x10AC, ///< 6.1.2 19783
+        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x10B7, ///< 6.1.2 19783
         SMSG_GUILD_CHALLENGE_UPDATED                = 0x1183, ///< 6.1.2 19783
         SMSG_GUILD_MEMBER_RECIPES                   = 0x0000, ///< (unused)
         SMSG_GUILD_INVITE_EXPIRED                   = 0x0000, ///< (unused)

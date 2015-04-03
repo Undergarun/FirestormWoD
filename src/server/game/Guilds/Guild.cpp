@@ -1720,7 +1720,7 @@ void Guild::HandleAcceptMember(WorldSession* p_Session)
 
         l_Data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
         l_Data.appendPackGUID(p_Session->GetPlayer()->GetGUID());           ///< Guid
-        l_Data << uint32(g_RealmID);                                          ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                        ///< Virtual Realm Address
         l_Data.WriteBits(strlen(p_Session->GetPlayer()->GetName()), 6);     ///< Name
         l_Data.WriteBit(false);                                             ///< Mobile
         l_Data.WriteBit(true);                                              ///< Logged On
