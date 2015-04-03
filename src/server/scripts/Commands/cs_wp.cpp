@@ -253,7 +253,7 @@ public:
 
         if (target->GetCreatureAddon())
         {
-            if (target->GetCreatureAddon()->path_id != 0)
+            if (target->GetCreatureAddon()->PathID != 0)
             {
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
 

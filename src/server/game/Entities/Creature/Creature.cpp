@@ -2339,74 +2339,76 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
-//creature_addon table
+/// creature_addon table
 bool Creature::LoadCreaturesAddon()
 {
-    CreatureAddon const* cainfo = GetCreatureAddon();
-    if (!cainfo)
+    CreatureAddon const* l_CreatureAddon = GetCreatureAddon();
+    if (!l_CreatureAddon)
         return false;
 
-    if (cainfo->mount != 0)
-        Mount(cainfo->mount);
+    if (l_CreatureAddon->Mount != 0)
+        Mount(l_CreatureAddon->Mount);
 
-    if (cainfo->bytes1 != 0)
+    if (l_CreatureAddon->Bytes1 != 0)
     {
-        // 0 StandState
-        // 1 FreeTalentPoints   Pet only, so always 0 for default creature
-        // 2 StandFlags
-        // 3 StandMiscFlags
+        /// 0 StandState
+        /// 1 FreeTalentPoints   Pet only, so always 0 for default creature
+        /// 2 StandFlags
+        /// 3 StandMiscFlags
 
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 0, uint8(cainfo->bytes1 & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 0, uint8(l_CreatureAddon->Bytes1 & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
         SetByteValue(UNIT_FIELD_ANIM_TIER, 1, 0);
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 2, uint8((cainfo->bytes1 >> 16) & 0xFF));
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 2, uint8((l_CreatureAddon->Bytes1 >> 16) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 3, uint8((l_CreatureAddon->Bytes1 >> 24) & 0xFF));
 
-        //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
-        //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
-        //! Set MovementFlag_Hover. Otherwise do nothing.
+        /// Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
+        /// If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
+        /// Set MovementFlag_Hover. Otherwise do nothing.
         if (GetByteValue(UNIT_FIELD_ANIM_TIER, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
-    if (cainfo->bytes2 != 0)
+    if (l_CreatureAddon->Bytes2 != 0)
     {
-        // 0 SheathState
-        // 1 Bytes2Flags
-        // 2 UnitRename         Pet only, so always 0 for default creature
-        // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
+        /// 0 SheathState
+        /// 1 Bytes2Flags
+        /// 2 UnitRename         Pet only, so always 0 for default creature
+        /// 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
-        SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 0, uint8(cainfo->bytes2 & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
+        SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 0, uint8(l_CreatureAddon->Bytes2 & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 2, 0);
-        //SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
         SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3, 0);
     }
 
-    if (cainfo->emote != 0)
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, cainfo->emote);
+    if (l_CreatureAddon->Emote != 0)
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, l_CreatureAddon->Emote);
 
-    //Load Path
-    if (cainfo->path_id != 0)
-        m_path_id = cainfo->path_id;
+    /// Load Path
+    if (l_CreatureAddon->PathID != 0)
+        m_path_id = l_CreatureAddon->PathID;
 
-    if (!cainfo->auras.empty())
+    if (!l_CreatureAddon->Auras.empty())
     {
-        for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
+        for (std::vector<uint32>::const_iterator l_Iter = l_CreatureAddon->Auras.begin(); l_Iter != l_CreatureAddon->Auras.end(); ++l_Iter)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(*l_Iter);
+            if (!l_SpellInfo)
                 continue;
 
-            // skip already applied aura
-            if (HasAura(*itr))
+            /// Skip already applied aura
+            if (HasAura(*l_Iter))
                 continue;
 
-            AddAura(*itr, this);
-            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
+            AddAura(*l_Iter, this);
         }
     }
+
+    if (l_CreatureAddon->AnimKit != 0)
+        SetAIAnimKit(l_CreatureAddon->AnimKit);
 
     return true;
 }

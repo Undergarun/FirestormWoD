@@ -126,7 +126,7 @@ class debug_commandscript: public CommandScript
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
-
+                { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -420,6 +420,31 @@ class debug_commandscript: public CommandScript
                 p_Handler->getSelectedUnit()->PlayOneShotAnimKit(l_ID);
             else
                 p_Handler->GetSession()->GetPlayer()->PlayOneShotAnimKit(l_ID);
+
+            return true;
+        }
+
+        static bool HandleDebugSetAIAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->SetAIAnimKit(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->SetAIAnimKit(l_ID);
 
             return true;
         }

@@ -18177,7 +18177,7 @@ void Unit::SetAIAnimKit(uint32 p_AnimKitID)
     WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(p_AnimKitID);
-    SendMessageToSet(&l_Data, true);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)

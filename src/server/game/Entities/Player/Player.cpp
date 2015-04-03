@@ -26061,45 +26061,54 @@ void Player::UpdateTriggerVisibility()
         GetSession()->SendPacket(&packet);
 }
 
-void Player::SendInitialVisiblePackets(Unit* target)
+void Player::SendInitialVisiblePackets(Unit* p_Target)
 {
-    SendAurasForTarget(target);
+    SendAurasForTarget(p_Target);
 
-    if (target->isAlive())
+    if (Creature* l_Creature = p_Target->ToCreature())
     {
-        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
-            target->SendMeleeAttackStart(target->getVictim());
+        if (CreatureAddon const* l_CreatureAddon = l_Creature->GetCreatureAddon())
+        {
+            if (l_CreatureAddon->AnimKit)
+                l_Creature->SetAIAnimKit(l_CreatureAddon->AnimKit);
+        }
+    }
+
+    if (p_Target->isAlive())
+    {
+        if (p_Target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && p_Target->getVictim())
+            p_Target->SendMeleeAttackStart(p_Target->getVictim());
     }
 }
 
 template<class T>
-void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow)
+void Player::UpdateVisibilityOf(T* p_Target, UpdateData& p_UpdData, std::set<Unit*>& p_VisibleNow)
 {
-    if (HaveAtClient(target))
+    if (HaveAtClient(p_Target))
     {
-        if (!canSeeOrDetect(target, false, true))
+        if (!canSeeOrDetect(p_Target, false, true))
         {
-            BeforeVisibilityDestroy<T>(target, this);
+            BeforeVisibilityDestroy<T>(p_Target, this);
 
-            target->BuildOutOfRangeUpdateBlock(&data);
-            m_clientGUIDs.erase(target->GetGUID());
-            m_VignetteMgr.OnWorldObjectDisappear(target);
+            p_Target->BuildOutOfRangeUpdateBlock(&p_UpdData);
+            m_clientGUIDs.erase(p_Target->GetGUID());
+            m_VignetteMgr.OnWorldObjectDisappear(p_Target);
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", p_Target->GetGUIDLow(), p_Target->GetTypeId(), p_Target->GetEntry(), GetGUIDLow(), GetDistance(p_Target));
             #endif
         }
     }
-    else //if (visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
+    else
     {
-        if (canSeeOrDetect(target, false, true))
+        if (canSeeOrDetect(p_Target, false, true))
         {
-            target->BuildCreateUpdateBlockForPlayer(&data, this);
-            UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
-            m_VignetteMgr.OnWorldObjectAppear(target);
+            p_Target->BuildCreateUpdateBlockForPlayer(&p_UpdData, this);
+            UpdateVisibilityOf_helper(m_clientGUIDs, p_Target, p_VisibleNow);
+            m_VignetteMgr.OnWorldObjectAppear(p_Target);
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", p_Target->GetGUIDLow(), p_Target->GetTypeId(), p_Target->GetEntry(), GetGUIDLow(), GetDistance(p_Target));
             #endif
         }
     }

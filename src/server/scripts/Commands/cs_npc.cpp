@@ -169,6 +169,7 @@ public:
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
+            { "animkit",        SEC_GAMEMASTER,     false, &HandleNpcSetAnimKitCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand npcCommandTable[] =
@@ -1636,6 +1637,59 @@ public:
 
         creature->SaveToDB();
         */
+        return true;
+    }
+
+    static bool HandleNpcSetAnimKitCommand(ChatHandler* p_Handler, char const* p_Args)
+    {
+        if (!*p_Args)
+            return false;
+
+        uint32 l_ID = atoi((char*)p_Args);
+        if (!l_ID)
+        {
+            p_Handler->SendSysMessage(LANG_BAD_VALUE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Creature* l_Target = p_Handler->getSelectedCreature();
+        if (!l_Target)
+        {
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (l_Target->GetEntry() == 1)
+        {
+            p_Handler->PSendSysMessage("%s%s|r", "|cffff33ff", "You want to load path to a waypoint? Aren't you?");
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 l_GuidLow = l_Target->GetDBTableGUIDLow();
+
+        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_SEL_CREATURE_ADDON_BY_GUID);
+        l_Statement->setUInt32(0, l_GuidLow);
+
+        PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
+        if (l_Result)
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_UPD_CREATURE_ADDON_ANIMKIT);
+            l_Statement->setUInt32(0, l_ID);
+            l_Statement->setUInt32(1, l_GuidLow);
+        }
+        else
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_INS_CREATURE_ADDON_BY_ANIMKIT);
+            l_Statement->setUInt32(0, l_GuidLow);
+            l_Statement->setUInt32(1, l_ID);
+        }
+
+        WorldDatabase.Execute(l_Statement);
+
+        l_Target->SetAIAnimKit(l_ID);
         return true;
     }
 
