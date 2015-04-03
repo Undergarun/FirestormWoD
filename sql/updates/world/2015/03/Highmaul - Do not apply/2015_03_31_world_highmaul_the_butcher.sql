@@ -116,3 +116,22 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     '¡Machaaaaque!',
     'Шмя-а-а-ак!'
 );
+
+DELETE FROM spell_script_names WHERE spell_id IN (151990, 152024);
+INSERT INTO spell_script_names VALUES
+(151990, 'spell_highmaul_chain_grip'),
+(152024, 'spell_highmaul_chain_grip_aura');
+
+UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_guardsman' WHERE entry = 81270;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_devout' WHERE entry = 82698;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_runemaster' WHERE entry = 81272;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_enforcer' WHERE entry = 82900;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_underbelly_vagrant' WHERE entry = 86290;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_sorcerer' WHERE entry = 85225;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_brute' WHERE entry = 85241;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_soothsayer' WHERE entry = 85240;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_void_aberration' WHERE entry = 85243;
+
+DELETE FROM areatrigger_template WHERE spell_id = 175648;
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
+(175648, 0, 3417, 1, 1, 16384, 'areatrigger_highmaul_rune_of_disintegration');

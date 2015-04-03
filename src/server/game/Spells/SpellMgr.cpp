@@ -3338,6 +3338,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].MiscValueB = 250;
                 break;
             case 160061:///< Chain Hurl (Kargath)
+            case 151991:///< Chain Grip (Gorian Guardsman)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
                 spellInfo->Effects[EFFECT_0].MiscValue = 250;
                 spellInfo->Effects[EFFECT_0].MiscValueB = 250;
@@ -3368,6 +3369,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 163408:///< Heckle (Kargath)
                 spellInfo->CasterAuraSpell = 0;
+                break;
+            case 175598:///< Devouring Leap (Night-Twisted Devout)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

@@ -441,7 +441,7 @@ INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, Condi
 (13, 1, 160904, 31, 0, 3, 0);
 
 DELETE FROM areatrigger_template WHERE spell_id IN (161634, 159202, 159412);
-INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUE
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, ScriptName) VALUES
 (161634, 1, 6867, 4, 4, 16384, 'areatrigger_highmaul_molten_bomb'),
 (159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
