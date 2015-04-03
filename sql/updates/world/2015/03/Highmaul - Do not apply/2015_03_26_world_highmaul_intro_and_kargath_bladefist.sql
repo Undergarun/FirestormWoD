@@ -460,23 +460,7 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_KARGATH, 113601, 0, 1, 1, 1, 1),
 (@REF_KARGATH, 113602, 0, 1, 1, 1, 1),
 (@REF_KARGATH, 113604, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113605, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 115280, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 115981, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116003, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116030, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116205, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116236, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116282, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116289, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116298, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 116360, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118344, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118345, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118346, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118630, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118631, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 118632, 0, 1, 1, 1, 1);
+(@REF_KARGATH, 113605, 0, 1, 1, 1, 1);
 
 -- Mode 10 Normal
 UPDATE `creature_template` SET `lootid`= @REF_KARGATH WHERE `entry`= @REF_KARGATH;
