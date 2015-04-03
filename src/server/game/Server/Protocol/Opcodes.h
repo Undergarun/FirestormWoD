@@ -66,7 +66,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x1736, ///< 6.1.2 19783
         SMSG_WORLD_SERVER_INFO                      = 0x0FB5, ///< 6.1.2 19783
         SMSG_INITIAL_SETUP                          = 0x0238, ///< 6.1.2 19783
-        SMSG_PONG                                   = 0x011D, ///< 6.1.2 19783
+        SMSG_PONG                                   = 0x005E, ///< 6.1.2 19783
         SMSG_UITIME                                 = 0x0DA1, ///< 6.1.2 19783
 
         /// Query
