@@ -79,6 +79,8 @@ uint32 const g_CrowdEmotes[8] =
     Emote::EMOTE_ONESHOT_CHICKEN,   Emote::EMOTE_ONESHOT_SHOUT,         Emote::EMOTE_ONESHOT_POINT, Emote::EMOTE_ONESHOT_SALUTE
 };
 
+Position const g_NewInstancePortalPos = { 3441.737f, 7547.819f, 55.30566f, 0.8291928f };
+
 float const g_InArenaZ = 60.0f;
 float const g_ArenaFloor = 55.30f;
 
@@ -390,6 +392,8 @@ class boss_kargath_bladefist : public CreatureScript
 
                     if (Creature* l_BladefistTarget = me->FindNearestCreature(eCreatures::BladefistTarget, 10.0f))
                         me->Kill(l_BladefistTarget);
+
+                    me->SummonGameObject(eHighmaulGameobjects::InstancePortal2, g_NewInstancePortalPos, 0.0f, 0.0f, 0.0f, 1.0f, -1);
                 }
             }
 
@@ -739,6 +743,14 @@ class boss_kargath_bladefist : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_SeatID, bool p_Apply) override
+            {
+                if (p_Apply || p_Passenger == nullptr || p_Passenger->GetEntry() != eCreatures::BladefistTarget)
+                    return;
+
+                me->Kill(p_Passenger);
             }
 
             void DeactivatePillars()

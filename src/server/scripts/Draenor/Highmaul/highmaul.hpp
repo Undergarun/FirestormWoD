@@ -74,6 +74,7 @@ enum eHighmaulGameobjects
 {
     ArenaElevator   = 233098,
     CollisionWall   = 234299,
+    InstancePortal2 = 231770,
     /// Kargath's Doors
     GateArenaExit   = 231781,
     GateArenaInner  = 231780,
