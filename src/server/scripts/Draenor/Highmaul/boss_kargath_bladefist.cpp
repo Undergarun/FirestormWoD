@@ -143,7 +143,9 @@ class boss_kargath_bladefist : public CreatureScript
             Berserk,
             FlamePillar,
             Slay,
-            Death
+            Death,
+
+            MargokNearDeath = 2
         };
 
         enum eActions
@@ -186,6 +188,7 @@ class boss_kargath_bladefist : public CreatureScript
             KargathDiesCrowdSound   = 166861,
             KargathChantingSound    = 168278,
             InThePit                = 161423,
+            KargathBonusLoot        = 177521,
 
             /// Fight
             /// Impale
@@ -240,7 +243,8 @@ class boss_kargath_bladefist : public CreatureScript
             KargathBladefist    = 78846,    ///< Used for Blade Dance
             ChainHurlVehicle    = 79134,
             FirePillar          = 78757,
-            RavenousBloodmaw    = 79296
+            RavenousBloodmaw    = 79296,
+            BladefistTarget     = 83738
         };
 
         struct boss_kargath_bladefistAI : public BossAI
@@ -259,6 +263,7 @@ class boss_kargath_bladefist : public CreatureScript
             uint64 m_BerserkerRushTarget;
 
             bool m_ChainHurl;
+            bool m_NearDeath;
 
             void Reset() override
             {
@@ -273,7 +278,8 @@ class boss_kargath_bladefist : public CreatureScript
                 me->SetDisplayId(eDatas::MorphWithWeapon);
 
                 m_BerserkerRushTarget = 0;
-                m_ChainHurl = 0;
+                m_ChainHurl = false;
+                m_NearDeath = false;
 
                 if (m_Instance)
                 {
@@ -325,6 +331,20 @@ class boss_kargath_bladefist : public CreatureScript
                 }
             }
 
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (m_NearDeath || m_Instance == nullptr)
+                    return;
+
+                if (me->HealthBelowPctDamaged(10, p_Damage))
+                {
+                    m_NearDeath = true;
+
+                    if (Creature* l_Margok = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::MargokCosmetic)))
+                        l_Margok->AI()->Talk(eTalks::MargokNearDeath);
+                }
+            }
+
             void JustDied(Unit* p_Killer) override
             {
                 _JustDied();
@@ -333,6 +353,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 me->CastSpell(me, eSpells::BladeFistAmputation, true);
                 me->CastSpell(me, eSpells::KargathDiesCrowdSound, true);
+                me->CastSpell(me, eSpells::PlayChogallScene, true);
 
                 me->SetDisplayId(eDatas::MorphAmputation);
 
@@ -350,7 +371,25 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
 
+                    CastSpellToPlayers(me, me, eSpells::KargathBonusLoot, true);
+
                     ResetAllPlayersFavor(me);
+                    ResetRavenousBloodmaws();
+
+                    std::list<Creature*> l_GorianList;
+                    me->GetCreatureListWithEntryInGrid(l_GorianList, eHighmaulCreatures::GorianEnforcer, 300.0f);
+
+                    for (Creature* l_Gorian : l_GorianList)
+                        l_Gorian->SendPlaySpellVisualKit(52881, 4, 3600000);
+
+                    for (uint8 l_I = eHighmaulDatas::RaidGrate001; l_I < eHighmaulDatas::MaxRaidGrates; ++l_I)
+                    {
+                        if (GameObject* l_RaidGrate = GameObject::GetGameObject(*me, m_Instance->GetData64(eHighmaulGameobjects::RaidGrate1 + l_I)))
+                            l_RaidGrate->SetGoState(GOState::GO_STATE_READY);
+                    }
+
+                    if (Creature* l_BladefistTarget = me->FindNearestCreature(eCreatures::BladefistTarget, 10.0f))
+                        me->Kill(l_BladefistTarget);
                 }
             }
 
@@ -2475,6 +2514,9 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
 
                                 if (Creature* l_MargokCosmetic = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::MargokCosmetic)))
                                     l_MargokCosmetic->AI()->DoAction(eActions::VulgorDied);
+
+                                if (Creature* l_Gharg = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::GhargArenaMaster)))
+                                    l_Gharg->AI()->DoAction(eActions::StartIntro);
                             }
                         }
                     }

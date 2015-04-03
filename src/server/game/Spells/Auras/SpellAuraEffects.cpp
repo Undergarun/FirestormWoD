@@ -525,7 +525,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
     &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
-    &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
+    &AuraEffect::HandleNoImmediateEffect,                         //469 SPELL_AURA_TRIGGER_BONUS_LOOT_2
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
     &AuraEffect::HandleAuraVersatility,                           //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472

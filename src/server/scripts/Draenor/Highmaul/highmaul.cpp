@@ -26,6 +26,11 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
             MoveSecondPos
         };
 
+        enum eAction
+        {
+            ActionMove
+        };
+
         struct npc_highmaul_gharg_arena_masterAI : public ScriptedAI
         {
             npc_highmaul_gharg_arena_masterAI(Creature* p_Creature) : ScriptedAI(p_Creature)
@@ -41,6 +46,18 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SummonGameObject(eHighmaulGameobjects::ArenaElevator, 3466.438f, 7577.974f, 14.94214f, 0.8901166f, 0.0f, 0.0f, 0.4305113f, 0.9025852f, 1000);
                 me->GetMotionMaster()->MovePoint(eMove::MoveFirstPos, g_GhargFirstPos);
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                if (p_Action == eAction::ActionMove)
+                {
+                    if (m_Instance == nullptr)
+                        return;
+
+                    me->GetMotionMaster()->MovePoint(eMove::MoveSecondPos, g_GhargSecondPos);
+                    m_Instance->SetData(eHighmaulDatas::ElevatorActivated, true);
+                }
             }
 
             void sGossipSelect(Player* p_Player, uint32 p_Sender, uint32 p_Action) override

@@ -20,6 +20,8 @@
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
 
+Position const g_PlayScenePos = { 3448.069f, 7573.542f, 55.30419f, 0.3921495f };
+
 enum eHighmaulDatas
 {
     /// Bosses
@@ -48,6 +50,8 @@ enum eHighmaulDatas
 enum eHighmaulCreatures
 {
     /// Walled City
+    GhargArenaMaster    = 84971,
+    GorianEnforcer      = 88724,
     /// The Coliseum
     KargathBladefist    = 78714,
     JhornTheMad         = 83377,
@@ -88,6 +92,9 @@ enum eHighmaulGameobjects
 
 enum eHighmaulWorldStates
 {
+    UnknownHighmaulWorldState   = 8902,
+    DisableCrowdSound           = 8903,
+    UnknownHighmaulWorldState2  = 9118,
     IronBomberEnable            = 9722,
     IronBomberRemaining         = 9723,
     DrunkenBileslingerEnable    = 9724,

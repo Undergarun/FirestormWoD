@@ -7614,14 +7614,27 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     if (!l_Player)
         return;
 
-    Unit* l_Caster = NULL;
-    Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    Unit* l_Caster = nullptr;
+    Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);
     if (!l_AuraList.empty())
     {
         for (Unit::AuraEffectList::const_iterator l_Itr = l_AuraList.begin(); l_Itr != l_AuraList.end(); ++l_Itr)
         {
             if (AuraPtr l_Aura = (*l_Itr)->GetBase())
                 l_Caster = l_Aura->GetCaster();
+        }
+    }
+
+    if (l_Caster == nullptr)
+    {
+        Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT_2);
+        if (!l_AuraList.empty())
+        {
+            for (Unit::AuraEffectList::const_iterator l_Iter = l_AuraList.begin(); l_Iter != l_AuraList.end(); ++l_Iter)
+            {
+                if (AuraPtr l_Aura = (*l_Iter)->GetBase())
+                    l_Caster = l_Aura->GetCaster();
+            }
         }
     }
 
@@ -7671,7 +7684,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         }
     }
 
-    l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);
+    l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT_2);
     
     if (l_Items.empty() && !l_IsBGReward)
     {

@@ -27,6 +27,8 @@ class instance_highmaul : public InstanceMapScript
         {
             instance_highmaul_InstanceMapScript(Map* p_Map) : InstanceScript(p_Map)
             {
+                m_ArenaMasterGuid           = 0;
+
                 m_KargathBladefistGuid      = 0;
                 m_JhornTheMadGuid           = 0;
                 m_ThoktarIronskullGuid      = 0;
@@ -45,8 +47,11 @@ class instance_highmaul : public InstanceMapScript
                 m_DrunkenBileslingerCount   = 0;
 
                 m_TheButcherGuid            = 0;
+
                 m_BrackensporeGuid          = 0;
             }
+
+            uint64 m_ArenaMasterGuid;
 
             /// The Coliseum
             uint64 m_KargathBladefistGuid;
@@ -81,6 +86,9 @@ class instance_highmaul : public InstanceMapScript
             {
                 switch (p_Creature->GetEntry())
                 {
+                    case eHighmaulCreatures::GhargArenaMaster:
+                        m_ArenaMasterGuid = p_Creature->GetGUID();
+                        break;
                     case eHighmaulCreatures::KargathBladefist:
                         m_KargathBladefistGuid = p_Creature->GetGUID();
                         break;
@@ -210,6 +218,22 @@ class instance_highmaul : public InstanceMapScript
                 if (!InstanceScript::SetBossState(p_BossID, p_State))
                     return false;
 
+                switch (p_BossID)
+                {
+                    case eHighmaulDatas::BossKargathBladefist:
+                    {
+                        if (p_State != EncounterState::DONE)
+                            break;
+                        SendUpdateWorldState(eHighmaulWorldStates::DisableCrowdSound, 1);
+                        SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
+                        SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
+                        PlaySceneForPlayers(g_PlayScenePos, 1338);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
                 return true;
             }
 
@@ -240,6 +264,8 @@ class instance_highmaul : public InstanceMapScript
             {
                 switch (p_Type)
                 {
+                    case eHighmaulCreatures::GhargArenaMaster:
+                        return m_ArenaMasterGuid;
                     case eHighmaulCreatures::KargathBladefist:
                         return m_KargathBladefistGuid;
                     case eHighmaulCreatures::JhornTheMad:
@@ -299,6 +325,14 @@ class instance_highmaul : public InstanceMapScript
                 p_Buffer << uint32(eHighmaulWorldStates::DrunkenBileslingerRemaining) << uint32(0);
             }
 
+            void OnPlayerEnter(Player* p_Player) override
+            {
+                if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
+                    p_Player->SetPhaseMask(2, true);
+                else
+                    p_Player->SetPhaseMask(1, true);
+            }
+
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
             {
                 Map::PlayerList const& l_Players = instance->GetPlayers();
@@ -306,6 +340,19 @@ class instance_highmaul : public InstanceMapScript
                 {
                     if (Player* l_Player = l_Iter->getSource())
                         l_Player->SendUpdateWorldState(p_Field, p_Value);
+                }
+            }
+
+            void PlaySceneForPlayers(Position const p_Pos, uint32 p_ScenePackageID)
+            {
+                Map::PlayerList const& l_Players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+                {
+                    if (Player* l_Player = l_Iter->getSource())
+                    {
+                        l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
+                        l_Player->SetPhaseMask(2, true);
+                    }
                 }
             }
         };

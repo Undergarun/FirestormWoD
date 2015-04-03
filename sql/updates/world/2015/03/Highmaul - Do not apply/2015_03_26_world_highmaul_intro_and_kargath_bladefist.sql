@@ -100,6 +100,7 @@ INSERT INTO creature_text VALUES
 
 (83268, 0, 0, 'You honor us, Kargath. I will enjoy watching you fight in the arena again, even with your... handicap.', 14, 0, 100, 0, 0, 44756, 'SorckingEvent12'),
 (83268, 1, 0, 'Gladiators! Seize this opportunity to die gloriously, for your names will be carved into history. Let the battle begin!', 14, 0, 100, 0, 0, 44757, 'SorckingEvent13'),
+(83268, 2, 0, 'Finish him.', 14, 0, 100, 0, 0, 44758, 'SorckingEvent14'),
 
 (78714, 0, 0, 'Enough! I will show these weaklings what a true champion is capable of.', 14, 0, 100, 0, 0, 44521, 'KargathIntro1'),
 (78714, 1, 0, 'The pleasure is mine. The crowd deserves a superior gladiator, seeing as the last one fell so easily.', 14, 0, 100, 0, 0, 44522, 'KargathIntro2'),
@@ -270,6 +271,13 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Гладиаторы! Я дарую вам шанс заслужить славную смерть и навеки вписать свое имя в историю! Да начнется битва!'
 ),
 (
+    83268, 2, 0,
+    'Achevez-le.',
+    'Macht ihn fertig.',
+    'Acaba con él.',
+    'Прикончите его.'
+),
+(
     78714, 0, 0,
     'Assez ! Je vais montrer à cette vermine ce dont est capable un vrai champion.',
     'Genug! Ich zeige diesen Schwächlingen, wozu ein wahrer Champion in der Lage ist!',
@@ -384,27 +392,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 
 UPDATE gameobject_template SET faction = 1735, flags = 40, ScriptName = 'go_highmaul_arena_elevator' WHERE entry = 233098;
 UPDATE creature_template SET InhabitType = 4, ScriptName = 'npc_highmaul_fire_pillar' WHERE entry = 78757;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_ravenous_bloodmaw' WHERE entry = 79296;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_ravenous_bloodmaw' WHERE entry = 79296;
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry IN (83029, 78846, 63420, 79712, 68553, 79134);
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_highmaul_areatrigger_for_crowd' WHERE entry = 79260; -- Area Trigger for Crowd
 UPDATE creature_template SET ScriptName = 'npc_highmaul_jhorn_the_mad' WHERE entry = 83377;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_thoktar_ironskull' WHERE entry = 83378;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_vulgor', mechanic_immune_mask = 617299839 WHERE entry = 80048;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_bladespire_sorcerer' WHERE entry = 80071;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_vulgor', mechanic_immune_mask = 617299839 WHERE entry = 80048;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_bladespire_sorcerer' WHERE entry = 80071;
 UPDATE creature_template SET InhabitType = 4 WHERE entry = 82734;
-UPDATE creature_template SET unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry = 78714;
+UPDATE creature_template SET dmg_multiplier = 20, unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry = 78714;
 UPDATE creature SET unit_flags = 320 WHERE id = 78714;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_somldering_stoneguard' WHERE entry = 80051;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_somldering_stoneguard' WHERE entry = 80051;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_imperator_margok' WHERE entry = 83268;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_kargath_bladefist_trigger' WHERE entry = 78846;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_drunken_bileslinger' WHERE entry = 78954;
-UPDATE creature_template SET VehicleId = 3536, ScriptName = 'npc_highmaul_iron_bomber' WHERE entry = 78926;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_grunt' WHERE entry = 84946;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_grunt_second' WHERE entry = 79068;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_ogre_grunt' WHERE entry = 84958;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_ogre_grunt_second' WHERE entry = 84948;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_drunken_bileslinger' WHERE entry = 78954;
+UPDATE creature_template SET dmg_multiplier = 5, VehicleId = 3536, ScriptName = 'npc_highmaul_iron_bomber' WHERE entry = 78926;
+UPDATE creature_template SET dmg_multiplier = 2, ScriptName = 'npc_highmaul_iron_grunt' WHERE entry = 84946;
+UPDATE creature_template SET dmg_multiplier = 2, ScriptName = 'npc_highmaul_iron_grunt_second' WHERE entry = 79068;
+UPDATE creature_template SET dmg_multiplier = 2, ScriptName = 'npc_highmaul_ogre_grunt' WHERE entry = 84958;
+UPDATE creature_template SET dmg_multiplier = 2, ScriptName = 'npc_highmaul_ogre_grunt_second' WHERE entry = 84948;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_highmaul_sweeper' WHERE entry = 88874;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_chain_hurl_vehicle' WHERE entry = 79134;
+UPDATE creature_template SET unit_flags = 33555264 WHERE entry = 84823;
 
 DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131, 163392, 163302, 163130, 163408, 159001);
 INSERT INTO spell_script_names VALUES
@@ -436,3 +445,41 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (161634, 1, 6867, 4, 4, 16384, 'areatrigger_highmaul_molten_bomb'),
 (159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
+
+SET @REF_KARGATH = 78714;
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KARGATH;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KARGATH, 113591, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113592, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113593, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113595, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113596, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113598, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113599, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113600, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113601, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113602, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113604, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 113605, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 115280, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 115981, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116003, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116030, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116205, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116236, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116282, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116289, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116298, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 116360, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118344, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118345, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118346, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118630, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118631, 0, 1, 1, 1, 1),
+(@REF_KARGATH, 118632, 0, 1, 1, 1, 1);
+
+-- Mode 10 Normal
+UPDATE `creature_template` SET `lootid`= @REF_KARGATH WHERE `entry`= @REF_KARGATH;
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KARGATH;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KARGATH, 1, 100, 1, 0, -@REF_KARGATH, 6);

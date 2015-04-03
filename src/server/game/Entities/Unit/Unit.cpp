@@ -19323,14 +19323,13 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType)
+void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration)
 {
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
-    l_Data << uint32(0);
-
+    l_Data << uint32(p_Duration);
     SendMessageToSet(&l_Data, false);
 }
 

@@ -527,7 +527,7 @@ enum AuraType
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // 6.0.X
     SPELL_AURA_467                                          = 467,  // 6.0.X
     SPELL_AURA_MOD_VERSATILITY                              = 468,  // 6.0.X SPELL_AURA_MOD_VERSATILITY
-    SPELL_AURA_469                                          = 469,  // 6.0.X
+    SPELL_AURA_TRIGGER_BONUS_LOOT_2                         = 469,  // 6.0.X SPELL_AURA_TRIGGER_BONUS_LOOT_2
     SPELL_AURA_470                                          = 470,  // 6.0.X
     SPELL_AURA_MOD_VERSATILITY_PCT                          = 471,  // 6.0.X SPELL_AURA_MOD_VERSATILITY_PCT
     SPELL_AURA_472                                          = 472,  // 6.0.X
