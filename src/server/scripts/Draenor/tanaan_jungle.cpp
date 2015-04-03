@@ -1321,6 +1321,10 @@ class npc_archmage_khadgar : public CreatureScript
                         if (!l_Itr->second)
                         {
                             l_Itr = m_PlayerTimers.erase(l_Itr);
+
+                            if (l_Itr == m_PlayerTimers.end())
+                                break;
+
                             continue;
                         }
                         else
@@ -3496,6 +3500,10 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                                 {
                                     m_GuidList.push_back(l_Itr->first);
                                     l_Itr = m_SceneMap.erase(l_Itr);
+
+                                    if (l_Itr == m_SceneMap.end())
+                                        break;
+
                                     continue;
                                 }
 
@@ -3566,6 +3574,10 @@ class npc_black_rock_trigger : public CreatureScript
                         if (!l_Itr->second)
                         {
                             l_Itr = m_PlayerTimers.erase(l_Itr);
+
+                            if (l_Itr == m_PlayerTimers.end())
+                                break;
+
                             continue;
                         }
                         else
