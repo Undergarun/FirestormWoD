@@ -2096,7 +2096,6 @@ enum SpellDmgClass
 
 enum SpellPreventionMask
 {
-    None             = 0x00,
     Silence          = 0x01,
     Pacify           = 0x02,
     PacifyOrSilence  = 0x04     ///< Wtf blizz ?
