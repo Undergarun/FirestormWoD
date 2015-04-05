@@ -961,27 +961,36 @@ class spell_sha_spirit_link: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    // Check against totem caster - WTF ?
-                    if (caster->GetEntry() == 53006)
+                    if (l_Caster->GetEntry() == 53006)
                     {
-                        if (caster->GetOwner())
+                        if (l_Caster->GetOwner())
                         {
-                            if (Player* _player = caster->GetOwner()->ToPlayer())
+                            if (Player* _player = l_Caster->GetOwner()->ToPlayer())
                             {
-                                std::list<Unit*> memberList;
-                                _player->GetRaidMembers(memberList);
+                                std::list<Unit*> l_MemberList;
+                                _player->GetRaidMembers(l_MemberList);
 
-                                float totalRaidHealthPct = 0;
+                                float l_Radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(l_Caster, GetSpell());
 
-                                for (auto itr : memberList)
-                                    totalRaidHealthPct += itr->GetHealthPct();
+                                l_MemberList.remove_if([l_Caster, l_Radius](Unit const* p_Unit) -> bool
+                                {
+                                    if (p_Unit->GetDistance(*l_Caster) > l_Radius)
+                                        return true;
 
-                                totalRaidHealthPct /= memberList.size() * 100.0f;
+                                    return false;
+                                });
 
-                                for (auto itr : memberList)
-                                    itr->SetHealth(uint32(totalRaidHealthPct * itr->GetMaxHealth()));
+                                float l_TotalRaidHealthPct = 0;
+
+                                for (auto l_Itr : l_MemberList)
+                                    l_TotalRaidHealthPct += l_Itr->GetHealthPct();
+
+                                l_TotalRaidHealthPct /= l_MemberList.size() * 100.0f;
+
+                                for (auto l_Itr : l_MemberList)
+                                    l_Itr->SetHealth(uint32(l_TotalRaidHealthPct * l_Itr->GetMaxHealth()));
                             }
                         }
                     }
