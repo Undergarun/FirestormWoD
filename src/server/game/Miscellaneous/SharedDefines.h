@@ -2094,14 +2094,12 @@ enum SpellDmgClass
     SPELL_DAMAGE_CLASS_RANGED   = 3
 };
 
-enum SpellPreventionType
+enum SpellPreventionMask
 {
-    SPELL_PREVENTION_TYPE_NONE      = 0,
-    SPELL_PREVENTION_TYPE_SILENCE   = 1,
-    SPELL_PREVENTION_TYPE_PACIFY    = 2,
-    SPELL_PREVENTION_TYPE_UNK1      = 3, // Only a few spells have this, but most of the should be interruptable.
-    SPELL_PREVENTION_TYPE_UNK2      = 4,
-    SPELL_PREVENTION_TYPE_UNK3      = 5
+    None             = 0x00,
+    Silence          = 0x01,
+    Pacify           = 0x02,
+    PacifyOrSilence  = 0x04     ///< Wtf blizz ?
 };
 
 enum GameobjectTypes

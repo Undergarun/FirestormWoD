@@ -4822,11 +4822,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Mechanic = 0;
                 break;
-            case 116694: ///< Surging Mists
-            case 20066:  ///< Repentence
-            case 115175: ///< Soothing Mists
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                break;
             case 146950: ///< Glyph of Targeted Expulsion
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
@@ -4835,12 +4830,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                 break;
             case 117952: ///< Crackling Jade Lightning
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_HASTE_AFFECT_DURATION;
                 break;
             case 117833: ///< Crazy Thought
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 break;
             case 102793: ///< Ursol's Vortex
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -4984,9 +4977,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 10326: ///< Turn Evil
                 spellInfo->Mechanic = MECHANIC_TURN;
                 spellInfo->OverrideSpellList.push_back(145067); ///< Evil is a point of view
-                break;
-            case 113656: ///< Fists of Fury
-                spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
                 break;
             case 115315: ///< Summon Black Ox Statue
                 spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
