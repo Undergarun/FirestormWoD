@@ -5546,7 +5546,7 @@ void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
     l_Data << int32(-p_ModifyTime);
-    l_Data.WriteBit(false);             ///< Unk 6.1
+    l_Data.WriteBit(false);             ///< IsPetCooldown
 
     SendDirectMessage(&l_Data);
 }
@@ -29424,13 +29424,13 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
-void Player::SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold)
+void Player::SendClearCooldown(uint32 p_SpellID, Unit* p_Target, bool p_ClearOnHold)
 {
     WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
 
     l_Data << uint32(p_SpellID);
     l_Data.WriteBit(p_ClearOnHold);
-    l_Data.WriteBit(false);             ///< 6.1.x unk
+    l_Data.WriteBit(p_Target == GetPet());             ///< IsPetCooldown
     l_Data.FlushBits();
 
     SendDirectMessage(&l_Data);
