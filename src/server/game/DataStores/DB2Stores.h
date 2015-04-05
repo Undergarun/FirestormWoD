@@ -25,6 +25,7 @@
 
 #include <list>
 
+extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
 extern DB2Storage <GroupFinderActivityEntry>        sGroupFinderActivityStore;
 extern DB2Storage <GroupFinderCategoryEntry>        sGroupFinderCategoryStore;

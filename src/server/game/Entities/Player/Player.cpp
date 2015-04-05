@@ -9045,13 +9045,12 @@ void Player::SendCurrencies()
         if (!l_CurrencyEntry) // should never happen
             continue;
 
-        uint32 l_Precision      = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-        uint32 l_WeekCount      = l_It->second.weekCount / l_Precision;
-        uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-        uint32 l_SeasonTotal    = l_It->second.seasonTotal / l_Precision;
+        uint32 l_WeekCount      = l_It->second.weekCount;
+        uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID);
+        uint32 l_SeasonTotal    = l_It->second.seasonTotal;
 
         l_Data << uint32(l_CurrencyEntry->ID);
-        l_Data << uint32(l_It->second.totalCount / l_Precision);
+        l_Data << uint32(l_It->second.totalCount);
 
         l_Data.WriteBit(l_WeekCount);
         l_Data.WriteBit(l_WeekCap);
@@ -9074,20 +9073,20 @@ void Player::SendPvpRewards()
 {
     WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);                         ///< Count of gived all conquest points in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);                        ///< Max Conquest points cap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, false);                         ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, false);                        ///< Max Conquest points cap
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                  ///< Count of gived all conquest points in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                 ///< Max Conquest points cap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false);                  ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false);                 ///< Max Conquest points cap
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                    ///< Ashran currency week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                   ///< Ashran currency weekcap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                    ///< Ashran currency week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                   ///< Ashran currency weekcap
 
     l_Packet << (uint32)0;                                                                              ///< Count of gived all conquest rewarded in battlegrounds, deprecated
     l_Packet << (uint32)0;                                                                              ///< battleground currency weekcap, deprecated
 
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100;   ///< Conquest points from Rated BG win
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100;       ///< Conquest points from Arena win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD);          ///< Conquest points from Rated BG win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);             ///< Conquest points from Arena win
 
     GetSession()->SendPacket(&l_Packet);
 }
@@ -9269,19 +9268,19 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             WorldPacket packet(SMSG_UPDATE_CURRENCY);
 
             packet << uint32(id);
-            packet << uint32(newTotalCount / precision);
+            packet << uint32(newTotalCount);
             packet << uint32(0);                        // Flags
 
             packet.WriteBit(weekCap != 0);
-            packet.WriteBit(itr->second.seasonTotal / precision);
+            packet.WriteBit(itr->second.seasonTotal);
             packet.WriteBit(0);                         // SuppressChatLog
             packet.FlushBits();
 
             if (weekCap)
-                packet << uint32(newWeekCount / precision);
+                packet << uint32(newWeekCount);
 
             if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal / precision);
+                packet << uint32(itr->second.seasonTotal);
 
             GetSession()->SendPacket(&packet);
         }

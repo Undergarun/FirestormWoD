@@ -39,6 +39,7 @@ char const LocationEntryfmt[] =
     FT_END
 };
 
+const char CurrencyTypesfmt[] = "nixxxxxiiixx";
 char const CurvePointEntryfmt[] = "niiff";
 const char GroupFinderActivityfmt[] = "nixxxxxxxxxxxss";
 const char GroupFinderCategoryfmt[] = "nsxx";
