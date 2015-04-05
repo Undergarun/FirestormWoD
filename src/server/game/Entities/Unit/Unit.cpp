@@ -8625,9 +8625,22 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     }
 
                     if (firstSpirit && (firstSpirit->getVictim() || getVictim()))
-                        firstSpirit->CastSpell(firstSpirit->getVictim() ? firstSpirit->getVictim() : getVictim(), procSpell->Id, true);
+                    {
+                        if (firstSpirit->getVictim() != victim && !firstSpirit->ToCreature()->HasSpellCooldown(procSpell->Id))
+                        {
+                            firstSpirit->CastSpell(firstSpirit->getVictim() ? firstSpirit->getVictim() : getVictim(), procSpell->Id, true);
+                            firstSpirit->ToCreature()->_AddCreatureSpellCooldown(procSpell->Id, time(nullptr) + 1);
+                        }
+                    }
+
                     if (secondSpirit && (secondSpirit->getVictim() || getVictim()))
-                        secondSpirit->CastSpell(secondSpirit->getVictim() ? secondSpirit->getVictim() : getVictim(), procSpell->Id, true);
+                    {
+                        if (secondSpirit->getVictim() != victim && !secondSpirit->ToCreature()->HasSpellCooldown(procSpell->Id))
+                        {
+                            secondSpirit->CastSpell(secondSpirit->getVictim() ? secondSpirit->getVictim() : getVictim(), procSpell->Id, true);
+                            secondSpirit->ToCreature()->_AddCreatureSpellCooldown(procSpell->Id, time(nullptr) + 1);
+                        }
+                    }
 
                     return true;
                 }
