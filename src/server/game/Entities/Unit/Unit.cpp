@@ -624,12 +624,13 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint
     return false;
 }
 
-bool Unit::HasCrowdControlAuraType(AuraType type, uint32 excludeAura) const
+bool Unit::HasCrowdControlAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
 {
-    AuraEffectList const& auras = GetAuraEffectsByType(type);
-    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE)))
+    AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
+    for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
+    {
+        if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
+            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
             return true;
     return false;
 }
@@ -649,12 +650,13 @@ bool Unit::HasCrowdControlAura(Unit* excludeCasterChannel) const
             || HasCrowdControlAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
-bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
+bool Unit::HasBreakableByDamageAuraType(AuraType p_Type, uint32 p_ExcludeAura) const
 {
-    AuraEffectList const& auras = GetAuraEffectsByType(type);
-    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE)))
+    AuraEffectList const& l_Auras = GetAuraEffectsByType(p_Type);
+    for (AuraEffectList::const_iterator l_Iter = l_Auras.begin(); l_Iter != l_Auras.end(); ++l_Iter)
+    {
+        if ((!p_ExcludeAura || p_ExcludeAura != (*l_Iter)->GetSpellInfo()->Id) && ///< Avoid self interrupt of channeled Crowd Control spells like Seduction
+            ((*l_Iter)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*l_Iter)->GetSpellInfo()->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
             return true;
     return false;
 }
@@ -870,11 +872,11 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 if (cleanDamage && cleanDamage->mitigated_damage)
                     victim->RemoveAurasDueToSpell(20066);
 
-                victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE, spellProto->Id);
+                victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto->Id);
             }
         }
         else
-            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE, 0);
+            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, 0);
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -16946,6 +16948,59 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     continue;
                 }
 
+                bool l_IsCrowControlAura = false;
+
+                switch (triggeredByAura->GetAuraType())
+                {
+                    /// crowd control auras
+                    case SPELL_AURA_MOD_FEAR:
+                    case SPELL_AURA_MOD_STUN:
+                    case SPELL_AURA_MOD_ROOT:
+                    case SPELL_AURA_TRANSFORM:
+                    case SPELL_AURA_MOD_FEAR_2:
+                        l_IsCrowControlAura = true;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (triggeredByAura->GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
+                    l_IsCrowControlAura = true;
+
+                if (l_IsCrowControlAura)
+                {
+                    // CC Auras which use their amount amount to drop
+                    // Are there any more auras which need this?
+                    if (IsNoBreakingCC(isVictim, target, procFlag, procExtra, attType, procSpell, damage, absorb, procAura, spellInfo))
+                        continue;
+
+                    damage += absorb;
+
+                    // chargeable mods are breaking on hit
+                    // Spell own direct damage at apply wont break the CC
+                    if (procSpell && (procSpell->Id == triggeredByAura->GetId()))
+                    {
+                        AuraPtr aura = triggeredByAura->GetBase();
+                        // called from spellcast, should not have ticked yet
+                        if (aura->GetDuration() == aura->GetMaxDuration())
+                            continue;
+                    }
+
+                    // chargeable mods are breaking on hit
+                    if (useCharges)
+                        takeCharges = true;
+                    else if (isVictim && damage && (!procSpell || GetSpellMaxRangeForTarget(this, procSpell) < 100.0f))
+                    {
+                        int32 damageLeft = triggeredByAura->GetAmount();
+                        // No damage left
+                        if (damageLeft < int32(damage) && triggeredByAura->GetId() != 114052)
+                            i->aura->Remove();
+                        else if (triggeredByAura->GetId() != 114052)
+                            triggeredByAura->SetAmount(damageLeft - damage);
+                    }
+                    continue;
+                }
+
                 switch (triggeredByAura->GetAuraType())
                 {
                     case SPELL_AURA_PROC_TRIGGER_SPELL:
@@ -17074,45 +17129,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         if (procSpell && HandleSpellCritChanceAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         break;
-                    // CC Auras which use their amount amount to drop
-                    // Are there any more auras which need this?
-                    case SPELL_AURA_MOD_CONFUSE:
-                    case SPELL_AURA_MOD_FEAR:
-                    case SPELL_AURA_MOD_FEAR_2:
-                    case SPELL_AURA_MOD_STUN:
-                    case SPELL_AURA_MOD_ROOT:
-                    case SPELL_AURA_MOD_ROOT_2:
-                    case SPELL_AURA_TRANSFORM:
-                    {
-                        if (IsNoBreakingCC(isVictim, target, procFlag, procExtra, attType, procSpell, damage, absorb, procAura, spellInfo))
-                            break;
-
-                        damage += absorb;
-
-                        // chargeable mods are breaking on hit
-                        // Spell own direct damage at apply wont break the CC
-                        if (procSpell && (procSpell->Id == triggeredByAura->GetId()))
-                        {
-                            AuraPtr aura = triggeredByAura->GetBase();
-                            // called from spellcast, should not have ticked yet
-                            if (aura->GetDuration() == aura->GetMaxDuration())
-                                break;
-                        }
-
-                        // chargeable mods are breaking on hit
-                        if (useCharges)
-                            takeCharges = true;
-                        else if (isVictim && damage && (!procSpell || GetSpellMaxRangeForTarget(this, procSpell) < 100.0f))
-                        {
-                            int32 damageLeft = triggeredByAura->GetAmount();
-                            // No damage left
-                            if (damageLeft < int32(damage) && triggeredByAura->GetId() != 114052)
-                                i->aura->Remove();
-                            else if (triggeredByAura->GetId() != 114052)
-                                triggeredByAura->SetAmount(damageLeft - damage);
-                        }
-                        break;
-                    }
                     /*case SPELL_AURA_ADD_FLAT_MODIFIER:
                     case SPELL_AURA_ADD_PCT_MODIFIER:
                         HandleModifierAuraProc(target, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown);

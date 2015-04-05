@@ -675,7 +675,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     float DoneActualBenefit = 0.0f;
 
-    // custom amount calculations go here
+    bool l_IsCrowControlAura = false;
+
     switch (GetAuraType())
     {
         case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
@@ -692,35 +693,49 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         }
-        // crowd control auras
+
+        /// crowd control auras
         case SPELL_AURA_MOD_FEAR:
         case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
         case SPELL_AURA_MOD_ROOT_2:
         case SPELL_AURA_TRANSFORM:
         case SPELL_AURA_MOD_FEAR_2:
+            l_IsCrowControlAura = true;
+            break;
+        default:
+            break;
+    }
+
+    if (GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
+        l_IsCrowControlAura = true;
+
+    if (l_IsCrowControlAura)
+    {
+        m_canBeRecalculated = false;
+        bool l_CustomAmount = false;
+
+        // Custom entries
+        switch (GetSpellInfo()->Id)
         {
-            m_canBeRecalculated = false;
-            bool customAmount = false;
-
-            // Custom entries
-            switch (GetSpellInfo()->Id)
+            case 3355:  // Freezing Trap
             {
-                case 3355:  // Freezing Trap
-                {
-                    amount = 1;
-                    customAmount = true;
-                    break;
-                }
-                default:
-                    break;
+                amount = 1;
+                l_CustomAmount = true;
+                break;
             }
-
-            if (customAmount)
+            case 128405:// Narrow Escape
+            {
+                amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+                l_CustomAmount = true;
                 break;
-            if (!m_spellInfo->ProcFlags)
+            }
+            default:
                 break;
+        }
 
+        if (!l_CustomAmount && m_spellInfo->ProcFlags)
+        {
             amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
             if (caster)
             {
@@ -738,6 +753,20 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // custom amount calculations go here
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_RATING:
+        {
+            // Heart's Judgment, Heart of Ignacious trinket (Heroic)
+            if (m_spellInfo->Id == 92328)
+            {
+                if (AuraPtr pAura = caster->GetAura(92325))
+                    amount *= pAura->GetStackAmount();
             }
             break;
         }
