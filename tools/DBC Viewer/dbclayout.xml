@@ -4340,4 +4340,16 @@
     <field type="int" name="field2" />
     <field type="int" name="field3" />
   </QuestPOIBlob>
+  <ModifierTree build="0">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Type" />
+    <field type="int" name="Asset" />
+    <field type="int" name="SecondaryAsset" />
+    <field type="int" name="Operator" />
+    <field type="int" name="Amount" />
+    <field type="int" name="Parent" />
+  </ModifierTree>
 </DBFilesClient>

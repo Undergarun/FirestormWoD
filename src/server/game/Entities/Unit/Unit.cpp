@@ -13698,7 +13698,16 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
         return;
 
     if (PvP)
+    {
+        if (Player* player = ToPlayer())
+        {
+            player->SetPvPTimer(15000); // 5 + 10 secs
+            if (!player->IsInPvPCombat())
+                player->SetInPvPCombat(true);
+        }
+
         m_CombatTimer = 5000;
+    }
 
     if (isInCombat() || HasUnitState(UNIT_STATE_EVADE))
         return;
@@ -13749,13 +13758,6 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
     }
     else if (Player* player = ToPlayer())
     {
-        if (PvP)
-        {
-           player->SetPvPTimer(15000); // 5 + 10 secs
-            if (!player->IsInPvPCombat() && PvP)
-                player->SetInPvPCombat(true);
-        }
-
         sScriptMgr->OnPlayerEnterInCombat(player);
     }
 
