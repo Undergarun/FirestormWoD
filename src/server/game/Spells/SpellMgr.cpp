@@ -4888,7 +4888,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
-                spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT;
+                spellInfo->AuraInterruptFlags &= ~AURA_IN;
                 break;
             case 115192: ///< Subterfuge
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
@@ -5844,6 +5844,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 145153:///< Dream of Cenarius (Heal from Wrath)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
+                break;
+            case 30884:    ///< Nature's Guardian
+                spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
                 break;
             default:
                 break;
