@@ -148,7 +148,7 @@ class TaxiNode
     public:
         TaxiNode() { }
         TaxiNode(uint32 ID, uint32 map, Position& pos, std::string& name, uint32 cost) :
-            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost), m_host(0)
+            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost)
         {
         }
 
@@ -168,8 +168,6 @@ class TaxiNode
         std::string m_name;
         uint32 m_cost;
         std::set<uint32> m_connectedNodes;
-
-        uint32 m_host;
 };
 typedef std::unordered_map<uint32, TaxiNode*> TaxiNodes;
 

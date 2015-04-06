@@ -10340,7 +10340,8 @@ void ObjectMgr::LoadTaxiData()
             nodePos.m_positionZ = nodeEntry->z;
             nodePos.m_orientation = 0.f;
 
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
+            std::string l_Name = nodeEntry->name;
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, l_Name, entry->price);
             node->AddConnectedNode(entry->to);
 
             _taxiNodes[entry->from] = node;
@@ -10371,7 +10372,8 @@ void ObjectMgr::LoadTaxiData()
         nodePos.m_positionZ = nodeEntry->z;
         nodePos.m_orientation = 0.f;
 
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
+        std::string l_Name = nodeEntry->name;
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, l_Name, entry->price);
 
         _taxiNodes[entry->to] = node;
     }
