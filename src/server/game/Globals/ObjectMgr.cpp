@@ -2986,7 +2986,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
-        } 
+        }
     }
 }
 
@@ -5797,7 +5797,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
     {
         const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
-        
+
         if (l_Entry)
         {
             l_MapOverrides[l_Entry->MapID] = MS::Garrison::Globals::BaseMap;
@@ -6916,7 +6916,7 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
     WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
         "(%d, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f", 
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f",
                                                 p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X - 0.5f, p_Data.X + 0.5f, p_Data.Y - 0.5f, p_Data.Y + 0.5f, p_Data.Z - 0.5f, p_Data.Z + 0.5f);
 
     if (!l_Result)
@@ -10324,7 +10324,7 @@ void ObjectMgr::LoadTaxiData()
 
         if (!entry->from || !entry->to)
             continue;
- 
+
         TaxiNode* node = GetTaxiNodeByID(entry->from);
         if (node)
             node->AddConnectedNode(entry->to);
@@ -10333,20 +10333,20 @@ void ObjectMgr::LoadTaxiData()
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->from);
             if (!nodeEntry)
                 continue;
- 
+
             Position nodePos;
             nodePos.m_positionX = nodeEntry->x;
             nodePos.m_positionY = nodeEntry->y;
             nodePos.m_positionZ = nodeEntry->z;
             nodePos.m_orientation = 0.f;
- 
+
             node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
             node->AddConnectedNode(entry->to);
- 
+
             _taxiNodes[entry->from] = node;
         }
     }
- 
+
     // fill data for empty nodes (nodes which have no outoing paths, however have paths to)
     for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
     {
@@ -10356,15 +10356,15 @@ void ObjectMgr::LoadTaxiData()
 
         if (!entry->from || !entry->to)
             continue;
- 
+
         TaxiNode* node = GetTaxiNodeByID(entry->to);
         if (node)
             continue;
- 
+
         TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->to);
         if (!nodeEntry)
             continue;
- 
+
         Position nodePos;
         nodePos.m_positionX = nodeEntry->x;
         nodePos.m_positionY = nodeEntry->y;
@@ -10372,7 +10372,7 @@ void ObjectMgr::LoadTaxiData()
         nodePos.m_orientation = 0.f;
 
         node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
- 
+
         _taxiNodes[entry->to] = node;
     }
 }

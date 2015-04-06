@@ -1343,7 +1343,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_timers[WUPDATE_MONITORING_STATS].SetInterval(1 * MINUTE * IN_MILLISECONDS);
     m_timers[WUPDATE_MONITORING_STATS].Reset();
-    
+
     m_timers[WUPDATE_MONITORING_HEARTBEAT].SetInterval(30 * IN_MILLISECONDS);
     m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
 
@@ -2568,18 +2568,18 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_MONITORING_STATS].Passed())
     {
         m_timers[WUPDATE_MONITORING_STATS].Reset();
- 
+
         PreparedStatement* l_Stmt = MonitoringDatabase.GetPreparedStatement(MONITORING_INS_STATS);
- 
+
         l_Stmt->setUInt32(0, GetPlayerCount());
         l_Stmt->setUInt32(1, gOnlineGameMaster);
         l_Stmt->setUInt32(2, GetUptime());
         l_Stmt->setUInt32(3, GetUpdateTime());
         l_Stmt->setUInt32(4, gSentBytes);
         l_Stmt->setUInt32(5, gReceivedBytes);
- 
+
         MonitoringDatabase.Execute(l_Stmt);
- 
+
         gSentBytes = 0;
         gReceivedBytes = 0;
     }
@@ -2587,7 +2587,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_MONITORING_HEARTBEAT].Passed())
     {
         m_timers[WUPDATE_MONITORING_HEARTBEAT].Reset();
- 
+
         MonitoringDatabase.Execute(MonitoringDatabase.GetPreparedStatement(MONITORING_UPD_LAST_UPDATE));
     }
 

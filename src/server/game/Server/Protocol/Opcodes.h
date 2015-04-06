@@ -1494,7 +1494,7 @@ enum Opcodes
     CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x17B6, ///< 6.1.2 19783
     CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x1548, ///< 6.1.2 19783
     CMSG_LF_GUILD_GET_RECRUITS                     = 0x1464, ///< 6.1.2 19783
-    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000, ///< 
+    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000, ///<
     CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x1803, ///< 6.1.2 19783
     CMSG_LF_GUILD_SET_GUILD_POST                   = 0x121F, ///< 6.1.2 19783
 

@@ -597,7 +597,7 @@ struct QuestPOI
     uint32 Unk;
     std::vector<QuestPOIPoint> Points;
 
-    QuestPOI() 
+    QuestPOI()
         : Id(0), ObjectiveIndex(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), Unk(0)
     {
 
@@ -1641,7 +1641,7 @@ class ObjectMgr
             TaxiNodes::const_iterator itr = _taxiNodes.find(ID);
             if (itr != _taxiNodes.end())
                 return itr->second;
- 
+
             return nullptr;
         }
     private:

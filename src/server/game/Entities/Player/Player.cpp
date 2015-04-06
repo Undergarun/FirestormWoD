@@ -1184,9 +1184,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHair);
     SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_REST_STATE, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
-    
+
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER, createInfo->Gender);
-    SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, 0);               ///< BattlefieldArenaFaction (0 or 1)              
+    SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, 0);               ///< BattlefieldArenaFaction (0 or 1)
 
     SetGuidValue(OBJECT_FIELD_DATA, 0);
     SetUInt32Value(PLAYER_FIELD_GUILD_RANK_ID, 0);
@@ -24589,7 +24589,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         std::vector<uint32>& MyNodes = const_cast<std::vector<uint32>& >(nodes);
         MyNodes.clear();
         for (auto l_NewNode : newNodes)
-            MyNodes.push_back(l_NewNode->GetID());  
+            MyNodes.push_back(l_NewNode->GetID());
     }
 
     if (nodes.size() < 2)
@@ -26483,13 +26483,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     l_Data.FlushBits();
     l_Data << uint32(l_MountSpells.size());
     l_Data << uint32(l_MountSpells.size());
- 
+
     for (auto l_Pair : l_MountSpells)
         l_Data << uint32(l_Pair.first);
- 
+
     for (auto l_Pair : l_MountSpells)
         l_Data.WriteBit(l_Pair.second);
- 
+
     l_Data.FlushBits();
 
     SendDirectMessage(&l_Data);
@@ -29685,7 +29685,7 @@ void Player::ActivateSpec(uint8 spec)
         if (uint32 oldglyph = GetGlyph(GetActiveSpec(), slot))
             if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellId);
- 
+
     float l_HPPct = GetHealthPct();
 
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
@@ -29698,7 +29698,7 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SetActiveSpec(spec);
-    
+
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
     {
         if (Item* l_Item = m_items[l_I])
@@ -29707,7 +29707,7 @@ void Player::ActivateSpec(uint8 spec)
             AddItemsSetItem(this, l_Item);
         }
     }
-        
+
     SetHealth(GetMaxHealth() * l_HPPct / 100.f);
 
     uint32 usedTalentPoint = 0;
@@ -31804,7 +31804,7 @@ ScalingStatDistributionEntry const* Player::GetSSDForItem(Item const* p_Item) co
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     uint32 ilvl = itemProto->ItemLevel;
-    
+
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
         if (ScalingStatDistributionEntry const* ssd = GetSSDForItem(item))
             if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->CurveProperties, std::max(std::min(ssd->MaxLevel, (uint32)getLevel()), ssd->MinLevel)))

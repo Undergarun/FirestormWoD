@@ -1101,13 +1101,13 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     l_Transaction->Append(l_Stmt);
 
     CharacterDatabase.CommitTransaction(l_Transaction);
-    
+
     /// Create default ranks
     _CreateDefaultGuildRanks(l_LeaderSession->GetSessionDbLocaleIndex());
-    
+
     /// Add guildmaster
     bool l_Result = AddMember(m_leaderGuid, GR_GUILDMASTER);
-    
+
     /// Call scripts on successful create
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
@@ -1232,7 +1232,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
             if (l_Player->isDND())
                 l_Flags |= GUILDMEMBER_STATUS_DND;
         }
-        
+
         l_Data.appendPackGUID(l_Member->GetGUID());
 
         l_Data << uint32(l_Member->GetRankId());
@@ -1252,7 +1252,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
                 l_Data << uint32(l_ProfessionID);                                                       ///< Db ID
                 l_Data << uint32(l_Player->GetSkillValue(l_ProfessionID));                              ///< Rank
                 l_Data << uint32(l_Player->GetSkillStep(l_ProfessionID));                               ///< Step
-            }  
+            }
             else
             {
                 l_Data << uint32(0);                                                                    ///< Db ID
@@ -2224,8 +2224,8 @@ void Guild::SendLoginInfo(WorldSession * p_Session)
           SMSG_GUILD_ACHIEVEMENT_DATA
           SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
           SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS
-          */    
-    
+          */
+
     WorldPacket l_Data(SMSG_GUILD_EVENT_MOTD, 1 + 1 + m_motd.size());
 
     l_Data.WriteBits(m_motd.size(), 10);
@@ -2688,7 +2688,7 @@ bool Guild::AddMember(uint64 p_Guid, uint8 p_RankID)
             if (const GuildPerkSpellsEntry * l_Entry = sGuildPerkSpellsStore.LookupEntry(l_I))
                 l_Player->learnSpell(l_Entry->SpellId, true);
         }
-     
+
         if (FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(REP_GUILD))
         {
             ReputationRank l_Rank = l_Player->GetReputationMgr().GetRank(l_FactionEntry);

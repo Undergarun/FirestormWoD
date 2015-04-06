@@ -351,7 +351,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
-    
+
     p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
     p_Data->WriteBit(p_Flags & UPDATEFLAG_ENABLE_PORTALS);          ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_PLAY_HOVER_ANIM);         ///< Play hover anim
@@ -618,7 +618,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
         *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
         *p_Data << float(l_WorldObject->GetStationaryZ());                  ///< Stationary position Z
-        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
+        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O
     }
 
     if (p_Flags & UPDATEFLAG_HAS_COMBAT_VICTIM)
@@ -633,7 +633,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         *p_Data << uint32(l_TransportTime);                                 ///< Transport time
     }
-                                    
+
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID
@@ -719,7 +719,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             *p_Data << float(l_MainTemplate->m_ScaleX);                                  ///< Radius
             *p_Data << float(l_MainTemplate->m_ScaleY);                                  ///< Radius Target
         }
-        
+
         if (l_HasAreaTriggerBox)
         {
             *p_Data << float(l_MainTemplate->m_BoxDatas.m_Extent[0]);                    ///< Extents X

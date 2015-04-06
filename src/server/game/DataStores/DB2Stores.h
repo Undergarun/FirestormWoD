@@ -151,9 +151,9 @@ class TaxiNode
             m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost), m_host(0)
         {
         }
- 
+
         uint32 GetID() { return m_id; }
- 
+
         void AddConnectedNode(uint32 node) { m_connectedNodes.insert(node); }
         TaxiNode* GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player);
         Position const* GetPosition() { return &m_position; }
@@ -161,32 +161,32 @@ class TaxiNode
         TaxiNodesEntry const* GetTaxiNodesEntry() { return sTaxiNodesStore.LookupEntry(m_id); }
 
     private:
- 
+
         uint32 m_id;
         uint32 m_mapID;
         Position m_position;
         std::string m_name;
         uint32 m_cost;
         std::set<uint32> m_connectedNodes;
- 
+
         uint32 m_host;
 };
 typedef std::unordered_map<uint32, TaxiNode*> TaxiNodes;
- 
+
 class TaxiPath : public std::vector<TaxiNode*>
 {
 public:
     TaxiPath() { }
     bool LoadExpress(std::vector<uint32> uNodes);
     uint32 CalculateTaxiPath(uint32 startId, uint32 destId, Player* player);
- 
+
 public:
     uint32 GetCost()
     {
         uint32 cost = 0;
         for (const_iterator itr = begin(); itr != end(); ++itr)
             cost += (*itr)->GetCost();
- 
+
         return cost;
     }
 };

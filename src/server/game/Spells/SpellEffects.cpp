@@ -4081,7 +4081,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 case 52374: // Blood Strike
                 {
                     float bonusPct = ((m_spellInfo->Effects[EFFECT_0].BasePoints * m_spellInfo->Effects[EFFECT_1].BasePoints) / 100) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-            
+
                     AddPct(totalDamagePercentMod, bonusPct);
                     break;
                 }
@@ -7388,7 +7388,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
     else
         destTarget->GetPosition(&l_Source);
     l_Dest = l_Source;
-    
+
     // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
     uint32 l_MiscValue = GetSpellInfo()->Effects[effIndex].MiscValue;
 
@@ -7654,15 +7654,15 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
             }
         }
     }
-    
+
     if (!l_IsBGReward && (!l_Caster || !l_Caster->ToCreature()))
         return;
-        
+
     LootStore& l_LootStore = l_IsBGReward ? LootTemplates_Spell : LootTemplates_Creature;
     LootTemplate const* l_LootTemplate = l_LootStore.GetLootFor(l_IsBGReward ? GetSpellInfo()->Id : l_Caster->ToCreature()->GetCreatureTemplate()->lootid);
     if (l_LootTemplate == nullptr)
         return;
-        
+
     std::list<ItemTemplate const*> l_LootTable;
     std::vector<uint32> l_Items;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable, l_Player, l_IsBGReward);
@@ -7688,7 +7688,7 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     }
 
     l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
-    
+
     if (l_Items.empty() && !l_IsBGReward)
     {
         int64 l_GoldAmount = urand(50 * GOLD, 100 * GOLD);

@@ -543,7 +543,7 @@ std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
 uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player)
 {
     clear();
- 
+
     uint32 res = 0;
     TaxiNode* startNode = sObjectMgr->GetTaxiNodeByID(startId);
     TaxiNode* destNode = sObjectMgr->GetTaxiNodeByID(destId);
@@ -552,9 +552,9 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
         res |= TAXIPATH_RES_NO_LINKED_NODES;
         return res;
     }
- 
+
     push_back(startNode);
- 
+
     TaxiNode* currentNode = startNode;
     std::set<uint32> closed;
     while (1)
@@ -562,15 +562,15 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
         // path complete
         if (currentNode == destNode)
             break;
- 
+
         if (currentNode == startNode && !closed.empty())
         {
             res |= TAXIPATH_RES_NO_PATH;
             break;
         }
- 
+
         TaxiNode* nextNode = currentNode->GetClosestNodeTo(destNode, closed, player);
- 
+
         if (!nextNode)
         {
             closed.insert(currentNode->GetID());
@@ -578,19 +578,19 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
             pop_back();
             continue;
         }
- 
+
         // 6.1.0: players can path to unknown nodes if it is on the way to their dest
         //if (!player->KnowsNode(nextNode))
         //{
             //closed.insert(nextNode->GetID())
             //continue;
         //}
- 
+
         closed.insert(currentNode->GetID());
         push_back(nextNode);
         currentNode = nextNode;
     }
- 
+
     if (res & TAXIPATH_RES_NO_PATH)
     {
         clear();
@@ -598,10 +598,10 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
         push_back(destNode);
         return res;
     }
- 
+
     res |= TAXIPATH_RES_SUCCESS;
     //push_back(destNode);
- 
+
     return res;
 }
 
@@ -647,18 +647,18 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
             closed.insert(connectedNode->GetID());
             continue;
         }
- 
+
         if (closed.find(*itr) != closed.end())
             continue;
- 
+
         float nodeDist = connectedNode->GetPosition()->GetExactDist2d(node->GetPosition());
- 
+
         if (nodeDist < dist || dist < 0.f)
         {
             dist = nodeDist;
             heuristic = connectedNode;
         }
     }
- 
+
     return heuristic;
 }

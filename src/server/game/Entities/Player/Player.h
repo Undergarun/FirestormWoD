@@ -1482,7 +1482,7 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     class Manager;
 }   ///< namespace Garrison
@@ -2798,7 +2798,7 @@ class Player : public Unit, public GridObject<Player>
             if (l_Itr != m_bgData.bgQueuesJoinedTime.end())
                 m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
-        
+
         /// Returns true if the player is in a battleground queue.
         bool InBattlegroundQueue() const
         {
@@ -2845,7 +2845,7 @@ class Player : public Unit, public GridObject<Player>
             m_bgData.bgTypeID = bgTypeId;
         }
 
-        
+
         uint32 AddBattlegroundQueueId(MS::Battlegrounds::BattlegroundType::Type val)
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)

@@ -1964,7 +1964,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
                     break;
                 }
             }
-            
+
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
                 int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
