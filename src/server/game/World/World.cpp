@@ -1603,6 +1603,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Taxi data");
+    sObjectMgr->LoadTaxiData();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 

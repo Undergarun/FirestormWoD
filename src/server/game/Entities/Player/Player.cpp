@@ -24575,6 +24575,25 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
+    if (nodes.size() == 2)
+    {
+        // Hax - im a lazy cunt - fix me later
+        TaxiPath newNodes;
+        uint32 res = newNodes.CalculateTaxiPath(nodes[0], nodes[1], this);
+        if (res & (TAXIPATH_RES_NO_PATH | TAXIPATH_RES_NO_LINKED_NODES))
+        {
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
+            return false;
+        }
+
+        std::vector<uint32>& MyNodes = const_cast<std::vector<uint32>& >(nodes);
+        MyNodes.clear();
+        for (auto l_NewNode : newNodes)
+            MyNodes.push_back(l_NewNode->GetID());  
+    }
+
+    if (nodes.size() < 2)
+        return false;
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any

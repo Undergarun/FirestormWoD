@@ -1753,9 +1753,6 @@ void ObjectMgr::LoadCreatures()
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
             WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
-
-        ++count;
-
     }
     while (result->NextRow());
 
@@ -10315,4 +10312,67 @@ uint32 ObjectMgr::GetQuestObjectiveQuestId(uint32 objectiveId) const
         return 0;
 
     return l_It->second;
+}
+
+void ObjectMgr::LoadTaxiData()
+{
+    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
+    {
+        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        if (!entry->from || !entry->to)
+            continue;
+ 
+        TaxiNode* node = GetTaxiNodeByID(entry->from);
+        if (node)
+            node->AddConnectedNode(entry->to);
+        else
+        {
+            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->from);
+            if (!nodeEntry)
+                continue;
+ 
+            Position nodePos;
+            nodePos.m_positionX = nodeEntry->x;
+            nodePos.m_positionY = nodeEntry->y;
+            nodePos.m_positionZ = nodeEntry->z;
+            nodePos.m_orientation = 0.f;
+ 
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
+            node->AddConnectedNode(entry->to);
+ 
+            _taxiNodes[entry->from] = node;
+        }
+    }
+ 
+    // fill data for empty nodes (nodes which have no outoing paths, however have paths to)
+    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
+    {
+        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        if (!entry->from || !entry->to)
+            continue;
+ 
+        TaxiNode* node = GetTaxiNodeByID(entry->to);
+        if (node)
+            continue;
+ 
+        TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->to);
+        if (!nodeEntry)
+            continue;
+ 
+        Position nodePos;
+        nodePos.m_positionX = nodeEntry->x;
+        nodePos.m_positionY = nodeEntry->y;
+        nodePos.m_positionZ = nodeEntry->z;
+        nodePos.m_orientation = 0.f;
+
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, std::string(nodeEntry->name), entry->price);
+ 
+        _taxiNodes[entry->to] = node;
+    }
 }

@@ -538,3 +538,127 @@ std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
     TaxiNodesByMap::const_iterator l_Iter = sTaxiNodesByMap.find(l_MapID);
     return l_Iter != sTaxiNodesByMap.end() ? &l_Iter->second : nullptr;
 }
+
+// basic pathing algorithm which paths from the start to the destination
+uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player)
+{
+    clear();
+ 
+    uint32 res = 0;
+    TaxiNode* startNode = sObjectMgr->GetTaxiNodeByID(startId);
+    TaxiNode* destNode = sObjectMgr->GetTaxiNodeByID(destId);
+    if (!startNode || !destNode)
+    {
+        res |= TAXIPATH_RES_NO_LINKED_NODES;
+        return res;
+    }
+ 
+    push_back(startNode);
+ 
+    TaxiNode* currentNode = startNode;
+    std::set<uint32> closed;
+    while (1)
+    {
+        // path complete
+        if (currentNode == destNode)
+            break;
+ 
+        if (currentNode == startNode && !closed.empty())
+        {
+            res |= TAXIPATH_RES_NO_PATH;
+            break;
+        }
+ 
+        TaxiNode* nextNode = currentNode->GetClosestNodeTo(destNode, closed, player);
+ 
+        if (!nextNode)
+        {
+            closed.insert(currentNode->GetID());
+            currentNode = back();
+            pop_back();
+            continue;
+        }
+ 
+        // 6.1.0: players can path to unknown nodes if it is on the way to their dest
+        //if (!player->KnowsNode(nextNode))
+        //{
+            //closed.insert(nextNode->GetID())
+            //continue;
+        //}
+ 
+        closed.insert(currentNode->GetID());
+        push_back(nextNode);
+        currentNode = nextNode;
+    }
+ 
+    if (res & TAXIPATH_RES_NO_PATH)
+    {
+        clear();
+        push_back(startNode);
+        push_back(destNode);
+        return res;
+    }
+ 
+    res |= TAXIPATH_RES_SUCCESS;
+    //push_back(destNode);
+ 
+    return res;
+}
+
+TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player)
+{
+    float dist = -1.f;//GetPosition()->GetExactDist2d(node->GetPosition());
+    TaxiNode* heuristic = nullptr;
+    for (std::set<uint32>::iterator itr = m_connectedNodes.begin(); itr != m_connectedNodes.end(); ++itr)
+    {
+        TaxiNode* connectedNode = sObjectMgr->GetTaxiNodeByID(*itr);
+        TaxiNodesEntry const* l_TaxiNode = node->GetTaxiNodesEntry();
+
+        if (node == connectedNode)
+        {
+            dist = 0.0f;
+            heuristic = connectedNode;
+            break;
+        }
+
+        // I don't think this is possible
+        if (!connectedNode || !l_TaxiNode)
+            continue;
+
+        uint8  field   = (uint8)((*itr - 1) / 8);
+        uint32 submask = 1 << ((*itr-1) % 8);
+
+        if (!l_TaxiNode->MountCreatureID[player->GetTeam() == ALLIANCE ? 1 : 0] && !(sDeathKnightTaxiNodesMask[field] & submask && player->getClass() == CLASS_DEATH_KNIGHT)) // dk flight)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+
+        // skip not taxi network nodes
+        if ((sTaxiNodesMask[field] & submask) == 0)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+
+        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
+        if (l_TaxiNode->m_Flags == 0)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+ 
+        if (closed.find(*itr) != closed.end())
+            continue;
+ 
+        float nodeDist = connectedNode->GetPosition()->GetExactDist2d(node->GetPosition());
+ 
+        if (nodeDist < dist || dist < 0.f)
+        {
+            dist = nodeDist;
+            heuristic = connectedNode;
+        }
+    }
+ 
+    return heuristic;
+}
