@@ -1907,7 +1907,11 @@ void Player::Update(uint32 p_time)
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
         stmt->setUInt32(0, GetSession()->GetAccountId());
-        _HeirloomStoreCallback = CharacterDatabase.AsyncQuery(stmt);
+        _HeirloomStoreCallback = LoginDatabase.AsyncQuery(stmt);
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
+        stmt->setUInt32(0, GetSession()->GetAccountId());
+        _PlayersToysCallback = LoginDatabase.AsyncQuery(stmt);
 
         m_initializeCallback = true;
     }
@@ -1960,6 +1964,13 @@ void Player::Update(uint32 p_time)
             _HeirloomStoreCallback.get(result);
             _LoadHeirloomCollection(result);
             _HeirloomStoreCallback.cancel();
+        }
+
+        if (_PlayersToysCallback.ready())
+        {
+            _PlayersToysCallback.get(result);
+            _LoadToyBox(result);
+            _PlayersToysCallback.cancel();
         }
 
         if (_petLoginCallback.ready())
@@ -20628,8 +20639,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
 
-    _LoadToyBox(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS));
-
     MS::Garrison::Manager * l_Garrison = new MS::Garrison::Manager(this);
 
     if (l_Garrison->Load(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_FOLLOWERS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_MISSIONS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS)))
@@ -30595,10 +30604,10 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     {
         WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
         l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(0);
+        l_Data << uint32(sWorld->GetGameTime());
         l_Data << float(p_Height);
         l_Data << float(1.0f);
-        l_Data << uint32(sWorld->GetGameTime());
+        l_Data << uint32(0);
         l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
         SendDirectMessage(&l_Data);
         return;
@@ -30606,10 +30615,10 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
 
     WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
     l_Data.appendPackGUID(GetGUID());
-    l_Data << uint32(l_MountDisplayInfo->Displayid);
+    l_Data << uint32(sWorld->GetGameTime());
     l_Data << float(p_Height);
     l_Data << float(l_MountDisplayInfo->scale);
-    l_Data << uint32(sWorld->GetGameTime());
+    l_Data << uint32(l_MountDisplayInfo->Displayid);
     l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
     SendDirectMessage(&l_Data);
 }

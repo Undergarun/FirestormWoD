@@ -13524,7 +13524,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         player->UnsummonCurrentBattlePetIfAny(true);
-        //player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
+        player->SendMovementSetCollisionHeight(player->GetCollisionHeight(true));
 
         if (player->HasAura(57958)) // TODO: we need to create a new trigger flag - on mount, to handle it properly
             player->AddAura(20217, player);
@@ -13543,7 +13543,7 @@ void Unit::Dismount()
 
     if (Player* thisPlayer = ToPlayer())
     {
-        //thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
+        thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(false));
         thisPlayer->RemoveAurasDueToSpell(143314);
     }
 
