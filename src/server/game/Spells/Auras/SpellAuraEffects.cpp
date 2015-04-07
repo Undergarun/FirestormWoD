@@ -542,7 +542,7 @@ m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
 m_donePct(1.0f),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
-m_canBeRecalculated(true), m_isPeriodic(false)
+m_canBeRecalculated(true), m_isPeriodic(false), m_amount(0), m_CrowdControlDamage(0)
 {
 }
 
@@ -727,6 +727,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             case 128405:// Narrow Escape
             {
                 amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+                m_CrowdControlDamage = amount;
                 l_CustomAmount = true;
                 break;
             }
@@ -736,7 +737,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
         if (!l_CustomAmount && m_spellInfo->ProcFlags)
         {
-            amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+            m_CrowdControlDamage = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
             if (caster)
             {
                 // Glyphs increasing damage cap
@@ -748,7 +749,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         // Glyph of Frost nova and similar auras
                         if ((*itr)->GetMiscValue() == 7801)
                         {
-                            AddPct(amount, (*itr)->GetAmount());
+                            AddPct(m_CrowdControlDamage, (*itr)->GetAmount());
                             break;
                         }
                     }
