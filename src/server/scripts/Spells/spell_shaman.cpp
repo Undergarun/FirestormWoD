@@ -1101,7 +1101,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
-/// 77762 Lava Surge
+/// 77762 - Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
     public:
@@ -1111,20 +1111,31 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            void HandleAuraApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            enum eSpells
+            {
+                LavaBurst   = 51505,
+                LavaBolt    = 76110,
+                LavaBolt2   = 81561
+            };
+
+            void OnUpdate(uint32 diff)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
                 if (!l_Player)
                     return;
 
-                if (l_Player->HasSpellCooldown(SPELL_SHA_LAVA_BURST))
-                    l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_BURST, true);
+                if (l_Player->HasSpellCooldown(eSpells::LavaBurst))
+                    l_Player->RemoveSpellCooldown(eSpells::LavaBurst, true);
+                else if (l_Player->HasSpellCooldown(eSpells::LavaBolt))
+                    l_Player->RemoveSpellCooldown(eSpells::LavaBolt, true);
+                else if (l_Player->HasSpellCooldown(eSpells::LavaBolt2))
+                    l_Player->RemoveSpellCooldown(eSpells::LavaBolt2, true);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::HandleAuraApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnAuraUpdate += AuraUpdateFn(spell_sha_lava_surge_AuraScript::OnUpdate);
             }
         };
 
