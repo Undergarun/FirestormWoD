@@ -55,8 +55,9 @@ namespace MS { namespace Garrison
         Alliance_LostInTransition                   = 37087,
         Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
         Alliance_BiggerIsBetter                     = 36592,
-        Alliance_YoutFirstAlchemyWorkOrder          = 36641,
-        Alliance_YoutFirstLeatherworkingWorkOrder   = 36642,
+        Alliance_YourFirstAlchemyWorkOrder          = 36641,
+        Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
+        Alliance_YourFirstEnchantingWorkOrder       = 36645,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
@@ -66,9 +67,9 @@ namespace MS { namespace Garrison
         Horde_YourFirstBlacksmithingWorkOrder     = 37569,
         Horde_BiggerIsBetter                      = 36567,
         Horde_YourFirstTailoringWorkOrder         = 37575,
-        Horde_YoutFirstAlchemyWorkOrder           = 37568,
-        Horde_YoutFirstLeatherworkingWorkOrder    = 37574
-
+        Horde_YourFirstAlchemyWorkOrder           = 37568,
+        Horde_YourFirstLeatherworkingWorkOrder    = 37574,
+        Horde_YourFirstEnchantingWorkOrder        = 37570
     };
 
     /// Garrison achievement related
