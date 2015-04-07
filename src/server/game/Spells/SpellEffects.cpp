@@ -2979,11 +2979,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
         case SUMMON_CATEGORY_UNK:
-            if ((properties->Flags & 512) || m_spellInfo->Id == 114192 || m_spellInfo->Id == 114203 || m_spellInfo->Id == 114207)
+            /* It breaks a bit totem, maybe need a review
+            if ((properties->Flags & 512) || m_spellInfo->Id == 114192) // Mocking Banner
             {
                 SummonGuardian(effIndex, entry, properties, numSummons);
                 break;
             }
+             */
             switch (properties->Type)
             {
                 case SUMMON_TYPE_PET:
@@ -3002,10 +3004,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->isTotem())
                         return;
-
-                    // Mana Tide Totem
-                    if (m_spellInfo->Id == 16190)
-                        damage = m_caster->CountPctFromMaxHealth(10);
 
                     if (damage)                                            // if not spell info, DB values used
                     {
