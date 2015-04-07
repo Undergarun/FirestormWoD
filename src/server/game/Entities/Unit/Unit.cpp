@@ -16997,6 +16997,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 }
 
                 bool l_IsCrowControlAura = false;
+                bool l_DontContinue = false;
 
                 switch (triggeredByAura->GetAuraType())
                 {
@@ -17012,8 +17013,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         break;
                 }
 
-                if (triggeredByAura->GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
+                if (!l_IsCrowControlAura && triggeredByAura->GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
+                {
                     l_IsCrowControlAura = true;
+                    l_DontContinue      = true;
+                }
 
                 if (l_IsCrowControlAura)
                 {
@@ -17039,14 +17043,19 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         takeCharges = true;
                     else if (isVictim && damage && (!procSpell || GetSpellMaxRangeForTarget(this, procSpell) < 100.0f))
                     {
-                        int32 damageLeft = triggeredByAura->GetAmount();
+                        int32 damageLeft = triggeredByAura->GetCrowdControlDamage();
                         // No damage left
                         if (damageLeft < int32(damage) && triggeredByAura->GetId() != 114052)
+                        {
                             i->aura->Remove();
+                            l_DontContinue = false;
+                        }
                         else if (triggeredByAura->GetId() != 114052)
-                            triggeredByAura->SetAmount(damageLeft - damage);
+                            triggeredByAura->SetCrowdControlDamage(damageLeft - damage);
                     }
-                    continue;
+
+                    if (!l_DontContinue)
+                        continue;
                 }
 
                 switch (triggeredByAura->GetAuraType())

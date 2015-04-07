@@ -118,6 +118,8 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
 
         int32 m_amount;
         float m_donePct;
+        int32 m_CrowdControlDamage;
+
 
         SpellModifier* m_spellmod;
 
