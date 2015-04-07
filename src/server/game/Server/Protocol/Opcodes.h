@@ -693,7 +693,7 @@ enum Opcodes
         SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY   = 0x0BCF, ///< 6.1.2 19783
         SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY = 0x1EAC, ///< 6.1.2 19783
         SMSG_MOVE_SET_VEHICLE_REC_ID                        = 0x1A29, ///< 6.1.2 19783
-        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x1A04, ///< 6.1.2 19783
+        SMSG_MOVE_SET_COLLISION_HEIGHT                      = 0x1BA4, ///< 6.1.2 19783
         SMSG_APPLY_MOVEMENT_FORCE                           = 0x1F50, ///< 6.1.2 19783
         SMSG_UNAPPLY_MOVEMENT_FORCE                         = 0x000E, ///< 6.1.2 19783
         SMSG_MOVE_SKIP_TIME                                 = 0x0000, ///< (unused)
