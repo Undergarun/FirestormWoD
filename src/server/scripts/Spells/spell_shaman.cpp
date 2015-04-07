@@ -1726,6 +1726,56 @@ class spell_sha_windfury: public SpellScriptLoader
         }
 };
 
+enum GlyphOfEternalEarth
+{
+    LightningBolt   = 403,
+    EarthShield     = 974
+};
+
+/// Glyph of Eternal Earth (Restoration) - 147781
+class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_eternal_earth() : SpellScriptLoader("spell_sha_glyph_of_eternal_earth") { }
+
+        class spell_sha_glyph_of_eternal_earth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_eternal_earth_AuraScript);
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_ProcInfo.GetDamageInfo())
+                    return;
+
+                if (!p_ProcInfo.GetDamageInfo()->GetSpellInfo() || p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id != GlyphOfEternalEarth::LightningBolt)
+                    return;
+
+                if (Unit* l_Caster = p_ProcInfo.GetActor())
+                {
+                    if (AuraPtr l_EarthShield = l_Caster->GetAura(GlyphOfEternalEarth::EarthShield))
+                    {
+                        if (l_EarthShield->GetCharges() >= GetSpellInfo()->Effects[EFFECT_0].BasePoints) ///< This cannot cause Earth Shield to exceed 9 charges.
+                            return;
+                        else
+                            l_EarthShield->ModCharges(1);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_glyph_of_eternal_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_eternal_earth_AuraScript();
+        }
+};
+
 /// 10400 - Flametongue
 class spell_sha_flametongue: public SpellScriptLoader
 {
@@ -2303,4 +2353,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ghost_wolf();
     new spell_sha_lava_burst();
     new spell_sha_chain_heal();
+    new spell_sha_glyph_of_eternal_earth();
 }
