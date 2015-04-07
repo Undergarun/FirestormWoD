@@ -11635,7 +11635,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         if (HasAura(77223))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -12550,6 +12549,18 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         }
     }
 
+    // Unleashed Fury - Earthliving
+    if (HasAura(118473))
+    {
+        bool singleTarget = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
+            singleTarget = true;
+
+        if (singleTarget)
+            DoneTotal += CalculatePct(healamount, 50.0f);
+    }
+
     // Apply Power PvP healing bonus
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -12717,18 +12728,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
-
-    // Unleashed Fury - Earthliving
-    if (HasAura(118473) && GetAura(118473)->GetCaster() && GetAura(118473)->GetCaster()->GetGUID() == caster->GetGUID())
-    {
-        bool singleTarget = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
-                singleTarget = true;
-
-        if (singleTarget)
-            AddPct(TakenTotal, 50);
-    }
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
