@@ -1156,11 +1156,15 @@ class spell_sha_healing_stream: public SpellScriptLoader
                 if (!GetCaster()->GetOwner())
                     return;
 
-                if (Unit* _player = GetCaster()->GetOwner())
-                    if (Unit* target = GetHitUnit())
-                        // Glyph of Healing Stream Totem
-                        if (target->GetGUID() != _player->GetGUID() && _player->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
-                            _player->CastSpell(target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                if (Unit* l_Owner = GetCaster()->GetOwner())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        /// Glyph of Healing Stream Totem
+                        if (l_Owner->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
+                            l_Owner->CastSpell(l_Target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                    }
+                }
             }
 
             void Register()
