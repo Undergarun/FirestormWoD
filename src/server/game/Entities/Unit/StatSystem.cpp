@@ -823,7 +823,7 @@ void Player::UpdateMasteryPercentage()
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
-    
+
     /// 117906 - Mastery: Elusive Brawler - Update attack power
     /// 155783 - Mastery: Primal Tenacity - Update attack power
     if (HasAura(117906) || HasAura(155783))
@@ -1508,7 +1508,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 {
     if (p_Ranged)
         return;
-    
+
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 

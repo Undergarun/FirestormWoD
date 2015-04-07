@@ -1063,10 +1063,10 @@ struct PlayerConditionEntry
     uint32 PowerTypeValue;
 };
 
-/// Flags of PrevQuestLogic (PlayerConditionEntry) 
+/// Flags of PrevQuestLogic (PlayerConditionEntry)
 namespace PrevQuestLogicFlags
 {
-    enum 
+    enum
     {
         TrackingQuest = 0x10000
     };

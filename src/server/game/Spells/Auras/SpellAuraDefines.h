@@ -480,7 +480,7 @@ enum AuraType
     SPELL_AURA_MODIFY_MANA_POOL_PCT                         = 419,  // SPELL_AURA_MODIFY_MANA_POOL_PCT
     SPELL_AURA_BATTLEPET_XP_INCRASE                         = 420,  // 5.4.0 +10% Battle Pet XP (134635)(NYI)
     SPELL_AURA_MOD_ABSORPTION_PCT                           = 421,  // 5.4.0 unk aura (NYI)
-    SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0 
+    SPELL_AURA_MOD_ABSORPTION                               = 422,  // 5.4.0
     SPELL_AURA_423                                          = 423,  // 5.4.0 unk aura (NYI) "Balance: Spell Damage and Hit Chance increased.Mana cost of all damage spells reduced by 100 % ."
     SPELL_AURA_424                                          = 424,  // 5.4.0 unk aura (NYI) Heart of the Wild talent related
     SPELL_AURA_425                                          = 425,  // 5.4.0 unused

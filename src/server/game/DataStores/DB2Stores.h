@@ -25,6 +25,7 @@
 
 #include <list>
 
+extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
 extern DB2Storage <GroupFinderActivityEntry>        sGroupFinderActivityStore;
 extern DB2Storage <GroupFinderCategoryEntry>        sGroupFinderCategoryStore;
@@ -133,4 +134,60 @@ extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level);
 HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID);
 std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID);
+
+enum TaxiPathResult
+{
+    TAXIPATH_RES_SUCCESS = 1,
+    TAXIPATH_RES_NO_LINKED_NODES,
+    TAXIPATH_RES_UNKNOWN_NODES, // unused 6.1.0
+    TAXIPATH_RES_NO_PATH,
+};
+
+class TaxiNode
+{
+    public:
+        TaxiNode() { }
+        TaxiNode(uint32 ID, uint32 map, Position& pos, std::string& name, uint32 cost) :
+            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost)
+        {
+        }
+
+        uint32 GetID() { return m_id; }
+
+        void AddConnectedNode(uint32 node) { m_connectedNodes.insert(node); }
+        TaxiNode* GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player);
+        Position const* GetPosition() { return &m_position; }
+        uint32 GetCost() { return m_cost; }
+        TaxiNodesEntry const* GetTaxiNodesEntry() { return sTaxiNodesStore.LookupEntry(m_id); }
+
+    private:
+
+        uint32 m_id;
+        uint32 m_mapID;
+        Position m_position;
+        std::string m_name;
+        uint32 m_cost;
+        std::set<uint32> m_connectedNodes;
+};
+typedef std::unordered_map<uint32, TaxiNode*> TaxiNodes;
+
+class TaxiPath : public std::vector<TaxiNode*>
+{
+public:
+    TaxiPath() { }
+    bool LoadExpress(std::vector<uint32> uNodes);
+    uint32 CalculateTaxiPath(uint32 startId, uint32 destId, Player* player);
+
+public:
+    uint32 GetCost()
+    {
+        uint32 cost = 0;
+        for (const_iterator itr = begin(); itr != end(); ++itr)
+            cost += (*itr)->GetCost();
+
+        return cost;
+    }
+};
+
+TaxiNode* GetTaxiNodeByID(uint32 ID);
 #endif

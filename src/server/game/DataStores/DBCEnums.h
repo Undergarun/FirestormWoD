@@ -143,7 +143,7 @@ enum Difficulty
 
     DIFFICULTY_HC_SCENARIO    = 11, ///< difficulty_entry_11
     DIFFICULTY_N_SCENARIO     = 12, ///< difficulty_entry_12
-    
+
     DIFFICULTY_NORMAL_RAID    = 14, ///< difficulty_entry_14
     DIFFICULTY_HEROIC_RAID    = 15, ///< difficulty_entry_15
     DIFFICULTY_MYTHIC_RAID    = 16, ///< difficulty_entry_16

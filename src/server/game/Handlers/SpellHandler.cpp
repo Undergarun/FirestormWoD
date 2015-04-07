@@ -202,9 +202,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 
     //////////////////////////////////////////////////////////////////////////
-    
+
     bool l_IsGlyph = false;
-    
+
     if (sSpellMgr->GetSpellInfo(l_SpellID))
     {
         switch (sSpellMgr->GetSpellInfo(l_SpellID)->Effects[EFFECT_0].Effect)

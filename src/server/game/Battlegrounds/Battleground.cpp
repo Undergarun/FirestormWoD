@@ -2136,7 +2136,7 @@ void Battleground::AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_
 {
     float l_Factor = (float)p_PointsCount / (float)p_MaxCount;
     BattlegroundAward l_LooserAward = AWARD_NONE;
- 
+
     if (l_Factor >= 0.666f)
         l_LooserAward = AWARD_SILVER;
     else if (l_Factor >= 0.333f)

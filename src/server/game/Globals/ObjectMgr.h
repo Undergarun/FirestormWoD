@@ -597,7 +597,7 @@ struct QuestPOI
     uint32 Unk;
     std::vector<QuestPOIPoint> Points;
 
-    QuestPOI() 
+    QuestPOI()
         : Id(0), ObjectiveIndex(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), Unk(0)
     {
 
@@ -1115,6 +1115,7 @@ class ObjectMgr
         void LoadCreatureTemplates();
         void LoadCreatureTemplatesDifficulties();
         void LoadCreatureTemplateAddons();
+        void LoadTaxiData();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void RestructCreatureGUID(uint32 nbLigneToRestruct);
         void RestructGameObjectGUID(uint32 nbLigneToRestruct);
@@ -1635,6 +1636,14 @@ class ObjectMgr
             return m_StandaloneSceneInstanceID++;
         }
 
+        TaxiNode* GetTaxiNodeByID(uint32 ID)
+        {
+            TaxiNodes::const_iterator itr = _taxiNodes.find(ID);
+            if (itr != _taxiNodes.end())
+                return itr->second;
+
+            return nullptr;
+        }
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1813,6 +1822,7 @@ class ObjectMgr
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
         MapChallengeModeHotfixes m_MapChallengeModeHotfixes;
+        TaxiNodes _taxiNodes;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()

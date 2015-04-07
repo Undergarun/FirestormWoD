@@ -66,7 +66,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x1736, ///< 6.1.2 19783
         SMSG_WORLD_SERVER_INFO                      = 0x0FB5, ///< 6.1.2 19783
         SMSG_INITIAL_SETUP                          = 0x0238, ///< 6.1.2 19783
-        SMSG_PONG                                   = 0x011D, ///< 6.1.2 19783
+        SMSG_PONG                                   = 0x005E, ///< 6.1.2 19783
         SMSG_UITIME                                 = 0x0DA1, ///< 6.1.2 19783
 
         /// Query
@@ -562,7 +562,7 @@ enum Opcodes
         SMSG_QUERY_GUILD_INFO_RESPONSE              = 0x1194, ///< 6.1.2 19783
         SMSG_GUILD_MEMBER_UPDATE_NOTE               = 0x0000, ///< (unused)
         SMSG_GUILD_REWARDS_LIST                     = 0x1494, ///< 6.1.2 19783
-        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x10AC, ///< 6.1.2 19783
+        SMSG_GUILD_SEND_RANK_CHANGE                 = 0x10B7, ///< 6.1.2 19783
         SMSG_GUILD_CHALLENGE_UPDATED                = 0x1183, ///< 6.1.2 19783
         SMSG_GUILD_MEMBER_RECIPES                   = 0x0000, ///< (unused)
         SMSG_GUILD_INVITE_EXPIRED                   = 0x0000, ///< (unused)
@@ -1494,7 +1494,7 @@ enum Opcodes
     CMSG_LF_GUILD_DECLINE_RECRUIT                  = 0x17B6, ///< 6.1.2 19783
     CMSG_LF_GUILD_GET_APPLICATIONS                 = 0x1548, ///< 6.1.2 19783
     CMSG_LF_GUILD_GET_RECRUITS                     = 0x1464, ///< 6.1.2 19783
-    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000, ///< 
+    CMSG_LF_GUILD_POST_REQUEST                     = 0x0000, ///<
     CMSG_LF_GUILD_REMOVE_RECRUIT                   = 0x1803, ///< 6.1.2 19783
     CMSG_LF_GUILD_SET_GUILD_POST                   = 0x121F, ///< 6.1.2 19783
 

@@ -1184,9 +1184,9 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHair);
     SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_REST_STATE, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
-    
+
     SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_GENDER, createInfo->Gender);
-    SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, 0);               ///< BattlefieldArenaFaction (0 or 1)              
+    SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, 0);               ///< BattlefieldArenaFaction (0 or 1)
 
     SetGuidValue(OBJECT_FIELD_DATA, 0);
     SetUInt32Value(PLAYER_FIELD_GUILD_RANK_ID, 0);
@@ -5545,8 +5545,8 @@ void Player::ReduceSpellCooldown(uint32 p_SpellID, time_t p_ModifyTime)
 
     WorldPacket l_Data(SMSG_MODIFY_COOLDOWN, 4 + 18 + 4);
     l_Data << uint32(p_SpellID);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << int32(-p_ModifyTime);
+    l_Data.WriteBit(false);             ///< IsPetCooldown
 
     SendDirectMessage(&l_Data);
 }
@@ -5604,6 +5604,23 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
             RemoveSpellCooldown(itr->first, true);
         }
     }
+
+    /// Remove spell charge cooldown that have <= 10 min CD
+    for (auto l_Itr = m_SpellChargesMap.begin(); l_Itr != m_SpellChargesMap.end();)
+    {
+        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStores.LookupEntry(l_Itr->first);
+        if (l_SpellCategory == nullptr
+            || l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+            || l_SpellCategory->ChargeRegenTime > 10 * MINUTE * IN_MILLISECONDS)
+        {
+            l_Itr++;
+            continue;
+        }
+
+        SendClearSpellCharges(l_SpellCategory->Id);
+        l_Itr = m_SpellChargesMap.erase(l_Itr);
+    }
+
 
     // pet cooldowns
     if (removeActivePetCooldowns)
@@ -5680,8 +5697,7 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
         {
             Field* l_Fields = p_Result->Fetch();
             uint32 l_CategoryID = l_Fields[0].GetUInt32();
-            uint8 l_Charge = l_Fields[1].GetUInt8();
-            uint64 l_Cooldown = uint64(l_Fields[2].GetUInt32()) * IN_MILLISECONDS;
+            uint64 l_Cooldown = uint64(l_Fields[1].GetUInt32()) * IN_MILLISECONDS;
 
             SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_CategoryID);
             if (l_Category == nullptr)
@@ -5698,11 +5714,11 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
             if (m_SpellChargesMap.find(l_CategoryID) != m_SpellChargesMap.end())
             {
                 ChargesData* l_Charges = GetChargesData(l_CategoryID);
-                l_Charges->m_ConsumedCharges = l_Charge;
+                l_Charges->m_ConsumedCharges++;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
+                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, 1)));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) category %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_CategoryID, uint32(l_Cooldown - l_CurrTime));
         }
@@ -5763,8 +5779,7 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
             PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
             l_Statement->setUInt32(0, GetGUIDLow());
             l_Statement->setUInt32(1, l_SpellCharges.first);
-            l_Statement->setUInt32(2, l_Count);
-            l_Statement->setUInt32(3, time(NULL) + uint32(l_Cooldown / IN_MILLISECONDS));
+            l_Statement->setUInt32(2, time(NULL) + uint32(l_Cooldown / IN_MILLISECONDS));
             p_Transaction->Append(l_Statement);
 
             ++l_Count;
@@ -9030,13 +9045,12 @@ void Player::SendCurrencies()
         if (!l_CurrencyEntry) // should never happen
             continue;
 
-        uint32 l_Precision      = (l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
-        uint32 l_WeekCount      = l_It->second.weekCount / l_Precision;
-        uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID) / l_Precision;
-        uint32 l_SeasonTotal    = l_It->second.seasonTotal / l_Precision;
+        uint32 l_WeekCount      = l_It->second.weekCount;
+        uint32 l_WeekCap        = GetCurrencyWeekCap(l_CurrencyEntry->ID);
+        uint32 l_SeasonTotal    = l_It->second.seasonTotal;
 
         l_Data << uint32(l_CurrencyEntry->ID);
-        l_Data << uint32(l_It->second.totalCount / l_Precision);
+        l_Data << uint32(l_It->second.totalCount);
 
         l_Data.WriteBit(l_WeekCount);
         l_Data.WriteBit(l_WeekCap);
@@ -9059,20 +9073,20 @@ void Player::SendPvpRewards()
 {
     WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);                         ///< Count of gived all conquest points in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);                        ///< Max Conquest points cap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, false);                         ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, false);                        ///< Max Conquest points cap
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                  ///< Count of gived all conquest points in week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, true);                 ///< Max Conquest points cap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false);                  ///< Count of gived all conquest points in week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, false);                 ///< Max Conquest points cap
 
-    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                    ///< Ashran currency week
-    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, true);                   ///< Ashran currency weekcap
+    l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                    ///< Ashran currency week
+    l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                   ///< Ashran currency weekcap
 
     l_Packet << (uint32)0;                                                                              ///< Count of gived all conquest rewarded in battlegrounds, deprecated
     l_Packet << (uint32)0;                                                                              ///< battleground currency weekcap, deprecated
 
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD)  / 100;   ///< Conquest points from Rated BG win
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / 100;       ///< Conquest points from Arena win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD);          ///< Conquest points from Rated BG win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);             ///< Conquest points from Arena win
 
     GetSession()->SendPacket(&l_Packet);
 }
@@ -9254,19 +9268,19 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             WorldPacket packet(SMSG_UPDATE_CURRENCY);
 
             packet << uint32(id);
-            packet << uint32(newTotalCount / precision);
+            packet << uint32(newTotalCount);
             packet << uint32(0);                        // Flags
 
             packet.WriteBit(weekCap != 0);
-            packet.WriteBit(itr->second.seasonTotal / precision);
+            packet.WriteBit(itr->second.seasonTotal);
             packet.WriteBit(0);                         // SuppressChatLog
             packet.FlushBits();
 
             if (weekCap)
-                packet << uint32(newWeekCount / precision);
+                packet << uint32(newWeekCount);
 
             if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal / precision);
+                packet << uint32(itr->second.seasonTotal);
 
             GetSession()->SendPacket(&packet);
         }
@@ -24561,6 +24575,25 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
     }
 
+    if (nodes.size() == 2)
+    {
+        // Hax - im a lazy cunt - fix me later
+        TaxiPath newNodes;
+        uint32 res = newNodes.CalculateTaxiPath(nodes[0], nodes[1], this);
+        if (res & (TAXIPATH_RES_NO_PATH | TAXIPATH_RES_NO_LINKED_NODES))
+        {
+            GetSession()->SendActivateTaxiReply(ERR_TAXI_NO_SUCH_PATH);
+            return false;
+        }
+
+        std::vector<uint32>& MyNodes = const_cast<std::vector<uint32>& >(nodes);
+        MyNodes.clear();
+        for (auto l_NewNode : newNodes)
+            MyNodes.push_back(l_NewNode->GetID());
+    }
+
+    if (nodes.size() < 2)
+        return false;
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any
@@ -24766,7 +24799,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)) == 0)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -26450,13 +26483,13 @@ void Player::SendInitialPacketsAfterAddToMap()
     l_Data.FlushBits();
     l_Data << uint32(l_MountSpells.size());
     l_Data << uint32(l_MountSpells.size());
- 
+
     for (auto l_Pair : l_MountSpells)
         l_Data << uint32(l_Pair.first);
- 
+
     for (auto l_Pair : l_MountSpells)
         l_Data.WriteBit(l_Pair.second);
- 
+
     l_Data.FlushBits();
 
     SendDirectMessage(&l_Data);
@@ -29424,13 +29457,13 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
-void Player::SendClearCooldown(uint32 p_SpellID, Unit * p_Target, bool p_ClearOnHold)
+void Player::SendClearCooldown(uint32 p_SpellID, Unit* p_Target, bool p_ClearOnHold)
 {
     WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
 
-    l_Data.appendPackGUID(p_Target->GetGUID());
-    l_Data << p_SpellID;
+    l_Data << uint32(p_SpellID);
     l_Data.WriteBit(p_ClearOnHold);
+    l_Data.WriteBit(p_Target == GetPet());             ///< IsPetCooldown
     l_Data.FlushBits();
 
     SendDirectMessage(&l_Data);
@@ -29652,7 +29685,7 @@ void Player::ActivateSpec(uint8 spec)
         if (uint32 oldglyph = GetGlyph(GetActiveSpec(), slot))
             if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellId);
- 
+
     float l_HPPct = GetHealthPct();
 
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
@@ -29665,7 +29698,7 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SetActiveSpec(spec);
-    
+
     for (uint8 l_I = 0; l_I < INVENTORY_SLOT_BAG_END; ++l_I)
     {
         if (Item* l_Item = m_items[l_I])
@@ -29674,7 +29707,7 @@ void Player::ActivateSpec(uint8 spec)
             AddItemsSetItem(this, l_Item);
         }
     }
-        
+
     SetHealth(GetMaxHealth() * l_HPPct / 100.f);
 
     uint32 usedTalentPoint = 0;
@@ -31771,7 +31804,7 @@ ScalingStatDistributionEntry const* Player::GetSSDForItem(Item const* p_Item) co
 uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item) const
 {
     uint32 ilvl = itemProto->ItemLevel;
-    
+
     if (itemProto->Quality == ITEM_QUALITY_HEIRLOOM)
         if (ScalingStatDistributionEntry const* ssd = GetSSDForItem(item))
             if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->CurveProperties, std::max(std::min(ssd->MaxLevel, (uint32)getLevel()), ssd->MinLevel)))
@@ -32094,7 +32127,7 @@ void Player::SendSpellCharges()
         if (l_Charges.m_ChargesCooldown.empty())
             l_Data << uint32(0);
         else
-            l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
+            l_Data << uint32(l_Charges.m_ChargesCooldown.front());
         l_Data << uint8(l_Charges.m_ConsumedCharges);
 
         ++l_Count;
