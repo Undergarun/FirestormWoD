@@ -22,6 +22,7 @@
 #include "Buildings/Alliance/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/AAlchemyLab.hpp"
 #include "Buildings/Alliance/ATheTannery.hpp"
+#include "Buildings/Alliance/AEnchanterStudy.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -29,6 +30,7 @@
 #include "Buildings/Horde/HTailoringEmporium.hpp"
 #include "Buildings/Horde/HAlchemyLab.hpp"
 #include "Buildings/Horde/HTheTannery.hpp"
+#include "Buildings/Horde/HEnchanterStudy.hpp"
 
 #include <random>
 
@@ -431,6 +433,10 @@ void AddSC_Garrison_NPC()
         /// The tannery
         new MS::Garrison::npc_AndersLongstitch;
         new MS::Garrison::npc_MarianneLevine;
+
+        /// Enchanter's Study
+        new MS::Garrison::npc_AyadaTheWhite;
+        new MS::Garrison::npc_Garm;
     }
 
     /// Horde
@@ -466,5 +472,9 @@ void AddSC_Garrison_NPC()
         /// The tannery
         new MS::Garrison::npc_MurneGreenhoof;
         new MS::Garrison::npc_Yanney;
+
+        /// Enchanter's Study
+        new MS::Garrison::npc_YuklaGreenshadow;
+        new MS::Garrison::npc_Garra;
     }
 }
