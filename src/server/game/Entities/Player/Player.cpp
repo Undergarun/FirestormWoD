@@ -31634,11 +31634,11 @@ void Player::SendToyBox()
 
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_TOYS);
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
     l_Statement->setUInt32(1, p_ItemID);
     l_Statement->setBool(2, false);
-    CharacterDatabase.Execute(l_Statement);
+    LoginDatabase.Execute(l_Statement);
 
     if (!HasToy(p_ItemID))
     {
@@ -31654,11 +31654,11 @@ void Player::AddNewToyToBox(uint32 p_ItemID)
 
 void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_TOY_FAVORITE);
+    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_UPD_TOY_FAVORITE);
     l_Statement->setBool(0, p_Apply);
     l_Statement->setUInt32(1, GetSession()->GetAccountId());
     l_Statement->setUInt32(2, p_ItemID);
-    CharacterDatabase.Execute(l_Statement);
+    LoginDatabase.Execute(l_Statement);
 
     WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
     l_Data.WriteBit(false);     // IsFullUpdate
