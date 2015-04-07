@@ -3917,6 +3917,7 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
         PreparedQueryResultFuture _HeirloomStoreCallback;
+        PreparedQueryResultFuture _PlayersToysCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;
