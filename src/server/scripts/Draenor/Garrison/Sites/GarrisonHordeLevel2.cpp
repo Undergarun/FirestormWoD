@@ -71,7 +71,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Owner instance
     void InstanceScript_GarrisonHordeLevel2::OnOwnerEnter(Player * p_Owner)
     {
-
+        /// Achievement "More Plots" horde side
+        if (p_Owner->GetTeamId() == TEAM_HORDE && !p_Owner->GetAchievementMgr().HasAchieved(9545))
+            p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9545), nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////

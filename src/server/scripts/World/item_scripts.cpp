@@ -446,7 +446,9 @@ namespace ProfessionBookSpells
         Inscription     = 161789,
         JewelCrafting   = 169926,
         LeatherWorking  = 169925,
-        Tailoring       = 169924
+        Tailoring       = 169924,
+        FirstAid        = 160329,
+        Cooking         = 160360
     };
 }
 namespace ProfessionBookSpellLearnSpells
@@ -548,6 +550,19 @@ namespace ProfessionBookSpellLearnSpells
         176058  ///< Secrets of Draenor Tailoring
     };
 
+    uint32 FirstAidLearnedRecipes[] =
+    {
+        172541, ///< Blackwater Anti-Venom
+        172539, ///< Antiseptic Bandage
+        172542, ///< Fire Ammonite Oil
+        172540  ///< Healing Tonic
+    };
+
+    uint32 CookingLearnedRecipes[] =
+    {
+        161002, ///< Grilled Saberfish
+        161001  ///< Saberfish Broth
+    };
 }
 
 class player_draenor_profession : public PlayerScript
@@ -565,6 +580,8 @@ class player_draenor_profession : public PlayerScript
             m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158750, MakeVector(ProfessionBookSpellLearnSpells::JewelCraftingLearnedRecipes)));
             m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158752, MakeVector(ProfessionBookSpellLearnSpells::LeatherWorkingLearnedRecipes)));
             m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158758, MakeVector(ProfessionBookSpellLearnSpells::TailoringLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158741, MakeVector(ProfessionBookSpellLearnSpells::FirstAidLearnedRecipes)));
+            m_SpellPerProfessions.push_back(std::pair<uint32, std::vector<uint32>>(158765, MakeVector(ProfessionBookSpellLearnSpells::CookingLearnedRecipes)));
 #undef MakeVector
         }
 
@@ -619,6 +636,8 @@ class spell_draenor_profession : public SpellScriptLoader
                         case ProfessionBookSpells::JewelCrafting:  l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::JewelCraftingLearnedRecipes);  break;
                         case ProfessionBookSpells::LeatherWorking: l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::LeatherWorkingLearnedRecipes); break;
                         case ProfessionBookSpells::Tailoring:      l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::TailoringLearnedRecipes);      break;
+                        case ProfessionBookSpells::FirstAid:       l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::FirstAidLearnedRecipes);       break;
+                        case ProfessionBookSpells::Cooking:        l_LinkedSpells = MakeVector(ProfessionBookSpellLearnSpells::CookingLearnedRecipes);        break;
 
                         default:
                             break;
