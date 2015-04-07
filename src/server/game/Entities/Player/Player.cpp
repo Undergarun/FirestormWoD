@@ -5576,6 +5576,23 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         }
     }
 
+    /// Remove spell charge cooldown that have <= 10 min CD
+    for (auto l_Itr = m_SpellChargesMap.begin(); l_Itr != m_SpellChargesMap.end();)
+    {
+        SpellCategoryEntry const* l_SpellCategory = sSpellCategoryStores.LookupEntry(l_Itr->first);
+        if (l_SpellCategory == nullptr
+            || l_SpellCategory->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
+            || l_SpellCategory->ChargeRegenTime > 10 * MINUTE * IN_MILLISECONDS)
+        {
+            l_Itr++;
+            continue;
+        }
+
+        SendClearSpellCharges(l_SpellCategory->Id);
+        l_Itr = m_SpellChargesMap.erase(l_Itr);
+    }
+
+
     // pet cooldowns
     if (removeActivePetCooldowns)
         if (Pet* pet = GetPet())
@@ -5653,8 +5670,7 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
         {
             Field* l_Fields = p_Result->Fetch();
             uint32 l_CategoryID = l_Fields[0].GetUInt32();
-            uint8 l_Charge = l_Fields[1].GetUInt8();
-            uint64 l_Cooldown = uint64(l_Fields[2].GetUInt32()) * IN_MILLISECONDS;
+            uint64 l_Cooldown = uint64(l_Fields[1].GetUInt32()) * IN_MILLISECONDS;
 
             SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(l_CategoryID);
             if (l_Category == nullptr)
@@ -5671,11 +5687,11 @@ void Player::_LoadChargesCooldowns(PreparedQueryResult p_Result)
             if (m_SpellChargesMap.find(l_CategoryID) != m_SpellChargesMap.end())
             {
                 ChargesData* l_Charges = GetChargesData(l_CategoryID);
-                l_Charges->m_ConsumedCharges = l_Charge;
+                l_Charges->m_ConsumedCharges++;
                 l_Charges->m_ChargesCooldown.push_back(l_RealCooldown);
             }
             else
-                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, l_Charge)));
+                m_SpellChargesMap.insert(std::make_pair(l_CategoryID, ChargesData(l_Category->MaxCharges, l_RealCooldown, 1)));
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) category %u, charges cooldown loaded (%u secs).", GetGUIDLow(), l_CategoryID, uint32(l_Cooldown - l_CurrTime));
         }
@@ -5736,8 +5752,7 @@ void Player::_SaveChargesCooldowns(SQLTransaction& p_Transaction)
             PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARGES_COOLDOWN);
             l_Statement->setUInt32(0, GetGUIDLow());
             l_Statement->setUInt32(1, l_SpellCharges.first);
-            l_Statement->setUInt32(2, l_Count);
-            l_Statement->setUInt32(3, time(NULL) + uint32(l_Cooldown / IN_MILLISECONDS));
+            l_Statement->setUInt32(2, time(NULL) + uint32(l_Cooldown / IN_MILLISECONDS));
             p_Transaction->Append(l_Statement);
 
             ++l_Count;
@@ -24714,7 +24729,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)) == 0)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -32046,7 +32061,7 @@ void Player::SendSpellCharges()
         if (l_Charges.m_ChargesCooldown.empty())
             l_Data << uint32(0);
         else
-            l_Data << uint32(l_Charges.m_ChargesCooldown.front() / IN_MILLISECONDS);
+            l_Data << uint32(l_Charges.m_ChargesCooldown.front());
         l_Data << uint8(l_Charges.m_ConsumedCharges);
 
         ++l_Count;
