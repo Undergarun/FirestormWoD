@@ -15168,7 +15168,7 @@ void Unit::IncrDiminishing(DiminishingGroup group)
             i->hitCount += 1;
         return;
     }
-    m_Diminishing.push_back(DiminishingReturn(group, getMSTime(), DIMINISHING_LEVEL_1));
+    m_Diminishing.push_back(DiminishingReturn(group, getMSTime(), DIMINISHING_LEVEL_2));
 }
 
 float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration, Unit* caster, DiminishingLevels Level, int32 limitduration)
