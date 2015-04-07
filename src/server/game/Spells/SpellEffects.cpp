@@ -3185,10 +3185,6 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     DispelChargesList l_DispelList;
     unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
 
-    /// Remove Hex (shaman spell) from Remove Curse (mage)
-    if (m_spellInfo->Id == 475 && unitTarget->HasAura(51514))
-        unitTarget->RemoveAura(51514);
-
     if (l_DispelList.empty())
         return;
 

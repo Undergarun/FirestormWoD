@@ -2125,8 +2125,6 @@ enum PsychicHorror_Spell
     PRIEST_SPELL_PSYCHIC_HORROR = 64044
 };
 
-bool g_PsychicHorrorGainedPower;
-
 // Psychic Horror - 64044
 class spell_pri_psychic_horror: public SpellScriptLoader
 {
@@ -2139,7 +2137,13 @@ class spell_pri_psychic_horror: public SpellScriptLoader
 
             bool Load()
             {
-                g_PsychicHorrorGainedPower = false;
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return false;
+
+                l_Caster->SetPsychicHorrorGainedPower(false);
+
                 return true;
             }
 
@@ -2149,12 +2153,12 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (!g_PsychicHorrorGainedPower && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (!l_Caster->GetPsychicHorrorGainedPower() && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
                             /// +1s per Shadow Orb consumed
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
-                                g_PsychicHorrorGainedPower = true;
+                                l_Caster->SetPsychicHorrorGainedPower(true);
 
                                 int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
                                 if (l_CurrentPowerUsed > 2) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)

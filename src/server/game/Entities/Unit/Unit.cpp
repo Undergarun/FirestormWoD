@@ -17215,6 +17215,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if ((i->aura->GetId() == 2094 || i->aura->GetId() == 1776) && procSpell && procSpell->IsPoisonOrBleedSpell() && target->HasAura(108216))
             takeCharges = false;
 
+        /// Deep Freeze can be removed just by Ice Lance or Ice Nova damage
+        if (i->aura->GetId() == 44572 && procSpell && procSpell->Id != 30455 && procSpell->Id != 157997)
+            takeCharges = false;
+
         // Remove charge (aura can be removed by triggers)
         if (prepare && useCharges && takeCharges && !i->aura->GetSpellInfo()->IsCustomCharged(procSpell, this))
         {

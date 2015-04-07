@@ -14,3 +14,9 @@ INSERT INTO `spell_script_names` VALUES (116858, 'spell_warl_chaos_bolt');
 
 -- fix Divine Insight (shadow) if proc while player is casting
 INSERT INTO `spell_script_names` VALUES ('8092', 'spell_pri_mind_blast');
+
+-- fix Remove Curse, should remove Hex
+INSERT INTO `spell_script_names` VALUES (475, 'spell_mage_remove_curse');
+
+-- fix Doom Bolt, damage calculation
+INSERT INTO `spell_script_names` VALUES (85692, 'spell_gen_doom_bolt');

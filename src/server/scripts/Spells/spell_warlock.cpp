@@ -1981,7 +1981,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                         Pet* l_Pet = l_Player->GetPet();
 
                         if (l_Pet != nullptr && l_SpellInfo != nullptr)
-                            l_Pet->SetHealth(l_Pet->GetHealth() + CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints * 2), false, false);
                     }
                     SetHitHeal(healAmount);
                 }

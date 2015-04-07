@@ -1455,7 +1455,7 @@ class spell_warr_execute: public SpellScriptLoader
                 int32 l_Damage = GetHitDamage();
 
                 // converts each extra rage (up to 30 rage) into additional damage
-                int32 l_RageConsumed = -GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
                 // 30 rage = 320% more weapon damage
                 AddPct(l_Damage, (l_RageConsumed / 1.5f));
 

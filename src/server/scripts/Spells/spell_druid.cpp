@@ -3353,7 +3353,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                int32 l_EnergyConsumed = l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                 /// 25 energy = 100% more damage
                 AddPct(l_Damage, l_EnergyConsumed * 4);
 
@@ -3396,23 +3396,43 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript)
 
+            int32 m_RageForSpell;
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
-                if (l_Caster->GetPower(POWER_RAGE) < GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE))
-                    return SPELL_FAILED_NO_POWER;
+                if (l_Caster)
+                    m_RageForSpell = l_Caster->GetPower(POWER_RAGE) > GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE) ? GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE) : l_Caster->GetPower(POWER_RAGE);
 
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                /// Maximum we can reach (attack power * 6) health by 60 rage
+                int32 l_AttackPower = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier;
+                /// For every 1 rage we reach ((attack power * 6) / spent rage) health
+                float l_AttackPowerPerRage = l_AttackPower / GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                /// Calculate our heal, according to spent rage
+                int32 l_Heal = l_AttackPowerPerRage * (m_RageForSpell / l_Caster->GetPowerCoeff(POWER_RAGE));
+
+                SetHitHeal(l_Heal);
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ModifyPower(POWER_RAGE, -GetEffectValue() * GetCaster()->GetPowerCoeff(POWER_RAGE));
+                GetCaster()->ModifyPower(POWER_RAGE, -m_RageForSpell);
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
+                OnHit += SpellHitFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };

@@ -362,6 +362,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
+            /// Shackle Undead -- 9484
+            if (spellproto->Id == 9484)
+                return DIMINISHING_DISORIENT;
 
             // Psychic Scream -- 8122
             if (spellproto->SpellFamilyFlags[0] & 0x10000)
@@ -439,6 +442,13 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_PRIEST:
+        {
+            /// Shackle Undead
+            if (spellproto->Id == 9484)
+                return 8 * IN_MILLISECONDS;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)

@@ -2543,6 +2543,10 @@ class Unit : public WorldObject
         uint64 GetIciclesTarget() const { return iciclesTargetGUID; }
         void SetIciclesTarget(uint64 guid) { iciclesTargetGUID = guid; }
 
+        // helpers for Psychic Horror
+        bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
+        void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2709,6 +2713,7 @@ class Unit : public WorldObject
 
         uint64 simulacrumTargetGUID;
         uint64 iciclesTargetGUID;
+        bool psychicHorrorGainedPower;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us
