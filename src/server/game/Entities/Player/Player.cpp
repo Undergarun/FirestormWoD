@@ -31601,7 +31601,7 @@ void Player::SendToyBox()
 
 void Player::AddNewToyToBox(uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_TOYS);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_TOYS);
     l_Statement->setUInt32(0, GetSession()->GetAccountId());
     l_Statement->setUInt32(1, p_ItemID);
     l_Statement->setBool(2, false);
@@ -31621,7 +31621,7 @@ void Player::AddNewToyToBox(uint32 p_ItemID)
 
 void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
 {
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_TOY_FAVORITE);
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(LOGIN_UPD_TOY_FAVORITE);
     l_Statement->setBool(0, p_Apply);
     l_Statement->setUInt32(1, GetSession()->GetAccountId());
     l_Statement->setUInt32(2, p_ItemID);
