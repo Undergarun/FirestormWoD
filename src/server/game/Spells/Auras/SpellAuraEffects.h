@@ -110,6 +110,9 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
+        int32 GetCrowdControlDamage() const { return m_CrowdControlDamage; }
+        void SetCrowdControlDamage(int32 p_Amount) { m_CrowdControlDamage = p_Amount; }
+
     private:
         constAuraPtr m_base;
 
