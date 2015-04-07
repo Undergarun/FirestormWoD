@@ -2203,6 +2203,53 @@ public:
     }
 };
 
+/// 2645 Chain Heal
+class spell_sha_chain_heal: public SpellScriptLoader
+{
+    public:
+        spell_sha_chain_heal() : SpellScriptLoader("spell_sha_chain_heal") { }
+
+        class spell_sha_chain_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_chain_heal_SpellScript);
+
+            enum eSpells
+            {
+                Riptide = 61295
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->HasAura(eSpells::Riptide))
+                {
+                    uint32 l_Heal = GetHitHeal();
+
+                    SpellInfo const* l_Riptide = sSpellMgr->GetSpellInfo(eSpells::Riptide);
+                    if (l_Riptide == nullptr)
+                        return;
+
+                    AddPct(l_Heal, l_Riptide->Effects[EFFECT_2].BasePoints);
+                    SetHitHeal(l_Heal);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_chain_heal_SpellScript;
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     /// Npcs
@@ -2251,4 +2298,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_liquid_magma_visual();
     new spell_sha_ghost_wolf();
     new spell_sha_lava_burst();
+    new spell_sha_chain_heal();
 }
