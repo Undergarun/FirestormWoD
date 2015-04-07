@@ -124,7 +124,8 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
     SPELL_SHA_GLYPH_OF_CLEANSING_WATER          = 55445,
-    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961
+    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961,
+    SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -1658,6 +1659,60 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
         }
 };
 
+/// Flame Shock - 8050
+class spell_sha_flame_shock : public SpellScriptLoader
+{
+    public:
+        spell_sha_flame_shock() : SpellScriptLoader("spell_sha_flame_shock") { }
+
+        class spell_sha_flame_shock_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_flame_shock_SpellScript);
+
+            bool m_HasUnleashFlame = false;
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA) && l_UnleashFlame != nullptr)
+                {
+                    m_HasUnleashFlame = true;
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+
+                if (!m_HasUnleashFlame || l_Target == nullptr || l_UnleashFlame == nullptr)
+                    return;
+
+                if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
+                    l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_sha_flame_shock_SpellScript::HandleAfterHit);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_flame_shock_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_flame_shock_SpellScript();
+        }
+};
+
 /// 60103 - Lava Lash
 class spell_sha_lava_lash: public SpellScriptLoader
 {
@@ -1670,12 +1725,28 @@ class spell_sha_lava_lash: public SpellScriptLoader
 
             void HitTarget(SpellEffIndex)
             {
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                        GetCaster()->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (GetCaster()->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
-                    GetCaster()->CastSpell(GetCaster(), SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                    l_Caster->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA))
+                {
+                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+
+                    if (l_UnleashFlame == nullptr)
+                        return;
+
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                }
             }
 
             void Register()
@@ -2365,4 +2436,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_burst();
     new spell_sha_chain_heal();
     new spell_sha_glyph_of_eternal_earth();
+    new spell_sha_flame_shock();
 }
