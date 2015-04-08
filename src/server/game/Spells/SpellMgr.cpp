@@ -5918,8 +5918,8 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->SpellFamilyName)
             {
                 case SPELLFAMILY_SHAMAN:
-                    /// Lava Lash
-                    if (spellInfo->Id == 60103)
+                    /// Lava Lash / Windstrike - Overide Stormstrike (17364) with Ascendance (114051)
+                    if (spellInfo->Id == 60103 || spellInfo->Id == 115356)
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                     break;
                 case SPELLFAMILY_WARRIOR:
