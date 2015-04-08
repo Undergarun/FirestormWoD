@@ -3376,6 +3376,28 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156127:///< Meat Hook (The Butcher)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 100.0f;
                 break;
+            case 156160:///< Bounding Cleave (The Butcher)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 156171:///< Bounding Cleave (The Butcher)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 156172:///< Bounding Cleave (The Butcher)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 156157:///< Cleave (The Butcher)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 163042:///< Pale Vitriol
+                spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3971,6 +3993,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 161517:///< Splitting Breath (DoT)
             case 176146:///< Volcanic Fallout
             case 159413:///< Mauling Brew
+            case 175654:///< Rune of Disintegration
+            case 163046:///< Pale Vitriol
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
@@ -4112,6 +4136,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 62775:  ///< Tympanic Tantrum (XT-002 encounter)
             case 102598: ///< Void Strike, Infinite Warden
             case 154448: ///< Shrapnel Nova (Orebender Gor'Ashan)
+            case 163047: ///< Paleobomb (Night-Twisted Cadaver - The Butcher)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: ///< Sonic Screech (Auriaya)
@@ -4138,12 +4163,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166623: ///< Four winds (Skyreach)
             case 166664: ///< Four winds (Skyreach)
             {
-                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
-                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
-                 SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
-                 if (!durationIndex)
-                     break;
-                 spellInfo->DurationEntry = durationIndex;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
+                if (!durationIndex)
+                    break;
+                spellInfo->DurationEntry = durationIndex;
                 break;
             }
             case 159226: ///< Solar storm (Skyreach)
@@ -4154,6 +4179,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 156841: ///< Storm (Skyreach)
             case 72293:  ///< Mark of the Fallen Champion (Deathbringer Saurfang)
             case 159178: ///< Open Wounds (Kargath Bladefist)
+            case 156152: ///< Gushing Wounds (The Butcher)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 116711: ///< Draw Flame

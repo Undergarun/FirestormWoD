@@ -111,7 +111,11 @@ enum specialSpells
     ChainHurlJumpDestPlayer             = 159995,
     ChainHurlAoEStunPlayer              = 160904,
     ChainHurl                           = 159947,
-    AnimChainHurl                       = 5917
+    AnimChainHurl                       = 5917,
+
+    /// The Butcher - Highmaul
+    BoundingCleaveJump                  = 156171,
+    BoundingCleaveDamage                = 156172
 };
 
 template<class T>
@@ -205,6 +209,9 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
             break;
         case specialSpells::ChainHurlJumpDestPlayer:
             unit.CastSpell(&unit, specialSpells::ChainHurlAoEStunPlayer, true);
+            break;
+        case specialSpells::BoundingCleaveJump:
+            unit.CastSpell(&unit, specialSpells::BoundingCleaveDamage, true);
             break;
         default:
             break;

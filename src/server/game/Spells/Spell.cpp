@@ -1896,9 +1896,9 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImp
 
                     Position const* l_Center = m_caster;
                     std::list<WorldObject*> l_Targets;
-                    float l_Raidus = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    float l_Radius = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-                    SearchAreaTargets(l_Targets, l_Raidus, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
+                    SearchAreaTargets(l_Targets, l_Radius, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
 
                     std::list<Unit*> l_UnitTargets;
                     // for compatibility with older code - add only unit and go targets

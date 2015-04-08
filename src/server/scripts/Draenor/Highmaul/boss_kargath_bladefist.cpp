@@ -297,6 +297,8 @@ class boss_kargath_bladefist : public CreatureScript
 
                     ResetAllPlayersFavor(me);
                 }
+
+                summons.DespawnAll();
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -390,11 +392,16 @@ class boss_kargath_bladefist : public CreatureScript
                             l_RaidGrate->SetGoState(GOState::GO_STATE_READY);
                     }
 
-                    if (Creature* l_BladefistTarget = me->FindNearestCreature(eCreatures::BladefistTarget, 10.0f))
-                        me->Kill(l_BladefistTarget);
-
                     me->SummonGameObject(eHighmaulGameobjects::InstancePortal2, g_NewInstancePortalPos, 0.0f, 0.0f, 0.0f, 1.0f, -1);
                 }
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                if (p_Summon->GetEntry() == eCreatures::BladefistTarget)
+                    me->Kill(p_Summon);
+
+                summons.Summon(p_Summon);
             }
 
             void DoAction(int32 const p_Action) override

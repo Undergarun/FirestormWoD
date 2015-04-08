@@ -8,6 +8,99 @@
 
 #include "highmaul.hpp"
 
+G3D::Vector3 ComputeLocationSelection(Creature* p_Source, float p_SearchRange, float p_MinRadius, float p_Radius)
+{
+    using Cluster = std::set<Player*>;
+    using GuidCluster = std::set<uint32>;
+
+    std::list<Player*> l_Targets;
+
+    p_Source->GetPlayerListInGrid(l_Targets, p_SearchRange);
+
+    if (!l_Targets.empty())
+    {
+        l_Targets.remove_if([p_Source, p_MinRadius](Player* p_Player) -> bool
+        {
+            if (p_Player == nullptr)
+                return true;
+
+            if (p_Player->GetDistance(p_Source) < p_MinRadius)
+                return true;
+
+            return false;
+        });
+    }
+
+    std::map<uint32, Cluster> l_ClusterMap;
+    GuidCluster l_VisitedObjects;
+    GuidCluster l_VisitedNeighboor;
+
+    for (Player* l_Player : l_Targets)
+    {
+        if (l_VisitedObjects.find(l_Player->GetGUIDLow()) != l_VisitedObjects.end())
+            continue;
+
+        l_VisitedObjects.insert(l_Player->GetGUIDLow());
+
+        Cluster l_Neighboor;
+        for (Player* l_PlayerSecond : l_Targets)
+        {
+            float l_Dist = l_Player->GetDistance(l_PlayerSecond);
+            if (l_Dist <= p_Radius)
+                l_Neighboor.insert(l_PlayerSecond);
+        }
+
+        l_ClusterMap[l_Player->GetGUIDLow()] = Cluster();
+        l_ClusterMap[l_Player->GetGUIDLow()].insert(l_Player);
+
+        for (Player* l_PlayerSecond : l_Neighboor)
+            l_ClusterMap[l_Player->GetGUIDLow()].insert(l_PlayerSecond);
+    }
+
+    size_t l_Size = 0;
+    for (auto l_Cluster : l_ClusterMap)
+    {
+        if (l_Cluster.second.size() > l_Size)
+            l_Size = l_Cluster.second.size();
+    }
+
+    G3D::Vector3 l_Pos;
+    for (auto l_Cluster : l_ClusterMap)
+    {
+        if (l_Size && l_Cluster.second.size() == l_Size)
+        {
+            float l_X = 0.0f;
+            float l_Y = 0.0f;
+
+            for (Player* l_Player : l_Cluster.second)
+            {
+                l_X += l_Player->GetPositionX();
+                l_Y += l_Player->GetPositionY();
+            }
+
+            l_X /= (uint32)l_Size;
+            l_Y /= (uint32)l_Size;
+
+            l_Pos.x = l_X;
+            l_Pos.y = l_Y;
+            l_Pos.z = p_Source->GetPositionZ();
+            break;
+        }
+    }
+
+    return l_Pos;
+}
+
+G3D::Vector3 GetCleaveLocation(Creature* p_Source)
+{
+    return ComputeLocationSelection(p_Source, 5.0f, 0.0f, 5.0f);
+}
+
+G3D::Vector3 GetBoundingCleaveLocation(Creature* p_Source)
+{
+    return ComputeLocationSelection(p_Source, 500.0f, 5.1f, 10.0f);
+}
+
 /// The Butcher - 77404
 class boss_the_butcher : public CreatureScript
 {
@@ -17,20 +110,29 @@ class boss_the_butcher : public CreatureScript
         enum eSpells
         {
             /// Heavy Handed
-            HeavyHandedAura = 156135,
-            HeavyHandedProc = 156138,
+            HeavyHandedAura     = 156135,
+            HeavyHandedProc     = 156138,
             /// The Cleaver
-            TheCleaverDmg   = 156143,
-            TheCleaverDot   = 156147,
+            TheCleaverDmg       = 156143,
+            TheCleaverDot       = 156147,
             /// The Tenderizer
-            TheTenderizer   = 156151,
+            TheTenderizer       = 156151,
             /// Meat Hook
-            MeatHook        = 156125,
-            MeatHookJump    = 156127,
+            MeatHook            = 156125,
+            MeatHookJump        = 156127,
+            /// Bounding Cleave
+            BoundingCleaveKnock = 156160,
+            BoundingCleaveDummy = 156197,
+            /// Cleave
+            SpellCleave         = 156157,
+            SpellGushingWounds  = 156152,
+            /// Energy management
+            Angry5PerTick       = 156720,
+            Angry10PerTick      = 160248,
             /// Berserker
-            SpellBerserk    = 26662,
+            SpellBerserk        = 26662,
             /// Frenzy (30%)
-            SpellFrenzy     = 156598
+            SpellFrenzy         = 156598
         };
 
         enum eEvents
@@ -40,7 +142,9 @@ class boss_the_butcher : public CreatureScript
             EventCleaver,
             EventBerserk,
             EventBoundingCleave,
-            EventMeatHook
+            EventMeatHook,
+            /// Mythic mode only
+            EventCadaver
         };
 
         enum eTalks
@@ -57,18 +161,29 @@ class boss_the_butcher : public CreatureScript
             Wipe
         };
 
+        enum eCreature
+        {
+            NightTwistedCadaver = 82505
+        };
+
         struct boss_the_butcherAI : public BossAI
         {
             boss_the_butcherAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTheButcher)
             {
+                m_Instance  = p_Creature->GetInstanceScript();
                 m_IntroDone = false;
             }
 
             EventMap m_Events;
-
-            uint32 m_RegenTimer;
+            InstanceScript* m_Instance;
 
             bool m_IntroDone;
+
+            /// Timers for prevent spamming for few abilities
+            uint32 m_CleaveCooldown;
+
+            /// Mythic mode only
+            uint8 m_AddCount;
 
             void Reset() override
             {
@@ -76,9 +191,16 @@ class boss_the_butcher : public CreatureScript
 
                 _Reset();
 
-                m_RegenTimer = 0;
-
                 me->RemoveAura(eSpells::SpellFrenzy);
+                me->RemoveAura(eSpells::SpellBerserk);
+                me->RemoveAura(eSpells::Angry5PerTick);
+                me->RemoveAura(eSpells::Angry10PerTick);
+
+                m_CleaveCooldown = 0;
+
+                m_AddCount = 0;
+
+                me->SetCanDualWield(true);
 
                 /// Wrong flags remove
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISARMED | eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION);
@@ -86,25 +208,41 @@ class boss_the_butcher : public CreatureScript
                 me->SetPower(Powers::POWER_ENERGY, 0);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+                }
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
                 _EnterCombat();
 
-                m_RegenTimer = 3000;
+                me->CastSpell(me, eSpells::Angry5PerTick, true);
 
                 Talk(eTalks::Aggro);
 
-                m_Events.ScheduleEvent(eEvents::EventTenderizer, 6000);
-                m_Events.ScheduleEvent(eEvents::EventCleave, 10000);
-                m_Events.ScheduleEvent(eEvents::EventCleaver, 12000);
-                m_Events.ScheduleEvent(eEvents::EventBerserk, 300000);
+                m_Events.ScheduleEvent(eEvents::EventTenderizer, 6 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCleave, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCleaver, 12 * TimeConstants::IN_MILLISECONDS);
+
+                if (!IsLFR())
+                    m_Events.ScheduleEvent(eEvents::EventBerserk, IsMythic() ? 240 * TimeConstants::IN_MILLISECONDS : 300 * TimeConstants::IN_MILLISECONDS);
 
                 /// Meat Hook is an ability that The Butcher uses to pull his tank to him.
                 /// We assume that this ability exists to prevent The Butcher from being kited,
                 /// but it is not otherwise in use during the fight.
-                m_Events.ScheduleEvent(eEvents::EventMeatHook, 4000);
+                m_Events.ScheduleEvent(eEvents::EventMeatHook, 4 * TimeConstants::IN_MILLISECONDS);
+
+                /// Mythic mode only
+                if (IsMythic())
+                {
+                    m_AddCount = 0;
+                    m_Events.ScheduleEvent(eEvents::EventCadaver, 18 * TimeConstants::IN_MILLISECONDS);
+                }
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
@@ -115,20 +253,37 @@ class boss_the_butcher : public CreatureScript
                 if (me->HealthBelowPctDamaged(30, p_Damage))
                 {
                     me->CastSpell(me, eSpells::SpellFrenzy, true);
+
+                    me->RemoveAura(eSpells::Angry5PerTick);
+                    me->CastSpell(me, eSpells::Angry10PerTick, true);
+
                     Talk(eTalks::Frenzy);
                 }
             }
 
             void EnterEvadeMode() override
             {
-                _EnterEvadeMode();
+                CreatureAI::EnterEvadeMode();
 
                 Talk(eTalks::Wipe);
+            }
+
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            {
+                /// The Butcher only regens by script
+                p_Value = 0;
             }
 
             void JustDied(Unit* p_Killer) override
             {
                 _JustDied();
+
+                if (m_Instance != nullptr)
+                {
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+                }
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -167,6 +322,9 @@ class boss_the_butcher : public CreatureScript
                     case eSpells::MeatHook:
                         p_Target->CastSpell(me, eSpells::MeatHookJump, true);
                         break;
+                    case eSpells::SpellCleave:
+                        me->CastSpell(p_Target, eSpells::SpellGushingWounds, true);
+                        break;
                     default:
                         break;
                 }
@@ -189,7 +347,7 @@ class boss_the_butcher : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                ScheduleEnergyRegen(p_Diff);
+                ScheduleEnergy(p_Diff);
 
                 m_Events.Update(p_Diff);
 
@@ -199,35 +357,91 @@ class boss_the_butcher : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventTenderizer:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::TheTenderizer, true);
-                        m_Events.ScheduleEvent(eEvents::EventTenderizer, 16500);
+                        m_Events.ScheduleEvent(eEvents::EventTenderizer, 16 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventCleave:
-                        Talk(eTalks::Cleave);
-                        m_Events.ScheduleEvent(eEvents::EventCleave, 6000);
+                    {
+                        if (m_CleaveCooldown <= p_Diff)
+                        {
+                            m_CleaveCooldown = 20 * TimeConstants::IN_MILLISECONDS;
+                            Talk(eTalks::Cleave);
+                        }
+                        else
+                            m_CleaveCooldown -= p_Diff;
+
+                        G3D::Vector3 l_Source = GetCleaveLocation(me);
+                        me->CastSpell(l_Source, eSpells::SpellCleave, false);
+
+                        AddTimedDelayedOperation(500, [this, l_Source]() -> void
+                        {
+                            G3D::Vector3 l_Target = l_Source;
+                            l_Target.z += 0.1f;
+
+                            /// Sniffed values
+                            G3D::Vector3 l_Orientation(0.0f, 4.035325f, 0.0f);
+
+                            me->PlayOrphanSpellVisual(l_Source, l_Orientation, l_Target, 37116);
+                        });
+
+                        m_Events.ScheduleEvent(eEvents::EventCleave, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventCleaver:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::TheCleaverDmg, true);
-                        m_Events.ScheduleEvent(eEvents::EventCleaver, 7500);
+                        m_Events.ScheduleEvent(eEvents::EventCleaver, 8 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventBerserk:
+                    {
                         Talk(eTalks::Berserk);
                         me->CastSpell(me, eSpells::SpellBerserk, true);
                         break;
+                    }
                     case eEvents::EventBoundingCleave:
+                    {
                         Talk(eTalks::BoundingCleave);
-                        me->SetPower(Powers::POWER_ENERGY, 0);
+                        me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
+                        /// Charge on players after 8s
+                        me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
                         break;
+                    }
                     case eEvents::EventMeatHook:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
                             if (!l_Target->IsWithinMeleeRange(me))
                                 me->CastSpell(l_Target, eSpells::MeatHook, true);
                         }
-                        m_Events.ScheduleEvent(eEvents::EventMeatHook, 4000);
+                        m_Events.ScheduleEvent(eEvents::EventMeatHook, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
+                    case eEvents::EventCadaver:
+                    {
+                        /// Every four waves of adds, The Butcher spawns one add more
+                        ++m_AddCount;
+                        uint8 l_Count = floor(float(m_AddCount) / 4.0f) + 1;
+
+                        float l_Radius = 50.0f;
+                        float l_PosX = me->GetPositionX();
+                        float l_PosY = me->GetPositionY();
+
+                        for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                        {
+                            float l_Orientation = frand(0, 2 * M_PI);
+                            float l_X = l_PosX + (l_Radius * cos(l_Orientation));
+                            float l_Y = l_PosY + (l_Radius * sin(l_Orientation));
+                            me->SummonCreature(eCreature::NightTwistedCadaver, l_X, l_Y, me->GetPositionZ());
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventCadaver, 14 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -235,31 +449,95 @@ class boss_the_butcher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void ScheduleEnergyRegen(uint32 const p_Diff)
+            void ScheduleEnergy(uint32 const p_Diff)
             {
-                if (!m_RegenTimer)
-                    return;
-
-                /// The Butcher gains 5 energy every 3 seconds
-                if (m_RegenTimer <= p_Diff)
-                {
-                    int32 l_Value = me->HasAura(eSpells::SpellFrenzy) ? 10 : 5;
-                    me->ModifyPower(Powers::POWER_ENERGY, l_Value);
-                    m_RegenTimer = 3000;
-
-                    /// Bounding Cleave Icon Bounding Cleave is an ability that The Butcher uses when he reaches 100 Energy
-                    /// (this happens exactly every 60 seconds before The Butcher reaches 30% health, and every 30 seconds after that).
-                    if (me->GetPower(Powers::POWER_ENERGY) >= 100)
-                        m_Events.ScheduleEvent(eEvents::EventBoundingCleave, 50);
-                }
-                else
-                    m_RegenTimer -= p_Diff;
+                /// Bounding Cleave Icon Bounding Cleave is an ability that The Butcher uses when he reaches 100 Energy
+                /// (this happens exactly every 60 seconds before The Butcher reaches 30% health, and every 30 seconds after that).
+                if (me->GetPower(Powers::POWER_ENERGY) >= 100)
+                    m_Events.ScheduleEvent(eEvents::EventBoundingCleave, 50);
             }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new boss_the_butcherAI(p_Creature);
+        }
+};
+
+/// Night-Twisted Cadaver - 82505
+class npc_highmaul_night_twisted_cadaver : public CreatureScript
+{
+    public:
+        npc_highmaul_night_twisted_cadaver() : CreatureScript("npc_highmaul_night_twisted_cadaver") { }
+
+        enum eSpells
+        {
+            Paleobomb   = 163047,
+            PaleVitriol = 163042
+        };
+
+        struct npc_highmaul_night_twisted_cadaverAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_night_twisted_cadaverAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            bool m_Explode;
+
+            void Reset() override
+            {
+                m_Explode = false;
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (m_Instance == nullptr)
+                        return;
+
+                    me->SetWalk(true);
+
+                    if (Creature* l_Butcher = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::TheButcher)))
+                        me->GetMotionMaster()->MoveChase(l_Butcher);
+                });
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (m_Instance == nullptr || m_Explode)
+                    return;
+
+                if (Creature* l_Butcher = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::TheButcher)))
+                {
+                    if (me->GetDistance(l_Butcher) <= 1.0f)
+                        ExplodeAndSpawnVitriol();
+                }
+
+                if (Player* l_Player = me->FindNearestPlayer(1.0f))
+                    ExplodeAndSpawnVitriol();
+            }
+
+            void ExplodeAndSpawnVitriol()
+            {
+                me->GetMotionMaster()->Clear();
+
+                m_Explode = true;
+
+                me->CastSpell(me, eSpells::Paleobomb, true);
+                me->CastSpell(me, eSpells::PaleVitriol, true);
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->Kill(me); });
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_night_twisted_cadaverAI(p_Creature);
         }
 };
 
@@ -380,14 +658,132 @@ class spell_highmaul_heavy_handed_proc : public SpellScriptLoader
         }
 };
 
+/// Bounding Cleave (Periodic Dummy) - 156197
+class spell_highmaul_bounding_cleave_dummy : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_bounding_cleave_dummy() : SpellScriptLoader("spell_highmaul_bounding_cleave_dummy") { }
+
+        enum eSpell
+        {
+            BoundingCleaveCharge = 156171
+        };
+
+        class spell_highmaul_bounding_cleave_dummy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_bounding_cleave_dummy_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (p_AurEff->GetTickNumber() != 8)
+                    return;
+
+                if (GetTarget() == nullptr)
+                    return;
+
+                Creature* l_Butcher = GetTarget()->ToCreature();
+                if (l_Butcher == nullptr)
+                    return;
+
+                G3D::Vector3 l_Pos = GetBoundingCleaveLocation(l_Butcher);
+                l_Butcher->CastSpell(l_Pos, eSpell::BoundingCleaveCharge, true);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_bounding_cleave_dummy_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_bounding_cleave_dummy_AuraScript();
+        }
+};
+
+/// Gushing Wounds - 156152
+class spell_highmaul_gushing_wounds : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_gushing_wounds() : SpellScriptLoader("spell_highmaul_gushing_wounds") { }
+
+        class spell_highmaul_gushing_wounds_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_gushing_wounds_AuraScript);
+
+            enum eSpell
+            {
+                GushingWoundsKill = 156153
+            };
+
+            void AfterApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (p_AurEff->GetBase()->GetStackAmount() >= 6)
+                        l_Target->CastSpell(l_Target, eSpell::GushingWoundsKill, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_highmaul_gushing_wounds_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_gushing_wounds_AuraScript();
+        }
+};
+
+/// Pale Vitriol - 163042
+class areatrigger_highmaul_pale_vitriol : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_pale_vitriol() : AreaTriggerEntityScript("areatrigger_highmaul_pale_vitriol") { }
+
+        enum eSpell
+        {
+            PaleVitriol = 163046
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 4.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eSpell::PaleVitriol, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_pale_vitriol();
+        }
+};
+
 void AddSC_boss_the_butcher()
 {
     /// Boss
     new boss_the_butcher();
 
     /// NPCs
+    new npc_highmaul_night_twisted_cadaver();
 
     /// Spells
     new spell_highmaul_heavy_handed();
     new spell_highmaul_heavy_handed_proc();
+    new spell_highmaul_bounding_cleave_dummy();
+    new spell_highmaul_gushing_wounds();
+
+    /// AreaTriggers
+    new areatrigger_highmaul_pale_vitriol();
 }
