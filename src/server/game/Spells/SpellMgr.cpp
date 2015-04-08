@@ -3622,6 +3622,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(48); ///< 60 yards
                 spellInfo->ProcFlags = 0x8A20;
                 break;
+            case 73685:
+                spellInfo->ProcFlags = 0;
+                break;
             case 53563: ///< Beacon of Light
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
@@ -5826,9 +5829,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
-            case 73685: ///< Unleash Life
-                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;

@@ -2569,7 +2569,10 @@ class spell_sha_riptide : public SpellScriptLoader
                     return;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
+                {
                     p_Amount += CalculatePct(p_Amount, GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                }
             }
 
             void Register()
