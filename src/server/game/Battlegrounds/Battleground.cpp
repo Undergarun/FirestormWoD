@@ -282,7 +282,7 @@ void Battleground::Update(uint32 diff)
             if (GetPlayersSize())
             {
                 _ProcessJoin(diff);
-                _CheckSafePositions(diff);
+                //_CheckSafePositions(diff);  disable, use check for every bg in PostUpdateImpl
             }
             break;
         case STATUS_IN_PROGRESS:
@@ -597,6 +597,38 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
+
+                    if (IsRatedBG())
+                    {
+                        // remove auras with duration lower than 30s
+                        Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
+                        {
+                            AuraApplication * aurApp = iter->second;
+                            AuraPtr aura = aurApp->GetBase();
+                            if (!aura->IsPermanent()
+                                && aura->GetDuration() <= 30 * IN_MILLISECONDS
+                                && aurApp->IsPositive()
+                                && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
+                                && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
+                                player->RemoveAura(iter);
+                            else
+                                ++iter;
+                        }
+                    }
+                }
+            }
+            std::string const& bgName = GetName();
+            // Announce BG starting
+            if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
+            {
+                if (IsRatedBG())
+                {
+                    sWorld->SendWorldText(LANG_RBG_STARTED_ANNOUNCE_WORLD, bgName.c_str(), GetMinLevel(), GetMaxLevel());
+                }
+                else
+                {
+                    sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, bgName.c_str(), GetMinLevel(), GetMaxLevel());
                 }
             }
         }
@@ -1107,6 +1139,31 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                     }
                 }
             }
+            else if (IsRatedBG())
+            {
+                if (GetStatus() == STATUS_IN_PROGRESS)
+                {
+                    //left a rated match while the encounter was in progress, consider as loser
+                    Group* winner_group = GetBgRaid(GetOtherTeam(team));
+                    Group* loser_group = GetBgRaid(team);
+
+                    if (winner_group && loser_group && winner_group != loser_group)
+                    {
+                        uint8 slot = SLOT_RBG;
+
+                        // Update personal rating
+                        int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), GetArenaMatchmakerRating(GetOtherTeam(team), slot), false);
+                        player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+
+                        // Update matchmaker rating
+                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+
+                        // Update personal played stats
+                        player->IncrementWeekGames(slot);
+                        player->IncrementSeasonGames(slot);
+                    }
+                }
+            }
 
             if (SendPacket)
             {
@@ -1393,6 +1450,12 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
 // This method should be called when player logs into running battleground
 void Battleground::EventPlayerLoggedIn(Player* player)
 {
+    if (IsRatedBG())
+    {
+        if (player->GetTeam() != player->GetBGTeam())
+            player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
+    }
+
     uint64 guid = player->GetGUID();
     // player is correct pointer
     for (std::deque<uint64>::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)

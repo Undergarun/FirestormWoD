@@ -4305,6 +4305,11 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     {
         AuraPtr aura = (*iter)->GetBase();
         ++iter;
+
+        /// Censure DoT doesn't remove Blinding Light
+        if (aura->GetSpellInfo()->Id == 105421 && except == 31803)
+            continue;
+
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
             uint32 removedAuras = m_removedAurasCount;
@@ -11635,7 +11640,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         if (HasAura(77223))
         {
             float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
-
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -12550,6 +12554,18 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         }
     }
 
+    // Unleashed Fury - Earthliving
+    if (HasAura(118473))
+    {
+        bool singleTarget = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
+            singleTarget = true;
+
+        if (singleTarget)
+            DoneTotal += CalculatePct(healamount, 50.0f);
+    }
+
     // Apply Power PvP healing bonus
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -12717,18 +12733,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
-
-    // Unleashed Fury - Earthliving
-    if (HasAura(118473) && GetAura(118473)->GetCaster() && GetAura(118473)->GetCaster()->GetGUID() == caster->GetGUID())
-    {
-        bool singleTarget = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
-                singleTarget = true;
-
-        if (singleTarget)
-            AddPct(TakenTotal, 50);
-    }
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
@@ -17209,6 +17213,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Your Gouge and Blind no longer have an Energy cost ...
         // ... and no longer break from damage dealt by your Poison and Bleed effects.
         if ((i->aura->GetId() == 2094 || i->aura->GetId() == 1776) && procSpell && procSpell->IsPoisonOrBleedSpell() && target->HasAura(108216))
+            takeCharges = false;
+
+        /// Deep Freeze can be removed just by Ice Lance or Ice Nova damage
+        if (i->aura->GetId() == 44572 && procSpell && procSpell->Id != 30455 && procSpell->Id != 157997)
             takeCharges = false;
 
         // Remove charge (aura can be removed by triggers)

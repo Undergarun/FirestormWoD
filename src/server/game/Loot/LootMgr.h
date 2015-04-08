@@ -313,6 +313,25 @@ struct LinkedLootInfo
     PermissionTypes permission;
 };
 
+struct InstanceLooters
+{
+    public:
+
+        InstanceLooters() : m_isEnabled(false) {}
+
+        void SetEnabled(bool value) { m_isEnabled = value; }
+        bool IsEnabled() const { return m_isEnabled; }
+
+        void ClearGuids() { playerGuids.clear(); }
+        void AddPlayerGuid(uint64 guid) { playerGuids.insert(guid); }
+        bool HasPlayerGuid(uint64 guid) const { return (playerGuids.find(guid) != playerGuids.end()); }
+
+    private:
+
+        bool m_isEnabled;
+        std::set<uint64> playerGuids;
+};
+
 struct Loot
 {
     friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
@@ -422,6 +441,9 @@ struct Loot
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
+
+    // there are players that killed the mob (instance only)
+    InstanceLooters AllowedPlayers;
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);

@@ -117,7 +117,8 @@ enum MageSpells
     SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
     SPELL_MAGE_LIVING_BOMB                       = 44457,
-    SPELL_MAGE_CHILLED                           = 12486
+    SPELL_MAGE_CHILLED                           = 12486,
+    SPELL_SHAMAN_HEX                             = 51514
 };
 
 /// Arcane Orb - 153626
@@ -2443,6 +2444,43 @@ class spell_mage_flameglow : public SpellScriptLoader
         }
 };
 
+/// Remove Curse - 475
+class spell_mage_remove_curse : public SpellScriptLoader
+{
+public:
+    spell_mage_remove_curse() : SpellScriptLoader("spell_mage_remove_curse") { }
+
+    class spell_mage_remove_curse_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_remove_curse_SpellScript);
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Caster == nullptr)
+                return;
+            if (l_Target == nullptr)
+                return;
+
+            // If target has a Hex (shaman spell) - remove it
+            if (l_Target->HasAura(SPELL_SHAMAN_HEX))
+                l_Target->RemoveAura(SPELL_SHAMAN_HEX);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_remove_curse_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_remove_curse_SpellScript();
+    }
+};
+
 class PlayerScript_rapid_teleportation : public PlayerScript
 {
 public:
@@ -2512,6 +2550,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_prysmatic_crystal_damage();
     new spell_mage_glyph_of_the_unbound_elemental();
+    new spell_mage_remove_curse();
 
     // Player Script
     new PlayerScript_rapid_teleportation();

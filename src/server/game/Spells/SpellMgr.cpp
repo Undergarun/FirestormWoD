@@ -362,6 +362,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Psychic Horror -- 64044
             if (spellproto->SpellFamilyFlags[2] & 0x2000)
                 return DIMINISHING_INCAPACITATE;
+            /// Shackle Undead -- 9484
+            if (spellproto->Id == 9484)
+                return DIMINISHING_DISORIENT;
 
             // Psychic Scream -- 8122
             if (spellproto->SpellFamilyFlags[0] & 0x10000)
@@ -439,6 +442,13 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
+        case SPELLFAMILY_PRIEST:
+        {
+            /// Shackle Undead
+            if (spellproto->Id == 9484)
+                return 8 * IN_MILLISECONDS;
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
@@ -3344,6 +3354,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+				break;
+            case 124694:
+            case 125584:
+            case 125586:
+            case 125587:
+            case 125588:
+            case 125589:
+                spellInfo->Effects[EFFECT_0].BasePoints = 8;
                 break;
             case 161299: ///< Impact Spit
                 spellInfo->Effects[0].TriggerSpell = 161304;
@@ -4722,6 +4740,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
             case 33110: ///< Prayer of Mending
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
@@ -5008,7 +5029,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
             case 87160: ///< Surge of Darkness
-                spellInfo->ProcCharges = 3;
+                spellInfo->ProcFlags = 0;
                 break;
             case 6346:   ///< Fear Ward
             case 48108:  ///< Hot Streak
@@ -5861,6 +5882,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 125050:///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 77472:///< Healing Wave
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 break;
             case 145153:///< Dream of Cenarius (Heal from Wrath)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;

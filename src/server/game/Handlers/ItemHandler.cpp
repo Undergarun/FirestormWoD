@@ -1561,6 +1561,9 @@ void WorldSession::HandleSocketOpcode(WorldPacket& p_RecvData)
         if (!l_GemProps[l_Iter])
             continue;
 
+        if (l_GemProps[l_Iter]->requiredILvl > l_ItemProto->ItemLevel)
+            return;
+
         // Tried to put gem in socket where no socket exists (take care about prismatic sockets)
         if (!l_ItemProto->Socket[l_Iter].Color)
         {

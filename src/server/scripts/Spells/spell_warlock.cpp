@@ -53,6 +53,7 @@ enum WarlockSpells
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_PURPLE = 120729,
     WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE = 113901,
     WARLOCK_NIGHTFALL                       = 108558,
+    WARLOCK_NIGHTFALL_VISUAL                = 17941,
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
@@ -732,12 +733,6 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (GetCaster())
-                    amount *= GetStackAmount();
-            }
-
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (GetCaster())
@@ -752,7 +747,6 @@ class spell_warl_agony: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_agony_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }
@@ -1800,7 +1794,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
-						if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             if (l_Caster->ToPlayer()->isHonorOrXPTarget(l_Target))
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
@@ -1938,6 +1932,7 @@ class spell_warl_rain_of_fire_despawn: public SpellScriptLoader
 
 enum EmberTapSpells
 {
+    SPELL_WARL_EMBER_TAP = 114635,
     SPELL_WARL_GLYPH_OF_EMBER_TAP = 63304,
     SPELL_WARL_SEARING_FLAMES = 174848,
     SPELL_WARL_ENHANCED_OF_EMBER_TAP = 157121
@@ -1962,8 +1957,9 @@ class spell_warl_ember_tap: public SpellScriptLoader
                 {
                     float pct = (float)(GetSpellInfo()->Effects[EFFECT_0].BasePoints) / 100;
 
+                    /// No instant heal with Glyph of Ember tap
                     if (AuraPtr l_GlyphOfEmberTap = l_Player->GetAura(SPELL_WARL_GLYPH_OF_EMBER_TAP))
-                        pct += ((float)l_GlyphOfEmberTap->GetSpellInfo()->Effects[EFFECT_2].BasePoints / 100);
+                        pct = 0;
 
                     int32 healAmount = int32(l_Player->GetMaxHealth() * pct);
 
@@ -1985,7 +1981,7 @@ class spell_warl_ember_tap: public SpellScriptLoader
                         Pet* l_Pet = l_Player->GetPet();
 
                         if (l_Pet != nullptr && l_SpellInfo != nullptr)
-                            l_Pet->SetHealth(l_Pet->GetHealth() + CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                            l_Player->HealBySpell(l_Pet, sSpellMgr->GetSpellInfo(139967), CalculatePct(healAmount, l_SpellInfo->Effects[EFFECT_0].BasePoints * 2), false, false);
                     }
                     SetHitHeal(healAmount);
                 }
@@ -2001,6 +1997,53 @@ class spell_warl_ember_tap: public SpellScriptLoader
         {
             return new spell_warl_ember_tap_SpellScript();
         }
+};
+
+/// Ember Tap - 114635
+/// With Glyph of Ember Tap - 63304
+class spell_warl_ember_tap_glyph : public SpellScriptLoader
+{
+public:
+    spell_warl_ember_tap_glyph() : SpellScriptLoader("spell_warl_ember_tap_glyph") { }
+
+    class spell_warl_ember_tap_glyph_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warl_ember_tap_glyph_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            /// Add amount of stackable % to health regen
+            if (AuraPtr l_EmberTap = l_Caster->GetAura(SPELL_WARL_EMBER_TAP, l_Caster->GetGUID()))
+            {
+                uint8 l_AmountStack = 0;
+
+                uint32 l_Duration = l_EmberTap->GetDuration();
+                uint32 l_BasePoints = l_EmberTap->GetEffect(2)->GetAmount();
+
+                if (l_Duration >= 6 * IN_MILLISECONDS)
+                    l_AmountStack = 2;
+                else
+                    l_AmountStack = 1;
+
+                p_Amount = l_BasePoints + l_AmountStack;
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_ember_tap_glyph_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_OBS_MOD_HEALTH);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warl_ember_tap_glyph_AuraScript();
+    }
 };
 
 // Conflagrate - 17962 and Conflagrate (Fire and Brimstone) - 108685
@@ -2333,6 +2376,10 @@ class spell_warl_drain_life: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    Player* _player = GetCaster()->ToPlayer();
+                    if (!_player)
+                        return;
+
                     int32 l_Pct = 6 * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 10);
 
                     int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
@@ -2344,6 +2391,10 @@ class spell_warl_drain_life: public SpellScriptLoader
                         l_Bp0 += CalculatePct(l_Bp0, l_HarvestLife->GetSpellInfo()->Effects[EFFECT_1].BasePoints);
 
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
+
+                    // In Demonology spec : Generates 10 Demonic Fury per second
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        _player->EnergizeBySpell(_player, 689, 10, POWER_DEMONIC_FURY);
                 }
             }
 
@@ -3090,6 +3141,73 @@ class spell_warl_havoc: public SpellScriptLoader
         }
 };
 
+// Called by Corruption - 172, 146739
+// Nightfall - 108558
+class spell_warl_nightfall : public SpellScriptLoader
+{
+    public:
+        spell_warl_nightfall() : SpellScriptLoader("spell_warl_nightfall") { }
+
+        class spell_warl_nightfall_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_nightfall_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->HasAura(WARLOCK_NIGHTFALL))
+                        if (roll_chance_i(6))
+                            _player->CastSpell(_player, WARLOCK_NIGHTFALL_VISUAL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_nightfall_AuraScript();
+        }
+};
+
+/// Chaos Bolt - 116858
+class spell_warl_chaos_bolt : public SpellScriptLoader
+{
+public:
+    spell_warl_chaos_bolt() : SpellScriptLoader("spell_warl_chaos_bolt") { }
+
+    class spell_warl_chaos_bolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_chaos_bolt_SpellScript);
+
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Caster = GetCaster()->ToPlayer())
+                if (AuraPtr l_Backdraft = l_Caster->GetAura(WARLOCK_BACKDRAFT))
+                    l_Backdraft->ModCharges(-3);
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_warl_chaos_bolt_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_chaos_bolt_SpellScript();
+    }
+};
+
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3139,6 +3257,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_rain_of_fire();
     new spell_warl_rain_of_fire_despawn();
     new spell_warl_ember_tap();
+    new spell_warl_ember_tap_glyph();
     new spell_warl_conflagrate_aura();
     new spell_warl_shadowburn();
     new spell_warl_burning_embers();
@@ -3155,4 +3274,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
     new spell_warl_havoc();
+    new spell_warl_nightfall();
+    new spell_warl_chaos_bolt();
 }

@@ -112,6 +112,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+    if (l_Player->GetGUID() == GetPlayer()->GetGUID())
+        return;
+
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->isGameMaster() && l_Player->isGameMaster())
     {

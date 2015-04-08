@@ -688,7 +688,7 @@ struct GemPropertiesEntry
     //uint32    m_MaxcountInv                               // 2        m_MaxcountInv
     //uint32    m_MaxcountItem                              // 3        m_maxcount_item
     uint32      color;                                      // 4        m_type
-    //uint32    m_MinItemLevel                              // 5        m_MinItemLevel
+    uint32      requiredILvl;                               // 5        m_requiredItemLevel
 };
 
 struct GlyphPropertiesEntry
@@ -1370,7 +1370,7 @@ struct SkillLineEntry
     uint32  spellIcon;                                      // 4        m_spellIconID
     //char*     alternateVerb;                              // 5        m_alternateVerb_lang
     uint32  canLink;                                        // 6        m_canLink (prof. with recipes)
-    //uint32    m_ParentSkillLineID;                        // 7        m_ParentSkillLineID
+    uint32 parentSkillLineID;                               // 7        m_parentSkillLineID
     uint32  m_Flags;                                        // 8        m_Flags
 };
 

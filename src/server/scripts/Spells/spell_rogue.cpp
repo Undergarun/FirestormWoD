@@ -901,6 +901,7 @@ class spell_rog_shuriken_toss: public SpellScriptLoader
         }
 };
 
+/// Called by Marked for Death (check caster) - 140149
 /// Marked for Death - 137619
 class spell_rog_marked_for_death: public SpellScriptLoader
 {
@@ -926,23 +927,22 @@ class spell_rog_marked_for_death: public SpellScriptLoader
                 if (!GetTargetApplication()->GetBase())
                     return;
 
+                if (!GetTarget())
+                    return;
+
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode == AURA_REMOVE_BY_DEATH)
                 {
-                    int32 baseDuration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_MARKED_FOR_DEATH)->GetMaxDuration();
-                    int32 remainingDur = GetTargetApplication()->GetBase()->GetDuration();
+                    if (plr->HasSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH))
+                        plr->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
 
-                    if ((baseDuration - remainingDur) <= (60 * IN_MILLISECONDS))
-                    {
-                        if (plr->HasSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH))
-                            plr->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
-                    }
+                    GetTarget()->RemoveAura(ROGUE_SPELL_MARKED_FOR_DEATH);
                 }
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1877,37 +1877,24 @@ class spell_rog_preparation: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_preparation_SpellScript);
 
-            bool Load()
+            void HandleOnHit()
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
+                Player* l_Caster = GetCaster()->ToPlayer();
+                if (l_Caster == nullptr)
+                    return;
 
-                //immediately finishes the cooldown on certain Rogue abilities
-                const SpellCooldowns& cm = caster->GetSpellCooldownMap();
-                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-
-                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
-                    {
-                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT) ///< Vanish, Evasion, Sprint
-                            caster->RemoveSpellCooldown((itr++)->first, true);
-                        else
-                            ++itr;
-                    }
-                    else
-                        ++itr;
-                }
+                /// immediately finishes the cooldown on certain Rogue abilities
+                l_Caster->RemoveSpellCooldown(5277, true); ///< Evasion
+                l_Caster->RemoveSpellCooldown(1856, true); ///< Vanish
+                l_Caster->RemoveSpellCooldown(2983, true); ///< Sprint
             }
 
             void Register()
             {
-                // add dummy effect spell handler to Preparation
-                OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnHit += SpellHitFn(spell_rog_preparation_SpellScript::HandleOnHit);
             }
         };
 

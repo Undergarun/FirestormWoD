@@ -301,6 +301,25 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         if (ChatHandler(this).ParseCommands(l_Text.c_str()) > 0)
             return;
 
+        if (sWorld->getBoolConfig(CONFIG_LEXICS_CUTTER_ENABLE))
+        {
+            switch (l_Type)
+            {
+                case CHAT_MSG_SAY:
+                case CHAT_MSG_WHISPER:
+                case CHAT_MSG_CHANNEL:
+                case CHAT_MSG_YELL:
+                case CHAT_MSG_EMOTE:
+                {
+                    if (sWorld->ModerateMessage(l_Text))
+                    {
+                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY));
+                        return;
+                    }
+                }
+            }
+        }
+
         if (!processChatmessageFurtherAfterSecurityChecks(l_Text, l_Language))
             return;
 

@@ -148,6 +148,28 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
         if (m_TeamScores[BG_TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(HORDE);
     }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < -19)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(529, 685.58f, 683.21f, -12.91f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(529, 1313.90f, 1310.73f, -9.01f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
+    }
 }
 
 void BattlegroundAB::StartingEventCloseDoors()
@@ -587,6 +609,7 @@ void BattlegroundAB::Reset()
     m_HonorScoreTics[BG_TEAM_HORDE]         = 0;
     m_ReputationScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_ReputationScoreTics[BG_TEAM_HORDE]    = 0;
+    m_CheatersCheckTimer = 0;
     m_IsInformedNearVictory                 = false;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;

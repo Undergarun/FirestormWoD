@@ -54,6 +54,7 @@ BattlegroundIC::BattlegroundIC()
 
     gunshipHorde = NULL;
     gunshipAlliance = NULL;
+    m_CheatersCheckTimer = 0;
 }
 
 BattlegroundIC::~BattlegroundIC()
@@ -103,9 +104,30 @@ void BattlegroundIC::DoAction(uint32 action, uint64 var)
 
 void BattlegroundIC::PostUpdateImpl(uint32 diff)
 {
-
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < 42)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(628, 1300.58f, -814.69f, 48.91f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(628, 331.29f, -827.07f, 48.91f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
+    }
 
     if (!doorsClosed)
     {

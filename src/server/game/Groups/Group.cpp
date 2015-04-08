@@ -1454,7 +1454,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
             ++l_Count;
     }
 
-    uint64 l_LootedGUID = MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT);
+    uint64 l_LootedGUID = p_LootedObject->GetGUID();
     sObjectMgr->setLootViewGUID(l_LootedGUID, p_LootedObject->GetGUID());
 
     WorldPacket l_Data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
