@@ -1794,7 +1794,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
-						if (l_Caster->GetTypeId() == TYPEID_PLAYER)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER)
                         {
                             if (l_Caster->ToPlayer()->isHonorOrXPTarget(l_Target))
                                 l_Caster->ModifyPower(POWER_SOUL_SHARDS, 1 * l_Caster->GetPowerCoeff(POWER_SOUL_SHARDS));
