@@ -1451,6 +1451,35 @@ class spell_sha_healing_rain: public SpellScriptLoader
         }
 };
 
+/// Healing Rain (heal) - 73921
+class spell_sha_healing_rain_heal : public SpellScriptLoader
+{
+public:
+    spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
+
+    class spell_sha_healing_rain_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        {
+            /// Healing up to 6 allies 
+            if (p_Targets.size() > 6)
+                JadeCore::RandomResizeList(p_Targets, 6);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_healing_rain_heal_SpellScript();
+    }
+};
+
 /// Ascendance - 114049
 class spell_sha_ascendance: public SpellScriptLoader
 {
@@ -2590,6 +2619,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthquake_tick();
     new spell_sha_earthquake();
     new spell_sha_healing_rain();
+    new spell_sha_healing_rain_heal();
     new spell_sha_ascendance();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
