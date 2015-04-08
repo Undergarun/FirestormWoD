@@ -1148,37 +1148,50 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            enum eSpells
-            {
-                LavaBurst   = 51505,
-                LavaBolt    = 76110,
-                LavaBolt2   = 81561
-            };
-
-            void OnUpdate(uint32 diff)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return;
 
-                if (l_Player->HasSpellCooldown(eSpells::LavaBurst))
-                    l_Player->RemoveSpellCooldown(eSpells::LavaBurst, true);
-                else if (l_Player->HasSpellCooldown(eSpells::LavaBolt))
-                    l_Player->RemoveSpellCooldown(eSpells::LavaBolt, true);
-                else if (l_Player->HasSpellCooldown(eSpells::LavaBolt2))
-                    l_Player->RemoveSpellCooldown(eSpells::LavaBolt2, true);
+                l_Player->RestoreCharge(1536);
             }
 
             void Register()
             {
-                OnAuraUpdate += AuraUpdateFn(spell_sha_lava_surge_AuraScript::OnUpdate);
+                OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_lava_surge_AuraScript();
+        }
+
+        class spell_sha_lava_surge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_lava_surge_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->RestoreCharge(1536);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_sha_lava_surge_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_lava_surge_SpellScript();
         }
 };
 
@@ -1347,7 +1360,6 @@ class spell_sha_earthquake: public SpellScriptLoader
                     m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount() / 100.0f;
                     l_Aura->Remove();
                 }
-
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -1749,7 +1761,56 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
-/// 60103 - Lava Lash
+/// Healing Wave - 77472
+class spell_sha_healing_wave : public SpellScriptLoader
+{
+    public:
+        spell_sha_healing_wave() : SpellScriptLoader("spell_sha_healing_wave") { }
+
+        class spell_sha_healing_wave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_healing_wave_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfHealingWave = 55440,
+                GlyphOfHealingWaveHeal = 55533
+            };
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
+                {
+                    SpellInfo const* l_GlyphOfHealingWave = sSpellMgr->GetSpellInfo(eSpells::GlyphOfHealingWave);
+
+                    if (l_Caster->GetGUID() == l_Target->GetGUID() || l_GlyphOfHealingWave == nullptr) ///< When you heal someone else
+                        return;
+
+                    int32 l_HealAmount = (GetHitHeal() / l_GlyphOfHealingWave->Effects[EFFECT_0].BasePoints); ///< Your Healing Wave also heals you for 10 % of the healing effect
+                    
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfHealingWaveHeal, &l_HealAmount, nullptr, nullptr, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_wave_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_healing_wave_SpellScript();
+        }
+};
+
+/// Lava Lash - 60103
 class spell_sha_lava_lash: public SpellScriptLoader
 {
     public:
@@ -2306,7 +2367,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-/// 51505 Lava Burst
+/// 51505 - Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2334,8 +2395,21 @@ class spell_sha_lava_burst: public SpellScriptLoader
                 }
             }
 
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_SHA_LAVA_SURGE_CAST_TIME))
+                    l_Player->RestoreCharge(1536);
+            }
+
+
             void Register()
             {
+                AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -2477,4 +2551,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_glyph_of_eternal_earth();
     new spell_sha_flame_shock();
     new spell_sha_purge();
+    new spell_sha_healing_wave();
 }
