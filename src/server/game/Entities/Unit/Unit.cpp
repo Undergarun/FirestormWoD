@@ -11623,28 +11623,27 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Fingers of Frost - 112965
     if (GetTypeId() == TYPEID_PLAYER && pdamage != 0 && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MAGE_FROST && spellProto && getLevel() >= 24)
     {
-        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)
+        bool l_HasFingerOfFrostProc = false;
+
+        if (spellProto->Id == 116 || spellProto->Id == 44614 || spellProto->Id == 84721)    ///< Frostbolt || Frostfire Bolt || Frozen Orb
+            l_HasFingerOfFrostProc = roll_chance_i(15);
+        else if (spellProto->Id == 42208)                                                   ///< Blizzard
+            l_HasFingerOfFrostProc = roll_chance_i(5);
+
+        if (l_HasFingerOfFrostProc)
         {
-            if (roll_chance_i(12))
+            AuraPtr l_ProcAura   = GetAura(44544);
+            AuraPtr l_VisualAura = GetAura(126084);
+
+            if (l_ProcAura && l_VisualAura && l_ProcAura->GetStackAmount() == 1 && l_VisualAura->GetStackAmount() == 1)
             {
-                CastSpell(this, 44544, true);  // Fingers of frost proc
-                CastSpell(this, 126084, true); // Fingers of frost visual
+                l_ProcAura->SetStackAmount(l_ProcAura->GetStackAmount() + 1);
+                l_VisualAura->SetStackAmount(l_VisualAura->GetStackAmount() + 1);
             }
-        }
-        else if (spellProto->Id == 42208)
-        {
-            if (roll_chance_i(4))
+            else
             {
-                CastSpell(this, 44544, true);  // Fingers of frost proc
-                CastSpell(this, 126084, true); // Fingers of frost visual
-            }
-        }
-        else if (spellProto->Id == 2948)
-        {
-            if (roll_chance_i(9))
-            {
-                CastSpell(this, 44544, true);  // Fingers of frost proc
-                CastSpell(this, 126084, true); // Fingers of frost visual
+                CastSpell(this, 44544, true);  ///< Fingers of frost proc
+                CastSpell(this, 126084, true); ///< Fingers of frost visual
             }
         }
     }
