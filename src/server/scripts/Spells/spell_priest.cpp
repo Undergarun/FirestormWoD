@@ -80,6 +80,7 @@ enum PriestSpells
     PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE          = 123266,
     PRIEST_SPELL_POWER_WORD_SHIELD_OVERRIDED        = 123258,
     PRIEST_SPELL_DIVINE_INSIGHT_HOLY                = 123267,
+    PRIEST_SPELL_DIVINE_INSIGHT_SHADOW              = 124430,
     PRIEST_PRAYER_OF_MENDING                        = 33076,
     PRIEST_PRAYER_OF_MENDING_HEAL                   = 33110,
     PRIEST_PRAYER_OF_MENDING_RADIUS                 = 123262,
@@ -1574,6 +1575,23 @@ class spell_pri_mind_spike: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_mind_spike_SpellScript);
 
+            bool m_InstantMindSpike;
+
+            bool Load()
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return false;
+
+                if (l_Caster->HasAura(PRIEST_SURGE_OF_DARKNESS))
+                    m_InstantMindSpike = true;
+                else
+                    m_InstantMindSpike = false;
+
+                return true;
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1582,12 +1600,11 @@ class spell_pri_mind_spike: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_SurgeOfDarkness = l_Caster->GetAura(PRIEST_SURGE_OF_DARKNESS))
+                if (m_InstantMindSpike)
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_SURGE_OF_DARKNESS);
                     if (l_SpellInfo)
                         SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_3].BasePoints));
-                    l_SurgeOfDarkness->DropStack();
                 }
                 else ///< Surge of Darkness - Your next Mind Spike will not consume your damage-over-time effects ...
                 {
@@ -1609,6 +1626,13 @@ class spell_pri_mind_spike: public SpellScriptLoader
                 {
                     if (roll_chance_i(sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOW_INSIGHT)->Effects[EFFECT_3].BasePoints))
                         l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_INSIGHT_PROC, true);
+                }
+
+                /// If Mind Spike is instant - drop aura charge
+                if (m_InstantMindSpike)
+                {
+                    if (AuraPtr l_MindSpikeAura = l_Caster->GetAura(PRIEST_SURGE_OF_DARKNESS))
+                        l_MindSpikeAura->DropStack();
                 }
             }
 
@@ -2101,6 +2125,8 @@ enum PsychicHorror_Spell
     PRIEST_SPELL_PSYCHIC_HORROR = 64044
 };
 
+bool g_PsychicHorrorGainedPower;
+
 // Psychic Horror - 64044
 class spell_pri_psychic_horror: public SpellScriptLoader
 {
@@ -2111,22 +2137,31 @@ class spell_pri_psychic_horror: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_psychic_horror_SpellScript);
 
+            bool Load()
+            {
+                g_PsychicHorrorGainedPower = false;
+                return true;
+            }
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
+                        if (!g_PsychicHorrorGainedPower && l_Caster->ToPlayer() && l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) == SPEC_PRIEST_SHADOW)
                         {
-                            int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
-                            if (l_CurrentPowerUsed > 3) // Maximum 3 Shadow Orb can be consumed
-                                l_CurrentPowerUsed = 3;
-                            l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
-
-                            // +1s per Shadow Orb consumed
+                            /// +1s per Shadow Orb consumed
                             if (AuraPtr l_PsychicHorror = l_Target->GetAura(PRIEST_SPELL_PSYCHIC_HORROR))
                             {
+                                g_PsychicHorrorGainedPower = true;
+
+                                int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
+                                if (l_CurrentPowerUsed > 2) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
+                                    l_CurrentPowerUsed = 2;
+                                 l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
+                                    
+
                                 int32 l_MaxDuration = l_PsychicHorror->GetMaxDuration();
                                 int32 l_NewDuration = l_MaxDuration + GetSpellInfo()->Effects[EFFECT_0].BasePoints + l_CurrentPowerUsed * IN_MILLISECONDS;
                                 l_PsychicHorror->SetDuration(l_NewDuration);
@@ -2915,8 +2950,24 @@ class spell_pri_mind_blast: public SpellScriptLoader
                     GetSpell()->EffectEnergize(p_EffIndex);
             }
 
+            /// Fix for Divine Insight (shadow) if proc while player is casting - 124430
+            void HandleAfterCast()
+            {
+                Player* l_Caster = GetCaster()->ToPlayer();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_SHADOW))
+                {
+                    if (l_Caster->HasSpellCooldown(PRIEST_SPELL_MIND_BLAST))
+                        l_Caster->RemoveSpellCooldown(PRIEST_SPELL_MIND_BLAST, true);
+                }
+            }
+
             void Register()
             {
+                AfterCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleAfterCast);
                 BeforeCast += SpellCastFn(spell_pri_mind_blast_SpellScript::HandleBeforeCast);
                 OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast_SpellScript::HandleEnergize, EFFECT_3, SPELL_EFFECT_ENERGIZE);
             }

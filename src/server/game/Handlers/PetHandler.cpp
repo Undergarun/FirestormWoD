@@ -434,6 +434,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
             break;
         }
+        case ACT_DECIDE:
+            return;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }

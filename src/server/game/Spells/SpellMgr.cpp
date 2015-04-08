@@ -5019,7 +5019,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->ProcChance = 0;
                 break;
             case 87160: ///< Surge of Darkness
-                spellInfo->ProcCharges = 3;
+                spellInfo->ProcFlags = 0;
                 break;
             case 6346:   ///< Fear Ward
             case 48108:  ///< Hot Streak

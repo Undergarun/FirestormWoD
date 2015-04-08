@@ -24328,6 +24328,13 @@ void Player::RemoveSpellMods(Spell* spell)
     if (!spell)
         return;
 
+    // Hack fix for Blizzard with Ice Floes
+    if (spell->GetSpellInfo()->Id == 10 && spell->GetCaster())
+    {
+        if (AuraPtr l_IceFLoes = spell->GetCaster()->GetAura(108839))
+            l_IceFLoes->DropCharge();
+    }
+
     if (spell->m_appliedMods.empty())
         return;
 
@@ -25234,11 +25241,11 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
-        if (pProto->BuyCount != count)
+        /*if (pProto->BuyCount != count)
         {
             SendEquipError(EQUIP_ERR_CANT_BUY_QUANTITY, NULL, NULL);
             return false;
-        }
+        }*/
 
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece)

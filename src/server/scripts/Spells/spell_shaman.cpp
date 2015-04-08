@@ -2326,7 +2326,10 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     {
                         AuraPtr l_LightningShield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
                         if (l_LightningShield != nullptr)
-                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
+                        {
+                            if (l_LightningShield->GetCharges() < 20)
+                                l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
+                        }
                     }
                 }
             }

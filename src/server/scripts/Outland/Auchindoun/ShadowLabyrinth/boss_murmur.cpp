@@ -48,9 +48,9 @@ public:
         return new boss_murmurAI (creature);
     }
 
-    struct boss_murmurAI : public ScriptedAI
+    struct boss_murmurAI : public Scripted_NoMovementAI
     {
-        boss_murmurAI(Creature* creature) : ScriptedAI(creature)
+        boss_murmurAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             SetCombatMovement(false);
         }

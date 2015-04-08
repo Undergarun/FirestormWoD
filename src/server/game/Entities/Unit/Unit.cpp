@@ -4305,6 +4305,11 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     {
         AuraPtr aura = (*iter)->GetBase();
         ++iter;
+
+        /// Censure DoT doesn't remove Blinding Light
+        if (aura->GetSpellInfo()->Id == 105421 && except == 31803)
+            continue;
+
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
             uint32 removedAuras = m_removedAurasCount;
