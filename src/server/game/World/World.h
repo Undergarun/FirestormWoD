@@ -958,6 +958,10 @@ class World
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
 
+        uint32 m_serverDelayTimer;
+        uint32 m_serverDelaySum;
+        uint32 m_serverUpdateCount;
+
         SessionMap m_sessions;
         typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
         DisconnectMap m_disconnects;

@@ -282,7 +282,7 @@ void Battleground::Update(uint32 diff)
             if (GetPlayersSize())
             {
                 _ProcessJoin(diff);
-                _CheckSafePositions(diff);
+                //_CheckSafePositions(diff);  disable, use check for every bg in PostUpdateImpl
             }
             break;
         case STATUS_IN_PROGRESS:

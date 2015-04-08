@@ -909,6 +909,7 @@ class BattlegroundIC : public Battleground
         uint16 factionReinforcements[2];
         BG_IC_GateState GateStatus[6];
         ICNodePoint nodePoint[7];
+        int32 m_CheatersCheckTimer;
 
         Transport* gunshipAlliance;
         Transport* gunshipHorde;

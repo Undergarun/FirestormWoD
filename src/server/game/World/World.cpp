@@ -129,6 +129,10 @@ World::World()
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
 
+    m_serverDelaySum = 0;
+    m_serverDelayTimer = 0;
+    m_serverUpdateCount = 0;
+
     m_isClosed = false;
 
     m_CleaningFlags = 0;
@@ -1463,8 +1467,6 @@ void World::SetInitialWorldSettings()
     uint32 server_type = IsFFAPvPRealm() ? uint32(REALM_TYPE_PVP) : getIntConfig(CONFIG_GAME_TYPE);
     uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
 
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, g_RealmID);      // One-time query
-
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
     stmt->setUInt32(0, 3 * DAY);
@@ -2221,13 +2223,14 @@ void World::Update(uint32 diff)
 {
     m_updateTime = diff;
 
+    m_serverDelaySum += m_updateTime;
+    ++m_serverUpdateCount;
+
     if (m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] && diff > m_int_configs[CONFIG_MIN_LOG_UPDATE])
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
             LoginDatabase.PExecute("UPDATE realmlist set online=%u, queue=%u where id=%u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
-            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u. Queue : %u", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount(), GetQueuedSessionCount());
-
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2237,6 +2240,19 @@ void World::Update(uint32 diff)
             ++m_updateTimeCount;
         }
     }
+
+    if (m_serverDelayTimer > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
+    {
+        uint32 delay = m_serverUpdateCount ? (m_serverDelaySum / m_serverUpdateCount) : 1;
+        
+        m_serverDelaySum = 0;
+        m_serverUpdateCount = 0;
+        
+        LoginDatabase.PExecute("UPDATE realmlist set delay=%u where id=%u", delay, g_RealmID);
+        m_serverDelayTimer -= m_int_configs[CONFIG_INTERVAL_LOG_UPDATE];
+    }
+    else
+        m_serverDelayTimer += diff;
 
     ///- Update the different timers
     for (int i = 0; i < WUPDATE_COUNT; ++i)

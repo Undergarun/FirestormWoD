@@ -300,5 +300,7 @@ class BattlegroundAB : public Battleground
 
         // need for achievements
         bool                   m_TeamScores500Disadvantage[MS::Battlegrounds::TeamsCount::Value];
+
+        int32 m_CheatersCheckTimer;
 };
 #endif

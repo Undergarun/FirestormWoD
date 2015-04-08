@@ -53,6 +53,7 @@ enum WarlockSpells
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_PURPLE = 120729,
     WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE = 113901,
     WARLOCK_NIGHTFALL                       = 108558,
+    WARLOCK_NIGHTFALL_VISUAL                = 17941,
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
@@ -2326,6 +2327,10 @@ class spell_warl_drain_life: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    Player* _player = GetCaster()->ToPlayer();
+                    if (!_player)
+                        return;
+
                     int32 l_Pct = 6 * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 10);
 
                     int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
@@ -2337,6 +2342,10 @@ class spell_warl_drain_life: public SpellScriptLoader
                         l_Bp0 += CalculatePct(l_Bp0, l_HarvestLife->GetSpellInfo()->Effects[EFFECT_1].BasePoints);
 
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
+
+                    // In Demonology spec : Generates 10 Demonic Fury per second
+                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                        _player->EnergizeBySpell(_player, 689, 10, POWER_DEMONIC_FURY);
                 }
             }
 
@@ -3083,6 +3092,42 @@ class spell_warl_havoc: public SpellScriptLoader
         }
 };
 
+// Called by Corruption - 172, 146739
+// Nightfall - 108558
+class spell_warl_nightfall : public SpellScriptLoader
+{
+    public:
+        spell_warl_nightfall() : SpellScriptLoader("spell_warl_nightfall") { }
+
+        class spell_warl_nightfall_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_nightfall_AuraScript);
+
+            void OnTick(constAuraEffectPtr aurEff)
+            {
+                if (!GetCaster())
+                    return;
+
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (_player->HasAura(WARLOCK_NIGHTFALL))
+                        if (roll_chance_i(6))
+                            _player->CastSpell(_player, WARLOCK_NIGHTFALL_VISUAL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_nightfall_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_nightfall_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3148,4 +3193,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_unstable_affliction();
     new spell_warl_havoc();
+    new spell_warl_nightfall();
 }
