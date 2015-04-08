@@ -901,6 +901,7 @@ class spell_rog_shuriken_toss: public SpellScriptLoader
         }
 };
 
+/// Called by Marked for Death (check caster) - 140149
 /// Marked for Death - 137619
 class spell_rog_marked_for_death: public SpellScriptLoader
 {
@@ -926,23 +927,22 @@ class spell_rog_marked_for_death: public SpellScriptLoader
                 if (!GetTargetApplication()->GetBase())
                     return;
 
+                if (!GetTarget())
+                    return;
+
                 AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                 if (removeMode == AURA_REMOVE_BY_DEATH)
                 {
-                    int32 baseDuration = sSpellMgr->GetSpellInfo(ROGUE_SPELL_MARKED_FOR_DEATH)->GetMaxDuration();
-                    int32 remainingDur = GetTargetApplication()->GetBase()->GetDuration();
+                    if (plr->HasSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH))
+                        plr->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
 
-                    if ((baseDuration - remainingDur) <= (60 * IN_MILLISECONDS))
-                    {
-                        if (plr->HasSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH))
-                            plr->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
-                    }
+                    GetTarget()->RemoveAura(ROGUE_SPELL_MARKED_FOR_DEATH);
                 }
             }
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1879,29 +1879,17 @@ class spell_rog_preparation: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                Player* caster = GetCaster()->ToPlayer();
-                if (!caster)
+                Player* l_Caster = GetCaster()->ToPlayer();
+                if (l_Caster == nullptr)
                     return;
 
-                //immediately finishes the cooldown on certain Rogue abilities
-                const SpellCooldowns& cm = caster->GetSpellCooldownMap();
-                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-
-                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
-                    {
-                        if (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT) ///< Vanish, Evasion, Sprint
-                            caster->RemoveSpellCooldown((itr++)->first, true);
-                        else
-                            ++itr;
-                    }
-                    else
-                        ++itr;
-                }
+                /// immediately finishes the cooldown on certain Rogue abilities
+                l_Caster->RemoveSpellCooldown(5277, true); ///< Evasion
+                l_Caster->RemoveSpellCooldown(1856, true); ///< Vanish
+                l_Caster->RemoveSpellCooldown(2983, true); ///< Sprint
             }
 
             void Register()
@@ -2398,42 +2386,6 @@ class spell_rog_deadly_throw : public SpellScriptLoader
         }
 };
 
-// Called by Marked for Death (check caster) - 140149
-// Marked for Death - 137619
-class spell_rog_marked_for_death_cooldown : public SpellScriptLoader
-{
-    public:
-        spell_rog_marked_for_death_cooldown() : SpellScriptLoader("spell_rog_marked_for_death_cooldown") { }
-
-        class spell_rog_marked_for_death_cooldown_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_marked_for_death_cooldown_AuraScript);
-
-            void HandleRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetCaster())
-                {
-                    if (Player* player = GetCaster()->ToPlayer())
-                    {
-                        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                        if (removeMode == AURA_REMOVE_BY_DEATH)
-                            player->RemoveSpellCooldown(ROGUE_SPELL_MARKED_FOR_DEATH, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_cooldown_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_rog_marked_for_death_cooldown_AuraScript();
-        }
-};
-
 class PlayerScript_ruthlessness : public PlayerScript
 {
     public:
@@ -2509,7 +2461,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
     new spell_rog_stealth();
-    new spell_rog_marked_for_death_cooldown();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

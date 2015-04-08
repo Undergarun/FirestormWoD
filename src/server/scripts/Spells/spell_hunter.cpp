@@ -314,7 +314,7 @@ class spell_hun_black_arrow : public SpellScriptLoader
                         return;
 
                     if (l_Player->HasSpellCooldown(eSpells::ExplosiveShot))
-                        l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot);
+                        l_Player->RemoveSpellCooldown(eSpells::ExplosiveShot, true);
 
                     l_Player->CastSpell(l_Player, eSpells::LockAndLoad, true);
                 }

@@ -327,15 +327,6 @@ class spell_pri_shadow_word_death: public SpellScriptLoader
                     }
                     if (l_Target->isAlive())
                     {
-                        /// The cooldown is reset if the target does not die.
-                        /// This reset cannot happen more often than once every 9 sec.
-                        /// If the target is below 20% health
-                        if (!l_Player->HasAura(ShadowWordDeath::ShadowWordDeathCooldownMarker) && m_Flag)
-                        {
-                            l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathCooldownMarker, true);
-                            l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                        }
-
                         /// If the target not dies, you take damage
                         l_Player->CastCustomSpell(l_Player, PRIEST_SHADOW_WORD_DEATH, &l_Damage, NULL, NULL, true);
                     }
@@ -344,10 +335,16 @@ class spell_pri_shadow_word_death: public SpellScriptLoader
                 {
                     if (!l_Target->isAlive() || l_Player->HasAura(ShadowWordDeath::EnhancedShadowWordDeath))
                         l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathOrbEnergize, true); ///< Shadow Orb energize
-                    if (l_Target->isAlive())
-                        l_Player->RemoveSpellCooldown(GetSpellInfo()->Id, true); ///< If the target does not die, the cooldown is reset, 
                 }
 
+                /// The cooldown is reset if the target does not die.
+                /// This reset cannot happen more often than once every 9 sec.
+                /// If the target is below 20% health
+                if (l_Target->isAlive() && !l_Player->HasAura(ShadowWordDeath::ShadowWordDeathCooldownMarker))
+                {
+                    l_Player->CastSpell(l_Player, ShadowWordDeath::ShadowWordDeathCooldownMarker, true);
+                    l_Player->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                }
             }
 
             void Register()
@@ -2735,36 +2732,37 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
                             SetHitHeal(l_Heal);
 
+                            bool l_SelfHealing = false;
                             if (l_CurrentStackAmount >= 1)
                             {
                                 std::list<Unit*> l_FriendlyUnitListTemp;
                                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 20.0f);
                                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitListTemp, l_Check);
                                 l_Target->VisitNearbyObject(20.0f, l_Searcher);
+								
+								std::list<Unit*> l_FriendlyUnitList;
+								for (auto l_Itr : l_FriendlyUnitListTemp)
+								{
+									if (l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
+										l_FriendlyUnitList.push_back(l_Itr);
+								}
+								
+								if (l_FriendlyUnitList.empty())
+								{
+									l_FriendlyUnitList.push_back(l_Caster);
+									l_SelfHealing = true;	
+								}
 
-                                if (!l_FriendlyUnitListTemp.empty())
-                                {
-                                    std::list<Unit*> l_FriendlyUnitList;
-                                    for (auto l_Itr : l_FriendlyUnitListTemp)
-                                    {
-                                        if (l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
-                                            l_FriendlyUnitList.push_back(l_Itr);
-                                    }
-
-                                    if (!l_FriendlyUnitList.empty())
-                                    {
-                                        JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
-
-                                        for (auto l_Itr : l_FriendlyUnitList)
-                                        {
-                                            l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                                            if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
-                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
-                                        }
-                                    }
-                                }
+								JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
+								for (auto l_Itr : l_FriendlyUnitList)
+								{
+									l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+									if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+										l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+								}
                             }
-                            l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
+                            if (!l_SelfHealing)
+                                l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
                         }
                     }
                 }

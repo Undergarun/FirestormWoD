@@ -254,10 +254,12 @@ enum ActionButtonType
 {
     ACTION_BUTTON_SPELL = 0x00,
     ACTION_BUTTON_C = 0x01,                         // click?
+    ACTION_BUTTON_UNK       = 0x10,
     ACTION_BUTTON_EQSET = 0x20,
     ACTION_BUTTON_DROPDOWN = 0x30,
     ACTION_BUTTON_MACRO = 0x40,
     ACTION_BUTTON_CMACRO = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
+    ACTION_BUTTON_PET       = ACTION_BUTTON_UNK | ACTION_BUTTON_MACRO,
     ACTION_BUTTON_ITEM = 0x80
 };
 
@@ -2201,7 +2203,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         uint32 CalculateTalentsPoints() const;
         void CastPassiveTalentSpell(uint32 spellId);
-        void RemovePassiveTalentSpell(uint32 spellId);
+        void RemovePassiveTalentSpell(SpellInfo const* info);
 
         void ResetSpec(bool p_NoCost = false);
 

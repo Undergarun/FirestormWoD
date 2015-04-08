@@ -581,7 +581,7 @@ bool IsPrimaryProfessionSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY;
+    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY || skill == SKILL_WAY_OF_GRILL || skill == SKILL_WAY_OF_WOK || skill == SKILL_WAY_OF_POT || skill == SKILL_WAY_OF_STEAMER || skill == SKILL_WAY_OF_OVEN || skill == SKILL_WAY_OF_BREW;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)

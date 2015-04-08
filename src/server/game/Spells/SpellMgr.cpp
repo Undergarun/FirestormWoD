@@ -3344,6 +3344,14 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+				break;
+            case 124694:
+            case 125584:
+            case 125586:
+            case 125587:
+            case 125588:
+            case 125589:
+                spellInfo->Effects[EFFECT_0].BasePoints = 8;
                 break;
             case 161299: ///< Impact Spit
                 spellInfo->Effects[0].TriggerSpell = 161304;
@@ -4722,6 +4730,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
             case 33110: ///< Prayer of Mending
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
             case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;

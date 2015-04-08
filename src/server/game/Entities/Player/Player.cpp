@@ -5158,6 +5158,21 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (skill_value < spellLearnSkill->value)
             skill_value = spellLearnSkill->value;
 
+        if (skill_value < 525)
+        {
+            switch (spellLearnSkill->skill)
+            {
+                case SKILL_WAY_OF_GRILL:
+                case SKILL_WAY_OF_WOK:
+                case SKILL_WAY_OF_POT:
+                case SKILL_WAY_OF_STEAMER:
+                case SKILL_WAY_OF_OVEN:
+                case SKILL_WAY_OF_BREW:
+                    skill_value = 525;
+                    break;
+            }
+        }
+
         uint32 new_skill_max_value = spellLearnSkill->maxvalue == 0 ? maxskill : spellLearnSkill->maxvalue;
 
         if (skill_max_value < new_skill_max_value)
@@ -5396,7 +5411,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             SetFreePrimaryProfessions(freeProfs);
     }
 
-    RemovePassiveTalentSpell(spell_id);
+    RemovePassiveTalentSpell(spellInfo);
 
     /// Remove areatrigger
     std::list<AreaTrigger*> l_AreaTriggerList;
@@ -7757,15 +7772,25 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
+            int skill_gain_chance = SkillGainChance(SkillValue, _spell_idx->second->max_value, (_spell_idx->second->max_value + _spell_idx->second->min_value)/2, _spell_idx->second->min_value);
+            
+            // Since 4.0.x, we have bonus skill point reward with somes items ...
+            if (_spell_idx->second && _spell_idx->second->skill_gain >craft_skill_gain && skill_gain_chance == sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10)
+                craft_skill_gain = _spell_idx->second->skill_gain;
 
-            if (_spell_idx->second->skill_gain)
-                craft_skill_gain *= _spell_idx->second->skill_gain;
+            auto skillId = _spell_idx->second->skillId;
+            if (UpdateSkillPro(skillId, skill_gain_chance, craft_skill_gain))
+            {
+                if (SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId))
+                {
+                    if (uint32 parentSkillId = skillEntry->parentSkillLineID)
+                        return UpdateSkillPro(parentSkillId, skill_gain_chance, craft_skill_gain);
+                }
 
-            return UpdateSkillPro(_spell_idx->second->skillId, SkillGainChance(SkillValue,
-                _spell_idx->second->max_value,
-                (_spell_idx->second->max_value + _spell_idx->second->min_value) / 2,
-                _spell_idx->second->min_value),
-                craft_skill_gain);
+                return true;
+            }
+
+            return false;
         }
     }
     return false;
@@ -10756,7 +10781,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     // item combat enchantments
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
-        if (e_slot > PRISMATIC_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (e_slot > ENGINEERING_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
@@ -10877,7 +10902,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
     // Item enchantments spells casted at use
     for (uint8 e_slot = 0; e_slot < MAX_ENCHANTMENT_SLOT; ++e_slot)
     {
-        if (e_slot > PRISMATIC_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (e_slot > ENGINEERING_ENCHANTMENT_SLOT && e_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         uint32 enchant_id = item->GetEnchantmentId(EnchantmentSlot(e_slot));
@@ -16447,7 +16472,7 @@ void Player::AddEnchantmentDurations(Item* item)
 {
     for (int x = 0; x < MAX_ENCHANTMENT_SLOT; ++x)
     {
-        if (x > PRISMATIC_ENCHANTMENT_SLOT && x < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (x > ENGINEERING_ENCHANTMENT_SLOT && x < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         if (!item->GetEnchantmentId(EnchantmentSlot(x)))
@@ -16914,7 +16939,7 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
         {
             for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
             {
-                if (slot > PRISMATIC_ENCHANTMENT_SLOT && slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+                if (slot > ENGINEERING_ENCHANTMENT_SLOT && slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
                     continue;
 
                 uint32 ench_id = m_items[i]->GetEnchantmentId(EnchantmentSlot(slot));
@@ -20666,6 +20691,12 @@ bool Player::isAllowedToLoot(const Creature* creature)
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
         return false;
+
+    if (loot->AllowedPlayers.IsEnabled())
+    {
+        if (!loot->AllowedPlayers.HasPlayerGuid(GetGUID()))
+            return false;
+    }
 
     Group* thisGroup = GetGroup();
     if (!thisGroup)
@@ -29468,12 +29499,19 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
 void Player::SendClearCooldown(uint32 p_SpellID, Unit* p_Target, bool p_ClearOnHold)
 {
-    WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
+    /*WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
 
     l_Data << uint32(p_SpellID);
     l_Data.WriteBit(p_ClearOnHold);
     l_Data.WriteBit(p_Target == GetPet());             ///< IsPetCooldown
     l_Data.FlushBits();
+
+    SendDirectMessage(&l_Data);*/
+
+    /// Hack - send other working packet to clear cooldown, this will help until SMSG_CLEAR_COOLDOWN will not be fixed
+    WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4);
+    l_Data << uint32(1);                     ///< Size
+    l_Data << uint32(p_SpellID);             ///< Spell ID
 
     SendDirectMessage(&l_Data);
 }
@@ -31021,9 +31059,12 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
     }
 }
 
-void Player::RemovePassiveTalentSpell(uint32 spellId)
+void Player::RemovePassiveTalentSpell(SpellInfo const* info)
 {
-    switch (spellId)
+    if (!info)
+        return;
+
+    switch (info->Id)
     {
         case 46584: // Raise dead
             if (Pet* l_Pet = this->GetPet())
