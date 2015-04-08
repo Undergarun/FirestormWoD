@@ -3354,13 +3354,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907:
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
-				break;
-            case 124694:
-            case 125584:
-            case 125586:
-            case 125587:
-            case 125588:
-            case 125589:
+                break;
+            case 124694: ///< Way of the Grill
+            case 125584: ///< Way of the Wok
+            case 125586: ///< Way of the Pot
+            case 125587: ///< Way of the Steamer
+            case 125588: ///< Way of the Oven
+            case 125589: ///< Way of the Brew
                 spellInfo->Effects[EFFECT_0].BasePoints = 8;
                 break;
             case 161299: ///< Impact Spit
