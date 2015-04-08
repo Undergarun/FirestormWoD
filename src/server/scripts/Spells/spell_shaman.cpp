@@ -2499,6 +2499,67 @@ class spell_sha_chain_heal: public SpellScriptLoader
         }
 };
 
+/// Riptide - 61295
+class spell_sha_riptide : public SpellScriptLoader
+{
+    public:
+        spell_sha_riptide() : SpellScriptLoader("spell_sha_riptide") { }
+
+        enum eSpells
+        {
+            UnleashLife = 73685
+        };
+
+        class spell_sha_riptide_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_riptide_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_riptide_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        class spell_sha_riptide_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_riptide_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    p_Amount += CalculatePct(p_Amount, GetSpellInfo()->Effects[EFFECT_2].BasePoints);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_riptide_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_riptide_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_riptide_SpellScript;
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     /// Npcs
@@ -2552,4 +2613,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     new spell_sha_purge();
     new spell_sha_healing_wave();
+    new spell_sha_riptide();
 }
