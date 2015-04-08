@@ -4119,6 +4119,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;
                 p_Player->SetPhaseMask(l_PhaseMask, true);
+                p_Player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, p_Player);
 
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);
