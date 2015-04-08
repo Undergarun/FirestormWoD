@@ -84,6 +84,7 @@
 #include "WildBattlePet.h"
 #include "PlayerDump.h"
 #include "TransportMgr.h"
+#include "GarrisonShipmentManager.hpp"
 #include "ChatLexicsCutter.h"
 
 uint32 gOnlineGameMaster = 0;
