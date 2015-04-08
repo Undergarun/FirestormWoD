@@ -1,6 +1,7 @@
 -- fix Marked for Death
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_marked_for_death';
 INSERT INTO `spell_script_names` VALUES ('140149', 'spell_rog_marked_for_death'); -- visual
+DELETE FROM `spell_linked_spell` WHERE spell_trigger = 137619;
 INSERT INTO `spell_linked_spell` VALUES (137619, 140149, 2, 'Marked for Death (check caster)');
 
 -- fix Nightfall proc from Corruption
