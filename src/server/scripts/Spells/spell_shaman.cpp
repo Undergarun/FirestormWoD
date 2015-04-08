@@ -1168,31 +1168,6 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             return new spell_sha_lava_surge_AuraScript();
         }
-
-        class spell_sha_lava_surge_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_lava_surge_SpellScript);
-
-            void HandleAfterHit()
-            {
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->RestoreCharge(1536);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_sha_lava_surge_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_lava_surge_SpellScript();
-        }
 };
 
 /// Healing Stream - 52042
@@ -1753,12 +1728,18 @@ class spell_sha_flame_shock : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
 
                 if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA) && l_UnleashFlame != nullptr)
                 {
                     m_HasUnleashFlame = true;
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
                     l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                }
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                {
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ElementalFusion->Effects[EFFECT_0].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
                 }
             }
 
@@ -1783,6 +1764,36 @@ class spell_sha_flame_shock : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_sha_flame_shock_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
+
+        class spell_sha_flame_shock_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                {
+                    p_Amount += CalculatePct(p_Amount, l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_flame_shock_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_flame_shock_AuraScript();
+        }
 
         SpellScript* GetSpellScript() const
         {
