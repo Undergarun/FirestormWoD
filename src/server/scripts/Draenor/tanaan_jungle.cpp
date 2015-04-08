@@ -778,6 +778,18 @@ class playerScript_a_potential_ally : public PlayerScript
                 p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
         }
 
+        void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        {
+            switch (p_Quest->GetQuestId())
+            {
+                case TanaanQuests::QuestAPotentialAlly:
+                case TanaanQuests::QuestAPotentialAllyHorde:
+                    p_Player->CancelStandaloneScene(m_PlayerSceneInstanceId[p_Player->GetGUID()]);
+                default:
+                    break;
+            }
+        }
+
         void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
         {
             bool l_HasScript = std::count_if(m_PlayerSceneInstanceId.begin(), m_PlayerSceneInstanceId.end(), [p_SceneInstanceID](const std::pair<uint64, uint32> &p_Pair) -> bool
@@ -1870,18 +1882,33 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                     }
                     break;
                 }
-                case TanaanQuests::QuestAPotentialAlly:
-                case TanaanQuests::QuestAPotentialAllyHorde:
-                {
-                    Position l_Pos;
-                    p_Player->GetPosition(&l_Pos);
-
-                    if (g_APotentialAllyPlayerScript)
-                        g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
-                    break;
-                }
+//                 case TanaanQuests::QuestAPotentialAlly:
+//                 case TanaanQuests::QuestAPotentialAllyHorde:
+//                 {
+//                     Position l_Pos;
+//                     p_Player->GetPosition(&l_Pos);
+//
+//                     if (g_APotentialAllyPlayerScript)
+//                         g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
+//                     break;
+//                 }
                 default:
                     break;
+            }
+
+            return true;
+        }
+
+        bool OnQuestReward(Player * p_Player, Creature * p_Creature, const Quest * p_Quest, uint32 p_Option)
+        {
+            if (p_Quest->GetQuestId() == TanaanQuests::QuestKargatharProvingGrounds)
+            {
+                Position l_Pos;
+                p_Player->GetPosition(&l_Pos);
+
+                if (g_APotentialAllyPlayerScript)
+                    g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
+
             }
 
             return true;
