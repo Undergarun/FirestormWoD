@@ -932,35 +932,43 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     /// Rage from Damage made (only from direct weapon damage)
-    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE &&
-        HasAuraType(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
-        (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
+    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE && GetTypeId() == TYPEID_PLAYER)
     {
-        float l_Speed = 0.f;
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            Player* l_Player = ToPlayer();
+        Player* l_Player = ToPlayer();
 
+        /// Only Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
+        if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
+        {
             Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
-            l_Speed = l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME;
-        }
-        else
-            l_Speed = GetAttackTime(cleanDamage->attackType);
+            float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
 
-        float l_Rage = l_Speed / 1000.f * 5.f;
+            float l_RageGain = l_WeaponSpeed * 1.75f;
 
-        switch (cleanDamage->attackType)
-        {
-            case WeaponAttackType::OffAttack:
-                l_Rage /= 2.f;
-            case WeaponAttackType::BaseAttack:
-                /// Which amount of the calculated rage the player can get ? Ex: http://www.wowhead.com/spell=2457 it's 100%
-                l_Rage = CalculatePct(l_Rage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
-                if (l_Rage)
-                    RewardRage(l_Rage);
-                break;
-            default:
-                break;
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            {
+                if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE)
+                {
+                    if (cleanDamage->hitOutCome & MELEE_HIT_CRIT)
+                        l_RageGain *= frand(7.4375, 7.875);
+                    else
+                        l_RageGain *= 3.40f;
+                }
+                else
+                {
+                    if (cleanDamage->hitOutCome & MELEE_HIT_CRIT)
+                        l_RageGain *= 3.40f;
+                    else
+                        l_RageGain *= 1.60f;
+                }
+            }
+            else
+            {
+                l_RageGain *= 2.00f;
+                if (cleanDamage->attackType == WeaponAttackType::OffAttack)
+                    l_RageGain *= 0.5f;
+            }
+
+            RewardRage(l_RageGain);
         }
     }
 
