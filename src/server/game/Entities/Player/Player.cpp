@@ -29506,19 +29506,12 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
 
 void Player::SendClearCooldown(uint32 p_SpellID, Unit* p_Target, bool p_ClearOnHold)
 {
-    /*WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
+    WorldPacket l_Data(SMSG_CLEAR_COOLDOWN);
 
     l_Data << uint32(p_SpellID);
     l_Data.WriteBit(p_ClearOnHold);
     l_Data.WriteBit(p_Target == GetPet());             ///< IsPetCooldown
     l_Data.FlushBits();
-
-    SendDirectMessage(&l_Data);*/
-
-    /// Hack - send other working packet to clear cooldown, this will help until SMSG_CLEAR_COOLDOWN will not be fixed
-    WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4);
-    l_Data << uint32(1);                     ///< Size
-    l_Data << uint32(p_SpellID);             ///< Spell ID
 
     SendDirectMessage(&l_Data);
 }
