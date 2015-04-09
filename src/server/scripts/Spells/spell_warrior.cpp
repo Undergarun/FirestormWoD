@@ -1440,7 +1440,8 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
         }
 };
 
-/// Execute - 163201
+/// Execute (Arms) - 163201
+/// last update : 6.1.2 19802
 class spell_warr_execute: public SpellScriptLoader
 {
     public:
@@ -1452,16 +1453,18 @@ class spell_warr_execute: public SpellScriptLoader
 
             void HandleOnHit()
             {
+                Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
-                // converts each extra rage (up to 30 rage) into additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
-                // 30 rage = 320% more weapon damage
-                AddPct(l_Damage, (l_RageConsumed / 1.5f));
+                int32 l_MaxConsumed = -GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
-                if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                /// consuming up to 30 additional Rage to deal up to 405% additional damage
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE));
+                l_Damage += (l_RageConsumed * (405.f / l_MaxConsumed));
+
+                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
-                    float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
 
                     l_Damage += CalculatePct(l_Damage, l_MasteryValue);
                 }
