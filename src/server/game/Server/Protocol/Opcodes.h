@@ -1182,6 +1182,7 @@ enum Opcodes
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x08F6,   ///< 6.0.3 19116
     CMSG_SHOW_TRADE_SKILL                       = 0x07AD,   ///< 6.0.3 19116
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x13D9,   ///< 6.0.3 19116
+    CMSG_SUMMON_RESPONSE                        = 0x1124,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1732,7 +1733,6 @@ enum Opcodes
     CMSG_SUBMIT_COMPLAIN                                = 0x0000,
     CMSG_SUGGESTION_SUBMIT                              = 0x0000,
     CMSG_SUMMON_BATTLEPET_COMPANION                     = 0x0000,
-    CMSG_SUMMON_RESPONSE                                = 0x0000,
     CMSG_SUSPEND_TOKEN                                  = 0x0000,
     CMSG_SYNC_DANCE                                     = 0x0000,
     CMSG_TELEPORT_TO_UNIT                               = 0x0000,

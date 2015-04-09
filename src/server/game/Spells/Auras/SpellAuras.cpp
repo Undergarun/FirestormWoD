@@ -3310,11 +3310,17 @@ UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
 
 void UnitAura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
+    if (DiminishingGroup group = GetDiminishGroup())
+        target->ApplyDiminishingAura(group, true);
+
     Aura::_ApplyForTarget(target, caster, aurApp);
 }
 
 void UnitAura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
+    if (DiminishingGroup group = GetDiminishGroup())
+        target->ApplyDiminishingAura(group, false);
+
     Aura::_UnapplyForTarget(target, caster, aurApp);
 }
 

@@ -615,32 +615,18 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk2
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleSummonResponseOpcode(WorldPacket& p_Packet)
 {
     if (!m_Player->isAlive() || m_Player->isInCombat())
         return;
 
-    ObjectGuid summonerGuid;
-    bool agree;
+    uint64 l_SummonerGuid = 0;
+    bool l_Agree = false;
 
-    summonerGuid[7] = recvData.ReadBit();
-    summonerGuid[3] = recvData.ReadBit();
-    summonerGuid[6] = recvData.ReadBit();
+    p_Packet.readPackGUID(l_SummonerGuid);
+    l_Agree = p_Packet.ReadBit();
 
-    agree = recvData.ReadBit();
-
-    summonerGuid[4] = recvData.ReadBit();
-    summonerGuid[5] = recvData.ReadBit();
-    summonerGuid[1] = recvData.ReadBit();
-    summonerGuid[0] = recvData.ReadBit();
-    summonerGuid[2] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 2, 6, 1, 7, 3, 0, 5 };
-    recvData.ReadBytesSeq(summonerGuid, bytesOrder);
-
-    m_Player->SummonIfPossible(agree);
+    m_Player->SummonIfPossible(l_Agree);
 }
 
 void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_MovementInformation)

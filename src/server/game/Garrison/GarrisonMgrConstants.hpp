@@ -245,7 +245,10 @@ namespace MS { namespace Garrison
             AlchemyLab__AlchemyLab_Level3               = 120,
             TheTannery_TheTannery_Level1                = 90,
             TheTannery_TheTannery_Level2                = 121,
-            TheTannery_TheTannery_Level3                = 122
+            TheTannery_TheTannery_Level3                = 122,
+            EnchanterStudy_EnchanterStudy_Level1        = 93,
+            EnchanterStudy_EnchanterStudy_Level2        = 125,
+            EnchanterStudy_EnchanterStudy_Level3        = 126
         };
     }
 
