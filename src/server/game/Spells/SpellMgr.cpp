@@ -442,13 +442,6 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
-        case SPELLFAMILY_PRIEST:
-        {
-            /// Shackle Undead
-            if (spellproto->Id == 9484)
-                return 8 * IN_MILLISECONDS;
-            break;
-        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
