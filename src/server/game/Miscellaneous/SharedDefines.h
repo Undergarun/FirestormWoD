@@ -4778,7 +4778,7 @@ enum ActivateTaxiReply
 {
 
     ERR_TAXI_NO_VENDOR_NEARBY           = 0,
-    ERR_TAXI_SAME_NODE                  = 51,
+    ERR_TAXI_SAME_NODE                  = 1,
     ERR_TAXI_NOT_ENOUGH_MONEY           = 2,
     ERR_TAXI_PLAYER_MOVING              = 3,
     ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 4,
