@@ -586,6 +586,8 @@ class npc_highmaul_gorian_runemaster : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->RemoveAllAreasTrigger();
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -636,6 +638,7 @@ class npc_highmaul_gorian_runemaster : public CreatureScript
 };
 
 /// Gorian Enforcer - 82900
+/// Gorian Enforcer - 86275
 class npc_highmaul_gorian_enforcer : public CreatureScript
 {
     public:
@@ -1040,6 +1043,253 @@ class npc_highmaul_void_aberration : public CreatureScript
         }
 };
 
+/// Krush - 82532
+class npc_highmaul_krush : public CreatureScript
+{
+    public:
+        npc_highmaul_krush() : CreatureScript("npc_highmaul_krush") { }
+
+        enum eSpells
+        {
+            SpellBoarsRushSearcher  = 166224,
+            SpellBoarsRushMissile   = 166226
+        };
+
+        enum eEvent
+        {
+            EventBoarsRush = 1
+        };
+
+        struct npc_highmaul_krushAI : public ScriptedAI
+        {
+            npc_highmaul_krushAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventBoarsRush, 5000);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellBoarsRushSearcher:
+                        me->SetFacingToObject(p_Target);
+                        me->CastSpell(p_Target, eSpells::SpellBoarsRushMissile, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void JustReachedHome() override
+            {
+                me->GetMotionMaster()->MoveIdle();
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventBoarsRush:
+                        me->CastSpell(me, eSpells::SpellBoarsRushSearcher, true);
+                        me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+                        m_Events.ScheduleEvent(eEvent::EventBoarsRush, 25000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_krushAI(p_Creature);
+        }
+};
+
+/// Iron Flame Technician - 86607
+class npc_highmaul_iron_flame_technician : public CreatureScript
+{
+    public:
+        npc_highmaul_iron_flame_technician() : CreatureScript("npc_highmaul_iron_flame_technician") { }
+
+        enum eSpells
+        {
+            SpellCorruptedBlood             = 174475,
+            SpellFlamethrower               = 173231,
+
+            SpellUnstoppableChargeSearcher  = 174462,
+            UnstoppableChargeCharge         = 174461
+        };
+
+        enum eEvents
+        {
+            EventCorruptedBlood = 1,
+            EventFlamethrower,
+            EventUnstoppableCharge
+        };
+
+        struct npc_highmaul_iron_flame_technicianAI : public ScriptedAI
+        {
+            npc_highmaul_iron_flame_technicianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+                m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+                m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(9000, 12000));
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                switch (p_SpellInfo->Id)
+                {
+                    case eSpells::SpellUnstoppableChargeSearcher:
+                        me->CastSpell(p_Target, eSpells::UnstoppableChargeCharge, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCorruptedBlood:
+                        me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
+                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                        break;
+                    case eEvents::EventFlamethrower:
+                        me->CastSpell(me, eSpells::SpellFlamethrower, false);
+                        m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(14000, 17000));
+                        break;
+                    case eEvents::EventUnstoppableCharge:
+                        me->CastSpell(me, eSpells::SpellUnstoppableChargeSearcher, false);
+                        m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(19000, 22000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_iron_flame_technicianAI(p_Creature);
+        }
+};
+
+/// Iron Warmaster - 86609
+class npc_highmaul_iron_warmaster : public CreatureScript
+{
+    public:
+        npc_highmaul_iron_warmaster() : CreatureScript("npc_highmaul_iron_warmaster") { }
+
+        enum eSpells
+        {
+            SpellIronBattleRage = 173238,
+            SpellCorruptedBlood = 174475
+        };
+
+        enum eEvents
+        {
+            EventIronBattleRage = 1,
+            EventCorruptedBlood
+        };
+
+        struct npc_highmaul_iron_warmasterAI : public ScriptedAI
+        {
+            npc_highmaul_iron_warmasterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(6000, 9000));
+                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventIronBattleRage:
+                        me->CastSpell(me, eSpells::SpellIronBattleRage, true);
+                        m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(12000, 15000));
+                        break;
+                    case eEvents::EventCorruptedBlood:
+                        me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
+                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_iron_warmasterAI(p_Creature);
+        }
+};
+
 /// Arena Elevator - 233098
 class go_highmaul_arena_elevator : public GameObjectScript
 {
@@ -1122,6 +1372,60 @@ class spell_highmaul_chain_grip_aura : public SpellScriptLoader
         }
 };
 
+/// Boar's Rush - 166225
+class spell_highmaul_boars_rush : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_boars_rush() : SpellScriptLoader("spell_highmaul_boars_rush") { }
+
+        class spell_highmaul_boars_rush_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_boars_rush_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 21373
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Radius = GetSpellInfo()->Effects[0].CalcRadius(l_Caster);
+                p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->IsInAxe(l_Caster, l_Restriction->Width, l_Radius))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_129);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_3, TARGET_UNIT_CONE_ENEMY_129);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_highmaul_boars_rush_SpellScript();
+        }
+};
+
 /// Rune of Disintegration - 175648
 class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScript
 {
@@ -1171,6 +1475,9 @@ void AddSC_highmaul()
     new npc_highmaul_night_twisted_brute();
     new npc_highmaul_night_twisted_soothsayer();
     new npc_highmaul_void_aberration();
+    new npc_highmaul_krush();
+    new npc_highmaul_iron_flame_technician();
+    new npc_highmaul_iron_warmaster();
 
     /// GameObjects
     new go_highmaul_arena_elevator();
@@ -1178,6 +1485,7 @@ void AddSC_highmaul()
     /// Spells
     new spell_highmaul_chain_grip();
     new spell_highmaul_chain_grip_aura();
+    new spell_highmaul_boars_rush();
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();

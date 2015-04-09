@@ -115,7 +115,11 @@ enum specialSpells
 
     /// The Butcher - Highmaul
     BoundingCleaveJump                  = 156171,
-    BoundingCleaveDamage                = 156172
+    BoundingCleaveDamage                = 156172,
+
+    /// Krush - Highmaul
+    BoarsRuchJump                       = 166225,
+    Winded                              = 166227
 };
 
 template<class T>
@@ -212,6 +216,10 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
             break;
         case specialSpells::BoundingCleaveJump:
             unit.CastSpell(&unit, specialSpells::BoundingCleaveDamage, true);
+            break;
+        case specialSpells::BoarsRuchJump:
+            unit.CastSpell(&unit, specialSpells::Winded, true);
+            unit.ClearUnitState(UnitState::UNIT_STATE_ROOT);
             break;
         default:
             break;

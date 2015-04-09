@@ -1914,6 +1914,7 @@ class npc_highmaul_iron_bomber : public CreatureScript
                     {
                         l_IronBomb->EnterVehicle(me, 0, true);
                         l_IronBomb->CastSpell(l_IronBomb, eSpells::FireBomb, true);
+                        l_IronBomb->SetReactState(ReactStates::REACT_PASSIVE);
                     }
 
                     Talk(eTalk::Bomb);

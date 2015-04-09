@@ -3398,6 +3398,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163042:///< Pale Vitriol
                 spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
                 break;
+            case 166225:///< Boar's Rush (Krush)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(23); ///< 40 yards
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

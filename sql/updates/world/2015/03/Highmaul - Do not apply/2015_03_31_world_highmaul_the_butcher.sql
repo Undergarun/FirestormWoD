@@ -117,24 +117,28 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Шмя-а-а-ак!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (151990, 152024, 156135, 156138, 156197, 156152);
+DELETE FROM spell_script_names WHERE spell_id IN (151990, 152024, 156135, 156138, 156197, 156152, 166225);
 INSERT INTO spell_script_names VALUES
 (151990, 'spell_highmaul_chain_grip'),
 (152024, 'spell_highmaul_chain_grip_aura'),
 (156135, 'spell_highmaul_heavy_handed'),
 (156138, 'spell_highmaul_heavy_handed_proc'),
 (156197, 'spell_highmaul_bounding_cleave_dummy'),
-(156152, 'spell_highmaul_gushing_wounds');
+(156152, 'spell_highmaul_gushing_wounds'),
+(166225, 'spell_highmaul_boars_rush');
 
 UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_guardsman' WHERE entry = 81270;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_devout' WHERE entry = 82698;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_runemaster' WHERE entry = 81272;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_enforcer' WHERE entry = 82900;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_enforcer' WHERE entry IN (82900, 86275);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_underbelly_vagrant' WHERE entry = 86290;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_sorcerer' WHERE entry = 85225;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_brute' WHERE entry = 85241;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_soothsayer' WHERE entry = 85240;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_void_aberration' WHERE entry = 85243;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_krush' WHERE entry = 82532;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_flame_technician' WHERE entry = 86607;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_warmaster' WHERE entry = 86609;
 UPDATE creature_template SET faction = 14, ScriptName = 'npc_highmaul_night_twisted_cadaver' WHERE entry = 82505;
 
 DELETE FROM areatrigger_template WHERE spell_id IN (175648, 163042);

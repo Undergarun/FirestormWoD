@@ -2826,7 +2826,7 @@ void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
     /// For normal instances schedule the reset after all players have left
     SetResetSchedule(true);
 
-    if (i_data)
+    if (i_data && !p_Remove)
         i_data->OnPlayerExit(p_Player);
 
     SendInstanceGroupSizeChanged();
