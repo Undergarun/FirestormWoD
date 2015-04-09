@@ -12472,32 +12472,32 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all spell damage type...
+    int32 l_CritPctBonus = 100; // 200% for all spell damage type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
 
     // adds additional damage to p_Damage (from talents)
     if (Player* l_ModOwner = GetSpellModOwner())
         l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
 
 uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all healing type...
+    int32 l_CritPctBonus = 100; // 200% for all healing type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && IsPvP())
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += CalculatePct(l_CritPct, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
