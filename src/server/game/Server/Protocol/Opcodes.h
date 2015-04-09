@@ -760,12 +760,9 @@ enum Opcodes
         SMSG_NOTIFY_DEST_LOC_SPELL_CAST             = 0x01F1,   ///< 6.0.3 19116 (unused)
         SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x053F,   ///< 6.0.3 19116
         SMSG_SET_VEHICLE_REC_ID                     = 0x1BA1,   ///< 6.0.3 19116
-        SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x1173,   ///< 6.0.3 19116 (unused)
-        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x0171,   ///< 6.0.3 19116
         SMSG_COOLDOWN_EVENT                         = 0x05B0,   ///< 6.0.3 19116
         SMSG_DISMOUNT                               = 0x0B89,   ///< 6.0.3 19116
         SMSG_DISMOUNTRESULT                         = 0x000F,   ///< 6.0.3 19116 (unused)
-        SMSG_PLAY_SPELL_VISUAL                      = 0x1A84,   ///< 6.0.3 19116
         SMSG_MOUNT_RESULT                           = 0x18A2,   ///< 6.0.3 19116
 
         /// Spell Book / Bar
@@ -822,7 +819,11 @@ enum Opcodes
 
         /// Visuals
         SMSG_PLAY_ORPHAN_SPELL_VISUAL               = 0x0BF9,   ///< 6.0.3 19116
-
+        SMSG_CANCEL_ORPHAN_SPELL_VISUAL             = 0x1BFB,   ///< 6.0.3 19116
+        SMSG_PLAY_SPELL_VISUAL                      = 0x1A84,   ///< 6.0.3 19116
+        SMSG_CANCEL_SPELL_VISUAL                    = 0x0361,   ///< 6.0.3 19116
+        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x0171,   ///< 6.0.3 19116
+        SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x1173,   ///< 6.0.3 19116
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1766,8 +1767,6 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
     SMSG_BEASTMASTER_FAILED                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                               = 0x0000,
-    SMSG_CANCEL_ORPHAN_SPELL_VISUAL                     = 0x0000,
-    SMSG_CANCEL_SPELL_VISUAL                            = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT            = 0x0000,
     SMSG_CLEAR_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_CONSOLE_WRITE                                  = 0x0000,

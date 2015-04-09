@@ -1689,6 +1689,7 @@ class Unit : public WorldObject
         void PlayOneShotAnimKit(uint32 id);
         void SetAIAnimKit(uint32 p_AnimKitID);
         void PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed = 1.0f, uint64 p_TargetGuid = 0, bool p_SpeedAsTime = true);
+        void CancelOrphanSpellVisual(int32 p_SpellVisualID);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
@@ -1844,7 +1845,9 @@ class Unit : public WorldObject
         AuraPtr AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration = 0);
+        void CancelSpellVisualKit(int32 p_SpellVisualKitID);
         void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos = false, bool p_SpeedAsTime = false);
+        void CancelSpellVisual(int32 p_SpellVisualID);
 
         void DeMorph();
 

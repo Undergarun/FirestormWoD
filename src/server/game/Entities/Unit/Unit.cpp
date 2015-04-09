@@ -18204,6 +18204,13 @@ void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientati
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
+void Unit::CancelOrphanSpellVisual(int32 p_SpellVisualID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4);
+    l_Data << int32(p_SpellVisualID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
 {
     /// Prevent killing unit twice (and giving reward from kill twice)
@@ -19357,6 +19364,14 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
     SendMessageToSet(&l_Data, false);
 }
 
+void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellVisualKitID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
 {
     ObjectGuid l_Guid = GetGUID();
@@ -19390,6 +19405,14 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
         ToPlayer()->GetSession()->SendPacket(&l_Data);
     else
         SendMessageToSet(&l_Data, false);
+}
+
+void Unit::CancelSpellVisual(int32 p_SpellVisualID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellVisualID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
