@@ -4453,10 +4453,14 @@ enum PastSelfSpells
 struct auraData
 {
     auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
-        m_id(id), m_duration(duration), m_charges(charges), m_isStackAmount(isStackAmount) { }
+        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount) 
+    {
+        memset(m_EffectAmounts, 0, sizeof(m_EffectAmounts));
+    }
     uint32 m_id;
-    int32 m_duration;
-    uint8 m_charges;
+    int32 m_Duration;
+    int32 m_EffectAmounts[MAX_EFFECTS];
+    uint8 m_Charges;
     bool m_isStackAmount;
 };
 
@@ -4514,7 +4518,13 @@ class npc_past_self : public CreatureScript
 
                             bool stack = aura->GetStackAmount();
                             uint8 charges = stack ? aura->GetStackAmount() : aura->GetCharges();
-                            auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
+                            auto l_Inserted = auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
+
+                            for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+                            {
+                                if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
+                                    (*l_Inserted.first)->m_EffectAmounts[l_I] = l_Effect->GetAmount();
+                            }
                         }
                     }
 
@@ -4548,11 +4558,18 @@ class npc_past_self : public CreatureScript
                                     AuraPtr aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
                                     if (aura)
                                     {
-                                        aura->SetDuration((*itr)->m_duration);
+                                        aura->SetDuration((*itr)->m_Duration);
                                         if ((*itr)->m_isStackAmount)
-                                            aura->SetStackAmount((*itr)->m_charges);
+                                            aura->SetStackAmount((*itr)->m_Charges);
                                         else
-                                            aura->SetCharges((*itr)->m_charges);
+                                            aura->SetCharges((*itr)->m_Charges);
+
+                                        for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+                                        {
+                                            if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
+                                                l_Effect->SetAmount((*itr)->m_EffectAmounts[l_I]);
+                                        }
+
                                         aura->SetNeedClientUpdateForTargets();
                                     }
 
