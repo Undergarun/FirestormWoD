@@ -11959,7 +11959,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                     DoneTotalMod += aurEff->GetAmount();
             break;
     }
-
     return DoneTotalMod;
 }
 
@@ -12309,7 +12308,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         switch (spellProto->Id)
                         {
                             case 51505: // Lava Burst
-                            case 77451: // Lava Burst (Elemental Overload)
                                 return 100.0f;
                             default:
                                 break;
@@ -16550,17 +16548,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     bool l_IsCrit = false;
 
+                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+
                     if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
                         l_IsCrit = true;
                     else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
                         l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
-                        damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                        l_MultistrikeDamage = SpellCriticalDamageBonus(procSpell, l_MultistrikeDamage, target);
                     else if (l_IsCrit && !procSpell)
-                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
-
-                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                        l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, target, attType);
 
                     if (procExtra & PROC_EX_CRITICAL_HIT)
                         l_IsCrit = true;
