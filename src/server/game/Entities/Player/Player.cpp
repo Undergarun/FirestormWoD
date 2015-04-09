@@ -31288,10 +31288,9 @@ uint32 Player::PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFla
 /// @p_SceneInstanceID : Scene instance ID
 void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
 {
-    WorldPacket l_PlayScenePacket(SMSG_CANCEL_SCENE, 4);
-    l_PlayScenePacket << uint32(p_SceneInstanceID);
-
-    SendDirectMessage(&l_PlayScenePacket);
+    WorldPacket l_Data(SMSG_CANCEL_SCENE, 4);
+    l_Data << uint32(p_SceneInstanceID);
+    SendDirectMessage(&l_Data);
 }
 
 /// Compute the unlocked pet battle slot
