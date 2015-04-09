@@ -4941,10 +4941,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 105361: ///< Seal of Command
                 spellInfo->OverrideSpellList.push_back(31801); ///< Replace Seal of Command with Seal of Truth
                 break;
-            case 117895: ///< Eminence (statue)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[0].TargetB = 0;
-                break;
             case 115294: ///< Mana Tea
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
                 break;

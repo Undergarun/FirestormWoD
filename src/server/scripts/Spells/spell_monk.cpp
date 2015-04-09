@@ -1444,6 +1444,49 @@ class spell_monk_thunder_focus_tea: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Eminence - 126890 and Eminence (status) - 117895
+class spell_monk_eminence_heal : public SpellScriptLoader
+{
+    public:
+    spell_monk_eminence_heal() : SpellScriptLoader("spell_monk_eminence_heal") { }
+
+    class spell_monk_eminence_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_eminence_heal_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        {
+            Unit* l_Caster = GetCaster();
+
+            for (std::list<WorldObject*>::iterator l_Itr = p_Targets.begin(); l_Itr != p_Targets.end();)
+            {
+                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || (*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() || !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
+                    l_Itr = p_Targets.erase(l_Itr);
+               else
+                   l_Itr++;
+            }
+
+            if (p_Targets.size() > 1)
+            {
+                p_Targets.sort(JadeCore::HealthPctOrderPred());
+                p_Targets.resize(1);
+            }
+
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_eminence_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_monk_eminence_heal_SpellScript();
+    }
+};
+
 // Summon Jade Serpent Statue - 115313
 class spell_monk_jade_serpent_statue: public SpellScriptLoader
 {
@@ -4322,6 +4365,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_afterlife();
     new spell_monk_fists_of_fury_damage();
     new spell_monk_fists_of_fury_stun();
+    new spell_monk_eminence_heal();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
