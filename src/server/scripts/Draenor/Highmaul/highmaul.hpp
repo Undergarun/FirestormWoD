@@ -102,4 +102,10 @@ enum eHighmaulWorldStates
     DrunkenBileslingerRemaining = 9725
 };
 
+enum eHighmaulSpells
+{
+    PlayChogallScene    = 178333,
+    ChogallNight        = 163661
+};
+
 #endif

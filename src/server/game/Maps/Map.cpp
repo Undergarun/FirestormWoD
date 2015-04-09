@@ -2815,15 +2815,19 @@ void InstanceMap::Update(const uint32 t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
+void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
 {
-    sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
-    //if last player set unload timer
+    /// If last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
-    Map::RemovePlayerFromMap(player, remove);
-    // for normal instances schedule the reset after all players have left
+
+    Map::RemovePlayerFromMap(p_Player, p_Remove);
+
+    /// For normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+
+    if (i_data)
+        i_data->OnPlayerExit(p_Player);
 
     SendInstanceGroupSizeChanged();
 }

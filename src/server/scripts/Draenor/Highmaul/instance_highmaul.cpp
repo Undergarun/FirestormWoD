@@ -228,6 +228,7 @@ class instance_highmaul : public InstanceMapScript
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState, 0);
                         SendUpdateWorldState(eHighmaulWorldStates::UnknownHighmaulWorldState2, 0);
                         PlaySceneForPlayers(g_PlayScenePos, 1338);
+                        CastSpellToPlayers(instance, nullptr, eHighmaulSpells::ChogallNight, true);
                         break;
                     }
                     default:
@@ -328,9 +329,18 @@ class instance_highmaul : public InstanceMapScript
             void OnPlayerEnter(Player* p_Player) override
             {
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
+                {
                     p_Player->SetPhaseMask(2, true);
+                    p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
+                }
                 else
                     p_Player->SetPhaseMask(1, true);
+            }
+
+            void OnPlayerExit(Player* p_Player) override
+            {
+                p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
+                p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
@@ -352,6 +362,24 @@ class instance_highmaul : public InstanceMapScript
                     {
                         l_Player->PlayStandaloneScene(p_ScenePackageID, 16, p_Pos);
                         l_Player->SetPhaseMask(2, true);
+                    }
+                }
+            }
+
+            void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+            {
+                if (p_Map == nullptr)
+                    return;
+
+                Map::PlayerList const& l_Players = p_Map->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
+                {
+                    if (Player* l_Player = l_Iter->getSource())
+                    {
+                        if (p_Caster != nullptr)
+                            p_Caster->CastSpell(l_Player, p_SpellID, p_Triggered);
+                        else
+                            l_Player->CastSpell(l_Player, p_SpellID, p_Triggered);
                     }
                 }
             }

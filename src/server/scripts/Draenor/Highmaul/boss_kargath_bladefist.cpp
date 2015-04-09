@@ -84,12 +84,12 @@ Position const g_NewInstancePortalPos = { 3441.737f, 7547.819f, 55.30566f, 0.829
 float const g_InArenaZ = 60.0f;
 float const g_ArenaFloor = 55.30f;
 
-void CastSpellToPlayers(Creature* p_Source, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
+void CastSpellToPlayers(Map* p_Map, Unit* p_Caster, uint32 p_SpellID, bool p_Triggered)
 {
-    if (p_Source == nullptr)
+    if (p_Map == nullptr)
         return;
 
-    Map::PlayerList const& l_Players = p_Source->GetMap()->GetPlayers();
+    Map::PlayerList const& l_Players = p_Map->GetPlayers();
     for (Map::PlayerList::const_iterator l_Iter = l_Players.begin(); l_Iter != l_Players.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
@@ -186,7 +186,6 @@ class boss_kargath_bladefist : public CreatureScript
         {
             /// Cosmetic
             BladeFistAmputation     = 167593,
-            PlayChogallScene        = 178333,
             KargathDiesCrowdSound   = 166861,
             KargathChantingSound    = 168278,
             InThePit                = 161423,
@@ -274,7 +273,7 @@ class boss_kargath_bladefist : public CreatureScript
                 _Reset();
 
                 me->RemoveAura(eSpells::BladeFistAmputation);
-                me->RemoveAura(eSpells::PlayChogallScene);
+                me->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 me->RemoveAura(eSpells::FirePillarTargetSelect);
 
                 me->SetDisplayId(eDatas::MorphWithWeapon);
@@ -331,7 +330,7 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
                     if (IsMythic())
-                        CastSpellToPlayers(me, nullptr, eSpells::SpellRoarOfTheCrowd, true);
+                        CastSpellToPlayers(me->GetMap(), nullptr, eSpells::SpellRoarOfTheCrowd, true);
                 }
             }
 
@@ -357,7 +356,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 me->CastSpell(me, eSpells::BladeFistAmputation, true);
                 me->CastSpell(me, eSpells::KargathDiesCrowdSound, true);
-                me->CastSpell(me, eSpells::PlayChogallScene, true);
+                me->CastSpell(me, eHighmaulSpells::PlayChogallScene, true);
 
                 me->SetDisplayId(eDatas::MorphAmputation);
 
@@ -375,7 +374,7 @@ class boss_kargath_bladefist : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::CrowdFavorite100);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::InThePit);
 
-                    CastSpellToPlayers(me, me, eSpells::KargathBonusLoot, true);
+                    CastSpellToPlayers(me->GetMap(), me, eSpells::KargathBonusLoot, true);
 
                     ResetAllPlayersFavor(me);
                     ResetRavenousBloodmaws();
@@ -1989,7 +1988,7 @@ class npc_highmaul_iron_grunt : public CreatureScript
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
                 if (me->GetMap()->IsMythic())
-                    CastSpellToPlayers(me, nullptr, eSpell::CrowdMinionKilled, true);
+                    CastSpellToPlayers(me->GetMap(), nullptr, eSpell::CrowdMinionKilled, true);
             }
 
             void LastOperationCalled() override
@@ -2062,7 +2061,7 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
             {
                 /// In Mythic difficulty, killing Iron Grunts grants favor for Roar of the Crowd.
                 if (me->GetMap()->IsMythic())
-                    CastSpellToPlayers(me, nullptr, eSpells::CrowdMinionKilled, true);
+                    CastSpellToPlayers(me->GetMap(), nullptr, eSpells::CrowdMinionKilled, true);
             }
 
             void LastOperationCalled() override
