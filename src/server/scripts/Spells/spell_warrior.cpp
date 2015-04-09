@@ -1589,39 +1589,43 @@ class spell_warr_shield_charge: public SpellScriptLoader
         }
 };
 
-enum ExecuteSpells
-{
-    SPELL_EXECUTE_OFFHAND = 163558
-};
-
 /// Execute - 5308 (Prot, Fury, Default)
+/// last update : 6.1.2 19802
 class spell_warr_execute_default: public SpellScriptLoader
 {
-public:
-    spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
+    public:
+        spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
 
-    class spell_warr_execute_default_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_execute_default_SpellScript);
-
-        void HandleOnCast()
+        class spell_warr_execute_default_SpellScript : public SpellScript
         {
-            if (Unit* l_Target = GetExplTargetUnit())
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                        l_Caster->CastSpell(l_Target, SPELL_EXECUTE_OFFHAND, true);
-        }
+            PrepareSpellScript(spell_warr_execute_default_SpellScript);
 
-        void Register()
+            enum ExecuteSpells
+            {
+                SpellWarrExecuteOffHand = 163558
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Caster = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
+                if (!l_Caster || !l_Target)
+                    return;
+
+                if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Caster->CastSpell(l_Target, ExecuteSpells::SpellWarrExecuteOffHand, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+            return new spell_warr_execute_default_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_execute_default_SpellScript();
-    }
 };
 
 enum EnhancedRendSpells
