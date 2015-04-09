@@ -552,6 +552,24 @@ namespace MS
 
                 p_Player->GetSession()->SendPacket(&l_Data);
             }
+
+            static void CheckWargameEntry(Player* p_Requester, Player* p_Target, uint64 p_QueueID, bool p_TournamentRules)
+            {
+                uint32 l_Timeout         = 60;
+                bool   l_TournamentRules = false;
+
+                WorldPacket l_Data(SMSG_CHECK_WARGAME_ENTRY);
+                l_Data.appendPackGUID(p_Requester->GetGUID());
+                l_Data << uint32(g_RealmID);
+                l_Data << uint16(0);                ///< unk
+                l_Data << uint8(0);                 ///< ServerSpec
+                l_Data.appendPackGUID(0);           ///< BnetGuid, bypass bnet friend list check
+                l_Data << uint64(p_QueueID);
+                l_Data << uint32(l_Timeout);
+                l_Data.WriteBit(l_TournamentRules);
+
+                p_Target->GetSession()->SendPacket(&l_Data);
+            }
         };
     }
 }

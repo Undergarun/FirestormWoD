@@ -356,11 +356,11 @@ enum Opcodes
         SMSG_MAP_OBJECTIVES_INIT                            = 0x1323,   ///< 6.0.3 19116 (unused)
         SMSG_CONQUEST_FORMULA_CONSTANTS                     = 0x1342,   ///< 6.0.3 19116 (unused)
         SMSG_PVP_SEASON                                     = 0x09E3,   ///< 6.0.3 19116
-        SMSG_WARGAME_CHECK_ENTRY                            = 0x1203,   ///< 6.0.3 19116 (unused)
         SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x01A2,   ///< 6.0.3 19116 (unused)
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x1331,   ///< 6.0.3 19116
         SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x1182,   ///< 6.0.3 19116
         SMSG_BATTLEFIELD_LIST                               = 0x11A1,   ///< 6.0.3 19116
+        SMSG_CHECK_WARGAME_ENTRY                            = 0x1203,   ///< 6.0.3 19116
 
         /// Pet
         SMSG_PET_NAME_QUERY_RESPONSE                        = 0x0D0E,   ///< 6.0.3 19116
@@ -1430,6 +1430,8 @@ enum Opcodes
     CMSG_BATTLEFIELD_LIST                       = 0x03B1,   ///< 6.0.3 19116
     CMSG_BATTLEFIELD_LEAVE                      = 0x0000,
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO         = 0x1323,   ///< 6.0.3 19116
+    CMSG_START_WAR_GAME                         = 0x03A2,   ///< 6.0.3 19116
+    CMSG_ACCEPT_WARGAME_INVITE                  = 0x0B40,   ///< 6.0.3 19116
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild

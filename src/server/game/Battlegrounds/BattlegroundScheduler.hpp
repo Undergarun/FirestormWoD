@@ -92,6 +92,10 @@ namespace MS
             /// @p_Type : The type that corresponds to the wishes of the group.
             bool GetPlayerGroupInfoData(uint64 p_Guid, GroupQueueInfo& p_GroupInfo, BattlegroundType::Type p_Type) const;
 
+            /// Remove the group and its players from the queues.
+            /// @p_Group : The group.
+            void RemoveGroupFromQueues(GroupQueueInfo* p_Group);
+
             //////////////////////////////////////////////////////////////////////////
             /// Scheduling part.
             //////////////////////////////////////////////////////////////////////////
@@ -111,10 +115,6 @@ namespace MS
             /// @p_PotentialBGs     : The count of players inside the different battlegrounds.
             /// @p_PotentialGroups  : The vector of eligible groups.
             void FindPotentialBGs(Bracket::Id p_BracketId, std::vector<float>& p_PotientialBGs, std::vector<std::list<GroupQueueInfo*>>& p_PotentialGroups);
-
-            /// Remove the group and its players from the queues.
-            /// @p_Group : The group.
-            void RemoveGroupFromQueues(GroupQueueInfo* p_Group);
 
         private:
             std::list<GroupQueueInfo*> m_QueuedGroups[Brackets::Count][2];                                  ///< The queue of groups.
