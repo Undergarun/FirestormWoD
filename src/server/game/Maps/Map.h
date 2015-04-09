@@ -671,6 +671,7 @@ class InstanceMap : public Map
         void UnloadAll();
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
+        void SendInstanceGroupSizeChanged() const;
         void SetResetSchedule(bool on);
 
         uint32 GetMaxPlayers() const;

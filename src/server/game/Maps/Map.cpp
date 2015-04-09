@@ -2802,6 +2802,8 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     if (i_data)
         i_data->OnPlayerEnter(player);
 
+    SendInstanceGroupSizeChanged();
+
     return true;
 }
 
@@ -2822,6 +2824,8 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
     Map::RemovePlayerFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+
+    SendInstanceGroupSizeChanged();
 }
 
 void InstanceMap::CreateInstanceData(bool load)
@@ -2955,6 +2959,12 @@ void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         itr->getSource()->SendRaidInstanceMessage(GetId(), itr->getSource()->GetDifficultyID(GetEntry()), timeLeft);
+}
+
+void InstanceMap::SendInstanceGroupSizeChanged() const
+{
+    for (MapRefManager::const_iterator l_Iter = m_mapRefManager.begin(); l_Iter != m_mapRefManager.end(); ++l_Iter)
+        l_Iter->getSource()->SendInstanceGroupSizeChanged(m_mapRefManager.getSize());
 }
 
 void InstanceMap::SetResetSchedule(bool on)

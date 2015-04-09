@@ -26236,7 +26236,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
 
     if (l_IsInInstance)
-        l_Data << uint32(GetMap()->GetMapDifficulty()->MaxPlayers);
+        l_Data << uint32(GetMap()->GetPlayers().getSize());
 
     GetSession()->SendPacket(&l_Data);
 
@@ -26488,6 +26488,13 @@ void Player::SendRaidInstanceMessage(uint32 p_MapID, Difficulty p_Difficulty, ui
     l_Data.WriteBit(0);                                   // is locked
     l_Data.WriteBit(0);                                   // is extended, ignored if prev field is 0
     l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
+}
+
+void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
+{
+    WorldPacket l_Data(Opcodes::SMSG_INSTANCE_GROUP_SIZE_CHANGED, 4);
+    l_Data << uint32(p_Size);
     GetSession()->SendPacket(&l_Data);
 }
 

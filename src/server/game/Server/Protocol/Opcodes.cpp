@@ -459,6 +459,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_RAID_GROUP_ONLY,                                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_RAID_MARKERS_CHANGED,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_SAVE_CREATED,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_GROUP_SIZE_CHANGED,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Scenarios
         DEFINE_OPCODE_HANDLER(SMSG_SCENARIO_POI,                                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
