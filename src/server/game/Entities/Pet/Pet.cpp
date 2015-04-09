@@ -394,7 +394,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
     {
         uint32 l_SpecializationID = GetSpecializationId();
-        if (owner->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+        if (owner->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
         {
             switch (l_SpecializationID)
             {
