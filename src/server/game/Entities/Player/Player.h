@@ -4007,6 +4007,8 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             if (!(playerWeaponMask & spellWeaponMask))
                 continue;
 
+        /// @TODO: Add hook to prevent apply of specific spellmod
+
         if (mod->type == SPELLMOD_FLAT)
             totalflat += mod->value;
         else if (mod->type == SPELLMOD_PCT)
