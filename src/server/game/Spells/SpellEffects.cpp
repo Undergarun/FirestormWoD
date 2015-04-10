@@ -1046,11 +1046,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->ToPlayer()->RemoveSpellCooldown(120054, true); // Rank 3
                         m_caster->ToPlayer()->RemoveSpellCooldown(120053, true); // Rank 4
 
-                        if (m_caster->getLevel() <= 70)
+                        if (m_caster->getLevel() < 80)
                             m_caster->CastSpell(m_caster, 120056, true);
-                        else if (m_caster->getLevel() <= 80)
+                        else if (m_caster->getLevel() < 85)
                             m_caster->CastSpell(m_caster, 120055, true);
-                        else if (m_caster->getLevel() <= 85)
+                        else if (m_caster->getLevel() < 90)
                             m_caster->CastSpell(m_caster, 120054, true);
                         else
                             m_caster->CastSpell(m_caster, 120053, true);
