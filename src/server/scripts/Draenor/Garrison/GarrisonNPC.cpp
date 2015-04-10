@@ -23,6 +23,7 @@
 #include "Buildings/Alliance/AAlchemyLab.hpp"
 #include "Buildings/Alliance/ATheTannery.hpp"
 #include "Buildings/Alliance/AEnchanterStudy.hpp"
+#include "Buildings/Alliance/AGemBoutique.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -437,6 +438,10 @@ void AddSC_Garrison_NPC()
         /// Enchanter's Study
         new MS::Garrison::npc_AyadaTheWhite;
         new MS::Garrison::npc_Garm;
+
+        /// Gem boutique
+        new MS::Garrison::npc_CostanHighwall
+        new MS::Garrison::npc_KayaSolasen;
     }
 
     /// Horde
