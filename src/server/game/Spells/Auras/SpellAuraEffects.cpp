@@ -5566,8 +5566,8 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
     {
         if (GetMiscValue() & (1 << rating))
         {
-            float l_CurrentAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << rating, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
-            float l_NewAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << rating, apply ? nullptr : shared_from_this());
+            float l_CurrentAmount = target->GetTotalAuraModifierByMiscMask(GetAuraType(), 1 << rating, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+            float l_NewAmount = target->GetTotalAuraModifierByMiscMask(GetAuraType(), 1 << rating, apply ? nullptr : shared_from_this());
 
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_CurrentAmount, false);
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_NewAmount, true);
