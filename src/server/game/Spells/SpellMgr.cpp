@@ -231,6 +231,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Faerie Fire -- 770, 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return DIMINISHING_LIMITONLY;
+
+            // Nature's Grasp
+            if (spellproto->Id == 170855)
+                return DIMINISHING_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:

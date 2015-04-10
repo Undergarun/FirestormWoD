@@ -1140,6 +1140,11 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 
                 break;
             case PETSPELL_NEW:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
+                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+                stmt->setUInt32(1, itr->first);
+                trans->Append(stmt);
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetPetNumber());
                 stmt->setUInt32(1, itr->first);

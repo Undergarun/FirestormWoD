@@ -482,7 +482,6 @@ bool Group::AddMember(Player* player)
         stmt->setUInt32(6, member.specID);
 
         CharacterDatabase.Execute(stmt);
-
     }
 
     SendUpdate();
@@ -1632,7 +1631,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->UnlootedCount--;
                     AllowedLooterSet looters = item->GetAllowedLooters();
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                    Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                    l_Item->AddItemBonuses(item->itemBonuses);
                 }
                 else
                 {
@@ -1685,7 +1685,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->UnlootedCount--;
                         AllowedLooterSet looters = item->GetAllowedLooters();
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                        Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                        l_Item->AddItemBonuses(item->itemBonuses);
                     }
                     else
                     {

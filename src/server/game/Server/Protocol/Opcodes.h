@@ -1187,7 +1187,9 @@ enum Opcodes
     CMSG_SCENE_TRIGGER_EVENT                    = 0x0589,   ///< 6.1.2 19783
     CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74,   ///< 6.1.2 19783
     CMSG_SHOW_TRADE_SKILL                       = 0x1735,   ///< 6.1.2 19783
-    CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C, ///< 6.1.2 8000
+    CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C,   ///< 6.1.2 19783
+    CMSG_REQUEST_RESEARCH_HISTORY               = 0x0EA9,   ///< 6.1.2 19783
+    CMSG_SUMMON_RESPONSE                        = 0x0740,   ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1750,7 +1752,6 @@ enum Opcodes
     CMSG_SUBMIT_COMPLAIN                                = 0x0000,
     CMSG_SUGGESTION_SUBMIT                              = 0x0000,
     CMSG_SUMMON_BATTLEPET_COMPANION                     = 0x0000,
-    CMSG_SUMMON_RESPONSE                                = 0x0000,
     CMSG_SUSPEND_TOKEN                                  = 0x0000,
     CMSG_SYNC_DANCE                                     = 0x0000,
     CMSG_TELEPORT_TO_UNIT                               = 0x0000,
