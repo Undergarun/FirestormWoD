@@ -807,6 +807,7 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_spires_of_arak();
 void AddSC_frostfire_ridge();
 void AddSC_gorgrond();
 void AddSC_Garrison_GO();
@@ -1701,6 +1702,7 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_spires_of_arak();
     AddSC_frostfire_ridge();
     AddSC_gorgrond();
     AddSC_Garrison_GO();

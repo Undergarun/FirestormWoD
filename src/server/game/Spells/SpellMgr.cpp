@@ -3351,16 +3351,26 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 165907:
+            case 167625: ///< Blood feather
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
+                spellInfo->Effects[0].TriggerSpell = 167626; ///< Blood Feather
+                break;
+            case 167687: ///< Solar Breath
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
+                break;
+            case 167629: ///< Blaze Of Glory
+                spellInfo->Effects[1].TargetB = TARGET_UNIT_DEST_AREA_ENTRY;
+                break;
+            case 165907: ///< Earthrending Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
 				break;
-            case 124694:
-            case 125584:
-            case 125586:
-            case 125587:
-            case 125588:
-            case 125589:
+            case 124694: ///< Way of the Grill
+            case 125584: ///< Way of the Wok
+            case 125586: ///< Way of the Pot
+            case 125587: ///< Way of the Steamer
+            case 125588: ///< Way of the Oven
+            case 125589: ///< Way of the Brew
                 spellInfo->Effects[EFFECT_0].BasePoints = 8;
                 break;
             case 161299: ///< Impact Spit
