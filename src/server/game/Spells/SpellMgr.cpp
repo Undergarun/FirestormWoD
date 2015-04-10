@@ -442,13 +442,6 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
-        case SPELLFAMILY_PRIEST:
-        {
-            /// Shackle Undead
-            if (spellproto->Id == 9484)
-                return 8 * IN_MILLISECONDS;
-            break;
-        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
@@ -4947,10 +4940,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 105361: ///< Seal of Command
                 spellInfo->OverrideSpellList.push_back(31801); ///< Replace Seal of Command with Seal of Truth
-                break;
-            case 117895: ///< Eminence (statue)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[0].TargetB = 0;
                 break;
             case 115294: ///< Mana Tea
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s

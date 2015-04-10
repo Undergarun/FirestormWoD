@@ -785,25 +785,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
     }
-    // Stance of the Spirited Crane - 154436
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436) && spellProto
+
+    /// last update : 6.1.2 19802
+    /// Stance of the Spirited Crane - 154436
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436))
+        if (!spellProto || (spellProto
         && spellProto->Id != 124098 && spellProto->Id != 107270 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993) ///< Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
+        && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
     {
         int32 l_Bp = damage / 2;
-        std::list<Unit*> l_TargetList;
         std::list<Creature*> l_TempList;
         std::list<Creature*> l_StatueList;
         Creature* l_Statue = nullptr;
-
-        ToPlayer()->GetRaidMembers(l_TargetList);
-
-        if (l_TargetList.size() > 1)
-        {
-            l_TargetList.remove(this); ///< Remove Player
-            l_TargetList.sort(JadeCore::HealthPctOrderPred());
-            l_TargetList.resize(1);
-        }
 
         ToPlayer()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
         ToPlayer()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
@@ -819,20 +812,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
 
         /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
-        for (auto itr : l_TargetList)
+        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+
+        if (l_StatueList.size() == 1)
         {
-            CastCustomSpell(itr, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+            for (auto itrBis : l_StatueList)
+                l_Statue = itrBis;
 
-            if (l_StatueList.size() == 1)
+            if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
             {
-                for (auto itrBis : l_StatueList)
-                    l_Statue = itrBis;
-
-                if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
-                {
-                    if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == GetGUID())
-                        l_Statue->CastCustomSpell(itr, 117895, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence - statue
-                }
+                if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == GetGUID())
+                    l_Statue->CastCustomSpell(l_Statue, 117895, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence - statue
             }
         }
     }
@@ -11959,7 +11949,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                     DoneTotalMod += aurEff->GetAmount();
             break;
     }
-
     return DoneTotalMod;
 }
 
@@ -12309,7 +12298,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         switch (spellProto->Id)
                         {
                             case 51505: // Lava Burst
-                            case 77451: // Lava Burst (Elemental Overload)
                                 return 100.0f;
                             default:
                                 break;
@@ -12474,32 +12462,32 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all spell damage type...
+    int32 l_CritPctBonus = 100; // 200% for all spell damage type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
 
     // adds additional damage to p_Damage (from talents)
     if (Player* l_ModOwner = GetSpellModOwner())
         l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
 
 uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all healing type...
+    int32 l_CritPctBonus = 100; // 200% for all healing type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && IsPvP())
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
@@ -16550,17 +16538,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     bool l_IsCrit = false;
 
+                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+
                     if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
                         l_IsCrit = true;
                     else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
                         l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
-                        damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                        l_MultistrikeDamage = SpellCriticalDamageBonus(procSpell, l_MultistrikeDamage, target);
                     else if (l_IsCrit && !procSpell)
-                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
-
-                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                        l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, target, attType);
 
                     if (procExtra & PROC_EX_CRITICAL_HIT)
                         l_IsCrit = true;

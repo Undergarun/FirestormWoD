@@ -1440,7 +1440,8 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
         }
 };
 
-/// Execute - 163201
+/// Execute (Arms) - 163201
+/// last update : 6.1.2 19802
 class spell_warr_execute: public SpellScriptLoader
 {
     public:
@@ -1452,16 +1453,18 @@ class spell_warr_execute: public SpellScriptLoader
 
             void HandleOnHit()
             {
+                Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
-                // converts each extra rage (up to 30 rage) into additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10));
-                // 30 rage = 320% more weapon damage
-                AddPct(l_Damage, (l_RageConsumed / 1.5f));
+                int32 l_MaxConsumed = -GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
-                if (GetCaster()->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
+                /// consuming up to 30 additional Rage to deal up to 405% additional damage
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE));
+                l_Damage += (l_RageConsumed * (405.f / l_MaxConsumed));
+
+                if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
-                    float l_MasteryValue = GetCaster()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.5f;
 
                     l_Damage += CalculatePct(l_Damage, l_MasteryValue);
                 }
@@ -1586,39 +1589,43 @@ class spell_warr_shield_charge: public SpellScriptLoader
         }
 };
 
-enum ExecuteSpells
-{
-    SPELL_EXECUTE_OFFHAND = 163558
-};
-
 /// Execute - 5308 (Prot, Fury, Default)
+/// last update : 6.1.2 19802
 class spell_warr_execute_default: public SpellScriptLoader
 {
-public:
-    spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
+    public:
+        spell_warr_execute_default() : SpellScriptLoader("spell_warr_execute_default") { }
 
-    class spell_warr_execute_default_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_execute_default_SpellScript);
-
-        void HandleOnCast()
+        class spell_warr_execute_default_SpellScript : public SpellScript
         {
-            if (Unit* l_Target = GetExplTargetUnit())
-                if (Player* l_Caster = GetCaster()->ToPlayer())
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
-                        l_Caster->CastSpell(l_Target, SPELL_EXECUTE_OFFHAND, true);
-        }
+            PrepareSpellScript(spell_warr_execute_default_SpellScript);
 
-        void Register()
+            enum ExecuteSpells
+            {
+                SpellWarrExecuteOffHand = 163558
+            };
+
+            void HandleOnCast()
+            {
+                Player* l_Caster = GetCaster()->ToPlayer();
+                Unit* l_Target = GetExplTargetUnit();
+                if (!l_Caster || !l_Target)
+                    return;
+
+                if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    l_Caster->CastSpell(l_Target, ExecuteSpells::SpellWarrExecuteOffHand, true);
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_warr_execute_default_SpellScript::HandleOnCast);
+            return new spell_warr_execute_default_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_execute_default_SpellScript();
-    }
 };
 
 enum EnhancedRendSpells

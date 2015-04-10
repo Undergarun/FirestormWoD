@@ -431,7 +431,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 attPowerMod -= temp;
         }
     }
-    attPowerMod += CalculatePct(GetFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraMultiplier(SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR));
+
+    attPowerMod += CalculatePct(GetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraModifier(SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT));
+
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
@@ -602,7 +604,7 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
 
-    if (HasAuraType(AuraType::SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR))
+    if (HasAuraType(AuraType::SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING))
         UpdateParryPercentage();
 }
 
@@ -679,7 +681,7 @@ void Player::UpdateParryPercentage()
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
 
         /// Apply parry from pct of critical strike from gear
-        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR));
+        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
 
         if (value < 0.0f)
             value = 0.0f;
