@@ -192,6 +192,7 @@ class Roll : public LootValidatorRef
         uint8 totalPass;
         uint8 itemSlot;
         uint8 rollVoteMask;
+        std::vector<uint32> m_ItemBonuses;
 };
 
 struct InstanceGroupBind

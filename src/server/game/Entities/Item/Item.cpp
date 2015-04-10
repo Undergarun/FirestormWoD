@@ -650,13 +650,17 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Item can have only on stat bonus, and it's only in dungeon/raid
     if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
     {
-        /// @TODO: Add Indestructible for raid, need more informations about normal, heroic, mythic & lfr ...
         std::vector<uint32> l_StatsBonus =
         {
             ItemBonus::Stats::Avoidance,
             ItemBonus::Stats::Speed,
             ItemBonus::Stats::Leech
         };
+
+        if (p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
+            p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
+            p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
+            l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats))
         { 
@@ -673,14 +677,46 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
-    if (p_ItemBonusDifficulty == Difficulty::DifficultyHeroic)
+    if (p_ItemBonusDifficulty == Difficulty::DifficultyHeroic ||
+        p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
+        p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
+        p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
 
         if (roll_chance_f(ItemBonus::Chances::PrismaticSocket))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::PrismaticSocket);
+    }
+}
+
+void Item::BuildItemBonusesDatas(WorldPacket& p_Datas, Item const* p_Item)
+{
+    std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+
+    p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
+    p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
+    p_Datas << uint32(p_Item->GetItemRandomPropertyId());   ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);                ///< Has Item Bonuses
+    p_Datas.WriteBit(l_Modifications.size() != 0);          ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+
+    /// Item modifications
+    if (l_Modifications.size() != 0)
+    {
+        p_Datas << uint32(l_Modifications.size());
+        for (auto l_Modifier : l_Modifications)
+            p_Datas << uint32(l_Modifier);
     }
 }
 

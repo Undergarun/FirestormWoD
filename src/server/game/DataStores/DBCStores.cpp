@@ -467,8 +467,22 @@ void LoadDBCStores(const std::string& dataPath)
         {
             if (MapDifficultyEntry const* l_MapDiffculty = sMapDifficultyStore.LookupEntry(i))
             {
+                uint32 l_ItemBonusTreeDiff = l_MapDiffculty->ItemBonusTreeDifficulty;
+
+                switch (l_MapDiffculty->Id)
+                {
+                    case 2952:  ///< Highmaul - Heroic
+                        l_ItemBonusTreeDiff = 5;
+                        break;
+                    case 2953:  ///< Highmaul - Mythic
+                        l_ItemBonusTreeDiff = 6;
+                        break;
+                    default:
+                        break;
+                }
+
                 sMapDifficultyMap[l_MapDiffculty->MapId][l_MapDiffculty->Difficulty] = MapDifficulty(l_MapDiffculty->Difficulty, l_MapDiffculty->ResetTime,
-                    l_MapDiffculty->MaxPlayers, l_MapDiffculty->ItemBonusTreeDifficulty, l_MapDiffculty->AreaTriggerText[0] > 0);
+                    l_MapDiffculty->MaxPlayers, l_ItemBonusTreeDiff, l_MapDiffculty->AreaTriggerText[0] > 0);
             }
         }
 

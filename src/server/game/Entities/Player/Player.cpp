@@ -16976,55 +16976,39 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool created, bool broadcast, std::vector<uint32> const& p_ItemBonus)
+void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast)
 {
-    if (!item)                                              // prevent crash
+    /// Prevent crash
+    if (!p_Item)
         return;
 
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT);
 
-    data.appendPackGUID(GetGUID());                         ///< Player GUID
-    data << uint8(item->GetBagSlot());                      ///< Slot
-    data << uint32(0);
-    data << uint32(item->GetEntry());                       ///< Item ID
-    data << uint32(item->GetItemSuffixFactor());            ///< Random Properties Seed
-    data << uint32(item->GetItemRandomPropertyId());        ///< Random Properties ID
-    data.WriteBit(p_ItemBonus.size() != 0);                 ///< Has Item Bonus
-    data.WriteBit(false);                                   ///< Has Modifications
-    data.FlushBits();
+    l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
+    l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
+    l_Data << uint32(0);
 
-    // Context
-    {
-    }
+    Item::BuildItemBonusesDatas(l_Data, p_Item);
 
-    // Item bonus
-    if (p_ItemBonus.size() != 0)
-    {
-        data << uint8(0);                                         ///< Unk
-        data << uint32(p_ItemBonus.size());
-        for (auto& l_BonusId : p_ItemBonus)
-            data << uint32(l_BonusId);
-    }
+    l_Data << uint32(0);
+    l_Data << uint32(p_Quantity);                           ///< Quantity
+    l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
+    l_Data << uint32(0);                                    ///< Battle Pet Species ID
+    l_Data << uint32(0);                                    ///< Battle Pet Breed ID
+    l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
+    l_Data << uint32(0);                                    ///< Battle Pet Level
+    l_Data.appendPackGUID(p_Item->GetGUID());               ///< Item GUID
 
-    data << uint32(0);
-    data << uint32(p_Quantity);                             ///< Quantity
-    data << uint32(GetItemCount(item->GetEntry()));         ///< count of items in inventory
-    data << uint32(0);                                      ///< Battle Pet Species ID
-    data << uint32(0);                                      ///< Battle Pet Breed ID
-    data << uint32(0);                                      ///< Battle Pet Breed Quality
-    data << uint32(0);                                      ///< Battle Pet Level
-    data.appendPackGUID(item->GetGUID());                   ///< Item GUID
+    l_Data.WriteBit(p_Received);                            ///< Pushed
+    l_Data.WriteBit(p_Created);                             ///< Created
+    l_Data.WriteBit(true);                                  ///< Display Text
+    l_Data.WriteBit(0);                                     ///< Is Bonus Roll
+    l_Data.FlushBits();
 
-    data.WriteBit(received);                                ///< Pushed
-    data.WriteBit(created);                                 ///< Created
-    data.WriteBit(true);                                    ///< Display Text
-    data.WriteBit(0);                                       ///< Is Bonus Roll
-    data.FlushBits();
-
-    if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
+    if (p_Broadcast && GetGroup())
+        GetGroup()->BroadcastPacket(&l_Data, true);
     else
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(&l_Data);
 }
 
 /*********************************************************/
@@ -18116,7 +18100,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     }
                 }
 
-                SendNewItem(l_Item, l_DynamicReward->Count, true, false, false, l_Item->GetAllItemBonuses());
+                SendNewItem(l_Item, l_DynamicReward->Count, true, false, false);
             }
             break;
         }

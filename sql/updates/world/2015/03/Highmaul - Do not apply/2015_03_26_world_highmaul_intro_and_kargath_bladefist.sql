@@ -4,6 +4,7 @@ DELETE FROM instance_template WHERE map = 1228;
 INSERT INTO instance_template VALUE
 (1228, 1116, 'instance_highmaul', 1);
 
+-- Normal, Heroic, Mythic and Raid Tools
 UPDATE creature SET spawnmask = 245760 WHERE map = 1228;
 UPDATE gameobject SET spawnmask = 245760 WHERE map = 1228;
 
@@ -446,24 +447,46 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (159202, 0, 6701, 10, 10, 16388, 'areatrigger_highmaul_flame_jet'),
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
 
-SET @REF_KARGATH = 78714;
-DELETE FROM `reference_loot_template` WHERE entry = @REF_KARGATH;
-INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_KARGATH, 113591, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113592, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113593, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113595, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113596, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113598, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113599, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113600, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113601, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113602, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113604, 0, 1, 1, 1, 1),
-(@REF_KARGATH, 113605, 0, 1, 1, 1, 1);
+SET @REF_KARGATH_N = 78714;
+SET @REF_KARGATH_H = 1578714;
+SET @REF_KARGATH_M = 1678714;
+SET @REF_KARGATH_LFR = 1778714;
 
--- Mode 10 Normal
-UPDATE `creature_template` SET `lootid`= @REF_KARGATH WHERE `entry`= @REF_KARGATH;
-DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KARGATH;
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KARGATH_N;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KARGATH_N, 113591, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113592, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113593, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113595, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113596, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113598, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113599, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113600, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113601, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113602, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113604, 0, 1, 1, 1, 1),
+(@REF_KARGATH_N, 113605, 0, 1, 1, 1, 1);
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KARGATH_LFR;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KARGATH_LFR, 116003, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116030, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116289, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116236, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116205, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116282, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116360, 0, 1, 1, 1, 1),
+(@REF_KARGATH_LFR, 116298, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_N;
+UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_H;
+UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_M;
+UPDATE `creature_template` SET `lootid`= @REF_KARGATH_LFR WHERE `entry`= @REF_KARGATH_LFR;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KARGATH_N;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
-(@REF_KARGATH, 1, 100, 1, 0, -@REF_KARGATH, 6);
+(@REF_KARGATH_N, 1, 100, 1, 0, -@REF_KARGATH_N, 6);
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KARGATH_LFR;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KARGATH_LFR, 1, 100, 1, 0, -@REF_KARGATH_LFR, 6);

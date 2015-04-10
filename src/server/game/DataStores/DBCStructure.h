@@ -1145,7 +1145,7 @@ struct MapEntry
 
 struct MapDifficultyEntry
 {
-    //uint32    Id;                                         // 0        m_ID
+    uint32    Id;                                           // 0        m_ID
     uint32  MapId;                                          // 1        m_MapID
     uint32  Difficulty;                                     // 2        m_DifficultyID          (for arenas: arena slot)
     char*   AreaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
