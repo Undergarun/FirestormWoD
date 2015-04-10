@@ -30644,7 +30644,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(sWorld->GetGameTime());
         l_Data << float(p_Height);
-        l_Data << float(1.0f);
+        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
         l_Data << uint32(0);
         l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
         SendDirectMessage(&l_Data);
@@ -30655,7 +30655,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(sWorld->GetGameTime());
     l_Data << float(p_Height);
-    l_Data << float(l_MountDisplayInfo->scale);
+    l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
     l_Data << uint32(l_MountDisplayInfo->Displayid);
     l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
     SendDirectMessage(&l_Data);
