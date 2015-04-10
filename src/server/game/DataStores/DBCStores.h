@@ -78,6 +78,7 @@ extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
+extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 extern DBCStorage <ArmorLocationEntry>           sArmorLocationStore;
 extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;

@@ -25,7 +25,6 @@
 
 #include <list>
 
-extern DB2Storage <AreaGroupEntry>                  sAreaGroupStore;
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;

@@ -31,7 +31,6 @@ DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
 std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
 
-DB2Storage <AreaGroupEntry>                 sAreaGroupStore(AreaGroupEntryfmt);
 DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
 DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
 DB2Storage <GroupFinderActivityEntry>       sGroupFinderActivityStore(GroupFinderActivityfmt);
