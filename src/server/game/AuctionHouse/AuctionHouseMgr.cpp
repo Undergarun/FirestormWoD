@@ -619,34 +619,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& p_Data) const
         return false;
     }
 
-    // Item_Struct
-    {
-        p_Data << uint32(l_Item->GetEntry());
-        p_Data << uint32(l_Item->GetItemSuffixFactor());
-        p_Data << int32(l_Item->GetItemRandomPropertyId());
-
-        bool l_HasBonuses = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() > 0;
-        bool l_HasModifiers = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS).size() > 0;
-
-        p_Data.WriteBit(l_HasBonuses);
-        p_Data.WriteBit(l_HasModifiers);
-
-        if (l_HasBonuses)
-        {
-            p_Data << uint8(0);     ///< UnkByte
-            p_Data << uint32(0);    ///< Count
-        }
-
-        if (l_HasModifiers)
-        {
-            uint32 l_ModifyMask = l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-
-            p_Data << uint32(l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
-
-            if (l_ModifyMask & ITEM_TRANSMOGRIFIED)
-                p_Data << uint32(l_Item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
-        }
-    }
+    Item::BuildDynamicItemDatas(p_Data, l_Item);
 
     p_Data << uint32(l_Item->GetCount());
     p_Data << uint32(l_Item->GetSpellCharges());
