@@ -1013,6 +1013,8 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
         m_CompletedQuestBits.SetBit(l_QuestBit - 1);
 
     ///////////////////////////////////////////////////////////
+
+    m_WargameRequest = nullptr;
 }
 
 Player::~Player()
@@ -1022,6 +1024,9 @@ Player::~Player()
 
     if (m_Garrison)
         delete m_Garrison;
+
+    if (m_WargameRequest)
+        delete m_WargameRequest;
 
     // it must be unloaded already in PlayerLogout and accessed only for loggined player
     //m_social = NULL;
@@ -2019,7 +2024,13 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
 
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
+
+    if (m_WargameRequest != nullptr && (m_WargameRequest->CreationDate + 60) < now)
+    {
+        delete m_WargameRequest;
+        m_WargameRequest = nullptr;
+    }
 
     UpdatePvPFlag(now);
 
@@ -26381,7 +26392,8 @@ void Player::SendInitialPacketsAfterAddToMap()
         ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
 
     /// Fix ghost group leader flag
-    RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
+    if (!GetGroup() || !GetGroup()->IsLeader(GetGUID()))
+        RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GROUP_LEADER);
 
     WorldPacket l_NullPacket;
     GetSession()->HandleLfgGetStatus(l_NullPacket);

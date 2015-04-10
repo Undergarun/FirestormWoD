@@ -880,6 +880,8 @@ class Battleground
         bool IsRandom() const               { return m_IsRandom; }
         bool IsRatedBG() const              { return m_IsRatedBg; }
         bool IsSkirmish() const             { return m_IsSkirmish; }
+        bool IsWargame() const              { return m_IsWargame; }
+        bool UseTournamentRules() const     { return m_UseTournamentRules; }
 
         bool CanGroupEnter(GroupQueueInfo const* p_Group) const
         {
@@ -927,6 +929,8 @@ class Battleground
         void SetRandom(bool isRandom)       { m_IsRandom = isRandom; }
         void SetRatedBG(bool isRatedBg)     { m_IsRatedBg = isRatedBg; }
         void SetSkirmish(bool p_IsSkirmish) { m_IsSkirmish = p_IsSkirmish; }
+        void SetWargame(bool p_IsWargame)   { m_IsWargame = p_IsWargame; }
+        void EnableTournamentRules()        { m_UseTournamentRules = true; }
 
         uint32 GetInvitedCount(uint32 team) const   { return (team == ALLIANCE) ? m_InvitedAlliance : m_InvitedHorde; }
         bool HasFreeSlots() const;
@@ -1171,6 +1175,8 @@ class Battleground
         bool   m_BuffChange;
         bool   m_IsRandom;
         bool   m_IsRatedBg;
+        bool   m_IsWargame;
+        bool   m_UseTournamentRules;
 
         BGHonorMode m_HonorMode;
     private:

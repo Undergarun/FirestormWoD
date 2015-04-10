@@ -60,6 +60,9 @@ namespace MS
                 if (p_IsSkirmish)
                     l_BGQueueID |= (uint8(BattlegroundQueueType::ArenaSkirmish) & 0xF) << 16;
 
+                if (p_BG->IsWargame())
+                    l_BGQueueID |= (uint8(BattlegroundQueueType::WarGame) & 0xF) << 16;
+
                 switch (p_StatusID)
                 {
                     case STATUS_NONE:
@@ -90,7 +93,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_Time1);                                               ///< Average Wait Time
@@ -119,7 +122,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map ID
@@ -151,7 +154,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
@@ -178,7 +181,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id

@@ -1481,6 +1481,14 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
+struct WargameRequest
+{
+    uint64 OpposingPartyMemberGUID;
+    uint64 QueueID;
+    bool   TournamentRules;
+    time_t CreationDate;
+};
+
 namespace MS { namespace Garrison 
 {
     class Manager;
@@ -3473,6 +3481,11 @@ class Player : public Unit, public GridObject<Player>
             m_CriticalOperationLock.release();
         }
 
+        /// Wargames
+        void SetWargameRequest(WargameRequest* p_Request) { m_WargameRequest = p_Request; };
+        bool HasWargameRequest() const { return m_WargameRequest != nullptr; }
+        WargameRequest* GetWargameRequest() const { return m_WargameRequest; }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3932,6 +3945,10 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
+
+        /// Wargame
+        WargameRequest* m_WargameRequest;
+
 };
 
 void AddItemsSetItem(Player*player, Item* item);

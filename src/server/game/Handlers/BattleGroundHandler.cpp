@@ -987,7 +987,7 @@ void WorldSession::HandleStartWarGame(WorldPacket& p_Packet)
     if (m_Player->GetGroup()->GetLeaderGUID() != m_Player->GetGUID())
         return;
 
-    /// - Try to find the opposing party leader
+    /// Try to find the opposing party leader
     Player* l_OpposingPartyLeader = sObjectAccessor->FindPlayer(l_OpposingPartyMemberGUID);
     if (l_OpposingPartyLeader == nullptr)
         return;
@@ -998,9 +998,20 @@ void WorldSession::HandleStartWarGame(WorldPacket& p_Packet)
     if (l_OpposingPartyLeader->GetGroup()->GetLeaderGUID() != l_OpposingPartyLeader->GetGUID())
         return;
 
-    uint32 l_BattlegroundTypeId = GUID_LOPART(l_QueueID);
+    /// Already one invite requested
+    if (m_Player->HasWargameRequest())
+        return;
 
-    /// @TODO: Check if group size fit with the selected battleground
+    /// The request is delete after 60 secs (handle in Player::Update)
+    WargameRequest* l_Request = new WargameRequest();
+    l_Request->OpposingPartyMemberGUID = l_OpposingPartyMemberGUID;
+    l_Request->TournamentRules         = l_TournamentRules;
+    l_Request->CreationDate            = time(nullptr);
+    l_Request->QueueID                 = l_QueueID;
+
+    m_Player->SetWargameRequest(l_Request);
+
+    /// Send invitation to opposing party
     MS::Battlegrounds::PacketFactory::CheckWargameEntry(m_Player, l_OpposingPartyLeader, l_QueueID, l_TournamentRules);
 }
 
@@ -1027,6 +1038,21 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
     if (l_OpposingGroup == nullptr
         || !l_OpposingGroup->IsLeader(l_OpposingPartyLeader->GetGUID()))
         return;
+
+    /// Check if the invitation realy exist, and isn't expired
+    if (!l_OpposingPartyLeader->HasWargameRequest())
+        return;
+
+    WargameRequest* l_Request = l_OpposingPartyLeader->GetWargameRequest();
+    if (l_Request->QueueID != l_QueueID
+        || l_Request->OpposingPartyMemberGUID != m_Player->GetGUID())
+        return;
+
+    if (!l_Accept)
+    {
+        ///@TODO: Send notification to opposing party ?
+        return;
+    }
 
     uint32 l_BattlegroundTypeId = l_QueueID & 0xFFFF;
 
@@ -1074,7 +1100,7 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
         return;
 
     /// Create the new battleground.
-    Battleground* l_BattlegroundInstance = sBattlegroundMgr->CreateNewBattleground(l_BGQueueTypeID, MS::Battlegrounds::Brackets::RetreiveFromId(l_BracketEntry->m_Id), l_ArenaType, false);
+    Battleground* l_BattlegroundInstance = sBattlegroundMgr->CreateNewBattleground(l_BGQueueTypeID, MS::Battlegrounds::Brackets::RetreiveFromId(l_BracketEntry->m_Id), l_ArenaType, false, true, l_Request->TournamentRules);
     if (l_BattlegroundInstance == nullptr)
         return;
 
@@ -1082,7 +1108,7 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
     {
         uint32 l_BlacklistMap[2] = { 0, 0 };
 
-        auto l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, p_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, l_ArenaType, false, 0, 0, true);
+        auto l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, p_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, l_ArenaType, false, 0, 0, false);
         uint32 l_AvgTime      = l_InviationMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
 
         for (GroupReference * l_It = p_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
@@ -1099,7 +1125,7 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
             l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
 
             WorldPacket l_Data; // send status packet (in queue)
-            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BattlegroundTemplate, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AvgTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, false);
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BattlegroundInstance, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AvgTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, false);
             l_Member->GetSession()->SendPacket(&l_Data);
         }
 
