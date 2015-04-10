@@ -23,7 +23,6 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
-//#include "Vehicle.h"
 #include "SharedDefines.h"
 #include "ItemPrototype.h"
 
@@ -37,6 +36,15 @@
 #else
 #pragma pack(push, 1)
 #endif
+
+#define MAX_GROUP_AREA_IDS 6
+
+struct AreaGroupEntry
+{
+    uint32  AreaGroupId;                                            ///< 0        m_ID
+    uint32  AreaId[MAX_GROUP_AREA_IDS];                             ///< 1-6      m_areaID
+    uint32  nextGroup;                                              ///< 7        m_nextAreaID
+};
 
 struct CurvePointEntry
 {
