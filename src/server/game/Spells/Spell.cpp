@@ -5542,7 +5542,7 @@ void Spell::TakeAmmo()
         Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::RangedAttack);
 
         // wands don't have ammo
-        if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
+        if (!pItem  || pItem->CantBeUse() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
             return;
 
         if (pItem->GetTemplate()->InventoryType == INVTYPE_THROWN)
@@ -7625,7 +7625,7 @@ SpellCastResult Spell::CheckItems()
                     break;
 
                 Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType);
-                if (!pItem || pItem->IsBroken())
+                if (!pItem || pItem->CantBeUse())
                     return SPELL_FAILED_EQUIPPED_ITEM;
 
                 switch (pItem->GetTemplate()->SubClass)
@@ -7677,7 +7677,7 @@ SpellCastResult Spell::CheckItems()
             Item* item = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::BaseAttack);
 
             // skip spell if no weapon in slot or broken
-            if (!item || item->IsBroken())
+            if (!item || item->CantBeUse())
                 return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
 
             // skip spell if weapon not fit to triggered spell
@@ -7691,7 +7691,7 @@ SpellCastResult Spell::CheckItems()
             Item* item = m_caster->ToPlayer()->GetWeaponForAttack(WeaponAttackType::OffAttack);
 
             // skip spell if no weapon in slot or broken
-            if (!item || item->IsBroken())
+            if (!item || item->CantBeUse())
                 return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_EQUIPPED_ITEM_CLASS;
 
             // skip spell if weapon not fit to triggered spell

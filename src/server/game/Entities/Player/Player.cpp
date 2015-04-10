@@ -7638,7 +7638,7 @@ void Player::SetRegularAttackTime()
     for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
-        if (tmpitem && !tmpitem->IsBroken())
+        if (tmpitem && !tmpitem->CantBeUse())
         {
             ItemTemplate const* proto = tmpitem->GetTemplate();
             if (proto->Delay)
@@ -9844,7 +9844,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
         return;
 
     // not apply/remove mods for broken item
-    if (item->IsBroken())
+    if (item->CantBeUse())
         return;
 
     sLog->outInfo(LOG_FILTER_PLAYER_ITEMS, "applying mods for item %u ", item->GetGUIDLow());
@@ -10409,7 +10409,7 @@ void Player::_ApplyWeaponDependentAuraMods(Item* item, WeaponAttackType attackTy
 void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply)
 {
     // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
+    if (item->CantBeUse() || !CanUseAttackType(attackType))
         return;
 
     // generic not weapon specific case processes in aura code
@@ -10432,7 +10432,7 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item* item, WeaponAttackType attac
 void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType attackType, constAuraEffectPtr aura, bool apply)
 {
     // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
+    if (item->CantBeUse() || !CanUseAttackType(attackType))
         return;
 
     // ignore spell mods for not wands
@@ -10471,7 +10471,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item* item, WeaponAttackType att
 void Player::_ApplyWeaponDependentAuraSpellModifier(Item* item, WeaponAttackType attackType, bool apply)
 {
     // don't apply mod if item is broken or cannot be used
-    if (item->IsBroken() || !CanUseAttackType(attackType))
+    if (item->CantBeUse() || !CanUseAttackType(attackType))
         return;
 
     switch (getClass())
@@ -10598,7 +10598,7 @@ void Player::UpdateEquipSpellsAtFormChange()
 {
     for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (m_items[i] && !m_items[i]->IsBroken() && CanUseAttackType(GetAttackBySlot(i)))
+        if (m_items[i] && !m_items[i]->CantBeUse() && CanUseAttackType(GetAttackBySlot(i)))
         {
             ApplyItemEquipSpell(m_items[i], false, true);     // remove spells that not fit to form
             ApplyItemEquipSpell(m_items[i], true, true);      // add spells that fit form but not active
@@ -10633,7 +10633,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     {
         // If usable, try to cast item spell
         if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (!item->IsBroken() && CanUseAttackType(attType))
+            if (!item->CantBeUse() && CanUseAttackType(attType))
                 if (ItemTemplate const* proto = item->GetTemplate())
                 {
                     // Additional check for weapons
@@ -10889,7 +10889,7 @@ void Player::_RemoveAllItemMods()
             if (proto->ItemSet)
                 RemoveItemsSetItem(this, proto);
 
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
+            if (m_items[i]->CantBeUse() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
 
             ApplyItemEquipSpell(m_items[i], false);
@@ -10901,7 +10901,7 @@ void Player::_RemoveAllItemMods()
     {
         if (m_items[i])
         {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
+            if (m_items[i]->CantBeUse() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
 
             ItemTemplate const* proto = m_items[i]->GetTemplate();
@@ -10928,7 +10928,7 @@ void Player::_ApplyAllItemMods()
     {
         if (m_items[i])
         {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
+            if (m_items[i]->CantBeUse() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
 
             ItemTemplate const* proto = m_items[i]->GetTemplate();
@@ -10956,7 +10956,7 @@ void Player::_ApplyAllItemMods()
             if (proto->ItemSet)
                 AddItemsSetItem(this, m_items[i]);
 
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
+            if (m_items[i]->CantBeUse() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
 
             ApplyItemEquipSpell(m_items[i], true);
@@ -12952,7 +12952,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
     if (!useable)
         return item;
 
-    if (item->IsBroken() || IsInFeralForm())
+    if (item->CantBeUse() || IsInFeralForm())
         return NULL;
 
     return item;
@@ -12971,7 +12971,7 @@ Item* Player::GetShield(bool useable) const
     if (!useable)
         return item;
 
-    if (item->IsBroken())
+    if (item->CantBeUse())
         return NULL;
 
     return item;
@@ -14804,6 +14804,14 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 
 Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 {
+    if (pItem->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
+    {
+        if (!GetBattleground() || !GetBattleground()->IsWargame())
+            pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+    }
+    else if (GetBattleground() && GetBattleground()->UseTournamentRules())
+        pItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+
     AddEnchantmentDurations(pItem);
     AddItemDurations(pItem);
 
@@ -16558,7 +16566,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
              return;
     }
 
-    if (!item->IsBroken())
+    if (!item->CantBeUse())
     {
         for (int s = 0; s < MAX_ENCHANTMENT_SPELLS; ++s)
         {
@@ -25626,7 +25634,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
         if (i == slot)
             continue;
         Item* pItem2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem2 && !pItem2->IsBroken() && pItem2->GetTemplate()->Socket[0].Color)
+        if (pItem2 && !pItem2->CantBeUse() && pItem2->GetTemplate()->Socket[0].Color)
         {
             for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
             {
@@ -26353,6 +26361,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     CutOffItemLevel(false);
     RescaleAllItemsIfNeeded(true);
+
+    ApplyWargameItemModifications();
 
     AuraEffectList const& l_ModSpeedAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SPEED_ALWAYS);
     for (AuraEffectList::const_iterator iter = l_ModSpeedAuras.begin(); iter != l_ModSpeedAuras.end(); iter++)
@@ -31770,6 +31780,14 @@ uint32 Player::GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* i
     if (uint32 maxItemLevel = GetUInt32Value(UNIT_FIELD_MAX_ITEM_LEVEL))
         ilvl = std::min(ilvl, maxItemLevel);
 
+    if (GetMap()->IsBattlegroundOrArena() && GetBattleground() && GetBattleground()->IsWargame())
+    {
+        if ((itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY) == 0)
+            ilvl = 1;
+    }
+    else if (itemProto->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
+        ilvl = 1;
+
     return ilvl;
 }
 
@@ -31805,7 +31823,7 @@ void Player::RescaleAllItemsIfNeeded(bool p_KeepHPPct /* = false */)
     {
         if (Item* l_Item = m_items[l_I])
         {
-            if (l_Item->IsBroken() || !CanUseAttackType(GetAttackBySlot(l_I)))
+            if (l_Item->CantBeUse() || !CanUseAttackType(GetAttackBySlot(l_I)))
                 continue;
 
             uint32 ilvl = GetEquipItemLevelFor(l_Item->GetTemplate(), m_items[l_I]);
@@ -32431,4 +32449,51 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty p_Difficulty)
         return DIFFICULTY_10_N;
 
     return p_Difficulty;
+}
+
+void Player::ApplyWargameItemModifications()
+{
+    bool l_InWargame       = GetBattleground() && GetBattleground()->IsWargame();
+    bool l_TournamentRules = GetBattleground() && GetBattleground()->UseTournamentRules();
+
+    for (uint8 l_I = 0; l_I < EQUIPMENT_SLOT_END; ++l_I)
+    {
+        if (Item* l_Item = m_items[l_I])
+        {
+            bool l_UpdateItemMods = false;
+
+            if (l_InWargame)
+            {
+                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY && l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                {
+                    l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_UpdateItemMods = true;
+                }
+                else if (l_TournamentRules && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                {
+                    l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_UpdateItemMods = true;
+                }
+            }
+            else
+            {
+                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                {
+                    l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_UpdateItemMods = true;
+                }
+                else if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                {
+                    l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                    l_UpdateItemMods = true;
+                }
+            }
+
+            if (l_UpdateItemMods)
+            {
+                _ApplyItemMods(l_Item, l_I, false);
+                _ApplyItemMods(l_Item, l_I, true);
+            }
+        }
+    }
 }

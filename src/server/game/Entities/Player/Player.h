@@ -3486,6 +3486,8 @@ class Player : public Unit, public GridObject<Player>
         bool HasWargameRequest() const { return m_WargameRequest != nullptr; }
         WargameRequest* GetWargameRequest() const { return m_WargameRequest; }
 
+        void ApplyWargameItemModifications();
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3976,7 +3978,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
-        if (!tmpitem || tmpitem->IsBroken() || !tmpitem->GetTemplate())
+        if (!tmpitem || tmpitem->CantBeUse() || !tmpitem->GetTemplate())
             continue;
 
         playerWeaponMask |= 1 << tmpitem->GetTemplate()->SubClass;
