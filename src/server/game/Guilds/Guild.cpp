@@ -2083,20 +2083,20 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
 
 void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
 {
-    // Don't send packet for non purchased tab
+    /// Don't send packet for non purchased tab
     BankTab const* l_CurrTab = GetBankTab(p_TabID);
     if (!l_CurrTab && p_TabID > 0)
         return;
 
-    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_RESULTS);
+    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS);
 
     uint32 l_ItemCount = 0;
 
-    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GUILD_BANK_RIGHT_VIEW_TAB))
+    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
 	    if (BankTab const* l_BankTab = GetBankTab(p_TabID))
 	    {
-            for (uint8 l_SlotID = 0; l_SlotID < GUILD_BANK_MAX_SLOTS; ++l_SlotID)
+            for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
                 if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID))
                     ++l_ItemCount;
@@ -2124,40 +2124,36 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         }
     }
 
-    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GUILD_BANK_RIGHT_VIEW_TAB))
+    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
-        if (const BankTab * l_Tab = GetBankTab(p_TabID))
+        if (BankTab const* l_Tab = GetBankTab(p_TabID))
         {
-            for (uint8 l_SlotID = 0; l_SlotID < GUILD_BANK_MAX_SLOTS; ++l_SlotID)
+            for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
-                if (Item* tabItem = l_Tab->GetItem(l_SlotID))
+                if (Item* l_TabItem = l_Tab->GetItem(l_SlotID))
                 {
                     uint32 l_EnchantsCount = 0;
 
-                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
-                        if (uint32 l_EnchantId = tabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
+                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
+                    {
+                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
                             ++l_EnchantsCount;
+                    }
 
                     l_Data << uint32(l_SlotID);                             ///< Slot
 
-                    l_Data << uint32(tabItem->GetEntry());                  ///< Item ID
-                    l_Data << uint32(tabItem->GetItemSuffixFactor());       ///< Random Properties Seed
-                    l_Data << uint32(tabItem->GetItemRandomPropertyId());   ///< Random Properties ID
+                    Item::BuildDynamicItemDatas(l_Data, l_TabItem);
 
-                    l_Data.WriteBit(false);                                 ///< Has Modification
-                    l_Data.WriteBit(false);                                 ///< Has Item Bonus
-                    l_Data.FlushBits();
-
-                    l_Data << uint32(tabItem->GetCount());                  ///< Count
+                    l_Data << uint32(l_TabItem->GetCount());                ///< Count
                     l_Data << uint32(0);                                    ///< Enchantment ID
-                    l_Data << uint32(abs(tabItem->GetSpellCharges()));      ///< Charges
+                    l_Data << uint32(abs(l_TabItem->GetSpellCharges()));    ///< Charges
                     l_Data << uint32(l_EnchantsCount);                      ///< Enchant count
                     l_Data << uint32(0);                                    ///< OnUse Enchantment ID
                     l_Data << uint32(0);                                    ///< Flags
 
-                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
+                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
                     {
-                        if (uint32 l_EnchantId = tabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
+                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
                         {
                             l_Data << uint32(l_EnchantmentSlot);            ///< Socket Index
                             l_Data << uint32(l_EnchantId);                  ///< Socket Enchant ID

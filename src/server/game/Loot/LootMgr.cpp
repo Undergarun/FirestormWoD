@@ -1183,19 +1183,14 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                             l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                         l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
-                        l_ItemsDataBuffer.WriteBits(l_SlotType, 3);                  ///< Ui Type
+                        l_ItemsDataBuffer.WriteBits(l_SlotType, 3);                 ///< Ui Type
                         l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                         l_ItemsDataBuffer.FlushBits();
                         l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].count);
                         l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
                         l_ItemsDataBuffer << uint8(l_Slot);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomSuffix);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomPropertyId);
 
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
-                        l_ItemsDataBuffer.FlushBits();
+                        Item::BuildDynamicItemDatas(l_ItemsDataBuffer, l_LinkedLootAround->Items[l_LinkedLoot.slot]);
 
                         ++l_ItemCount;
                         ++l_Index;
@@ -1223,13 +1218,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                         l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].count);
                         l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
                         l_ItemsDataBuffer << uint8(l_Slot);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomSuffix);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomPropertyId);
 
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
-                        l_ItemsDataBuffer.FlushBits();
+                        Item::BuildDynamicItemDatas(l_ItemsDataBuffer, l_LinkedLootAround->Items[l_LinkedLoot.slot]);
 
                         ++l_ItemCount;
                         ++l_Index;
@@ -1268,13 +1258,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                         l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].count);
                         l_ItemsDataBuffer << uint8(LOOT_ITEM_TYPE_ITEM);
                         l_ItemsDataBuffer << uint8(l_Slot);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].itemid);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomSuffix);
-                        l_ItemsDataBuffer << uint32(l_LinkedLootAround->Items[l_LinkedLoot.slot].randomPropertyId);
 
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Modification
-                        l_ItemsDataBuffer.WriteBit(false);                          ///< Has Item Bonus
-                        l_ItemsDataBuffer.FlushBits();
+                        Item::BuildDynamicItemDatas(l_ItemsDataBuffer, l_LinkedLootAround->Items[l_LinkedLoot.slot]);
 
                         ++l_ItemCount;
                         ++l_Index;

@@ -983,13 +983,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_ITEM);              ///< Item type
 
-            l_ItemDataBuffer << uint32(l_VendorItem->item);                 ///< Item Entry
-            l_ItemDataBuffer << uint32(l_ItemTemplate->RandomProperty);     ///< Random Properties Seed
-            l_ItemDataBuffer << uint32(l_ItemTemplate->RandomSuffix);       ///< Random Properties ID
-
-            l_ItemDataBuffer.WriteBit(false);                               ///< Has Item Bonus
-            l_ItemDataBuffer.WriteBit(false);                               ///< Has Modifications
-            l_ItemDataBuffer.FlushBits();
+            Item::BuildDynamicItemDatas(l_ItemDataBuffer, l_VendorItem->item);
 
             l_ItemDataBuffer << int32(l_AvailableInStock);                  ///< Available In Stock
             l_ItemDataBuffer << uint32(l_Price);                            ///< Price
@@ -1019,13 +1013,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_Muid);
             l_ItemDataBuffer << uint32(ITEM_VENDOR_TYPE_CURRENCY);          ///< Item type
 
-            l_ItemDataBuffer << uint32(l_VendorItem->item);                 ///< Item Entry
-            l_ItemDataBuffer << uint32(0);                                  ///< Random Properties Seed
-            l_ItemDataBuffer << uint32(0);                                  ///< Random Properties ID
-
-            l_ItemDataBuffer.WriteBit(false);                               ///< Has Item Bonus
-            l_ItemDataBuffer.WriteBit(false);                               ///< Has Modifications
-            l_ItemDataBuffer.FlushBits();
+            Item::BuildDynamicItemDatas(l_ItemDataBuffer, l_VendorItem->item);
 
             l_ItemDataBuffer << int32(-1);                                  ///< Available In Stock
             l_ItemDataBuffer << uint32(l_Price);                            ///< Price

@@ -690,8 +690,19 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     }
 }
 
-void Item::BuildItemBonusesDatas(WorldPacket& p_Datas, Item const* p_Item)
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
 {
+    if (p_Item == nullptr)
+    {
+        p_Datas << uint32(0);                       ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
     std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
     std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
 
@@ -717,6 +728,142 @@ void Item::BuildItemBonusesDatas(WorldPacket& p_Datas, Item const* p_Item)
         p_Datas << uint32(l_Modifications.size());
         for (auto l_Modifier : l_Modifications)
             p_Datas << uint32(l_Modifier);
+    }
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item)
+{
+    if (p_Item == nullptr)
+    {
+        p_Datas << uint32(0);                       ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+
+    p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
+    p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
+    p_Datas << uint32(p_Item->GetItemRandomPropertyId());   ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);                ///< Has Item Bonuses
+    p_Datas.WriteBit(l_Modifications.size() != 0);          ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+
+    /// Item modifications
+    if (l_Modifications.size() != 0)
+    {
+        p_Datas << uint32(l_Modifications.size());
+        for (auto l_Modifier : l_Modifications)
+            p_Datas << uint32(l_Modifier);
+    }
+}
+
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item)
+{
+    p_Datas << uint32(p_Item.ItemEntry);            ///< Item ID
+    p_Datas << uint32(p_Item.ItemSuffixFactor);     ///< Random Properties Seed
+    p_Datas << uint32(p_Item.ItemRandomPropertyId); ///< Random Properties ID
+    p_Datas.WriteBit(false);                        ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item)
+{
+    std::vector<uint32> l_Bonuses = p_Item.itemBonuses;
+
+    p_Datas << uint32(p_Item.itemid);               ///< Item ID
+    p_Datas << uint32(p_Item.randomSuffix);         ///< Random Properties Seed
+    p_Datas << uint32(p_Item.randomPropertyId);     ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);        ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses)
+{
+    ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(p_Entry);
+    if (l_Template == nullptr)
+    {
+        p_Datas << uint32(p_Entry);                 ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    p_Datas << uint32(p_Entry);                     ///< Item ID
+    p_Datas << uint32(l_Template->RandomProperty);  ///< Random Properties Seed
+    p_Datas << uint32(l_Template->RandomSuffix);    ///< Random Properties ID
+
+    p_Datas.WriteBit(p_ItemBonuses.size() != 0);    ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_ItemBonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_ItemBonuses.size());
+        for (auto& l_BonusId : p_ItemBonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+}
+
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses)
+{
+    ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(p_Entry);
+    if (l_Template == nullptr)
+    {
+        p_Datas << uint32(p_Entry);                 ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    p_Datas << uint32(p_Entry);                     ///< Item ID
+    p_Datas << uint32(l_Template->RandomProperty);  ///< Random Properties Seed
+    p_Datas << uint32(l_Template->RandomSuffix);    ///< Random Properties ID
+
+    p_Datas.WriteBit(p_ItemBonuses.size() != 0);    ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_ItemBonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_ItemBonuses.size());
+        for (auto& l_BonusId : p_ItemBonuses)
+            p_Datas << uint32(l_BonusId);
     }
 }
 

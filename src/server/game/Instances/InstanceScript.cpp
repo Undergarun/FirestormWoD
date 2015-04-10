@@ -926,18 +926,7 @@ void InstanceScript::SendChallengeModeComplete(uint32 p_Money)
         ///< ItemReward
         for (uint32 l_I = 0; l_I < l_ItemRewards; ++l_I)
         {
-            ///< ItemStruct
-            {
-                l_Data << int32(0);     ///< ItemEntry
-                l_Data << int32(0);     ///< RandomPropertiesSeed
-                l_Data << int32(0);     ///< RandomPropertiesID
-
-                l_Data.WriteBit(true);  ///< HasBonus
-                l_Data.WriteBit(false); ///< HasModifiers
-
-                l_Data << uint8(15);    ///< UnkByte for Bonuses
-                l_Data << uint32(0);    ///< BonusCount
-            }
+            Item::BuildDynamicItemDatas(l_Data, nullptr);
 
             l_Data << uint32(0);    ///< Quantity
         }

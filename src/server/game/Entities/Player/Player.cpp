@@ -16958,26 +16958,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
         l_Data.WriteBit(p_Mailed);
         l_Data.FlushBits();
 
-        l_Data << uint32(p_Entry);
-        l_Data << uint32(l_ItemTpl->RandomSuffix);
-        l_Data << uint32(l_ItemTpl->RandomProperty);
-        l_Data.WriteBit(p_ItemBonus.size() != 0);                         ///< HasBonus
-        l_Data.WriteBit(false);                                           ///< HasContext
-        l_Data.FlushBits();
-
-        /// - Context struct
-        {
-            // @TODO
-        }
-
-        /// - Bonus struct
-        if (p_ItemBonus.size() != 0)
-        {
-            l_Data << uint8(0);                                         ///< Unk
-            l_Data << uint32(p_ItemBonus.size());
-            for (auto& l_BonusId : p_ItemBonus)
-                l_Data << uint32(l_BonusId);
-        }
+        Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
@@ -17003,7 +16984,7 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
     l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
     l_Data << uint32(0);
 
-    Item::BuildItemBonusesDatas(l_Data, p_Item);
+    Item::BuildDynamicItemDatas(l_Data, p_Item);
 
     l_Data << uint32(0);
     l_Data << uint32(p_Quantity);                           ///< Quantity

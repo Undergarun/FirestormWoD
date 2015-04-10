@@ -930,7 +930,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 
-void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p_Roll)
+void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -944,12 +944,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
     l_Data << uint8(p_Roll.rollVoteMask);                   ///< roll type mask
@@ -966,7 +961,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p
     }
 }
 
-void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player * p_Player, bool p_CanNeed, Roll const& p_Roll)
+void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll)
 {
     if (!p_Player || !p_Player->GetSession())
         return;
@@ -983,12 +978,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
     l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
@@ -997,7 +987,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 
-void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, const Roll & p_Roll)
+void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1011,12 +1001,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_RollNumber);                         ///< 0: "Need for: [item name]" > 127: "you passed on: [item name]"      Roll number
     l_Data << uint8(rollType);                              ///< 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
@@ -1034,7 +1019,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     }
 }
 
-void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, const Roll & p_Roll)
+void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
 
@@ -1048,12 +1033,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data.appendPackGUID(p_TargetGUID);
 
@@ -1071,7 +1051,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     }
 }
 
-void Group::SendLootAllPassed(Roll const & p_Roll)
+void Group::SendLootAllPassed(Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1084,12 +1064,7 @@ void Group::SendLootAllPassed(Roll const & p_Roll)
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     for (Roll::PlayerVote::const_iterator l_It = p_Roll.playerVote.begin(); l_It != p_Roll.playerVote.end(); ++l_It)
     {
