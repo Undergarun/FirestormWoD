@@ -25,6 +25,7 @@
 
 #include <list>
 
+extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
 extern DB2Storage <GroupFinderActivityEntry>        sGroupFinderActivityStore;
@@ -139,7 +140,7 @@ enum TaxiPathResult
 {
     TAXIPATH_RES_SUCCESS = 1,
     TAXIPATH_RES_NO_LINKED_NODES,
-    TAXIPATH_RES_UNKNOWN_NODES, // unused 6.1.0
+    TAXIPATH_RES_UNKNOWN_NODES, ///> unused 6.1.0
     TAXIPATH_RES_NO_PATH,
 };
 

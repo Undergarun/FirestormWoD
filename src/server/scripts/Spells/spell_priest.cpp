@@ -2778,27 +2778,27 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 20.0f);
                                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitListTemp, l_Check);
                                 l_Target->VisitNearbyObject(20.0f, l_Searcher);
-								
-								std::list<Unit*> l_FriendlyUnitList;
-								for (auto l_Itr : l_FriendlyUnitListTemp)
-								{
-									if (l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
-										l_FriendlyUnitList.push_back(l_Itr);
-								}
-								
-								if (l_FriendlyUnitList.empty())
-								{
-									l_FriendlyUnitList.push_back(l_Caster);
-									l_SelfHealing = true;	
-								}
+                                
+                                std::list<Unit*> l_FriendlyUnitList;
+                                for (auto l_Itr : l_FriendlyUnitListTemp)
+                                {
+                                    if (l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
+                                        l_FriendlyUnitList.push_back(l_Itr);
+                                }
+                                
+                                if (l_FriendlyUnitList.empty())
+                                {
+                                    l_FriendlyUnitList.push_back(l_Caster);
+                                    l_SelfHealing = true;	
+                                }
 
-								JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
-								for (auto l_Itr : l_FriendlyUnitList)
-								{
-									l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-									if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
-										l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
-								}
+                                JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
+                                for (auto l_Itr : l_FriendlyUnitList)
+                                {
+                                    l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                                    if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                                        l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+                                }
                             }
                             if (!l_SelfHealing)
                                 l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);

@@ -505,10 +505,18 @@ namespace MS { namespace Garrison
 
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON);
 
+        std::string l_KnownBluePrints = l_KnownBluePrintsStr.str();
+        if (l_KnownBluePrints.empty())
+            l_KnownBluePrints = " ";
+
+        std::string l_KnowSpecializations = l_KnownSpecializationsStr.str();
+        if (l_KnowSpecializations.empty())
+            l_KnowSpecializations = " ";
+
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
-        l_Stmt->setString(l_Index++, l_KnownBluePrintsStr.str());
-        l_Stmt->setString(l_Index++, l_KnownSpecializationsStr.str());
+        l_Stmt->setString(l_Index++, l_KnownBluePrints);
+        l_Stmt->setString(l_Index++, l_KnowSpecializations);
         l_Stmt->setUInt32(l_Index++, m_NumFollowerActivation);
         l_Stmt->setUInt32(l_Index++, m_NumFollowerActivationRegenTimestamp);
         l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);

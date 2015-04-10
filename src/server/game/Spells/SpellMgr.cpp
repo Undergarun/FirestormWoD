@@ -231,6 +231,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Faerie Fire -- 770, 20 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return DIMINISHING_LIMITONLY;
+
+            // Nature's Grasp
+            if (spellproto->Id == 170855)
+                return DIMINISHING_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -442,13 +446,6 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
-        case SPELLFAMILY_PRIEST:
-        {
-            /// Shackle Undead
-            if (spellproto->Id == 9484)
-                return 8 * IN_MILLISECONDS;
-            break;
-        }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
@@ -3632,6 +3629,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(48); ///< 60 yards
                 spellInfo->ProcFlags = 0x8A20;
                 break;
+            case 73685:
+                spellInfo->ProcFlags = 0;
+                break;
             case 53563: ///< Beacon of Light
                 spellInfo->Effects[1].Effect = 0;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
@@ -4955,10 +4955,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 105361: ///< Seal of Command
                 spellInfo->OverrideSpellList.push_back(31801); ///< Replace Seal of Command with Seal of Truth
                 break;
-            case 117895: ///< Eminence (statue)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[0].TargetB = 0;
-                break;
             case 115294: ///< Mana Tea
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
                 break;
@@ -5836,9 +5832,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             /// ENDOF ULDUAR SPELLS
             ///
-            case 73685: ///< Unleash Life
-                spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
-                break;
             case 49560: ///< Death Grip
             case 49576:
                 spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SHADOW;
@@ -5928,8 +5921,8 @@ void SpellMgr::LoadSpellCustomAttr()
             switch (spellInfo->SpellFamilyName)
             {
                 case SPELLFAMILY_SHAMAN:
-                    /// Lava Lash
-                    if (spellInfo->Id == 60103)
+                    /// Lava Lash / Windstrike - Overide Stormstrike (17364) with Ascendance (114051)
+                    if (spellInfo->Id == 60103 || spellInfo->Id == 115356)
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                     break;
                 case SPELLFAMILY_WARRIOR:

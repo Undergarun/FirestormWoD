@@ -52,6 +52,7 @@ DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfm
 DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
 DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage <SoundEntriesEntry>              sSoundEntriesStore(SoundEntriesfmt);
 DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesEntryfmt);
 DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathEntryfmt);
 DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
@@ -187,6 +188,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sSoundEntriesStore,              db2Path, "SoundEntries.db2");
     LoadDB2(bad_db2_files, sCurrencyTypesStore,             db2Path, "CurrencyTypes.db2");
     LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
     LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");

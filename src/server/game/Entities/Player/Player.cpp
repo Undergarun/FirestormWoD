@@ -22336,9 +22336,11 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX));
 
+        uint16 l_MapID = IsInGarrison() ? MS::Garrison::Globals::BaseMap : (IsBeingTeleported() ? GetTeleportDest().GetMapId() : GetMapId());
+
         if (!IsBeingTeleported())
         {
-            stmt->setUInt16(index++, (uint16)GetMapId());
+            stmt->setUInt16(index++, (uint16)l_MapID);
             stmt->setUInt32(index++, (uint32)GetInstanceId());
             stmt->setUInt8(index++, GetDungeonDifficultyID());
             stmt->setUInt8(index++, GetRaidDifficultyID());
@@ -30644,7 +30646,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(sWorld->GetGameTime());
         l_Data << float(p_Height);
-        l_Data << float(1.0f);
+        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
         l_Data << uint32(0);
         l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
         SendDirectMessage(&l_Data);
@@ -30655,7 +30657,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(sWorld->GetGameTime());
     l_Data << float(p_Height);
-    l_Data << float(l_MountDisplayInfo->scale);
+    l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
     l_Data << uint32(l_MountDisplayInfo->Displayid);
     l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
     SendDirectMessage(&l_Data);

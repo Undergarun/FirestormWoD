@@ -944,7 +944,7 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
     if (!l_PetSpecializationId)
         return;
 
-    if (m_Player->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+    if (m_Player->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
     {
         switch (l_PetSpecializationId)
         {

@@ -394,7 +394,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
     {
         uint32 l_SpecializationID = GetSpecializationId();
-        if (owner->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+        if (owner->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
         {
             switch (l_SpecializationID)
             {
@@ -1140,6 +1140,11 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 
                 break;
             case PETSPELL_NEW:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
+                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+                stmt->setUInt32(1, itr->first);
+                trans->Append(stmt);
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetPetNumber());
                 stmt->setUInt32(1, itr->first);

@@ -785,25 +785,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         victim->CastCustomSpell(victim, 115611, &bp, NULL, NULL, true);
     }
-    // Stance of the Spirited Crane - 154436
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436) && spellProto
+
+    /// last update : 6.1.2 19802
+    /// Stance of the Spirited Crane - 154436
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_MONK && HasAura(154436))
+        if (!spellProto || (spellProto
         && spellProto->Id != 124098 && spellProto->Id != 107270 && spellProto->Id != 132467
-        && spellProto->Id != 130651 && spellProto->Id != 117993) ///< Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
+        && spellProto->Id != 130651 && spellProto->Id != 117993)) ///< Don't triggered by Zen Sphere, Spinning Crane Kick, Chi Wave, Chi Burst and Chi Torpedo
     {
         int32 l_Bp = damage / 2;
-        std::list<Unit*> l_TargetList;
         std::list<Creature*> l_TempList;
         std::list<Creature*> l_StatueList;
         Creature* l_Statue = nullptr;
-
-        ToPlayer()->GetRaidMembers(l_TargetList);
-
-        if (l_TargetList.size() > 1)
-        {
-            l_TargetList.remove(this); ///< Remove Player
-            l_TargetList.sort(JadeCore::HealthPctOrderPred());
-            l_TargetList.resize(1);
-        }
 
         ToPlayer()->GetCreatureListWithEntryInGrid(l_TempList, 60849, 100.0f);
         ToPlayer()->GetCreatureListWithEntryInGrid(l_StatueList, 60849, 100.0f);
@@ -819,20 +812,17 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
 
         /// In addition, you also gain Eminence, causing you to heal the lowest health nearby target within 20 yards for an amount equal to 50% of non-autoattack damage you deal
-        for (auto itr : l_TargetList)
+        CastCustomSpell(this, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+
+        if (l_StatueList.size() == 1)
         {
-            CastCustomSpell(itr, 126890, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence
+            for (auto itrBis : l_StatueList)
+                l_Statue = itrBis;
 
-            if (l_StatueList.size() == 1)
+            if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
             {
-                for (auto itrBis : l_StatueList)
-                    l_Statue = itrBis;
-
-                if (l_Statue && (l_Statue->isPet() || l_Statue->isGuardian()))
-                {
-                    if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == GetGUID())
-                        l_Statue->CastCustomSpell(itr, 117895, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence - statue
-                }
+                if (l_Statue->GetOwner() && l_Statue->GetOwner()->GetGUID() == GetGUID())
+                    l_Statue->CastCustomSpell(l_Statue, 117895, &l_Bp, NULL, NULL, true, 0, NULLAURA_EFFECT, GetGUID()); ///< Eminence - statue
             }
         }
     }
@@ -932,35 +922,43 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     }
 
     /// Rage from Damage made (only from direct weapon damage)
-    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE &&
-        HasAuraType(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT) && cleanDamage->mitigated_damage > 0 &&
-        (!spellProto || !spellProto->HasAura(SPELL_AURA_SPLIT_DAMAGE_PCT)))
+    if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && getPowerType() == POWER_RAGE && GetTypeId() == TYPEID_PLAYER)
     {
-        float l_Speed = 0.f;
-        if (GetTypeId() == TYPEID_PLAYER)
-        {
-            Player* l_Player = ToPlayer();
+        Player* l_Player = ToPlayer();
 
+        /// Only Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
+        if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
+        {
             Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
-            l_Speed = l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME;
-        }
-        else
-            l_Speed = GetAttackTime(cleanDamage->attackType);
+            float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
 
-        float l_Rage = l_Speed / 1000.f * 5.f;
+            float l_RageGain = l_WeaponSpeed * 1.75f;
 
-        switch (cleanDamage->attackType)
-        {
-            case WeaponAttackType::OffAttack:
-                l_Rage /= 2.f;
-            case WeaponAttackType::BaseAttack:
-                /// Which amount of the calculated rage the player can get ? Ex: http://www.wowhead.com/spell=2457 it's 100%
-                l_Rage = CalculatePct(l_Rage, GetTotalAuraModifier(SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT));
-                if (l_Rage)
-                    RewardRage(l_Rage);
-                break;
-            default:
-                break;
+            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            {
+                if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE)
+                {
+                    if (cleanDamage->hitOutCome & MELEE_HIT_CRIT)
+                        l_RageGain *= frand(7.4375, 7.875);
+                    else
+                        l_RageGain *= 3.40f;
+                }
+                else
+                {
+                    if (cleanDamage->hitOutCome & MELEE_HIT_CRIT)
+                        l_RageGain *= 3.40f;
+                    else
+                        l_RageGain *= 1.60f;
+                }
+            }
+            else
+            {
+                l_RageGain *= 2.00f;
+                if (cleanDamage->attackType == WeaponAttackType::OffAttack)
+                    l_RageGain *= 0.5f;
+            }
+
+            RewardRage(l_RageGain);
         }
     }
 
@@ -11951,7 +11949,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                     DoneTotalMod += aurEff->GetAmount();
             break;
     }
-
     return DoneTotalMod;
 }
 
@@ -12301,7 +12298,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         switch (spellProto->Id)
                         {
                             case 51505: // Lava Burst
-                            case 77451: // Lava Burst (Elemental Overload)
                                 return 100.0f;
                             default:
                                 break;
@@ -12466,32 +12462,32 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all spell damage type...
+    int32 l_CritPctBonus = 100; // 200% for all spell damage type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
 
     // adds additional damage to p_Damage (from talents)
     if (Player* l_ModOwner = GetSpellModOwner())
         l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
 
 uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPct = 200; // 200% for all healing type...
+    int32 l_CritPctBonus = 100; // 200% for all healing type...
 
     if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && IsPvP())
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
 
-    l_CritPct += GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT);
+    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
     return p_Damage;
 }
@@ -16542,17 +16538,17 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     bool l_IsCrit = false;
 
+                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+
                     if (procSpell && roll_chance_f(GetUnitSpellCriticalChance(target, procSpell, procSpell->GetSchoolMask())))
                         l_IsCrit = true;
                     else if (!procSpell && roll_chance_f(GetUnitCriticalChance(attType, target)))
                         l_IsCrit = true;
 
                     if (l_IsCrit && procSpell)
-                        damage = SpellCriticalDamageBonus(procSpell, damage, target);
+                        l_MultistrikeDamage = SpellCriticalDamageBonus(procSpell, l_MultistrikeDamage, target);
                     else if (l_IsCrit && !procSpell)
-                        damage = MeleeCriticalDamageBonus(nullptr, damage, target, attType);
-
-                    uint32 l_MultistrikeDamage = damage * GetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT);
+                        l_MultistrikeDamage = MeleeCriticalDamageBonus(nullptr, l_MultistrikeDamage, target, attType);
 
                     if (procExtra & PROC_EX_CRITICAL_HIT)
                         l_IsCrit = true;
@@ -21838,7 +21834,7 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
     float l_DamageDealtFactor = 1.0f;
 
 
-    if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (l_LevelDiff)
     {
         if (l_LevelDiff < 1)
         {
@@ -21889,7 +21885,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageTakenFactor = 1.0f;
 
-    if (l_LevelDiff > 0 && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
+    if (l_LevelDiff > 0)
     {
         // 10% DR per level diff, with a floor of 10%
         l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);
