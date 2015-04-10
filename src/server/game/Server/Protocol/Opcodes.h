@@ -1726,7 +1726,6 @@ enum Opcodes
     CMSG_REQUEST_PARTY_MEMBER_STATS                     = 0x0000,
     CMSG_REQUEST_RATED_BG_INFO                          = 0x0000,
     CMSG_REQUEST_RATED_BG_STATS                         = 0x0000,
-    CMSG_REQUEST_RESEARCH_HISTORY                       = 0x0000,
     CMSG_RESET_CHALLENGE_MODE                           = 0x0000,
     CMSG_RESET_FACTION_CHEAT                            = 0x0000,
     CMSG_SAVE_PLAYER                                    = 0x0000,
