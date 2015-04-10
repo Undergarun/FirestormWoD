@@ -58,6 +58,7 @@ namespace MS { namespace Garrison
         Alliance_YourFirstAlchemyWorkOrder          = 36641,
         Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
         Alliance_YourFirstEnchantingWorkOrder       = 36645,
+        Alliance_YourFirstJewelcraftingWorkOrder    = 36645,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
