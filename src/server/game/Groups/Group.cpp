@@ -125,7 +125,7 @@ bool Group::Create(Player* leader)
     if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficultyID();
-        m_raidDifficulty = isLFGGroup() ? DifficultyRaidTool : leader->GetLegacyRaidDifficultyID();
+        m_raidDifficulty = isLFGGroup() ? (leader->getLevel() == MAX_LEVEL ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
 
         m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
@@ -2637,18 +2637,19 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
             {
                 switch (l_Player->GetMap()->GetDifficultyID())
                 {
-                    case Difficulty10N:
-                    case Difficulty10HC:
+                    case Difficulty::Difficulty10N:
+                    case Difficulty::Difficulty10HC:
                         if (l_Counter >= 8)
                             l_IsOkay = true;
                         break;
-                    case Difficulty25N:
-                    case Difficulty25HC:
-                    case DifficultyRaidTool:
+                    case Difficulty::Difficulty25N:
+                    case Difficulty::Difficulty25HC:
+                    case Difficulty::DifficultyRaidTool:
+                    case Difficulty::DifficultyRaidLFR:
                         if (l_Counter >= 20)
                             l_IsOkay = true;
                         break;
-                    case Difficulty40:
+                    case Difficulty::Difficulty40:
                         if (l_Counter >= 30)
                             l_IsOkay = true;
                         break;
@@ -3176,16 +3177,17 @@ bool Group::CanEnterInInstance()
     {
         switch (GetLegacyRaidDifficultyID())
         {
-            case Difficulty10N:
-            case Difficulty10HC:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 maxplayers = 10;
                 break;
-            case Difficulty25N:
-            case Difficulty25HC:
-            case DifficultyRaidTool:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
+            case Difficulty::DifficultyRaidTool:
+            case Difficulty::DifficultyRaidLFR:
                 maxplayers = 25;
                 break;
-            case Difficulty40:
+            case Difficulty::Difficulty40:
                 maxplayers = 40;
                 break;
         }

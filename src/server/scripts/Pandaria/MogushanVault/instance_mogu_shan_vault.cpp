@@ -207,7 +207,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         }
 
                         uint32 difficulty = instance->GetSpawnMode();
-                        bool turnOver = (difficulty == Difficulty::Difficulty10N || difficulty == Difficulty::Difficulty10HC || difficulty == Difficulty::DifficultyRaidTool);
+                        bool turnOver = (difficulty == Difficulty::Difficulty10N || difficulty == Difficulty::Difficulty10HC || instance->IsLFR());
 
                         // In 10N, 10H or LFR, there are only 3 guardians
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)

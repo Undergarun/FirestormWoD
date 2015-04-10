@@ -1783,7 +1783,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_GROUP_FOUND, dungeons, "");
         Group* grp = pProposal->groupLowGuid ? sGroupMgr->GetGroupByGUID(pProposal->groupLowGuid) : NULL;
 
-        if (dungeon->difficulty == DifficultyRaidTool && grp != nullptr && !grp->isRaidGroup())
+        if ((dungeon->difficulty == DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR) && grp != nullptr && !grp->isRaidGroup())
             grp->ConvertToRaid();
 
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
@@ -1811,7 +1811,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 grp = new Group();
                 grp->Create(player);
 
-                if (dungeon->difficulty == DifficultyRaidTool)
+                if (dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
                     grp->ConvertToRaid();
 
                 grp->ConvertToLFG();
@@ -1862,8 +1862,9 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
 
-        if (dungeon->difficulty == DifficultyRaidTool)
+        if (dungeon->difficulty == DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
             grp->SetRaidDifficultyID(Difficulty(dungeon->difficulty));
+
         grp->SetDungeonDifficultyID(Difficulty(dungeon->difficulty));
 
         uint64 gguid = grp->GetGUID();
@@ -1880,23 +1881,22 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
 
         switch (grp->GetLegacyRaidDifficultyID())
         {
-            case Difficulty10N:
-            case Difficulty10HC:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 maxPlayersToTeleport = 10;
                 break;
-
-            case DifficultyRaidTool:
-            case Difficulty25N:
-            case Difficulty25HC:
+            case Difficulty::DifficultyRaidTool:
+            case Difficulty::DifficultyRaidLFR:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
                 maxPlayersToTeleport = 25;
                 break;
-
-            case Difficulty40:
+            case Difficulty::Difficulty40:
                 maxPlayersToTeleport = 40;
                 break;
         }
 
-        if (dungeon->difficulty == DifficultyRaidTool)
+        if (dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
             maxPlayersToTeleport = 25;
 
         // Teleport players

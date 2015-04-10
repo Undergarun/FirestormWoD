@@ -1634,7 +1634,7 @@ public:
                     if (pInstance)
                     {
                         uint32 mode = pInstance->instance->GetSpawnMode();
-                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, mode == Difficulty::DifficultyRaidTool ? 3000 : Is25ManRaid() ? 2000 : 5000);
+                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, IsLFR() ? 3000 : Is25ManRaid() ? 2000 : 5000);
                     }
                 }
             }

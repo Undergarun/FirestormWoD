@@ -211,7 +211,7 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty == Difficulty::Difficulty25N || _difficulty == Difficulty::Difficulty25HC || _difficulty == Difficulty::DifficultyRaidTool; }
+    bool Is25ManRaid() const { return _difficulty == Difficulty::Difficulty25N || _difficulty == Difficulty::Difficulty25HC || IsLFR(); }
     bool IsLFR() const { return _difficulty == Difficulty::DifficultyRaidTool || _difficulty == Difficulty::DifficultyRaidLFR; }
     bool IsHeroic() const { return me->GetMap()->IsHeroic(); }
     bool IsMythic() const { return me->GetMap()->IsMythic(); }
