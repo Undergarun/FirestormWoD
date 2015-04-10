@@ -131,7 +131,6 @@ const char ScenarioStepEntryfmt[]             = "niiissiiii";
 const char ScalingStatValuesfmt[]             = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiix";
 const char SkillLinefmt[]                     = "nisxixiii";
 const char SkillLineAbilityfmt[]              = "niiiiiiiiiixx";
-const char SoundEntriesfmt[]                  = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char SpecializationSpellsfmt[]          = "niiix";
 const char SpellCastTimefmt[]                 = "nixx";
 const char SpellCategoriesEntryfmt[]          = "niiiiiiiii";

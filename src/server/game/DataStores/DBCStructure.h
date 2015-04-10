@@ -306,7 +306,7 @@ struct CinematicCameraEntry
 {
     uint32      id;                                         // 0 index
     char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
+    uint32      soundid;                                    // 2 in SoundEntries.db2 or 0
     float       EndPosX;                                    // 3
     float       EndPosY;                                    // 4
     float       EndPosZ;                                    // 5
@@ -1380,28 +1380,6 @@ struct SkillLineAbilityEntry
     uint32  skill_gain;                                     // 10       m_NumSkillUps
     //uint32    m_UniqueBit;                                // 11       m_UniqueBit
     //uint32    m_TradeSkillCategoryID;                     // 12       m_TradeSkillCategoryID
-};
-
-struct SoundEntriesEntry
-{
-    uint32  Id;                                             // 0        m_ID
-    //uint32    Type;                                       // 1        m_SoundType
-    //char*     InternalName;                               // 2        m_Name
-    //uint32    m_FileDataID[20];                           // 3-22     m_FileDataID
-    //uint32    m_Freq[20];                                 // 23-42    m_Freq
-    //float     m_volumeFloat;                              // 43       m_VolumeFloat
-    //uint32    m_Flags;                                    // 44       m_Flags
-    //float     m_MinDistance;                              // 45       m_MinDistance
-    //float     m_DistanceCutoff;                           // 46       m_DistanceCutoff
-    //uint32    m_EAXDef;                                   // 47       m_EAXDef
-    //uint32    m_SoundEntriesAdvancedID;                   // 48       m_SoundEntriesAdvancedID
-    //float     m_Volumevariationplus;                      // 49       m_Volumevariationplus
-    //float     m_Volumevariationminus;                     // 50       m_Volumevariationminus
-    //float     m_Pitchvariationplus;                       // 51       m_Pitchvariationplus
-    //float     m_Pitchvariationminus;                      // 52       m_Pitchvariationminus
-    //float     m_PitchAdjust;                              // 53       m_PitchAdjust
-    //uint32    m_Dialogtype;                               // 54       m_Dialogtype
-    //uint32    m_BusOverwriteID;                           // 55       m_BusOverwriteID
 };
 
 struct SpecializationSpellEntry
