@@ -102,6 +102,7 @@ class boss_rukhmar : public CreatureScript
             void UpdateAI(const uint32 p_Diff) override
             {
                 m_Events.Update(p_Diff);
+                EnterEvadeIfOutOfCombatArea(p_Diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
                     return;
