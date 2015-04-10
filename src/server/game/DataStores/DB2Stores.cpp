@@ -188,6 +188,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sAreaGroupStore,                 db2Path, "AreaGroup.db2");
     LoadDB2(bad_db2_files, sCurrencyTypesStore,             db2Path, "CurrencyTypes.db2");
     LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
     LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
