@@ -3948,7 +3948,6 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     float totalmul = 1.0f;
     int32 totalflat = 0;
     bool chaosBolt = false;
-    bool soulFire = false;
     bool pyroblast = false;
     int32 value = 0;
 
@@ -4011,21 +4010,6 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                     continue;
                 else
                     chaosBolt = true;
-            }
-            // Fix don't apply Molten Core multiple times for Soul Fire
-            else if (mod->spellId == 122355 && (spellInfo->Id == 6353 || spellInfo->Id == 104027))
-            {
-                if (soulFire)
-                    continue;
-                else
-                    soulFire = true;
-
-                if (m_isMoltenCored)
-                    m_isMoltenCored = false;
-                else if (mod->op == SPELLMOD_CASTING_TIME || mod->op == SPELLMOD_COST)
-                    m_isMoltenCored = true;
-
-                value = mod->value / mod->charges;
             }
             // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
             else if ((mod->spellId == 48108 || mod->spellId == 12043) && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 11366)

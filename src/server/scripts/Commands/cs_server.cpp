@@ -111,8 +111,8 @@ public:
         std::string uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 updateTime           = sWorld->GetUpdateTime();
 
-        handler->PSendSysMessage("AshranCore 6.0.3 19116 beta");
-        handler->PSendSysMessage("Last Update: 12/11/2014");
+        handler->PSendSysMessage("AshranCore 6.0.3 19342 beta");
+        handler->PSendSysMessage("Last Update: 30/03/2015");
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
         handler->PSendSysMessage("Server delay: %u ms", updateTime);

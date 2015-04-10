@@ -505,10 +505,18 @@ namespace MS { namespace Garrison
 
         PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GARRISON);
 
+        std::string l_KnownBluePrints = l_KnownBluePrintsStr.str();
+        if (l_KnownBluePrints.empty())
+            l_KnownBluePrints = " ";
+
+        std::string l_KnowSpecializations = l_KnownSpecializationsStr.str();
+        if (l_KnowSpecializations.empty())
+            l_KnowSpecializations = " ";
+
         uint32 l_Index = 0;
         l_Stmt->setUInt32(l_Index++, m_GarrisonLevel);
-        l_Stmt->setString(l_Index++, l_KnownBluePrintsStr.str());
-        l_Stmt->setString(l_Index++, l_KnownSpecializationsStr.str());
+        l_Stmt->setString(l_Index++, l_KnownBluePrints);
+        l_Stmt->setString(l_Index++, l_KnowSpecializations);
         l_Stmt->setUInt32(l_Index++, m_NumFollowerActivation);
         l_Stmt->setUInt32(l_Index++, m_NumFollowerActivationRegenTimestamp);
         l_Stmt->setUInt32(l_Index++, m_CacheLastUsage);
@@ -1338,6 +1346,8 @@ namespace MS { namespace Garrison
             if (!l_MissionFollowers[l_FollowerIt]->CanXP())
                 continue;
 
+            uint32 l_FollowerLevel = l_MissionFollowers[l_FollowerIt]->Level;
+
             WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
             ByteBuffer l_UpdatePart(150);
 
@@ -1373,6 +1383,9 @@ namespace MS { namespace Garrison
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
+
+            if (l_FollowerLevel != l_MissionFollowers[l_FollowerIt]->Level && l_MissionFollowers[l_FollowerIt]->Level == 100)
+                m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         }
 
         m_PendingMissionReward.RewardFollowerXPBonus.clear();
@@ -1597,6 +1610,8 @@ namespace MS { namespace Garrison
 
         std::for_each(l_MissionFollowers.begin(), l_MissionFollowers.end(), [this](const GarrisonFollower * p_Follower) -> void
         {
+            uint32 l_FollowerLevel = p_Follower->Level;
+
             WorldPacket l_Update(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 500);
             ByteBuffer l_UpdatePart(150);
 
@@ -1620,6 +1635,9 @@ namespace MS { namespace Garrison
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
+
+            if (l_FollowerLevel != p_Follower->Level && p_Follower->Level == 100)
+                m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS);
         });
     }
 
@@ -2257,6 +2275,26 @@ namespace MS { namespace Garrison
 
         m_Owner->SendDirectMessage(&l_AddFollowerResult);
 
+        uint32 l_AchievementEntry = 0;
+
+        switch (l_Follower.Quality)
+        {
+            case ItemQualities::ITEM_QUALITY_RARE:
+                l_AchievementEntry = 9130;  ///< A Rare Friend
+                break;
+            case ItemQualities::ITEM_QUALITY_EPIC:
+                l_AchievementEntry = 9131;  ///< An Epic Buddy
+                break;
+
+            default:
+                break;
+        }
+
+        if (l_AchievementEntry && !m_Owner->GetAchievementMgr().HasAchieved(l_AchievementEntry))
+            m_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(l_AchievementEntry), nullptr);
+
+        m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON);
+
         return true;
     }
 
@@ -2839,6 +2877,8 @@ namespace MS { namespace Garrison
             {
                 m_KnownBlueprints.push_back(p_BuildingRecID);
                 l_ResultCode = LearnBluePrintResults::Learned;
+
+                m_Owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS);
             }
             else
             {

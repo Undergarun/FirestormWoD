@@ -732,12 +732,6 @@ class spell_warl_agony: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_agony_AuraScript);
 
-            void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (GetCaster())
-                    amount *= GetStackAmount();
-            }
-
             void OnTick(constAuraEffectPtr aurEff)
             {
                 if (GetCaster())
@@ -752,7 +746,6 @@ class spell_warl_agony: public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_agony_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_agony_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 CanRefreshProc += AuraCanRefreshProcFn(spell_warl_agony_AuraScript::CanRefreshProcDummy);
             }

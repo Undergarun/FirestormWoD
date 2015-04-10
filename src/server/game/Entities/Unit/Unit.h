@@ -90,13 +90,13 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_DIRECT_DAMAGE               = 0x01000000,   // 24   removed by any direct damage
     AURA_INTERRUPT_FLAG_LANDING                     = 0x02000000,   // 25   removed by hitting the ground
     AURA_INTERRUPT_FLAG_UNK25                       = 0x04000000,   // 26
-    AURA_INTERRUPT_FLAG_ANY_DAMAGE                  = 0x08000000,   // 27   removed by any damages, difference with AURA_INTERRUPT_FLAG_TAKE_DAMAGE must be caster/target stuff
+    AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT          = 0x08000000,   // 27   removed by any damages, difference with AURA_INTERRUPT_FLAG_TAKE_DAMAGE must be caster/target stuff
     AURA_INTERRUPT_FLAG_ENTER_COMBAT                = 0x10000000,   // 28   removed by entering pvp
     AURA_INTERRUPT_FLAG_UNK29                       = 0x20000000,   // 29
     AURA_INTERRUPT_FLAG_UNK30                       = 0x40000000,   // 30
     AURA_INTERRUPT_FLAG_UNK31                       = 0x80000000,   // 31
 
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_ANY_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
+    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE),
 };
 
 enum SpellModOp

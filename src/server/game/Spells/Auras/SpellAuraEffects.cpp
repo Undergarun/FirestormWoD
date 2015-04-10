@@ -542,7 +542,7 @@ m_base(base), m_spellInfo(base->GetSpellInfo()),
 m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->Effects[effIndex].BasePoints),
 m_donePct(1.0f),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
-m_canBeRecalculated(true), m_isPeriodic(false)
+m_canBeRecalculated(true), m_isPeriodic(false), m_amount(0), m_CrowdControlDamage(0)
 {
 }
 
@@ -675,7 +675,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     float DoneActualBenefit = 0.0f;
 
-    // custom amount calculations go here
+    bool l_IsCrowControlAura = false;
+
     switch (GetAuraType())
     {
         case SPELL_AURA_MOD_COOLDOWN_BY_HASTE:
@@ -692,36 +693,51 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         }
-        // crowd control auras
+
+        /// crowd control auras
         case SPELL_AURA_MOD_FEAR:
         case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
         case SPELL_AURA_MOD_ROOT_2:
         case SPELL_AURA_TRANSFORM:
         case SPELL_AURA_MOD_FEAR_2:
+            l_IsCrowControlAura = true;
+            break;
+        default:
+            break;
+    }
+
+    if (GetSpellInfo()->AuraInterruptFlags & SpellAuraInterruptFlags::AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT)
+        l_IsCrowControlAura = true;
+
+    if (l_IsCrowControlAura)
+    {
+        m_canBeRecalculated = false;
+        bool l_CustomAmount = false;
+
+        // Custom entries
+        switch (GetSpellInfo()->Id)
         {
-            m_canBeRecalculated = false;
-            bool customAmount = false;
-
-            // Custom entries
-            switch (GetSpellInfo()->Id)
+            case 3355:  // Freezing Trap
             {
-                case 3355:  // Freezing Trap
-                {
-                    amount = 1;
-                    customAmount = true;
-                    break;
-                }
-                default:
-                    break;
+                amount = 1;
+                l_CustomAmount = true;
+                break;
             }
-
-            if (customAmount)
+            case 128405:// Narrow Escape
+            {
+                amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+                m_CrowdControlDamage = amount;
+                l_CustomAmount = true;
                 break;
-            if (!m_spellInfo->ProcFlags)
+            }
+            default:
                 break;
+        }
 
-            amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+        if (!l_CustomAmount && m_spellInfo->ProcFlags)
+        {
+            m_CrowdControlDamage = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
             if (caster)
             {
                 // Glyphs increasing damage cap
@@ -733,11 +749,25 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         // Glyph of Frost nova and similar auras
                         if ((*itr)->GetMiscValue() == 7801)
                         {
-                            AddPct(amount, (*itr)->GetAmount());
+                            AddPct(m_CrowdControlDamage, (*itr)->GetAmount());
                             break;
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // custom amount calculations go here
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_RATING:
+        {
+            // Heart's Judgment, Heart of Ignacious trinket (Heroic)
+            if (m_spellInfo->Id == 92328)
+            {
+                if (AuraPtr pAura = caster->GetAura(92325))
+                    amount *= pAura->GetStackAmount();
             }
             break;
         }
@@ -3165,7 +3195,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* p_AurApp, uint8 p_M
             if (Spell* spell = l_Target->GetCurrentSpell(CurrentSpellTypes(i)))
             {
                 // Stop spells on prepare or casting state
-                if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
+                if (spell->m_spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::Pacify))
                     l_Target->InterruptSpell(CurrentSpellTypes(i), false);
             }
         }
@@ -4532,7 +4562,8 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
         }
     }
 
-    if (apply && GetSpellInfo()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
+    // Blizz uses 100 duration for breaking out of mechanic without the attributes
+    if (apply && (GetSpellInfo()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY || aurApp->GetBase()->GetDuration() <= 100))
         target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
 }
 
@@ -7466,19 +7497,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
         }
 
-        // Curse of Agony damage-per-tick calculation
-        if (GetSpellInfo()->Id == 980)
-        {
-            uint32 totalTick = GetTotalTicks();
-            // 1..4 ticks, 1/2 from normal tick damage
-            if (m_tickNumber <= totalTick / 3)
-                damage = damage/2;
-            // 9..12 ticks, 3/2 from normal tick damage
-            else if (m_tickNumber > totalTick * 2 / 3)
-                damage += (damage+1)/2;           // +1 prevent 0.5 damage possible lost at 1..4 ticks
-            // 5..8 ticks have normal tick damage
-            damage /= 10; // Prevent insane damage with 10 stacks
-        }
         // Execution Sentence damage-per-tick calculation
         if (GetSpellInfo()->Id == 114916)
         {

@@ -547,7 +547,11 @@ public:
     SpellCastResult CheckCasterAuras() const;
     SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-    int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem); }
+    int32 CalculateDamage(uint8 i, Unit const* target) const
+    {
+        Unit* l_Caster = m_originalCaster ? m_originalCaster : m_caster;
+        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem);
+    }
 
     bool HaveTargetsForEffect(uint8 effect) const;
     void Delayed();

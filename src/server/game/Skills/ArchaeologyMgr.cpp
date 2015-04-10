@@ -82,7 +82,7 @@ namespace MS { namespace Skill { namespace Archaeology
 {
     /// Constructor
     Manager::Manager(Player* p_Player)
-        : m_Player(p_Player)
+        : m_Player(p_Player), m_LastArtifactGameObjectEntry(0)
     {
         for (uint8 l_I = 0; l_I < Archaeology::Constants::MaxResearchSites; ++l_I)
             m_DigSites[l_I].Reset();
@@ -590,7 +590,7 @@ namespace MS { namespace Skill { namespace Archaeology
             return 0;
         }
 
-        if (l_AtPos >= 20)
+        if (l_AtPos >= Archaeology::Constants::MaxResearchSites)
         {
             sLog->outAshran("ArcheologyMgr::GetSurveyBotEntry, l_AtPos (%u) >= 20 for site %u !", l_AtPos, l_ResearchSiteID);
             return 0;
@@ -624,10 +624,8 @@ namespace MS { namespace Skill { namespace Archaeology
             return Archaeology::GameObjects::DigSite_Close_SurveyBot;
         }
 
-        if (l_SkillValue < 50)
-            m_Player->UpdateSkill(SKILL_ARCHAEOLOGY, 1);
-
         m_Player->SummonGameObject(l_DigSite.LootGameObjectID, l_DigSite.LootGameObjectX, l_DigSite.LootGameObjectY, l_DigSite.LootGameObjectZ, 0, 0, 0, 0, 0, 30000);
+        m_LastArtifactGameObjectEntry = l_DigSite.LootGameObjectID;
 
         if (l_DigSite.SiteLootCount < l_DigSite.SiteMaxLootCount)
         {
@@ -650,7 +648,20 @@ namespace MS { namespace Skill { namespace Archaeology
 
         return 0;
     }
-   
+
+    /// Is the last found artifact game object
+    /// @p_GameObjectEntry : GameObject entry
+    bool Manager::IsLastArtifactGameObject(uint32 p_GameObjectEntry)
+    {
+        return m_LastArtifactGameObjectEntry == p_GameObjectEntry;
+    }
+
+    /// Reset last found artifact game object
+    void Manager::ResetLastArtifactGameObject()
+    {
+        m_LastArtifactGameObjectEntry = 0;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -726,7 +737,7 @@ namespace MS { namespace Skill { namespace Archaeology
         {
             ++m_CompletedProjects[p_ProjectID].CompletionCount;
 
-            l_FirstCompleted = m_CompletedProjects[p_ProjectID].FirstCompletedDate;
+            l_FirstCompleted  = m_CompletedProjects[p_ProjectID].FirstCompletedDate;
             l_CompletionCount = m_CompletedProjects[p_ProjectID].CompletionCount;
         }
         else
@@ -737,11 +748,14 @@ namespace MS { namespace Skill { namespace Archaeology
 
             m_CompletedProjects.insert(std::make_pair(p_ProjectID, l_NewCompletedProjectEntry));
 
-            l_FirstCompleted = l_NewCompletedProjectEntry.FirstCompletedDate;
+            l_FirstCompleted  = l_NewCompletedProjectEntry.FirstCompletedDate;
             l_CompletionCount = l_NewCompletedProjectEntry.CompletionCount;
         }
 
         SendResearchComplete(p_ProjectID, l_FirstCompleted, l_CompletionCount);
+
+        /// Source : http://www.wow-professions.com/wowguides/wow-archaeology-guide.html
+        m_Player->UpdateSkill(SKILL_ARCHAEOLOGY, l_ResearchProjectEntry->rare ? 15 : 5);
 
         // Add new project
         ProjectSet l_CandidateProjectsListPerBranch;

@@ -1977,10 +1977,13 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         float dist = GetDistance(victim);
         if (dist > range || dist < minrange)
             continue;
-        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+
+        if (spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
             continue;
-        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+
+        if (spellInfo->PreventionType & (SpellPreventionMask::Pacify | SpellPreventionMask::PacifyOrSilence) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
             continue;
+
         return spellInfo;
     }
     return NULL;
@@ -2034,9 +2037,9 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         //    continue;
         if (dist > range || dist < minrange)
             continue;
-        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+        if (spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
             continue;
-        if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_PACIFY && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
+        if (spellInfo->PreventionType & (SpellPreventionMask::Pacify | SpellPreventionMask::PacifyOrSilence) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
             continue;
         return spellInfo;
     }
@@ -2530,7 +2533,7 @@ void Creature::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)) == 0)
             continue;
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)

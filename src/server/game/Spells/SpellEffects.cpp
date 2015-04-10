@@ -2678,7 +2678,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
                     // Update player XP
                     // Patch 4.0.1 (2010-10-12): Gathering herbs and Mining will give XP
-                    if (skillId == SKILL_MINING || skillId == SKILL_HERBALISM)
+                    if (skillId == SKILL_MINING || skillId == SKILL_HERBALISM || skillId == SKILL_ARCHAEOLOGY)
                         player->GiveGatheringXP();
                 }
             }
@@ -4256,7 +4256,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
-                && (curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE || curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK1 || curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_UNK3)
+                && curSpellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)
                 && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
                 || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {
@@ -6553,10 +6553,24 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     m_caster->ToPlayer()->SendLoot(itemTarget->GetGUID(), LOOT_MILLING);
 }
 
-void Spell::EffectSkill(SpellEffIndex /*effIndex*/)
+void Spell::EffectSkill(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
+
+    if (m_spellInfo->Effects[effIndex].MiscValue == SKILL_ARCHAEOLOGY)
+    {
+        Player * l_Player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+        if (!l_Player || !l_Player->HasSkill(SKILL_ARCHAEOLOGY) || !m_targets.GetGOTarget())
+            return;
+
+        if (!l_Player->GetArchaeologyMgr().IsLastArtifactGameObject(m_targets.GetGOTarget()->GetEntry()))
+            return;
+
+        l_Player->UpdateSkill(SKILL_ARCHAEOLOGY, 1);
+        l_Player->GetArchaeologyMgr().ResetLastArtifactGameObject();
+    }
 }
 
 /* There is currently no need for this effect. We handle it in Battleground.cpp
