@@ -930,12 +930,14 @@ enum EnviromentalDamage
 enum PlayerChatTag
 {
     CHAT_TAG_NONE       = 0x00,
-    CHAT_TAG_UNK        = 0x01,                             /// 6.1.2
-    CHAT_TAG_AFK        = 0x02,
-    CHAT_TAG_DND        = 0x04,
-    CHAT_TAG_GM         = 0x08,
+    CHAT_TAG_AFK        = 0x01,
+    CHAT_TAG_DND        = 0x02,
+    CHAT_TAG_GM         = 0x04,
+    CHAT_TAG_UNK1       = 0x08,
     CHAT_TAG_DEV        = 0x10,
-    CHAT_TAG_COM        = 0x20,                             // Commentator
+    CHAT_TAG_UNK        = 0x20,
+    CHAT_TAG_PHONE      = 0x40,     /// Speaker Icon
+    CHAT_TAG_COM        = 0x80,     /// Commentator
 };
 
 enum PlayedTimeIndex
