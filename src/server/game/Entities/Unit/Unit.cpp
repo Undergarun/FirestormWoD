@@ -11843,7 +11843,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     switch (spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:
-            // Ice Lance
+            /// Ice Lance
             if (spellProto->SpellIconID == 186)
             {
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
@@ -11854,7 +11854,12 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                     AddPct(DoneTotalMod, l_Aura->GetEffect(1)->GetAmount());
             }
 
-            // Torment the weak
+                /// Fingers of Frost gives 25% damage bonus to Ice Lance
+                if (HasAura(44544))
+                    DoneTotalMod *= 1.25f;
+            }
+
+            /// Torment the weak
             if (spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
             {
                 if (victim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
