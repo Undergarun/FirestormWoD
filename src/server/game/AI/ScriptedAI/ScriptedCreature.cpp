@@ -427,7 +427,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
     switch (me->GetEntry())
     {
         case NPC_RUKHMAR:
-            if (me->GetZoneId() != 6722)
+            if (me->GetZoneId() == 6722)
                 return false;
             break;
         case NPC_BLOOD_QUEEN:
