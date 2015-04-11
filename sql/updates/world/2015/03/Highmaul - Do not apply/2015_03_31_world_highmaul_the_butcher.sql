@@ -117,7 +117,7 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Шмя-а-а-ак!'
 );
 
-DELETE FROM spell_script_names WHERE spell_id IN (151990, 152024, 156135, 156138, 156197, 156152, 166225);
+DELETE FROM spell_script_names WHERE spell_id IN (151990, 152024, 156135, 156138, 156197, 156152, 166225, 174465, 174474);
 INSERT INTO spell_script_names VALUES
 (151990, 'spell_highmaul_chain_grip'),
 (152024, 'spell_highmaul_chain_grip_aura'),
@@ -125,7 +125,9 @@ INSERT INTO spell_script_names VALUES
 (156138, 'spell_highmaul_heavy_handed_proc'),
 (156197, 'spell_highmaul_bounding_cleave_dummy'),
 (156152, 'spell_highmaul_gushing_wounds'),
-(166225, 'spell_highmaul_boars_rush');
+(166225, 'spell_highmaul_boars_rush'),
+(174465, 'spell_highmaul_unstoppable_charge'),
+(174474, 'spell_highmaul_corrupted_blood_shield');
 
 UPDATE creature_template SET ScriptName = 'npc_highmaul_gorian_guardsman' WHERE entry = 81270;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_night_twisted_devout' WHERE entry = 82698;
@@ -139,6 +141,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_void_aberration' WHERE e
 UPDATE creature_template SET ScriptName = 'npc_highmaul_krush' WHERE entry = 82532;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_flame_technician' WHERE entry = 86607;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_warmaster' WHERE entry = 86609;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_iron_blood_mage' WHERE entry = 87229;
 UPDATE creature_template SET faction = 14, ScriptName = 'npc_highmaul_night_twisted_cadaver' WHERE entry = 82505;
 
 DELETE FROM areatrigger_template WHERE spell_id IN (175648, 163042);
@@ -154,3 +157,48 @@ INSERT INTO access_requirement (mapId, difficulty, level_min, level_max, itemlev
 (1228, 15, 100, 100, 615, 0, 'Highmaul - Heroic'),
 (1228, 16, 100, 100, 615, 0, 'Highmaul - Mythic'),
 (1228, 17, 100, 100, 615, 0, 'Highmaul - Raid Tool');
+
+SET @REF_BUTCHER_N = 77404;
+SET @REF_BUTCHER_H = 1577404;
+SET @REF_BUTCHER_M = 1677404;
+SET @REF_BUTCHER_LFR = 1777404;
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_BUTCHER_N;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_BUTCHER_N, 113606, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113607, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113608, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113609, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113610, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113611, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113612, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113632, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113633, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113634, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113636, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113637, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_N, 113638, 0, 1, 1, 1, 1);
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_BUTCHER_LFR;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_BUTCHER_LFR, 116026, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116290, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116209, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 115998, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116230, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116297, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116281, 0, 1, 1, 1, 1),
+(@REF_BUTCHER_LFR, 116361, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_N;
+UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_H;
+UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_M;
+UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_LFR WHERE `entry`= @REF_BUTCHER_LFR;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BUTCHER_N;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_BUTCHER_N, 1, 100, 1, 0, -@REF_BUTCHER_N, 6);
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BUTCHER_LFR;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_BUTCHER_LFR, 1, 100, 1, 0, -@REF_BUTCHER_LFR, 6);

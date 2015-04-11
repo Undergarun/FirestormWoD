@@ -492,6 +492,11 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             EventDevour
         };
 
+        enum eCreature
+        {
+            IronGrunt = 88118
+        };
+
         struct npc_highmaul_night_twisted_devoutAI : public MS::AI::CosmeticAI
         {
             npc_highmaul_night_twisted_devoutAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
@@ -507,6 +512,11 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
+
+                if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
+                    me->Kill(l_IronGrunt);
+
+                me->SetAIAnimKit(0);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -862,6 +872,11 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
             EventSurgeOfDarkness = 1
         };
 
+        enum eCreature
+        {
+            IronGrunt = 88118
+        };
+
         struct npc_highmaul_night_twisted_bruteAI : public ScriptedAI
         {
             npc_highmaul_night_twisted_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -876,6 +891,11 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
+
+                if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
+                    me->Kill(l_IronGrunt);
+
+                me->SetAIAnimKit(0);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1140,7 +1160,8 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
             SpellFlamethrower               = 173231,
 
             SpellUnstoppableChargeSearcher  = 174462,
-            UnstoppableChargeCharge         = 174461
+            UnstoppableChargeCharge         = 174461,
+            UnstoppableChargeDmg            = 174465
         };
 
         enum eEvents
@@ -1150,15 +1171,23 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
             EventUnstoppableCharge
         };
 
+        enum eCreature
+        {
+            UnstoppableCharge = 87230
+        };
+
         struct npc_highmaul_iron_flame_technicianAI : public ScriptedAI
         {
             npc_highmaul_iron_flame_technicianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            uint64 m_ChargeTarget;
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                m_ChargeTarget = 0;
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1176,11 +1205,26 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::SpellUnstoppableChargeSearcher:
-                        me->CastSpell(p_Target, eSpells::UnstoppableChargeCharge, true);
+                    {
+                        if (Creature* l_Charge = me->SummonCreature(eCreature::UnstoppableCharge, *p_Target, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 2000))
+                        {
+                            l_Charge->SetReactState(ReactStates::REACT_PASSIVE);
+                            l_Charge->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+
+                            m_ChargeTarget = l_Charge->GetGUID();
+                            me->CastSpell(l_Charge, eSpells::UnstoppableChargeCharge, true);
+                            me->CastSpell(l_Charge, eSpells::UnstoppableChargeDmg, true);
+                        }
                         break;
+                    }
                     default:
                         break;
                 }
+            }
+
+            uint64 GetGUID(int32 p_ID) override
+            {
+                return m_ChargeTarget;
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1287,6 +1331,83 @@ class npc_highmaul_iron_warmaster : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_iron_warmasterAI(p_Creature);
+        }
+};
+
+/// Iron Blood Mage - 87229
+class npc_highmaul_iron_blood_mage : public CreatureScript
+{
+    public:
+        npc_highmaul_iron_blood_mage() : CreatureScript("npc_highmaul_iron_blood_mage") { }
+
+        enum eSpells
+        {
+            SpellCorruptedBlood         = 174475,
+            SpellBloodBolt              = 174574,
+            SpellCorruptedBloodShield   = 174474
+        };
+
+        enum eEvents
+        {
+            EventCorruptedBlood = 1,
+            EventBloodBolt,
+            EventCorruptedBloodShield
+        };
+
+        struct npc_highmaul_iron_blood_mageAI : public ScriptedAI
+        {
+            npc_highmaul_iron_blood_mageAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+                m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(4000, 7000));
+                m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(8000, 11000));
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventCorruptedBlood:
+                        me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
+                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                        break;
+                    case eEvents::EventBloodBolt:
+                        me->CastSpell(me, eSpells::SpellBloodBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(8000, 11000));
+                        break;
+                    case eEvents::EventCorruptedBloodShield:
+                        if (Unit* l_Target = me->SelectNearbyAlly(me, 15.0f))
+                            me->CastSpell(l_Target, eSpells::SpellCorruptedBloodShield, false);
+                        m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(15000, 18000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_iron_blood_mageAI(p_Creature);
         }
 };
 
@@ -1426,6 +1547,98 @@ class spell_highmaul_boars_rush : public SpellScriptLoader
         }
 };
 
+/// Unstoppable Charge - 174465
+class spell_highmaul_unstoppable_charge : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_unstoppable_charge() : SpellScriptLoader("spell_highmaul_unstoppable_charge") { }
+
+        class spell_highmaul_unstoppable_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_unstoppable_charge_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                if (Creature* l_IronFlame = l_Caster->ToCreature())
+                {
+                    Unit* l_Target = Unit::GetUnit(*l_IronFlame, l_IronFlame->AI()->GetGUID(0));
+                    if (l_Target == nullptr)
+                        return;
+
+                    float l_Radius = GetSpellInfo()->Effects[0].CalcRadius(l_Caster);
+                    p_Targets.remove_if([l_Radius, l_Caster, l_Target](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr)
+                            return true;
+
+                        if (!p_Object->IsInBetween(l_Caster, l_Target, 3.0f))
+                            return true;
+
+                        return false;
+                    });
+                }
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_unstoppable_charge_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_unstoppable_charge_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_highmaul_unstoppable_charge_SpellScript();
+        }
+};
+
+/// Corrupted Blood Shield - 174474
+class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_corrupted_blood_shield() : SpellScriptLoader("spell_highmaul_corrupted_blood_shield") { }
+
+        class spell_highmaul_corrupted_blood_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_corrupted_blood_shield_AuraScript);
+
+            enum eSpell
+            {
+                CorruptedBlood = 174473
+            };
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (Unit* l_Target = GetTarget())
+                        l_Target->CastSpell(l_Caster, eSpell::CorruptedBlood, true, nullptr, NULLAURA_EFFECT, l_Caster->GetGUID());
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_highmaul_corrupted_blood_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_corrupted_blood_shield_AuraScript();
+        }
+};
+
 /// Rune of Disintegration - 175648
 class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerEntityScript
 {
@@ -1478,6 +1691,7 @@ void AddSC_highmaul()
     new npc_highmaul_krush();
     new npc_highmaul_iron_flame_technician();
     new npc_highmaul_iron_warmaster();
+    new npc_highmaul_iron_blood_mage();
 
     /// GameObjects
     new go_highmaul_arena_elevator();
@@ -1486,6 +1700,8 @@ void AddSC_highmaul()
     new spell_highmaul_chain_grip();
     new spell_highmaul_chain_grip_aura();
     new spell_highmaul_boars_rush();
+    new spell_highmaul_unstoppable_charge();
+    new spell_highmaul_corrupted_blood_shield();
 
     /// AreaTriggers
     new areatrigger_highmaul_rune_of_disintegration();

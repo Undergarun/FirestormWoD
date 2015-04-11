@@ -334,7 +334,11 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
                 }
                 else
+                {
                     p_Player->SetPhaseMask(1, true);
+                    p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
+                    p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
+                }
             }
 
             void OnPlayerExit(Player* p_Player) override
