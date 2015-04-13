@@ -507,25 +507,17 @@ namespace MS { namespace Skill { namespace Archaeology
     /// Propagate research sites into the player dynamic update fields
     void Manager::PropagateResearchProjects()
     {
+        /// Reset research project
+        for (uint32 l_I = 0; l_I < (PLAYER_FIELD_PROFESSION_SKILL_LINE - PLAYER_FIELD_RESEARCHING); ++l_I)
+            m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_I, 0);
+
         if (!m_Player->GetSkillValue(SKILL_ARCHAEOLOGY))
             return;
 
         uint8 l_Count = 0;
-        uint32 l_NewValue = 0;
-
         for (ResearchProjectSet::const_iterator l_It = m_ResearchProjects.begin(); l_It != m_ResearchProjects.end(); ++l_It)
         {
-            if (l_Count % 2 == 1)
-            {
-                l_NewValue |= (*l_It);
-                m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_Count / 2, l_NewValue);
-
-                if (l_Count >= sResearchBranchStore.GetNumRows())
-                    break;
-            }
-            else
-                l_NewValue = (*l_It) << 16;
-
+            m_Player->SetUInt16Value(PLAYER_FIELD_RESEARCHING + (l_Count / 2), l_Count % 2, (*l_It));
             ++l_Count;
         }
     }
