@@ -22245,9 +22245,11 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_PLAYER_FLAGS_EX));
 
+        uint16 l_MapID = IsInGarrison() ? MS::Garrison::Globals::BaseMap : (IsBeingTeleported() ? GetTeleportDest().GetMapId() : GetMapId());
+
         if (!IsBeingTeleported())
         {
-            stmt->setUInt16(index++, (uint16)GetMapId());
+            stmt->setUInt16(index++, (uint16)l_MapID);
             stmt->setUInt32(index++, (uint32)GetInstanceId());
             stmt->setUInt8(index++, GetDungeonDifficultyID());
             stmt->setUInt8(index++, GetRaidDifficultyID());

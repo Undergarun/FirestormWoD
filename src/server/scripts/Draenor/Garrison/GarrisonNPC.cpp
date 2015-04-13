@@ -23,6 +23,7 @@
 #include "Buildings/Alliance/AAlchemyLab.hpp"
 #include "Buildings/Alliance/ATheTannery.hpp"
 #include "Buildings/Alliance/AEnchanterStudy.hpp"
+#include "Buildings/Alliance/AGemBoutique.hpp"
 
 #include "Buildings/Horde/HTheForge.hpp"
 #include "Buildings/Horde/HTradingPost.hpp"
@@ -31,6 +32,7 @@
 #include "Buildings/Horde/HAlchemyLab.hpp"
 #include "Buildings/Horde/HTheTannery.hpp"
 #include "Buildings/Horde/HEnchanterStudy.hpp"
+#include "Buildings/Horde/HGemBoutique.hpp"
 
 #include <random>
 
@@ -437,6 +439,10 @@ void AddSC_Garrison_NPC()
         /// Enchanter's Study
         new MS::Garrison::npc_AyadaTheWhite;
         new MS::Garrison::npc_Garm;
+
+        /// Gem boutique
+        new MS::Garrison::npc_CostanHighwall;
+        new MS::Garrison::npc_KayaSolasen;
     }
 
     /// Horde
@@ -476,5 +482,9 @@ void AddSC_Garrison_NPC()
         /// Enchanter's Study
         new MS::Garrison::npc_YuklaGreenshadow;
         new MS::Garrison::npc_Garra;
+
+        /// Gem boutique
+        new MS::Garrison::npc_Dorogarr;
+        new MS::Garrison::npc_ElrondirSurrion;
     }
 }
