@@ -32464,10 +32464,13 @@ void Player::ApplyWargameItemModifications()
 
             if (l_InWargame)
             {
-                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY && l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
                 {
-                    l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
-                    l_UpdateItemMods = true;
+                    if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                    {
+                        l_Item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                        l_UpdateItemMods = true;
+                    }
                 }
                 else if (l_TournamentRules && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
                 {
@@ -32477,10 +32480,13 @@ void Player::ApplyWargameItemModifications()
             }
             else
             {
-                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY && !l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                if (l_Item->GetTemplate()->Flags3 & ItemFlags3::ITEM_FLAG3_WARGAME_ONLY)
                 {
-                    l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
-                    l_UpdateItemMods = true;
+                    if (!l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
+                    {
+                        l_Item->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE);
+                        l_UpdateItemMods = true;
+                    }
                 }
                 else if (l_Item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE))
                 {
