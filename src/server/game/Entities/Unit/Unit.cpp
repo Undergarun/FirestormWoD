@@ -21828,7 +21828,7 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
     float l_DamageDealtFactor = 1.0f;
 
 
-    if (l_LevelDiff)
+    if (l_LevelDiff && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         if (l_LevelDiff < 1)
         {
@@ -21879,7 +21879,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageTakenFactor = 1.0f;
 
-    if (l_LevelDiff > 0)
+    if (l_LevelDiff > 0 && l_TargetExpansion < EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
         l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);
