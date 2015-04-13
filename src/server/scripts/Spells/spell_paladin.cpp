@@ -327,20 +327,73 @@ class spell_pal_daybreak: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_daybreak_SpellScript);
 
+            uint32 m_TargetCount;
+            uint64 m_TargetId;
+
+            enum Constants : int32
+            {
+                FullHealTargetCount = 6, ///< After this amount of targets the spell will lose BasePoints% efficiency for each target
+                HealDecrease        = 5, ///< % of heal lost per target over FullHealTargetCount
+                MinimalHeal         = 5, ///< Minimal heal % applied on each target when a lot of target are hit
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                m_TargetCount = p_Targets.size();
+
+                if (!GetCaster())
+                    return;
+            }
+
+            void HandleBeforeCast()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster || !l_Target)
+                    return;
+
+                m_TargetId = l_Target->GetGUID();
+            }
+
+            void HandleOnHit()
+            {
+                Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster || !l_Target || !m_TargetId)  ///< m_TargetId can't be uninitialized if the caster and the target are valid
+                    return;
+
+                int32 l_HealValue = GetHitHeal();
+                if (l_Target->GetGUID() != m_TargetId)
+                {
+                    int32 l_Pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                    if (m_TargetCount > Constants::FullHealTargetCount)
+                        l_Pct = std::max(l_Pct - 5 * Constants::HealDecrease, static_cast<int32>(Constants::MinimalHeal));
+
+                    ApplyPct(l_HealValue, l_Pct);
+                }
+
+                SetHitHeal(l_HealValue);
+            }
+
             void HandleAfterCast()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (_player->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
-                        _player->CastSpell(_player, PALADIN_SPELL_DAYBREAK_PROC, true);
+                    if (l_Caster->HasAura(PALADIN_SPELL_DAYBREAK_AURA))
+                        l_Caster->CastSpell(l_Caster, PALADIN_SPELL_DAYBREAK_PROC, true);
 
-                    _player->CastSpell(_player, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
+                    l_Caster->CastSpell(l_Caster, PALADIN_SPELL_EXORCISM_ENERGIZE, true);
                 }
             }
 
             void Register()
             {
                 AfterCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleAfterCast);
+                BeforeCast += SpellCastFn(spell_pal_daybreak_SpellScript::HandleBeforeCast);
+                OnHit += SpellHitFn(spell_pal_daybreak_SpellScript::HandleOnHit);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_daybreak_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
