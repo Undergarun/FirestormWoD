@@ -959,7 +959,7 @@ namespace MS { namespace Skill { namespace Archaeology
                     if ((l_CurrentLevel + l_Conditions->LevelAdditional) < l_RequiredLevel)
                         return RS_RESULT_FAIL;
 
-                    if (l_SkillValue < l_Conditions->RequiredLevel)
+                    if (l_SkillValue < l_Conditions->RequiredSkill)
                         return RS_RESULT_FAIL;
 
                     return RS_RESULT_OK;
@@ -1056,9 +1056,9 @@ namespace MS { namespace Skill { namespace Archaeology
                     case 29: p_Site.LootGameObjectID = 218950; break;
                     case 229: p_Site.LootGameObjectID = 211163; break;
                     case 231: p_Site.LootGameObjectID = 211174; break;
-                    case 315: p_Site.LootGameObjectID = 234105; break; ///@Todo
-                    case 350: p_Site.LootGameObjectID = 226521; break; ///@Todo
-                    case 382: p_Site.LootGameObjectID = 234106; break; ///@Todo
+                    case 315: p_Site.LootGameObjectID = 234105; break;
+                    case 350: p_Site.LootGameObjectID = 226521; break;
+                    case 382: p_Site.LootGameObjectID = 234106; break;
                     default: p_Site.LootGameObjectID = 0; break;
                 }
             }
