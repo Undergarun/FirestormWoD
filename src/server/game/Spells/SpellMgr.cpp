@@ -4827,6 +4827,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 121536: ///< Feather
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
+            case 177345: ///< Meteor
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
             case 19574: ///< Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
                 spellInfo->Effects[3].ApplyAuraName = 0;
