@@ -248,7 +248,10 @@ namespace MS { namespace Garrison
             TheTannery_TheTannery_Level3                = 122,
             EnchanterStudy_EnchanterStudy_Level1        = 93,
             EnchanterStudy_EnchanterStudy_Level2        = 125,
-            EnchanterStudy_EnchanterStudy_Level3        = 126
+            EnchanterStudy_EnchanterStudy_Level3        = 126,
+            GemBoutique_GemBoutique_Level1              = 96,
+            GemBoutique_GemBoutique_Level2              = 131,
+            GemBoutique_GemBoutique_Level3              = 132 
         };
     }
 
