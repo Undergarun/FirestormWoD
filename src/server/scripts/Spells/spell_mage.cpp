@@ -1207,11 +1207,7 @@ class spell_mage_combustion: public SpellScriptLoader
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
-                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpell::CategoryID))
-                        {
-                            l_Player->m_SpellChargesMap.erase(eSpell::CategoryID);
-                            l_Player->SendClearSpellCharges(eSpell::CategoryID);
-                        }
+                        l_Player->RestoreCharge(eSpell::CategoryID);
 
                         int32 combustionBp = 0;
 
