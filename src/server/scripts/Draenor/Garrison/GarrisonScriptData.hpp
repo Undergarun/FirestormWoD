@@ -58,7 +58,7 @@ namespace MS { namespace Garrison
         Alliance_YourFirstAlchemyWorkOrder          = 36641,
         Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
         Alliance_YourFirstEnchantingWorkOrder       = 36645,
-        Alliance_YourFirstJewelcraftingWorkOrder    = 36645,
+        Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
@@ -70,7 +70,8 @@ namespace MS { namespace Garrison
         Horde_YourFirstTailoringWorkOrder         = 37575,
         Horde_YourFirstAlchemyWorkOrder           = 37568,
         Horde_YourFirstLeatherworkingWorkOrder    = 37574,
-        Horde_YourFirstEnchantingWorkOrder        = 37570
+        Horde_YourFirstEnchantingWorkOrder        = 37570,
+        Horde_YourFirstJewelcraftingWorkOrder     = 37573
     };
 
     /// Garrison achievement related

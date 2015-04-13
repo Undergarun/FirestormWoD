@@ -32,6 +32,7 @@
 #include "Buildings/Horde/HAlchemyLab.hpp"
 #include "Buildings/Horde/HTheTannery.hpp"
 #include "Buildings/Horde/HEnchanterStudy.hpp"
+#include "Buildings/Horde/HGemBoutique.hpp"
 
 #include <random>
 
@@ -481,5 +482,9 @@ void AddSC_Garrison_NPC()
         /// Enchanter's Study
         new MS::Garrison::npc_YuklaGreenshadow;
         new MS::Garrison::npc_Garra;
+
+        /// Gem boutique
+        new MS::Garrison::npc_Dorogarr;
+        new MS::Garrison::npc_ElrondirSurrion;
     }
 }
