@@ -24731,7 +24731,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)) == 0)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
