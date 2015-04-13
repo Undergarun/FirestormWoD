@@ -3208,6 +3208,39 @@ public:
 };
 
 
+/// Chaos Wave - 124916
+class spell_warl_chaos_wave : public SpellScriptLoader
+{
+public:
+    spell_warl_chaos_wave() : SpellScriptLoader("spell_warl_chaos_wave") { }
+
+    class spell_warl_chaos_wave_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_chaos_wave_SpellScript);
+
+        void HandleAfterCast()
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            if (l_Caster->HasAura(WARLOCK_MOLTEN_CORE_AURA))
+                l_Caster->CastSpell(l_Caster, WARLOCK_MOLTEN_CORE, true);
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_warl_chaos_wave_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_chaos_wave_SpellScript();
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3276,4 +3309,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_havoc();
     new spell_warl_nightfall();
     new spell_warl_chaos_bolt();
+    new spell_warl_chaos_wave();
 }
