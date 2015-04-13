@@ -223,13 +223,10 @@ namespace MS { namespace Skill { namespace Archaeology
         m_ResearchProjects.clear();
         if (l_Fields[1].GetCString())
         {
-            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ', sResearchBranchStore.GetNumRows());
+            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ');
 
-            if (l_Tokens.size() == sResearchBranchStore.GetNumRows())
-            {
-                for (uint8 l_I = 0; l_I < sResearchBranchStore.GetNumRows(); ++l_I)
-                    m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
-            }
+            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
         }
 
         ValidateProjects();
