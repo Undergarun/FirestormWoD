@@ -996,7 +996,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
             l_ItemDataBuffer << uint32(l_ItemTemplate->MaxDurability);      ///< Max durability
             l_ItemDataBuffer << uint32(l_ItemTemplate->BuyCount);           ///< Stack count
             l_ItemDataBuffer << uint32(l_VendorItem->ExtendedCost);         ///< Extended cost ID
-            l_ItemDataBuffer << uint32(0);                                  ///< Player condition failed
+            l_ItemDataBuffer << uint32(l_VendorItem->PlayerConditionID);    ///< Player condition failed
 
             l_ItemDataBuffer.WriteBit(false);                               ///< Do not filter on vendor
             l_ItemDataBuffer.FlushBits();

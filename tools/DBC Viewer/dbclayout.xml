@@ -4495,4 +4495,25 @@
     <field type="int" name="flag4" />
     <field type="int" name="flag5" />
   </CreatureDifficulty>
+  <gtNpcTotalHp build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtNpcTotalHp build="19865">
+    <index>
+      <primary>level</primary>
+    </index>
+    <field type="int" name="level" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtResilienceDR build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </gtResilienceDR>
 </DBFilesClient>
