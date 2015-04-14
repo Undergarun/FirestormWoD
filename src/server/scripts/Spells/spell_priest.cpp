@@ -2501,32 +2501,60 @@ public:
     }
 };
 
-// Clarity of will - 152118
+/// Last Update 6.1.2
+/// Clarity of will - 152118
 class spell_pri_clarity_of_will: public SpellScriptLoader
 {
 public:
     spell_pri_clarity_of_will() : SpellScriptLoader("spell_pri_clarity_of_will") { }
 
-    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    class spell_pri_clarity_of_will_SpellScript : public SpellScript
     {
-        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+        PrepareSpellScript(spell_pri_clarity_of_will_SpellScript);
 
-        void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+        int32 m_AmountPreviousShield = 0;
+
+        void HandleBeforeHit()
         {
-            if (Unit* l_Caster = GetCaster())
-                if (Player* l_Player = l_Caster->ToPlayer())
-                    amount = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6 * 1.1;
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Target == nullptr)
+                return;
+
+            if (constAuraEffectPtr l_PreviousShield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                m_AmountPreviousShield = l_PreviousShield->GetAmount();
+        }
+
+        void HandleAfterHit()
+        {
+            Player* l_Player = GetCaster()->ToPlayer();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Player == nullptr || l_Target == nullptr)
+                return;
+
+            if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+            {
+                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.0f);
+                int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
+
+                if (l_Bp > l_MaxStackAmount)
+                    l_Bp = l_MaxStackAmount;
+
+                l_Shield->SetAmount(l_Bp);
+            }
         }
 
         void Register()
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            BeforeHit += SpellHitFn(spell_pri_clarity_of_will_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_pri_clarity_of_will_SpellScript::HandleAfterHit);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    SpellScript* GetSpellScript() const
     {
-        return new spell_pri_clarity_of_will_AuraScript();
+        return new spell_pri_clarity_of_will_SpellScript();
     }
 };
 
