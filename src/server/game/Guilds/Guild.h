@@ -828,7 +828,7 @@ class Guild
             return 0;
         }
 
-        int32 GetChallengeCount(int32 p_Type) { return m_ChallengeCount[p_Type]; }
+        int32 GetChallengeCount(int32 p_Type) const { return m_ChallengeCount[p_Type]; }
 
     protected:
         uint32 m_id;

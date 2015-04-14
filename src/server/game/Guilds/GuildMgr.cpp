@@ -458,31 +458,26 @@ void GuildMgr::LoadGuilds()
 
         if (l_Result)
         {
-
             uint32 l_Count = 0;
             do
             {
                 Field* l_Fields = l_Result->Fetch();
                 uint32 l_GuildId = l_Fields[0].GetInt32();
-                bool l_GuildFinded = false;
+                bool l_GuildFound = false;
 
                 for (auto l_Itr = GuildStore.begin(); l_Itr != GuildStore.end(); l_Itr++)
                 {
-
                     if (Guild* l_Guild = GetGuildById(l_GuildId))
                     {
-                        if (l_GuildId == l_Guild->GetId())
-                        {
-                            l_Guild->LoadGuildChallengesFromDB(l_Fields);
-                            l_GuildFinded = true;
-                            break;
-                        }
+                        l_Guild->LoadGuildChallengesFromDB(l_Fields);
+                        l_GuildFound = true;
+                        break;
                     }
                 }
 
-                if (!l_GuildFinded)
+                if (!l_GuildFound)
                 {
-                    for (int8 l_Itr = 1; l_Itr < 5; l_Itr++)
+                    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
                     {
                         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
                         l_Statement->setInt32(0, l_GuildId);

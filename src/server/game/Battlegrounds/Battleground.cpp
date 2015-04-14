@@ -847,22 +847,23 @@ void Battleground::EndBattleground(uint32 winner)
 
         /// ADD GUILD REWARDS
 
-        for (BattlegroundPlayerMap::iterator l_Itr = m_Players.begin(); l_Itr != m_Players.end(); l_Itr++)
+        if (!isArena())
         {
-            if (isArena())
-                break;
-
-            Player* l_Player = _GetPlayer(l_Itr, "EndBattleground");
-
-            if (!l_Player)
-                continue;
-
-            if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
+            for (BattlegroundPlayerMap::iterator l_Itr = m_Players.begin(); l_Itr != m_Players.end(); l_Itr++)
             {
-                if (Guild* l_Guild = l_Player->GetGuild())
+
+                Player* l_Player = _GetPlayer(l_Itr, "EndBattleground");
+
+                if (!l_Player)
+                    continue;
+
+                if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
                 {
-                    l_Guild->CompleteGuildChallenge(CHALLENGE_RATED_BG);
-                    break;
+                    if (Guild* l_Guild = l_Player->GetGuild())
+                    {
+                        l_Guild->CompleteGuildChallenge(CHALLENGE_RATED_BG);
+                        break;
+                    }
                 }
             }
         }

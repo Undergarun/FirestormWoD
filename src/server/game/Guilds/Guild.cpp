@@ -1115,7 +1115,7 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
 
-    for (int8 l_Itr = 1; l_Itr < 5; l_Itr++)
+    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
         l_Statement->setInt32(0, GetId());
@@ -3501,25 +3501,13 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
 {
-    int32 l_MaxCount[CHALLENGE_MAX];
-    int32 l_GoldReward = 0;
-
     GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();
 
-    for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
-    {
-        l_MaxCount[l_I] = l_RewardDatas[l_I].ChallengeCount;
+    int32 l_MaxCount = l_RewardDatas[p_ChallengeType].ChallengeCount;
+    int32 l_GoldReward = l_RewardDatas[p_ChallengeType].Gold;
 
-        if (l_I == p_ChallengeType)
-        {
-            l_GoldReward = l_RewardDatas[l_I].Gold;
-            break;
-        }
-    }
-
-    if (m_ChallengeCount[p_ChallengeType] >= l_MaxCount[p_ChallengeType])
+    if (m_ChallengeCount[p_ChallengeType] >= l_MaxCount)
         return;
-
 
     m_ChallengeCount[p_ChallengeType]++;
 
@@ -3535,10 +3523,10 @@ void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
 
     DepositMoney(l_GoldReward * GOLD);
 
-    WorldPacket l_Data(SMSG_GUILD_CHALLENGE_COMPLETED, 5 * 4);
+    WorldPacket l_Data(SMSG_GUILD_CHALLENGE_COMPLETED, 4 * 4);
     l_Data << int32(p_ChallengeType);
     l_Data << int32(m_ChallengeCount[p_ChallengeType]);
-    l_Data << int32(l_MaxCount[p_ChallengeType]);
+    l_Data << int32(l_MaxCount);
     l_Data << int32(l_GoldReward);
     BroadcastPacket(&l_Data);
 }

@@ -43,7 +43,7 @@ class guild_commandscript: public CommandScript
                 { "uninvite",           SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,          "", NULL },
                 { "rank",               SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,              "", NULL },
                 { "rename",             SEC_GAMEMASTER,     true,  &HandleGuildRenameCommand,            "", NULL },
-                { "challengecomplete",  SEC_ADMINISTRATOR, true, &HandleGuildChallengeCompleteCommand,   "", NULL },
+                { "challengecomplete",  SEC_ADMINISTRATOR,  true,  &HandleGuildChallengeCompleteCommand,   "", NULL },
                 { NULL,                 0,                  false, NULL,                                 "", NULL }
             };
             static ChatCommand commandTable[] =

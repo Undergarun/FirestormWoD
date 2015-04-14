@@ -317,10 +317,10 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         {
                             if (instance->IsRaid())
                                 l_Guild->CompleteGuildChallenge(CHALLENGE_RAID);
-                            else if (instance->IsDungeon())
-                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
                             else if (instance->IsChallengeMode())
                                 l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                            else if (instance->IsDungeon())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
                             break;
                         }
                     }
