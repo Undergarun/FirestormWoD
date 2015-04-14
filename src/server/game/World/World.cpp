@@ -123,6 +123,7 @@ World::World()
     m_NextWeeklyQuestReset = 0;
     m_NextCurrencyReset = 0;
     m_NextDailyLootReset = 0;
+    m_NextGuildChallengesReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -2325,6 +2326,9 @@ void World::Update(uint32 diff)
     if (m_gameTime >= m_NextDailyLootReset)
         ResetDailyLoots();
 
+    if (m_gameTime >= m_NextGuildChallengesReset)
+        ResetGuildChallenges();
+
     //if (m_gameTime > m_NextServerRestart)
         //AutoRestartServer();
 
@@ -3416,6 +3420,13 @@ void World::InitDailyLootResetTime()
     m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
+void World::InitGuildChallengesResetTime()
+{
+    time_t l_Wstime = uint64(sWorld->getWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME));
+    time_t l_CurrTime = time(NULL);
+    m_NextGuildChallengesReset = l_Wstime < l_CurrTime ? l_CurrTime : time_t(l_Wstime);
+}
+
 /*void World::InitServerAutoRestartTime()
 {
     time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
@@ -3491,6 +3502,13 @@ void World::ResetDailyLoots()
 
     m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
     sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
+}
+
+void World::ResetGuildChallenges()
+{
+    CharacterDatabase.Execute("UPDATE `guild_challenges` SET ChallengeCount = 0");
+    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, getWorldState(WS_WEEKLY_QUEST_RESET_TIME) + 7);
+    m_NextGuildChallengesReset = time_t(m_NextGuildChallengesReset + DAY * 7);
 }
 
 void World::LoadDBAllowedSecurityLevel()

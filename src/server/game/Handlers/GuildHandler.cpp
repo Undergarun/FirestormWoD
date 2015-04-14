@@ -675,7 +675,7 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/
         if (Player* l_Player = GetPlayer())
         {
             if (!l_Player->GetGuild())
-                return;
+                l_Data << uint32(0);
 
             int32 l_ChallengeAmount = l_Player->GetGuild()->GetChallengeCount(l_I);
             l_Data << uint32(l_ChallengeAmount);

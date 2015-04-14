@@ -3501,6 +3501,9 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
 {
+    if (p_ChallengeType >= CHALLENGE_MAX)
+        return;
+
     GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();
 
     int32 l_MaxCount = l_RewardDatas[p_ChallengeType].ChallengeCount;

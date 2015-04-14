@@ -553,11 +553,12 @@ enum RealmZone
 
 enum WorldStates
 {
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
-    WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
-    WS_DAILY_LOOT_RESET_TIME    = 20006                      // Next daily loot reset time
+    WS_WEEKLY_QUEST_RESET_TIME            = 20002,                     ///< Next weekly reset time
+    WS_BG_DAILY_RESET_TIME                = 20003,                     ///< Next daily BG reset time
+    WS_MONTHLY_QUEST_RESET_TIME           = 20004,                     ///< Next monthly reset time
+    WS_AUTO_SERVER_RESTART_TIME           = 20005,                     ///< Next server restart time
+    WS_DAILY_LOOT_RESET_TIME              = 20006,                     ///< Next daily loot reset time
+    WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME = 20007,                     ///< Next weekly guild challenges reset time
 };
 
 // DB scripting commands
@@ -917,6 +918,7 @@ class World
 
         void ResetCurrencyWeekCap();
         void ResetDailyLoots();
+        void ResetGuildChallenges();
 
         std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
@@ -940,6 +942,7 @@ class World
         //void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
+        void InitGuildChallengesResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
@@ -1014,6 +1017,7 @@ class World
         time_t m_NextRandomBGReset;
         time_t m_NextCurrencyReset;
         time_t m_NextDailyLootReset;
+        time_t m_NextGuildChallengesReset;
         time_t m_NextServerRestart;
 
         //Player Queue
