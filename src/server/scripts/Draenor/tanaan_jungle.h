@@ -145,7 +145,8 @@ namespace TanaanKillCredits
         CreditOgronWarcrusher                = 80775,
         CreditSpeakWithThaelin               = 80880,
         CreditEscortThaelin                  = 80887,
-        CreditBoatsReached                   = 81024
+        CreditBoatsReached                   = 81024,
+        CreditEnterWorldbreakerTurret        = 80929
     };
 }
 
