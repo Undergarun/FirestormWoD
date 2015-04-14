@@ -2227,7 +2227,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
             void RemoveAllVisuals(Unit* l_Caster)
             {
-                for (int l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds); l_I++)
+                for (uint32 l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds) / sizeof(uint32); l_I++)
                     if (AuraPtr l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
                         l_Aura->Remove();
             }
