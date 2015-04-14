@@ -24991,7 +24991,6 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         return false;
     }
 
-    ModifyMoney(-price);
 
     if (crItem->ExtendedCost) // case for new honor system
     {
@@ -25008,7 +25007,17 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
                 if (i != 1 || iece->ID == 2999) // 1 are season count request, we must not substract it
                     ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]), true, true);
         }
+
+        if (uint32 l_OverridePrice = iece->OverrideBuyPrice)
+        {
+            price = l_OverridePrice * count * GetReputationPriceDiscount(pVendor);
+
+            if (int64 priceMod = int64(GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES)))
+                price -= CalculatePct(price, priceMod);
+        }
     }
+
+    ModifyMoney(-price);
 
     Item* it = bStore ?
         StoreNewItem(vDest, item, true) :
@@ -25240,6 +25249,8 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
+    uint64 price = 0;
+
     if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
@@ -25255,6 +25266,9 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             sLog->outError(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
             return false;
         }
+
+        if (uint32 l_OverridePrice = iece->OverrideBuyPrice)
+            price = l_OverridePrice;
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
@@ -25344,8 +25358,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             }
     }
 
-    uint64 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (!price && crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
         uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
         if ((uint32)count > maxCount)
@@ -25354,7 +25367,12 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             count = (uint8)maxCount;
         }
 
-        price = uint64(pProto->BuyPrice) * count; //it should not exceed MAX_MONEY_AMOUNT
+        price = uint64(pProto->BuyPrice);
+    }
+
+    if (price)
+    {
+        price *= count; //it should not exceed MAX_MONEY_AMOUNT
 
         // reputation discount
         price = uint64(floor(price * GetReputationPriceDiscount(creature)));

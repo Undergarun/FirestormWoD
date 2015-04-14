@@ -973,10 +973,22 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
                 if (l_AvailableInStock == 0)
                     continue;
             }
+            
+            int32 l_OverridePrice = 0;
+            
+            if (l_VendorItem->ExtendedCost)
+            {
+                ItemExtendedCostEntry const* l_Entry = sItemExtendedCostStore.LookupEntry(l_VendorItem->ExtendedCost);
+                if (!l_Entry)
+                    break;
+
+                l_OverridePrice = l_Entry->OverrideBuyPrice;
+            }
+
+            
+            int32 l_Price = l_OverridePrice || l_VendorItem->IsGoldRequired(l_ItemTemplate) ? uint32(floor((l_OverridePrice ? l_OverridePrice : l_ItemTemplate->BuyPrice) * l_DiscountMod)) : 0;
 
             // reputation discount
-            int32 l_Price = l_VendorItem->IsGoldRequired(l_ItemTemplate) ? uint32(floor(l_ItemTemplate->BuyPrice * l_DiscountMod)) : 0;
-
             if (int32 l_PriceMod = m_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                  l_Price -= CalculatePct(l_Price, l_PriceMod);
 

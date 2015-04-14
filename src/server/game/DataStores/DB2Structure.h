@@ -284,6 +284,7 @@ struct ItemExtendedCostEntry
     //uint32    RequiredFactionId;                                      // 24
     //uint32    RequiredFactionStanding;                                // 25
     //uint32    RequirementFlags;                                       // 26
+    uint32      OverrideBuyPrice;                                       // 28
 };
 
 struct QuestPackageItemEntry
