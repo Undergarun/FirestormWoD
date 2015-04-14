@@ -3702,6 +3702,7 @@ enum HealingTouchSpells
     SPELL_DRU_BLOODTALONS_TALENT = 155672
 };
 
+/// Last Uptade 6.1.2
 /// Healing Touch - 5185
 class spell_dru_healing_touch: public SpellScriptLoader
 {
@@ -3722,22 +3723,9 @@ class spell_dru_healing_touch: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
             }
 
-            void HandleHeal(SpellEffIndex)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster == l_Target)
-                            SetHitHeal(GetHitHeal() * 1.5f);
-                    }
-                }
-            }
-
             void Register()
             {
                 OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
-                OnEffectHitTarget += SpellEffectFn(spell_dru_healing_touch_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
