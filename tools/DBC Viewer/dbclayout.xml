@@ -4479,4 +4479,20 @@
     <field type="int" name="InhabitType" />
     <field type="int" name="unk" />
   </Creature>
+  <CreatureDifficulty build="19865">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="creatureID" />
+    <field type="int" name="factionID" />
+    <field type="int" name="expansion" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="flag1" />
+    <field type="int" name="flag2" />
+    <field type="int" name="flag3" />
+    <field type="int" name="flag4" />
+    <field type="int" name="flag5" />
+  </CreatureDifficulty>
 </DBFilesClient>
