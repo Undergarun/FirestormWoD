@@ -41,6 +41,38 @@ DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BRACKENSPORE_LFR;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@REF_BRACKENSPORE_LFR, 1, 100, 1, 0, -@REF_BRACKENSPORE_LFR, 6);
 
+DELETE FROM creature_text WHERE entry IN (86609, 79092);
+INSERT INTO creature_text VALUES
+(86609, 0, 0, 'Argh! These flamethrowers are useless, it''s eating us alive!', 14, 0, 100, 0, 0, 46607, 'BrackensporeIntro1'),
+(86609, 1, 0, 'Fall back! Drop your weapons and retreat to the ship!', 14, 0, 100, 0, 0, 46608, 'BrackensporeIntro2'),
+
+(79092, 0, 0, 'A |cFFFF0404%s|r comes lurking from the depths!', 41, 0, 100, 0, 0, 0, 'FungalEaterWarning');
+
+DELETE FROM locales_creature_text WHERE entry IN (86609, 79092);
+--                                                       French     German     Spanish    Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
+(
+    86609, 0, 0,
+    'Rhah ! Ces lance-flammes ne servent à rien, on se fait massacrer !',
+    'Argh! Diese Flammenwerfer sind nutzlos. Wir werden verschlungen!',
+    '¡Argh! ¡Estos lanzallamas son inútiles! ¡Nos está comiendo vivos!',
+    'Р-р-р! Эти огнеметы бесполезны. Нас сейчас съедят!'
+),
+(
+    86609, 1, 0,
+    'Repliez-vous ! Jetez vos armes et remontez à bord !',
+    'Rückzug! Lasst die Waffen fallen und flüchtet auf das Schiff!',
+    '¡Atrás! ¡Suelten sus armas y retírense a la nave!',
+    'Отступаем! Бросайте оружие и на корабль!.'
+),
+(
+    79092, 0, 0,
+    'Un |cFFFF0404%s|r surgit des profondeurs !',
+    'Ein |cFFFF0404%s|r springt aus den Tiefen hervor!',
+    '¡Un |cFFFF0404%s|r se acerca desde las profundidades!',
+    'Из темных глубин показывается |cFFFF0404%s|r!'
+);
+
 UPDATE creature_template SET
 minlevel = 103,
 maxlevel = 103,
@@ -51,6 +83,23 @@ mechanic_immune_mask = 617299839,
 flags_extra = 0x01
 WHERE entry = 78491;
 
-DELETE FROM spell_script_names WHERE spell_id IN (159220);
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_highmaul_mind_fungus' WHERE entry IN (79082, 86611);
+UPDATE creature_template SET ScriptName = 'npc_highmaul_spore_shooter' WHERE entry IN (79183, 86612);
+UPDATE creature_template SET ScriptName = 'npc_highmaul_fungal_flesh_eater' WHERE entry IN (79092);
+UPDATE creature_template SET ScriptName = 'npc_highmaul_living_mushroom' WHERE entry IN (78884);
+
+DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666);
 INSERT INTO spell_script_names VALUES
-(159220, 'spell_highmaul_necrotic_breath');
+(159220, 'spell_highmaul_necrotic_breath'),
+(163667, 'spell_highmaul_flamethrower_regen'),
+(163322, 'spell_highmaul_flamethrower_aura'),
+(163666, 'spell_highmaul_pulsing_heat');
+
+DELETE FROM areatrigger_scripts WHERE entry IN (10094);
+INSERT INTO areatrigger_scripts VALUE
+(10094, 'areatrigger_at_highmaul_infested_waters');
+
+DELETE FROM areatrigger_template WHERE spell_id IN (159489, 173241);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, scale_curve_id, morph_curve_id, data0, ScriptName) VALUES
+(159489, 0, 6733, 15, 15, 16388, 0, 0, 0, 'areatrigger_highmaul_mind_fungus'),
+(173241, 1, 7882, 3, 3, 16586, 1288, 1192, 3000, 'areatrigger_highmaul_spore_shot');

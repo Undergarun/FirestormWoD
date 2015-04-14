@@ -16,6 +16,7 @@
 #include "GridNotifiersImpl.h"
 #include "Vehicle.h"
 #include "MoveSplineInit.h"
+#include "ScriptUtils.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
@@ -35,16 +36,20 @@ enum eHighmaulDatas
     MaxHighmaulBosses,
 
     /// Instance datas
-    ElevatorActivated   = 0,
+    ElevatorActivated = 0,
 
     /// Misc values
-    RaidGrate001        = 0,
+    /// Kargath
+    RaidGrate001 = 0,
     RaidGrate002,
     RaidGrate003,
     RaidGrate004,
     MaxRaidGrates,
-    HighmaulSweeperCount        = 2,
-    HighmaulSweeperMovesCount   = 9
+    HighmaulSweeperCount = 2,
+    HighmaulSweeperMovesCount = 9,
+    /// Brackenspore
+    MaxCreepingMoss = 16,
+    MaxFleshEaterPos = 2
 };
 
 enum eHighmaulCreatures
@@ -66,8 +71,9 @@ enum eHighmaulCreatures
     HighmaulSweeper     = 88874,
     /// The Underbelly
     TheButcher          = 77404,
-    /// Gorian Strand
-    Brackenspore        = 78491
+    /// Gorian Strands
+    Brackenspore        = 78491,
+    BFC9000             = 81403
 };
 
 enum eHighmaulGameobjects

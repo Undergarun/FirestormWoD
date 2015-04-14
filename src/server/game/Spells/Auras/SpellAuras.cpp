@@ -315,6 +315,9 @@ void AuraApplication::ClientUpdate(bool p_Remove)
     if (l_AuraBase->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
         return;
 
+    if (l_AuraBase->GetCaster() == _target)
+        return;
+
     Mechanics l_Mechanic = Mechanics::MECHANIC_NONE;
     SpellEffIndex l_EffectIndex = EFFECT_0;
     LossOfControlType l_Type = LossOfControlType::TypeNone;

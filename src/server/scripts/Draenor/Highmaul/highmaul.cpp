@@ -8,11 +8,22 @@
 
 #include "highmaul.hpp"
 
+/// Gharg positions
 Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
+
+/// Elevator teleport position
 Position const g_TeleportPos = { 3466.42f, 7578.84f, 55.34f, 4.0125f };
+
+/// Mar'gok (Cosmetic) teleport position
 Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
+
+/// Kargath Bladefist position
 Position const g_KargathPos = { 3444.50f, 7550.76f, 55.39f, 0.90f };
+
+/// Iron Warmaster (Brackenspore cosmetic) move positions
+Position const g_IronWarmasterPos = { 4155.636719f, 7817.216309f, 0.253316f, 0.514213f };
+Position const g_IronWarmasterJump = { 4182.975098f, 7839.367188f, 7.755508f, 5.603590f };
 
 /// Gharg <Arena Master> - 84971
 class npc_highmaul_gharg_arena_master : public CreatureScript
@@ -1176,22 +1187,42 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
             UnstoppableCharge = 87230
         };
 
-        struct npc_highmaul_iron_flame_technicianAI : public ScriptedAI
+        struct npc_highmaul_iron_flame_technicianAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_iron_flame_technicianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_iron_flame_technicianAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_IsCosmetic = false;
+            }
 
             EventMap m_Events;
+            EventMap m_CosmeticEvent;
+
             uint64 m_ChargeTarget;
+
+            /// For Brackenspore event
+            bool m_IsCosmetic;
 
             void Reset() override
             {
                 m_Events.Reset();
 
                 m_ChargeTarget = 0;
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Creature* l_Boss = me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f))
+                    {
+                        m_IsCosmetic = true;
+                        m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+                    }
+                });
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_IsCosmetic)
+                    return;
+
                 m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
                 m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(9000, 12000));
@@ -1227,9 +1258,31 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 return m_ChargeTarget;
             }
 
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == 0)
+                    me->DespawnOrUnsummon();
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!UpdateVictim())
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                {
+                    m_CosmeticEvent.Update(p_Diff);
+
+                    if (m_CosmeticEvent.ExecuteEvent() == eEvents::EventFlamethrower)
+                    {
+                        me->CastSpell(me, eSpells::SpellFlamethrower, false);
+                        m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+                    }
+                }
+
+                if (!UpdateVictim() || m_IsCosmetic)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -1283,26 +1336,84 @@ class npc_highmaul_iron_warmaster : public CreatureScript
             EventCorruptedBlood
         };
 
-        struct npc_highmaul_iron_warmasterAI : public ScriptedAI
+        enum eTalks
         {
-            npc_highmaul_iron_warmasterAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            Intro1,
+            Intro2
+        };
+
+        enum eAction
+        {
+            DoIntro
+        };
+
+        struct npc_highmaul_iron_warmasterAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_iron_warmasterAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_IsCosmetic = false;
+                m_IntroDone = false;
+            }
 
             EventMap m_Events;
+
+            /// For Brackenspore event
+            bool m_IsCosmetic;
+            bool m_IntroDone;
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Creature* l_Boss = me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f))
+                        m_IsCosmetic = true;
+                });
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_IsCosmetic)
+                    return;
+
                 m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
             }
 
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::DoIntro && !m_IntroDone)
+                {
+                    m_IntroDone = true;
+                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
+
+                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        Talk(eTalks::Intro2);
+
+                        me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
+                        me->GetMotionMaster()->MovePoint(0, g_IronWarmasterPos);
+                    });
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                if (p_ID == 0)
+                    me->GetMotionMaster()->MoveJump(g_IronWarmasterJump, 10.0f, 30.0f, 1);
+                else
+                    me->DespawnOrUnsummon();
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
-                if (!UpdateVictim())
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim() || m_IsCosmetic)
                     return;
 
                 m_Events.Update(p_Diff);
@@ -1351,18 +1462,66 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
         {
             EventCorruptedBlood = 1,
             EventBloodBolt,
-            EventCorruptedBloodShield
+            EventCorruptedBloodShield,
+            EventCheckForIntro
         };
 
-        struct npc_highmaul_iron_blood_mageAI : public ScriptedAI
+        enum eCreatures
         {
-            npc_highmaul_iron_blood_mageAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            IronFlameTechnician = 86607,
+            IronWarmaster       = 86609
+        };
 
+        enum eAction
+        {
+            DoIntro
+        };
+
+        struct npc_highmaul_iron_blood_mageAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_iron_blood_mageAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
             EventMap m_Events;
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    std::list<Creature*> l_CreatureList;
+                    me->GetCreatureListInGrid(l_CreatureList, 30.0f);
+
+                    if (l_CreatureList.empty())
+                        return;
+
+                    l_CreatureList.remove_if([this](Creature* p_Creature) -> bool
+                    {
+                        if (p_Creature == nullptr)
+                            return true;
+
+                        if (p_Creature->GetEntry() != me->GetEntry() &&
+                            p_Creature->GetEntry() != eCreatures::IronFlameTechnician &&
+                            p_Creature->GetEntry() != eCreatures::IronWarmaster)
+                            return true;
+
+                        return false;
+                    });
+
+                    uint8 l_Count = 0;
+                    for (Creature* l_Creature : l_CreatureList)
+                    {
+                        if (Creature* l_Boss = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Brackenspore)))
+                        {
+                            if (l_Boss->GetAI())
+                                l_Boss->AI()->SetGUID(l_Creature->GetGUID(), l_Count);
+                        }
+                    }
+                });
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1374,6 +1533,8 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
                 if (!UpdateVictim())
                     return;
 

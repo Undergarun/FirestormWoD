@@ -956,140 +956,148 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& p_RecvData)
     GetPlayer()->ResurectUsingRequestData();
 }
 
-void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
+void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
 {
-    uint32 triggerId;
+    uint32 l_ID;
     bool l_Enter;
     bool l_FromClient;
 
-    recvData >> triggerId;
-    l_Enter = recvData.ReadBit();
-    l_FromClient = recvData.ReadBit();
+    p_RecvData >> l_ID;
+    l_Enter = p_RecvData.ReadBit();
+    l_FromClient = p_RecvData.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
-
-    Player* player = GetPlayer();
-    if (player->isInFlight())
+    Player* l_Player = GetPlayer();
+    if (l_Player->isInFlight())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
-            player->GetName(), player->GetGUIDLow(), triggerId);
+            l_Player->GetName(), l_Player->GetGUIDLow(), l_ID);
         return;
     }
 
-    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
-    if (!atEntry)
+    AreaTriggerEntry const* l_ATEntry = sAreaTriggerStore.LookupEntry(l_ID);
+    if (!l_ATEntry)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
-            player->GetName(), player->GetGUIDLow(), triggerId);
+            l_Player->GetName(), l_Player->GetGUIDLow(), l_ID);
         return;
     }
 
-    if (player->GetMapId() != atEntry->ContinentID)
+    if (l_Player->GetMapId() != l_ATEntry->ContinentID)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName(), atEntry->ContinentID, player->GetMapId(), player->GetGUIDLow(), triggerId);
+            l_Player->GetName(), l_ATEntry->ContinentID, l_Player->GetMapId(), l_Player->GetGUIDLow(), l_ID);
         return;
     }
 
-    // delta is safe radius
-    const float delta = 5.0f;
+    /// Delta is safe radius
+    float const l_Delta = 5.0f;
 
-    if (atEntry->Radius > 0)
+    if (l_ATEntry->Radius > 0)
     {
-        // if we have radius check it
-        float dist = player->GetDistance(atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
-        if (dist > atEntry->Radius + delta)
+        /// If we have radius check it
+        float l_Dist = l_Player->GetDistance(l_ATEntry->Pos[0], l_ATEntry->Pos[1], l_ATEntry->Pos[2]);
+        if (l_Dist > l_ATEntry->Radius + l_Delta)
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUIDLow(), atEntry->Radius, dist, triggerId);
+                l_Player->GetName(), l_Player->GetGUIDLow(), l_ATEntry->Radius, l_Dist, l_ID);
             return;
         }
     }
     else
     {
-        // we have only extent
+        /// We have only extent
+        /// Rotate the players position instead of rotating the whole cube, that way we can make a simplified
+        /// Is-in-cube check and we have to calculate only one point instead of 4
+        /// 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
 
-        // rotate the players position instead of rotating the whole cube, that way we can make a simplified
-        // is-in-cube check and we have to calculate only one point instead of 4
+        double l_Rotation = 2 * M_PI - l_ATEntry->BoxYaw;
+        double l_SinVal = std::sin(l_Rotation);
+        double l_CosVal = std::cos(l_Rotation);
 
-        // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2 * M_PI - atEntry->BoxYaw;
-        double sinVal = std::sin(rotation);
-        double cosVal = std::cos(rotation);
+        float l_PlayerBoxDistX = l_Player->GetPositionX() - l_ATEntry->Pos[0];
+        float l_PlayerBoxDistY = l_Player->GetPositionY() - l_ATEntry->Pos[1];
 
-        float playerBoxDistX = player->GetPositionX() - atEntry->Pos[0];
-        float playerBoxDistY = player->GetPositionY() - atEntry->Pos[1];
+        float l_RotPlayerX = float(l_ATEntry->Pos[0] + l_PlayerBoxDistX * l_CosVal - l_PlayerBoxDistY*l_SinVal);
+        float l_RotPlayerY = float(l_ATEntry->Pos[1] + l_PlayerBoxDistY * l_CosVal + l_PlayerBoxDistX*l_SinVal);
 
-        float rotPlayerX = float(atEntry->Pos[0] + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = float(atEntry->Pos[1] + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
-
-        // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = player->GetPositionZ() - atEntry->Pos[2];
-        float dx = rotPlayerX - atEntry->Pos[0];
-        float dy = rotPlayerY - atEntry->Pos[1];
-        if ((fabs(dx) > atEntry->BoxLength / 2 + delta) ||
-            (fabs(dy) > atEntry->BoxWidth / 2 + delta) ||
-            (fabs(dz) > atEntry->BoxHeight / 2 + delta))
+        /// Box edges are parallel to coordiante axis, so we can treat every dimension independently :D
+        float l_DZ = l_Player->GetPositionZ() - l_ATEntry->Pos[2];
+        float l_DX = l_RotPlayerX - l_ATEntry->Pos[0];
+        float l_DY = l_RotPlayerY - l_ATEntry->Pos[1];
+        if ((fabs(l_DX) > l_ATEntry->BoxLength / 2 + l_Delta) ||
+            (fabs(l_DY) > l_ATEntry->BoxWidth / 2 + l_Delta) ||
+            (fabs(l_DZ) > l_ATEntry->BoxHeight / 2 + l_Delta))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTriggerOpcode: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUIDLow(), atEntry->BoxLength / 2, atEntry->BoxWidth / 2, atEntry->BoxHeight / 2, rotPlayerX, rotPlayerY, dz, triggerId);
+                l_Player->GetName(), l_Player->GetGUIDLow(), l_ATEntry->BoxLength / 2, l_ATEntry->BoxWidth / 2, l_ATEntry->BoxHeight / 2, l_RotPlayerX, l_RotPlayerY, l_DZ, l_ID);
             return;
         }
     }
 
-    if (player->isDebugAreaTriggers)
-        ChatHandler(player).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, triggerId);
+    if (l_Player->isDebugAreaTriggers)
+        ChatHandler(l_Player).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, l_ID);
 
-    if (sScriptMgr->OnAreaTrigger(player, atEntry))
+    if (sScriptMgr->OnAreaTrigger(l_Player, l_ATEntry))
         return;
 
-    if (player->isAlive())
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(triggerId))
-            if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(questId);
+    if (l_Enter)
+        sScriptMgr->OnEnterAreaTrigger(l_Player, l_ATEntry);
+    else
+        sScriptMgr->OnExitAreaTrigger(l_Player, l_ATEntry);
 
-    if (sObjectMgr->IsTavernAreaTrigger(triggerId))
+    if (l_Player->isAlive())
+        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(l_ID))
+            if (l_Player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                l_Player->AreaExploredOrEventHappens(questId);
+
+    if (sObjectMgr->IsTavernAreaTrigger(l_ID))
     {
-        // set resting flag we are in the inn
-        player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->InnEnter(time(NULL), atEntry->ContinentID, atEntry->Pos[0], atEntry->Pos[1], atEntry->Pos[2]);
+        /// Set resting flag we are in the inn
+        l_Player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+        l_Player->InnEnter(time(NULL), l_ATEntry->ContinentID, l_ATEntry->Pos[0], l_ATEntry->Pos[1], l_ATEntry->Pos[2]);
 
-        player->SetRestType(REST_TYPE_IN_TAVERN);
+        l_Player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            l_Player->RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 
         return;
     }
 
-    if (Battleground* bg = player->GetBattleground())
-        if (bg->GetStatus() == STATUS_IN_PROGRESS)
+    if (Battleground* l_Battleground = l_Player->GetBattleground())
+    {
+        if (l_Battleground->GetStatus() == STATUS_IN_PROGRESS)
         {
-            bg->HandleAreaTrigger(player, triggerId);
+            l_Battleground->HandleAreaTrigger(l_Player, l_ID);
             return;
         }
+    }
 
-        if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-            if (pvp->HandleAreaTrigger(m_Player, triggerId))
-                return;
+    if (OutdoorPvP* l_OutdoorPvP = l_Player->GetOutdoorPvP())
+    {
+        if (l_OutdoorPvP->HandleAreaTrigger(m_Player, l_ID))
+            return;
+    }
 
-        AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(triggerId);
-        if (!at)
+    AreaTriggerStruct const* l_AreatriggerStruct = sObjectMgr->GetAreaTrigger(l_ID);
+    if (!l_AreatriggerStruct)
+        return;
+
+    bool l_Teleported = false;
+    if (l_Player->GetMapId() != l_AreatriggerStruct->target_mapId)
+    {
+        if (!sMapMgr->CanPlayerEnter(l_AreatriggerStruct->target_mapId, l_Player, false))
             return;
 
-        bool teleported = false;
-        if (player->GetMapId() != at->target_mapId)
+        if (Group* l_Group = l_Player->GetGroup())
         {
-            if (!sMapMgr->CanPlayerEnter(at->target_mapId, player, false))
-                return;
-
-            if (Group* group = player->GetGroup())
-                if (group->isLFGGroup() && player->GetMap()->IsDungeon())
-                    teleported = player->TeleportToBGEntryPoint();
+            if (l_Group->isLFGGroup() && l_Player->GetMap()->IsDungeon())
+                l_Teleported = l_Player->TeleportToBGEntryPoint();
         }
+    }
 
-        if (!teleported)
-            player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+    if (!l_Teleported)
+        l_Player->TeleportTo(l_AreatriggerStruct->target_mapId, l_AreatriggerStruct->target_X, l_AreatriggerStruct->target_Y, l_AreatriggerStruct->target_Z, l_AreatriggerStruct->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
 void WorldSession::HandleUpdateAccountData(WorldPacket& p_Packet)

@@ -4010,6 +4010,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 159413:///< Mauling Brew
             case 175654:///< Rune of Disintegration
             case 163046:///< Pale Vitriol
+            case 163140:///< Mind Fungus
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
@@ -5957,6 +5958,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 61882: ///< Earthquake
                 case 152280:///< Defile
                 case 109248:///< Binding Shot
+                case 173229:///< Creeping Moss (Brackenspore)
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power
