@@ -1012,8 +1012,8 @@ struct PlayerConditionEntry
     int32 Flags;
     int32 MinLevel;
     int32 MaxLevel;
-    uint32 RaceMask;
-    uint32 ClassMask;
+    int32 RaceMask;
+    int32 ClassMask;
     int32 Gender;
     int32 NativeGender;
     int32 SkillID[4];
