@@ -3267,28 +3267,28 @@
   </Cfg_Configs>
   <Creature build="0">
     <index>
-      <primary>field0</primary>
+      <primary>Id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
+    <field type="int" name="Id" />
+    <field type="int" name="type" />
+    <field type="int" name="itemID1" />
+    <field type="int" name="itemID2" />
+    <field type="int" name="itemID3" />
+    <field type="int" name="mount" />
+    <field type="int" name="displayID1" />
+    <field type="int" name="displayID2" />
+    <field type="int" name="displayID3" />
+    <field type="int" name="displayID4" />
+    <field type="float" name="displayIDProba1" />
+    <field type="float" name="displayIDProba2" />
+    <field type="float" name="displayIDProba3" />
+    <field type="float" name="displayIDProba4" />
+    <field type="string" name="Name" />
+    <field type="string" name="FemaleName" />
+    <field type="string" name="subname" />
+    <field type="int" name="rank" />
+    <field type="int" name="InhabitType" />
+    <field type="int" name="Build" />
   </Creature>
   <CreatureDifficulty build="0">
     <index>
@@ -4427,4 +4427,93 @@
     <field type="int" name="field54" />
     <field type="int" name="field55" />
   </SoundEntries>
+  <ItemDisenchantLoot build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </ItemDisenchantLoot>
+  <ItemPurchaseGroup build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </ItemPurchaseGroup>
+  <Creature build="19865">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="type" />
+    <field type="int" name="itemID1" />
+    <field type="int" name="itemID2" />
+    <field type="int" name="itemID3" />
+    <field type="int" name="mount" />
+    <field type="int" name="displayID1" />
+    <field type="int" name="displayID2" />
+    <field type="int" name="displayID3" />
+    <field type="int" name="displayID4" />
+    <field type="float" name="displayIDProba1" />
+    <field type="float" name="displayIDProba2" />
+    <field type="float" name="displayIDProba3" />
+    <field type="float" name="displayIDProba4" />
+    <field type="string" name="Name" />
+    <field type="string" name="FemaleName" />
+    <field type="string" name="subname" />
+    <field type="int" name="rank" />
+    <field type="int" name="InhabitType" />
+    <field type="int" name="unk" />
+  </Creature>
+  <CreatureDifficulty build="19865">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="creatureID" />
+    <field type="int" name="factionID" />
+    <field type="int" name="expansion" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="flag1" />
+    <field type="int" name="flag2" />
+    <field type="int" name="flag3" />
+    <field type="int" name="flag4" />
+    <field type="int" name="flag5" />
+  </CreatureDifficulty>
+  <gtNpcTotalHp build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtNpcTotalHp build="19865">
+    <index>
+      <primary>level</primary>
+    </index>
+    <field type="int" name="level" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtResilienceDR build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </gtResilienceDR>
 </DBFilesClient>

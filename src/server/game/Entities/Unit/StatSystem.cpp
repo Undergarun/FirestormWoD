@@ -992,6 +992,13 @@ void Player::UpdateManaRegen()
         outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
     }
 
+    /// Warlocks mana regen 5% of maximum mana - blizzlike
+    if (getClass() == CLASS_WARLOCK)
+    {
+        combatRegen *= 2.5f;
+        outOfCombatRegen *= 2.5f;
+    }
+
     if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
         combatRegen *= 1.5f; // Allows 50% of your mana regeneration from Spirit to continue while in combat.
 

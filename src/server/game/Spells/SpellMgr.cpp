@@ -3875,6 +3875,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 spellInfo->Effects[1].TargetA = TARGET_DEST_DEST;
                 break;
+            case 13813:  ///< Explosive Trap
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(8); ///< 5 yards
+                break;
             case 108287: ///< Totemic Projection
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
@@ -4824,6 +4827,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 121536: ///< Feather
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
                 break;
+            case 177345: ///< Meteor
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
             case 19574: ///< Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
                 spellInfo->Effects[3].ApplyAuraName = 0;
@@ -4835,7 +4841,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 53257: ///< Cobra Strikes
                 spellInfo->Effects[0].BasePoints = 0;
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
+                spellInfo->Effects[1].BasePoints = 0;
+                break;
+            case 168811: ///< Sniper Training - blizzard 6.1 hotfix
+                spellInfo->Effects[0].BasePoints = 5;
+                spellInfo->Effects[1].BasePoints = 5;
+                spellInfo->Effects[2].BasePoints = 5;
+                spellInfo->Effects[3].BasePoints = 5;
                 break;
             case 11958: ///< Cold Snap
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;

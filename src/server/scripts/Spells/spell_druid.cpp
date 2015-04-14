@@ -2791,6 +2791,12 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
+enum SwiftmendSpells
+{
+    SPELL_DRUID_RAMPANTH_GROWTH   = 155834,
+    SPELL_DRUID_REGROWTH          = 8936
+};
+
 /// Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -2814,6 +2820,19 @@ class spell_dru_swiftmend: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    if (l_Caster->HasAura(SPELL_DRUID_RAMPANTH_GROWTH))
+                    {
+                        if (Unit* l_Target = GetHitUnit())
+                        {
+                            AuraPtr l_Aura = l_Target->GetAura(SPELL_DRUID_REGROWTH, l_Caster->GetGUID());
+                            if (!l_Aura)
+                                l_Aura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
+
+                            if (l_Aura)
+                                l_Aura->Remove();
+                        }
+                    }
+
                     //Restoration soul of the forest - 114108
                     if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
                         l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);

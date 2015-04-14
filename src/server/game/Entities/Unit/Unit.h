@@ -647,7 +647,7 @@ enum eUnitFlags
     UNIT_FLAG_SILENCED              = 0x00002000,           // silenced, 2.1.1
     UNIT_FLAG_UNK_14                = 0x00004000,           // 2.0.8
     UNIT_FLAG_UNK_15                = 0x00008000,
-    UNIT_FLAG_UNK_16                = 0x00010000,
+    UNIT_FLAG_UNK_16                = 0x00010000,           // Cant attack
     UNIT_FLAG_PACIFIED              = 0x00020000,           // 3.0.3 ok
     UNIT_FLAG_STUNNED               = 0x00040000,           // 3.0.3 ok
     UNIT_FLAG_IN_COMBAT             = 0x00080000,
@@ -687,16 +687,16 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_UNK3                         = 0x00080000,
+    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor 
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
-    UNIT_FLAG2_UNK10                        = 0x04000000,
+    UNIT_FLAG2_UNK10                        = 0x04000000,   ///< Cant select (even in GM mode)
     UNIT_FLAG2_UNK11                        = 0x08000000,
-    UNIT_FLAG2_UNK12                        = 0x10000000,
+    UNIT_FLAG2_UNK12                        = 0x10000000,   ///< Cant target, hide highlight, hide name (work on faction 14/7 but not 35)
     UNIT_FLAG2_UNK13                        = 0x20000000,
     UNIT_FLAG2_UNK14                        = 0x40000000,
     UNIT_FLAG2_UNK15                        = 0x80000000
@@ -1800,6 +1800,7 @@ class Unit : public WorldObject
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
+        bool isInStun() const { return HasAuraType(SPELL_AURA_MOD_STUN); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;

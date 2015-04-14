@@ -23700,7 +23700,7 @@ void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgT
     p_Data->WriteBits(p_AddonPrefix ? strlen(p_AddonPrefix) : 0, 5);
     p_Data->WriteBits(p_Channel.length(), 7);
     p_Data->WriteBits(p_Text.length(), 12);
-    p_Data->WriteBits(GetChatTag(), 10);
+    p_Data->WriteBits(GetChatTag(), 11);
     p_Data->WriteBit(false);  ///< hide chat log
     p_Data->WriteBit(false);  ///< Faker sender name
     p_Data->FlushBits();

@@ -3898,6 +3898,11 @@ void Unit::_RemoveNoStackAurasDueToAura(AuraPtr aura)
         if (aura->CanStackWith(i->second->GetBase()))
             continue;
 
+        // Hack fix Poisoned Ammo stack with Serpent Sting
+        if ((i->second->GetBase()->GetId() == 162543 && spellProto->Id == 118253) ||
+            (i->second->GetBase()->GetId() == 118253 && spellProto->Id == 162543))
+            continue;
+
         // Hack fix remove seal by consecration
         if ((i->second->GetBase()->GetId() == 105361 ||
             i->second->GetBase()->GetId() == 101423 ||
@@ -7638,14 +7643,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                 case 82661: // Aspect of the Fox
                 {
                     EnergizeBySpell(this, 82661, 2, POWER_FOCUS);
-                    break;
-                }
-                case 34477: // Misdirection
-                {
-                    if (!GetMisdirectionTarget())
-                        return false;
-                    triggered_spell_id = 35079; // 4 sec buff on self
-                    target = this;
                     break;
                 }
             }
@@ -12337,6 +12334,20 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_HUNTER:
+                    {
+                        switch (spellProto->Id)
+                        {
+                            case 16827: ///< Claw
+                            case 17253: ///< Bite
+                            case 49966: ///< Smack
+                                /// Cobra Strikes - next spell will be critical
+                                if (HasAura(53257) && !victim->HasAura(53480)) ///< Can't crit just if target has Roar of Sacrifice
+                                    return 100.0f;
+                                break;
+                        }
+                        break;
+                    }
                     case SPELLFAMILY_DRUID:
                     {
                         switch (spellProto->Id)
@@ -16779,23 +16790,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         || (procSpell->DurationEntry && procSpell->DurationEntry->Duration[0] > 0 && procSpell->DurationEntry->Duration[0] < 4000 && procSpell->AttributesEx & SPELL_ATTR1_CHANNELED_2)))
         if (AuraApplication* aura = GetAuraApplication(108839, GetGUID()))
             aura->GetBase()->DropStack();
-
-    // Hack Fix Cobra Strikes - Drop charge
-    if (GetTypeId() == TYPEID_UNIT && HasAura(53257) && damage > 0)
-    {
-        if (AuraPtr aura = GetAura(53257))
-        {
-            aura->DropCharge();
-            if (GetOwner())
-                if (AuraPtr cobra = GetOwner()->GetAura(53257))
-                    cobra->DropCharge();
-        }
-    }
-
-    // Hack Fix Frenzy
-    if (GetTypeId() == TYPEID_UNIT && isHunterPet() && GetOwner() && GetOwner()->ToPlayer() && GetOwner()->HasAura(19623) && ToPet()->IsPermanentPetFor(GetOwner()->ToPlayer()) && !procSpell)
-        if (roll_chance_i(40))
-            CastSpell(this, 19615, true);
 
     // Hack Fix for Invigoration
     if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->ToPlayer() && GetOwner()->HasAura(53253) &&
@@ -21834,7 +21828,7 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
     float l_DamageDealtFactor = 1.0f;
 
 
-    if (l_LevelDiff)
+    if (l_LevelDiff && l_TargetExpansion <= EXPANSION_MISTS_OF_PANDARIA)
     {
         if (l_LevelDiff < 1)
         {
@@ -21885,7 +21879,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageTakenFactor = 1.0f;
 
-    if (l_LevelDiff > 0)
+    if (l_LevelDiff > 0 && l_TargetExpansion <= EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
         l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);
