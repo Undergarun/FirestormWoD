@@ -2119,7 +2119,8 @@ public:
     }
 };
 
-/// Call by Kidney Shot 408
+/// Last Upadate 6.1.2
+/// Call by Kidney Shot - 408
 /// Internal Bleeding - 154904
 class spell_rog_internal_bleeding: public SpellScriptLoader
 {
@@ -2132,14 +2133,14 @@ class spell_rog_internal_bleeding: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
-                            l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(ROGUE_SPELL_INTERNAL_BLEEDING_AURA))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_INTERNAL_BLEEDING, true);
             }
 
             void Register()
@@ -2153,6 +2154,57 @@ class spell_rog_internal_bleeding: public SpellScriptLoader
             return new spell_rog_internal_bleeding_SpellScript();
         }
 };
+
+/// Last Upadate 6.1.2
+/// Internal Bleeding (damage) - 154953
+class spell_rog_internal_bleeding_damage : public SpellScriptLoader
+{
+    public:
+        spell_rog_internal_bleeding_damage() : SpellScriptLoader("spell_rog_internal_bleeding_damage") { }
+
+        class spell_rog_internal_bleeding_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_internal_bleeding_damage_SpellScript);
+
+            enum eSpells
+            {
+                InternalBleeding = 154953
+            };
+
+            uint8 m_NbComboPoint = 0;
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+               
+                m_NbComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(eSpells::InternalBleeding, EFFECT_0, l_Caster->GetGUID()))
+                    l_AurEff->SetAmount(l_AurEff->GetAmount() * m_NbComboPoint);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_internal_bleeding_damage_SpellScript::HandleOnHit);
+                AfterHit += SpellHitFn(spell_rog_internal_bleeding_damage_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_internal_bleeding_damage_SpellScript();
+        }
+};
+
 
 /// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
@@ -2461,6 +2513,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
     new spell_rog_stealth();
+    new spell_rog_internal_bleeding_damage();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();
