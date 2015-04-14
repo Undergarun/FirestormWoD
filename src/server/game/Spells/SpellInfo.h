@@ -267,11 +267,15 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
-    // SpellScalingEntry
+    
+    /// SpellScalingEntry
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
     float     AttackPowerMultiplier;
+
+    /// SpellEffectGroupSize
+    float     GroupSizeCoefficient;
 
     SpellEffectInfo() {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty);

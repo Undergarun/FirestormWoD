@@ -23,6 +23,7 @@
 #include "DB2Stores.h"
 #include "ConditionMgr.h"
 #include "Vehicle.h"
+#include "Group.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -364,38 +365,40 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty)
 {
-    SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex, difficulty);
-    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
+    auto l_Effect    = spellEntry->GetSpellEffect(effIndex, difficulty);
+    auto l_Scaling   = GetSpellEffectScalingEntry(l_Effect ? l_Effect->Id : 0);
+    auto l_GroupSize = sSpellEffectGroupSizeStore.LookupEntry(l_Effect->Id);
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
-    Effect = _effect ? _effect->Effect : 0;
-    ApplyAuraName = _effect ? _effect->EffectApplyAuraName : 0;
-    Amplitude = _effect ? _effect->EffectAmplitude : 0;
-    DieSides = _effect ? _effect->EffectDieSides : 0;
-    RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
-    BasePoints = _effect ? _effect->EffectBasePoints : 0;
-    PointsPerComboPoint = _effect ? _effect->EffectPointsPerComboPoint : 0.0f;
-    ValueMultiplier = _effect ? _effect->EffectValueMultiplier : 0.0f;
-    DamageMultiplier = _effect ? _effect->EffectDamageMultiplier : 0.0f;
-    BonusMultiplier = _effect ? _effect->EffectBonusMultiplier : 0.0f;
-    MiscValue = _effect ? _effect->EffectMiscValue : 0;
-    MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
-    Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
-    TargetA = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetA : 0);
-    TargetB = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetB : 0);
-    RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
+    Effect = l_Effect ? l_Effect->Effect : 0;
+    ApplyAuraName = l_Effect ? l_Effect->EffectApplyAuraName : 0;
+    Amplitude = l_Effect ? l_Effect->EffectAmplitude : 0;
+    DieSides = l_Effect ? l_Effect->EffectDieSides : 0;
+    RealPointsPerLevel = l_Effect ? l_Effect->EffectRealPointsPerLevel : 0.0f;
+    BasePoints = l_Effect ? l_Effect->EffectBasePoints : 0;
+    PointsPerComboPoint = l_Effect ? l_Effect->EffectPointsPerComboPoint : 0.0f;
+    ValueMultiplier = l_Effect ? l_Effect->EffectValueMultiplier : 0.0f;
+    DamageMultiplier = l_Effect ? l_Effect->EffectDamageMultiplier : 0.0f;
+    BonusMultiplier = l_Effect ? l_Effect->EffectBonusMultiplier : 0.0f;
+    MiscValue = l_Effect ? l_Effect->EffectMiscValue : 0;
+    MiscValueB = l_Effect ? l_Effect->EffectMiscValueB : 0;
+    Mechanic = Mechanics(l_Effect ? l_Effect->EffectMechanic : 0);
+    TargetA = SpellImplicitTargetInfo(l_Effect ? l_Effect->EffectImplicitTargetA : 0);
+    TargetB = SpellImplicitTargetInfo(l_Effect ? l_Effect->EffectImplicitTargetB : 0);
+    RadiusEntry = l_Effect && l_Effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(l_Effect->EffectRadiusIndex) : NULL;
     if (!RadiusEntry)
-         RadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
-    ChainTarget = _effect ? _effect->EffectChainTarget : 0;
-    ItemType = _effect ? _effect->EffectItemType : 0;
-    TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
-    SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
+         RadiusEntry = l_Effect && l_Effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(l_Effect->EffectRadiusMaxIndex) : NULL;
+    ChainTarget = l_Effect ? l_Effect->EffectChainTarget : 0;
+    ItemType = l_Effect ? l_Effect->EffectItemType : 0;
+    TriggerSpell = l_Effect ? l_Effect->EffectTriggerSpell : 0;
+    SpellClassMask = l_Effect ? l_Effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
-    ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
-    DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
-    ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
-    AttackPowerMultiplier = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
+    ScalingMultiplier = l_Scaling ? l_Scaling->Multiplier : 0.0f;
+    DeltaScalingMultiplier = l_Scaling ? l_Scaling->RandomMultiplier : 0.0f;
+    ComboScalingMultiplier = l_Scaling ? l_Scaling->OtherMultiplier: 0.0f;
+    AttackPowerMultiplier = l_Effect ? l_Effect->BonusCoefficientFromAP : 0.0f;
+    GroupSizeCoefficient = l_GroupSize ? l_GroupSize->Coefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -571,6 +574,23 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
     }
 
     float l_Value = float(l_BasePoints);
+
+    /// Apply group size scaling (since MoP 5.4 - SoO)
+    if (GroupSizeCoefficient > 1.0f && p_Caster && p_Caster->GetMap()->IsRaid())
+    {
+        /// Get the group size
+        int32 l_GroupSize = p_Caster->GetMap()->GetPlayersCountExceptGMs();
+
+        /// Apply group size limit (min size is 10, max 30)
+        l_GroupSize = std::min((int32)GroupScalingRange::Max, std::max(l_GroupSize, (int32)GroupScalingRange::Min));
+
+        /// Compute the group size scaling value
+        float l_GroupSizeCoefficient = (GroupSizeCoefficient - 1.0f) / ((int32)GroupScalingRange::Max - (int32)GroupScalingRange::Min);
+        float l_GroupScalingValue    = l_GroupSizeCoefficient * (l_GroupSize - (int32)GroupScalingRange::Min) * l_Value;
+
+        /// Add the group scaling bonus to the value
+        l_Value += l_GroupScalingValue;
+    }
 
     // random damage
     if (p_Caster)

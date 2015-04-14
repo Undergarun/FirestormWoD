@@ -49,6 +49,7 @@ DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScript
 DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesEntryfmt);
 DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathEntryfmt);
 DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
+DB2Storage <SpellEffectGroupSizeEntry>      sSpellEffectGroupSizeStore(SpellEffectGroupSizefmt);
 DB2Storage <SpellRuneCostEntry>             sSpellRuneCostStore(SpellRuneCostfmt);
 DB2Storage <SpellCastingRequirementsEntry>  sSpellCastingRequirementsStore(SpellCastingRequirementsEntryfmt);
 DB2Storage <SpellAuraRestrictionsEntry>     sSpellAuraRestrictionsStore(SpellAuraRestrictionsEntryfmt);
@@ -233,6 +234,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Spell DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sSpellEffectGroupSizeStore,      db2Path, "SpellEffectGroupSize.db2");
     LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2");
     LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2");
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2");

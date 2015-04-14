@@ -436,6 +436,14 @@ struct OverrideSpellDataEntry
     //uint32      unk_1;                                    // 12 possibly flag
 };
 
+/// SpellEffectGroupSize.db2
+struct SpellEffectGroupSizeEntry
+{
+    //uint32      Id;
+    uint32      SpellEffectID;
+    float       Coefficient;
+};
+
 //SpellMisc.dbc
 struct SpellMiscEntry
 {
