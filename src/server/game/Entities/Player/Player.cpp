@@ -11396,8 +11396,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         else if (l_FishingSKill >= 700)
         {
             l_SmallFishChance   = 0;
-            l_MediumFishChance  = 50;
-            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+            l_BigFishChance     = std::min((int32)100, (int32)(50 + ((50 / (950 - 700)) * (l_FishingSKill - 700))));
+            l_MediumFishChance  = std::max((int32)0, (int32)(100 - l_BigFishChance));
         }
 
         enum class FishType
