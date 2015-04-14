@@ -11408,7 +11408,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             Big
         };
 
-        /// Fish with vairous size :
+        /// Fish with various size :
         /// -------------------------------------------
         /// - Crescent Saberfish
         /// - Blackwater Whiptail
