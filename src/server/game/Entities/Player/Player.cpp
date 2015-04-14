@@ -10072,8 +10072,8 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                     ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
                     break;
                 case ITEM_MOD_EXTRA_ARMOR:
-                    HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
                     ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
+                    HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
                     break;
                 case ITEM_MOD_FIRE_RESISTANCE:
                     HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10285,8 +10285,8 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 ApplyRatingMod(CR_MASTERY, int32(val), applyStats);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
-                HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
                 ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(val), applyStats);
+                HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
