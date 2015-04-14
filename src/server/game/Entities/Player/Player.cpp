@@ -3664,6 +3664,379 @@ bool Player::CanInteractWithQuestGiver(Object* questGiver)
     return false;
 }
 
+/// Temp enum, need more reverse work on LogicOpperators in CGPlayer_C::MatchesCondition
+enum
+{
+    LOGIC_FLAG_01                       = 0x00000001,
+    LOGIC_FLAG_02                       = 0x00000002,
+    LOGIC_FLAG_03                       = 0x00000004,
+    LOGIC_FLAG_04                       = 0x00000008,
+    LOGIC_FLAG_05                       = 0x00000010,
+    LOGIC_FLAG_06                       = 0x00000020,
+    LOGIC_FLAG_COL_0_XOR_RESULT_TRUE    = 0x00010000,
+    LOGIC_FLAG_COL_1_XOR_RESULT_TRUE    = 0x00020000,
+    LOGIC_FLAG_COL_2_XOR_RESULT_TRUE    = 0x00040000,
+    LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
+};
+
+bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound)
+{
+    PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
+
+    if (!l_Entry)
+        return p_FailIfConditionNotFound;
+
+    auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
+    {
+        bool l_Result = 0;
+        bool l_FirstMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_0_XOR_RESULT_TRUE)) ^ p_Matches[0];
+        bool l_SecondMatchFlagMatch = (!!(p_Flags & LOGIC_FLAG_COL_1_XOR_RESULT_TRUE)) ^ p_Matches[1];
+        bool l_ThirdMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_2_XOR_RESULT_TRUE)) ^ p_Matches[2];
+        bool l_FourthMatchFlagMatch = (!!(p_Flags & LOGIC_FLAG_COL_3_XOR_RESULT_TRUE)) ^ p_Matches[3];
+
+        if (p_Flags & LOGIC_FLAG_01)
+        {
+            if (l_FirstMatchFlagMatch)
+                l_Result = l_SecondMatchFlagMatch;
+        }
+        else if (p_Flags & LOGIC_FLAG_02)
+            l_Result = l_FirstMatchFlagMatch | l_SecondMatchFlagMatch;
+
+        if (p_Flags & LOGIC_FLAG_03)
+            l_Result = l_Result & l_ThirdMatchFlagMatch;
+        else if (p_Flags & LOGIC_FLAG_04)
+            l_Result = l_Result | l_ThirdMatchFlagMatch;
+
+        if (p_Flags & LOGIC_FLAG_05)
+        {
+            if (!l_Result)
+                return false;
+        }
+        else if (p_Flags & LOGIC_FLAG_06)
+            l_Result = l_FourthMatchFlagMatch | l_Result;
+
+        return l_Result;
+    };
+
+    /// @TODO : Flags
+
+    #pragma region Level conditions
+    if (l_Entry->MinLevel != 0 && getLevel() < l_Entry->MinLevel)
+        return false;
+    if (l_Entry->MaxLevel != 0 && getLevel() > l_Entry->MaxLevel)
+        return false;
+    #pragma endregion Level conditions
+
+    #pragma region Class, Race, Gender, NativeGender
+    if (l_Entry->RaceMask != 0 && (l_Entry->RaceMask & getRaceMask()) == 0)
+        return false;
+    if (l_Entry->ClassMask != 0 && (l_Entry->ClassMask & getClassMask()) == 0)
+        return false;
+    if (l_Entry->Gender != -1 && l_Entry->Gender != getGender())
+        return false;
+    if (l_Entry->NativeGender != -1 && l_Entry->NativeGender != getGender())
+        return false;
+    #pragma endregion Class, Race, Gender, NativeGender
+
+    #pragma region Skills
+    for (uint32 l_I = 0; l_I < 4; ++l_I)
+    {
+        if (l_Entry->SkillID[l_I] != 0)
+        {
+            if (!HasSkill(l_Entry->SkillID[l_I]))
+                return false;
+
+            int32 l_Skill = (int32)GetSkillValue(l_Entry->SkillID[l_I]);
+
+            if (l_Entry->MinSkill[l_I] != 0 && l_Skill < l_Entry->MinSkill[l_I])
+                return false;
+            if (l_Entry->MaxSkill[l_I] != 0 && l_Skill > l_Entry->MaxSkill[l_I])
+                return false;
+        }
+    }
+    #pragma endregion Skills
+
+    /// @TODO : SkillLogic
+
+    #pragma region Language
+    if (l_Entry->LanguageID != 0)
+    {
+        uint32 l_SkillID = lang_description[l_Entry->LanguageID].skill_id;
+
+        if (!HasSkill(l_SkillID))
+            return false;
+
+        int32 l_Skill = (int32)GetSkillValue(l_SkillID);
+
+        if (l_Entry->MinLanguage != 0 && l_Skill < l_Entry->MinLanguage)
+            return false;
+        if (l_Entry->MaxLanguage != 0 && l_Skill > l_Entry->MaxLanguage)
+            return false;
+    }
+    #pragma endregion Language
+
+    /// @TODO : MinFaction
+    /// @TODO : MinReputation
+    /// @TODO : MaxReputation
+    /// @TODO : ReputationLogic
+    /// @TODO : MinPVPRank
+    /// @TODO : MaxPVPRank
+    /// @TODO : PVPMedal
+
+    #pragma region PrevQuestLogic, PrevQuestID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->PrevQuestID[0] != 0) l_Matches[0] = GetQuestRewardStatus(l_Entry->PrevQuestID[0]);
+        if (l_Entry->PrevQuestID[1] != 0) l_Matches[1] = GetQuestRewardStatus(l_Entry->PrevQuestID[1]);
+        if (l_Entry->PrevQuestID[2] != 0) l_Matches[2] = GetQuestRewardStatus(l_Entry->PrevQuestID[2]);
+        if (l_Entry->PrevQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->PrevQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->PrevQuestLogic))
+            return false;
+    }
+    #pragma endregion PrevQuestLogic, PrevQuestID
+
+    #pragma region CurrQuestLogic, CurrQuestID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrQuestID[0] != 0) l_Matches[0] = HasQuest(l_Entry->CurrQuestID[0]);
+        if (l_Entry->CurrQuestID[1] != 0) l_Matches[1] = HasQuest(l_Entry->CurrQuestID[1]);
+        if (l_Entry->CurrQuestID[2] != 0) l_Matches[2] = HasQuest(l_Entry->CurrQuestID[2]);
+        if (l_Entry->CurrQuestID[3] != 0) l_Matches[3] = HasQuest(l_Entry->CurrQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrQuestLogic))
+            return false;
+    }
+    #pragma endregion CurrQuestLogic, CurrQuestID
+
+    #pragma region CurrentCompletedQuestLogic, CurrentCompletedQuestID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrentCompletedQuestID[0] != 0) l_Matches[0] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[0]);
+        if (l_Entry->CurrentCompletedQuestID[1] != 0) l_Matches[1] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[1]);
+        if (l_Entry->CurrentCompletedQuestID[2] != 0) l_Matches[2] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[2]);
+        if (l_Entry->CurrentCompletedQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrentCompletedQuestLogic))
+            return false;
+    }
+    #pragma endregion CurrentCompletedQuestLogic, CurrentCompletedQuestID
+
+    #pragma region SpellLogic, SpellID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->SpellID[0] != 0) l_Matches[0] = HasSpell(l_Entry->SpellID[0]);
+        if (l_Entry->SpellID[1] != 0) l_Matches[1] = HasSpell(l_Entry->SpellID[1]);
+        if (l_Entry->SpellID[2] != 0) l_Matches[2] = HasSpell(l_Entry->SpellID[2]);
+        if (l_Entry->SpellID[3] != 0) l_Matches[3] = HasSpell(l_Entry->SpellID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->SpellLogic))
+            return false;
+    }
+    #pragma endregion SpellLogic, SpellID
+
+    #pragma region ItemLogic, ItemID, ItemCount
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->ItemID[0] != 0) l_Matches[0] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[0] ? 1 : l_Entry->ItemCount[0], false);
+        if (l_Entry->ItemID[1] != 0) l_Matches[1] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[1] ? 1 : l_Entry->ItemCount[1], false);
+        if (l_Entry->ItemID[2] != 0) l_Matches[2] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[2] ? 1 : l_Entry->ItemCount[2], false);
+        if (l_Entry->ItemID[3] != 0) l_Matches[3] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[3] ? 1 : l_Entry->ItemCount[3], false);
+
+        if (!EvalMatch(l_Matches, l_Entry->ItemLogic))
+            return false;
+    }
+    #pragma endregion ItemLogic, ItemID, ItemCount
+
+    /// @TODO : ItemFlags
+
+    #pragma region Explored
+    auto IsAreaExplored = [this](uint32 p_AreaID) -> bool
+    {
+        uint16 l_AreaFlag = sAreaStore.LookupEntry(0) ? sAreaStore.LookupEntry(0)->AreaBit : 0xffff;
+
+        if (l_AreaFlag == 0xffff)
+            return false;
+        int l_Offset = l_AreaFlag / 32;
+
+        if (l_Offset >= PLAYER_EXPLORED_ZONES_SIZE)
+            return false;
+
+        uint32 l_Value = (uint32)(1 << (l_AreaFlag % 32));
+
+        if (!(GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + l_Offset) & l_Value))
+            return false;
+
+        return true;
+    };
+
+    if (l_Entry->Explored[0] != 0 && !IsAreaExplored(l_Entry->Explored[0]))
+        return false;
+    if (l_Entry->Explored[1] != 0 && !IsAreaExplored(l_Entry->Explored[1]))
+        return false;
+    #pragma endregion Explored
+
+    /// @TODO : Time
+
+    #pragma region AuraSpellLogic, AuraSpellID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->AuraSpellID[0] != 0) l_Matches[0] = HasAura(l_Entry->AuraSpellID[0]);
+        if (l_Entry->AuraSpellID[1] != 0) l_Matches[1] = HasAura(l_Entry->AuraSpellID[1]);
+        if (l_Entry->AuraSpellID[2] != 0) l_Matches[2] = HasAura(l_Entry->AuraSpellID[2]);
+        if (l_Entry->AuraSpellID[3] != 0) l_Matches[3] = HasAura(l_Entry->AuraSpellID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->AuraSpellLogic))
+            return false;
+    }
+    #pragma endregion AuraSpellLogic, AuraSpellID
+
+    /// @TODO : WorldStateExpressionID
+
+    #pragma region Weather
+    if (l_Entry->WeatherID != 0)
+    {
+        AreaTableEntry const* l_Zone = GetAreaEntryByAreaID(GetZoneId());
+
+        if (!l_Zone)
+            return false;
+
+        Weather * l_Weather = WeatherMgr::FindWeather(l_Zone->ID);
+
+        if (!l_Weather)
+            return false;
+
+        if (l_Weather->GetType() != l_Entry->WeatherID)
+            return false;
+    }
+    #pragma endregion Weather
+
+    /// @TODO : PartyStatus
+    /// @TODO : LifetimeMaxPVPRank
+
+    #pragma region AchievementLogic, Achievement
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->Achievement[0] != 0) l_Matches[0] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[0]);
+        if (l_Entry->Achievement[1] != 0) l_Matches[1] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[1]);
+        if (l_Entry->Achievement[2] != 0) l_Matches[2] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[2]);
+        if (l_Entry->Achievement[3] != 0) l_Matches[3] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->AchievementLogic))
+            return false;
+    }
+    #pragma endregion AchievementLogic, Achievement
+
+    /// @TODO : LfgLogic
+    /// @TODO : LfgStatus
+    /// @TODO : LfgCompare
+    /// @TODO : LfgValue
+
+    #pragma region AreaLogic, AreaID
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->AreaID[0] != 0) l_Matches[0] = l_Entry->AreaID[0] == GetAreaId();
+        if (l_Entry->AreaID[1] != 0) l_Matches[1] = l_Entry->AreaID[1] == GetAreaId();
+        if (l_Entry->AreaID[2] != 0) l_Matches[2] = l_Entry->AreaID[2] == GetAreaId();
+        if (l_Entry->AreaID[3] != 0) l_Matches[3] = l_Entry->AreaID[3] == GetAreaId();
+
+        if (!EvalMatch(l_Matches, l_Entry->AreaLogic))
+            return false;
+    }
+    #pragma endregion AreaLogic, AreaID
+
+    #pragma region CurrencyLogic, CurrencyID, CurrencyCount
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrencyID[0] != 0) l_Matches[0] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[0] ? 1 : l_Entry->CurrencyCount[0]));
+        if (l_Entry->CurrencyID[1] != 0) l_Matches[1] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[1] ? 1 : l_Entry->CurrencyCount[1]));
+        if (l_Entry->CurrencyID[2] != 0) l_Matches[2] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[2] ? 1 : l_Entry->CurrencyCount[2]));
+        if (l_Entry->CurrencyID[3] != 0) l_Matches[3] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[3] ? 1 : l_Entry->CurrencyCount[3]));
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrencyLogic))
+            return false;
+    }
+    #pragma endregion CurrencyLogic, CurrencyID, CurrencyCount
+
+    #pragma region QuestKillID, QuestKillLogic, QuestKillMonster
+    if (l_Entry->QuestKillID != 0)
+    {
+        if (!HasQuest(l_Entry->QuestKillID))
+            return false;
+
+        auto GetNpcObjectiveID = [](uint32 p_QuestID, uint32 p_NPCID) -> uint32
+        {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(p_QuestID);
+
+            if (!l_Quest)
+                return 0;
+
+            for (auto l_Obective : l_Quest->QuestObjectives)
+            {
+                if (l_Obective.Type != QUEST_OBJECTIVE_TYPE_NPC)
+                    continue;
+
+                if (l_Obective.ObjectID == p_NPCID)
+                    return l_Obective.ID;
+            }
+
+            return 0;
+        };
+
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->QuestKillMonster[0] != 0) l_Matches[0] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[0]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[0]));
+        if (l_Entry->QuestKillMonster[1] != 0) l_Matches[1] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[1]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[1]));
+        if (l_Entry->QuestKillMonster[2] != 0) l_Matches[2] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[2]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[2]));
+        if (l_Entry->QuestKillMonster[3] != 0) l_Matches[3] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]));
+
+        if (!EvalMatch(l_Matches, l_Entry->QuestKillLogic))
+            return false;
+    }
+    #pragma endregion QuestKillID, QuestKillLogic, QuestKillMonster
+
+    /// @TODO : MinExpansionLevel
+    /// @TODO : MaxExpansionLevel
+    /// @TODO : MinExpansionTier
+    /// @TODO : MaxExpansionTier
+    /// @OBSOLETE : MinGuildLevel
+    /// @OBSOLETE : MaxGuildLevel
+    /// @TODO : PhaseUseFlags
+    /// @TODO : PhaseID
+    /// @TODO : PhaseGroupID
+
+    #pragma region MinAvgItemLevel, MaxAvgItemLevel
+    if (l_Entry->MinAvgItemLevel != 0 && GetAverageItemLevelTotal() < (uint32)l_Entry->MinAvgItemLevel)
+        return false;
+    if (l_Entry->MaxAvgItemLevel != 0 && GetAverageItemLevelTotal() > (uint32)l_Entry->MaxAvgItemLevel)
+        return false;
+    #pragma endregion MinAvgItemLevel, MaxAvgItemLevel
+    
+    #pragma region MinAvgEquippedItemLevel, MaxAvgItemLevel
+    if (l_Entry->MinAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() < (uint32)l_Entry->MinAvgEquippedItemLevel)
+        return false;
+    if (l_Entry->MaxAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() > (uint32)l_Entry->MaxAvgEquippedItemLevel)
+        return false;
+    #pragma endregion MinAvgEquippedItemLevel, MaxAvgItemLevel
+
+    /// @TODO : ChrSpecializationIndex
+    /// @TODO : ChrSpecializationRole
+    /// @TODO : PowerType
+    /// @TODO : PowerTypeComp
+    /// @TODO : PowerTypeValue
+
+    return true;
+}
+
 Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
 {
     // unit checks
