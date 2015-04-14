@@ -676,9 +676,11 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/
         {
             if (!l_Player->GetGuild())
                 l_Data << uint32(0);
-
-            int32 l_ChallengeAmount = l_Player->GetGuild()->GetChallengeCount(l_I);
-            l_Data << uint32(l_ChallengeAmount);
+            else
+            {
+                int32 l_ChallengeAmount = l_Player->GetGuild()->GetChallengeCount(l_I);
+                l_Data << uint32(l_ChallengeAmount);
+            }
         }
     }
 
