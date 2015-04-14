@@ -297,6 +297,7 @@ namespace MS
 
         static bool IsPointInBlock(uint32 p_BlockId, Position const& p_Point)
         {
+            /// p_Ref and p_Point should be vectors.
             auto l_IsToTheRightFromRef = [](Position const& p_Ref, Position const& p_Point) -> bool {
                 return p_Point.m_positionX * p_Ref.m_positionY - p_Point.m_positionY * p_Ref.m_positionX > 0;
             };
