@@ -2249,7 +2249,7 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
 
     // special case: fake item replaced by generate using spell_loot_template
     if (m_spellInfo->IsLootCrafting())
-    {
+    {    
         if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
         {
             if (!player->HasItemCount(item_id))
