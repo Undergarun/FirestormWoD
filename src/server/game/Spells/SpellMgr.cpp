@@ -123,9 +123,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Ring of Frost -- 82691
             if (spellproto->SpellFamilyFlags[2] & 0x40)
                 return DIMINISHING_INCAPACITATE;
-            // Ice Nova -- 157997
-            if (spellproto->SpellFamilyFlags[2] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
             break;
         }
         case SPELLFAMILY_WARRIOR:
