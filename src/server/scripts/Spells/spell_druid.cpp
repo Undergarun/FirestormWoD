@@ -2622,10 +2622,11 @@ enum StarfallSpells
 {
     SPELL_DRUID_MOONFIRE              = 8921,
     SPELL_DRUID_SUNFIRE               = 93402,
-    SPELL_DRUID_GLYPH_OF_GUIDED_STARS = 146655
+    SPELL_DRUID_GLYPH_OF_UNTAMED_STARS = 146655
 };
 
-/// Starfall (triggered) - 50286
+/// Last Update 6.2.1
+/// Starfall (triggered) - 50286 and Sunfall (triggered) - 155598
 class spell_dru_starfall_dummy: public SpellScriptLoader
 {
     public:
@@ -2657,8 +2658,9 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
-                /// Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
-                if (l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
+                /// Starfall can only hit targets with Moonfire or Sunfire by default
+                /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
+                if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
                 {
                     if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE))
                         return;

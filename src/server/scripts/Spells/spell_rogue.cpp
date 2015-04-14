@@ -2205,7 +2205,6 @@ class spell_rog_internal_bleeding_damage : public SpellScriptLoader
         }
 };
 
-
 /// Fan of Knives - 51723
 class spell_rog_fan_of_knives: public SpellScriptLoader
 {
