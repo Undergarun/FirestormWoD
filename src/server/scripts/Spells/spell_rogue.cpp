@@ -1416,6 +1416,7 @@ class spell_rog_hemorrhage: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.1.2
 /// Called by Envenom - 32645
 class spell_rog_envenom: public SpellScriptLoader
 {
@@ -1449,7 +1450,6 @@ class spell_rog_envenom: public SpellScriptLoader
                         if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE))
                             l_SliceAndDice->RefreshDuration();
                     }
-
                     SetHitDamage(l_Damage);
                 }
             }
