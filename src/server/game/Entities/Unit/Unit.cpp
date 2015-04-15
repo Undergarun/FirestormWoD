@@ -12590,7 +12590,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         if (singleTarget)
         {
             DoneTotal += CalculatePct(healamount, 50.0f);
-            removeAurasDueToSpell(118473);
+            RemoveAurasDueToSpell(118473);
         }
     }
 
@@ -18168,44 +18168,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
 
 bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffectPtr triggeredByAura)
 {
-    // aura can be deleted at casts
-    SpellInfo const* spellProto = triggeredByAura->GetSpellInfo();
-    int32 heal = triggeredByAura->GetAmount();
-    uint64 caster_guid = triggeredByAura->GetCasterGUID();
-    Unit* caster = triggeredByAura->GetCaster();
-
-    // Currently only Prayer of Mending
-    if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[1] & 0x20))
-        return false;
-
-    // jumps
-    int32 jumps = triggeredByAura->GetBase()->GetCharges()-1;
-
-    // current aura expire
-    triggeredByAura->GetBase()->SetCharges(1);             // will removed at next charges decrease
-
-    if (caster && caster->HasAura(55685))
-        AddPct(heal, 60);
-
-    // next target selection
-    if (jumps > 0 && caster)
-    {
-        float radius = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcRadius(caster);
-
-        if (Unit* target = GetNextRandomRaidMemberOrPet(radius))
-        {
-            CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-            CastCustomSpell(target, 41637, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-            AuraPtr aura = target->GetAura(spellProto->Id, caster->GetGUID());
-            if (aura != NULLAURA)
-                aura->SetCharges(jumps);
-        }
-    }
-
-    // heal
-    CastCustomSpell(this, 33110, &heal, NULL, NULL, true, NULL, NULLAURA_EFFECT, caster_guid);
-    return true;
-
+    /// Currently doesn't use by any spell
+    return false;
 }
 
 bool Unit::HandleAuraRaidProcFromCharge(AuraEffectPtr triggeredByAura)
