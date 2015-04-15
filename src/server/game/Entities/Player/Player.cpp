@@ -25486,6 +25486,12 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
         return false;
     }
 
+    if (crItem->PlayerConditionID != 0 && EvalPlayerCondition(crItem->PlayerConditionID).first == false)
+    {
+        /// @TODO find the right error
+        return false;
+    }
+
     int32 precision = (proto->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
 
     if (crItem->ExtendedCost)
@@ -25631,6 +25637,12 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (pProto->RequiredReputationFaction && (uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank))
     {
         SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item, 0);
+        return false;
+    }
+
+    if (crItem->PlayerConditionID != 0 && EvalPlayerCondition(crItem->PlayerConditionID).first == false)
+    {
+        /// @TODO find the right error
         return false;
     }
 
