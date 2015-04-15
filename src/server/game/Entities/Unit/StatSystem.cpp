@@ -510,6 +510,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
+
     float weapon_normalized_min = weapon_with_ap_min * att_speed;
     float weapon_normalized_max = weapon_with_ap_max * att_speed;
 
@@ -538,7 +539,6 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
-    printf("((%f + %f) * %f + %f) * %f = %f\n", base_value, weapon_normalized_min, base_pct, total_value, total_pct, min_damage);
 
     uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
     AddPct(min_damage, autoAttacksPctBonus);
