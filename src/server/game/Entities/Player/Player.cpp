@@ -10385,6 +10385,9 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
         HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), applyStats);
     }
 
+    if (!proto->IsWeapon())
+        return;
+
     WeaponAttackType attType = WeaponAttackType::BaseAttack;
 
     if (slot == EQUIPMENT_SLOT_MAINHAND && (
@@ -10399,7 +10402,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
     uint32 minDamage = 0;
     uint32 maxDamage = 0;
 
-    if (applyStats)
+    if (apply)
         proto->CalculateMinMaxDamageScaling(rescaleToItemLevel ? rescaleToItemLevel : ilvl, minDamage, maxDamage);
 
     if (CanUseAttackType(attType))

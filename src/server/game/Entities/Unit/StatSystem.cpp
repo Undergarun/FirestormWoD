@@ -484,6 +484,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
 void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffHandItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    Item* l_UsedWeapon = attType == WeaponAttackType::OffAttack ? l_OffHandItem : mainItem;
 
     UnitMods unitMod;
 
@@ -501,15 +503,14 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = GetAPMultiplier(attType, normalized);
+    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
-    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
-
-    float weapon_normalized_min = weapon_with_ap_min * att_speed ;
+    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
+    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
+    float weapon_normalized_min = weapon_with_ap_min * att_speed;
     float weapon_normalized_max = weapon_with_ap_max * att_speed;
 
     if (IsInFeralForm())
@@ -520,13 +521,13 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f));
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f));
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f)) * 2.5f;
         }
     }
 
@@ -537,6 +538,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
     min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
+    printf("((%f + %f) * %f + %f) * %f = %f\n", base_value, weapon_normalized_min, base_pct, total_value, total_pct, min_damage);
 
     uint32 autoAttacksPctBonus = GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
     AddPct(min_damage, autoAttacksPctBonus);
