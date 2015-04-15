@@ -2658,6 +2658,33 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
         }
 };
 
+// Spirit Walk - 58875
+class spell_sha_spirit_walk: public SpellScriptLoader
+{
+    public:
+        spell_sha_spirit_walk() : SpellScriptLoader("spell_sha_spirit_walk") { }
+
+        class spell_sha_spirit_walk_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_spirit_walk_SpellScript);
+
+            void HandleOnHit()
+            {
+                GetCaster()->RemoveMovementImpairingAuras();
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_spirit_walk_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_spirit_walk_SpellScript;
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     /// Npcs
@@ -2714,4 +2741,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_healing_wave();
     new spell_sha_riptide();
     new spell_sha_maelstrom_weapon();
+    new spell_sha_spirit_walk();
 }
