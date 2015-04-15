@@ -2446,7 +2446,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     l_Player->RestoreCharge(1536);
             }
 
-
             void Register()
             {
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
@@ -2557,14 +2556,28 @@ class spell_sha_riptide : public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+
+                if (l_SpellInfo == nullptr)
+                    return;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_riptide_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                AfterHit += SpellHitFn(spell_sha_riptide_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2575,14 +2588,14 @@ class spell_sha_riptide : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
 
-                if (l_Caster == nullptr)
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
                     return;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                 {
-                    p_Amount += CalculatePct(p_Amount, GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                    p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_2].BasePoints);
                 }
             }
 
