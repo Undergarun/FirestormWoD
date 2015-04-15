@@ -3679,12 +3679,12 @@ enum
     LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
 };
 
-bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound)
+std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound)
 {
     PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
 
     if (!l_Entry)
-        return p_FailIfConditionNotFound;
+        return std::pair<bool, std::string>(false, "Condition entry not found");
 
     auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
     {
@@ -3722,20 +3722,20 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
 
     #pragma region Level conditions
     if (l_Entry->MinLevel != 0 && getLevel() < l_Entry->MinLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MinLevel => dbc(" + std::to_string(l_Entry->MinLevel) + ") you(" + std::to_string(getLevel()) + ")");
     if (l_Entry->MaxLevel != 0 && getLevel() > l_Entry->MaxLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MaxLevel => dbc(" + std::to_string(l_Entry->MaxLevel) + ") you(" + std::to_string(getLevel()) + ")");
     #pragma endregion Level conditions
 
     #pragma region Class, Race, Gender, NativeGender
     if (l_Entry->RaceMask != 0 && (l_Entry->RaceMask & getRaceMask()) == 0)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on RaceMask => dbc(" + std::to_string(l_Entry->RaceMask) + ") you(" + std::to_string(getRaceMask()) + ")");
     if (l_Entry->ClassMask != 0 && (l_Entry->ClassMask & getClassMask()) == 0)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on ClassMask => dbc(" + std::to_string(l_Entry->ClassMask) + ") you(" + std::to_string(getClassMask()) + ")");
     if (l_Entry->Gender != -1 && l_Entry->Gender != getGender())
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on Gender => dbc(" + std::to_string(l_Entry->Gender) + ") you(" + std::to_string(getGender()) + ")");
     if (l_Entry->NativeGender != -1 && l_Entry->NativeGender != getGender())
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on NativeGender => dbc(" + std::to_string(l_Entry->NativeGender) + ") you(" + std::to_string(getGender()) + ")");
     #pragma endregion Class, Race, Gender, NativeGender
 
     #pragma region Skills
@@ -3744,14 +3744,14 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->SkillID[l_I] != 0)
         {
             if (!HasSkill(l_Entry->SkillID[l_I]))
-                return false;
+                return std::pair<bool, std::string>(false, "Failed on SkillID => dbc(" + std::to_string(l_Entry->SkillID[l_I]) + ") you don't known this skill");
 
             int32 l_Skill = (int32)GetSkillValue(l_Entry->SkillID[l_I]);
 
             if (l_Entry->MinSkill[l_I] != 0 && l_Skill < l_Entry->MinSkill[l_I])
-                return false;
+                return std::pair<bool, std::string>(false, "Failed on MinSkill => dbc(" + std::to_string(l_Entry->MinSkill[l_I]) + ") you(" + std::to_string(l_Skill) + ")");
             if (l_Entry->MaxSkill[l_I] != 0 && l_Skill > l_Entry->MaxSkill[l_I])
-                return false;
+                return std::pair<bool, std::string>(false, "Failed on MaxSkill => dbc(" + std::to_string(l_Entry->MaxSkill[l_I]) + ") you(" + std::to_string(l_Skill) + ")");
         }
     }
     #pragma endregion Skills
@@ -3764,14 +3764,14 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         uint32 l_SkillID = lang_description[l_Entry->LanguageID].skill_id;
 
         if (!HasSkill(l_SkillID))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on LanguageID => dbc(" + std::to_string(l_Entry->LanguageID) + ") you don't known this language");
 
         int32 l_Skill = (int32)GetSkillValue(l_SkillID);
 
         if (l_Entry->MinLanguage != 0 && l_Skill < l_Entry->MinLanguage)
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on MinLanguage => dbc(" + std::to_string(l_Entry->MinLanguage) + ") you(" + std::to_string(l_Skill) + ")");
         if (l_Entry->MaxLanguage != 0 && l_Skill > l_Entry->MaxLanguage)
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on MaxLanguage => dbc(" + std::to_string(l_Entry->MaxLanguage) + ") you(" + std::to_string(l_Skill) + ")");
     }
     #pragma endregion Language
 
@@ -3793,7 +3793,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->PrevQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->PrevQuestID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->PrevQuestLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on PrevQuestID");
     }
     #pragma endregion PrevQuestLogic, PrevQuestID
 
@@ -3807,7 +3807,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->CurrQuestID[3] != 0) l_Matches[3] = HasQuest(l_Entry->CurrQuestID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->CurrQuestLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on CurrQuestID");
     }
     #pragma endregion CurrQuestLogic, CurrQuestID
 
@@ -3821,7 +3821,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->CurrentCompletedQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->CurrentCompletedQuestLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on CurrentCompletedQuestID");
     }
     #pragma endregion CurrentCompletedQuestLogic, CurrentCompletedQuestID
 
@@ -3835,7 +3835,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->SpellID[3] != 0) l_Matches[3] = HasSpell(l_Entry->SpellID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->SpellLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on SpellID");
     }
     #pragma endregion SpellLogic, SpellID
 
@@ -3849,7 +3849,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->ItemID[3] != 0) l_Matches[3] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[3] ? 1 : l_Entry->ItemCount[3], false);
 
         if (!EvalMatch(l_Matches, l_Entry->ItemLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on ItemID");
     }
     #pragma endregion ItemLogic, ItemID, ItemCount
 
@@ -3858,9 +3858,9 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
     #pragma region Explored
     auto IsAreaExplored = [this](uint32 p_AreaID) -> bool
     {
-        uint16 l_AreaFlag = sAreaStore.LookupEntry(0) ? sAreaStore.LookupEntry(0)->AreaBit : 0xffff;
+        uint16 l_AreaFlag = sAreaStore.LookupEntry(0) ? sAreaStore.LookupEntry(0)->AreaBit : 0xFFFF;
 
-        if (l_AreaFlag == 0xffff)
+        if (l_AreaFlag == 0xFFFF)
             return false;
         int l_Offset = l_AreaFlag / 32;
 
@@ -3876,9 +3876,9 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
     };
 
     if (l_Entry->Explored[0] != 0 && !IsAreaExplored(l_Entry->Explored[0]))
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on Explored[0] => dbc(" + std::to_string(l_Entry->Explored[0]) + ") area is not explored");
     if (l_Entry->Explored[1] != 0 && !IsAreaExplored(l_Entry->Explored[1]))
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on Explored[1] => dbc(" + std::to_string(l_Entry->Explored[1]) + ") area is not explored");
     #pragma endregion Explored
 
     /// @TODO : Time
@@ -3893,7 +3893,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->AuraSpellID[3] != 0) l_Matches[3] = HasAura(l_Entry->AuraSpellID[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->AuraSpellLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on AuraSpellID");
     }
     #pragma endregion AuraSpellLogic, AuraSpellID
 
@@ -3905,15 +3905,15 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         AreaTableEntry const* l_Zone = GetAreaEntryByAreaID(GetZoneId());
 
         if (!l_Zone)
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => DBC AreaTable entry not found");
 
         Weather * l_Weather = WeatherMgr::FindWeather(l_Zone->ID);
 
         if (!l_Weather)
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => no valid weather found");
 
         if (l_Weather->GetType() != l_Entry->WeatherID)
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => dbc(" + std::to_string(l_Entry->WeatherID) + ") you(" + std::to_string(l_Weather->GetType()) + ")");
     }
     #pragma endregion Weather
 
@@ -3930,7 +3930,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->Achievement[3] != 0) l_Matches[3] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[3]);
 
         if (!EvalMatch(l_Matches, l_Entry->AchievementLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on Achievement");
     }
     #pragma endregion AchievementLogic, Achievement
 
@@ -3949,7 +3949,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->AreaID[3] != 0) l_Matches[3] = l_Entry->AreaID[3] == GetAreaId();
 
         if (!EvalMatch(l_Matches, l_Entry->AreaLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on AreaID");
     }
     #pragma endregion AreaLogic, AreaID
 
@@ -3963,7 +3963,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->CurrencyID[3] != 0) l_Matches[3] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[3] ? 1 : l_Entry->CurrencyCount[3]));
 
         if (!EvalMatch(l_Matches, l_Entry->CurrencyLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on CurrencyID");
     }
     #pragma endregion CurrencyLogic, CurrencyID, CurrencyCount
 
@@ -3971,7 +3971,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
     if (l_Entry->QuestKillID != 0)
     {
         if (!HasQuest(l_Entry->QuestKillID))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on QuestKillID => dbc(" + std::to_string(l_Entry->QuestKillID) + ") you didn't have quest(" + std::to_string(l_Entry->QuestKillID) + ")");
 
         auto GetNpcObjectiveID = [](uint32 p_QuestID, uint32 p_NPCID) -> uint32
         {
@@ -4000,7 +4000,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
         if (l_Entry->QuestKillMonster[3] != 0) l_Matches[3] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]));
 
         if (!EvalMatch(l_Matches, l_Entry->QuestKillLogic))
-            return false;
+            return std::pair<bool, std::string>(false, "Failed on QuestKillMonster");
     }
     #pragma endregion QuestKillID, QuestKillLogic, QuestKillMonster
 
@@ -4016,16 +4016,16 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
 
     #pragma region MinAvgItemLevel, MaxAvgItemLevel
     if (l_Entry->MinAvgItemLevel != 0 && GetAverageItemLevelTotal() < (uint32)l_Entry->MinAvgItemLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MinAvgItemLevel => dbc(" + std::to_string(l_Entry->MinAvgItemLevel) + ") you(" + std::to_string(GetAverageItemLevelTotal()) + ")");
     if (l_Entry->MaxAvgItemLevel != 0 && GetAverageItemLevelTotal() > (uint32)l_Entry->MaxAvgItemLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MaxAvgItemLevel => dbc(" + std::to_string(l_Entry->MaxAvgItemLevel) + ") you(" + std::to_string(GetAverageItemLevelTotal()) + ")");
     #pragma endregion MinAvgItemLevel, MaxAvgItemLevel
     
     #pragma region MinAvgEquippedItemLevel, MaxAvgItemLevel
     if (l_Entry->MinAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() < (uint32)l_Entry->MinAvgEquippedItemLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MinAvgEquippedItemLevel => dbc(" + std::to_string(l_Entry->MinAvgEquippedItemLevel) + ") you(" + std::to_string(GetAverageItemLevelEquipped()) + ")");
     if (l_Entry->MaxAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() > (uint32)l_Entry->MaxAvgEquippedItemLevel)
-        return false;
+        return std::pair<bool, std::string>(false, "Failed on MaxAvgEquippedItemLevel => dbc(" + std::to_string(l_Entry->MaxAvgEquippedItemLevel) + ") you(" + std::to_string(GetAverageItemLevelEquipped()) + ")");
     #pragma endregion MinAvgEquippedItemLevel, MaxAvgItemLevel
 
     /// @TODO : ChrSpecializationIndex
@@ -4034,7 +4034,7 @@ bool Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNo
     /// @TODO : PowerTypeComp
     /// @TODO : PowerTypeValue
 
-    return true;
+    return std::pair<bool, std::string>(true, "");
 }
 
 Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
