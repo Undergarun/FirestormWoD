@@ -3728,7 +3728,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
 
     auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
     {
-        bool l_Result = 0;
+        bool l_Result = p_Matches[0] && p_Matches[1] && p_Matches[2] && p_Matches[3];
         bool l_FirstMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_0_XOR_RESULT_TRUE)) ^ p_Matches[0];
         bool l_SecondMatchFlagMatch = (!!(p_Flags & LOGIC_FLAG_COL_1_XOR_RESULT_TRUE)) ^ p_Matches[1];
         bool l_ThirdMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_2_XOR_RESULT_TRUE)) ^ p_Matches[2];
@@ -3824,6 +3824,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : PVPMedal
 
     #pragma region PrevQuestLogic, PrevQuestID
+    if (l_Entry->PrevQuestID[0] || l_Entry->PrevQuestID[1] || l_Entry->PrevQuestID[2] || l_Entry->PrevQuestID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3838,6 +3839,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion PrevQuestLogic, PrevQuestID
 
     #pragma region CurrQuestLogic, CurrQuestID
+    if (l_Entry->CurrQuestID[0] || l_Entry->CurrQuestID[1] || l_Entry->CurrQuestID[2] || l_Entry->CurrQuestID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3852,6 +3854,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion CurrQuestLogic, CurrQuestID
 
     #pragma region CurrentCompletedQuestLogic, CurrentCompletedQuestID
+    if (l_Entry->CurrentCompletedQuestID[0] || l_Entry->CurrentCompletedQuestID[1] || l_Entry->CurrentCompletedQuestID[2] || l_Entry->CurrentCompletedQuestID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3866,6 +3869,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion CurrentCompletedQuestLogic, CurrentCompletedQuestID
 
     #pragma region SpellLogic, SpellID
+    if (l_Entry->SpellID[0] || l_Entry->SpellID[1] || l_Entry->SpellID[2] || l_Entry->SpellID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3880,6 +3884,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion SpellLogic, SpellID
 
     #pragma region ItemLogic, ItemID, ItemCount
+    if (l_Entry->ItemID[0] || l_Entry->ItemID[1] || l_Entry->ItemID[2] || l_Entry->ItemID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3924,6 +3929,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : Time
 
     #pragma region AuraSpellLogic, AuraSpellID
+    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3961,6 +3967,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : LifetimeMaxPVPRank
 
     #pragma region AchievementLogic, Achievement
+    if (l_Entry->Achievement[0] || l_Entry->Achievement[1] || l_Entry->Achievement[2] || l_Entry->Achievement[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3980,6 +3987,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     /// @TODO : LfgValue
 
     #pragma region AreaLogic, AreaID
+    if (l_Entry->AreaID[0] || l_Entry->AreaID[1] || l_Entry->AreaID[2] || l_Entry->AreaID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
@@ -3994,6 +4002,7 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     #pragma endregion AreaLogic, AreaID
 
     #pragma region CurrencyLogic, CurrencyID, CurrencyCount
+    if (l_Entry->CurrencyID[0] || l_Entry->CurrencyID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
     {
         bool l_Matches[4] { true, true, true, true };
 
