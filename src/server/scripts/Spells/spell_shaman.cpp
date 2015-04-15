@@ -668,7 +668,7 @@ class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
         }
 };
 
-/// Call by Cleanse Spirit - 51886
+/// Call by Cleanse Spirit - 51886 and Purify Spirit - 77130
 /// Glyph of Cleansing Waters - 55445
 class spell_sha_glyph_of_cleansing_waters : public SpellScriptLoader
 {
