@@ -1061,6 +1061,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
         return;
     }
+    else if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && player->GetRestType() == REST_TYPE_IN_TAVERN)
+    {
+        player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+        player->SetRestType(REST_TYPE_NO);
+    }
 
     if (Battleground* bg = player->GetBattleground())
         if (bg->GetStatus() == STATUS_IN_PROGRESS)
