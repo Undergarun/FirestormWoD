@@ -2687,6 +2687,11 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_SpellScript);
 
+            enum eSpells
+            {
+                GlypheOfPrayerOfMending = 55685
+            };
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -2696,7 +2701,10 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                         l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
                         if (AuraPtr l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura))
                         {
-                            l_PrayerOfMendingAura->SetStackAmount(5);
+                            if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
+                                l_PrayerOfMendingAura->SetStackAmount(4);
+                            else
+                                l_PrayerOfMendingAura->SetStackAmount(5);
                         }
                     }
                 }
@@ -2724,9 +2732,15 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_prayer_of_mending_aura_AuraScript);
 
+            enum eSpells
+            {
+                GlypheOfPrayerOfMending = 55685
+            };
+
             void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlypheOfPrayerOfMending);
 
                 if (l_Caster == nullptr)
                     return;
@@ -2742,6 +2756,9 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                         l_Multiplicator *= 1.25f;
 
                     p_Amount = (1 + (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.666 * l_Multiplicator));
+
+                    if (l_SpellInfo != nullptr && l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending) && p_AuraEffect->GetBase()->GetStackAmount() == 4)
+                        p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
                 }
             }
 
