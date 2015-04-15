@@ -1691,7 +1691,7 @@ class Unit : public WorldObject
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
-        uint32 CalcStaggerDamage(Player* victim, uint32 damage);
+        uint32 CalcStaggerDamage(Player* victim, uint32 damage, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto);
         void Kill(Unit* victim, bool durabilityLoss = true, SpellInfo const* spellProto = NULL);
         int32 DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto = NULL);
 
