@@ -508,11 +508,14 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
+    bool dualWield = mainItem && l_OffHandItem && CanDualWield();
+    float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWield;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWield;
 
     if (IsInFeralForm())
     {
