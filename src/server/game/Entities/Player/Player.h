@@ -2497,7 +2497,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false);
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
@@ -2505,7 +2505,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateItemLevel();
         void UpdateAllRatings();
 
-        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
+        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields = false);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float OCTRegenMPPerSpirit();

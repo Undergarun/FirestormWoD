@@ -10789,6 +10789,15 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
 
     if (CanUseAttackType(attType))
         _ApplyWeaponDamage(slot, item, apply, minDamage, maxDamage);
+
+    // Dual Wield penalty
+    if (CanModifyStats())
+    {
+        if (attType == WeaponAttackType::OffAttack)
+            UpdateDamagePhysical(WeaponAttackType::BaseAttack, !apply);
+        else if (attType == WeaponAttackType::BaseAttack && CanUseAttackType(WeaponAttackType::OffAttack))
+            UpdateDamagePhysical(WeaponAttackType::OffAttack, !apply);
+    }
 }
 
 void Player::_ApplyWeaponDamage(uint8 slot, Item const* item, bool apply, uint32 minDamage, uint32 maxDamage)

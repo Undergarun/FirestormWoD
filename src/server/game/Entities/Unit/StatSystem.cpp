@@ -481,7 +481,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
+void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
     Item* l_OffHandItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
@@ -508,14 +508,16 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    bool dualWield = mainItem && l_OffHandItem && CanDualWield();
+    bool dualWield = mainItem && l_OffHandItem && !l_NoLongerDualWields;
     float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+    if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
+        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
     float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
     float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWield;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWield;
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
 
     if (IsInFeralForm())
     {
@@ -548,12 +550,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     AddPct(max_damage, autoAttacksPctBonus);
 }
 
-void Player::UpdateDamagePhysical(WeaponAttackType attType)
+void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
 {
     float mindamage;
     float maxdamage;
 
-    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage);
+    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage, l_NoLongerDualWields);
 
     switch (attType)
     {
@@ -1217,7 +1219,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     float l_Variance = 1.f;
     UnitMods l_UnitMod;
@@ -1570,7 +1572,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 // WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;

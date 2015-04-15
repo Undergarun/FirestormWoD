@@ -516,7 +516,7 @@ enum AuraType
     SPELL_AURA_MOD_ROOT_2                                   = 455,  // 6.0.X
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,  // 6.0.X
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,  // 6.0.X
-    SPELL_AURA_458                                          = 458,  // 6.0.X
+    SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE                   = 458,  // 6.0.X
     SPELL_AURA_459                                          = 459,  // 6.0.X
     SPELL_AURA_RESET_COOLDOWNS                              = 460,  // 6.0.X
     SPELL_AURA_461                                          = 461,  // 6.0.X

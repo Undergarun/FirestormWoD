@@ -594,7 +594,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_IsNoLongerDualWielding = false);
 
         int8 GetOriginalEquipmentId() const { return m_OriginalEquipmentId; }
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }

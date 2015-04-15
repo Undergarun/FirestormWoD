@@ -106,7 +106,7 @@ class Guardian : public Minion
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false);
 
         PetStatInfo const* GetPetStat(bool p_Force = false) const;
 
