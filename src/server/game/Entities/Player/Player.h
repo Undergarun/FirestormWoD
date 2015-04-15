@@ -1548,7 +1548,7 @@ class Player : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
 
-        bool EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
+        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
 
         bool ToggleAFK();
         bool ToggleDND();
