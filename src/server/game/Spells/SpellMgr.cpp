@@ -104,7 +104,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[0] & 0x40)
                 return DIMINISHING_ROOT;
             // Ice Ward -- 111340
-            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x2000)
+            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x20000)
                 return DIMINISHING_ROOT;
             // Freeze (Water Elemental) -- 33395
             if (spellproto->SpellFamilyFlags[2] & 0x200)
