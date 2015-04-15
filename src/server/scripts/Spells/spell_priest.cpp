@@ -2726,20 +2726,22 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 
             void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (p_AuraEffect->GetBase())
                 {
-                    if (p_AuraEffect->GetBase())
-                    {
-                        float l_Multiplicator = 1.0f;
+                    float l_Multiplicator = 1.0f;
 
-                        if (l_Caster->HasAura(PrayerOfMendingSpells::SpiritualHealingAura))
-                            l_Multiplicator = 1.25f;
+                    if (l_Caster->HasAura(PrayerOfMendingSpells::SpiritualHealingAura))
+                        l_Multiplicator = 1.25f;
 
-                        if (l_Caster->HasAura(PrayerOfMendingSpells::DivineFuryAura))
-                            l_Multiplicator *= 1.25f;
+                    if (l_Caster->HasAura(PrayerOfMendingSpells::DivineFuryAura))
+                        l_Multiplicator *= 1.25f;
 
-                        p_Amount = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.442787 * l_Multiplicator / p_AuraEffect->GetBase()->GetStackAmount();
-                    }
+                    p_Amount = (1 + (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.666 * l_Multiplicator));
                 }
             }
 
@@ -2799,37 +2801,35 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
                             SetHitHeal(l_Heal);
 
-                            bool l_SelfHealing = false;
                             if (l_CurrentStackAmount >= 1)
                             {
                                 std::list<Unit*> l_FriendlyUnitListTemp;
                                 JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 20.0f);
                                 JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitListTemp, l_Check);
                                 l_Target->VisitNearbyObject(20.0f, l_Searcher);
-                                
-                                std::list<Unit*> l_FriendlyUnitList;
-                                for (auto l_Itr : l_FriendlyUnitListTemp)
-                                {
-                                    if (l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
-                                        l_FriendlyUnitList.push_back(l_Itr);
-                                }
-                                
-                                if (l_FriendlyUnitList.empty())
-                                {
-                                    l_FriendlyUnitList.push_back(l_Caster);
-                                    l_SelfHealing = true;	
-                                }
 
-                                JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
-                                for (auto l_Itr : l_FriendlyUnitList)
+                                if (!l_FriendlyUnitListTemp.empty())
                                 {
-                                    l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                                    if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
-                                        l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+                                    std::list<Unit*> l_FriendlyUnitList;
+                                    for (auto l_Itr : l_FriendlyUnitListTemp)
+                                    {
+                                        if (l_Target->GetGUID() != l_Itr->GetGUID() && l_Target->IsValidAssistTarget(l_Itr) && l_Target->IsInRaidWith(l_Itr))
+                                            l_FriendlyUnitList.push_back(l_Itr);
+                                    }
+
+                                    if (!l_FriendlyUnitList.empty())
+                                    {
+                                        JadeCore::Containers::RandomResizeList(l_FriendlyUnitList, 1);
+                                        for (auto l_Itr : l_FriendlyUnitList)
+                                        {
+                                            l_Caster->CastSpell(l_Itr, PrayerOfMendingSpells::PrayerOfMendingAura, true);
+                                            if (AuraPtr l_PrayerOfMendingAura = l_Itr->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
+                                                l_PrayerOfMendingAura->SetStackAmount(l_CurrentStackAmount - 1);
+                                        }
+                                    }
                                 }
                             }
-                            if (!l_SelfHealing)
-                                l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
+                            l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
                         }
                     }
                 }
