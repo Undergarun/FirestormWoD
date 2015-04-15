@@ -12588,7 +12588,10 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
             singleTarget = true;
 
         if (singleTarget)
+        {
             DoneTotal += CalculatePct(healamount, 50.0f);
+            removeAurasDueToSpell(118473);
+        }
     }
 
     // Apply Power PvP healing bonus
