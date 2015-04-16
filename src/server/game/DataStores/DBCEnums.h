@@ -102,7 +102,7 @@ enum AreaFlags2
     AREA_FLAG2_UNK4             = 0x00000008,                // OrgrimmarRaid and DraenorAuchindoun
     AREA_FLAG2_UNK5             = 0x00000010,                //
     AREA_FLAG2_UNK6             = 0x00000020,                //
-    AREA_FLAG2_UNK7             = 0x00000040,                //
+    AREA_FLAG2_UNK7             = 0x00000040,                // Garrison
     AREA_FLAG2_UNK8             = 0x00000080,                //
     AREA_FLAG2_UNK9             = 0x00000100,                //
     AREA_FLAG2_UNK10            = 0x00000200,                //
@@ -455,6 +455,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_SECRET_OF_DRAENOR_JEWELCRAFTING  = 1008,// Professions
     CURRENCY_TYPE_SECRET_OF_DRAENOR_LEATHERWORKING = 1017,// Professions
     CURRENCY_TYPE_SECRET_OF_DRAENOR_BLACKSMITHING  = 1020,// Professions
+    CURRENCY_TYPE_OIL                              = 1101 ///< Oil 6.1.X
 };
 
 #endif

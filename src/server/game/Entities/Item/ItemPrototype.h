@@ -293,11 +293,12 @@ enum SocketColor
     SOCKET_COLOR_RED                            = 2,
     SOCKET_COLOR_YELLOW                         = 4,
     SOCKET_COLOR_BLUE                           = 8,
-    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
-    SOCKET_COLOR_COGWHEEL                       = 32,
+    SOCKET_COLOR_PRISMATIC                      = 14,
+    SOCKET_COLOR_SHA_TOUCHED                    = 16,
+    SOCKET_COLOR_COGWHEEL                       = 32
 };
 
-#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
+#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_PRISMATIC | SOCKET_COLOR_SHA_TOUCHED| SOCKET_COLOR_COGWHEEL)
 
 enum InventoryType
 {
@@ -353,10 +354,11 @@ enum ItemClass
     ITEM_CLASS_PERMANENT                        = 14, // OBSOLETE
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
-    ITEM_CLASS_BATTLE_PET                       = 17
+    ITEM_CLASS_BATTLE_PET                       = 17,
+    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system    
 };
 
-#define MAX_ITEM_CLASS                            18
+#define MAX_ITEM_CLASS                            19
 
 enum ItemSubclassConsumable
 {
@@ -613,6 +615,12 @@ enum ItemSubclassBattlePet
 
 #define MAX_ITEM_SUBCLASS_BATTLE_PET              11
 
+enum ItemSubclassWowToken
+{
+    ITEM_SUBCLASS_WOW_TOKEN                     = 1
+};
+
+#define MAX_ITEM_SUBCLASS_WOW_TOKEN              1
 
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
@@ -633,7 +641,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_PERMANENT,
     MAX_ITEM_SUBCLASS_JUNK,
     MAX_ITEM_SUBCLASS_GLYPH,
-    MAX_ITEM_SUBCLASS_BATTLE_PET
+    MAX_ITEM_SUBCLASS_BATTLE_PET,
+    MAX_ITEM_SUBCLASS_WOW_TOKEN
 };
 
 inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
