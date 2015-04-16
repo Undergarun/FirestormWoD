@@ -123,8 +123,6 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
-    SPELL_SHA_GLYPH_OF_CLEANSING_WATER          = 55445,
-    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961,
     SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
 };
 
@@ -665,48 +663,6 @@ class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_glyph_of_lakestrider_SpellScript();
-        }
-};
-
-/// Call by Cleanse Spirit - 51886
-/// Glyph of Cleansing Waters - 55445
-class spell_sha_glyph_of_cleansing_waters : public SpellScriptLoader
-{
-    public:
-        spell_sha_glyph_of_cleansing_waters() : SpellScriptLoader("spell_sha_glyph_of_cleansing_waters") { }
-
-        class spell_sha_glyph_of_cleansing_waters_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_glyph_of_cleansing_waters_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_CLEANSING_WATER);
-
-                if (l_SpellInfo == nullptr || l_Target == nullptr)
-                    return;
-
-                /// You also heal the target for 4% of your maximum health.
-                if (l_Caster->HasAura(SPELL_SHA_GLYPH_OF_CLEANSING_WATER))
-                {
-                    int32 l_Bp = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
-
-                    l_Caster->CastCustomSpell(l_Target, SPELL_SHA_SPELL_CLEANSING_WATER, &l_Bp, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_glyph_of_cleansing_waters_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_glyph_of_cleansing_waters_SpellScript();
         }
 };
 
@@ -2664,7 +2620,6 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
-    new spell_sha_glyph_of_cleansing_waters();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();

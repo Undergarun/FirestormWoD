@@ -3263,29 +3263,6 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     if (l_SuccessList.empty())
         return;
 
-    // Custom effects
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        // Glyph of Dispel Magic (discipline and priest) -- Purify
-        if (m_spellInfo->Id == 97960)
-        {
-            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(55677, 0))
-            {
-                if (m_caster->IsFriendlyTo(unitTarget))
-                {
-                    int32 bp = int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount() * l_Count));
-                    m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true);
-                }
-            }
-        }
-        // Glyph of Dispel Magic
-        if (m_spellInfo->Id == 528)
-        {
-            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(119864, 0))
-                m_caster->CastSpell(unitTarget, 119856, true);
-        }
-    }
-
     WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + l_SuccessList.size() * 5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -3304,49 +3281,50 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
 
     m_caster->SendMessageToSet(&dataSuccess, true);
 
-    // On success dispel
+    /// On success dispel
+    /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
     switch (m_spellInfo->Id)
     {
-        // Purify
-    case 527:
-        // Glyph of Purify
-        if (m_caster->HasAura(55677))
-            m_caster->CastSpell(unitTarget, 56131, true);
+        case 475: // Remove Curse
+            if (m_caster->HasAura(115700)) ///< Glyph of Remove Curse
+                m_caster->AddAura(115701, m_caster);
+            break;
+        case 527:   ///< Purify
+        case 97960: ///< Cosmetic Magic Aura
+        {
+            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55677, EFFECT_0)) ///< Glyph of Purify
+            {
+                int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
+                m_caster->CastCustomSpell(unitTarget, 56131, &l_Bp, nullptr, nullptr, true);
+            }
+            break;
+        }
+        case 528: ///< Dispel Magic
+            if (m_caster->HasAura(119864)) ///< Glyph of Dispel Magic
+                m_caster->CastSpell(unitTarget, 119856, true);
+            break;
+        case 19505: ///< Devour Magic
+        {
+            int32 l_HealAmount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
+            m_caster->CastCustomSpell(m_caster, 19658, &l_HealAmount, nullptr, nullptr, true);
 
-        break;
-
-        // Devour Magic
-    case 19505:
-    {
-        int32 l_HealAmount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
-        m_caster->CastCustomSpell(m_caster, 19658, &l_HealAmount, NULL, NULL, true);
-
-        // Glyph of Felhunter
-        if (Unit* l_Owner = m_caster->GetOwner())
-            if (l_Owner->GetAura(56249))
-                l_Owner->CastCustomSpell(l_Owner, 19658, &l_HealAmount, NULL, NULL, true);
-
-        break;
-    }
-
-    // Cleanse Spirit
-    case 51886:
-        // Purify Spirit
-    case 77130:
-        if (m_caster->HasAura(86959)) // Glyph of Cleansing Waters
-            m_caster->CastSpell(unitTarget, 86961, true);
-
-        break;
-
-        // Remove Curse
-    case 475:
-        if (m_caster->HasAura(115700))
-            m_caster->AddAura(115701, m_caster);
-
-        break;
-
-    default:
-        break;
+            Unit* l_Owner = m_caster->GetOwner();
+            if (l_Owner && l_Owner->GetAura(56249)) ///< Glyph of Demon Training
+                l_Owner->CastCustomSpell(l_Owner, 19658, &l_HealAmount, nullptr, nullptr, true);
+            break;
+        }
+        case 51886: ///< Cleanse Spirit
+        case 77130: ///< Purify Spirit
+        {
+            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55445, EFFECT_0)) ///< Glyph of Cleansing Waters
+            {
+                int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
+                m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
