@@ -1898,6 +1898,23 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                     g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
 
             }
+            else if (p_Quest->GetQuestId() == TanaanQuests::QuestBlazeOfGlory)
+            {
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestAltarAltercation))
+                    p_Player->AddQuest(l_Quest, nullptr);
+            }
+
+            return true;
+        }
+
+        bool OnGossipHello(Player * p_Player, Creature * p_Creature)
+        {
+            if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_NONE &&
+                p_Player->GetQuestStatus(TanaanQuests::QuestBlazeOfGlory) == QUEST_STATUS_REWARDED)
+            {
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestAltarAltercation))
+                    p_Player->AddQuest(l_Quest, nullptr);
+            }
 
             return true;
         }
