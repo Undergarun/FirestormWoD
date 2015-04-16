@@ -25847,8 +25847,22 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
             if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
             {
-                int days = catrec / 1000;
-                recTime = (86400 * days) * IN_MILLISECONDS;
+                time_t l_RawTime;
+                struct tm * l_TimeInfo;
+
+                time(&l_RawTime);
+                l_TimeInfo = localtime(&l_RawTime);
+
+                l_TimeInfo->tm_min = 0;
+                l_TimeInfo->tm_sec = 1;
+                l_TimeInfo->tm_hour = 0;
+
+                time_t l_DaySeconds             = time(nullptr) - mktime(l_TimeInfo);
+                time_t l_ThisMidnight           = time(nullptr) - l_DaySeconds;
+                time_t l_NextMidnight           = l_ThisMidnight + DAY;
+                time_t l_SecondToNextMidnight   = l_NextMidnight - time(nullptr);
+
+                recTime = l_SecondToNextMidnight * IN_MILLISECONDS;
 
                 if (rec == 0 && catrec == 1000)
                     catrec = recTime;
