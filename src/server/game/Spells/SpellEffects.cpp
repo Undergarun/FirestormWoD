@@ -3329,6 +3329,15 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         break;
     }
 
+    // Cleanse Spirit
+    case 51886:
+        // Purify Spirit
+    case 77130:
+        if (m_caster->HasAura(86959)) // Glyph of Cleansing Waters
+            m_caster->CastSpell(unitTarget, 86961, true);
+
+        break;
+
         // Remove Curse
     case 475:
         if (m_caster->HasAura(115700))
