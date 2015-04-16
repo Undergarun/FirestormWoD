@@ -3413,6 +3413,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 174473:///< Corrupted Blood (Iron Blood Mage)
                 spellInfo->MaxAffectedTargets = 5;
                 break;
+            case 163113:///< Withering (Living Mushroom - Brackenspore)
+            case 163124:///< Withering (Rejuvenating Mushroom - Brackenspore)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

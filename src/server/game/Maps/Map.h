@@ -446,6 +446,7 @@ class Map : public GridRefManager<NGridType>
         GameObject* GetGameObject(uint64 guid);
         Transport* GetTransport(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);
+        AreaTrigger* GetAreaTrigger(uint64 p_Guid);
 
         MapInstanced* ToMapInstanced(){ if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return NULL;  }
         const MapInstanced* ToMapInstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return NULL;  }

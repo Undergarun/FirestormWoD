@@ -34,6 +34,20 @@ Position const g_FleshEaterSpawns[eHighmaulDatas::MaxFleshEaterPos] =
     { 4141.948f, 7720.839f, -1.1697650f, 2.001688f }
 };
 
+G3D::Vector3 g_BeachCenter = { 4090.034f, 7793.5166f, 2.974596f };
+
+struct CreepingMossData
+{
+    CreepingMossData(AreaTrigger* p_AreaTrigger)
+    {
+        Guid = p_AreaTrigger->GetGUID();
+        p_AreaTrigger->GetPosition(&Position);
+    }
+
+    uint64 Guid;
+    Position Position;
+};
+
 void ResetPlayersPower(Creature* p_Source)
 {
     if (p_Source == nullptr)
@@ -59,6 +73,7 @@ class boss_brackenspore : public CreatureScript
             Berserker               = 26662,
             Rot                     = 163240,
             RotDot                  = 163241,
+            CreepingMossPeriodic    = 163347,
             CreepingMossAreaTrigger = 173229,
             FlamethrowerDespawnAT   = 173281,
             BFC9000                 = 164175,
@@ -95,9 +110,10 @@ class boss_brackenspore : public CreatureScript
             EventSpecialAbility
         };
 
-        enum eAction
+        enum eActions
         {
-            DoIntro
+            DoIntro,
+            CreepingMoss
         };
 
         enum eCreatures
@@ -116,6 +132,11 @@ class boss_brackenspore : public CreatureScript
             RejuvenatingMush    = 78868
         };
 
+        enum eTalk
+        {
+            InfestingSpores
+        };
+
         struct boss_brackensporeAI : public BossAI
         {
             boss_brackensporeAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossBrackenspore)
@@ -128,7 +149,9 @@ class boss_brackenspore : public CreatureScript
             InstanceScript* m_Instance;
 
             EventMap m_CosmeticEvent;
-            std::list<uint64> l_Creatures;
+            std::list<uint64> m_Creatures;
+
+            std::map<uint32, CreepingMossData> m_CreepingMoss;
 
             bool m_IntroDone;
 
@@ -139,13 +162,18 @@ class boss_brackenspore : public CreatureScript
                 _Reset();
 
                 me->RemoveAura(eSpells::Berserker);
+                me->RemoveAura(eSpells::CreepingMossPeriodic);
 
                 me->CastSpell(me, eSpells::Rot, true);
+
+                me->RemoveAllAreasTrigger();
+                m_CreepingMoss.clear();
 
                 if (m_Instance != nullptr)
                 {
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RotDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FlamethrowerAura);
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 ResetPlayersPower(me);
@@ -164,75 +192,129 @@ class boss_brackenspore : public CreatureScript
                     me->SetUInt32Value(EUnitFields::UNIT_FIELD_EMOTE_STATE, 0);
             }
 
+            void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) override
+            {
+                if (p_AreaTrigger == nullptr)
+                    return;
+
+                if (m_CreepingMoss.find(p_AreaTrigger->GetGUIDLow()) != m_CreepingMoss.end())
+                    return;
+
+                m_CreepingMoss.insert(std::make_pair(p_AreaTrigger->GetGUIDLow(), CreepingMossData(p_AreaTrigger)));
+            }
+
             void DoAction(int32 const p_Action) override
             {
-                if (p_Action == eAction::DoIntro && !m_IntroDone)
+                switch (p_Action)
                 {
-                    m_IntroDone = true;
-
-                    std::list<Creature*> l_Warmasters;
-                    me->GetCreatureListWithEntryInGrid(l_Warmasters, eCreatures::IronWarmaster, 50.0f);
-
-                    if (!l_Warmasters.empty())
-                        l_Warmasters.sort(JadeCore::ObjectDistanceOrderPred(me, false));
-
-                    if (Creature* l_IronWar = (*l_Warmasters.begin()))
+                    case eActions::DoIntro:
                     {
-                        if (l_IronWar->GetAI())
-                            l_IronWar->AI()->DoAction(eAction::DoIntro);
+                        m_IntroDone = true;
 
-                        l_Warmasters.remove(l_IronWar);
-                    }
+                        std::list<Creature*> l_Warmasters;
+                        me->GetCreatureListWithEntryInGrid(l_Warmasters, eCreatures::IronWarmaster, 50.0f);
 
-                    if (!l_Warmasters.empty())
-                    {
+                        if (!l_Warmasters.empty())
+                            l_Warmasters.sort(JadeCore::ObjectDistanceOrderPred(me, false));
+
                         if (Creature* l_IronWar = (*l_Warmasters.begin()))
-                            me->Kill(l_IronWar);
-                    }
-
-                    AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                    {
-                        std::list<AreaTrigger*> l_AreaTriggers;
-                        me->GetAreaTriggerList(l_AreaTriggers, eSpells::CreepingMossAreaTrigger);
-
-                        for (AreaTrigger* l_AT : l_AreaTriggers)
                         {
-                            me->CastSpell(*l_AT, eSpells::FlamethrowerDespawnAT, true);
-                            l_AT->SetDuration(10);
+                            if (l_IronWar->GetAI())
+                                l_IronWar->AI()->DoAction(eActions::DoIntro);
+
+                            l_Warmasters.remove(l_IronWar);
                         }
 
-                        std::list<Creature*> l_BFCs;
-                        me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
-
-                        for (Creature* l_Creature : l_BFCs)
-                            l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
-
-                        std::list<Creature*> l_MindFungus;
-                        me->GetCreatureListWithEntryInGrid(l_MindFungus, eCreatures::MindFungus, 100.0f);
-
-                        for (Creature* l_Creature : l_MindFungus)
+                        if (!l_Warmasters.empty())
                         {
-                            l_Creature->RemoveAllAreasTrigger();
-                            l_Creature->DespawnOrUnsummon();
+                            if (Creature* l_IronWar = (*l_Warmasters.begin()))
+                                me->Kill(l_IronWar);
                         }
 
-                        if (Creature* l_Shooter = me->FindNearestCreature(eCreatures::SporeShooter, 100.0f))
-                            l_Shooter->DespawnOrUnsummon();
-
-                        std::list<Creature*> l_IronFlames;
-                        me->GetCreatureListWithEntryInGrid(l_IronFlames, eCreatures::IronFlameTechnician, 50.0f);
-
-                        for (Creature* l_Creature : l_IronFlames)
+                        AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            if (Creature* l_Trigger = l_Creature->FindNearestCreature(eCreatures::WorldTrigger, 100.0f))
+                            std::list<AreaTrigger*> l_AreaTriggers;
+                            me->GetAreaTriggerList(l_AreaTriggers, eSpells::CreepingMossAreaTrigger);
+
+                            for (AreaTrigger* l_AT : l_AreaTriggers)
                             {
-                                l_Creature->InterruptNonMeleeSpells(true);
-                                l_Creature->GetMotionMaster()->MovePoint(0, *l_Trigger);
+                                me->CastSpell(*l_AT, eSpells::FlamethrowerDespawnAT, true);
+                                l_AT->SetDuration(10);
+                            }
+
+                            std::list<Creature*> l_BFCs;
+                            me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
+
+                            for (Creature* l_Creature : l_BFCs)
+                                l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                            std::list<Creature*> l_MindFungus;
+                            me->GetCreatureListWithEntryInGrid(l_MindFungus, eCreatures::MindFungus, 100.0f);
+
+                            for (Creature* l_Creature : l_MindFungus)
+                            {
+                                l_Creature->RemoveAllAreasTrigger();
+                                l_Creature->DespawnOrUnsummon();
+                            }
+
+                            if (Creature* l_Shooter = me->FindNearestCreature(eCreatures::SporeShooter, 100.0f))
+                                l_Shooter->DespawnOrUnsummon();
+
+                            std::list<Creature*> l_IronFlames;
+                            me->GetCreatureListWithEntryInGrid(l_IronFlames, eCreatures::IronFlameTechnician, 50.0f);
+
+                            for (Creature* l_Creature : l_IronFlames)
+                            {
+                                if (Creature* l_Trigger = l_Creature->FindNearestCreature(eCreatures::WorldTrigger, 100.0f))
+                                {
+                                    l_Creature->InterruptNonMeleeSpells(true);
+                                    l_Creature->GetMotionMaster()->MovePoint(0, *l_Trigger);
+                                }
+                            }
+                        });
+
+                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Reset(); });
+                        break;
+                    }
+                    case eActions::CreepingMoss:
+                    {
+                        Map* l_Map = me->GetMap();
+                        if (l_Map == nullptr)
+                            break;
+
+                        float l_MaxRadius = 90.0f;
+                        float l_Step = 0.5f;
+                        float l_Orientation = frand(0.0f, 2 * M_PI);
+
+                        float l_X = g_CreepingMossPos->x + (l_MaxRadius * cos(l_Orientation));
+                        float l_Y = g_CreepingMossPos->y + (l_MaxRadius * sin(l_Orientation));
+                        float l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
+
+                        if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
+                        {
+                            me->CastSpell(l_X, l_Y, l_Z, eSpells::CreepingMossAreaTrigger, true);
+                            break;
+                        }
+
+                        uint8 l_MaxCount = 180;
+                        for (uint8 l_I = 0; l_I < l_MaxCount; ++l_I)
+                        {
+                            l_MaxRadius -= l_Step;
+                            l_X = g_CreepingMossPos->x + (l_MaxRadius * cos(l_Orientation));
+                            l_Y = g_CreepingMossPos->y + (l_MaxRadius * sin(l_Orientation));
+                            l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
+
+                            if (me->IsWithinLOS(l_X, l_Y, l_Z) && CheckCreepingMossPosition(l_X, l_Y))
+                            {
+                                me->CastSpell(l_X, l_Y, l_Z, eSpells::CreepingMossAreaTrigger, true);
+                                break;
                             }
                         }
-                    });
 
-                    AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Reset(); });
+                        break;
+                    }
+                    default:
+                        break;
                 }
             }
 
@@ -240,18 +322,26 @@ class boss_brackenspore : public CreatureScript
             {
                 _EnterCombat();
 
-                m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
 
                 /// Mythic Specials. Shared cd, which special he uses is random.
-                if (IsMythic())
-                    m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
+                ///if (IsMythic())
+                    ///m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+                /// Spawn timer for Creeping Moss AreaTrigger
+                /// 5s for LFR, 2s for Normal mode, 1.85s for Heroic mode
+                /// 1.4s for Mythic mode and 1.75s for others
+                me->CastSpell(me, eSpells::CreepingMossPeriodic, true);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -262,6 +352,7 @@ class boss_brackenspore : public CreatureScript
                 {
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RotDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FlamethrowerAura);
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                 }
 
                 ResetPlayersPower(me);
@@ -269,7 +360,7 @@ class boss_brackenspore : public CreatureScript
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
             {
-                l_Creatures.push_back(p_Guid);
+                m_Creatures.push_back(p_Guid);
                 m_CosmeticEvent.RescheduleEvent(eEvents::EventCheckForIntro, 1000);
             }
 
@@ -306,7 +397,7 @@ class boss_brackenspore : public CreatureScript
                 if (m_CosmeticEvent.ExecuteEvent())
                 {
                     bool l_CanSchedule = true;
-                    for (uint64 l_Guid : l_Creatures)
+                    for (uint64 l_Guid : m_Creatures)
                     {
                         if (Creature* l_Add = Creature::GetCreature(*me, l_Guid))
                         {
@@ -319,7 +410,7 @@ class boss_brackenspore : public CreatureScript
                     }
 
                     if (l_CanSchedule)
-                        DoAction(eAction::DoIntro);
+                        DoAction(eActions::DoIntro);
                     else
                         m_CosmeticEvent.ScheduleEvent(eEvents::EventCheckForIntro, 1000);
                 }
@@ -342,6 +433,7 @@ class boss_brackenspore : public CreatureScript
                         me->CastSpell(me, eSpells::Berserker, true);
                         break;
                     case eEvents::EventInfestingSpores:
+                        Talk(eTalk::InfestingSpores);
                         me->CastSpell(me, eSpells::SpellInfestingSpores, false);
                         m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -373,6 +465,23 @@ class boss_brackenspore : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+            }
+
+            bool CheckCreepingMossPosition(float p_X, float p_Y) const
+            {
+                /// No more than one Creeping Moss every 12 yards
+                float l_CheckRange = 12.0f;
+
+                for (auto l_Iter : m_CreepingMoss)
+                {
+                    if (AreaTrigger* l_AT = AreaTrigger::GetAreaTrigger(*me, l_Iter.second.Guid))
+                    {
+                        if (l_AT->GetDistance2d(p_X, p_Y) > l_CheckRange)
+                            return false;
+                    }
+                }
+
+                return true;
             }
         };
 
@@ -589,7 +698,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
         }
 };
 
-/// Mind Fungus - 78884
+/// Living Mushroom - 78884
 class npc_highmaul_living_mushroom : public CreatureScript
 {
     public:
@@ -598,12 +707,15 @@ class npc_highmaul_living_mushroom : public CreatureScript
         enum eSpells
         {
             LivingMushroomVisual    = 159280,
-            LivingMushroomL1Visual  = 164245
+            LivingMushroomL1Visual  = 164245,
+            Withering3Percent       = 160399,
+            Withering5Percent       = 163113,
+            LivingSpores            = 159291
         };
 
-        struct npc_highmaul_living_mushroomAI : public ScriptedAI
+        struct npc_highmaul_living_mushroomAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_living_mushroomAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            npc_highmaul_living_mushroomAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
             {
                 m_Instance = p_Creature->GetInstanceScript();
             }
@@ -621,6 +733,26 @@ class npc_highmaul_living_mushroom : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 3);
+
+                AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::Withering3Percent, true); });
+
+                AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->RemoveAura(eSpells::Withering3Percent);
+                    me->CastSpell(me, eSpells::Withering5Percent, true);
+                });
+
+                AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::Withering3Percent, true);
+                    me->CastSpell(me, eSpells::Withering5Percent, true);
+                });
+            }
+
+            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            {
+                if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::LivingSpores))
+                    me->CastSpell(me, eSpells::LivingSpores, true);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -628,13 +760,81 @@ class npc_highmaul_living_mushroom : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
             }
-
-            void UpdateAI(uint32 const p_Diff) override { }
         };
 
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_living_mushroomAI(p_Creature);
+        }
+};
+
+/// Rejuvenating Mushroom - 78868
+class npc_highmaul_rejuvenating_mushroom : public CreatureScript
+{
+    public:
+        npc_highmaul_rejuvenating_mushroom() : CreatureScript("npc_highmaul_rejuvenating_mushroom") { }
+
+        enum eSpells
+        {
+            RejuvenatingMushroomVisual      = 159253,
+            RejuvenatingMushroomL1Visual    = 164246,
+            Withering3Percent               = 163122,
+            Withering5Percent               = 163124,
+            RejuvenatingSpores              = 159292
+        };
+
+        struct npc_highmaul_rejuvenating_mushroomAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_rejuvenating_mushroomAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+
+            void Reset() override
+            {
+                me->DisableHealthRegen();
+                me->SetHealth(me->GetMaxHealth() / 2);
+                me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+
+                me->CastSpell(me, eSpells::RejuvenatingMushroomVisual, true);
+                me->CastSpell(me, eSpells::RejuvenatingMushroomL1Visual, true);
+
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
+
+                AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::Withering3Percent, true); });
+
+                AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->RemoveAura(eSpells::Withering3Percent);
+                    me->CastSpell(me, eSpells::Withering5Percent, true);
+                });
+
+                AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->CastSpell(me, eSpells::Withering3Percent, true);
+                    me->CastSpell(me, eSpells::Withering5Percent, true);
+                });
+            }
+
+            void HealReceived(Unit* p_Healer, uint32& p_Heal) override
+            {
+                if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::RejuvenatingSpores))
+                    me->CastSpell(me, eSpells::RejuvenatingSpores, true);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance != nullptr)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_rejuvenating_mushroomAI(p_Creature);
         }
 };
 
@@ -838,6 +1038,45 @@ class spell_highmaul_pulsing_heat : public SpellScriptLoader
         }
 };
 
+/// Creeping Moss 1 - 163347
+class spell_highmaul_creeping_moss : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_creeping_moss() : SpellScriptLoader("spell_highmaul_creeping_moss") { }
+
+        class spell_highmaul_creeping_moss_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_creeping_moss_AuraScript);
+
+            enum eAction
+            {
+                CreepingMoss = 1
+            };
+
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            {
+                if (GetTarget() == nullptr)
+                    return;
+
+                if (Creature* l_Target = GetTarget()->ToCreature())
+                {
+                    if (l_Target->GetAI())
+                        l_Target->AI()->DoAction(eAction::CreepingMoss);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_creeping_moss_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_creeping_moss_AuraScript();
+        }
+};
+
 /// Mind Fungus - 159489
 class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
 {
@@ -957,12 +1196,14 @@ void AddSC_boss_brackenspore()
     new npc_highmaul_spore_shooter();
     new npc_highmaul_fungal_flesh_eater();
     new npc_highmaul_living_mushroom();
+    new npc_highmaul_rejuvenating_mushroom();
 
     /// Spells
     new spell_highmaul_necrotic_breath();
     new spell_highmaul_flamethrower_aura();
     new spell_highmaul_flamethrower_regen();
     new spell_highmaul_pulsing_heat();
+    new spell_highmaul_creeping_moss();
 
     /// AreaTriggers (Spells)
     new areatrigger_highmaul_mind_fungus();

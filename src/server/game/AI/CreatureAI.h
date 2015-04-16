@@ -120,6 +120,9 @@ class CreatureAI : public UnitAI
         virtual void JustSummoned(Creature* /*summon*/) {}
         virtual void IsSummonedBy(Unit* /*summoner*/) {}
 
+        /// Called when the creature summons successfully AreaTriggers
+        virtual void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) { }
+
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
 

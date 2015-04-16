@@ -3154,6 +3154,11 @@ Transport* Map::GetTransport(uint64 guid)
     return go ? go->ToTransport() : NULL;
 }
 
+AreaTrigger* Map::GetAreaTrigger(uint64 p_Guid)
+{
+    return ObjectAccessor::GetObjectInMap(p_Guid, this, (AreaTrigger*)nullptr);
+}
+
 void Map::UpdateIteratorBack(Player* player)
 {
     if (m_mapRefIter == player->GetMapRef())
