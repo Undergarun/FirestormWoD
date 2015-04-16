@@ -975,7 +975,6 @@ class playerScript_enter_tanaan : public PlayerScript
                 p_Player->GetQuestStatus(TanaanQuests::QuestKeliDanTheBreakerHorde) == QUEST_STATUS_COMPLETE ||
                 p_Player->GetQuestStatus(TanaanQuests::QuestKeliDanTheBreakerHorde) == QUEST_STATUS_REWARDED)
             {
-                p_Player->NearTeleportTo(4527.306f, -2298.1438f, 33.334f, p_Player->GetOrientation());
                 l_PhaseMask |= TanaanPhases::PhaseCaveLastRock;
                 l_PhaseMask |= TanaanPhases::PhasePoolMobs;
                 l_PhaseMask |= TanaanPhases::PhaseGroupPool;
