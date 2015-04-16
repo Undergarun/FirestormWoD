@@ -1907,7 +1907,7 @@ class npc_archmage_khadgar_bridge : public CreatureScript
             return true;
         }
 
-        bool OnGossipHello(Player * p_Player, Creature * p_Creature)
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
             if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_NONE &&
                 p_Player->GetQuestStatus(TanaanQuests::QuestBlazeOfGlory) == QUEST_STATUS_REWARDED)
