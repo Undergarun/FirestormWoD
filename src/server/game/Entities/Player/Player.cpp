@@ -31720,7 +31720,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
+    if (!IsInWorld())
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
@@ -31768,7 +31768,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->InitStats(0);
     l_CurrentPet->SetOwnerGUID(GetGUID());
 
-    m_LastSummonedBattlePet = l_BattlePet->JournalID;
+    m_LastSummonedBattlePet = GUID_LOPART(l_BattlePet->JournalID);
 
     SetGuidValue(UNIT_FIELD_CRITTER,                                l_CurrentPet->GetGUID());
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL,                l_BattlePet->Level);
@@ -31817,7 +31817,7 @@ Creature * Player::GetSummonedBattlePet()
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
 {
-    SummonBattlePet(m_LastSummonedBattlePet);
+    SummonBattlePet(MAKE_NEW_GUID(m_LastSummonedBattlePet, 0, HIGHGUID_BATTLE_PET));
 }
 
 /// Get pet battles
