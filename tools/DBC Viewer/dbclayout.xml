@@ -1484,24 +1484,24 @@
     <field type="string" name="ModelName2" />
     <field type="string" name="ModelTexture" />
     <field type="string" name="ModelTexture2" />
-    <field type="float" name="GeosetGroup_1" />
-    <field type="float" name="GeosetGroup_2" />
-    <field type="float" name="GeosetGroup_3" />
+    <field type="int" name="GeosetGroup_1" />
+    <field type="int" name="GeosetGroup_2" />
+    <field type="int" name="GeosetGroup_3" />
     <field type="int" name="Flags" />
     <field type="int" name="SpellVisualID" />
     <field type="int" name="HelmetGeosetVis_1" />
     <field type="int" name="HelmetGeosetVis_2" />
-    <field type="string" name="Texture" />
+    <field type="string" name="Texture1" />
+    <field type="string" name="Texture2" />
+    <field type="string" name="Texture3" />
+    <field type="string" name="Texture4" />
+    <field type="string" name="Texture5" />
+    <field type="string" name="Texture6" />
+    <field type="string" name="Texture7" />
+    <field type="string" name="Texture8" />
+    <field type="string" name="Texture9" />
     <field type="int" name="ItemVisual" />
     <field type="int" name="ParticleColorID" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
-    <field type="int" name="field20" />
   </ItemDisplayInfo>
   <ItemRandomProperties build="18612">
     <index>
@@ -4550,4 +4550,59 @@
     <field type="int" name="newField1 6.1" />
     <field type="int" name="OverrideBuyPrice" />
   </ItemExtendedCost>
+  <ItemClass build="19890">
+    <index>
+      <primary>ClassID</primary>
+    </index>
+    <field type="int" name="ClassID" />
+    <field type="int" name="flags" />
+    <field type="float" name="PriceModifier" />
+    <field type="string" name="ClassNameLang" />
+  </ItemClass>
+  <ItemSubClass build="19890">
+    <index>
+      <primary>index</primary>
+    </index>
+    <field type="int" name="index" />
+    <field type="int" name="classid" />
+    <field type="int" name="subclassid" />
+    <field type="int" name="PrerequisiteProficiency" />
+    <field type="int" name="PostrequisiteProficiency" />
+    <field type="int" name="Flags" />
+    <field type="int" name="DisplayFlags" />
+    <field type="int" name="WeaponParrySeq" />
+    <field type="int" name="WeaponReadySeq" />
+    <field type="int" name="WeaponAttackSeq" />
+    <field type="int" name="WeaponSwingSize" />
+    <field type="string" name="DisplayNameLang" />
+    <field type="string" name="VerboseNameLang" />
+  </ItemSubClass>
+  <ItemDisplayInfo build="19890">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="ModelName" />
+    <field type="string" name="ModelName2" />
+    <field type="string" name="ModelTexture" />
+    <field type="string" name="ModelTexture2" />
+    <field type="int" name="GeosetGroup_1" />
+    <field type="int" name="GeosetGroup_2" />
+    <field type="int" name="GeosetGroup_3" />
+    <field type="int" name="Flags" />
+    <field type="int" name="SpellVisualID" />
+    <field type="int" name="HelmetGeosetVis_1" />
+    <field type="int" name="HelmetGeosetVis_2" />
+    <field type="string" name="Texture1" />
+    <field type="string" name="Texture2" />
+    <field type="string" name="Texture3" />
+    <field type="string" name="Texture4" />
+    <field type="string" name="Texture5" />
+    <field type="string" name="Texture6" />
+    <field type="string" name="Texture7" />
+    <field type="string" name="Texture8" />
+    <field type="string" name="Texture9" />
+    <field type="int" name="ItemVisual" />
+    <field type="int" name="ParticleColorID" />
+  </ItemDisplayInfo>
 </DBFilesClient>
