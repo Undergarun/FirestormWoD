@@ -1061,6 +1061,11 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
 
         return;
     }
+    else if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && player->GetRestType() == REST_TYPE_IN_TAVERN)
+    {
+        player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+        player->SetRestType(REST_TYPE_NO);
+    }
 
     if (Battleground* bg = player->GetBattleground())
         if (bg->GetStatus() == STATUS_IN_PROGRESS)
@@ -1257,6 +1262,16 @@ void WorldSession::HandleSceneTriggerEventOpcode(WorldPacket & p_Packet)
     std::string l_Event         = p_Packet.ReadString(l_EventLenght);
 
     sScriptMgr->OnSceneTriggerEvent(m_Player, l_SceneInstanceID, l_Event);
+}
+
+void WorldSession::HandleSceneCancelOpcode(WorldPacket & p_Packet)
+{
+    if (!m_Player)
+        return;
+
+    uint32 l_SceneInstanceID = p_Packet.read<uint32>();
+
+    sScriptMgr->OnSceneCancel(m_Player, l_SceneInstanceID);
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
@@ -2436,4 +2451,36 @@ void WorldSession::HandleMountSetFavoriteOpcode(WorldPacket & p_Packet)
         return;
 
     m_Player->MountSetFavorite(l_MountSpellID, l_IsFavorite);
+}
+
+void WorldSession::HandleRequestTwitterStatus(WorldPacket& p_RecvData)
+{
+    SendTwitterStatus(true);
+}
+
+void WorldSession::SendTwitterStatus(bool p_Enabled)
+{
+    if (!m_Player || !m_Player->IsInWorld())
+        return;
+        
+    {
+        WorldPacket l_Data(SMSG_OAUTH_SAVED_DATA);
+        l_Data << uint32(0); ///< Hax0red struct not needed
+        l_Data.FlushBits();
+        SendPacket(&l_Data);
+    }
+
+    {
+        WorldPacket l_Data(SMSG_REQUEST_TWITTER_STATUS_RESPONSE);
+        l_Data.WriteBit(p_Enabled); ///< Enabled
+        l_Data.FlushBits();
+        l_Data << uint32(2);        ///< Unk loop 1 (uint32)
+        l_Data << uint32(2);        ///< Unk loop 2 (1 bit)
+        l_Data << uint32(69776);
+        l_Data << uint32(88584);
+        l_Data.WriteBit(0);
+        l_Data.WriteBit(0);
+        l_Data.FlushBits();
+        SendPacket(&l_Data);
+    }
 }

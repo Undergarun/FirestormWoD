@@ -1101,13 +1101,13 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     l_Transaction->Append(l_Stmt);
 
     CharacterDatabase.CommitTransaction(l_Transaction);
-    
+
     /// Create default ranks
     _CreateDefaultGuildRanks(l_LeaderSession->GetSessionDbLocaleIndex());
-    
+
     /// Add guildmaster
     bool l_Result = AddMember(m_leaderGuid, GR_GUILDMASTER);
-    
+
     /// Call scripts on successful create
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
@@ -1232,7 +1232,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
             if (l_Player->isDND())
                 l_Flags |= GUILDMEMBER_STATUS_DND;
         }
-        
+
         l_Data.appendPackGUID(l_Member->GetGUID());
 
         l_Data << uint32(l_Member->GetRankId());
@@ -1252,7 +1252,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
                 l_Data << uint32(l_ProfessionID);                                                       ///< Db ID
                 l_Data << uint32(l_Player->GetSkillValue(l_ProfessionID));                              ///< Rank
                 l_Data << uint32(l_Player->GetSkillStep(l_ProfessionID));                               ///< Step
-            }  
+            }
             else
             {
                 l_Data << uint32(0);                                                                    ///< Db ID
@@ -1720,7 +1720,7 @@ void Guild::HandleAcceptMember(WorldSession* p_Session)
 
         l_Data.Initialize(SMSG_GUILD_EVENT_PRESENCE_CHANGE);
         l_Data.appendPackGUID(p_Session->GetPlayer()->GetGUID());           ///< Guid
-        l_Data << uint32(g_RealmID);                                          ///< Virtual Realm Address
+        l_Data << uint32(g_RealmID);                                        ///< Virtual Realm Address
         l_Data.WriteBits(strlen(p_Session->GetPlayer()->GetName()), 6);     ///< Name
         l_Data.WriteBit(false);                                             ///< Mobile
         l_Data.WriteBit(true);                                              ///< Logged On
@@ -2171,7 +2171,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         }
     }
 
-    l_Data.WriteBit(false);                 ///< Is Full Update
+    l_Data.WriteBit(p_WithContent && p_WithTabInfo);                        ///< Is Full Update
     l_Data.FlushBits();
 
     p_Session->SendPacket(&l_Data);
@@ -2224,8 +2224,8 @@ void Guild::SendLoginInfo(WorldSession * p_Session)
           SMSG_GUILD_ACHIEVEMENT_DATA
           SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
           SMSG_GUILD_SEND_PLAYER_LOGIN_STATUS
-          */    
-    
+          */
+
     WorldPacket l_Data(SMSG_GUILD_EVENT_MOTD, 1 + 1 + m_motd.size());
 
     l_Data.WriteBits(m_motd.size(), 10);
@@ -2688,7 +2688,7 @@ bool Guild::AddMember(uint64 p_Guid, uint8 p_RankID)
             if (const GuildPerkSpellsEntry * l_Entry = sGuildPerkSpellsStore.LookupEntry(l_I))
                 l_Player->learnSpell(l_Entry->SpellId, true);
         }
-     
+
         if (FactionEntry const* l_FactionEntry = sFactionStore.LookupEntry(REP_GUILD))
         {
             ReputationRank l_Rank = l_Player->GetReputationMgr().GetRank(l_FactionEntry);
@@ -3419,14 +3419,14 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
         size_t rempos = data.wpos();
         data << uint32(-1);                                      // Item withdraw amount, will be filled later
 
-        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        /*for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
                 if (Player* player = itr->second->FindPlayer())
                 {
                     data.put<uint32>(rempos, uint32(_GetMemberRemainingSlots(player->GetGUID(), tabId)));
                     player->GetSession()->SendPacket(&data);
                 }
-
+                */
         sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LIST)");
     }
 }

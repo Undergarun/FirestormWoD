@@ -111,6 +111,13 @@ enum LoginDatabaseStatements
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,
     LOGIN_DEL_ACCOUNT,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// ToyBox
+    LOGIN_SEL_ACCOUNT_TOYS,
+    LOGIN_INS_ACCOUNT_TOYS,
+    LOGIN_UPD_TOY_FAVORITE,
+    //////////////////////////////////////////////////////////////////////////
     
     LOGIN_SET_DUMP,
     LOGIN_ADD_TRANSFERTS_LOGS,
@@ -131,6 +138,13 @@ enum LoginDatabaseStatements
 
     LOGIN_SEL_TRANSFERT_DUMP,
     LOGIN_SEL_TRANSFERT_LOAD,
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Heirloom Colleciton
+    LOGIN_SEL_HEIRLOOM_COLLECTION,
+    LOGIN_INS_HEIRLOOM,
+    LOGIN_UPD_HEILOOM_FLAGS,
+    //////////////////////////////////////////////////////////////////////////
 
     MAX_LOGINDATABASE_STATEMENTS
 };

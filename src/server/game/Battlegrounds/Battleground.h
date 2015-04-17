@@ -53,7 +53,7 @@ namespace MS
             };
         }
 
-        /// Correponds to the spells related to battlegrounds.        
+        /// Correponds to the spells related to battlegrounds.
         namespace Spells
         {
             enum Type
@@ -134,7 +134,7 @@ namespace MS
             {
                 return (p_Type == RatedBg10v10 || p_Type == RatedBg15v15 || p_Type == RatedBg25v25) || (p_Type >= Arena2v2 && p_Type <= Arena5v5);
             }
-            
+
             /// Return the ArenaType of the battleground.
             /// @p_Type : The type of the battleground.
             static ArenaType GetArenaType(Type p_Type)
@@ -465,7 +465,7 @@ struct PlayerQueueInfo                                      // stores informatio
     {
         uint32 LastOnlineTime;      /// For tracking and removing offline players from queue after 5 minutes.
         GroupQueueInfo* GroupInfo;  /// Information of the group currently queued.
-    };  
+    };
 
     std::list<Pair> Infos;
 };
@@ -1124,7 +1124,7 @@ class Battleground
 
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
-        
+
         void AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser);
         void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam);
         static uint32 GetSpellIdForAward(BattlegroundAward p_Award);
@@ -1150,7 +1150,7 @@ class Battleground
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
         // must be implemented in BG subclass
-        virtual void RemovePlayer(Player* player, uint64 guid, uint32 team) 
+        virtual void RemovePlayer(Player* player, uint64 guid, uint32 team)
         {
             UNUSED(player);
             UNUSED(guid);

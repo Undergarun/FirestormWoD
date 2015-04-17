@@ -32,20 +32,24 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<MS::Garrison::GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
     std::vector<MS::Garrison::GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
 
+    /// @TODO: Update it to 6.1.2
     if (!m_Player->IsInGarrison())
     {
         WorldPacket l_Data(SMSG_GARRISON_REMOTE_INFO, 200);
 
         l_Data << uint32(1);                                                        ///< @TODO Site Count
+        l_Data << uint32(0);                                                        ///< Unk
 
-        l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
-        l_Data << uint32(l_Buildings.size());                                       ///< Buildings
+        /// For
+            l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
+
+        /*l_Data << uint32(l_Buildings.size());                                       ///< Buildings
 
         for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
         {
             l_Data << uint32(l_Buildings[l_I].PlotInstanceID);                      ///< Garr Plot Instance ID
             l_Data << uint32(l_Buildings[l_I].BuildingID);                          ///< Garr Building ID
-        }
+        }*/
 
         SendPacket(&l_Data);
     }

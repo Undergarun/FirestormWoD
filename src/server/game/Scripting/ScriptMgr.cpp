@@ -1852,6 +1852,13 @@ void ScriptMgr::OnPlayerUpdateMovement(Player * p_Player)
     FOREACH_SCRIPT(PlayerScript)->OnUpdateMovement(p_Player);
 }
 
+/// Called when player accepts some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Accpeted quest
+void ScriptMgr::OnQuestAccept(Player * p_Player, const Quest * p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAccept(p_Player, p_Quest);
+}
 /// Called when player rewards some quest
 /// @p_Player : Player instance
 /// @p_Quest  : Rewarded quest
@@ -1867,6 +1874,22 @@ void ScriptMgr::OnQuestReward(Player* p_Player, const Quest* p_Quest)
 void ScriptMgr::OnObjectiveValidate(Player * p_Player, uint32 p_QuestID, uint32 p_ObjectiveID)
 {
     FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(p_Player, p_QuestID, p_ObjectiveID);
+}
+
+/// Called when player completes some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Completed quest
+void ScriptMgr::OnQuestComplete(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(p_Player, p_Quest);
+}
+
+/// Called when player abandons some quest
+/// @p_Player : Player instance
+/// @p_Quest  : Removed quest
+void ScriptMgr::OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAbandon(p_Player, p_Quest);
 }
 
 /// Called when a player shapeshift
@@ -1913,6 +1936,14 @@ void ScriptMgr::OnPlayerLeaveCombat(Player* p_Player)
 void ScriptMgr::OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(p_Player, p_SceneInstanceID, p_Event);
+}
+
+/// Called when a player cancels a scene who takes camera controls
+/// @p_Player          : Player instance
+/// @p_SceneInstanceID : Standalone scene instance ID
+void ScriptMgr::OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(p_Player, p_SceneInstanceId);
 }
 
 /// Called when a player regen a power

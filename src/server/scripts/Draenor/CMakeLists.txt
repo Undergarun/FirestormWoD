@@ -16,6 +16,10 @@ set(scripts_STAT_SRCS
   ${sources_Garrison}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
+  Draenor/frostfire_ridge.cpp
+  Draenor/frostfire_ridge.h
+  Draenor/spires_of_arak.cpp
+  Draenor/spires_of_arak.h
   Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
   Draenor/Skyreach/instance_skyreach.h

@@ -1964,7 +1964,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
                     break;
                 }
             }
-            
+
             if (secondTarget && target->GetGUID() != secondTarget->GetGUID())
             {
                 int8 l_Stacks = havoc->GetStackAmount() - l_StacksToDrop;
@@ -4751,7 +4751,7 @@ void Spell::SendSpellStart()
     data << uint32(0);                      ///< Hitted target count
     data << uint32(0);                      ///< Missed target count
     data << uint32(0);                      ///< Miss count 2
-    data.WriteBits(m_targets.GetTargetMask(), 21);
+    data.WriteBits(m_targets.GetTargetMask(), 23);
     data.WriteBit(m_targets.HasSrc());
     data.WriteBit(m_targets.HasDst());
     data.WriteBit(false);
@@ -4962,7 +4962,7 @@ void Spell::SendSpellGo()
     l_Data << uint32(l_HitCount);
     l_Data << uint32(l_MissCount);
     l_Data << uint32(l_MissCount);
-    l_Data.WriteBits(m_targets.GetTargetMask(), 21);
+    l_Data.WriteBits(m_targets.GetTargetMask(), 23);
     l_Data.WriteBit(m_targets.HasSrc());
     l_Data.WriteBit(m_targets.HasDst());
     l_Data.WriteBit(l_HasUnk1);
@@ -6644,6 +6644,33 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (Guild* guild = m_caster->ToPlayer()->GetGuild())
                     if (guild->GetLeaderGUID() != m_caster->ToPlayer()->GetGUID())
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
+            case SPELL_EFFECT_CREATE_HEIRLOOM:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+
+                if (!l_Player)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!l_Player->HasHeirloom(m_glyphIndex))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                break;
+            }
+            case SPELL_EFFECT_UPGRADE_HEIRLOOM:
+            {
+                Player* l_Player = m_caster->ToPlayer();
+                HeirloomEntry const* l_Heirloom = GetHeirloomEntryByItemID(m_glyphIndex);
+
+                if (!l_Player || !l_Heirloom || !m_CastItem)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!l_Player->HasHeirloom(l_Heirloom))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (!l_Player->CanUpgradeHeirloomWith(l_Heirloom, m_CastItem->GetTemplate()->ItemId))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
                 break;
             }
             default:

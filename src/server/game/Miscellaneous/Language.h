@@ -1248,6 +1248,10 @@ enum TrinityStrings
     LANG_ICC_BUFF_REMOVE_H                  = 13074,
     LANG_ICC_BUFF_REMOVE_A                  = 13075,
 
+    LANG_RBG_STARTED_ANNOUNCE_WORLD         = 13080,
+
+    LANG_LEXICS_CUTTER_NOTIFY               = 13200,
+
     LANG_CONFESSION_START                   = 14000,
     LANG_CONFESSION_END                     = 14055,
     LANG_CONFESSION_EMOTE                   = 14056,

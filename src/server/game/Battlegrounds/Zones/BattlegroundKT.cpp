@@ -51,6 +51,29 @@ BattlegroundKT::~BattlegroundKT()
 
 void BattlegroundKT::PostUpdateImpl(uint32 diff)
 {
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (auto itr : GetPlayers())
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr.first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+
+                if (plr->GetPositionZ() < 24)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(998, 1781.31f, 1597.76f, 33.61f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(998, 1784.42f, 1072.73f, 29.88f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
+    }
+
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         if (m_UpdatePointsTimer <= diff)
@@ -291,6 +314,8 @@ void BattlegroundKT::Reset()
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
 
     m_LastCapturedOrbTeam = TEAM_NONE;
+
+    m_CheatersCheckTimer = 0;
 }
 
 void BattlegroundKT::EndBattleground(uint32 winner)

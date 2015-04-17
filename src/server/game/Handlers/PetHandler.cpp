@@ -434,6 +434,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
             break;
         }
+        case ACT_DECIDE:
+            return;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }
@@ -736,7 +738,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags = p_RecvPacket.ReadBits(21);
+    l_TargetFlags = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget = p_RecvPacket.ReadBit();
     l_HasDestinationTarget = p_RecvPacket.ReadBit();
     l_HasUnkFloat = p_RecvPacket.ReadBit();
@@ -942,7 +944,7 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
     if (!l_PetSpecializationId)
         return;
 
-    if (m_Player->HasAuraType(AuraType::SPELL_AURA_ADAPTATION))
+    if (m_Player->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
     {
         switch (l_PetSpecializationId)
         {

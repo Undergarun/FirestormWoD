@@ -52,6 +52,7 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
+struct LFGListEntry;
 struct MovementInfo;
 struct PetBattleRequest;
 class PetBattle;
@@ -857,6 +858,7 @@ class WorldSession
         void HandleNextCinematicCamera(WorldPacket& recvPacket);
         void HandleCompleteMovieOpcode(WorldPacket & p_Packet);
         void HandleSceneTriggerEventOpcode(WorldPacket & p_Packet);
+        void HandleSceneCancelOpcode(WorldPacket & p_Packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 
@@ -964,6 +966,18 @@ class WorldSession
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfoOpcode(WorldPacket& recvData);
 
+        // Lfg List
+        void HandleRequestLfgListBlacklist(WorldPacket& p_RecvData);
+        void HandleLfgListJoin(WorldPacket& p_RecvData);
+        void HandleLfgListUpdateRequest(WorldPacket& p_RecvData);
+        void HandleLfgListLeave(WorldPacket& p_RecvData);
+        void HandleLfgListSearch(WorldPacket& p_RecvData);
+        void SendLfgListJoinResult(LFGListEntry const* p_Entry, uint8 p_Error);
+        void SendLfgSearchResponse(uint32 p_ActivityCategory, uint32 p_ActivitySubCategory, std::string p_FilterString);
+        static void BuildLfgListRideTicket(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListJoinRequest(WorldPacket* p_Data, LFGListEntry const* p_Entry);
+        static void BuildLfgListQueueUpdate(WorldPacket* p_Data, LFGListEntry const* p_Entry, bool p_Listed);
+
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
 
@@ -1069,6 +1083,10 @@ class WorldSession
         void SendBlackMarketRequestItemsResult();
         void HandleBlackMarketBid(WorldPacket& recvData);
         void SendBlackMarketBidResult(uint32 itemEntry, uint32 auctionId);
+
+        // Twitter
+        void HandleRequestTwitterStatus(WorldPacket& p_RecvData);
+        void SendTwitterStatus(bool l_Enabled);
 
         //////////////////////////////////////////////////////////////////////////
         /// Garrison

@@ -1133,6 +1133,7 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_IsRestrictedAccount                  = false;
     bool l_IsTutorialEnabled                    = true;
     bool l_ShowNPETutorial                      = true;
+    bool l_TwitterEnabled                       = true;
 
     uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
     uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
@@ -1153,6 +1154,10 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
+    l_Data << uint32(60);                                           ///< Unk 6.1.0
+    l_Data << uint32(20);                                           ///< Unk 6.1.0
+    l_Data << uint32(300);                                          ///< Unk 6.1.2
+    l_Data << uint32(0);                                            ///< Unk 6.1.2
 
     l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
     l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
@@ -1168,6 +1173,11 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
+    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface -- guessed
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 WoWToken Enabled ?
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
+    l_Data.WriteBit(0);                                             ///< Unk 6.1.2 19796 -- unk block
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)

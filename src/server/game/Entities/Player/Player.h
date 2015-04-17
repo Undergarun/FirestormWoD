@@ -254,10 +254,12 @@ enum ActionButtonType
 {
     ACTION_BUTTON_SPELL = 0x00,
     ACTION_BUTTON_C = 0x01,                         // click?
+    ACTION_BUTTON_UNK       = 0x10,
     ACTION_BUTTON_EQSET = 0x20,
     ACTION_BUTTON_DROPDOWN = 0x30,
     ACTION_BUTTON_MACRO = 0x40,
     ACTION_BUTTON_CMACRO = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
+    ACTION_BUTTON_PET       = ACTION_BUTTON_UNK | ACTION_BUTTON_MACRO,
     ACTION_BUTTON_ITEM = 0x80
 };
 
@@ -892,9 +894,10 @@ class InstanceSave;
 
 enum RestType
 {
-    REST_TYPE_NO        = 0,
-    REST_TYPE_IN_TAVERN = 1,
-    REST_TYPE_IN_CITY   = 2
+    REST_TYPE_NO              = 0,
+    REST_TYPE_IN_TAVERN       = 1,
+    REST_TYPE_IN_CITY         = 2,
+    REST_TYPE_IN_FACTION_AREA = 3     // used with AREA_FLAG_REST_ZONE_*
 };
 
 enum DuelCompleteType
@@ -931,8 +934,11 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_COM        = 0x08,                             // Commentator
+    CHAT_TAG_UNK1       = 0x08,
     CHAT_TAG_DEV        = 0x10,
+    CHAT_TAG_UNK        = 0x20,
+    CHAT_TAG_PHONE      = 0x40,     /// Speaker Icon
+    CHAT_TAG_COM        = 0x80,     /// Commentator
 };
 
 enum PlayedTimeIndex
@@ -1481,7 +1487,7 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-namespace MS { namespace Garrison 
+namespace MS { namespace Garrison
 {
     class Manager;
 }   ///< namespace Garrison
@@ -1542,6 +1548,8 @@ class Player : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
         Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
+
+        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
 
         bool ToggleAFK();
         bool ToggleDND();
@@ -2182,6 +2190,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecializationId(uint8 spec, uint32 id, bool loading = false);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId = 0);
+        static uint32 GetRoleBySpecializationId(uint32 specializationId);
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
 
@@ -2199,7 +2208,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         uint32 CalculateTalentsPoints() const;
         void CastPassiveTalentSpell(uint32 spellId);
-        void RemovePassiveTalentSpell(uint32 spellId);
+        void RemovePassiveTalentSpell(SpellInfo const* info);
 
         void ResetSpec(bool p_NoCost = false);
 
@@ -2489,7 +2498,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false);
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
@@ -2497,7 +2506,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateItemLevel();
         void UpdateAllRatings();
 
-        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
+        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields = false);
 
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float OCTRegenMPPerSpirit();
@@ -2796,7 +2805,7 @@ class Player : public Unit, public GridObject<Player>
             if (l_Itr != m_bgData.bgQueuesJoinedTime.end())
                 m_bgData.bgQueuesJoinedTime.erase(l_Itr);
         }
-        
+
         /// Returns true if the player is in a battleground queue.
         bool InBattlegroundQueue() const
         {
@@ -2843,7 +2852,7 @@ class Player : public Unit, public GridObject<Player>
             m_bgData.bgTypeID = bgTypeId;
         }
 
-        
+
         uint32 AddBattlegroundQueueId(MS::Battlegrounds::BattlegroundType::Type val)
         {
             for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
@@ -3382,6 +3391,7 @@ class Player : public Unit, public GridObject<Player>
         }
         //////////////////////////////////////////////////////////////////////////
 
+        ScalingStatDistributionEntry const* GetSSDForItem(Item const* p_Item) const;
         uint32 GetEquipItemLevelFor(ItemTemplate const* itemProto, Item const* item = nullptr) const;
         void RescaleItemTo(uint8 slot, uint32 ilvl);
         void RescaleAllItemsIfNeeded(bool p_KeepHPPct = false);
@@ -3466,12 +3476,21 @@ class Player : public Unit, public GridObject<Player>
         void _GarrisonSetIn();
         void _GarrisonSetOut();
 
+        bool AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel = 0);
+        bool HasHeirloom(uint32 p_ItemID) const;
+        bool HasHeirloom(HeirloomEntry const* p_HeirloomEntry) const;
+        uint32 GetHeirloomUpgradeLevel(HeirloomEntry const* p_HeirloomEntry) const;
+        bool CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32 p_ItemId) const;
+
         void AddCriticalOperation(std::function<void()> const&& p_Function)
         {
             m_CriticalOperationLock.acquire();
             m_CriticalOperation.push(std::function<void()>(p_Function));
             m_CriticalOperationLock.release();
         }
+
+        void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
+        void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
 
     protected:
         void OnEnterPvPCombat();
@@ -3547,6 +3566,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEffect, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
+        void _LoadHeirloomCollection(PreparedQueryResult p_Result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
@@ -3903,6 +3923,8 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _storeItemCallback;
         PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
+        PreparedQueryResultFuture _HeirloomStoreCallback;
+        PreparedQueryResultFuture _PlayersToysCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;
@@ -3987,6 +4009,8 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
         if (spellWeaponMask > 0 && playerWeaponMask > 0)
             if (!(playerWeaponMask & spellWeaponMask))
                 continue;
+
+        /// @TODO: Add hook to prevent apply of specific spellmod
 
         if (mod->type == SPELLMOD_FLAT)
             totalflat += mod->value;

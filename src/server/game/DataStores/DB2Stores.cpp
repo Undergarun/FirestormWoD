@@ -29,7 +29,12 @@ DB2Storage <PathNodeEntry>                  sPathNodeStore(PathNodeEntryfmt);
 DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
 std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvePoints;
-DB2Storage<CurvePointEntry>                 sCurvePointStore(CurvePointEntryfmt);
+std::unordered_map<uint32 /*ItemID*/, HeirloomEntry const*> HeirloomEntryByItemID;
+
+DB2Storage <CurrencyTypesEntry>             sCurrencyTypesStore(CurrencyTypesfmt);
+DB2Storage <CurvePointEntry>                sCurvePointStore(CurvePointEntryfmt);
+DB2Storage <GroupFinderActivityEntry>       sGroupFinderActivityStore(GroupFinderActivityfmt);
+DB2Storage <GroupFinderCategoryEntry>       sGroupFinderCategoryStore(GroupFinderCategoryfmt);
 DB2Storage <ItemEntry>                      sItemStore(Itemfmt);
 DB2Storage <ItemBonusEntry>                 sItemBonusStore(ItemBonusfmt);
 DB2Storage <ItemBonusTreeNodeEntry>         sItemBonusTreeNodeStore(ItemBonusTreeNodefmt);
@@ -38,6 +43,7 @@ DB2Storage <ItemCurrencyCostEntry>          sItemCurrencyCostStore(ItemCurrencyC
 DB2Storage <ItemExtendedCostEntry>          sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DB2Storage <ItemSparseEntry>                sItemSparseStore(ItemSparsefmt);
 DB2Storage <ItemEffectEntry>                sItemEffectStore(ItemEffectFmt);
+DB2Storage <HeirloomEntry>                  sHeirloomStore(HeirloomFmt);
 DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
@@ -46,6 +52,7 @@ DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfm
 DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
 DB2Storage <SceneScriptPackageEntry>        sSceneScriptPackageStore(SceneScriptPackageEntryfmt);
+DB2Storage <SoundEntriesEntry>              sSoundEntriesStore(SoundEntriesfmt);
 DB2Storage <TaxiNodesEntry>                 sTaxiNodesStore(TaxiNodesEntryfmt);
 DB2Storage <TaxiPathEntry>                  sTaxiPathStore(TaxiPathEntryfmt);
 DB2Storage <TaxiPathNodeEntry>              sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
@@ -110,7 +117,8 @@ DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(Battl
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
-SpellTotemMap sSpellTotemMap;
+TaxiNodesByMap      sTaxiNodesByMap;
+SpellTotemMap       sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
@@ -180,10 +188,14 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sSoundEntriesStore,              db2Path, "SoundEntries.db2");
+    LoadDB2(bad_db2_files, sCurrencyTypesStore,             db2Path, "CurrencyTypes.db2");
     LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
     LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
     LoadDB2(bad_db2_files, sCurvePointStore,                db2Path, "CurvePoint.db2");
+    LoadDB2(bad_db2_files, sGroupFinderActivityStore,       db2Path, "GroupFinderActivity.db2");
+    LoadDB2(bad_db2_files, sGroupFinderCategoryStore,       db2Path, "GroupFinderCategory.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
     LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
@@ -219,6 +231,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
     LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2");
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
     LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
@@ -377,6 +390,9 @@ void LoadDB2Stores(const std::string& dataPath)
             if (!node)
                 continue;
 
+            // Needed for getting the current flight path
+            sTaxiNodesByMap[node->map_id].push_back(node);
+
             TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
             if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
@@ -444,6 +460,23 @@ void LoadDB2Stores(const std::string& dataPath)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
             sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
 
+    for (uint32 l_ID = 0; l_ID < sHeirloomStore.GetNumRows(); ++l_ID)
+    {
+        HeirloomEntry const* l_Heirloom = sHeirloomStore.LookupEntry(l_ID);
+
+        if (!l_Heirloom)
+            continue;
+
+        HeirloomEntryByItemID.insert({ l_Heirloom->ItemID, l_Heirloom });
+
+        for (uint32 l_X = 0; l_X < 2; l_X++)
+            if (uint32 l_OlderItemID = l_Heirloom->OldHeirloomID[l_X])
+                HeirloomEntryByItemID.insert({ l_OlderItemID, l_Heirloom});
+
+        if (uint32 l_HeroicID = l_Heirloom->HeroicVersion)
+            HeirloomEntryByItemID.insert({ l_HeroicID, l_Heirloom});
+    }
+
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
@@ -494,4 +527,140 @@ uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
             return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
 
     return uint32(previousItr->second->Y);  // Lowest scaling point
+}
+
+HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID)
+{
+    std::unordered_map<uint32, HeirloomEntry const*>::const_iterator l_Iter =  HeirloomEntryByItemID.find(p_ItemID);
+    return l_Iter != HeirloomEntryByItemID.end() ? l_Iter->second : nullptr;
+};
+
+std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
+{
+    TaxiNodesByMap::const_iterator l_Iter = sTaxiNodesByMap.find(l_MapID);
+    return l_Iter != sTaxiNodesByMap.end() ? &l_Iter->second : nullptr;
+}
+
+// basic pathing algorithm which paths from the start to the destination
+uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player)
+{
+    clear();
+
+    uint32 res = 0;
+    TaxiNode* startNode = sObjectMgr->GetTaxiNodeByID(startId);
+    TaxiNode* destNode = sObjectMgr->GetTaxiNodeByID(destId);
+    if (!startNode || !destNode)
+    {
+        res |= TAXIPATH_RES_NO_LINKED_NODES;
+        return res;
+    }
+
+    push_back(startNode);
+
+    TaxiNode* currentNode = startNode;
+    std::set<uint32> closed;
+    while (1)
+    {
+        // path complete
+        if (currentNode == destNode)
+            break;
+
+        if (currentNode == startNode && !closed.empty())
+        {
+            res |= TAXIPATH_RES_NO_PATH;
+            break;
+        }
+
+        TaxiNode* nextNode = currentNode->GetClosestNodeTo(destNode, closed, player);
+
+        if (!nextNode)
+        {
+            closed.insert(currentNode->GetID());
+            currentNode = back();
+            pop_back();
+            continue;
+        }
+
+        // 6.1.0: players can path to unknown nodes if it is on the way to their dest
+        //if (!player->KnowsNode(nextNode))
+        //{
+            //closed.insert(nextNode->GetID())
+            //continue;
+        //}
+
+        closed.insert(currentNode->GetID());
+        push_back(nextNode);
+        currentNode = nextNode;
+    }
+
+    if (res & TAXIPATH_RES_NO_PATH)
+    {
+        clear();
+        push_back(startNode);
+        push_back(destNode);
+        return res;
+    }
+
+    res |= TAXIPATH_RES_SUCCESS;
+    //push_back(destNode);
+
+    return res;
+}
+
+TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player)
+{
+    float dist = -1.f;//GetPosition()->GetExactDist2d(node->GetPosition());
+    TaxiNode* heuristic = nullptr;
+    for (std::set<uint32>::iterator itr = m_connectedNodes.begin(); itr != m_connectedNodes.end(); ++itr)
+    {
+        TaxiNode* connectedNode = sObjectMgr->GetTaxiNodeByID(*itr);
+        TaxiNodesEntry const* l_TaxiNode = node->GetTaxiNodesEntry();
+
+        if (node == connectedNode)
+        {
+            dist = 0.0f;
+            heuristic = connectedNode;
+            break;
+        }
+
+        // I don't think this is possible
+        if (!connectedNode || !l_TaxiNode)
+            continue;
+
+        uint8  field   = (uint8)((*itr - 1) / 8);
+        uint32 submask = 1 << ((*itr-1) % 8);
+
+        if (!l_TaxiNode->MountCreatureID[player->GetTeam() == ALLIANCE ? 1 : 0] && !(sDeathKnightTaxiNodesMask[field] & submask && player->getClass() == CLASS_DEATH_KNIGHT)) // dk flight)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+
+        // skip not taxi network nodes
+        if ((sTaxiNodesMask[field] & submask) == 0)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+
+        /// All taxi path with flag == 0 is quest taxi, event or transport, we can skip it
+        if (l_TaxiNode->m_Flags == 0)
+        {
+            closed.insert(connectedNode->GetID());
+            continue;
+        }
+
+        if (closed.find(*itr) != closed.end())
+            continue;
+
+        float nodeDist = connectedNode->GetPosition()->GetExactDist2d(node->GetPosition());
+
+        if (nodeDist < dist || dist < 0.f)
+        {
+            dist = nodeDist;
+            heuristic = connectedNode;
+        }
+    }
+
+    return heuristic;
 }

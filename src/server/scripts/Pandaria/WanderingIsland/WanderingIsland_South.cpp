@@ -406,8 +406,13 @@ class boss_vordraka : public CreatureScript
 
             void Reset()
             {
-                m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
-                m_Events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 12500);
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 6000);
+                m_Events.ScheduleEvent(SPELL_DEEP_SEA_RUPTURE, 10000);
             }
 
             void JustDied(Unit* p_Attacker)
@@ -415,8 +420,14 @@ class boss_vordraka : public CreatureScript
                 if (p_Attacker->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (p_Attacker->ToPlayer()->GetQuestStatus(QUEST_ANCIEN_MAL) == QUEST_STATUS_INCOMPLETE)
-                    p_Attacker->ToPlayer()->KilledMonsterCredit(me->GetEntry());
+                std::list<Player*> l_PlayerList;
+                GetPlayerListInGrid(l_PlayerList, me, 5.0f);
+
+                for (Player* l_Player : l_PlayerList)
+                {
+                    if (l_Player->ToPlayer()->GetQuestStatus(QUEST_ANCIEN_MAL) == QUEST_STATUS_INCOMPLETE)
+                        l_Player->ToPlayer()->KilledMonsterCredit(me->GetEntry());
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -436,7 +447,7 @@ class boss_vordraka : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SPELL_DEEP_ATTACK, false);
 
-                        m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
+                        m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 20000);
                         break;
                     }
                     case EVENT_DEEP_SEA_RUPTURE:
@@ -444,7 +455,7 @@ class boss_vordraka : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SPELL_DEEP_SEA_RUPTURE, false);
 
-                        m_Events.ScheduleEvent(EVENT_DEEP_ATTACK, 10000);
+                        m_Events.ScheduleEvent(EVENT_DEEP_SEA_RUPTURE, 20000);
                         break;
                     }
                 }
