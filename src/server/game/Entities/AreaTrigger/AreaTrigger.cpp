@@ -313,6 +313,12 @@ void AreaTrigger::UnbindFromCaster()
 {
     if (m_Caster)
     {
+        if (Creature* l_Creature = m_Caster->ToCreature())
+        {
+            if (l_Creature->IsAIEnabled)
+                l_Creature->AI()->AreaTriggerDespawned(this);
+        }
+
         m_Caster->_UnregisterAreaTrigger(this);
         m_Caster = NULL;
     }

@@ -1187,6 +1187,11 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
             UnstoppableCharge = 87230
         };
 
+        enum eAction
+        {
+            DoIntro
+        };
+
         struct npc_highmaul_iron_flame_technicianAI : public MS::AI::CosmeticAI
         {
             npc_highmaul_iron_flame_technicianAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
@@ -1226,6 +1231,15 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
                 m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(9000, 12000));
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::DoIntro)
+                {
+                    m_Events.Reset();
+                    m_CosmeticEvent.Reset();
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override

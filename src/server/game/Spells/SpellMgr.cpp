@@ -4015,6 +4015,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 175654:///< Rune of Disintegration
             case 163046:///< Pale Vitriol
             case 163140:///< Mind Fungus
+            case 163590:///< Creeping Moss (damage)
+            case 165494:///< Creeping Moss (healing)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;

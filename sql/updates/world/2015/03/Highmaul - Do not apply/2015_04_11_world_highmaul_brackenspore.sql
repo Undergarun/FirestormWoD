@@ -93,24 +93,29 @@ flags_extra = 0x01
 WHERE entry = 78491;
 
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_highmaul_mind_fungus' WHERE entry IN (79082, 86611);
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0 WHERE entry = 59481;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_spore_shooter' WHERE entry IN (79183, 86612);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_fungal_flesh_eater' WHERE entry IN (79092);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_living_mushroom' WHERE entry IN (78884);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_rejuvenating_mushroom' WHERE entry IN (78868);
+UPDATE creature_template SET ScriptName = 'npc_highmaul_bfc9000' WHERE entry IN (81403);
 
-DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347);
+DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347, 163310, 165223);
 INSERT INTO spell_script_names VALUES
 (159220, 'spell_highmaul_necrotic_breath'),
 (163667, 'spell_highmaul_flamethrower_regen'),
 (163322, 'spell_highmaul_flamethrower_aura'),
 (163666, 'spell_highmaul_pulsing_heat'),
-(163347, 'spell_highmaul_creeping_moss');
+(163347, 'spell_highmaul_creeping_moss'),
+(163310, 'spell_highmaul_flamethrower'),
+(165223, 'spell_highmaul_burning_infusion');
 
 DELETE FROM areatrigger_scripts WHERE entry IN (10094);
 INSERT INTO areatrigger_scripts VALUE
 (10094, 'areatrigger_at_highmaul_infested_waters');
 
-DELETE FROM areatrigger_template WHERE spell_id IN (159489, 173241);
+DELETE FROM areatrigger_template WHERE spell_id IN (159489, 173241, 173229);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, scale_curve_id, morph_curve_id, data0, ScriptName) VALUES
 (159489, 0, 6733, 15, 15, 16388, 0, 0, 0, 'areatrigger_highmaul_mind_fungus'),
-(173241, 1, 7882, 3, 3, 16586, 1288, 1192, 3000, 'areatrigger_highmaul_spore_shot');
+(173241, 1, 7882, 3, 3, 16586, 1288, 1192, 3000, 'areatrigger_highmaul_spore_shot'),
+(173229, 0, 7881, 3, 3, 16384, 0, 0, 0, 'areatrigger_highmaul_creeping_moss');
