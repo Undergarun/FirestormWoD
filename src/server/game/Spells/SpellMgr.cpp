@@ -3345,6 +3345,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 115294: ///< Mana Team
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
+                break;
             case 167625: ///< Blood feather
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
                 spellInfo->Effects[0].TriggerSpell = 167626; ///< Blood Feather
