@@ -18666,6 +18666,10 @@ void Unit::SendLossOfControlAuraUpdate(AuraApplication const* p_AurApp, Mechanic
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
+    // S.E.L.F.I.E Camera sends polymorphed otherwise
+    if (p_AurApp->GetBase()->GetId() == 182576 || p_AurApp->GetBase()->GetId() == 181884)
+        return;
+
     WorldPacket l_Data(SMSG_LOSS_OF_CONTROL_AURA_UPDATE);
     l_Data << uint32(1);
     l_Data << uint8(p_AurApp->GetSlot());
