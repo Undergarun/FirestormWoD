@@ -1,0 +1,1 @@
+UPDATE areatrigger_template SET ScriptName = "spell_areatrigger_meteor_timestamp" WHERE spell_id = 177345;
