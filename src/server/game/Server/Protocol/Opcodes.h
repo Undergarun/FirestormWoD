@@ -418,8 +418,8 @@ enum Opcodes
         /// Auction House
         SMSG_AUCTION_HELLO_RESPONSE                             = 0x1338, ///< 6.1.2 19783
         SMSG_AUCTION_BIDDER_LIST_RESULT                         = 0x02B9, ///< 6.1.2 19783
-        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x161A, ///< 6.1.2 19783
-        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x073E, ///< 6.1.2 19783
+        SMSG_AUCTION_BIDDER_NOTIFICATION                        = 0x073E, ///< 6.1.2 19783
+        SMSG_AUCTION_BUYOUT_NOTIFICATION                        = 0x161A, ///< 6.1.2 19783
         SMSG_AUCTION_COMMAND_RESULT                             = 0x13B6, ///< 6.1.2 19783
         SMSG_AUCTION_CLOSED_NOTIFICATION                        = 0x0EA0, ///< 6.1.2 19783
         SMSG_AUCTION_LIST_PENDING_SALES                         = 0x0E1F, ///< 6.1.2 19783
