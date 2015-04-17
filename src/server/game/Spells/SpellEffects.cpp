@@ -1049,11 +1049,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         m_caster->ToPlayer()->RemoveSpellCooldown(120054, true); // Rank 3
                         m_caster->ToPlayer()->RemoveSpellCooldown(120053, true); // Rank 4
 
-                        if (m_caster->getLevel() <= 70)
+                        if (m_caster->getLevel() < 80)
                             m_caster->CastSpell(m_caster, 120056, true);
-                        else if (m_caster->getLevel() <= 80)
+                        else if (m_caster->getLevel() < 85)
                             m_caster->CastSpell(m_caster, 120055, true);
-                        else if (m_caster->getLevel() <= 85)
+                        else if (m_caster->getLevel() < 90)
                             m_caster->CastSpell(m_caster, 120054, true);
                         else
                             m_caster->CastSpell(m_caster, 120053, true);
@@ -2252,8 +2252,8 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
 
     // special case: fake item replaced by generate using spell_loot_template
     if (m_spellInfo->IsLootCrafting())
-    {
-        if (item_id)
+    {    
+        if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
         {
             if (!player->HasItemCount(item_id))
                 return;
@@ -4256,7 +4256,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
-                && curSpellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)
+                && curSpellInfo->PreventionType & (SpellPreventionMask::Silence)
                 && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
                 || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {

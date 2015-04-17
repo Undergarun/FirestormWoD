@@ -23,7 +23,6 @@
 #include "ArchaeologyMgr.hpp"
 #include "Arena.h"
 #include "Battleground.h"
-#include "BattlePetMgr.h"
 #include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -1543,6 +1542,8 @@ class Player : public Unit, public GridObject<Player>
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
         Creature* GetNPCIfCanInteractWithFlag2(uint64 guid, uint32 npcflagmask);
         GameObject* GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes type) const;
+
+        std::pair<bool, std::string> EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound = true);
 
         bool ToggleAFK();
         bool ToggleDND();
@@ -3846,7 +3847,6 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player> m_achievementMgr;
         ReputationMgr  m_reputationMgr;
-        BattlePetMgr   m_battlePetMgr;
 
         SpellCooldowns m_spellCooldowns;
 

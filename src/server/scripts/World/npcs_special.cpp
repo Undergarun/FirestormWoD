@@ -3556,6 +3556,7 @@ enum frozenOrbSpells
     SPELL_SELF_SNARE_90             = 82736,
     SPELL_SNARE_DAMAGE              = 84721,
     SPELL_FINGERS_OF_FROST          = 126084,
+    SPELL_FROZEN_ORB                = 123605
 };
 
 class npc_frozen_orb : public CreatureScript
@@ -3568,51 +3569,116 @@ class npc_frozen_orb : public CreatureScript
             npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
             {
                 frozenOrbTimer = 0;
+                frozenOrbTimer2 = 0;
             }
 
             uint32 frozenOrbTimer;
+            uint32 frozenOrbTimer2;
 
-            void IsSummonedBy(Unit* owner)
+            void EnterEvadeMode() override
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (!_EnterEvadeMode())
+                    return;
+
+                Reset();
+
+                if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
+                    me->GetVehicleKit()->Reset(true);
+
+                me->SetLastDamagedTime(0);
+            }
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
-                    owner->CastSpell(owner, SPELL_FINGERS_OF_FROST_VISUAL, true);
-                    owner->CastSpell(owner, SPELL_FINGERS_OF_FROST, true);
+                    me->RemoveAllAuras();
+
+                    p_Owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
+                    p_Owner->CastSpell(p_Owner, SPELL_FINGERS_OF_FROST_VISUAL, true);
+                    p_Owner->CastSpell(p_Owner, SPELL_FINGERS_OF_FROST, true);
+                    me->AddAura(SPELL_FROZEN_ORB, me);
                     me->AddAura(SPELL_SELF_SNARE_90, me);
 
                     frozenOrbTimer = 1000;
+                    frozenOrbTimer2 = 500;
 
-                    float rotation = owner->GetOrientation();
-                    float x = owner->GetPositionX() + ((35.0f) * cos(rotation));
-                    float y = owner->GetPositionY() + ((35.0f) * sin(rotation));
+                    float rotation = p_Owner->GetOrientation();
 
+                    float l_LastZ = p_Owner->GetPositionZ();
+                    float l_MaxDist = 0.f;
+                    for (float l_I = 1; l_I <= 35; l_I += 0.25f)
+                    {
+                        float x = p_Owner->GetPositionX() + (l_I * cos(rotation));
+                        float y = p_Owner->GetPositionY() + (l_I * sin(rotation));
+
+                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT); 
+
+                        me->SetPosition(x, y, l_Z, 0);
+
+                        if (abs(l_Z - l_LastZ) < 0.25f && p_Owner->IsWithinLOSInMap(me))
+                        {
+                            l_LastZ = l_Z;
+                            l_MaxDist = l_I;
+                        }
+                        else
+                            break;
+                    }
+
+                    m_DestX = p_Owner->GetPositionX() + (l_MaxDist * cos(rotation));
+                    m_DestY = p_Owner->GetPositionY() + (l_MaxDist * sin(rotation));
+
+                    me->SetPosition(p_Owner->GetPositionX(), p_Owner->GetPositionY(), p_Owner->GetPositionZ(), rotation);
+
+                    me->SetSpeed(MOVE_RUN, 1, true);
+                    me->SetWalk(false);
                     me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, me->GetPositionZ());
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(m_DestX, m_DestY, MAX_HEIGHT) + 0.5);
+
+                    me->getHostileRefManager().setOnlineOfflineState(false);
+                    me->SetSpeed(MOVE_RUN, 1, true);
                 }
                 else
                     me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 p_Diff) override
             {
                 Unit* owner = me->GetOwner();
 
                 if (!owner)
                     return;
 
-                if (frozenOrbTimer <= diff)
+                if (frozenOrbTimer <= p_Diff)
                 {
                     if (owner && owner->ToPlayer())
+                    {
                         if (owner->ToPlayer()->HasSpellCooldown(SPELL_SNARE_DAMAGE))
                             owner->ToPlayer()->RemoveSpellCooldown(SPELL_SNARE_DAMAGE);
+                    }
 
                     owner->CastSpell(me, SPELL_SNARE_DAMAGE, true);
+
                     frozenOrbTimer = 1000;
                 }
                 else
-                    frozenOrbTimer -= diff;
+                    frozenOrbTimer -= p_Diff;
+
+                if (frozenOrbTimer2 <= p_Diff)
+                {
+                    me->SetSpeed(MOVE_RUN, 1, true);
+                    me->SetWalk(false);
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(me->m_positionX, me->m_positionY, MAX_HEIGHT) + 0.5);
+
+                    frozenOrbTimer2 = 500;
+                }
+                else
+                    frozenOrbTimer2 -= p_Diff;
             }
+
+            float m_DestX;
+            float m_DestY;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -4453,10 +4519,14 @@ enum PastSelfSpells
 struct auraData
 {
     auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
-        m_id(id), m_duration(duration), m_charges(charges), m_isStackAmount(isStackAmount) { }
+        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount) 
+    {
+        memset(m_EffectAmounts, 0, sizeof(m_EffectAmounts));
+    }
     uint32 m_id;
-    int32 m_duration;
-    uint8 m_charges;
+    int32 m_Duration;
+    int32 m_EffectAmounts[MAX_EFFECTS];
+    uint8 m_Charges;
     bool m_isStackAmount;
 };
 
@@ -4514,7 +4584,13 @@ class npc_past_self : public CreatureScript
 
                             bool stack = aura->GetStackAmount();
                             uint8 charges = stack ? aura->GetStackAmount() : aura->GetCharges();
-                            auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
+                            auto l_Inserted = auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
+
+                            for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+                            {
+                                if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
+                                    (*l_Inserted.first)->m_EffectAmounts[l_I] = l_Effect->GetAmount();
+                            }
                         }
                     }
 
@@ -4548,11 +4624,18 @@ class npc_past_self : public CreatureScript
                                     AuraPtr aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
                                     if (aura)
                                     {
-                                        aura->SetDuration((*itr)->m_duration);
+                                        aura->SetDuration((*itr)->m_Duration);
                                         if ((*itr)->m_isStackAmount)
-                                            aura->SetStackAmount((*itr)->m_charges);
+                                            aura->SetStackAmount((*itr)->m_Charges);
                                         else
-                                            aura->SetCharges((*itr)->m_charges);
+                                            aura->SetCharges((*itr)->m_Charges);
+
+                                        for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+                                        {
+                                            if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
+                                                l_Effect->SetAmount((*itr)->m_EffectAmounts[l_I]);
+                                        }
+
                                         aura->SetNeedClientUpdateForTargets();
                                     }
 

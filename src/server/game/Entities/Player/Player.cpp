@@ -700,7 +700,7 @@ bool PetLoginQueryHolder::Initialize()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -3662,6 +3662,388 @@ bool Player::CanInteractWithQuestGiver(Object* questGiver)
             break;
     }
     return false;
+}
+
+/// Temp enum, need more reverse work on LogicOpperators in CGPlayer_C::MatchesCondition
+enum
+{
+    LOGIC_FLAG_01                       = 0x00000001,
+    LOGIC_FLAG_02                       = 0x00000002,
+    LOGIC_FLAG_03                       = 0x00000004,
+    LOGIC_FLAG_04                       = 0x00000008,
+    LOGIC_FLAG_05                       = 0x00000010,
+    LOGIC_FLAG_06                       = 0x00000020,
+    LOGIC_FLAG_COL_0_XOR_RESULT_TRUE    = 0x00010000,
+    LOGIC_FLAG_COL_1_XOR_RESULT_TRUE    = 0x00020000,
+    LOGIC_FLAG_COL_2_XOR_RESULT_TRUE    = 0x00040000,
+    LOGIC_FLAG_COL_3_XOR_RESULT_TRUE    = 0x00080000,
+};
+
+std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, bool p_FailIfConditionNotFound)
+{
+    PlayerConditionEntry const* l_Entry = sPlayerConditionStore.LookupEntry(p_ConditionsID);
+
+    if (!l_Entry)
+        return std::pair<bool, std::string>(false, "Condition entry not found");
+
+    auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
+    {
+        bool l_Result = p_Matches[0] && p_Matches[1] && p_Matches[2] && p_Matches[3];
+        bool l_FirstMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_0_XOR_RESULT_TRUE)) ^ p_Matches[0];
+        bool l_SecondMatchFlagMatch = (!!(p_Flags & LOGIC_FLAG_COL_1_XOR_RESULT_TRUE)) ^ p_Matches[1];
+        bool l_ThirdMatchFlagMatch  = (!!(p_Flags & LOGIC_FLAG_COL_2_XOR_RESULT_TRUE)) ^ p_Matches[2];
+        bool l_FourthMatchFlagMatch = (!!(p_Flags & LOGIC_FLAG_COL_3_XOR_RESULT_TRUE)) ^ p_Matches[3];
+
+        if (p_Flags & LOGIC_FLAG_01)
+        {
+            if (l_FirstMatchFlagMatch)
+                l_Result = l_SecondMatchFlagMatch;
+        }
+        else if (p_Flags & LOGIC_FLAG_02)
+            l_Result = l_FirstMatchFlagMatch | l_SecondMatchFlagMatch;
+
+        if (p_Flags & LOGIC_FLAG_03)
+            l_Result = l_Result & l_ThirdMatchFlagMatch;
+        else if (p_Flags & LOGIC_FLAG_04)
+            l_Result = l_Result | l_ThirdMatchFlagMatch;
+
+        if (p_Flags & LOGIC_FLAG_05)
+        {
+            if (!l_Result)
+                return false;
+        }
+        else if (p_Flags & LOGIC_FLAG_06)
+            l_Result = l_FourthMatchFlagMatch | l_Result;
+
+        return l_Result;
+    };
+
+    /// @TODO : Flags
+
+    #pragma region Level conditions
+    if (l_Entry->MinLevel != 0 && getLevel() < l_Entry->MinLevel)
+        return std::pair<bool, std::string>(false, "Failed on MinLevel => dbc(" + std::to_string(l_Entry->MinLevel) + ") you(" + std::to_string(getLevel()) + ")");
+    if (l_Entry->MaxLevel != 0 && getLevel() > l_Entry->MaxLevel)
+        return std::pair<bool, std::string>(false, "Failed on MaxLevel => dbc(" + std::to_string(l_Entry->MaxLevel) + ") you(" + std::to_string(getLevel()) + ")");
+    #pragma endregion Level conditions
+
+    #pragma region Class, Race, Gender, NativeGender
+    if (l_Entry->RaceMask != 0 && (l_Entry->RaceMask & getRaceMask()) == 0)
+        return std::pair<bool, std::string>(false, "Failed on RaceMask => dbc(" + std::to_string(l_Entry->RaceMask) + ") you(" + std::to_string(getRaceMask()) + ")");
+    if (l_Entry->ClassMask != 0 && (l_Entry->ClassMask & getClassMask()) == 0)
+        return std::pair<bool, std::string>(false, "Failed on ClassMask => dbc(" + std::to_string(l_Entry->ClassMask) + ") you(" + std::to_string(getClassMask()) + ")");
+    if (l_Entry->Gender != -1 && l_Entry->Gender != getGender())
+        return std::pair<bool, std::string>(false, "Failed on Gender => dbc(" + std::to_string(l_Entry->Gender) + ") you(" + std::to_string(getGender()) + ")");
+    if (l_Entry->NativeGender != -1 && l_Entry->NativeGender != getGender())
+        return std::pair<bool, std::string>(false, "Failed on NativeGender => dbc(" + std::to_string(l_Entry->NativeGender) + ") you(" + std::to_string(getGender()) + ")");
+    #pragma endregion Class, Race, Gender, NativeGender
+
+    #pragma region Skills
+    for (uint32 l_I = 0; l_I < 4; ++l_I)
+    {
+        if (l_Entry->SkillID[l_I] != 0)
+        {
+            if (!HasSkill(l_Entry->SkillID[l_I]))
+                return std::pair<bool, std::string>(false, "Failed on SkillID => dbc(" + std::to_string(l_Entry->SkillID[l_I]) + ") you don't known this skill");
+
+            int32 l_Skill = (int32)GetSkillValue(l_Entry->SkillID[l_I]);
+
+            if (l_Entry->MinSkill[l_I] != 0 && l_Skill < l_Entry->MinSkill[l_I])
+                return std::pair<bool, std::string>(false, "Failed on MinSkill => dbc(" + std::to_string(l_Entry->MinSkill[l_I]) + ") you(" + std::to_string(l_Skill) + ")");
+            if (l_Entry->MaxSkill[l_I] != 0 && l_Skill > l_Entry->MaxSkill[l_I])
+                return std::pair<bool, std::string>(false, "Failed on MaxSkill => dbc(" + std::to_string(l_Entry->MaxSkill[l_I]) + ") you(" + std::to_string(l_Skill) + ")");
+        }
+    }
+    #pragma endregion Skills
+
+    /// @TODO : SkillLogic
+
+    #pragma region Language
+    if (l_Entry->LanguageID != 0)
+    {
+        uint32 l_SkillID = lang_description[l_Entry->LanguageID].skill_id;
+
+        if (!HasSkill(l_SkillID))
+            return std::pair<bool, std::string>(false, "Failed on LanguageID => dbc(" + std::to_string(l_Entry->LanguageID) + ") you don't known this language");
+
+        int32 l_Skill = (int32)GetSkillValue(l_SkillID);
+
+        if (l_Entry->MinLanguage != 0 && l_Skill < l_Entry->MinLanguage)
+            return std::pair<bool, std::string>(false, "Failed on MinLanguage => dbc(" + std::to_string(l_Entry->MinLanguage) + ") you(" + std::to_string(l_Skill) + ")");
+        if (l_Entry->MaxLanguage != 0 && l_Skill > l_Entry->MaxLanguage)
+            return std::pair<bool, std::string>(false, "Failed on MaxLanguage => dbc(" + std::to_string(l_Entry->MaxLanguage) + ") you(" + std::to_string(l_Skill) + ")");
+    }
+    #pragma endregion Language
+
+    /// @TODO : MinFaction
+    /// @TODO : MinReputation
+    /// @TODO : MaxReputation
+    /// @TODO : ReputationLogic
+    /// @TODO : MinPVPRank
+    /// @TODO : MaxPVPRank
+    /// @TODO : PVPMedal
+
+    #pragma region PrevQuestLogic, PrevQuestID
+    if (l_Entry->PrevQuestID[0] || l_Entry->PrevQuestID[1] || l_Entry->PrevQuestID[2] || l_Entry->PrevQuestID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->PrevQuestID[0] != 0) l_Matches[0] = GetQuestRewardStatus(l_Entry->PrevQuestID[0]);
+        if (l_Entry->PrevQuestID[1] != 0) l_Matches[1] = GetQuestRewardStatus(l_Entry->PrevQuestID[1]);
+        if (l_Entry->PrevQuestID[2] != 0) l_Matches[2] = GetQuestRewardStatus(l_Entry->PrevQuestID[2]);
+        if (l_Entry->PrevQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->PrevQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->PrevQuestLogic))
+            return std::pair<bool, std::string>(false, "Failed on PrevQuestID");
+    }
+    #pragma endregion PrevQuestLogic, PrevQuestID
+
+    #pragma region CurrQuestLogic, CurrQuestID
+    if (l_Entry->CurrQuestID[0] || l_Entry->CurrQuestID[1] || l_Entry->CurrQuestID[2] || l_Entry->CurrQuestID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrQuestID[0] != 0) l_Matches[0] = HasQuest(l_Entry->CurrQuestID[0]);
+        if (l_Entry->CurrQuestID[1] != 0) l_Matches[1] = HasQuest(l_Entry->CurrQuestID[1]);
+        if (l_Entry->CurrQuestID[2] != 0) l_Matches[2] = HasQuest(l_Entry->CurrQuestID[2]);
+        if (l_Entry->CurrQuestID[3] != 0) l_Matches[3] = HasQuest(l_Entry->CurrQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrQuestLogic))
+            return std::pair<bool, std::string>(false, "Failed on CurrQuestID");
+    }
+    #pragma endregion CurrQuestLogic, CurrQuestID
+
+    #pragma region CurrentCompletedQuestLogic, CurrentCompletedQuestID
+    if (l_Entry->CurrentCompletedQuestID[0] || l_Entry->CurrentCompletedQuestID[1] || l_Entry->CurrentCompletedQuestID[2] || l_Entry->CurrentCompletedQuestID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrentCompletedQuestID[0] != 0) l_Matches[0] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[0]);
+        if (l_Entry->CurrentCompletedQuestID[1] != 0) l_Matches[1] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[1]);
+        if (l_Entry->CurrentCompletedQuestID[2] != 0) l_Matches[2] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[2]);
+        if (l_Entry->CurrentCompletedQuestID[3] != 0) l_Matches[3] = GetQuestRewardStatus(l_Entry->CurrentCompletedQuestID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrentCompletedQuestLogic))
+            return std::pair<bool, std::string>(false, "Failed on CurrentCompletedQuestID");
+    }
+    #pragma endregion CurrentCompletedQuestLogic, CurrentCompletedQuestID
+
+    #pragma region SpellLogic, SpellID
+    if (l_Entry->SpellID[0] || l_Entry->SpellID[1] || l_Entry->SpellID[2] || l_Entry->SpellID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->SpellID[0] != 0) l_Matches[0] = HasSpell(l_Entry->SpellID[0]);
+        if (l_Entry->SpellID[1] != 0) l_Matches[1] = HasSpell(l_Entry->SpellID[1]);
+        if (l_Entry->SpellID[2] != 0) l_Matches[2] = HasSpell(l_Entry->SpellID[2]);
+        if (l_Entry->SpellID[3] != 0) l_Matches[3] = HasSpell(l_Entry->SpellID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->SpellLogic))
+            return std::pair<bool, std::string>(false, "Failed on SpellID");
+    }
+    #pragma endregion SpellLogic, SpellID
+
+    #pragma region ItemLogic, ItemID, ItemCount
+    if (l_Entry->ItemID[0] || l_Entry->ItemID[1] || l_Entry->ItemID[2] || l_Entry->ItemID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->ItemID[0] != 0) l_Matches[0] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[0] ? 1 : l_Entry->ItemCount[0], false);
+        if (l_Entry->ItemID[1] != 0) l_Matches[1] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[1] ? 1 : l_Entry->ItemCount[1], false);
+        if (l_Entry->ItemID[2] != 0) l_Matches[2] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[2] ? 1 : l_Entry->ItemCount[2], false);
+        if (l_Entry->ItemID[3] != 0) l_Matches[3] = HasItemCount(l_Entry->ItemID[0], !l_Entry->ItemCount[3] ? 1 : l_Entry->ItemCount[3], false);
+
+        if (!EvalMatch(l_Matches, l_Entry->ItemLogic))
+            return std::pair<bool, std::string>(false, "Failed on ItemID");
+    }
+    #pragma endregion ItemLogic, ItemID, ItemCount
+
+    /// @TODO : ItemFlags
+
+    #pragma region Explored
+    auto IsAreaExplored = [this](uint32 p_AreaID) -> bool
+    {
+        uint16 l_AreaFlag = sAreaStore.LookupEntry(0) ? sAreaStore.LookupEntry(0)->AreaBit : 0xFFFF;
+
+        if (l_AreaFlag == 0xFFFF)
+            return false;
+        int l_Offset = l_AreaFlag / 32;
+
+        if (l_Offset >= PLAYER_EXPLORED_ZONES_SIZE)
+            return false;
+
+        uint32 l_Value = (uint32)(1 << (l_AreaFlag % 32));
+
+        if (!(GetUInt32Value(PLAYER_FIELD_EXPLORED_ZONES + l_Offset) & l_Value))
+            return false;
+
+        return true;
+    };
+
+    if (l_Entry->Explored[0] != 0 && !IsAreaExplored(l_Entry->Explored[0]))
+        return std::pair<bool, std::string>(false, "Failed on Explored[0] => dbc(" + std::to_string(l_Entry->Explored[0]) + ") area is not explored");
+    if (l_Entry->Explored[1] != 0 && !IsAreaExplored(l_Entry->Explored[1]))
+        return std::pair<bool, std::string>(false, "Failed on Explored[1] => dbc(" + std::to_string(l_Entry->Explored[1]) + ") area is not explored");
+    #pragma endregion Explored
+
+    /// @TODO : Time
+
+    #pragma region AuraSpellLogic, AuraSpellID
+    if (l_Entry->AuraSpellID[0] || l_Entry->AuraSpellID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->AuraSpellID[0] != 0) l_Matches[0] = HasAura(l_Entry->AuraSpellID[0]);
+        if (l_Entry->AuraSpellID[1] != 0) l_Matches[1] = HasAura(l_Entry->AuraSpellID[1]);
+        if (l_Entry->AuraSpellID[2] != 0) l_Matches[2] = HasAura(l_Entry->AuraSpellID[2]);
+        if (l_Entry->AuraSpellID[3] != 0) l_Matches[3] = HasAura(l_Entry->AuraSpellID[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->AuraSpellLogic))
+            return std::pair<bool, std::string>(false, "Failed on AuraSpellID");
+    }
+    #pragma endregion AuraSpellLogic, AuraSpellID
+
+    /// @TODO : WorldStateExpressionID
+
+    #pragma region Weather
+    if (l_Entry->WeatherID != 0)
+    {
+        AreaTableEntry const* l_Zone = GetAreaEntryByAreaID(GetZoneId());
+
+        if (!l_Zone)
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => DBC AreaTable entry not found");
+
+        Weather * l_Weather = WeatherMgr::FindWeather(l_Zone->ID);
+
+        if (!l_Weather)
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => no valid weather found");
+
+        if (l_Weather->GetType() != l_Entry->WeatherID)
+            return std::pair<bool, std::string>(false, "Failed on WeatherID => dbc(" + std::to_string(l_Entry->WeatherID) + ") you(" + std::to_string(l_Weather->GetType()) + ")");
+    }
+    #pragma endregion Weather
+
+    /// @TODO : PartyStatus
+    /// @TODO : LifetimeMaxPVPRank
+
+    #pragma region AchievementLogic, Achievement
+    if (l_Entry->Achievement[0] || l_Entry->Achievement[1] || l_Entry->Achievement[2] || l_Entry->Achievement[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->Achievement[0] != 0) l_Matches[0] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[0]);
+        if (l_Entry->Achievement[1] != 0) l_Matches[1] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[1]);
+        if (l_Entry->Achievement[2] != 0) l_Matches[2] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[2]);
+        if (l_Entry->Achievement[3] != 0) l_Matches[3] = GetAchievementMgr().HasAchieved(l_Entry->Achievement[3]);
+
+        if (!EvalMatch(l_Matches, l_Entry->AchievementLogic))
+            return std::pair<bool, std::string>(false, "Failed on Achievement");
+    }
+    #pragma endregion AchievementLogic, Achievement
+
+    /// @TODO : LfgLogic
+    /// @TODO : LfgStatus
+    /// @TODO : LfgCompare
+    /// @TODO : LfgValue
+
+    #pragma region AreaLogic, AreaID
+    if (l_Entry->AreaID[0] || l_Entry->AreaID[1] || l_Entry->AreaID[2] || l_Entry->AreaID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->AreaID[0] != 0) l_Matches[0] = l_Entry->AreaID[0] == GetAreaId();
+        if (l_Entry->AreaID[1] != 0) l_Matches[1] = l_Entry->AreaID[1] == GetAreaId();
+        if (l_Entry->AreaID[2] != 0) l_Matches[2] = l_Entry->AreaID[2] == GetAreaId();
+        if (l_Entry->AreaID[3] != 0) l_Matches[3] = l_Entry->AreaID[3] == GetAreaId();
+
+        if (!EvalMatch(l_Matches, l_Entry->AreaLogic))
+            return std::pair<bool, std::string>(false, "Failed on AreaID");
+    }
+    #pragma endregion AreaLogic, AreaID
+
+    #pragma region CurrencyLogic, CurrencyID, CurrencyCount
+    if (l_Entry->CurrencyID[0] || l_Entry->CurrencyID[1] || l_Entry->AuraSpellID[2] || l_Entry->AuraSpellID[3])
+    {
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->CurrencyID[0] != 0) l_Matches[0] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[0] ? 1 : l_Entry->CurrencyCount[0]));
+        if (l_Entry->CurrencyID[1] != 0) l_Matches[1] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[1] ? 1 : l_Entry->CurrencyCount[1]));
+        if (l_Entry->CurrencyID[2] != 0) l_Matches[2] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[2] ? 1 : l_Entry->CurrencyCount[2]));
+        if (l_Entry->CurrencyID[3] != 0) l_Matches[3] = HasCurrency(l_Entry->CurrencyID[0], (!l_Entry->CurrencyCount[3] ? 1 : l_Entry->CurrencyCount[3]));
+
+        if (!EvalMatch(l_Matches, l_Entry->CurrencyLogic))
+            return std::pair<bool, std::string>(false, "Failed on CurrencyID");
+    }
+    #pragma endregion CurrencyLogic, CurrencyID, CurrencyCount
+
+    #pragma region QuestKillID, QuestKillLogic, QuestKillMonster
+    if (l_Entry->QuestKillID != 0)
+    {
+        if (!HasQuest(l_Entry->QuestKillID))
+            return std::pair<bool, std::string>(false, "Failed on QuestKillID => dbc(" + std::to_string(l_Entry->QuestKillID) + ") you didn't have quest(" + std::to_string(l_Entry->QuestKillID) + ")");
+
+        auto GetNpcObjectiveID = [](uint32 p_QuestID, uint32 p_NPCID) -> uint32
+        {
+            Quest const* l_Quest = sObjectMgr->GetQuestTemplate(p_QuestID);
+
+            if (!l_Quest)
+                return 0;
+
+            for (auto l_Obective : l_Quest->QuestObjectives)
+            {
+                if (l_Obective.Type != QUEST_OBJECTIVE_TYPE_NPC)
+                    continue;
+
+                if (l_Obective.ObjectID == p_NPCID)
+                    return l_Obective.ID;
+            }
+
+            return 0;
+        };
+
+        bool l_Matches[4] { true, true, true, true };
+
+        if (l_Entry->QuestKillMonster[0] != 0) l_Matches[0] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[0]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[0]));
+        if (l_Entry->QuestKillMonster[1] != 0) l_Matches[1] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[1]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[1]));
+        if (l_Entry->QuestKillMonster[2] != 0) l_Matches[2] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[2]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[2]));
+        if (l_Entry->QuestKillMonster[3] != 0) l_Matches[3] = GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]) && GetQuestObjectiveCounter(GetNpcObjectiveID(l_Entry->QuestKillID, l_Entry->QuestKillMonster[3]));
+
+        if (!EvalMatch(l_Matches, l_Entry->QuestKillLogic))
+            return std::pair<bool, std::string>(false, "Failed on QuestKillMonster");
+    }
+    #pragma endregion QuestKillID, QuestKillLogic, QuestKillMonster
+
+    /// @TODO : MinExpansionLevel
+    /// @TODO : MaxExpansionLevel
+    /// @TODO : MinExpansionTier
+    /// @TODO : MaxExpansionTier
+    /// @OBSOLETE : MinGuildLevel
+    /// @OBSOLETE : MaxGuildLevel
+    /// @TODO : PhaseUseFlags
+    /// @TODO : PhaseID
+    /// @TODO : PhaseGroupID
+
+    #pragma region MinAvgItemLevel, MaxAvgItemLevel
+    if (l_Entry->MinAvgItemLevel != 0 && GetAverageItemLevelTotal() < (uint32)l_Entry->MinAvgItemLevel)
+        return std::pair<bool, std::string>(false, "Failed on MinAvgItemLevel => dbc(" + std::to_string(l_Entry->MinAvgItemLevel) + ") you(" + std::to_string(GetAverageItemLevelTotal()) + ")");
+    if (l_Entry->MaxAvgItemLevel != 0 && GetAverageItemLevelTotal() > (uint32)l_Entry->MaxAvgItemLevel)
+        return std::pair<bool, std::string>(false, "Failed on MaxAvgItemLevel => dbc(" + std::to_string(l_Entry->MaxAvgItemLevel) + ") you(" + std::to_string(GetAverageItemLevelTotal()) + ")");
+    #pragma endregion MinAvgItemLevel, MaxAvgItemLevel
+    
+    #pragma region MinAvgEquippedItemLevel, MaxAvgItemLevel
+    if (l_Entry->MinAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() < (uint32)l_Entry->MinAvgEquippedItemLevel)
+        return std::pair<bool, std::string>(false, "Failed on MinAvgEquippedItemLevel => dbc(" + std::to_string(l_Entry->MinAvgEquippedItemLevel) + ") you(" + std::to_string(GetAverageItemLevelEquipped()) + ")");
+    if (l_Entry->MaxAvgEquippedItemLevel != 0 && GetAverageItemLevelEquipped() > (uint32)l_Entry->MaxAvgEquippedItemLevel)
+        return std::pair<bool, std::string>(false, "Failed on MaxAvgEquippedItemLevel => dbc(" + std::to_string(l_Entry->MaxAvgEquippedItemLevel) + ") you(" + std::to_string(GetAverageItemLevelEquipped()) + ")");
+    #pragma endregion MinAvgEquippedItemLevel, MaxAvgItemLevel
+
+    /// @TODO : ChrSpecializationIndex
+    /// @TODO : ChrSpecializationRole
+    /// @TODO : PowerType
+    /// @TODO : PowerTypeComp
+    /// @TODO : PowerTypeValue
+
+    return std::pair<bool, std::string>(true, "");
 }
 
 Creature* Player::GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask)
@@ -11396,8 +11778,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         else if (l_FishingSKill >= 700)
         {
             l_SmallFishChance   = 0;
-            l_MediumFishChance  = 50;
-            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+            l_BigFishChance     = std::min((int32)100, (int32)(50 + ((50 / (950 - 700)) * (l_FishingSKill - 700))));
+            l_MediumFishChance  = std::max((int32)0, (int32)(100 - l_BigFishChance));
         }
 
         enum class FishType
@@ -11408,7 +11790,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             Big
         };
 
-        /// Fish with vairous size :
+        /// Fish with various size :
         /// -------------------------------------------
         /// - Crescent Saberfish
         /// - Blackwater Whiptail
@@ -24713,7 +25095,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence | SpellPreventionMask::PacifyOrSilence)) == 0)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
             continue;
 
         for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -25447,8 +25829,22 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
             if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
             {
-                int days = catrec / 1000;
-                recTime = (86400 * days) * IN_MILLISECONDS;
+                time_t l_RawTime;
+                struct tm * l_TimeInfo;
+
+                time(&l_RawTime);
+                l_TimeInfo = localtime(&l_RawTime);
+
+                l_TimeInfo->tm_min = 0;
+                l_TimeInfo->tm_sec = 1;
+                l_TimeInfo->tm_hour = 0;
+
+                time_t l_DaySeconds             = time(nullptr) - mktime(l_TimeInfo);
+                time_t l_ThisMidnight           = time(nullptr) - l_DaySeconds;
+                time_t l_NextMidnight           = l_ThisMidnight + DAY;
+                time_t l_SecondToNextMidnight   = l_NextMidnight - time(nullptr);
+
+                recTime = l_SecondToNextMidnight * IN_MILLISECONDS;
 
                 if (rec == 0 && catrec == 1000)
                     catrec = recTime;
@@ -31321,7 +31717,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
+    if (!IsInWorld())
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
@@ -31369,7 +31765,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->InitStats(0);
     l_CurrentPet->SetOwnerGUID(GetGUID());
 
-    m_LastSummonedBattlePet = l_BattlePet->JournalID;
+    m_LastSummonedBattlePet = GUID_LOPART(l_BattlePet->JournalID);
 
     SetGuidValue(UNIT_FIELD_CRITTER,                                l_CurrentPet->GetGUID());
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL,                l_BattlePet->Level);
@@ -31418,7 +31814,7 @@ Creature * Player::GetSummonedBattlePet()
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
 {
-    SummonBattlePet(m_LastSummonedBattlePet);
+    SummonBattlePet(MAKE_NEW_GUID(m_LastSummonedBattlePet, 0, HIGHGUID_BATTLE_PET));
 }
 
 /// Get pet battles

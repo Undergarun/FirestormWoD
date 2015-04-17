@@ -427,8 +427,8 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_STABLE_RESULT,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Battle pet opcodes
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FULL_JOURNAL,                          STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_QUERY_NAME_RESPONSE,                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_BATTLE_PET_JOURNAL,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_QUERY_PET_NAME_RESPONSE,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_REQUEST_FAILED,                        STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FIRST_ROUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FULL_UPDATE,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -438,7 +438,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_REPLACEMENTS_MADE,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINAL_ROUND,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_FINISHED,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_PETBATTLE_UPDATE_BATTLESLOT,                     STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_PET_BATTLE_SLOT_UPDATES,                         STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
 
         /// Instances
         DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT,                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);

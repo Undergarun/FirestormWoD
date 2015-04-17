@@ -128,6 +128,7 @@ class debug_commandscript: public CommandScript
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
                 { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
+                { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2521,6 +2522,24 @@ class debug_commandscript: public CommandScript
             l_Data << uint32(0);                                   ///< UpdateDataCount 
 
             p_Handler->GetSession()->SendPacket(&l_Data);
+
+            return true;
+        }
+
+        static bool HandleDebugPlayerCondition(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_ArgStr = strtok((char*)p_Args, " ");
+            if (!l_ArgStr)
+                return false;
+
+            uint32 l_ConditionID = atoi(l_ArgStr);
+  
+            auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
+
+            if (l_Result.first)
+                p_Handler->PSendSysMessage("Condition %u is satisfied", l_ConditionID);
+            else
+                p_Handler->PSendSysMessage("Condition %u failed => %s", l_ConditionID,  l_Result.second.c_str());
 
             return true;
         }

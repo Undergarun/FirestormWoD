@@ -31,7 +31,7 @@
 /// Load
 void BattlePet::Load(Field* p_Fields)
 {
-    JournalID       = p_Fields[0].GetUInt64();
+    JournalID       = MAKE_NEW_GUID(p_Fields[0].GetUInt64(), 0, HIGHGUID_BATTLE_PET);
     Slot            = p_Fields[1].GetInt32();
     Name            = p_Fields[2].GetString();
     NameTimeStamp   = p_Fields[3].GetUInt32();
@@ -111,7 +111,7 @@ void BattlePet::CloneFrom(BattlePet::Ptr & p_BattlePet)
 void BattlePet::Save()
 {
     PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REP_PETBATTLE);
-    l_Statement->setUInt64(0, JournalID);
+    l_Statement->setUInt64(0, GUID_LOPART(JournalID));
     l_Statement->setInt32(1, Slot);
     l_Statement->setString(2, Name);
     l_Statement->setUInt32(3, NameTimeStamp);

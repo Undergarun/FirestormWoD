@@ -2203,6 +2203,48 @@ public:
     }
 };
 
+// Maelstrom Weapon - 53817
+uint32 g_MaelstromVisualSpellIds[] { 170588, 170587, 170586, 170585, 60349};
+class spell_sha_maelstrom_weapon: public SpellScriptLoader
+{
+    public:
+        spell_sha_maelstrom_weapon() : SpellScriptLoader("spell_sha_maelstrom_weapon") { }
+
+        class spell_sha_maelstrom_weapon_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_maelstrom_weapon_AuraScript);
+
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                RemoveAllVisuals(GetCaster());
+                GetCaster()->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], GetCaster());
+            }
+            
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                RemoveAllVisuals(GetCaster());
+            }
+
+            void RemoveAllVisuals(Unit* l_Caster)
+            {
+                for (uint32 l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds) / sizeof(uint32); l_I++)
+                    if (AuraPtr l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
+                        l_Aura->Remove();
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_sha_maelstrom_weapon_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_sha_maelstrom_weapon_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_maelstrom_weapon_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     /// Npcs
@@ -2251,4 +2293,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_liquid_magma_visual();
     new spell_sha_ghost_wolf();
     new spell_sha_lava_burst();
+    new spell_sha_maelstrom_weapon();
 }
