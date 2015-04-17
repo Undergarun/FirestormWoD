@@ -700,7 +700,7 @@ bool PetLoginQueryHolder::Initialize()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), m_battlePetMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
+Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_archaeologyMgr(this), m_VignetteMgr(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -11885,8 +11885,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         else if (l_FishingSKill >= 700)
         {
             l_SmallFishChance   = 0;
-            l_MediumFishChance  = 50;
-            l_BigFishChance     = 50 + ((50 / (950 - 700)) * (l_FishingSKill - 700));
+            l_BigFishChance     = std::min((int32)100, (int32)(50 + ((50 / (950 - 700)) * (l_FishingSKill - 700))));
+            l_MediumFishChance  = std::max((int32)0, (int32)(100 - l_BigFishChance));
         }
 
         enum class FishType
@@ -11897,7 +11897,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
             Big
         };
 
-        /// Fish with vairous size :
+        /// Fish with various size :
         /// -------------------------------------------
         /// - Crescent Saberfish
         /// - Blackwater Whiptail
@@ -26030,8 +26030,22 @@ void Player::AddSpellAndCategoryCooldowns(SpellInfo const* spellInfo, uint32 ite
             // SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT
             if (spellInfo->CategoryFlags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_MIDNIGHT)
             {
-                int days = catrec / 1000;
-                recTime = (86400 * days) * IN_MILLISECONDS;
+                time_t l_RawTime;
+                struct tm * l_TimeInfo;
+
+                time(&l_RawTime);
+                l_TimeInfo = localtime(&l_RawTime);
+
+                l_TimeInfo->tm_min = 0;
+                l_TimeInfo->tm_sec = 1;
+                l_TimeInfo->tm_hour = 0;
+
+                time_t l_DaySeconds             = time(nullptr) - mktime(l_TimeInfo);
+                time_t l_ThisMidnight           = time(nullptr) - l_DaySeconds;
+                time_t l_NextMidnight           = l_ThisMidnight + DAY;
+                time_t l_SecondToNextMidnight   = l_NextMidnight - time(nullptr);
+
+                recTime = l_SecondToNextMidnight * IN_MILLISECONDS;
 
                 if (rec == 0 && catrec == 1000)
                     catrec = recTime;
@@ -31854,7 +31868,7 @@ void Player::UnsummonCurrentBattlePetIfAny(bool p_Unvolontary)
 /// Summon new pet
 void Player::SummonBattlePet(uint64 p_JournalID)
 {
-    if (!IsInWorld() || m_LastSummonedBattlePet == 0)
+    if (!IsInWorld())
         return;
 
     std::vector<BattlePet::Ptr>::iterator l_It = std::find_if(m_BattlePets.begin(), m_BattlePets.end(), [p_JournalID](BattlePet::Ptr & p_Ptr)
@@ -31902,7 +31916,7 @@ void Player::SummonBattlePet(uint64 p_JournalID)
     l_CurrentPet->InitStats(0);
     l_CurrentPet->SetOwnerGUID(GetGUID());
 
-    m_LastSummonedBattlePet = l_BattlePet->JournalID;
+    m_LastSummonedBattlePet = GUID_LOPART(l_BattlePet->JournalID);
 
     SetGuidValue(UNIT_FIELD_CRITTER,                                l_CurrentPet->GetGUID());
     SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL,                l_BattlePet->Level);
@@ -31951,7 +31965,7 @@ Creature * Player::GetSummonedBattlePet()
 /// Summon last summoned battle pet
 void Player::SummonLastSummonedBattlePet()
 {
-    SummonBattlePet(m_LastSummonedBattlePet);
+    SummonBattlePet(MAKE_NEW_GUID(m_LastSummonedBattlePet, 0, HIGHGUID_BATTLE_PET));
 }
 
 /// Get pet battles

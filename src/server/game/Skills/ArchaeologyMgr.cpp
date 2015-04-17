@@ -223,13 +223,10 @@ namespace MS { namespace Skill { namespace Archaeology
         m_ResearchProjects.clear();
         if (l_Fields[1].GetCString())
         {
-            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ', sResearchBranchStore.GetNumRows());
+            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ');
 
-            if (l_Tokens.size() == sResearchBranchStore.GetNumRows())
-            {
-                for (uint8 l_I = 0; l_I < sResearchBranchStore.GetNumRows(); ++l_I)
-                    m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
-            }
+            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
         }
 
         ValidateProjects();
@@ -507,25 +504,17 @@ namespace MS { namespace Skill { namespace Archaeology
     /// Propagate research sites into the player dynamic update fields
     void Manager::PropagateResearchProjects()
     {
+        /// Reset research project
+        for (uint32 l_I = 0; l_I < (PLAYER_FIELD_PROFESSION_SKILL_LINE - PLAYER_FIELD_RESEARCHING); ++l_I)
+            m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_I, 0);
+
         if (!m_Player->GetSkillValue(SKILL_ARCHAEOLOGY))
             return;
 
         uint8 l_Count = 0;
-        uint32 l_NewValue = 0;
-
         for (ResearchProjectSet::const_iterator l_It = m_ResearchProjects.begin(); l_It != m_ResearchProjects.end(); ++l_It)
         {
-            if (l_Count % 2 == 1)
-            {
-                l_NewValue |= (*l_It);
-                m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_Count / 2, l_NewValue);
-
-                if (l_Count >= sResearchBranchStore.GetNumRows())
-                    break;
-            }
-            else
-                l_NewValue = (*l_It) << 16;
-
+            m_Player->SetUInt16Value(PLAYER_FIELD_RESEARCHING + (l_Count / 2), l_Count % 2, (*l_It));
             ++l_Count;
         }
     }
@@ -959,7 +948,7 @@ namespace MS { namespace Skill { namespace Archaeology
                     if ((l_CurrentLevel + l_Conditions->LevelAdditional) < l_RequiredLevel)
                         return RS_RESULT_FAIL;
 
-                    if (l_SkillValue < l_Conditions->RequiredLevel)
+                    if (l_SkillValue < l_Conditions->RequiredSkill)
                         return RS_RESULT_FAIL;
 
                     return RS_RESULT_OK;
@@ -1056,9 +1045,9 @@ namespace MS { namespace Skill { namespace Archaeology
                     case 29: p_Site.LootGameObjectID = 218950; break;
                     case 229: p_Site.LootGameObjectID = 211163; break;
                     case 231: p_Site.LootGameObjectID = 211174; break;
-                    case 315: p_Site.LootGameObjectID = 234105; break; ///@Todo
-                    case 350: p_Site.LootGameObjectID = 226521; break; ///@Todo
-                    case 382: p_Site.LootGameObjectID = 234106; break; ///@Todo
+                    case 315: p_Site.LootGameObjectID = 234105; break;
+                    case 350: p_Site.LootGameObjectID = 226521; break;
+                    case 382: p_Site.LootGameObjectID = 234106; break;
                     default: p_Site.LootGameObjectID = 0; break;
                 }
             }

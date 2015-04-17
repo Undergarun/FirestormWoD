@@ -377,8 +377,8 @@ enum Opcodes
         SMSG_STABLE_RESULT                                  = 0x0E0C, ///< 6.1.2 19783
 
         /// Pet Battle opcodes
-        SMSG_PETBATTLE_FULL_JOURNAL                         = 0x0000,
-        SMSG_PETBATTLE_QUERY_NAME_RESPONSE                  = 0x0000,
+        SMSG_BATTLE_PET_JOURNAL                             = 0x19A2, ///< 6.0.3 19116
+        SMSG_QUERY_PET_NAME_RESPONSE                        = 0x0D0E, ///< 6.0.3 19116
         SMSG_PETBATTLE_REQUEST_FAILED                       = 0x0000,
         SMSG_PETBATTLE_FIRST_ROUND                          = 0x0000,
         SMSG_PETBATTLE_FULL_UPDATE                          = 0x0000,
@@ -388,7 +388,7 @@ enum Opcodes
         SMSG_PETBATTLE_REPLACEMENTS_MADE                    = 0x0000,
         SMSG_PETBATTLE_FINAL_ROUND                          = 0x0000,
         SMSG_PETBATTLE_FINISHED                             = 0x0000,
-        SMSG_PETBATTLE_UPDATE_BATTLESLOT                    = 0x0000,
+        SMSG_PET_BATTLE_SLOT_UPDATES                        = 0x1D8F, ///< 6.0.3 19116
 
         /// Instances
         SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT                     = 0x08E6, ///< 6.1.2 19783
@@ -1503,12 +1503,12 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet opcodes
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SUMMON_COMPANION                          = 0x0000,
-    CMSG_PETBATTLE_QUERY_JOURNAL                   = 0x0000,
-    CMSG_PETBATTLE_SET_ABILITY                     = 0x0000,
-    CMSG_PETBATTLE_RENAME                          = 0x0000,
+    CMSG_SUMMON_COMPANION                          = 0x0B38,   ///< 6.0.3 19116
+    CMSG_PETBATTLE_QUERY_JOURNAL                   = 0x0117,   ///< 6.0.3 19116
+    CMSG_PETBATTLE_SET_ABILITY                     = 0x0BA2,   ///< 6.0.3 19116
+    CMSG_PETBATTLE_RENAME                          = 0x03A9,   ///< 6.0.3 19116
     CMSG_PETBATTLE_CAGE_PET                        = 0x0000,
-    CMSG_PETBATTLE_QUERY_NAME                      = 0x0000,
+    CMSG_PETBATTLE_QUERY_NAME                      = 0x041C,   ///< 6.0.3 19116
     CMSG_PETBATTLE_REQUEST_WILD                    = 0x0000,
     CMSG_PETBATTLE_REQUEST_PVP                     = 0x0000,
     CMSG_PETBATTLE_JOIN_QUEUE                      = 0x0000,
@@ -1516,7 +1516,7 @@ enum Opcodes
     CMSG_PETBATTLE_CANCEL_REQUEST_PVP_MATCHMAKING  = 0x0000,
     CMSG_PETBATTLE_INPUT                           = 0x0000,
     CMSG_PETBATTLE_INPUT_NEW_FRONT_PET             = 0x0000,
-    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x0000,
+    CMSG_BATTLEPET_SET_BATTLESLOT                  = 0x120B,
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pay

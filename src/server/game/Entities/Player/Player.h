@@ -23,7 +23,6 @@
 #include "ArchaeologyMgr.hpp"
 #include "Arena.h"
 #include "Battleground.h"
-#include "BattlePetMgr.h"
 #include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -3865,7 +3864,6 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player> m_achievementMgr;
         ReputationMgr  m_reputationMgr;
-        BattlePetMgr   m_battlePetMgr;
 
         SpellCooldowns m_spellCooldowns;
 

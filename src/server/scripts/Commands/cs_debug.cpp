@@ -2514,6 +2514,24 @@ class debug_commandscript: public CommandScript
 
             return true;
         }
+
+        static bool HandleDebugPlayerCondition(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_ArgStr = strtok((char*)p_Args, " ");
+            if (!l_ArgStr)
+                return false;
+
+            uint32 l_ConditionID = atoi(l_ArgStr);
+  
+            auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
+
+            if (l_Result.first)
+                p_Handler->PSendSysMessage("Condition %u is satisfied", l_ConditionID);
+            else
+                p_Handler->PSendSysMessage("Condition %u failed => %s", l_ConditionID,  l_Result.second.c_str());
+
+            return true;
+        }
 };
 
 void AddSC_debug_commandscript()

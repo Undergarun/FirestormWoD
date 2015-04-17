@@ -28,9 +28,51 @@ namespace MS
                     l_Caster->CastSpell(l_Caster, uint32(Spells::Quills), true);
             }
 
+            /// This method is used to filter the targets that are behind the big pillar, in the Rukhran event, when
+            /// Rukhran is casting Quills (player should go behind the big pillar at the center of the platform to hide).
+            void CheckTarget(std::list<WorldObject*>& p_UnitList)
+            {
+                p_UnitList.remove_if([this](WorldObject* p_Object)
+                {
+                    /// p_Ref and p_Point should be vectors.
+                    auto l_IsToTheRightFromRef = [](Position const& p_Ref, Position const& p_Point) -> bool {
+                        return p_Point.m_positionX * p_Ref.m_positionY - p_Point.m_positionY * p_Ref.m_positionX > 0;
+                    };
+
+                    /// Those both position are the extreme position of the pillar.
+                    /// The three position refers to those points. We want to check if the player
+                    /// is inside and far from the target for a certain distance.
+                    /// O---------------- L
+                    ///  \
+                    ///   \        Player
+                    ///    \      x
+                    ///     \
+                    ///      \
+                    ///       \
+                    ///        R
+                    static const Position s_OriginPosition = { 918.919f, 1913.459f, 213.f };
+                    static const Position s_RightPosition = { 936.999f, 1872.137f, 213.f };
+                    static const Position s_LeftPosition = { 951.305f, 1882.338f, 213.f };
+
+                    Position l_RefLeftVect = s_LeftPosition - s_OriginPosition;
+                    Position l_RefRightVect = s_RightPosition - s_OriginPosition;
+
+                    Position l_PlayerVect = *p_Object - s_OriginPosition;
+
+                    if (!l_IsToTheRightFromRef(l_RefLeftVect, l_PlayerVect) || l_IsToTheRightFromRef(l_RefRightVect, l_PlayerVect))
+                        return false;
+
+                    if (GetCaster()->GetExactDist2d(p_Object) < 30.0f)
+                        return false;
+
+                    return true;
+                });
+            }
+
             void Register()
             {
                 OnEffectLaunch += SpellEffectFn(spell_QuillsSpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_QuillsSpellScript::CheckTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
