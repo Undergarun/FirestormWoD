@@ -792,22 +792,6 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
             uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
             l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);  // player guid
 
-            if (l_Mail->messageType == MAIL_NORMAL)
-            {
-                l_Data.WriteBit(true);
-                l_Data.WriteBit(true);
-                l_Data.FlushBits();
-
-                l_Data << uint32(g_RealmID);
-                l_Data << uint32(g_RealmID);
-            }
-            else
-            {
-                l_Data.WriteBit(false);
-                l_Data.WriteBit(false);
-                l_Data.FlushBits();
-            }
-
             l_Data << float(l_Mail->deliver_time - l_NowTime);
             l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  // non-player entries
             l_Data << uint8(l_Mail->messageType);

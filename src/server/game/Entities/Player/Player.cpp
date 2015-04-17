@@ -9118,11 +9118,21 @@ void Player::SendPvpRewards()
     l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                    ///< Ashran currency week
     l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ASHRAN, false);                   ///< Ashran currency weekcap
 
-    l_Packet << (uint32)0;                                                                              ///< Count of gived all conquest rewarded in battlegrounds, deprecated
-    l_Packet << (uint32)0;                                                                              ///< battleground currency weekcap, deprecated
+    l_Packet << (uint32)0;                                                                               ///< Count of gived all conquest rewarded in battlegrounds, deprecated
+    l_Packet << (uint32)0;                                                                               ///< battleground currency weekcap, deprecated
 
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD);          ///< Conquest points from Rated BG win
-    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);             ///< Conquest points from Arena win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD);           ///< Conquest points from Rated BG win
+    l_Packet << (uint32)sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);              ///< Conquest points from Arena win
+
+    l_Packet << (uint32)0;  ///< Mask
+    l_Packet << (uint32)0;  ///< RewardMoney
+    l_Packet << (uint32)0;  ///< RewardXP
+
+    l_Packet << (uint32)0;  ///< ItemCount
+    l_Packet << (uint32)0;  ///< CurrencyCount
+    l_Packet << (uint32)0;  ///< QuantityCount
+
+    l_Packet.WriteBit(false);   ///< unk
 
     GetSession()->SendPacket(&l_Packet);
 }
@@ -25676,8 +25686,8 @@ void Player::SendCooldownEvent(const SpellInfo * p_SpellInfo, uint32 p_ItemID, S
 
     /// Send activate cooldown timer (possible 0) at client side
     WorldPacket l_Data(SMSG_COOLDOWN_EVENT, 4 + 8);
-    l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_SpellInfo->Id);
+    l_Data.WriteBit(false);             ///< IsPet
 
     SendDirectMessage(&l_Data);
 }
