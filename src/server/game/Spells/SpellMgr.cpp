@@ -3347,6 +3347,7 @@ void SpellMgr::LoadSpellCustomAttr()
         {
             case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
                 break;
             case 167625: ///< Blood feather
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_TRIGGER_SPELL;
@@ -4962,9 +4963,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 105361: ///< Seal of Command
                 spellInfo->OverrideSpellList.push_back(31801); ///< Replace Seal of Command with Seal of Truth
-                break;
-            case 115294: ///< Mana Tea
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
                 break;
             case 44457: ///< Living Bomb
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
