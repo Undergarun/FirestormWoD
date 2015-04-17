@@ -159,8 +159,6 @@ INSERT INTO access_requirement (mapId, difficulty, level_min, level_max, itemlev
 (1228, 17, 100, 100, 615, 0, 'Highmaul - Raid Tool');
 
 SET @REF_BUTCHER_N = 77404;
-SET @REF_BUTCHER_H = 1577404;
-SET @REF_BUTCHER_M = 1677404;
 SET @REF_BUTCHER_LFR = 1777404;
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_BUTCHER_N;
@@ -191,8 +189,6 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_BUTCHER_LFR, 116361, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_N;
-UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_H;
-UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_N WHERE `entry`= @REF_BUTCHER_M;
 UPDATE `creature_template` SET `lootid`= @REF_BUTCHER_LFR WHERE `entry`= @REF_BUTCHER_LFR;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BUTCHER_N;

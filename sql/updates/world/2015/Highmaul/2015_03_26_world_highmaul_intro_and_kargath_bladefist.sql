@@ -448,8 +448,6 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, 
 (159412, 1, 6706, 4, 4, 16384, 'areatrigger_highmaul_mauling_brew');
 
 SET @REF_KARGATH_N = 78714;
-SET @REF_KARGATH_H = 1578714;
-SET @REF_KARGATH_M = 1678714;
 SET @REF_KARGATH_LFR = 1778714;
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_KARGATH_N;
@@ -479,8 +477,6 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_KARGATH_LFR, 116298, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_N;
-UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_H;
-UPDATE `creature_template` SET `lootid`= @REF_KARGATH_N WHERE `entry`= @REF_KARGATH_M;
 UPDATE `creature_template` SET `lootid`= @REF_KARGATH_LFR WHERE `entry`= @REF_KARGATH_LFR;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KARGATH_N;

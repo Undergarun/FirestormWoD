@@ -1,7 +1,5 @@
-SET @REF_BRACKENSPORE_N = 77404;
-SET @REF_BRACKENSPORE_H = 1577404;
-SET @REF_BRACKENSPORE_M = 1677404;
-SET @REF_BRACKENSPORE_LFR = 1777404;
+SET @REF_BRACKENSPORE_N = 78491;
+SET @REF_BRACKENSPORE_LFR = 1778491;
 
 DELETE FROM `reference_loot_template` WHERE entry = @REF_BRACKENSPORE_N;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
@@ -29,8 +27,6 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 (@REF_BRACKENSPORE_LFR, 116288, 0, 1, 1, 1, 1);
 
 UPDATE `creature_template` SET `lootid`= @REF_BRACKENSPORE_N WHERE `entry`= @REF_BRACKENSPORE_N;
-UPDATE `creature_template` SET `lootid`= @REF_BRACKENSPORE_N WHERE `entry`= @REF_BRACKENSPORE_H;
-UPDATE `creature_template` SET `lootid`= @REF_BRACKENSPORE_N WHERE `entry`= @REF_BRACKENSPORE_M;
 UPDATE `creature_template` SET `lootid`= @REF_BRACKENSPORE_LFR WHERE `entry`= @REF_BRACKENSPORE_LFR;
 
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BRACKENSPORE_N;
