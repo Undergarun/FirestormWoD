@@ -854,7 +854,7 @@ class spell_mastery_blood_shield: public SpellScriptLoader
         }
 };
 
-// Called by 133 - Fireball, 44614 - Frostfire Bolt, 108853 - Inferno Blast, 2948 - Scorch and 11366 - Pyroblast
+// Called by 133 - Fireball, 44614 - Frostfire Bolt, 108853 - Inferno Blast, 2948 - Scorch, 11366 - Pyroblast and 153564 - Meteor
 // 12846 - Mastery : Ignite
 class spell_mastery_ignite: public SpellScriptLoader
 {
@@ -887,8 +887,8 @@ class spell_mastery_ignite: public SpellScriptLoader
                                     if (l_SpellInfo->Effects[EFFECT_0].Amplitude > 0)
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
-                                    if (l_Target->HasAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
-                                        l_Bp += l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE);
+                                    if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
+                                        l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) * (l_PreviousIgnite->GetDuration() / l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude()));
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
                                 }

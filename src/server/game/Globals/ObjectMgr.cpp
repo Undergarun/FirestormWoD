@@ -8587,17 +8587,18 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::se
             count += LoadReferenceVendor(vendor, -item_id, type, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt32();
-            uint32 incrtime     = fields[2].GetUInt32();
-            uint32 ExtendedCost = fields[3].GetUInt32();
-            uint8  type         = fields[4].GetUInt8();
+            int32  maxcount             = fields[1].GetUInt32();
+            uint32 incrtime             = fields[2].GetUInt32();
+            uint32 ExtendedCost         = fields[3].GetUInt32();
+            uint8  type                 = fields[4].GetUInt8();
+            uint32 l_PlayerConditionID  = fields[5].GetUInt32();
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, type, NULL, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type, l_PlayerConditionID);
             ++count;
         }
     }
@@ -8617,7 +8618,7 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, PlayerConditionID FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
 
@@ -8629,10 +8630,10 @@ void ObjectMgr::LoadVendors()
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* fields           = result->Fetch();
 
-        uint32 entry        = fields[0].GetUInt32();
-        int32 item_id      = fields[1].GetInt32();
+        uint32 entry            = fields[0].GetUInt32();
+        int32 item_id           = fields[1].GetInt32();
 
         // if item is a negative, its a reference
         if (item_id < 0)
@@ -8643,13 +8644,14 @@ void ObjectMgr::LoadVendors()
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
             uint8  type         = fields[5].GetUInt8();
+            uint32 l_PlayerConditionID = fields[6].GetUInt32();
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, type, NULL, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type, l_PlayerConditionID);
             ++count;
         }
     }
@@ -8762,10 +8764,10 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/, uint32 p_PlayerConditionID /* = 0*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost, type);
+    vList.AddItem(item, maxcount, incrtime, extendedCost, type, p_PlayerConditionID);
 
     if (persist)
     {
@@ -8777,6 +8779,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
         stmt->setUInt32(3, incrtime);
         stmt->setUInt32(4, extendedCost);
         stmt->setUInt8(5, type);
+        stmt->setUInt32(6, p_PlayerConditionID);
 
         WorldDatabase.Execute(stmt);
     }

@@ -975,7 +975,6 @@ class playerScript_enter_tanaan : public PlayerScript
                 p_Player->GetQuestStatus(TanaanQuests::QuestKeliDanTheBreakerHorde) == QUEST_STATUS_COMPLETE ||
                 p_Player->GetQuestStatus(TanaanQuests::QuestKeliDanTheBreakerHorde) == QUEST_STATUS_REWARDED)
             {
-                p_Player->NearTeleportTo(4527.306f, -2298.1438f, 33.334f, p_Player->GetOrientation());
                 l_PhaseMask |= TanaanPhases::PhaseCaveLastRock;
                 l_PhaseMask |= TanaanPhases::PhasePoolMobs;
                 l_PhaseMask |= TanaanPhases::PhaseGroupPool;
@@ -1189,6 +1188,12 @@ class npc_archmage_khadgar : public CreatureScript
                     l_PhaseMask &= ~TanaanPhases::PhaseSouthernCageAlly;
                     p_Player->SetPhaseMask(l_PhaseMask, true);
                 }
+                case TanaanQuests::QuestBlazeOfGlory:
+                {
+                    if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestAltarAltercation))
+                        p_Player->AddQuest(l_Quest, nullptr);
+                }
+
                 default:
                     break;
             }
@@ -1265,6 +1270,14 @@ class npc_archmage_khadgar : public CreatureScript
             {
                 const Quest* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestStartDraenor);
                 p_Player->RewardQuest(l_Quest, 0, p_Creature);
+            }
+
+
+            if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_NONE &&
+                p_Player->GetQuestStatus(TanaanQuests::QuestBlazeOfGlory) == QUEST_STATUS_REWARDED)
+            {
+                if (Quest const* l_Quest = sObjectMgr->GetQuestTemplate(TanaanQuests::QuestAltarAltercation))
+                    p_Player->AddQuest(l_Quest, nullptr);
             }
 
             p_Player->PrepareQuestMenu(p_Creature->GetGUID());
@@ -1898,7 +1911,6 @@ class npc_archmage_khadgar_bridge : public CreatureScript
                     g_APotentialAllyPlayerScript->m_PlayerSceneInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneRingOfFire, 16, l_Pos);
 
             }
-
             return true;
         }
 
@@ -4108,6 +4120,7 @@ class gob_worldbreaker_side_turret : public GameObjectScript
                 l_PhaseMask &= ~TanaanPhases::PhaseCannonTurret;
                 p_Player->SetPhaseMask(l_PhaseMask, true);
                 p_Player->AddAura(TanaanSpells::SpellTasteOfIronGameAura, p_Player);
+                p_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditEnterWorldbreakerTurret, 1);
 
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);

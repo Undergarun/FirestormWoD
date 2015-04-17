@@ -771,8 +771,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     // Stagger handler
     if (victim && victim->ToPlayer() && victim->getClass() == CLASS_MONK)
-        if (!spellProto || (spellProto && spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
-            damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage);
+    {
+        if (!victim->HasSpell(157533))
+        {
+            if (!spellProto || ((spellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL))
+                if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
+                    damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+        }
+        else ///< You are now able to shrug off even spells
+        {
+            if (!spellProto || (spellProto->Id != LIGHT_STAGGER && spellProto->Id != MODERATE_STAGGER && spellProto->Id != HEAVY_STAGGER))
+                damage = victim->CalcStaggerDamage(victim->ToPlayer(), damage, damageSchoolMask, spellProto);
+        }
+    }
 
     // Temporal Shield - 115610
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->HasAura(115610) && damage != 0)
@@ -1179,69 +1190,76 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     return damage;
 }
 
-uint32 Unit::CalcStaggerDamage(Player* victim, uint32 damage)
+uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMask p_DamageSchoolMask, SpellInfo const* p_SpellProto)
 {
-    if (victim->GetSpecializationId(victim->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-        return damage;
+    if (p_Victim->GetSpecializationId(p_Victim->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
+        return p_Damage;
 
     // Stance of the Sturdy Ox
-    if (!victim->HasAura(115069))
-        return damage;
+    if (!p_Victim->HasAura(115069))
+        return p_Damage;
 
-    if (damage <= 0)
-        return damage;
+    if (p_Damage <= 0)
+        return p_Damage;
 
-    float stagger = 0.80f;
-    // Mastery increases stagger amount - Mastery: Elusive Brawler
-    if (victim->HasAura(117906))
+    float l_Stagger = 0.70f;
+    /// Mastery increases stagger amount - Mastery: Elusive Brawler
+    if (p_Victim->HasAura(117906))
     {
-        float Mastery = (victim->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.625f) / 100.0f;
-        stagger -= Mastery;
+        float l_Mastery = (p_Victim->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.625f) / 100.0f;
+        l_Stagger -= l_Mastery;
     }
 
-    // Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
-    if (victim->HasAura(115203) && victim->HasAura(117967))
-        stagger -= 0.20f;
-    // Shuffle also increase stagger amount by 20%
-    if (victim->HasAura(115307))
-        stagger -= 0.20f;
+    /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
+    if (p_Victim->HasSpell(115203) && p_Victim->HasAura(117967))
+        l_Stagger -= 0.20f;
+    /// Shuffle also increase stagger amount by 20%
+    if (p_Victim->HasAura(115307))
+        l_Stagger -= 0.10f;
+    /// Staggering increase stagger amount by 6%
+    if (p_Victim->HasAura(138233))
+        l_Stagger -= 0.06f;
 
-    if (stagger < 0.0f)
-        stagger = 0.0f;
+    if (l_Stagger < 0.0f)
+        l_Stagger = 0.0f;
 
-    int32 bp = CalculatePct(damage, ((1.0f - stagger) * 100.0f));
+    /// If it's not a physical attack, such that 30% of your normal stagger amount works against magic damage.
+    if (!(!p_SpellProto || ((p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || p_SpellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && p_DamageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)))
+        l_Stagger = CalculatePct(l_Stagger, 30);
 
-    if (stagger == 0.0f)
-        bp = damage;
+    int32 l_Bp = CalculatePct(p_Damage, ((1.0f - l_Stagger) * 100.0f));
 
-    uint32 spellId = 0;
-    uint32 ticksNumber = 10;
+    if (l_Stagger == 0.0f)
+        l_Bp = p_Damage;
 
-    AuraEffectPtr aurEff = victim->GetAuraEffect(LIGHT_STAGGER, 0, victim->GetGUID());
-    if (!aurEff)
-        aurEff = victim->GetAuraEffect(MODERATE_STAGGER, 0, victim->GetGUID());
-    if (!aurEff)
-        aurEff = victim->GetAuraEffect(HEAVY_STAGGER, 0, victim->GetGUID());
+    uint32 l_SpellId = 0;
+    uint32 l_TicksNumber = 10;
 
-    // Add remaining ticks to damage done
-    if (aurEff)
-        bp += aurEff->GetAmount() * (ticksNumber - aurEff->GetTickNumber());
+    AuraEffectPtr l_AurEff = p_Victim->GetAuraEffect(LIGHT_STAGGER, 0, p_Victim->GetGUID());
+    if (!l_AurEff)
+        l_AurEff = p_Victim->GetAuraEffect(MODERATE_STAGGER, 0, p_Victim->GetGUID());
+    if (!l_AurEff)
+        l_AurEff = p_Victim->GetAuraEffect(HEAVY_STAGGER, 0, p_Victim->GetGUID());
 
-    if (bp < int32(victim->CountPctFromMaxHealth(3)))
-        spellId = LIGHT_STAGGER;
-    else if (bp < int32(victim->CountPctFromMaxHealth(6)))
-        spellId = MODERATE_STAGGER;
+    /// Add remaining ticks to damage done
+    if (l_AurEff)
+        l_Bp += l_AurEff->GetAmount() * (l_TicksNumber - l_AurEff->GetTickNumber());
+
+    if (l_Bp < int32(p_Victim->CountPctFromMaxHealth(3)))
+        l_SpellId = LIGHT_STAGGER;
+    else if (l_Bp < int32(p_Victim->CountPctFromMaxHealth(6)))
+        l_SpellId = MODERATE_STAGGER;
     else
-        spellId = HEAVY_STAGGER;
+        l_SpellId = HEAVY_STAGGER;
 
-    bp /= ticksNumber;
+    l_Bp /= l_TicksNumber;
 
-    victim->RemoveAura(LIGHT_STAGGER);
-    victim->RemoveAura(MODERATE_STAGGER);
-    victim->RemoveAura(HEAVY_STAGGER);
-    victim->CastCustomSpell(victim, spellId, &bp, NULL, NULL, true);
+    p_Victim->RemoveAura(LIGHT_STAGGER);
+    p_Victim->RemoveAura(MODERATE_STAGGER);
+    p_Victim->RemoveAura(HEAVY_STAGGER);
+    p_Victim->CastCustomSpell(p_Victim, l_SpellId, &l_Bp, NULL, NULL, true);
 
-    return damage *= stagger;
+    return p_Damage *= l_Stagger;
 }
 
 void Unit::CastStop(uint32 except_spellid)
@@ -12570,7 +12588,10 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
             singleTarget = true;
 
         if (singleTarget)
+        {
             DoneTotal += CalculatePct(healamount, 50.0f);
+            RemoveAurasDueToSpell(118473);
+        }
     }
 
     // Apply Power PvP healing bonus
@@ -18147,44 +18168,8 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, AuraPtr aura, SpellInfo con
 
 bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffectPtr triggeredByAura)
 {
-    // aura can be deleted at casts
-    SpellInfo const* spellProto = triggeredByAura->GetSpellInfo();
-    int32 heal = triggeredByAura->GetAmount();
-    uint64 caster_guid = triggeredByAura->GetCasterGUID();
-    Unit* caster = triggeredByAura->GetCaster();
-
-    // Currently only Prayer of Mending
-    if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[1] & 0x20))
-        return false;
-
-    // jumps
-    int32 jumps = triggeredByAura->GetBase()->GetCharges()-1;
-
-    // current aura expire
-    triggeredByAura->GetBase()->SetCharges(1);             // will removed at next charges decrease
-
-    if (caster && caster->HasAura(55685))
-        AddPct(heal, 60);
-
-    // next target selection
-    if (jumps > 0 && caster)
-    {
-        float radius = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcRadius(caster);
-
-        if (Unit* target = GetNextRandomRaidMemberOrPet(radius))
-        {
-            CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-            CastCustomSpell(target, 41637, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
-            AuraPtr aura = target->GetAura(spellProto->Id, caster->GetGUID());
-            if (aura != NULLAURA)
-                aura->SetCharges(jumps);
-        }
-    }
-
-    // heal
-    CastCustomSpell(this, 33110, &heal, NULL, NULL, true, NULL, NULLAURA_EFFECT, caster_guid);
-    return true;
-
+    /// Currently doesn't use by any spell
+    return false;
 }
 
 bool Unit::HandleAuraRaidProcFromCharge(AuraEffectPtr triggeredByAura)
@@ -21828,7 +21813,7 @@ float Unit::CalculateDamageDealtFactor(Unit* p_Unit, Creature* p_Creature)
     float l_DamageDealtFactor = 1.0f;
 
 
-    if (l_LevelDiff)
+    if (l_LevelDiff && l_TargetExpansion <= EXPANSION_MISTS_OF_PANDARIA)
     {
         if (l_LevelDiff < 1)
         {
@@ -21879,7 +21864,7 @@ float Unit::CalculateDamageTakenFactor(Unit* p_Unit, Creature* p_Creature)
 
     float l_DamageTakenFactor = 1.0f;
 
-    if (l_LevelDiff > 0)
+    if (l_LevelDiff > 0 && l_TargetExpansion <= EXPANSION_MISTS_OF_PANDARIA)
     {
         // 10% DR per level diff, with a floor of 10%
         l_DamageTakenFactor = std::max(1.0f - 0.1f * l_LevelDiff, 0.1f);

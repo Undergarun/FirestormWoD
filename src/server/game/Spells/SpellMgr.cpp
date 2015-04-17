@@ -104,7 +104,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[0] & 0x40)
                 return DIMINISHING_ROOT;
             // Ice Ward -- 111340
-            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x2000)
+            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x20000)
                 return DIMINISHING_ROOT;
             // Freeze (Water Elemental) -- 33395
             if (spellproto->SpellFamilyFlags[2] & 0x200)
@@ -122,9 +122,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
             // Ring of Frost -- 82691
             if (spellproto->SpellFamilyFlags[2] & 0x40)
-                return DIMINISHING_INCAPACITATE;
-            // Ice Nova -- 157997
-            if (spellproto->SpellFamilyFlags[2] & 0x800000)
                 return DIMINISHING_INCAPACITATE;
             break;
         }
@@ -4347,11 +4344,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 53490: ///< Bullheaded
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 32645: ///< Envenom
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[2].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[3].BasePoints = 30;
-                break;
             case 109260: ///< Aspect of the Iron Hawk
                 spellInfo->Effects[0].BasePoints = -10;
                 break;
@@ -4826,6 +4818,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 121536: ///< Feather
                 spellInfo->Effects[0].TargetB = TARGET_DEST_DEST;
+                break;
+            case 177345: ///< Meteor
+                spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 break;
             case 19574: ///< Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
@@ -5929,9 +5924,14 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->SpellFamilyName)
             {
+                case SPELLFAMILY_GENERIC:
+                    /// Wind lash (auto-attack of Ascendance)
+                    if (spellInfo->Id == 147051)
+                        spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
                 case SPELLFAMILY_SHAMAN:
-                    /// Lava Lash / Windstrike - Overide Stormstrike (17364) with Ascendance (114051)
-                    if (spellInfo->Id == 60103 || spellInfo->Id == 115356)
+                    /// Lava Lash / Windstrike Main Hand and Off Hand - Overide Stormstrike (17364) with Ascendance (114051) /
+                    if (spellInfo->Id == 60103 || spellInfo->Id == 115357 || spellInfo->Id == 115360)
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                     break;
                 case SPELLFAMILY_WARRIOR:

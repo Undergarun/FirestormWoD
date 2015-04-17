@@ -908,22 +908,18 @@ struct gtItemSocketCostPerLevelEntry
     float cost;
 };
 
-// we have no data in 6.0.1 18612
 struct ItemDisplayInfoEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    //char*                                                 // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // 22
+    uint32      ID;                                         // 0
+    //char*     ModelName[2];                               // 1-2
+    //char*     ModelTexture[2];                            // 3-4
+    //uint32    GeoSetGroup[3];                             // 5-7
+    //uint32    Flags;                                      // 8
+    //uint32    SpellVisualID;                              // 9
+    //uint32    HelmetGeosetVis[2];                         // 10-11
+    //char*     Texture[9];                                 // 12-20
+    //uint32    ItemVisual;                                 // 21
+    //uint32    ParticleColorID;                            // 22
 };
 
 struct ItemDisenchantLootEntry

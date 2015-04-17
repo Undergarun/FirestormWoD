@@ -514,7 +514,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
-    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
+    &AuraEffect::HandleAuraIncreaseDualWieldDamage,               //458 SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
     &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
@@ -8685,5 +8685,23 @@ void AuraEffect::HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_M
         l_Pet->SetSpecializationId((uint32)l_NewSpec);
         l_Pet->LearnSpecializationSpell();
         l_Player->SendTalentsInfoData(true);
+    }
+}
+
+void AuraEffect::HandleAuraIncreaseDualWieldDamage(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* l_Player = p_AurApp->GetBase()->GetUnitOwner()->ToPlayer();
+    if (!l_Player)
+        return;
+
+    if (l_Player->CanModifyStats())
+    {
+        l_Player->UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+
+        if (l_Player->CanUseAttackType(WeaponAttackType::OffAttack))
+            l_Player->UpdateDamagePhysical(WeaponAttackType::OffAttack);
     }
 }

@@ -80,6 +80,8 @@ class Weather
         uint32 GetZone() const { return m_zone; };
         uint32 GetScriptId() const { return m_weatherChances->ScriptId; }
 
+        uint32 GetType() const { return m_type; };
+
     private:
 
         WeatherState GetWeatherState() const;

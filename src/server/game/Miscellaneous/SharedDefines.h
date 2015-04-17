@@ -2718,6 +2718,8 @@ enum Emote
     EMOTE_STATE_CUSTOMSPELL02                    = 615,
     EMOTE_STATE_READ_AND_SIT                     = 616,
     EMOTE_STATE_PARRY_UNARMED					 = 619,
+    EMOTE_STATE_STATE_BLOCK_SHIELD               = 620,
+    EMOTE_STATE_STATE_SIT_GROUND                 = 621
 
 };
 
@@ -3533,7 +3535,41 @@ enum Anim
     ANIM_MOUNTCHOPPER                      = 806,
     ANIM_FLYMOUNTCHOPPER                   = 807,
     ANIM_FACEPOSE                          = 808,
-    ANIM_FLYFACEPOSE                       = 809
+    ANIM_FLYFACEPOSE                       = 809,
+    ANIM_PLACEHOLDER00                     = 810,
+    ANIM_FLYPLACEHOLDER00                  = 811,
+    ANIM_PLACEHOLDER01                     = 812,
+    ANIM_FLYPLACEHOLDER01                  = 813,
+    ANIM_PLACEHOLDER02                     = 814,
+    ANIM_FLYPLACEHOLDER02                  = 815,
+    ANIM_PLACEHOLDER03                     = 816,
+    ANIM_FLYPLACEHOLDER03                  = 817,
+    ANIM_PLACEHOLDER04                     = 818,
+    ANIM_FLYPLACEHOLDER04                  = 819,
+    ANIM_PLACEHOLDER05                     = 820,
+    ANIM_FLYPLACEHOLDER05                  = 821,
+    ANIM_PLACEHOLDER06                     = 822,
+    ANIM_FLYPLACEHOLDER06                  = 823,
+    ANIM_PLACEHOLDER07                     = 824,
+    ANIM_FLYPLACEHOLDER07                  = 825,
+    ANIM_PLACEHOLDER08                     = 826,
+    ANIM_FLYPLACEHOLDER08                  = 827,
+    ANIM_PLACEHOLDER09                     = 828,
+    ANIM_FLYPLACEHOLDER09                  = 829,
+    ANIM_PLACEHOLDER10                     = 830,
+    ANIM_FLYPLACEHOLDER10                  = 831,
+    ANIM_PLACEHOLDER11                     = 832,
+    ANIM_FLYPLACEHOLDER11                  = 833,
+    ANIM_PLACEHOLDER12                     = 834,
+    ANIM_FLYPLACEHOLDER12                  = 835,
+    ANIM_READYCROSSBOW                     = 836,
+    ANIM_FLYREADYCROSSBOW                  = 837,
+    ANIM_LOADCROSSBOW                      = 838,
+    ANIM_FLYLOADCROSSBOW                   = 839,
+    ANIM_ATTACKCROSSBOW                    = 840,
+    ANIM_FLYATTACKCROSSBOW                 = 841,
+    ANIM_HOLDCROSSBOW                      = 842,
+    ANIM_FLYHOLDCROSSBOW                   = 843
 };
 
 enum LockKeyType
@@ -3802,7 +3838,7 @@ enum HolidayIds
     HOLIDAY_UNK_601_9                = 519
 };
 
-// values based at QuestInfo.dbc
+// values based at QuestInfo.dbc <- this dbc are removed in 6.1.X 
 enum QuestTypes
 {
     QUEST_TYPE_GROUP               = 1,
@@ -3880,10 +3916,10 @@ enum QuestSort
     QUEST_SORT_BRAWLERS_GUILD         = 399,       // 5.1.0
     QUEST_SORT_PROVING_GROUNDS        = 400,
     QUEST_SORT_GARRISON_CAMPAIGN      = 401,       // 6.0.1
-    QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,    // 6.0.1
-    QUEST_SORT_GARRISON_SUPPORT       = 403,      // 6.0.1
-    QUEST_SORT_LOGGIN                 = 404,      // 6.0.1
-    QUEST_SORT_PICKPOCKETING          = 405       // 6.0.2
+    QUEST_SORT_ASSAULT_ON_DARK_PORTAL = 402,       // 6.0.1
+    QUEST_SORT_GARRISON_SUPPORT       = 403,       // 6.0.1
+    QUEST_SORT_LOGGIN                 = 404,       // 6.0.1
+    QUEST_SORT_PICKPOCKETING          = 405        // 6.0.2
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -4804,7 +4840,7 @@ enum ProfessionUI
 // Void Storage
 
 #define VOID_STORAGE_UNLOCK       100*GOLD
-#define VOID_STORAGE_STORE_ITEM   25*GOLD
+#define VOID_STORAGE_STORE_ITEM   10*GOLD
 #define VOID_STORAGE_MAX_DEPOSIT  9
 #define VOID_STORAGE_MAX_WITHDRAW 9
 #define VOID_STORAGE_MAX_SLOT     160
@@ -4819,7 +4855,7 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_INTERNAL_ERROR_4  = 5,
     VOID_TRANSFER_ERROR_NOT_ENOUGH_MONEY  = 6,
     VOID_TRANSFER_ERROR_INVENTORY_FULL    = 7,
-    VOID_TRANSFER_ERROR_INTERNAL_ERROR_5  = 8,
+    VOID_TRANSFER_ERROR_ITEM_INVALID      = 8,
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9
 };
 

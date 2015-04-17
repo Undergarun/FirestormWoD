@@ -123,8 +123,6 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
-    SPELL_SHA_GLYPH_OF_CLEANSING_WATER          = 55445,
-    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961,
     SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
 };
 
@@ -665,48 +663,6 @@ class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_glyph_of_lakestrider_SpellScript();
-        }
-};
-
-/// Call by Cleanse Spirit - 51886
-/// Glyph of Cleansing Waters - 55445
-class spell_sha_glyph_of_cleansing_waters : public SpellScriptLoader
-{
-    public:
-        spell_sha_glyph_of_cleansing_waters() : SpellScriptLoader("spell_sha_glyph_of_cleansing_waters") { }
-
-        class spell_sha_glyph_of_cleansing_waters_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_glyph_of_cleansing_waters_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_CLEANSING_WATER);
-
-                if (l_SpellInfo == nullptr || l_Target == nullptr)
-                    return;
-
-                /// You also heal the target for 4% of your maximum health.
-                if (l_Caster->HasAura(SPELL_SHA_GLYPH_OF_CLEANSING_WATER))
-                {
-                    int32 l_Bp = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
-
-                    l_Caster->CastCustomSpell(l_Target, SPELL_SHA_SPELL_CLEANSING_WATER, &l_Bp, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_glyph_of_cleansing_waters_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_glyph_of_cleansing_waters_SpellScript();
         }
 };
 
@@ -2446,7 +2402,6 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     l_Player->RestoreCharge(1536);
             }
 
-
             void Register()
             {
                 AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
@@ -2557,14 +2512,28 @@ class spell_sha_riptide : public SpellScriptLoader
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+
+                if (l_SpellInfo == nullptr)
+                    return;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
-                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), GetSpellInfo()->Effects[EFFECT_2].BasePoints));
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
             }
 
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_riptide_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                AfterHit += SpellHitFn(spell_sha_riptide_SpellScript::HandleAfterHit);
             }
         };
 
@@ -2575,14 +2544,14 @@ class spell_sha_riptide : public SpellScriptLoader
             void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
 
-                if (l_Caster == nullptr)
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
                     return;
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                 {
-                    p_Amount += CalculatePct(p_Amount, GetSpellInfo()->Effects[EFFECT_2].BasePoints);
-                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+                    p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_2].BasePoints);
                 }
             }
 
@@ -2627,7 +2596,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
             void RemoveAllVisuals(Unit* l_Caster)
             {
-                for (int l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds); l_I++)
+                for (uint32 l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds) / sizeof(uint32); l_I++)
                     if (AuraPtr l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
                         l_Aura->Remove();
             }
@@ -2651,7 +2620,6 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
-    new spell_sha_glyph_of_cleansing_waters();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();

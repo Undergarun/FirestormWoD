@@ -314,6 +314,7 @@
     <field type="int" name="m_flags" />
     <field type="int" name="m_iconFileDataID" />
     <field type="string" name="m_gametype_lang" />
+    <field type="int" name="newField" />
   </BattleMasterList>
   <CameraMode build="0">
     <index>
@@ -1484,24 +1485,24 @@
     <field type="string" name="ModelName2" />
     <field type="string" name="ModelTexture" />
     <field type="string" name="ModelTexture2" />
-    <field type="float" name="GeosetGroup_1" />
-    <field type="float" name="GeosetGroup_2" />
-    <field type="float" name="GeosetGroup_3" />
+    <field type="int" name="GeosetGroup_1" />
+    <field type="int" name="GeosetGroup_2" />
+    <field type="int" name="GeosetGroup_3" />
     <field type="int" name="Flags" />
     <field type="int" name="SpellVisualID" />
     <field type="int" name="HelmetGeosetVis_1" />
     <field type="int" name="HelmetGeosetVis_2" />
-    <field type="string" name="Texture" />
+    <field type="string" name="Texture1" />
+    <field type="string" name="Texture2" />
+    <field type="string" name="Texture3" />
+    <field type="string" name="Texture4" />
+    <field type="string" name="Texture5" />
+    <field type="string" name="Texture6" />
+    <field type="string" name="Texture7" />
+    <field type="string" name="Texture8" />
+    <field type="string" name="Texture9" />
     <field type="int" name="ItemVisual" />
     <field type="int" name="ParticleColorID" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
-    <field type="int" name="field20" />
   </ItemDisplayInfo>
   <ItemRandomProperties build="18612">
     <index>
@@ -3013,9 +3014,6 @@
     <field type="int" name="field9" />
   </GarrMissionReward>
   <SummonProperties build="19057">
-    <index>
-      <primary>Id</primary>
-    </index>
     <field type="int" name="Control" />
     <field type="int" name="Faction" />
     <field type="int" name="Title" />
@@ -3267,28 +3265,28 @@
   </Cfg_Configs>
   <Creature build="0">
     <index>
-      <primary>field0</primary>
+      <primary>Id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
-    <field type="int" name="field7" />
-    <field type="int" name="field8" />
-    <field type="int" name="field9" />
-    <field type="int" name="field10" />
-    <field type="int" name="field11" />
-    <field type="int" name="field12" />
-    <field type="int" name="field13" />
-    <field type="int" name="field14" />
-    <field type="int" name="field15" />
-    <field type="int" name="field16" />
-    <field type="int" name="field17" />
-    <field type="int" name="field18" />
-    <field type="int" name="field19" />
+    <field type="int" name="Id" />
+    <field type="int" name="type" />
+    <field type="int" name="itemID1" />
+    <field type="int" name="itemID2" />
+    <field type="int" name="itemID3" />
+    <field type="int" name="mount" />
+    <field type="int" name="displayID1" />
+    <field type="int" name="displayID2" />
+    <field type="int" name="displayID3" />
+    <field type="int" name="displayID4" />
+    <field type="float" name="displayIDProba1" />
+    <field type="float" name="displayIDProba2" />
+    <field type="float" name="displayIDProba3" />
+    <field type="float" name="displayIDProba4" />
+    <field type="string" name="Name" />
+    <field type="string" name="FemaleName" />
+    <field type="string" name="subname" />
+    <field type="int" name="rank" />
+    <field type="int" name="InhabitType" />
+    <field type="int" name="Build" />
   </Creature>
   <CreatureDifficulty build="0">
     <index>
@@ -3525,10 +3523,10 @@
   </ServerMessages>
   <VehicleSeat build="0">
     <index>
-      <primary>field0</primary>
+      <primary>id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="id" />
+    <field type="int" name="Flags" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
     <field type="int" name="field4" />
@@ -4049,7 +4047,7 @@
     <field type="int" name="field5" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
-    <field type="int" name="field8" />
+    <field type="string" name="field8" />
   </QuestObjectiveCliTask>
   <QuestMoneyReward build="0">
     <index>
@@ -4276,7 +4274,7 @@
     <field type="int" name="RequiredFactionStanding" />
     <field type="int" name="RequirementFlags" />
     <field type="int" name="newField1 6.1" />
-    <field type="int" name="newField2 6.2" />
+    <field type="int" name="OverrideBuyPrice" />
   </ItemExtendedCost>
   <ItemClass build="0">
     <index>
@@ -4427,4 +4425,333 @@
     <field type="int" name="field54" />
     <field type="int" name="field55" />
   </SoundEntries>
+  <ItemDisenchantLoot build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </ItemDisenchantLoot>
+  <ItemPurchaseGroup build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+  </ItemPurchaseGroup>
+  <Creature build="19865">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="type" />
+    <field type="int" name="itemID1" />
+    <field type="int" name="itemID2" />
+    <field type="int" name="itemID3" />
+    <field type="int" name="mount" />
+    <field type="int" name="displayID1" />
+    <field type="int" name="displayID2" />
+    <field type="int" name="displayID3" />
+    <field type="int" name="displayID4" />
+    <field type="float" name="displayIDProba1" />
+    <field type="float" name="displayIDProba2" />
+    <field type="float" name="displayIDProba3" />
+    <field type="float" name="displayIDProba4" />
+    <field type="string" name="Name" />
+    <field type="string" name="FemaleName" />
+    <field type="string" name="subname" />
+    <field type="int" name="rank" />
+    <field type="int" name="InhabitType" />
+    <field type="int" name="unk" />
+  </Creature>
+  <CreatureDifficulty build="19865">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="creatureID" />
+    <field type="int" name="factionID" />
+    <field type="int" name="expansion" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="flag1" />
+    <field type="int" name="flag2" />
+    <field type="int" name="flag3" />
+    <field type="int" name="flag4" />
+    <field type="int" name="flag5" />
+  </CreatureDifficulty>
+  <gtNpcTotalHp build="0">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtNpcTotalHp build="19865">
+    <index>
+      <primary>level</primary>
+    </index>
+    <field type="int" name="level" />
+    <field type="float" name="hp" />
+  </gtNpcTotalHp>
+  <gtResilienceDR build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </gtResilienceDR>
+  <ItemExtendedCost build="19865">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="RequiredArenaSlot" />
+    <field type="int" name="RequiredItem1" />
+    <field type="int" name="RequiredItem2" />
+    <field type="int" name="RequiredItem3" />
+    <field type="int" name="RequiredItem4" />
+    <field type="int" name="RequiredItem5" />
+    <field type="int" name="RequiredItemCount1" />
+    <field type="int" name="RequiredItemCount2" />
+    <field type="int" name="RequiredItemCount3" />
+    <field type="int" name="RequiredItemCount4" />
+    <field type="int" name="RequiredItemCount5" />
+    <field type="int" name="RequiredPersonalArenaRating" />
+    <field type="int" name="ItemPurchaseGroup" />
+    <field type="int" name="RequiredCurrency1" />
+    <field type="int" name="RequiredCurrency2" />
+    <field type="int" name="RequiredCurrency3" />
+    <field type="int" name="RequiredCurrency4" />
+    <field type="int" name="RequiredCurrency5" />
+    <field type="int" name="RequiredCurrencyCount1" />
+    <field type="int" name="RequiredCurrencyCount2" />
+    <field type="int" name="RequiredCurrencyCount3" />
+    <field type="int" name="RequiredCurrencyCount4" />
+    <field type="int" name="RequiredCurrencyCount5" />
+    <field type="int" name="RequiredFactionId" />
+    <field type="int" name="RequiredFactionStanding" />
+    <field type="int" name="RequirementFlags" />
+    <field type="int" name="newField1 6.1" />
+    <field type="int" name="OverrideBuyPrice" />
+  </ItemExtendedCost>
+  <ItemClass build="19890">
+    <index>
+      <primary>ClassID</primary>
+    </index>
+    <field type="int" name="ClassID" />
+    <field type="int" name="flags" />
+    <field type="float" name="PriceModifier" />
+    <field type="string" name="ClassNameLang" />
+  </ItemClass>
+  <ItemSubClass build="19890">
+    <index>
+      <primary>index</primary>
+    </index>
+    <field type="int" name="index" />
+    <field type="int" name="classid" />
+    <field type="int" name="subclassid" />
+    <field type="int" name="PrerequisiteProficiency" />
+    <field type="int" name="PostrequisiteProficiency" />
+    <field type="int" name="Flags" />
+    <field type="int" name="DisplayFlags" />
+    <field type="int" name="WeaponParrySeq" />
+    <field type="int" name="WeaponReadySeq" />
+    <field type="int" name="WeaponAttackSeq" />
+    <field type="int" name="WeaponSwingSize" />
+    <field type="string" name="DisplayNameLang" />
+    <field type="string" name="VerboseNameLang" />
+  </ItemSubClass>
+  <ItemDisplayInfo build="19890">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="ModelName" />
+    <field type="string" name="ModelName2" />
+    <field type="string" name="ModelTexture" />
+    <field type="string" name="ModelTexture2" />
+    <field type="int" name="GeosetGroup_1" />
+    <field type="int" name="GeosetGroup_2" />
+    <field type="int" name="GeosetGroup_3" />
+    <field type="int" name="Flags" />
+    <field type="int" name="SpellVisualID" />
+    <field type="int" name="HelmetGeosetVis_1" />
+    <field type="int" name="HelmetGeosetVis_2" />
+    <field type="string" name="Texture1" />
+    <field type="string" name="Texture2" />
+    <field type="string" name="Texture3" />
+    <field type="string" name="Texture4" />
+    <field type="string" name="Texture5" />
+    <field type="string" name="Texture6" />
+    <field type="string" name="Texture7" />
+    <field type="string" name="Texture8" />
+    <field type="string" name="Texture9" />
+    <field type="int" name="ItemVisual" />
+    <field type="int" name="ParticleColorID" />
+  </ItemDisplayInfo>
+  <SummonProperties build="19890">
+    <field type="int" name="Control" />
+    <field type="int" name="Faction" />
+    <field type="int" name="Title" />
+    <field type="int" name="Slot" />
+    <field type="int" name="Flags" />
+    <field type="int" name="unk6.2" />
+  </SummonProperties>
+  <QuestV2 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </QuestV2>
+  <QuestV2 build="19890">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="UniqueBitFlag" />
+  </QuestV2>
+  <PowerDisplay build="19890">
+    <field type="int" name="ID" />
+    <field type="int" name="ActualType" />
+    <field type="string" name="GlobalStringBaseTag" />
+    <field type="byte" name="Red" />
+    <field type="byte" name="Green" />
+    <field type="byte" name="Blue" />
+  </PowerDisplay>
+  <SpellCategory build="19890">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="Flags" />
+    <field type="int" name="UsesPerWeek" />
+    <field type="string" name="NameLang" />
+    <field type="int" name="MaxCharges" />
+    <field type="int" name="ChargeRecoveryTime" />
+  </SpellCategory>
+  <LanguageWords build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="string" name="field2" />
+  </LanguageWords>
+  <Lock build="19890">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="type1" />
+    <field type="int" name="type2" />
+    <field type="int" name="type3" />
+    <field type="int" name="type4" />
+    <field type="int" name="type5" />
+    <field type="int" name="type6" />
+    <field type="int" name="type7" />
+    <field type="int" name="type8" />
+    <field type="int" name="Index1" />
+    <field type="int" name="Index2" />
+    <field type="int" name="Index3" />
+    <field type="int" name="Index4" />
+    <field type="int" name="Index5" />
+    <field type="int" name="Index6" />
+    <field type="int" name="Index7" />
+    <field type="int" name="Index8" />
+    <field type="int" name="Skill1" />
+    <field type="int" name="Skill2" />
+    <field type="int" name="Skill3" />
+    <field type="int" name="Skill4" />
+    <field type="int" name="Skill5" />
+    <field type="int" name="Skill6" />
+    <field type="int" name="Skill7" />
+    <field type="int" name="Skill8" />
+    <field type="int" name="Action1" />
+    <field type="int" name="Action2" />
+    <field type="int" name="Action3" />
+    <field type="int" name="Action4" />
+    <field type="int" name="Action5" />
+    <field type="int" name="Action6" />
+    <field type="int" name="Action7" />
+    <field type="int" name="Action8" />
+  </Lock>
+  <QuestXP build="19890">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="int" name="Difficulty1" />
+    <field type="int" name="Difficulty2" />
+    <field type="int" name="Difficulty3" />
+    <field type="int" name="Difficulty4" />
+    <field type="int" name="Difficulty5" />
+    <field type="int" name="Difficulty6" />
+    <field type="int" name="Difficulty7" />
+    <field type="int" name="Difficulty8" />
+    <field type="int" name="Difficulty9" />
+    <field type="int" name="Difficulty10" />
+  </QuestXP>
+  <BattleMasterList build="19890">
+    <index>
+      <primary>m_ID</primary>
+    </index>
+    <field type="int" name="m_ID" />
+    <field type="int" name="m_mapID_1" />
+    <field type="int" name="m_mapID_2" />
+    <field type="int" name="m_mapID_3" />
+    <field type="int" name="m_mapID_4" />
+    <field type="int" name="m_mapID_5" />
+    <field type="int" name="m_mapID_6" />
+    <field type="int" name="m_mapID_7" />
+    <field type="int" name="m_mapID_8" />
+    <field type="int" name="m_mapID_9" />
+    <field type="int" name="m_mapID_10" />
+    <field type="int" name="m_mapID_11" />
+    <field type="int" name="m_mapID_12" />
+    <field type="int" name="m_mapID_13" />
+    <field type="int" name="m_mapID_14" />
+    <field type="int" name="m_mapID_15" />
+    <field type="int" name="m_mapID_16" />
+    <field type="int" name="m_instanceType" />
+    <field type="int" name="m_groupsAllowed" />
+    <field type="string" name="m_name_lang" />
+    <field type="int" name="m_maxGroupSize" />
+    <field type="int" name="m_holidayWorldState" />
+    <field type="int" name="m_minlevel" />
+    <field type="int" name="m_maxlevel" />
+    <field type="int" name="m_ratedPlayers" />
+    <field type="int" name="m_minPlayers" />
+    <field type="int" name="m_maxPlayers" />
+    <field type="int" name="m_flags" />
+    <field type="int" name="m_iconFileDataID" />
+    <field type="string" name="m_gametype_lang" />
+    <field type="int" name="unk6.1.X" />
+  </BattleMasterList>
+  <SpellClassOptions build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+  </SpellClassOptions>
 </DBFilesClient>
