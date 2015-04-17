@@ -94,7 +94,11 @@ class boss_brackenspore : public CreatureScript
             SummonLivingMushroom    = 160022,
             /// Rejuvenating Mushroom
             RejuvenatingMushDummy   = 177820,
-            SummonRejuvenatingMush  = 160021
+            SummonRejuvenatingMush  = 160021,
+
+            /// Mythic mode only
+            SpellCallOfTheTides     = 160425,
+            CallOfTheTidesSummonAT  = 160413
         };
 
         enum eEvents
@@ -130,7 +134,8 @@ class boss_brackenspore : public CreatureScript
             MindFungusFight     = 79082,
             FungalFleshEater    = 79092,
             LivingMushroom      = 78884,
-            RejuvenatingMush    = 78868
+            RejuvenatingMush    = 78868,
+            InvisibleMan        = 64693
         };
 
         enum eTalk
@@ -318,14 +323,14 @@ class boss_brackenspore : public CreatureScript
             {
                 _EnterCombat();
 
-                m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
 
                 /// Mythic Specials. Shared cd, which special he uses is random.
                 if (IsMythic())
@@ -379,6 +384,9 @@ class boss_brackenspore : public CreatureScript
                         break;
                     case eSpells::RejuvenatingMushDummy:
                         me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
+                        break;
+                    case eSpells::SpellCallOfTheTides:
+                        p_Target->CastSpell(p_Target, eSpells::CallOfTheTidesSummonAT, true, nullptr, NULLAURA_EFFECT, me->GetGUID());
                         break;
                     default:
                         break;
@@ -455,6 +463,7 @@ class boss_brackenspore : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 130 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventSpecialAbility:
+                        DoSpecialAbility();
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
@@ -549,6 +558,17 @@ class boss_brackenspore : public CreatureScript
                 }
 
                 return true;
+            }
+
+            void DoSpecialAbility()
+            {
+                /// Call of the Tides
+                if (urand(0, 1))
+                    me->CastSpell(me, eSpells::SpellCallOfTheTides, true);
+                /// Exploding Fungus
+                else
+                {
+                }
             }
         };
 
@@ -1405,6 +1425,45 @@ class areatrigger_highmaul_creeping_moss : public AreaTriggerEntityScript
         }
 };
 
+/// Call of the Tides - 160413
+class areatrigger_highmaul_call_of_the_tides : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_call_of_the_tides() : AreaTriggerEntityScript("areatrigger_highmaul_call_of_the_tides") { }
+
+        enum eSpell
+        {
+            CallOfTheTidesDamage = 163798
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        {
+            if (p_Caster == nullptr)
+                return;
+
+            float l_Orientation = p_Caster->GetOrientation();
+            float l_X = p_Caster->GetPositionX() + (220.0f * cos(l_Orientation));
+            float l_Y = p_Caster->GetPositionY() + (220.0f * sin(l_Orientation));
+            float l_Z = p_Caster->GetMap()->GetHeight(l_X, l_Y, MAX_HEIGHT);
+
+            p_DestinationPosition.m_positionX = l_X;
+            p_DestinationPosition.m_positionY = l_Y;
+            p_DestinationPosition.m_positionZ = l_Z;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_call_of_the_tides();
+        }
+};
+
 /// Gorian Strands - 10094
 class areatrigger_at_highmaul_infested_waters : public AreaTriggerScript
 {
@@ -1454,6 +1513,7 @@ void AddSC_boss_brackenspore()
     new areatrigger_highmaul_mind_fungus();
     new areatrigger_highmaul_spore_shot();
     new areatrigger_highmaul_creeping_moss();
+    new areatrigger_highmaul_call_of_the_tides();
 
     /// AreaTriggers (Area)
     new areatrigger_at_highmaul_infested_waters();

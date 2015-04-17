@@ -114,8 +114,9 @@ DELETE FROM areatrigger_scripts WHERE entry IN (10094);
 INSERT INTO areatrigger_scripts VALUE
 (10094, 'areatrigger_at_highmaul_infested_waters');
 
-DELETE FROM areatrigger_template WHERE spell_id IN (159489, 173241, 173229);
+DELETE FROM areatrigger_template WHERE spell_id IN (159489, 173241, 173229, 160413);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, scale_curve_id, morph_curve_id, data0, ScriptName) VALUES
 (159489, 0, 6733, 15, 15, 16388, 0, 0, 0, 'areatrigger_highmaul_mind_fungus'),
 (173241, 1, 7882, 3, 3, 16586, 1288, 1192, 3000, 'areatrigger_highmaul_spore_shot'),
-(173229, 0, 7881, 3, 3, 16384, 0, 0, 0, 'areatrigger_highmaul_creeping_moss');
+(173229, 0, 7881, 3, 3, 16384, 0, 0, 0, 'areatrigger_highmaul_creeping_moss'),
+(160413, 0, 2217, 1, 1, 16384, 0, 0, 0, 'areatrigger_highmaul_call_of_the_tides');

@@ -3507,6 +3507,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 154900: ///< Seal Conduit (second)
+            case 160425: ///< Call of the Tides (Brackenspore)
                 spellInfo->MaxAffectedTargets = 2;
                 break;
             case 154901: ///< Seal Conduit (third)
