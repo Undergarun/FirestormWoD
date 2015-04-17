@@ -761,7 +761,7 @@ enum Opcodes
         SMSG_FEIGN_DEATH_RESISTED                   = 0x1CE5, ///< 6.1.2 19783
         SMSG_NOTIFY_DEST_LOC_SPELL_CAST             = 0x0000, ///< (unused)
         SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x0C66, ///< 6.1.2 19783
-        SMSG_SET_VEHICLE_REC_ID                     = 0x1A29, ///< 6.1.2 19783
+        SMSG_SET_VEHICLE_REC_ID                     = 0x0F1F, ///< 6.1.2 19783
         SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x0000, ///< (unused)
         SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x1859, ///< 6.1.2 19783
         SMSG_COOLDOWN_EVENT                         = 0x0922, ///< 6.1.2 19783
