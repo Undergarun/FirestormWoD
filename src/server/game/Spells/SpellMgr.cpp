@@ -3345,7 +3345,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
-            case 115294: ///< Mana Team
+            case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 break;
             case 167625: ///< Blood feather
