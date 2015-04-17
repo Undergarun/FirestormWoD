@@ -618,7 +618,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     }
                 }
             }
-            std::string const& bgName = GetName();
+
+            /// Make crash
+            /// https://gist.github.com/Izidor/f0348562477833fe6e03
+            /*std::string const& bgName = GetName();
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
             {
@@ -630,7 +633,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 {
                     sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, bgName.c_str(), GetMinLevel(), GetMaxLevel());
                 }
-            }
+            }*/
         }
     }
 
