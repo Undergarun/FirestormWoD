@@ -169,6 +169,7 @@ enum Opcodes
         SMSG_PVP_CREDIT                             = 0x0B18, ///< 6.1.2 19783
         SMSG_PRE_RESURRECT                          = 0x058D, ///< 6.1.2 19783
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0FB6, ///< 6.1.2 19783
+        SMSG_SET_AI_ANIM_KIT                        = 0x1295, ///< 6.1.2 19783
         SMSG_PLAYER_BOUND                           = 0x1935, ///< 6.1.2 19783
         SMSG_OVERRIDE_LIGHT                         = 0x0936, ///< 6.1.2 19783
         SMSG_PRINT_NOTIFICATION                     = 0x0F3D, ///< 6.1.2 19783
@@ -409,6 +410,7 @@ enum Opcodes
         SMSG_RAID_GROUP_ONLY                                    = 0x1832, ///< 6.1.2 19783
         SMSG_RAID_MARKERS_CHANGED                               = 0x18F5, ///< 6.1.2 19783
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
+        SMSG_INSTANCE_GROUP_SIZE_CHANGED                        = 0x1C22, ///< 6.1.2 19783
 
         /// Scenarios
         SMSG_SCENARIO_POI                                       = 0x0CB2, ///< 6.1.2 19783
@@ -762,12 +764,9 @@ enum Opcodes
         SMSG_NOTIFY_DEST_LOC_SPELL_CAST             = 0x0000, ///< (unused)
         SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA   = 0x0C66, ///< 6.1.2 19783
         SMSG_SET_VEHICLE_REC_ID                     = 0x0F1F, ///< 6.1.2 19783
-        SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x0000, ///< (unused)
-        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x1859, ///< 6.1.2 19783
         SMSG_COOLDOWN_EVENT                         = 0x0922, ///< 6.1.2 19783
         SMSG_DISMOUNT                               = 0x03BF, ///< 6.1.2 19783
         SMSG_DISMOUNTRESULT                         = 0x0000, ///< (unused)
-        SMSG_PLAY_SPELL_VISUAL                      = 0x11EA, ///< 6.1.2 19783
         SMSG_MOUNT_RESULT                           = 0x06BE, ///< 6.1.2 19783
 
         /// Spell Book / Bar
@@ -806,7 +805,7 @@ enum Opcodes
         SMSG_SPELL_EXECUTE_LOG                      = 0x1D9A, ///< 6.1.2 19783
         SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x141E, ///< 6.1.2 19783
         SMSG_SPELL_HEAL_LOG                         = 0x155A, ///< 6.1.2 19783
-        SMSG_SPELL_INSTAKILL_LOG                    = 0x0000,
+        SMSG_SPELL_INSTAKILL_LOG                    = 0x11FE, ///< 6.1.2 19783
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
         SMSG_SPELL_MISS_LOG                         = 0x0000,
         SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x183E, ///< 6.1.2 19783
@@ -822,6 +821,13 @@ enum Opcodes
         SMSG_PET_UNLEARNED_SPELLS                   = 0x151E, ///< 6.1.2 19783
         SMSG_PET_LEARNED_SPELLS                     = 0x1099, ///< 6.1.2 19783
 
+        /// Visuals
+        SMSG_PLAY_ORPHAN_SPELL_VISUAL               = 0x191E, ///< 6.1.2 19783
+        SMSG_CANCEL_ORPHAN_SPELL_VISUAL             = 0x10ED, ///< 6.1.2 19783
+        SMSG_PLAY_SPELL_VISUAL                      = 0x11EA, ///< 6.1.2 19783
+        SMSG_CANCEL_SPELL_VISUAL                    = 0x106D, ///< 6.1.2 19783
+        SMSG_PLAY_SPELL_VISUAL_KIT                  = 0x1859, ///< 6.1.2 19783
+        SMSG_CANCEL_SPELL_VISUAL_KIT                = 0x112E, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1780,8 +1786,6 @@ enum Opcodes
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
     SMSG_BEASTMASTER_FAILED                             = 0x0000,
     SMSG_BONUS_ROLL_EMPTY                               = 0x0000,
-    SMSG_CANCEL_ORPHAN_SPELL_VISUAL                     = 0x0000,
-    SMSG_CANCEL_SPELL_VISUAL                            = 0x0000,
     SMSG_CHALLENGE_MODE_DELETE_LEADER_RESULT            = 0x0000,
     SMSG_CLEAR_ITEM_CHALLENGE_MODE_DATA                 = 0x0000,
     SMSG_CONSOLE_WRITE                                  = 0x0000,
@@ -1812,7 +1816,6 @@ enum Opcodes
     SMSG_PET_BATTLE_REQUEST_FAILED                      = 0x0000,
     SMSG_PET_BATTLE_SLOT_UPDATE                         = 0x0000,
     SMSG_PLAYER_NOT_FOUND_FAILURE                       = 0x0000,
-    SMSG_PLAY_ORPHAN_SPELL_VISUAL                       = 0x0000,
     SMSG_REFRESH_COMPONENT                              = 0x0000,
     SMSG_RESET_WEEKLY_CURRENCY                          = 0x0000,
     SMSG_SCENE_OBJECT_EVENT                             = 0x0000,
