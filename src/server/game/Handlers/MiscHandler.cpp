@@ -1063,10 +1063,10 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
 
         return;
     }
-    else if (player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && player->GetRestType() == REST_TYPE_IN_TAVERN)
+    else if (l_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && l_Player->GetRestType() == REST_TYPE_IN_TAVERN)
     {
-        player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        player->SetRestType(REST_TYPE_NO);
+        l_Player->RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+        l_Player->SetRestType(REST_TYPE_NO);
     }
 
     if (Battleground* l_Battleground = l_Player->GetBattleground())

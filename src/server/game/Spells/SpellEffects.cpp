@@ -8073,14 +8073,11 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     if (l_UpgradeLevel)
         l_UpgradeId = l_UpgradeLevel <= MAX_HEIRLOOM_UPGRADE_LEVEL ? l_HeirloomEntry->UpgradeIemBonusID[l_UpgradeLevel - 1] : 0;
 
-    std::vector<uint32> l_Upgrades;
-
-    if (l_UpgradeId)
-        l_Upgrades.push_back(l_UpgradeId);
-
-    Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true);
-    l_Item->AddItemBonus(l_UpgradeId);
-    l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false, l_Upgrades);
+    if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true))
+    {
+        l_Item->AddItemBonus(l_UpgradeId);
+        l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false);
+    }
 }
 
 void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
