@@ -2699,7 +2699,7 @@ class spell_pri_prayer_of_mending: public SpellScriptLoader
                     if (Unit* l_Target = GetHitUnit())
                     {
                         l_Caster->CastSpell(l_Target, PrayerOfMendingSpells::PrayerOfMendingAura, true);
-                        if (AuraPtr l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura))
+                        if (AuraPtr l_PrayerOfMendingAura = l_Target->GetAura(PrayerOfMendingSpells::PrayerOfMendingAura, l_Caster->GetGUID()))
                         {
                             if (l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending))
                                 l_PrayerOfMendingAura->SetStackAmount(4);
@@ -2755,7 +2755,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                     if (l_Caster->HasAura(PrayerOfMendingSpells::DivineFuryAura))
                         l_Multiplicator *= 1.25f;
 
-                    p_Amount = (1 + (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.666 * l_Multiplicator));
+                    p_Amount = (1 + (l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.666 * l_Multiplicator) / p_AuraEffect->GetBase()->GetStackAmount());
 
                     if (l_SpellInfo != nullptr && l_Caster->HasAura(eSpells::GlypheOfPrayerOfMending) && p_AuraEffect->GetBase()->GetStackAmount() == 4)
                         p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_0].BasePoints);
@@ -2771,6 +2771,9 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                     if (p_EventInfo.GetSpellInfo()->IsPositive())
                         return;
                 }
+
+                if (p_EventInfo.GetHitMask() & PROC_EX_ABSORB)
+                    return;
 
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -2802,13 +2805,13 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
 
-            void HandleHeal()
+            void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
                 if (Unit* l_Caster = GetOriginalCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0))
+                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(PrayerOfMendingSpells::PrayerOfMendingAura, EFFECT_0, l_Caster->GetGUID()))
                         {
                             int32 l_Heal = l_AurEff->GetAmount();
                             uint8 l_CurrentStackAmount = l_AurEff->GetBase()->GetStackAmount();
@@ -2854,7 +2857,7 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 

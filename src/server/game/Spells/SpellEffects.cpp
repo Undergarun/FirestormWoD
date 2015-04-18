@@ -2836,13 +2836,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 124927:// Call Dog
+        case 124927: ///< Call Dog
             if (m_originalCaster->ToPlayer())
                 m_originalCaster->ToPlayer()->AddSpellCooldown(m_spellInfo->Id, 0, 60 * IN_MILLISECONDS);
             break;
-        case 123040:// Mindbender
-            // Glyph of the Sha
-            if (m_originalCaster->HasAura(147776))
+        case 123040: ///< Mindbender
+        {
+            if (m_originalCaster->HasAura(147776)) ///< Glyph of the Sha
             {
                 entry = sSpellMgr->GetSpellInfo(132604)->Effects[effIndex].MiscValue;
 
@@ -2855,70 +2855,44 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             ((SummonPropertiesEntry*)properties)->Category = SUMMON_CATEGORY_PET;
             ((SummonPropertiesEntry*)properties)->Type = SUMMON_TYPE_PET;
             break;
-        case 113890:// Demonic Gateway : Remove old summon when cast an other gate
-        case 113886:// Demonic Gateway : Remove old summon when cast an other gate
-            if (m_spellInfo->Id == 113890)
+        }
+        case 113890: ///< Demonic Gateway : Remove old summon when cast an other gate
+        case 113886: ///< Demonic Gateway : Remove old summon when cast an other gate
+        {
+            std::list<Creature*> tempList;
+            std::list<Creature*> gatewayList;
+
+            m_caster->GetCreatureListWithEntryInGrid(tempList, m_spellInfo->Id == 113890 ? 59271 : 59262, 500.0f);
+
+            if (!tempList.empty())
             {
-                std::list<Creature*> tempList;
-                std::list<Creature*> gatewayList;
+                for (auto itr : tempList)
+                    gatewayList.push_back(itr);
 
-                m_caster->GetCreatureListWithEntryInGrid(tempList, 59271, 500.0f);
-
-                if (!tempList.empty())
+                /// Remove other players demonic gateway
+                for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
                 {
-                    for (auto itr : tempList)
-                        gatewayList.push_back(itr);
+                    Unit* owner = (*i)->GetOwner();
+                    if (owner && owner == m_caster && (*i)->isSummon())
+                        continue;
 
-                    // Remove other players mushrooms
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == m_caster && (*i)->isSummon())
-                            continue;
-
-                        gatewayList.remove((*i));
-                    }
-
-                    // 1 gateway max
-                    if ((int32)gatewayList.size() >= 1)
-                        gatewayList.back()->ToTempSummon()->UnSummon();
+                    gatewayList.remove((*i));
                 }
-            }
-            else
-            {
-                std::list<Creature*> tempList;
-                std::list<Creature*> gatewayList;
 
-                m_caster->GetCreatureListWithEntryInGrid(tempList, 59262, 500.0f);
-
-                if (!tempList.empty())
-                {
-                    for (auto itr : tempList)
-                        gatewayList.push_back(itr);
-
-                    // Remove other players mushrooms
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == m_caster && (*i)->isSummon())
-                            continue;
-
-                        gatewayList.remove((*i));
-                    }
-
-                    // 1 gateway max
-                    if ((int32)gatewayList.size() >= 1)
-                        gatewayList.back()->ToTempSummon()->UnSummon();
-                }
+                /// 1 gateway max
+                if ((int32)gatewayList.size() >= 1)
+                    gatewayList.back()->ToTempSummon()->UnSummon();
             }
             break;
-        case 33663:
-        case 117663:
+        }
+        case 33663:  ///< Earth Elemental Totem
+        case 117663: ///< Fire Elemental Totem
+        {
             if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
             {
                 if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
                 {
-                    if (m_originalCaster->GetOwner()->HasAura(117013))
+                    if (m_originalCaster->GetOwner()->HasAura(117013)) ///< Primal Elementalist
                     {
                         m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
                         return;
@@ -2926,6 +2900,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
             }
             break;
+        }
         default:
             break;
     }
@@ -2933,11 +2908,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
-
-    // Item - Warlock T13 2P Bonus (Doomguard and Infernal)
-    if (entry == 11859 || entry == 89)
-        if (constAuraEffectPtr aurEff = m_originalCaster->GetAuraEffect(105888, EFFECT_1))
-            duration += aurEff->GetAmount() * 1000;
 
     TempSummon* summon = NULL;
 
@@ -2964,8 +2934,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case 1161:
         case 1261:
         case 1562:
-        case 2929: // Summon Unbound Flamesparks, Flameseer's Staff
-        case 3097:// Force of Nature
+        case 2929: ///< Summon Unbound Flamesparks, Flameseer's Staff
+        case 3097: ///< Force of Nature
         case 3245:
             numSummons = (damage > 0) ? damage : 1;
             break;
@@ -2979,13 +2949,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case SUMMON_CATEGORY_WILD:
         case SUMMON_CATEGORY_ALLY:
         case SUMMON_CATEGORY_UNK:
-            /* It breaks a bit totem, maybe need a review
-            if ((properties->Flags & 512) || m_spellInfo->Id == 114192) // Mocking Banner
-            {
-                SummonGuardian(effIndex, entry, properties, numSummons);
-                break;
-            }
-             */
+        {
             switch (properties->Type)
             {
                 case SUMMON_TYPE_PET:
@@ -2999,6 +2963,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 case SUMMON_TYPE_VEHICLE2:
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     break;
+                case SUMMON_TYPE_LIGHTWELL:
                 case SUMMON_TYPE_TOTEM:
                 {
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
@@ -3029,6 +2994,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
                 default:
                 {
+                    if ((properties->Flags & 512) || m_spellInfo->Id == 114192) /// Mocking Banner
+                    {
+                        SummonGuardian(effIndex, entry, properties, numSummons);
+                        break;
+                    }
+
                     float radius = m_spellInfo->Effects[effIndex].CalcRadius();
 
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
@@ -3048,21 +3019,21 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                         switch (properties->Id)
                         {
-                        case 3347: // Orphelins
-                        {
-                            if (uint32 slot = properties->Slot)
+                            case 3347: ///< Orphelins
                             {
-                                if (m_caster->m_SummonSlot[slot] && m_caster->m_SummonSlot[slot] != summon->GetGUID())
+                                if (uint32 slot = properties->Slot)
                                 {
-                                    Creature* oldSummon = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
-                                    if (oldSummon && oldSummon->isSummon())
-                                        oldSummon->ToTempSummon()->UnSummon();
+                                    if (m_caster->m_SummonSlot[slot] && m_caster->m_SummonSlot[slot] != summon->GetGUID())
+                                    {
+                                        Creature* oldSummon = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
+                                        if (oldSummon && oldSummon->isSummon())
+                                            oldSummon->ToTempSummon()->UnSummon();
+                                    }
+                                    m_caster->m_SummonSlot[slot] = summon->GetGUID();
                                 }
-                                m_caster->m_SummonSlot[slot] = summon->GetGUID();
                             }
-                        }
-                        default:
-                            break;
+                            default:
+                                break;
                         }
 
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
@@ -3072,7 +3043,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
                         }
 
-                        // Explosive Decoy and Explosive Decoy 2.0
+                        /// Explosive Decoy and Explosive Decoy 2.0
                         if (m_spellInfo->Id == 54359 || m_spellInfo->Id == 62405)
                         {
                             summon->SetMaxHealth(damage);
@@ -3080,16 +3051,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         }
 
-                        // Wild Mushroom : Plague
-                        if (summon && m_spellInfo->Id == 113516)
-                            m_originalCaster->CastSpell(m_originalCaster, 113517, true); // Wild Mushroom : Plague (periodic dummy)
-
                         ExecuteLogEffectSummonObject(effIndex, summon);
                     }
                     return;
                 }
-            }//switch
+            }
             break;
+        }
         case SUMMON_CATEGORY_PET:
             SummonGuardian(effIndex, entry, properties, numSummons);
             break;
@@ -3263,29 +3231,6 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     if (l_SuccessList.empty())
         return;
 
-    // Custom effects
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        // Glyph of Dispel Magic (discipline and priest) -- Purify
-        if (m_spellInfo->Id == 97960)
-        {
-            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(55677, 0))
-            {
-                if (m_caster->IsFriendlyTo(unitTarget))
-                {
-                    int32 bp = int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount() * l_Count));
-                    m_caster->CastCustomSpell(unitTarget, 56131, &bp, 0, 0, true);
-                }
-            }
-        }
-        // Glyph of Dispel Magic
-        if (m_spellInfo->Id == 528)
-        {
-            if (AuraEffectPtr aurEff = m_caster->GetAuraEffect(119864, 0))
-                m_caster->CastSpell(unitTarget, 119856, true);
-        }
-    }
-
     WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + l_SuccessList.size() * 5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -3304,40 +3249,50 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
 
     m_caster->SendMessageToSet(&dataSuccess, true);
 
-    // On success dispel
+    /// On success dispel
+    /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
     switch (m_spellInfo->Id)
     {
-        // Purify
-    case 527:
-        // Glyph of Purify
-        if (m_caster->HasAura(55677))
-            m_caster->CastSpell(unitTarget, 56131, true);
+        case 475: // Remove Curse
+            if (m_caster->HasAura(115700)) ///< Glyph of Remove Curse
+                m_caster->AddAura(115701, m_caster);
+            break;
+        case 527:   ///< Purify
+        case 97960: ///< Cosmetic Magic Aura
+        {
+            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55677, EFFECT_0)) ///< Glyph of Purify
+            {
+                int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
+                m_caster->CastCustomSpell(unitTarget, 56131, &l_Bp, nullptr, nullptr, true);
+            }
+            break;
+        }
+        case 528: ///< Dispel Magic
+            if (m_caster->HasAura(119864)) ///< Glyph of Dispel Magic
+                m_caster->CastSpell(unitTarget, 119856, true);
+            break;
+        case 19505: ///< Devour Magic
+        {
+            int32 l_HealAmount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
+            m_caster->CastCustomSpell(m_caster, 19658, &l_HealAmount, nullptr, nullptr, true);
 
-        break;
-
-        // Devour Magic
-    case 19505:
-    {
-        int32 l_HealAmount = m_spellInfo->Effects[EFFECT_1].CalcValue(m_caster);
-        m_caster->CastCustomSpell(m_caster, 19658, &l_HealAmount, NULL, NULL, true);
-
-        // Glyph of Felhunter
-        if (Unit* l_Owner = m_caster->GetOwner())
-            if (l_Owner->GetAura(56249))
-                l_Owner->CastCustomSpell(l_Owner, 19658, &l_HealAmount, NULL, NULL, true);
-
-        break;
-    }
-
-        // Remove Curse
-    case 475:
-        if (m_caster->HasAura(115700))
-            m_caster->AddAura(115701, m_caster);
-
-        break;
-
-    default:
-        break;
+            Unit* l_Owner = m_caster->GetOwner();
+            if (l_Owner && l_Owner->GetAura(56249)) ///< Glyph of Demon Training
+                l_Owner->CastCustomSpell(l_Owner, 19658, &l_HealAmount, nullptr, nullptr, true);
+            break;
+        }
+        case 51886: ///< Cleanse Spirit
+        case 77130: ///< Purify Spirit
+        {
+            if (AuraEffectPtr l_AurEff = m_caster->GetAuraEffect(55445, EFFECT_0)) ///< Glyph of Cleansing Waters
+            {
+                int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
+                m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
