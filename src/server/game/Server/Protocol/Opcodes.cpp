@@ -1300,7 +1300,7 @@ void InitOpcodes()
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND,                 STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
+    DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT,                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_WHISPER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_GUILD,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_CHAT_ADDON_MESSAGE_OFFICER,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAddonMessagechatOpcode     );
