@@ -2708,7 +2708,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     data->WriteBits(0, 5);
     data->WriteBits(0, 7);
     data->WriteBits(text ? strlen(text) : 0, 12);
-    data->WriteBits(0, 10);
+    data->WriteBits(0, 11);
     data->WriteBit(false);  ///< hide chat log
     data->WriteBit(false);  ///< Faker sender name
     data->FlushBits();
