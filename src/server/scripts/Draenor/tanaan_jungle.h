@@ -146,7 +146,9 @@ namespace TanaanKillCredits
         CreditSpeakWithThaelin               = 80880,
         CreditEscortThaelin                  = 80887,
         CreditBoatsReached                   = 81024,
-        CreditEnterWorldbreakerTurret        = 80929
+        CreditEnterWorldbreakerTurret        = 80929,
+        CreditMakeShiftPlunger               = 112323,
+        CreditMainCannonTrigger              = 232538
     };
 }
 

@@ -35,7 +35,7 @@ class boss_rukhmar : public CreatureScript
                 m_Events.Reset();
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
             }
-             
+
             void JustSummoned(Creature* p_Summon) override
             {
                 summons.Summon(p_Summon);

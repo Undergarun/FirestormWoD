@@ -1187,6 +1187,7 @@ class npc_archmage_khadgar : public CreatureScript
                     l_PhaseMask &= ~TanaanPhases::PhaseEasternCageAlly;
                     l_PhaseMask &= ~TanaanPhases::PhaseSouthernCageAlly;
                     p_Player->SetPhaseMask(l_PhaseMask, true);
+                    break;
                 }
                 case TanaanQuests::QuestBlazeOfGlory:
                 {
@@ -4097,6 +4098,7 @@ class gob_makeshift_plunger : public GameObjectScript
 
                 Position l_Pos;
                 p_Player->GetPosition(&l_Pos);
+                p_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditMakeShiftPlunger, 1);
 
                 g_GunpowderPlotPlayerScript->m_PlayerSceneFirstInstanceId[p_Player->GetGUID()] = p_Player->PlayStandaloneScene(TanaanSceneObjects::SceneBuildingExplosion, 16, l_Pos);
             }
@@ -4158,6 +4160,7 @@ class gob_main_cannon_trigger : public GameObjectScript
                     p_Player->CancelStandaloneScene(l_SceneInstance);
 
                 p_Player->SendMovieStart(TanaanMovies::MovieDoorDestruction);
+                p_Player->QuestObjectiveSatisfy(TanaanKillCredits::CreditMainCannonTrigger, 1);
                 uint32 l_PhaseMask = p_Player->GetPhaseMask();
                 l_PhaseMask |= TanaanPhases::PhasePortalDestroyed;
                 p_Player->SetPhaseMask(l_PhaseMask, true);
