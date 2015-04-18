@@ -98,8 +98,8 @@ class item_strongbox : public ItemScript
             }
         
             /// Remove self first because of inventory space
-            p_Player->DestroyItemCount(p_Item->GetEntry(), 1, true);
-        
+            p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+
             if (l_Items.empty())
                 return true;
 
@@ -155,7 +155,7 @@ class item_strongbox : public ItemScript
                 {
                     int32 l_HonorAmount = urand(l_MinHonor, l_MinHonor + 50) * CURRENCY_PRECISION;
                     p_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount);
-                    p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount  / CURRENCY_PRECISION, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
+                    p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
                 }
             }
 
