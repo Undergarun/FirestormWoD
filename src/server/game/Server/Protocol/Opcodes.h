@@ -977,7 +977,7 @@ enum Opcodes
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0BA2,   ///< 6.1.2 19783
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x07D2,   ///< 6.1.2 19783
     CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x12FA,   ///< 6.1.2 19783
-    CMSG_UPGRADE_GARRISON                                   = 0x12FA,   ///< 6.1.2 19783
+    CMSG_UPGRADE_GARRISON                                   = 0x1B82,   ///< 6.1.2 19783
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0BA9,   ///< 6.1.2 19783
     CMSG_GET_SHIPMENT_INFO                                  = 0x03FA,   ///< 6.1.2 19783
