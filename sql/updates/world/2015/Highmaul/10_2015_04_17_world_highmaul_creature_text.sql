@@ -64,3 +64,6 @@ INSERT INTO creature_text VALUE (68553, 0, 0, "The Horde won this phase of battl
 INSERT INTO creature_text VALUE (68553, 1, 0, "The Alliance has taken the Warspear Outpost!", 41, 0, 100, 0, 0, 0, "ANNOUNCE_ALLIANCE_KILL_BOSS");
 INSERT INTO creature_text VALUE (68553, 2, 0, "The Alliance won this phase of battle!", 41, 0, 100, 0, 0, 0, "ANNOUNCE_ALLIANCE_VICTORY");
 INSERT INTO creature_text VALUE (68553, 3, 0, "The Horde has taken the Stormshield Stronghold!", 41, 0, 100, 0, 0, 0, "ANNOUNCE_HORDE_KILL_BOSS");
+DELETE FROM creature_text WHERE entry = 78926;
+INSERT INTO creature_text VALUE (78926, 0, 0, "Time to die!", 12, 0, 100, 0, 0, 0, "IronBomber1");
+INSERT INTO creature_text VALUE (78926, 0, 1, "You're coming with me!", 12, 0, 100, 0, 0, 0, "IronBomber2");

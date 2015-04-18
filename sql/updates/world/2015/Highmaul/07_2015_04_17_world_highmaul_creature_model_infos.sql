@@ -55,3 +55,7 @@ REPLACE INTO creature_model_info VALUE (53855, 0.389, 1.5, 0, 0);
 REPLACE INTO creature_model_info VALUE (60571, 0.389, 1.5, 0, 0);
 REPLACE INTO creature_model_info VALUE (9904, 0.15, 0.25, 2, 0);
 REPLACE INTO creature_model_info VALUE (23767, 0.39, 1, 2, 0);
+REPLACE INTO creature_model_info VALUE (54774, 0.389, 1.5, 0, 0);
+REPLACE INTO creature_model_info VALUE (54786, 0.389, 1.5, 0, 0);
+REPLACE INTO creature_model_info VALUE (54795, 0.825, 4.125, 0, 0);
+REPLACE INTO creature_model_info VALUE (55484, 0.465, 2.25, 2, 0);

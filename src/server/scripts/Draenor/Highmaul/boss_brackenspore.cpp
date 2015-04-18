@@ -358,6 +358,12 @@ class boss_brackenspore : public CreatureScript
                 }
 
                 ResetPlayersPower(me);
+
+                std::list<Creature*> l_BFCs;
+                me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
+
+                for (Creature* l_Creature : l_BFCs)
+                    l_Creature->RemoveAura(eSpells::BFC9000);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -610,6 +616,7 @@ class npc_highmaul_mind_fungus : public CreatureScript
                 me->RemoveAura(eSpells::MindFungusVisual);
                 me->RemoveAura(eSpells::MindFungusAura);
                 me->RemoveAura(eSpells::MindFungusAT);
+                me->RemoveAllAreasTrigger();
                 me->DespawnOrUnsummon(500);
             }
 

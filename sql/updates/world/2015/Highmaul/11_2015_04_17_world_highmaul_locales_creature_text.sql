@@ -59,3 +59,6 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (77404, 10, 0, "Avortons rachitiques et puants !", "Schlaksige, zähe Kümmerlinge...", "Desagradables insignificantes...", "Тощая, вонючая мелюзга...");
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (77404, 11, 0, "Dégagez ! Vous ne valez même pas d'être mangés !", "Runter mit euch! Ihr seid kaum eine Mahlzeit wert!", "¡Basta! ¡No vale la pena comerlos!", "Пшли вон! В вас есть нечего!");
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (77404, 12, 0, "Je vous écraserai !", "Zerschmettern!", "¡Machaaaaque!", "Шмя-а-а-ак!");
+DELETE FROM locales_creature_text WHERE entry = 78926;
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (78926, 0, 0, "Votre heure est venue !", "Zeit, zu sterben!", "¡Hora de morir!", "Время умирать!");
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (78926, 0, 1, "Venez avec moi !", "Ihr kommt mit mir!", "¡Tú vienes conmigo!", "Ты пойдешь со мной!");
