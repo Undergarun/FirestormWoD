@@ -888,7 +888,7 @@ class spell_mastery_ignite: public SpellScriptLoader
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
                                     if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
-                                        l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) * (l_PreviousIgnite->GetDuration() / l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude()));
+                                        l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / (l_PreviousIgnite->GetDuration() / l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude()));
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
                                 }
