@@ -1457,7 +1457,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
     sObjectMgr->setLootViewGUID(l_LootedGUID, p_LootedObject->GetGUID());
 
     WorldPacket l_Data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
-    l_Data.appendPackGUID(l_LootedGUID);
+    l_Data.appendPackGUID(MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), NULL, HIGHGUID_LOOT));
     l_Data << uint32(l_Count);
 
     for (GroupReference* l_It = GetFirstMember(); l_It != NULL; l_It = l_It->next())
