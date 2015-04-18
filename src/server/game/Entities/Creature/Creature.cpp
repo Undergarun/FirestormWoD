@@ -290,7 +290,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
         }
         if (!difficultyEntry->FallbackDifficultyID)
             break;
- 
+
         difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
     }
 

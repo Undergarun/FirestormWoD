@@ -35,6 +35,7 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "LFGListMgr.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -60,15 +61,14 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORMAL),
 m_dungeonDifficulty(DifficultyNormal), m_raidDifficulty(DifficultyRaidNormal), m_LegacyRaidDifficuty(Difficulty10N),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
-    m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false)
+    m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0),
+    m_readyCheck(false), m_membersInInstance(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
 
     uint32 lowguid = sGroupMgr->GenerateGroupId();
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
-
-    m_membersInInstance = 0;
 }
 
 Group::~Group()
@@ -211,7 +211,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_LegacyRaidDifficuty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[18].GetUInt8()));
 }
 
-void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
+void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId)
 {
     MemberSlot member;
     member.guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
@@ -228,6 +228,8 @@ void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, 
     member.group = subgroup;
     member.flags = memberFlags;
     member.roles = roles;
+    member.playerClass = playerClass;
+    member.specID = specId;
 
     m_memberSlots.push_back(member);
 
@@ -430,11 +432,13 @@ bool Group::AddMember(Player* player)
     }
 
     MemberSlot member;
-    member.guid      = player->GetGUID();
-    member.name      = player->GetName();
-    member.group     = subGroup;
-    member.flags     = 0;
-    member.roles     = 0;
+    member.guid         = player->GetGUID();
+    member.name         = player->GetName();
+    member.group        = subGroup;
+    member.flags        = 0;
+    member.roles        = 0;
+    member.playerClass  = player->getClass();
+    member.specID       = player->GetSpecializationId(player->GetActiveSpec());
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subGroup);
@@ -453,6 +457,9 @@ bool Group::AddMember(Player* player)
         InstanceGroupBind* bind = GetBoundInstance(player);
         if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
             player->m_InstanceValid = true;
+
+        if (sLFGListMgr->IsGroupQueued(this))
+            sLFGListMgr->PlayerAddedToGroup(player, this);
     }
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
@@ -471,6 +478,8 @@ bool Group::AddMember(Player* player)
         stmt->setUInt8(2, member.flags);
         stmt->setUInt8(3, member.group);
         stmt->setUInt8(4, member.roles);
+        stmt->setUInt8(5, member.playerClass);
+        stmt->setUInt32(6, member.specID);
 
         CharacterDatabase.Execute(stmt);
     }
@@ -586,6 +595,10 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
 {
     BroadcastGroupUpdate();
 
+    if (Player* l_Player = sObjectAccessor->FindPlayer(p_Guid))
+        if (sLFGListMgr->IsGroupQueued(this))
+            sLFGListMgr->PlayerRemoveFromGroup(l_Player, this);
+
     sScriptMgr->OnGroupRemoveMember(this, p_Guid, p_Method, p_Kicker, p_Reason);
 
     /// LFG group vote kick handled in scripts
@@ -593,7 +606,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
         return m_memberSlots.size();
 
     /// Remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
-    if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
+    if (sLFGListMgr->IsGroupQueued(this) || GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
         Player * l_Player = ObjectAccessor::GetObjectInOrOutOfWorld(p_Guid, (Player*)NULL);
 
@@ -724,7 +737,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
             }
         }
 
-        if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+        if ((!sLFGListMgr->IsGroupQueued(this) || !m_memberMgr.getSize()) && m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
             Disband();
 
         return true;
@@ -735,6 +748,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
         Disband();
         return false;
     }
+    return true;
 }
 
 void Group::ChangeLeader(uint64 newLeaderGuid)
@@ -819,6 +833,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
 void Group::Disband(bool hideDestroy /* = false */)
 {
     sScriptMgr->OnGroupDisband(this);
+    sLFGListMgr->Remove(GetLowGUID(), nullptr, false);
 
     Player* player;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
@@ -1413,7 +1428,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
             ++l_Count;
     }
 
-    uint64 l_LootedGUID = MAKE_NEW_GUID(p_LootedObject->GetGUIDLow(), 0, HIGHGUID_LOOT);
+    uint64 l_LootedGUID = p_LootedObject->GetGUID();
     sObjectMgr->setLootViewGUID(l_LootedGUID, p_LootedObject->GetGUID());
 
     WorldPacket l_Data(SMSG_MASTER_LOOT_CANDIDATE_LIST);
@@ -2881,6 +2896,27 @@ void Group::setGroupMemberRole(uint64 guid, uint32 role)
         stmt->setUInt32(1, GUID_LOPART(guid));
         CharacterDatabase.Execute(stmt);
     }
+}
+
+void Group::OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId)
+{
+    for (auto l_Member = m_memberSlots.begin(); l_Member != m_memberSlots.end(); ++l_Member)
+    {
+        if (l_Member->guid == p_GUID)
+        {
+            l_Member->specID = p_SpecId;
+            break;
+        }
+    }
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_MEMBER_SPEC);
+    if (l_Stmt != nullptr)
+    {
+        l_Stmt->setUInt32(0, p_SpecId);
+        l_Stmt->setUInt32(1, GUID_LOPART(p_GUID));
+        CharacterDatabase.Execute(l_Stmt);
+    }
+
 }
 
 uint32 Group::getGroupMemberRole(uint64 guid)

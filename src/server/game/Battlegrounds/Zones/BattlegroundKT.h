@@ -264,6 +264,7 @@ class BattlegroundKT : public Battleground
         uint32 m_HonorEndKills;
         uint32 m_UpdatePointsTimer;
         Team   m_LastCapturedOrbTeam;
+        int32 m_CheatersCheckTimer;
 };
 
 #endif

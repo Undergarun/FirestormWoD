@@ -111,24 +111,6 @@ public:
         std::string uptime          = secsToTimeString(sWorld->GetUptime());
         uint32 updateTime           = sWorld->GetUpdateTime();
 
-        handler->PSendSysMessage("AshranCore 6.0.3 19342 beta");
-        handler->PSendSysMessage("Last Update: 30/03/2015");
-        handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
-        handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
-        handler->PSendSysMessage("Server delay: %u ms", updateTime);
-
-        // Bypass player/VIP
-        /*if (handler->GetSession() && handler->GetSession()->GetSecurity() > 1)
-        {
-            handler->PSendSysMessage("Map diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
-            handler->PSendSysMessage("Battleground diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEGROUND));
-            handler->PSendSysMessage("Session diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_SESSION));
-            handler->PSendSysMessage("Battlefield diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEFIELD));
-            handler->PSendSysMessage("Outdoor PVP diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_OUTDOORPVP));
-            handler->PSendSysMessage("LFG Mgr diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_LFG));
-            handler->PSendSysMessage("Callback diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_CALLBACK));
-        }*/
-
         // Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
             handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());

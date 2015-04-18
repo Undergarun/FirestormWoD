@@ -31,12 +31,13 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "MapManager.h"
+#include "../Draenor/tanaan_jungle.h"
 
 /*######
 ## npc_deathly_usher
 ######*/
 
-#define GOSSIP_ITEM_USHER "I wish to to visit the Rise of the Defiler."
+#define GOSSIP_ITEM_USHER "I would like to visit the Rise of the Defiler."
 
 #define SPELL_TELEPORT_SINGLE           12885
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
@@ -191,7 +192,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
             if (p_Player->GetQuestStatus(QUEST_START_DRAENOR) == QUEST_STATUS_INCOMPLETE)
             {
                 p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
-                p_Player->SendMovieStart(199);
+                p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
                 p_Player->KilledMonsterCredit(78419);
             }
             return true;

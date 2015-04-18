@@ -36,6 +36,7 @@ void WorldSession::SendTradeStatus(TradeStatus p_Status)
     WorldPacket l_Data(SMSG_TRADE_STATUS);
     l_Data.WriteBit(false);   // Failure for you
     l_Data.WriteBits(p_Status, 5);
+    l_Data.WriteBit(false);
 
     switch (p_Status)
     {
@@ -599,7 +600,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
     if (l_Player == GetPlayer() || l_Player->m_trade)
     {
         // Ignore
-        SendTradeStatus(TRADE_STATUS_BUSY_2);
+        SendTradeStatus(TRADE_STATUS_BUSY);
         return;
     }
 
@@ -660,6 +661,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
         WorldPacket l_Data(SMSG_TRADE_STATUS);
         l_Data.WriteBit(false);
         l_Data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
+        l_Data.WriteBit(false);
         l_Data.FlushBits();
         l_Data.appendPackGUID(l_Guid);
         l_Data.appendPackGUID(l_Player->GetSession()->GetWoWAccountGUID());
@@ -671,6 +673,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& p_RecvData)
         WorldPacket l_Data(SMSG_TRADE_STATUS);
         l_Data.WriteBit(false);
         l_Data.WriteBits(TRADE_STATUS_BEGIN_TRADE, 5);
+        l_Data.WriteBit(false);
         l_Data.FlushBits();
         l_Data.appendPackGUID(m_Player->GetGUID());
         l_Data.appendPackGUID(GetWoWAccountGUID());

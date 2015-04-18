@@ -115,4 +115,18 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_INS_PETBATTLE, "INSERT INTO account_battlepet(" PETBATTLE_FIELDS ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_BOTH);
 #undef PETBATTLE_FIELDS
 #undef PETBATTLE_FULL_FIELDS
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Heirloom Collection
+    PREPARE_STATEMENT(LOGIN_SEL_HEIRLOOM_COLLECTION, "SELECT heirloom_id, upgrade_flags FROM account_heirlooms WHERE account_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_HEIRLOOM, "INSERT INTO account_heirlooms (account_id, heirloom_id, upgrade_flags) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_HEILOOM_FLAGS, "UPDATE account_heirlooms SET upgrade_flags = ? WHERE account_id = ? AND heirloom_id = ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// ToyBox
+    PREPARE_STATEMENT(LOGIN_SEL_ACCOUNT_TOYS, "SELECT item_id, is_favorite FROM account_toys WHERE account_id = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_TOYS, "INSERT INTO account_toys (account_id, item_id, is_favorite) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(LOGIN_UPD_TOY_FAVORITE, "UPDATE account_toys SET is_favorite = ? WHERE account_id = ? AND item_id = ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
 }

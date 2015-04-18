@@ -647,7 +647,7 @@ enum eUnitFlags
     UNIT_FLAG_SILENCED              = 0x00002000,           // silenced, 2.1.1
     UNIT_FLAG_UNK_14                = 0x00004000,           // 2.0.8
     UNIT_FLAG_UNK_15                = 0x00008000,
-    UNIT_FLAG_UNK_16                = 0x00010000,
+    UNIT_FLAG_UNK_16                = 0x00010000,           // Cant attack
     UNIT_FLAG_PACIFIED              = 0x00020000,           // 3.0.3 ok
     UNIT_FLAG_STUNNED               = 0x00040000,           // 3.0.3 ok
     UNIT_FLAG_IN_COMBAT             = 0x00080000,
@@ -687,16 +687,16 @@ enum eUnitFlags2
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_UNK3                         = 0x00080000,
+    UNIT_FLAG2_UNK3                         = 0x00080000,   ///< Remove Hightlight on cursor 
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,
     UNIT_FLAG2_UNK7                         = 0x00800000,
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UPDATE_REACTION              = 0x02000000,
-    UNIT_FLAG2_UNK10                        = 0x04000000,
+    UNIT_FLAG2_UNK10                        = 0x04000000,   ///< Cant select (even in GM mode)
     UNIT_FLAG2_UNK11                        = 0x08000000,
-    UNIT_FLAG2_UNK12                        = 0x10000000,
+    UNIT_FLAG2_UNK12                        = 0x10000000,   ///< Cant target, hide highlight, hide name (work on faction 14/7 but not 35)
     UNIT_FLAG2_UNK13                        = 0x20000000,
     UNIT_FLAG2_UNK14                        = 0x40000000,
     UNIT_FLAG2_UNK15                        = 0x80000000
@@ -1694,7 +1694,7 @@ class Unit : public WorldObject
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
-        uint32 CalcStaggerDamage(Player* victim, uint32 damage);
+        uint32 CalcStaggerDamage(Player* victim, uint32 damage, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto);
         void Kill(Unit* victim, bool durabilityLoss = true, SpellInfo const* spellProto = NULL);
         int32 DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto = NULL);
 
@@ -1803,6 +1803,7 @@ class Unit : public WorldObject
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool isFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2); }
         bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2); }
+        bool isInStun() const { return HasAuraType(SPELL_AURA_MOD_STUN); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
@@ -2102,12 +2103,13 @@ class Unit : public WorldObject
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
         uint32 GetDoTsByCaster(uint64 casterGUID) const;
 
-        int32 GetTotalAuraModifier(AuraType auratype) const;
+        int32 GetTotalAuraModifier(AuraType auratype, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;
         int32 GetMaxPositiveAuraModifier(AuraType auratype);
         int32 GetMaxNegativeAuraModifier(AuraType auratype) const;
 
-        int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
+        int32 GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
+        int32 GetTotalAuraModifierByMiscBMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr excludeAura = nullptr, AuraEffectPtr includeAura = nullptr) const;
         float GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask) const;
         int32 GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, constAuraEffectPtr except = NULLAURA_EFFECT) const;
         int32 GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const;
@@ -2216,7 +2218,7 @@ class Unit : public WorldObject
         virtual void UpdateMaxHealth() = 0;
         virtual void UpdateMaxPower(Powers power) = 0;
         virtual void UpdateAttackPowerAndDamage(bool ranged = false) = 0;
-        virtual void UpdateDamagePhysical(WeaponAttackType attType) = 0;
+        virtual void UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields = false) = 0;
         float GetTotalAttackPowerValue(WeaponAttackType attType) const;
         float GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const;
         void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, float value) { m_weaponDamage[attType][damageRange] = value; }
@@ -2550,6 +2552,10 @@ class Unit : public WorldObject
         uint64 GetIciclesTarget() const { return iciclesTargetGUID; }
         void SetIciclesTarget(uint64 guid) { iciclesTargetGUID = guid; }
 
+        // helpers for Psychic Horror
+        bool GetPsychicHorrorGainedPower() const { return psychicHorrorGainedPower; }
+        void SetPsychicHorrorGainedPower(bool gained) { psychicHorrorGainedPower = gained; }
+
         void DisableHealthRegen() { m_disableHealthRegen = true; }
         void ReenableHealthRegen() { m_disableHealthRegen = false; }
         bool HealthRegenIsDisable() const { return m_disableHealthRegen; }
@@ -2716,6 +2722,7 @@ class Unit : public WorldObject
 
         uint64 simulacrumTargetGUID;
         uint64 iciclesTargetGUID;
+        bool psychicHorrorGainedPower;
 
         Diminishing m_Diminishing;
         // Manage all Units that are threatened by us

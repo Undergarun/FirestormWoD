@@ -380,6 +380,7 @@ enum CharacterDatabaseStatements
     CHAR_UPD_GROUP_MEMBER_SUBGROUP,
     CHAR_UPD_GROUP_MEMBER_FLAG,
     CHAR_UPD_GROUP_MEMBER_ROLE,
+    CHAR_UPD_GROUP_MEMBER_SPEC,
     CHAR_UPD_GROUP_DIFFICULTY,
     CHAR_UPD_GROUP_RAID_DIFFICULTY,
     CHAR_DEL_INVALID_SPELL,
@@ -642,13 +643,6 @@ enum CharacterDatabaseStatements
 
     CHAR_UPD_LAST_BATTLEPET,
     CHAR_SEL_LAST_BATTLEPET,
-
-    //////////////////////////////////////////////////////////////////////////
-    /// ToyBox
-    CHAR_SEL_ACCOUNT_TOYS,
-    CHAR_INS_ACCOUNT_TOYS,
-    CHAR_UPD_TOY_FAVORITE,
-    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     /// Calendar

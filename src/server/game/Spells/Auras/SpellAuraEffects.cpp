@@ -507,20 +507,20 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //448 SPELL_AURA_448
     &AuraEffect::HandleNULL,                                      //449 SPELL_AURA_449
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_450
-    &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_ADAPTATION
+    &AuraEffect::HandleAuraAdaptation,                            //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452 SPELL_AURA_452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_MOD_COOLDOWN_2
-    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_454
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_CHARGE_RECOVERY_MOD
+    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOT_2
-    &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_456
-    &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_457
-    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_458
+    &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
+    &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
+    &AuraEffect::HandleAuraIncreaseDualWieldDamage,               //458 SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
     &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
-    &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR
-    &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR
+    &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING
+    &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT
     &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
@@ -535,6 +535,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_GAIN_PCT
     &AuraEffect::HandleNULL,                                      //477 SPELL_AURA_477
     &AuraEffect::HandleNULL,                                      //478 SPELL_AURA_478
+    &AuraEffect::HandleNULL,                                      //479 SPELL_AURA_479
+    &AuraEffect::HandleNULL,                                      //480 SPELL_AURA_480
+    &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
+    &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
+    &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -4979,9 +4984,18 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
     {
         if (GetMiscValueB() & 1 << i || !GetMiscValueB()) // 0 is also used for all stats
         {
-            target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
             if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->isPet())
-                target->ApplyStatPercentBuffMod(Stats(i), float(GetAmount()), apply);
+            {
+                float l_CurrentAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << i, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+                float l_NewAmount = target->GetTotalAuraModifierByMiscBMask(GetAuraType(), 1 << i, apply ? nullptr : shared_from_this());
+
+                target->ApplyStatPercentBuffMod(Stats(i), l_CurrentAmount, false);
+                target->ApplyStatPercentBuffMod(Stats(i), l_NewAmount, true);
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, l_CurrentAmount, false);
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, l_NewAmount, true);
+            }
+            else
+                target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
         }
     }
 
@@ -5386,16 +5400,22 @@ void AuraEffect::HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode,
         return;
 
     Unit* target = aurApp->GetTarget();
+    Player* l_Player = target->ToPlayer();
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    if (!l_Player)
     {
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
         return;
     }
 
-    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (GetAmount()), apply);
-    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (GetAmount()), apply);
-    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (GetAmount()), apply);
+    float l_CurrentAmount = l_Player->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = l_Player->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, l_CurrentAmount, false);
+    target->ToPlayer()->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, l_NewAmount, true);
+    target->ToPlayer()->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, l_NewAmount, true);
+    target->ToPlayer()->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, l_NewAmount, true);
 
     // included in Player::UpdateSpellCritChance calculation
     target->ToPlayer()->UpdateAllSpellCritChances();
@@ -5544,8 +5564,16 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
     }
 
     for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
+    {
         if (GetMiscValue() & (1 << rating))
-            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), GetAmount(), apply);
+        {
+            float l_CurrentAmount = target->GetTotalAuraModifierByMiscMask(GetAuraType(), 1 << rating, apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+            float l_NewAmount = target->GetTotalAuraModifierByMiscMask(GetAuraType(), 1 << rating, apply ? nullptr : shared_from_this());
+
+            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_CurrentAmount, false);
+            target->ToPlayer()->ApplyRatingMod(CombatRating(rating), l_NewAmount, true);
+        }
+    }
 }
 
 void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5575,7 +5603,10 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     Unit* target = aurApp->GetTarget();
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(GetAmount()), apply);
+    float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, true);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5588,7 +5619,10 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
+    float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
+    float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, true);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -8651,5 +8685,23 @@ void AuraEffect::HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_M
         l_Pet->SetSpecializationId((uint32)l_NewSpec);
         l_Pet->LearnSpecializationSpell();
         l_Player->SendTalentsInfoData(true);
+    }
+}
+
+void AuraEffect::HandleAuraIncreaseDualWieldDamage(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & AuraEffectHandleModes::AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* l_Player = p_AurApp->GetBase()->GetUnitOwner()->ToPlayer();
+    if (!l_Player)
+        return;
+
+    if (l_Player->CanModifyStats())
+    {
+        l_Player->UpdateDamagePhysical(WeaponAttackType::BaseAttack);
+
+        if (l_Player->CanUseAttackType(WeaponAttackType::OffAttack))
+            l_Player->UpdateDamagePhysical(WeaponAttackType::OffAttack);
     }
 }

@@ -731,9 +731,6 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     ObjectGuid targetGuid = target_guid;
 
-    bool bit5264 = false;
-    bool sendRealmId = true;
-
     data->Initialize(SMSG_CHAT, 100);                   // guess size
     *data << uint8(type);
     *data << uint8(language);
@@ -752,7 +749,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
     data->WriteBits(channelName ? strlen(channelName) : 0, 7);
     data->WriteBits(message ? strlen(message) : 0, 12);
-    data->WriteBits(speakerPlayer ? speakerPlayer->GetChatTag() : 0, 10);
+    data->WriteBits(speakerPlayer ? speakerPlayer->GetChatTag() : 0, 11);
     data->WriteBit(false);  ///< hide chat log
     data->WriteBit(false);  ///< Faker sender name
     data->FlushBits();

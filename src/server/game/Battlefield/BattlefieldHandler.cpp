@@ -58,7 +58,7 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 p_Guid)
 
     data.WriteBit(0);
     data.FlushBits();
-    
+
     ///< Sending packet to player
     SendPacket(&data);
 }

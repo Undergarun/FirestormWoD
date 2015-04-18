@@ -1728,9 +1728,6 @@ void ObjectMgr::LoadCreatures()
             sMapMgr->GetZoneAndAreaId(zoneId, areaId, data.mapid, data.posX, data.posY, data.posZ);
             WorldDatabase.PExecute("UPDATE creature SET zoneId = %u, areaId = %u WHERE guid = %u", zoneId, areaId, guid);
         }
-
-        ++count;
-
     }
     while (result->NextRow());
 
@@ -2028,7 +2025,7 @@ void ObjectMgr::LoadGameobjects()
         if (data.spawnMask & ~spawnMasks[data.mapid])
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
-        data.phaseMask      = fields[18].GetUInt16();
+        data.phaseMask      = fields[18].GetUInt32();
         int16 gameEvent     = fields[19].GetInt8();
         uint32 PoolId        = fields[20].GetUInt32();
 
@@ -2964,7 +2961,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
                 l_ItemTemplate.Flags2 |= ITEM_FLAGS_EXTRA_HORDE_ONLY;
                 l_ItemTemplate.RequiredLevel = 100;
                 break;
-        } 
+        }
     }
 }
 
@@ -5775,7 +5772,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     for (uint32 l_I = 0; l_I < sGarrSiteLevelStore.GetNumRows(); ++l_I)
     {
         const GarrSiteLevelEntry * l_Entry = sGarrSiteLevelStore.LookupEntry(l_I);
-        
+
         if (l_Entry)
         {
             l_MapOverrides[l_Entry->MapID] = MS::Garrison::Globals::BaseMap;
@@ -6894,7 +6891,7 @@ void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_D
     WorldDatabase.PQuery("INSERT INTO garrison_plot_content(plot_type_or_building, faction_index, creature_or_gob, x, y, z, o) VALUES "
         "(%d, %u, %d, %f, %f, %f, %f) ", p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X, p_Data.Y, p_Data.Z, p_Data.O);
 
-    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f", 
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT id FROM garrison_plot_content WHERE plot_type_or_building=%d AND faction_index=%u AND creature_or_gob=%d AND x BETWEEN %f AND %f AND y BETWEEN %f AND %f AND z BETWEEN %f AND %f",
                                                 p_Data.PlotTypeOrBuilding, p_Data.FactionIndex, p_Data.CreatureOrGob, p_Data.X - 0.5f, p_Data.X + 0.5f, p_Data.Y - 0.5f, p_Data.Y + 0.5f, p_Data.Z - 0.5f, p_Data.Z + 0.5f);
 
     if (!l_Result)
@@ -8565,17 +8562,18 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::se
             count += LoadReferenceVendor(vendor, -item_id, type, skip_vendors);
         else
         {
-            int32  maxcount     = fields[1].GetUInt32();
-            uint32 incrtime     = fields[2].GetUInt32();
-            uint32 ExtendedCost = fields[3].GetUInt32();
-            uint8  type         = fields[4].GetUInt8();
+            int32  maxcount             = fields[1].GetUInt32();
+            uint32 incrtime             = fields[2].GetUInt32();
+            uint32 ExtendedCost         = fields[3].GetUInt32();
+            uint8  type                 = fields[4].GetUInt8();
+            uint32 l_PlayerConditionID  = fields[5].GetUInt32();
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, type, NULL, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type, l_PlayerConditionID);
             ++count;
         }
     }
@@ -8595,7 +8593,7 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, PlayerConditionID FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
 
@@ -8607,10 +8605,10 @@ void ObjectMgr::LoadVendors()
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* fields           = result->Fetch();
 
-        uint32 entry        = fields[0].GetUInt32();
-        int32 item_id      = fields[1].GetInt32();
+        uint32 entry            = fields[0].GetUInt32();
+        int32 item_id           = fields[1].GetInt32();
 
         // if item is a negative, its a reference
         if (item_id < 0)
@@ -8621,13 +8619,14 @@ void ObjectMgr::LoadVendors()
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
             uint8  type         = fields[5].GetUInt8();
+            uint32 l_PlayerConditionID = fields[6].GetUInt32();
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, type, NULL, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, type, l_PlayerConditionID);
             ++count;
         }
     }
@@ -8740,10 +8739,10 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/, uint32 p_PlayerConditionID /* = 0*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost, type);
+    vList.AddItem(item, maxcount, incrtime, extendedCost, type, p_PlayerConditionID);
 
     if (persist)
     {
@@ -8755,6 +8754,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
         stmt->setUInt32(3, incrtime);
         stmt->setUInt32(4, extendedCost);
         stmt->setUInt8(5, type);
+        stmt->setUInt32(6, p_PlayerConditionID);
 
         WorldDatabase.Execute(stmt);
     }
@@ -9849,7 +9849,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         if (!l_CharacterTemplate->m_Level)
             l_CharacterTemplate->m_Level = 1;
 
-        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i", l_ID);
+        QueryResult l_ItemResult = WorldDatabase.PQuery("SELECT itemID, faction, count FROM character_template_item WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ItemResult)
         {
             do
@@ -9874,7 +9874,7 @@ void ObjectMgr::LoadCharacterTemplateData()
             while (l_ItemResult->NextRow());
         }
 
-        QueryResult l_SpellsResult = WorldDatabase.PQuery("SELECT spellId FROM character_template_spell WHERE id = %i", l_ID);
+        QueryResult l_SpellsResult = WorldDatabase.PQuery("SELECT spellId FROM character_template_spell WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_SpellsResult)
         {
             do
@@ -9894,7 +9894,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         }
 
         // NYI - will fix later
-        QueryResult l_ReputationResult = WorldDatabase.PQuery("SELECT factionID, reputation FROM character_template_reputation WHERE id = %i", l_ID);
+        QueryResult l_ReputationResult = WorldDatabase.PQuery("SELECT factionID, reputation FROM character_template_reputation WHERE id = %i OR id = %i", l_ID, MAX_CLASSES);
         if (l_ReputationResult)
         {
             do
@@ -10290,4 +10290,69 @@ uint32 ObjectMgr::GetQuestObjectiveQuestId(uint32 objectiveId) const
         return 0;
 
     return l_It->second;
+}
+
+void ObjectMgr::LoadTaxiData()
+{
+    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
+    {
+        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        if (!entry->from || !entry->to)
+            continue;
+
+        TaxiNode* node = GetTaxiNodeByID(entry->from);
+        if (node)
+            node->AddConnectedNode(entry->to);
+        else
+        {
+            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->from);
+            if (!nodeEntry)
+                continue;
+
+            Position nodePos;
+            nodePos.m_positionX = nodeEntry->x;
+            nodePos.m_positionY = nodeEntry->y;
+            nodePos.m_positionZ = nodeEntry->z;
+            nodePos.m_orientation = 0.f;
+
+            std::string l_Name = nodeEntry->name;
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, l_Name, entry->price);
+            node->AddConnectedNode(entry->to);
+
+            _taxiNodes[entry->from] = node;
+        }
+    }
+
+    // fill data for empty nodes (nodes which have no outoing paths, however have paths to)
+    for (uint32 i = 0; i < sTaxiPathStore.GetNumRows(); i++)
+    {
+        TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        if (!entry->from || !entry->to)
+            continue;
+
+        TaxiNode* node = GetTaxiNodeByID(entry->to);
+        if (node)
+            continue;
+
+        TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(entry->to);
+        if (!nodeEntry)
+            continue;
+
+        Position nodePos;
+        nodePos.m_positionX = nodeEntry->x;
+        nodePos.m_positionY = nodeEntry->y;
+        nodePos.m_positionZ = nodeEntry->z;
+        nodePos.m_orientation = 0.f;
+
+        std::string l_Name = nodeEntry->name;
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, l_Name, entry->price);
+
+        _taxiNodes[entry->to] = node;
+    }
 }

@@ -45,13 +45,14 @@ enum ItemBonusType
     ITEM_BONUS_MODIFY_ITEM_LEVEL    = 1,
     ITEM_BONUS_ADD_STAT             = 2,
     ITEM_BONUS_OVERRIDE_QUALITY     = 3,
-    ITEM_BONUS_MODIFY_SELLPRICE     = 4,
+    ITEM_BONUS_DESCRIPTION          = 4,
     ITEM_BONUS_ITEM_SUFFIX          = 5,
     ITEM_BONUS_ADD_SOCKET           = 6,
     ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
     ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
     ITEM_BONUS_UNK2                 = 9,
-    ITEM_BONUS_UNK3                 = 10
+    ITEM_BONUS_UNK3                 = 10,
+    ITEM_BONUS_MODIFY_SSD_ID        = 11
 };
 
 enum InventoryResult

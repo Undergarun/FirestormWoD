@@ -47,6 +47,20 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct GroupFinderActivityEntry
+{
+    uint32 ID;                                                      ///< 0
+    uint32 ActivityGroupID;                                         ///< 1
+    char* Name;                                                     ///< 13
+    char* Difficulty;                                               ///< 14
+};
+
+struct GroupFinderCategoryEntry
+{
+    uint32 ID;                                                      ///< 0
+    char*  Name;                                                    ///< 1
+};
+
 struct GlyphRequiredSpecEntry
 {
     uint32 ID;                                                      ///< 0
@@ -199,6 +213,20 @@ struct ItemEffectEntry
     uint32 SpellCategoryCooldown;                           // 8
 };
 
+#define MAX_HEIRLOOM_UPGRADE_LEVEL 2
+/// 6.1.2
+struct HeirloomEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    char* Description[2];                                   ///> 0 = horde, 1 = ally, if 0 is NULL then 1 is for both
+    uint32 MaxHeirloomUpgrade;
+    uint32 OldHeirloomID[2];
+    uint32 HeroicVersion;
+    uint32 UpgradableByItemID[MAX_HEIRLOOM_UPGRADE_LEVEL];
+    uint32 UpgradeIemBonusID[MAX_HEIRLOOM_UPGRADE_LEVEL];
+};
+
 struct PvpItemEntry
 {
     uint32 itemId;
@@ -246,19 +274,17 @@ struct RulesetItemUpgradeEntry
 struct ItemExtendedCostEntry
 {
     uint32      ID;                                                     // 0 extended-cost entry id
-    //uint32    reqhonorpoints;                                         // 1 required honor points, only 0
-    //uint32    reqarenapoints;                                         // 2 required arena points, only 0
-    uint32      RequiredArenaSlot;                                      // 3 arena slot restrictions (min slot value)
-    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 4-8 required item id
-    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 9-13 required count of 1st item
-    uint32      RequiredPersonalArenaRating;                            // 14 required personal arena rating
-    //uint32    ItemPurchaseGroup;                                      // 15, only 0
-    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 16-20 required curency id
-    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 21-25 required curency count
-    //uint32    RequiredFactionId;                                      // 26
-    //uint32    RequiredFactionStanding;                                // 27
-    //uint32    RequirementFlags;                                       // 28
-    //uint32    RequiredGuildLevel;                                     // 29 removed in 6.X
+    uint32      RequiredArenaSlot;                                      // 1 arena slot restrictions (min slot value)
+    uint32      RequiredItem[MAX_ITEM_EXT_COST_ITEMS];                  // 2-6 required item id
+    uint32      RequiredItemCount[MAX_ITEM_EXT_COST_ITEMS];             // 7-11 required count of 1st item
+    uint32      RequiredPersonalArenaRating;                            // 12 required personal arena rating
+    //uint32    ItemPurchaseGroup;                                      // 13, only 0
+    uint32      RequiredCurrency[MAX_ITEM_EXT_COST_CURRENCIES];         // 14-18 required curency id
+    uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];    // 19-23 required curency count
+    //uint32    RequiredFactionId;                                      // 24
+    //uint32    RequiredFactionStanding;                                // 25
+    //uint32    RequirementFlags;                                       // 26
+    uint32      OverrideBuyPrice;                                       // 28
 };
 
 struct QuestPackageItemEntry
@@ -305,6 +331,28 @@ struct SceneScriptPackageEntry
 {
     uint32 Entry;
     const char* Name;
+};
+
+struct SoundEntriesEntry
+{
+    uint32  Id;                                             // 0        m_ID
+    //uint32    Type;                                       // 1        m_SoundType
+    //char*     InternalName;                               // 2        m_Name
+    //uint32    m_FileDataID[20];                           // 3-22     m_FileDataID
+    //uint32    m_Freq[20];                                 // 23-42    m_Freq
+    //float     m_volumeFloat;                              // 43       m_VolumeFloat
+    //uint32    m_Flags;                                    // 44       m_Flags
+    //float     m_MinDistance;                              // 45       m_MinDistance
+    //float     m_DistanceCutoff;                           // 46       m_DistanceCutoff
+    //uint32    m_EAXDef;                                   // 47       m_EAXDef
+    //uint32    m_SoundEntriesAdvancedID;                   // 48       m_SoundEntriesAdvancedID
+    //float     m_Volumevariationplus;                      // 49       m_Volumevariationplus
+    //float     m_Volumevariationminus;                     // 50       m_Volumevariationminus
+    //float     m_Pitchvariationplus;                       // 51       m_Pitchvariationplus
+    //float     m_Pitchvariationminus;                      // 52       m_Pitchvariationminus
+    //float     m_PitchAdjust;                              // 53       m_PitchAdjust
+    //uint32    m_Dialogtype;                               // 54       m_Dialogtype
+    //uint32    m_BusOverwriteID;                           // 55       m_BusOverwriteID
 };
 
 #define MAX_SPELL_REAGENTS 8
@@ -1038,10 +1086,10 @@ struct PlayerConditionEntry
     int32 PowerTypeValue;
 };
 
-/// Flags of PrevQuestLogic (PlayerConditionEntry) 
+/// Flags of PrevQuestLogic (PlayerConditionEntry)
 namespace PrevQuestLogicFlags
 {
-    enum 
+    enum
     {
         TrackingQuest = 0x10000
     };

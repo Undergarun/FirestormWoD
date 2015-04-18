@@ -622,23 +622,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
         l_MailsBuffer << uint32((*itr)->messageID);                         // Message ID
         l_MailsBuffer << uint8((*itr)->messageType);                        // Message Type
-
-        if ((*itr)->messageType == MAIL_NORMAL)
-        {
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.FlushBits();
-
-            l_MailsBuffer << uint32(g_RealmID);
-            l_MailsBuffer << uint32(g_RealmID);
-        }
-        else
-        {
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.FlushBits();
-        }
-
         l_MailsBuffer << uint64((*itr)->COD);                               // COD
         l_MailsBuffer << uint32(0);                                         // Package.dbc ID ?
         l_MailsBuffer << uint32((*itr)->stationery);                        // stationery (Stationery.dbc)
@@ -803,22 +786,6 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 
             uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
             l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);  // player guid
-
-            if (l_Mail->messageType == MAIL_NORMAL)
-            {
-                l_Data.WriteBit(true);
-                l_Data.WriteBit(true);
-                l_Data.FlushBits();
-
-                l_Data << uint32(g_RealmID);
-                l_Data << uint32(g_RealmID);
-            }
-            else
-            {
-                l_Data.WriteBit(false);
-                l_Data.WriteBit(false);
-                l_Data.FlushBits();
-            }
 
             l_Data << float(l_Mail->deliver_time - l_NowTime);
             l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  // non-player entries

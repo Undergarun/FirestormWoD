@@ -284,6 +284,12 @@ void Player::UpdateArmor()
     l_Armor += GetModifierValue(l_UnitMod, TOTAL_VALUE);
     l_Armor *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
+    /// Bonus armor value should already have been added in armor value, we just add few auras bonuses
+    uint32 l_BonusArmor = GetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR);
+    l_BonusArmor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
+    l_BonusArmor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
+    SetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, l_BonusArmor);
+
     //add dynamic flat mods
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
@@ -291,13 +297,6 @@ void Player::UpdateArmor()
         if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
-
-    float l_BonusArmor = 0.0f;
-    l_BonusArmor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
-    l_BonusArmor += CalculatePct(l_Armor, GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT));
-    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_BonusArmor), true);
-
-    l_Armor += l_BonusArmor;
 
     // Custom MoP Script
     // 77494 - Mastery : Nature's Guardian
@@ -431,7 +430,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 attPowerMod -= temp;
         }
     }
-    attPowerMod += CalculatePct(GetFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraMultiplier(SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR));
+
+    attPowerMod += CalculatePct(GetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraModifier(SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT));
+
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
@@ -480,9 +481,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
+void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffHandItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    Item* l_UsedWeapon = attType == WeaponAttackType::OffAttack ? l_OffHandItem : mainItem;
 
     UnitMods unitMod;
 
@@ -500,16 +503,21 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = GetAPMultiplier(attType, normalized);
+    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
 
-    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
-    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
+    bool dualWield = mainItem && l_OffHandItem && !l_NoLongerDualWields;
+    float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+    if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
+        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed ;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed;
+    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
+    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
+
+    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
 
     if (IsInFeralForm())
     {
@@ -519,13 +527,13 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f));
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f));
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f)) * 2.5f;
         }
     }
 
@@ -542,12 +550,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     AddPct(max_damage, autoAttacksPctBonus);
 }
 
-void Player::UpdateDamagePhysical(WeaponAttackType attType)
+void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
 {
     float mindamage;
     float maxdamage;
 
-    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage);
+    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage, l_NoLongerDualWields);
 
     switch (attType)
     {
@@ -602,7 +610,7 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
 
-    if (HasAuraType(AuraType::SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR))
+    if (HasAuraType(AuraType::SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING))
         UpdateParryPercentage();
 }
 
@@ -679,7 +687,7 @@ void Player::UpdateParryPercentage()
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
 
         /// Apply parry from pct of critical strike from gear
-        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_ADD_PARRY_PCT_OF_CS_FROM_GEAR));
+        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
 
         if (value < 0.0f)
             value = 0.0f;
@@ -823,7 +831,7 @@ void Player::UpdateMasteryPercentage()
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
-    
+
     /// 117906 - Mastery: Elusive Brawler - Update attack power
     /// 155783 - Mastery: Primal Tenacity - Update attack power
     if (HasAura(117906) || HasAura(155783))
@@ -988,6 +996,13 @@ void Player::UpdateManaRegen()
     {
         combatRegen = spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
         outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
+    }
+
+    /// Warlocks mana regen 5% of maximum mana - blizzlike
+    if (getClass() == CLASS_WARLOCK)
+    {
+        combatRegen *= 2.5f;
+        outOfCombatRegen *= 2.5f;
     }
 
     if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
@@ -1204,7 +1219,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     float l_Variance = 1.f;
     UnitMods l_UnitMod;
@@ -1508,7 +1523,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 {
     if (p_Ranged)
         return;
-    
+
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
@@ -1557,7 +1572,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 // WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;

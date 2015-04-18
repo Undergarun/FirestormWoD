@@ -434,7 +434,18 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
             return;
 
-        // some kind of WPE protection
+        /// some kind of WPE protection
+        if (!m_Player->CanInteractWithQuestGiver(l_Object))
+            return;
+    }
+    /// we don't know to work like that, verify if quest doesn't have reward
+    else if (l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT) && l_Quest->GetRewItemsCount() == 0 && l_Quest->GetRewChoiceItemsCount() == 0)
+    {
+        l_Object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+        if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
+            return;
+
+        /// some kind of WPE protection
         if (!m_Player->CanInteractWithQuestGiver(l_Object))
             return;
     }

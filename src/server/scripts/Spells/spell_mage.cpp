@@ -117,7 +117,8 @@ enum MageSpells
     SPELL_MAGE_RAPID_TELEPORTATION_AURA          = 89749,
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
     SPELL_MAGE_LIVING_BOMB                       = 44457,
-    SPELL_MAGE_CHILLED                           = 12486
+    SPELL_MAGE_CHILLED                           = 12486,
+    SPELL_SHAMAN_HEX                             = 51514
 };
 
 /// Arcane Orb - 153626
@@ -242,6 +243,33 @@ class spell_areatrigger_meteor_burn : public AreaTriggerEntityScript
         }
 };
 
+/// Meteor - 177345
+class spell_areatrigger_meteor_timestamp : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_meteor_timestamp() : AreaTriggerEntityScript("spell_areatrigger_meteor_timestamp") {}
+
+        enum eSpells
+        {
+            MeteorDamage = 153564
+        };
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_meteor_timestamp();
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+        {
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            l_Caster->CastSpell(p_AreaTrigger->m_positionX, p_AreaTrigger->m_positionY, p_AreaTrigger->m_positionZ, eSpells::MeteorDamage, true);
+        }
+};
+
 /// Meteor - 153561
 class spell_mage_meteor : public SpellScriptLoader
 {
@@ -254,16 +282,15 @@ class spell_mage_meteor : public SpellScriptLoader
 
             enum eMeteorDatas
             {
-                MeteorSpell = 153564
+                MeteorTimeStamp = 177345
             };
 
             void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    /// @TODO: Add delay of 3s before cast
                     if (WorldLocation const* l_Dest = GetExplTargetDest())
-                        l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eMeteorDatas::MeteorSpell, true);
+                        l_Caster->CastSpell(l_Dest->GetPositionX(), l_Dest->GetPositionY(), l_Dest->GetPositionZ(), eMeteorDatas::MeteorTimeStamp, true);
                 }
             }
 
@@ -1206,11 +1233,7 @@ class spell_mage_combustion: public SpellScriptLoader
                         if (l_Player->HasSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT))
                             l_Player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
 
-                        if (ChargesData* l_Charges = l_Player->GetChargesData(eSpell::CategoryID))
-                        {
-                            l_Player->m_SpellChargesMap.erase(eSpell::CategoryID);
-                            l_Player->SendClearSpellCharges(eSpell::CategoryID);
-                        }
+                        l_Player->RestoreCharge(eSpell::CategoryID);
 
                         int32 combustionBp = 0;
 
@@ -1889,7 +1912,7 @@ class spell_mage_frostfire_bolt: public SpellScriptLoader
 };
 
 /// Call by Fireball - 133, FrostFire Bolt - 44614, Pyroblast 11366 and Inferno Blast 108853
-/// Kindling - 5405
+/// Kindling - 155148
 class spell_mage_kindling : public SpellScriptLoader
 {
     public:
@@ -2443,6 +2466,43 @@ class spell_mage_flameglow : public SpellScriptLoader
         }
 };
 
+/// Remove Curse - 475
+class spell_mage_remove_curse : public SpellScriptLoader
+{
+public:
+    spell_mage_remove_curse() : SpellScriptLoader("spell_mage_remove_curse") { }
+
+    class spell_mage_remove_curse_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_remove_curse_SpellScript);
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Caster == nullptr)
+                return;
+            if (l_Target == nullptr)
+                return;
+
+            // If target has a Hex (shaman spell) - remove it
+            if (l_Target->HasAura(SPELL_SHAMAN_HEX))
+                l_Target->RemoveAura(SPELL_SHAMAN_HEX);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_mage_remove_curse_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_remove_curse_SpellScript();
+    }
+};
+
 class PlayerScript_rapid_teleportation : public PlayerScript
 {
 public:
@@ -2462,6 +2522,7 @@ void AddSC_mage_spell_scripts()
     /// AreaTriggers
     new spell_areatrigger_arcane_orb();
     new spell_areatrigger_meteor_burn();
+    new spell_areatrigger_meteor_timestamp();
 
     /// Npcs
     new npc_mage_prismatic_crystal();
@@ -2512,7 +2573,8 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_prysmatic_crystal_damage();
     new spell_mage_glyph_of_the_unbound_elemental();
+    new spell_mage_remove_curse();
 
-    // Player Script
+    /// Player Script
     new PlayerScript_rapid_teleportation();
 }

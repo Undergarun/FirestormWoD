@@ -742,10 +742,22 @@ class ScriptMgr
         /// @p_Player : Player instance
         void OnPlayerUpdateMovement(Player* p_Player);
 
+        /// Called when player accepts some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Accpeted quest
+        void OnQuestAccept(Player * p_Player, const Quest * p_Quest);
         /// Called when player rewards some quest
         /// @p_Player : Player instance
         /// @p_Quest  : Rewarded quest
         void OnQuestReward(Player* p_Player, Quest const* p_Quest);
+        /// Called when player rewards some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Rewarded quest
+        void OnQuestComplete(Player* p_Player, Quest const* p_Quest);
+        /// Called when player abandons some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Removed quest
+        void OnQuestAbandon(Player* p_Player, Quest const* p_Quest);
         /// Called when a player validates some quest objective
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID
@@ -780,6 +792,11 @@ class ScriptMgr
         /// @p_Event           : Event string received from client
         void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event);
 
+        /// Called when a player cancels some scene
+        /// @p_Player          : Player instance
+        /// @p_SceneInstanceID : Standalone scene instance ID
+        void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId);
+
         /// Called when a player regen a power
         /// @p_Player         : Player instance
         /// @p_Power          : Power to be regenerate
@@ -792,6 +809,7 @@ class ScriptMgr
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage);
+
 
     /// BattlegroundScript
     public:
