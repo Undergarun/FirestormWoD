@@ -319,6 +319,10 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244                     learn an follower ability NYI
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM        Unused 6.0.3
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_246                     Unused 6.1
+    &Spell::EffectNULL,                                     //248 SPELL_EFFECT_246                     Unused 6.1
+    &Spell::EffectNULL,                                     //249 SPELL_EFFECT_246                     Unused 6.1
+    &Spell::EffectNULL,                                     //250 SPELL_EFFECT_246                     Unused 6.1
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
