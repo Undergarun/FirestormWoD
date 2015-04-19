@@ -1572,7 +1572,7 @@ namespace MS { namespace Garrison
             CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
             if (l_CurrencyEntry)
-                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_CurrencyEntry->GetPrecision());
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
         }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
