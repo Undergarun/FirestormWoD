@@ -781,7 +781,7 @@ enum Opcodes
         SMSG_CLEAR_COOLDOWN                         = 0x0A38, ///< 6.1.2 19783
         SMSG_CLEAR_COOLDOWNS                        = 0x15ED, ///< 6.1.2 19783
         SMSG_CATEGORY_COOLDOWN                      = 0x15FA, ///< 6.1.2 19783
-        SMSG_CLEAR_SPELL_CHARGES                    = 0x151E, ///< 6.1.2 19783
+        SMSG_CLEAR_SPELL_CHARGES                    = 0x10AE, ///< 6.1.2 19783
         SMSG_SET_FLAT_SPELL_MODIFIER                = 0x192A, ///< 6.1.2 19783
         SMSG_SET_PCT_SPELL_MODIFIER                 = 0x1DAA, ///< 6.1.2 19783
         SMSG_SET_SPELL_CHARGES                      = 0x1909, ///< 6.1.2 19783
@@ -819,7 +819,7 @@ enum Opcodes
 
         /// Pet
         SMSG_PET_SPELLS_MESSAGE                     = 0x14CA, ///< 6.1.2 19783
-        SMSG_PET_UNLEARNED_SPELLS                   = 0x151E, ///< 6.1.2 19783
+        SMSG_PET_UNLEARNED_SPELLS                   = 0x011B, ///< 6.1.2 19783
         SMSG_PET_LEARNED_SPELLS                     = 0x1099, ///< 6.1.2 19783
 
     #pragma endregion
