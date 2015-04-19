@@ -1630,7 +1630,8 @@ namespace MS { namespace Garrison
 
             /// Write follower after modifications
             const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
-
+            
+            l_Update << uint32(l_AddedXP); // Guessed
             l_Update << uint32(l_AddedXP);
             l_Update.append(l_UpdatePart);
 
