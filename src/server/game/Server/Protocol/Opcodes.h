@@ -819,7 +819,7 @@ enum Opcodes
 
         /// Pet
         SMSG_PET_SPELLS_MESSAGE                     = 0x14CA, ///< 6.1.2 19783
-        SMSG_PET_UNLEARNED_SPELLS                   = 0x011B, ///< 6.1.2 19783
+        SMSG_PET_UNLEARNED_SPELLS                   = 0x15CD, ///< 6.1.2 19783
         SMSG_PET_LEARNED_SPELLS                     = 0x1099, ///< 6.1.2 19783
 
     #pragma endregion
