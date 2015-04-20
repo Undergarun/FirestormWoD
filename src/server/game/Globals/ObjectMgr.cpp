@@ -9117,6 +9117,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
 void ObjectMgr::LoadCreatureGroupSizeStats()
 {
+    uint32 l_OldMSTime = getMSTime();
+
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, groupSize, health FROM creature_groupsizestats");
     if (!l_Result)
     {
@@ -9139,6 +9141,8 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
         l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
     }
     while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature group size stats in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeAchievements()

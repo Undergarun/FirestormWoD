@@ -259,6 +259,8 @@ struct CreatureBaseStats
 
 typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
+#define MAX_GROUP_SCALING 30
+
 struct CreatureGroupSizeStat
 {
     std::vector<uint32> Healths;
@@ -267,9 +269,9 @@ struct CreatureGroupSizeStat
 
     CreatureGroupSizeStat()
     {
-        Healths.resize(30, 0);
-        MinDamage.resize(30, 0);
-        MinDamage.resize(30, 0);
+        Healths.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
     }
 
     uint32 GetHealthFor(uint32 p_GroupSize) const

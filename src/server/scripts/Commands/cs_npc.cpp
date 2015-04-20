@@ -1726,35 +1726,35 @@ public:
         return true;
     }
 
-    static bool HandleNpcGroupScaling(ChatHandler* handler, char const* args)
+    static bool HandleNpcGroupScaling(ChatHandler* p_Handler, char const* p_Args)
     {
-        Creature* unit = NULL;
+        Creature* l_Creature = NULL;
 
-        if (*args)
+        if (*p_Args)
         {
             // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
-            char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
-            if (!cId)
+            char* l_CreatureID = p_Handler->extractKeyFromLink((char*)p_Args, "Hcreature");
+            if (!l_CreatureID)
                 return false;
 
-            uint32 lowguid = atoi(cId);
-            if (!lowguid)
+            uint32 l_LowGUID = atoi(l_CreatureID);
+            if (!l_LowGUID)
                 return false;
 
-            if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(lowguid, cr_data->id, HIGHGUID_UNIT));
+            if (CreatureData const* l_CreatureData = sObjectMgr->GetCreatureData(l_LowGUID))
+                l_Creature = p_Handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(l_LowGUID, l_CreatureData->id, HIGHGUID_UNIT));
         }
         else
-            unit = handler->getSelectedCreature();
+            l_Creature = p_Handler->getSelectedCreature();
 
-        if (!unit || unit->isPet() || unit->isTotem())
+        if (!l_Creature || l_Creature->isPet() || l_Creature->isTotem())
         {
-            handler->SendSysMessage(LANG_SELECT_CREATURE);
-            handler->SetSentErrorMessage(true);
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
             return false;
         }
 
-        unit->UpdateGroupSizeStats();
+        l_Creature->UpdateGroupSizeStats();
         return true;
     }
 };
