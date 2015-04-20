@@ -8587,7 +8587,7 @@ void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_M
             return;
     }
 
-    l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, BASE_VALUE, (float)GetAmount(), p_Apply);
+    l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
     l_Player->UpdateArmor();
 }
 

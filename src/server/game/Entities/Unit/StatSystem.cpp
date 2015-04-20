@@ -286,8 +286,8 @@ void Player::UpdateArmor()
 
     if (GetRoleForGroup() == ROLE_TANK)
     {
-        uint32 l_BonusArmor  = GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_VALUE);  // base armor (from items)
-        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_PCT);           // armor percent from items
+        uint32 l_BonusArmor  = GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_VALUE);  ///< base armor (from items)
+        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_PCT);           ///< armor percent from items
         l_BonusArmor += GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_VALUE);
         l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_PCT);
         SetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, l_BonusArmor);
