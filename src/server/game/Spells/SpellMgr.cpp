@@ -3902,10 +3902,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 128997: ///< Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 32546: ///< Binding Heal
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[1].TargetB = 0;
-                break;
             case 53390: ///< Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;

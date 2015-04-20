@@ -1085,6 +1085,42 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
         }
 };
 
+/// Binding Heal - 32546
+class spell_pri_binding_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+
+        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfBindingHeal = 63248
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfBindingHeal);
+
+                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && l_SpellInfo != nullptr && p_Targets.size() > l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    JadeCore::RandomResizeList(p_Targets, l_SpellInfo->Effects[EFFECT_1].BasePoints);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
+        }
+};
 enum MasterySpells
 {
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
@@ -3578,6 +3614,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_aegis();
     new spell_pri_chakra_sanctuary();
     new spell_pri_surge_of_light_aura();
+    new spell_pri_binding_heal();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
