@@ -409,6 +409,7 @@ enum Opcodes
         SMSG_RAID_GROUP_ONLY                                    = 0x1832, ///< 6.1.2 19783
         SMSG_RAID_MARKERS_CHANGED                               = 0x18F5, ///< 6.1.2 19783
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
+        SMSG_ENCOUNTER_END                                      = 0x0862, ///< 6.1.2 19783
 
         /// Scenarios
         SMSG_SCENARIO_POI                                       = 0x0CB2, ///< 6.1.2 19783
