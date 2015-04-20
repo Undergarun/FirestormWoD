@@ -36,18 +36,6 @@ Position const g_FleshEaterSpawns[eHighmaulDatas::MaxFleshEaterPos] =
 
 G3D::Vector3 g_BeachCenter = { 4090.034f, 7793.5166f, 2.974596f };
 
-struct CreepingMossData
-{
-    CreepingMossData(AreaTrigger* p_AreaTrigger)
-    {
-        Guid = p_AreaTrigger->GetGUID();
-        p_AreaTrigger->GetPosition(&Position);
-    }
-
-    uint64 Guid;
-    Position Position;
-};
-
 void ResetPlayersPower(Creature* p_Source)
 {
     if (p_Source == nullptr)
@@ -157,7 +145,7 @@ class boss_brackenspore : public CreatureScript
             EventMap m_CosmeticEvent;
             std::list<uint64> m_Creatures;
 
-            std::map<uint32, CreepingMossData> m_CreepingMoss;
+            std::set<uint64> m_CreepingMoss;
 
             bool m_IntroDone;
 
@@ -212,10 +200,10 @@ class boss_brackenspore : public CreatureScript
                 if (p_AreaTrigger == nullptr)
                     return;
 
-                if (m_CreepingMoss.find(p_AreaTrigger->GetGUIDLow()) != m_CreepingMoss.end())
+                if (m_CreepingMoss.find(p_AreaTrigger->GetGUID()) != m_CreepingMoss.end())
                     return;
 
-                m_CreepingMoss.insert(std::make_pair(p_AreaTrigger->GetGUIDLow(), CreepingMossData(p_AreaTrigger)));
+                m_CreepingMoss.insert(p_AreaTrigger->GetGUID());
             }
 
             void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) override
@@ -223,10 +211,10 @@ class boss_brackenspore : public CreatureScript
                 if (p_AreaTrigger == nullptr)
                     return;
 
-                if (m_CreepingMoss.find(p_AreaTrigger->GetGUIDLow()) == m_CreepingMoss.end())
+                if (m_CreepingMoss.find(p_AreaTrigger->GetGUID()) == m_CreepingMoss.end())
                     return;
 
-                m_CreepingMoss.erase(p_AreaTrigger->GetGUIDLow());
+                m_CreepingMoss.erase(p_AreaTrigger->GetGUID());
             }
 
             void DoAction(int32 const p_Action) override
@@ -556,9 +544,9 @@ class boss_brackenspore : public CreatureScript
                 /// No more than one Creeping Moss every 10 yards
                 float l_CheckRange = 10.0f;
 
-                for (auto l_Iter : m_CreepingMoss)
+                for (uint64 l_Iter : m_CreepingMoss)
                 {
-                    if (AreaTrigger* l_AT = AreaTrigger::GetAreaTrigger(*me, l_Iter.second.Guid))
+                    if (AreaTrigger* l_AT = AreaTrigger::GetAreaTrigger(*me, l_Iter))
                     {
                         if (l_AT->GetDistance2d(p_X, p_Y) < l_CheckRange)
                             return false;
