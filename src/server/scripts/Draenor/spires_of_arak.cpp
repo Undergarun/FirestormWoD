@@ -35,7 +35,7 @@ class boss_rukhmar : public CreatureScript
                 m_Events.Reset();
                 me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
             }
-             
+
             void JustSummoned(Creature* p_Summon) override
             {
                 summons.Summon(p_Summon);
@@ -63,6 +63,7 @@ class boss_rukhmar : public CreatureScript
             void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
+                m_Events.Reset();
 
                 std::list<Creature*> l_CreatureList;
                 GetCreatureListWithEntryInGrid(l_CreatureList, me, SpiresOfArakCreatures::CreatureEnergizedPhoenix, 200.0f);
@@ -76,6 +77,7 @@ class boss_rukhmar : public CreatureScript
             void EnterEvadeMode()
             {
                 summons.DespawnAll();
+                m_Events.Reset();
 
                 std::list<Creature*> l_CreatureList;
                 GetCreatureListWithEntryInGrid(l_CreatureList, me, SpiresOfArakCreatures::CreatureEnergizedPhoenix, 200.0f);
@@ -84,6 +86,8 @@ class boss_rukhmar : public CreatureScript
 
                 for (Creature* l_Creature : l_CreatureList)
                     l_Creature->DespawnOrUnsummon();
+
+                me->GetMotionMaster()->MoveTargetedHome();
             }
 
             void DoAction(int32 const p_Param)
