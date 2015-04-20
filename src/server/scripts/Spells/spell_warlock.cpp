@@ -2188,7 +2188,7 @@ class spell_warl_burning_embers: public SpellScriptLoader
                 float l_BurningEmbersPct = 0.1f;
 
                 if (GetSpell()->IsCritForTarget(l_Target))
-                    l_BurningEmbersPct *= 0.2f;
+                    l_BurningEmbersPct = 0.2f;
 
                 if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
                     AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
