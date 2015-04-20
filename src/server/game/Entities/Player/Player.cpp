@@ -32691,7 +32691,7 @@ void Player::SendClearSpellCharges(uint32 p_CategoryID)
 {
     WorldPacket l_Data(SMSG_CLEAR_SPELL_CHARGES);
     l_Data << int32(p_CategoryID);
-    l_Data.WriteBit(1); ///< unk wod
+    l_Data.WriteBit(false); ///< IsPet
     l_Data.FlushBits();
     SendDirectMessage(&l_Data);
 }
