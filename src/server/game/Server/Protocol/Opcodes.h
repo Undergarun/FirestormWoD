@@ -568,8 +568,8 @@ enum Opcodes
         SMSG_GUILD_MEMBER_RECIPES                   = 0x0000, ///< (unused)
         SMSG_GUILD_INVITE_EXPIRED                   = 0x0000, ///< (unused)
         SMSG_GUILD_COMMAND_RESULT                   = 0x11A0, ///< 6.1.2 19783
-        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x0000, ///< (unused)
-        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x0000, ///< (unused)
+        SMSG_GUILD_CHALLENGE_COMPLETED              = 0x14AF, ///< 6.1.2 19802
+        SMSG_GUILD_REPUTATION_REACTION_CHANGED      = 0x149F, ///< 6.1.2 19802
         SMSG_GUILD_KNOWN_RECIPES                    = 0x11A3, ///< 6.1.2 19783
         SMSG_GUILD_MEMBER_DAILY_RESET               = 0x148C, ///< 6.1.2 19783
         SMSG_GUILD_FLAGGED_FOR_RENAME               = 0x0000, ///< (unused)

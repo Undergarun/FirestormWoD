@@ -26,6 +26,7 @@
 #include "CreatureAI.h"
 #include "Log.h"
 #include "LFGMgr.h"
+#include "Guild.h"
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
@@ -301,6 +302,31 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
         for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
+
+        /// ADD GUILD REWARDS
+        {
+            InstanceMap::PlayerList const &l_PlayersMap = instance->GetPlayers();
+
+            for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                {
+                    if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
+                    {
+                        if (Guild* l_Guild = l_Player->GetGuild())
+                        {
+                            if (instance->IsRaid())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_RAID);
+                            else if (instance->IsChallengeMode())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                            else if (instance->IsDungeon())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         /// End of challenge
         if (id == (bosses.size() - 1) && state == DONE)

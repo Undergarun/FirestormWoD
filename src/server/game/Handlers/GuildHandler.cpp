@@ -671,7 +671,18 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/
     WorldPacket l_Data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
-        l_Data << uint32(0);
+    {
+        if (Player* l_Player = GetPlayer())
+        {
+            if (!l_Player->GetGuild())
+                l_Data << uint32(0);
+            else
+            {
+                int32 l_ChallengeAmount = l_Player->GetGuild()->GetChallengeCount(l_I);
+                l_Data << uint32(l_ChallengeAmount);
+            }
+        }
+    }
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
         l_Data << uint32(l_Reward[l_I].ChallengeCount);

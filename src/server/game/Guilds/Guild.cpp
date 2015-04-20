@@ -1035,6 +1035,9 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
     m_achievementMgr(this), _newsLog(this)
 {
+    for (uint8 l_Type = 0; l_Type < CHALLENGE_MAX; l_Type++)
+        m_ChallengeCount[l_Type] = 0;
+
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
 }
 
@@ -1111,6 +1114,14 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     /// Call scripts on successful create
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
+
+    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
+        l_Statement->setInt32(0, GetId());
+        l_Statement->setInt32(1, l_Itr);
+        CharacterDatabase.Execute(l_Statement);
+    }
 
     WorldPacket l_Data(SMSG_GUILD_EVENT_MOTD, 1 + 1 + m_motd.size());
 
@@ -2466,6 +2477,18 @@ bool Guild::LoadBankItemFromDB(Field* fields)
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
 }
 
+bool Guild::LoadGuildChallengesFromDB(Field* p_Fields)
+{
+    int32 l_ChallengeType = p_Fields[1].GetInt32();
+    int32 l_ChallengeCount = p_Fields[2].GetInt32();
+
+    if (l_ChallengeType >= CHALLENGE_MAX)
+        return false;
+
+    m_ChallengeCount[l_ChallengeType] = l_ChallengeCount;
+    return true;
+}
+
 // Validates guild data loaded from database. Returns false if guild should be deleted.
 bool Guild::Validate()
 {
@@ -3474,6 +3497,41 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
     _LogEvent((p_RankID < l_Member->GetRankId()) ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, GUID_LOPART(p_OfficierGUID), GUID_LOPART(p_OtherGUID), p_RankID);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_RANKS_UPDATE");
+}
+
+void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
+{
+    if (p_ChallengeType >= CHALLENGE_MAX)
+        return;
+
+    GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();
+
+    int32 l_MaxCount = l_RewardDatas[p_ChallengeType].ChallengeCount;
+    int32 l_GoldReward = l_RewardDatas[p_ChallengeType].Gold;
+
+    if (m_ChallengeCount[p_ChallengeType] >= l_MaxCount)
+        return;
+
+    m_ChallengeCount[p_ChallengeType]++;
+
+    /// SaveToDB
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_COMPLETE_GUILD_CHALLENGE);
+    l_Stmt->setInt32(0, m_ChallengeCount[p_ChallengeType]);
+    l_Stmt->setInt32(1, GetId());
+    l_Stmt->setInt32(2, p_ChallengeType);
+    CharacterDatabase.Execute(l_Stmt);
+
+    /// Reward gold
+
+    DepositMoney(l_GoldReward * GOLD);
+
+    WorldPacket l_Data(SMSG_GUILD_CHALLENGE_COMPLETED, 4 * 4);
+    l_Data << int32(p_ChallengeType);
+    l_Data << int32(m_ChallengeCount[p_ChallengeType]);
+    l_Data << int32(l_MaxCount);
+    l_Data << int32(l_GoldReward);
+    BroadcastPacket(&l_Data);
 }
 
 void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data)
