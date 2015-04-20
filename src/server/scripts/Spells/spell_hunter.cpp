@@ -3643,6 +3643,58 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Explosive Shot - 53301
+class spell_hun_explosive_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_explosive_shot() : SpellScriptLoader("spell_hun_explosive_shot") { }
+
+        class spell_hun_explosive_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_explosive_shot_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SetHitDamage((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        class spell_hun_explosive_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_explosive_shot_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster != nullptr && p_AuraEffect->GetAmplitude() > 0)
+                    p_Amount = ((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f) / (p_AuraEffect->GetBase()->GetDuration() / p_AuraEffect->GetAmplitude()));
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_explosive_shot_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_explosive_shot_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_explosive_shot_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
@@ -3706,6 +3758,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_explosive_trap();
     new spell_hun_burrow_attack();
+    new spell_hun_explosive_shot();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
