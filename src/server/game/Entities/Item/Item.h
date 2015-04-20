@@ -310,7 +310,9 @@ class Item : public Object
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
+        bool CantBeUse() const { return (IsBroken() || IsDisable()); }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAX_DURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
+        bool IsDisable() const { return HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE); }
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }

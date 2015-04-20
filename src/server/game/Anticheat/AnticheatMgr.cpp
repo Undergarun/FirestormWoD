@@ -262,60 +262,65 @@ bool AnticheatMgr::MustCheckTempReports(uint8 type)
     return true;
 }
 
-void AnticheatMgr::BuildReport(Player* player,uint8 reportType)
+void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
 {
-    uint32 key = player->GetGUIDLow();
+    uint32 l_Key = p_Player->GetGUIDLow();
 
-    if (MustCheckTempReports(reportType))
+    if (MustCheckTempReports(p_ReportType))
     {
-        uint32 actualTime = getMSTime();
+        uint32 l_ActualTime = getMSTime();
 
-        if (!m_Players[key].GetTempReportsTimer(reportType))
-            m_Players[key].SetTempReportsTimer(actualTime,reportType);
+        if (!m_Players[l_Key].GetTempReportsTimer(p_ReportType))
+            m_Players[l_Key].SetTempReportsTimer(l_ActualTime,p_ReportType);
 
-        if (getMSTimeDiff(m_Players[key].GetTempReportsTimer(reportType),actualTime) < 3000)
+        if (getMSTimeDiff(m_Players[l_Key].GetTempReportsTimer(p_ReportType),l_ActualTime) < 3000)
         {
-            m_Players[key].SetTempReports(m_Players[key].GetTempReports(reportType)+1,reportType);
+            m_Players[l_Key].SetTempReports(m_Players[l_Key].GetTempReports(p_ReportType)+1,p_ReportType);
 
-            if (m_Players[key].GetTempReports(reportType) < 3)
+            if (m_Players[l_Key].GetTempReports(p_ReportType) < 3)
                 return;
         }
         else
         {
-            m_Players[key].SetTempReportsTimer(actualTime,reportType);
-            m_Players[key].SetTempReports(1,reportType);
+            m_Players[l_Key].SetTempReportsTimer(l_ActualTime,p_ReportType);
+            m_Players[l_Key].SetTempReports(1,p_ReportType);
             return;
         }
     }
 
     // generating creationTime for average calculation
-    if (!m_Players[key].GetTotalReports())
-        m_Players[key].SetCreationTime(getMSTime());
+    if (!m_Players[l_Key].GetTotalReports())
+        m_Players[l_Key].SetCreationTime(getMSTime());
 
     // increasing total_reports
-    m_Players[key].SetTotalReports(m_Players[key].GetTotalReports()+1);
+    m_Players[l_Key].SetTotalReports(m_Players[l_Key].GetTotalReports()+1);
 
     // increasing specific cheat report
-    m_Players[key].SetTypeReports(reportType,m_Players[key].GetTypeReports(reportType)+1);
+    m_Players[l_Key].SetTypeReports(p_ReportType,m_Players[l_Key].GetTypeReports(p_ReportType)+1);
 
     // diff time for average calculation
-    uint32 diffTime = getMSTimeDiff(m_Players[key].GetCreationTime(),getMSTime()) / IN_MILLISECONDS;
+    uint32 l_DiffTime = getMSTimeDiff(m_Players[l_Key].GetCreationTime(),getMSTime()) / IN_MILLISECONDS;
 
-    if (diffTime > 0)
+    if (l_DiffTime > 0)
     {
         // Average == Reports per second
-        float average = float(m_Players[key].GetTotalReports()) / float(diffTime);
-        m_Players[key].SetAverage(average);
+        float average = float(m_Players[l_Key].GetTotalReports()) / float(l_DiffTime);
+        m_Players[l_Key].SetAverage(average);
     }
 
     //if (sWorld->getIntConfig(CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT) < m_Players[key].GetTotalReports())
     {
-        if (!m_Players[key].GetDailyReportState())
+        if (!m_Players[l_Key].GetDailyReportState())
         {
-            CharacterDatabase.PExecute("REPLACE INTO daily_players_reports (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES (%u,%f,%u,%u,%u,%u,%u,%u,%u,%u);",player->GetGUIDLow(),m_Players[player->GetGUIDLow()].GetAverage(),m_Players[player->GetGUIDLow()].GetTotalReports(), m_Players[player->GetGUIDLow()].GetTypeReports(SPEED_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(FLY_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(JUMP_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(WALK_WATER_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(TELEPORT_PLANE_HACK_REPORT),m_Players[player->GetGUIDLow()].GetTypeReports(CLIMB_HACK_REPORT),m_Players[player->GetGUIDLow()].GetCreationTime());
-            m_Players[key].SetDailyReportState(true);
+            CharacterDatabase.PExecute("REPLACE INTO daily_players_reports (guid,average,total_reports,speed_reports,fly_reports,jump_reports,waterwalk_reports,teleportplane_reports,climb_reports,creation_time) VALUES (%u,%f,%u,%u,%u,%u,%u,%u,%u,%u);",p_Player->GetGUIDLow(),m_Players[p_Player->GetGUIDLow()].GetAverage(),m_Players[p_Player->GetGUIDLow()].GetTotalReports(), m_Players[p_Player->GetGUIDLow()].GetTypeReports(SPEED_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetTypeReports(FLY_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetTypeReports(JUMP_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetTypeReports(WALK_WATER_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetTypeReports(TELEPORT_PLANE_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetTypeReports(CLIMB_HACK_REPORT),m_Players[p_Player->GetGUIDLow()].GetCreationTime());
+            m_Players[l_Key].SetDailyReportState(true);
         }
     }
+
+    m_Players[l_Key].AddReportToHistory();
+
+    if (m_Players[l_Key].GetReportCountInLastSecs(sWorld->getIntConfig(CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE)) > sWorld->getIntConfig(CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN))
+        sWorld->BanAccount(BanMode::BAN_CHARACTER, p_Player->GetName(), "10m", "Too much anti-cheat report", "Anticheat");
 }
 
 void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)

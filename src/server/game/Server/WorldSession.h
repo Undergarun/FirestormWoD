@@ -897,7 +897,8 @@ class WorldSession
         void HandleBattlemasterJoinArenaSkirmish(WorldPacket& p_RecvData);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
         void HandleBattleFieldRequestScoreData(WorldPacket & p_Packet);
-        void HandleWargameQueryOpcode(WorldPacket& p_RecvData);
+        void HandleStartWarGame(WorldPacket& p_RecvData);
+        void HandleAcceptWarGameInvite(WorldPacket& p_Packet);
 
         void HandleReportPvPAFK(WorldPacket& recvData);
         void HandleRequestPvpOptions(WorldPacket& recvData);

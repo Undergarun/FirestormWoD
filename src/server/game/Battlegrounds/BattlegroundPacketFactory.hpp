@@ -60,6 +60,9 @@ namespace MS
                 if (p_IsSkirmish)
                     l_BGQueueID |= (uint8(BattlegroundQueueType::ArenaSkirmish) & 0xF) << 16;
 
+                if (p_BG->IsWargame())
+                    l_BGQueueID |= (uint8(BattlegroundQueueType::WarGame) & 0xF) << 16;
+
                 switch (p_StatusID)
                 {
                     case STATUS_NONE:
@@ -90,7 +93,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_Time1);                                               ///< Average Wait Time
@@ -119,7 +122,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map ID
@@ -151,7 +154,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
@@ -178,7 +181,7 @@ namespace MS
                         *p_Data << uint8(p_BG->isArena() ? p_BG->GetMaxPlayersPerTeam() : 1);     ///< Team Size
                         *p_Data << uint32(p_BG->GetClientInstanceID());                           ///< Id
                         p_Data->WriteBit(l_RegisteredMatch);                                      ///< Registered Match
-                        p_Data->WriteBit(false);                                                  ///< Tournament Rules
+                        p_Data->WriteBit(p_BG->UseTournamentRules());                             ///< Tournament Rules
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
@@ -551,6 +554,24 @@ namespace MS
                 l_Data << uint32(l_Time);
 
                 p_Player->GetSession()->SendPacket(&l_Data);
+            }
+
+            static void CheckWargameEntry(Player* p_Requester, Player* p_Target, uint64 p_QueueID, bool p_TournamentRules)
+            {
+                uint32 l_Timeout         = 60;
+                bool   l_TournamentRules = false;
+
+                WorldPacket l_Data(SMSG_CHECK_WARGAME_ENTRY);
+                l_Data.appendPackGUID(p_Requester->GetGUID());
+                l_Data << uint32(g_RealmID);
+                l_Data << uint16(0);                ///< unk
+                l_Data << uint8(0);                 ///< ServerSpec
+                l_Data.appendPackGUID(0);           ///< BnetGuid, bypass bnet friend list check
+                l_Data << uint64(p_QueueID);
+                l_Data << uint32(l_Timeout);
+                l_Data.WriteBit(l_TournamentRules);
+
+                p_Target->GetSession()->SendPacket(&l_Data);
             }
         };
     }
