@@ -5131,10 +5131,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 113886: ///< Demonic Gateway
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 6358:   ///< Seduce (succubus)
-            case 115268: ///< Mesmerize
-                spellInfo->SpellFamilyName = SPELLFAMILY_WARLOCK;
-                break;
             case 980: ///< Agony
                 spellInfo->StackAmount = 10;
                 break;
