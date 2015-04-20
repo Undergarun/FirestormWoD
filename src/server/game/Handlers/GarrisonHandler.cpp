@@ -760,8 +760,10 @@ void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
 
         l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
         l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
+        l_Data << uint64(0);                                    ///< 6.1.x Unk
         l_Data << uint32(l_WorkOrders[l_I].CreationTime);
         l_Data << uint32(l_Duration);
+        l_Data << uint32(0);                                    ///< 6.1.x unk
     }
 
     SendPacket(&l_Data);

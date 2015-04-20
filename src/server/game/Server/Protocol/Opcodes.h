@@ -512,10 +512,10 @@ enum Opcodes
         SMSG_BLACK_MARKET_WON                                   = 0x1A45, ///< 6.1.2 19783
 
         /// Garrison
-        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x00AB, ///< 6.1.2 19783
-        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1230, ///< 6.1.2 19783
-        SMSG_GET_SHIPMENTS                                      = 0x0D61, ///< 6.1.2 19783
-        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x1D35, ///< 6.1.2 19783
+        SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP                       = 0x1712, ///< 6.1.2 19783
+        SMSG_GET_SHIPMENT_INFO_RESPONSE                         = 0x1D35, ///< 6.1.2 19783
+        SMSG_GET_SHIPMENTS                                      = 0x1CA5, ///< 6.1.2 19783
+        SMSG_CREATE_SHIPMENT_RESPONSE                           = 0x0D61, ///< 6.1.2 19783
 
         /// Twitter
         SMSG_REQUEST_TWITTER_STATUS_RESPONSE                    = 0x0000,
