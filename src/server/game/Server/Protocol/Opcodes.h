@@ -412,6 +412,7 @@ enum Opcodes
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
         SMSG_INSTANCE_GROUP_SIZE_CHANGED                        = 0x1C22, ///< 6.1.2 19783
         SMSG_ENCOUNTER_END                                      = 0x0862, ///< 6.1.2 19783
+        SMSG_BOSS_KILL_CREDIT                                   = 0x0395, ///< 6.1.2 19783
 
         /// Scenarios
         SMSG_SCENARIO_POI                                       = 0x0CB2, ///< 6.1.2 19783

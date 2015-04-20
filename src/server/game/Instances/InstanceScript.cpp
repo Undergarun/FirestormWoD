@@ -1142,6 +1142,10 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data.FlushBits();
             instance->SendToPlayers(&l_Data);
 
+            l_Data.Initialize(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
+            l_Data << int32((*l_Iter)->dbcEntry->ID);
+            instance->SendToPlayers(&l_Data);
+
             return;
         }
     }

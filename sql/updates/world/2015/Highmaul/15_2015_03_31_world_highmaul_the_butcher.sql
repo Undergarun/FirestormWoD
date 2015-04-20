@@ -198,3 +198,5 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 DELETE FROM `creature_loot_template` WHERE `entry`= @REF_BUTCHER_LFR;
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@REF_BUTCHER_LFR, 1, 100, 1, 0, -@REF_BUTCHER_LFR, 6);
+
+UPDATE creature_classlevelstats SET basehp0 = 108328, basehp1 = 108328, basehp2 = 108328, basehp3 = 108328, basehp4 = 108328, basehp5 = 108328 WHERE level = 103 AND class IN (4, 8);
