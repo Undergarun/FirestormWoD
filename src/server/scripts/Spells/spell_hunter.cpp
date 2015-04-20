@@ -3225,7 +3225,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             }
 
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Pet* l_Pet = GetCaster()->ToPet())
                 {
@@ -3300,7 +3300,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             {
                 OnCheckCast += SpellCheckCastFn(spell_hun_claw_bite_SpellScript::CheckCastRange);
                 BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
-                OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_claw_bite_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleAfterHit);
             }
         };

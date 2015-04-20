@@ -11561,7 +11561,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         Unit* owner = GetOwner();
         if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -13159,7 +13159,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         Unit* owner = GetOwner();
         if (owner && owner->GetTypeId() == TYPEID_PLAYER && owner->HasAura(76657))
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
             AddPct(DoneTotalMod, Mastery);
         }
     }
