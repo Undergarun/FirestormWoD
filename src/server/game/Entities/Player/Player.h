@@ -2202,7 +2202,8 @@ class Player : public Unit, public GridObject<Player>
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
 
-        bool ResetTalents(bool no_cost = false);
+        bool ResetTalents(bool p_NoCost = false);
+        void RemoveTalent(TalentEntry const* p_TalentInfos);
         uint32 GetNextResetTalentsCost() const;
         uint32 GetNextResetSpecializationCost() const;
         void InitTalentForLevel();

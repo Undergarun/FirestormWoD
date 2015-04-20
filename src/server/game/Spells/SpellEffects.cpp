@@ -7284,52 +7284,25 @@ void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
     m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
 
-void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
+void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    Player* plr = m_caster->ToPlayer();
+    Player* l_Player = unitTarget ? unitTarget->ToPlayer() : m_caster->ToPlayer();
+    if (l_Player == nullptr)
+        return;
 
-    for (auto itr : *plr->GetTalentMap(plr->GetActiveSpec()))
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
+    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_glyphIndex);
+    if (l_Talent == nullptr)
+        return;
 
-        bool l_Continue = false;
-        for (uint32 l_TalentID : spell->m_TalentIDs)
-        {
-            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentID == m_glyphIndex)
-                l_Continue = true;
-        }
-
-        if (!l_Continue)
-            continue;
-
-        plr->removeSpell(itr.first, true);
-        // search for spells that the talent teaches and unlearn them
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                plr->removeSpell(spell->Effects[i].TriggerSpell, true);
-
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                plr->RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
-
-        itr.second->state = PLAYERSPELL_REMOVED;
-
-        plr->SetUsedTalentCount(plr->GetUsedTalentCount() - 1);
-        plr->SetFreeTalentPoints(plr->GetFreeTalentPoints() + 1);
-        break;
-    }
-
-    plr->SaveToDB();
-    plr->SendTalentsInfoData(false);
+    l_Player->RemoveTalent(l_Talent);
+    l_Player->SendTalentsInfoData(false);
+    l_Player->SaveToDB();
 }
 
 void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)

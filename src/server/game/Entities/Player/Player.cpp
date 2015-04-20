@@ -6272,69 +6272,66 @@ uint32 Player::GetNextResetTalentsCost() const
     }
 }
 
-bool Player::ResetTalents(bool no_cost)
+bool Player::ResetTalents(bool p_NoCost /*= false*/)
 {
-    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
+    sScriptMgr->OnPlayerTalentsReset(this, p_NoCost);
 
-    // not need after this call
-    if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
-        RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
+    /// Not needed after this call
+    if (HasAtLoginFlag(AtLoginFlags::AT_LOGIN_RESET_TALENTS))
+        RemoveAtLoginFlag(AtLoginFlags::AT_LOGIN_RESET_TALENTS, true);
 
-    uint32 talentPointsForLevel = CalculateTalentsPoints();
+    uint32 l_TalentPointsForLevel = CalculateTalentsPoints();
 
     if (!GetUsedTalentCount())
     {
-        SetFreeTalentPoints(talentPointsForLevel);
+        SetFreeTalentPoints(l_TalentPointsForLevel);
         return false;
     }
 
-    uint32 cost = 0;
+    uint32 l_Cost = 0;
 
-    if (!no_cost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!p_NoCost && !sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_NO_RESET_TALENT_COST))
     {
-        cost = GetNextResetTalentsCost();
+        l_Cost = GetNextResetTalentsCost();
 
-        if (!HasEnoughMoney(uint64(cost)))
+        if (!HasEnoughMoney(uint64(l_Cost)))
         {
-            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+            SendBuyError(BuyResult::BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return false;
         }
     }
 
     if (isInCombat())
     {
-        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        SendEquipError(InventoryResult::EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
         return false;
     }
 
-    if (Pet* pet = GetPet())
-        RemovePet(pet, PET_SLOT_ACTUAL_PET_SLOT, true, pet->m_Stampeded);
+    if (Pet* l_Pet = GetPet())
+        RemovePet(l_Pet, PetSlot::PET_SLOT_ACTUAL_PET_SLOT, true, l_Pet->m_Stampeded);
     else
-        RemovePet(NULL, PET_SLOT_ACTUAL_PET_SLOT, true, GetPet() ? GetPet()->m_Stampeded : true);
+        RemovePet(NULL, PetSlot::PET_SLOT_ACTUAL_PET_SLOT, true, GetPet() ? GetPet()->m_Stampeded : true);
 
-    for (auto itr : *GetTalentMap(GetActiveSpec()))
+    for (uint32 l_TalentID = 0; l_TalentID < sTalentStore.GetNumRows(); ++l_TalentID)
     {
-        const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(itr.first);
-        if (!_spellEntry)
+        TalentEntry const* l_TalentInfo = sTalentStore.LookupEntry(l_TalentID);
+        if (!l_TalentInfo)
             continue;
 
-        removeSpell(itr.first, true);
-        // search for spells that the talent teaches and unlearn them
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(_spellEntry->Effects[i].TriggerSpell, true);
+        /// Unlearn only talents for character class
+        /// Some spell learned by one class as normal spells or know at creation but another class learn it as talent,
+        /// To prevent unexpected lost normal learned spell skip another class talents
+        if (l_TalentInfo->ClassID != getClass())
+            continue;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (_spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || _spellEntry->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                RemoveAurasDueToSpell(_spellEntry->Effects[i].BasePoints);
+        /// Skip non-existent talent ranks
+        if (l_TalentInfo->SpellID == 0)
+            continue;
 
-        // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-        PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(itr.first);
-        if (plrTalent != GetTalentMap(GetActiveSpec())->end())
-            plrTalent->second->state = PLAYERSPELL_REMOVED;
+        RemoveTalent(l_TalentInfo);
     }
 
-    SetFreeTalentPoints(talentPointsForLevel);
+    SetFreeTalentPoints(l_TalentPointsForLevel);
     SetUsedTalentCount(0);
 
     SQLTransaction charTrans = CharacterDatabase.BeginTransaction();
@@ -6344,17 +6341,48 @@ bool Player::ResetTalents(bool no_cost)
     CharacterDatabase.CommitTransaction(charTrans);
     LoginDatabase.CommitTransaction(accountTrans);
 
-    if (!no_cost)
+    if (!p_NoCost)
     {
-        ModifyMoney(-(int64)cost);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
+        ModifyMoney(-(int64)l_Cost);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, l_Cost);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
 
-        SetTalentResetCost(cost);
+        SetTalentResetCost(l_Cost);
         SetTalentResetTime(time(NULL));
     }
 
     return true;
+}
+
+void Player::RemoveTalent(TalentEntry const* p_TalentInfos)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_TalentInfos->SpellID);
+    if (!l_SpellInfo)
+        return;
+
+    removeSpell(p_TalentInfos->SpellID, true);
+
+    /// Search for spells that the talent teaches and unlearn them
+    for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+    {
+        if (l_SpellInfo->Effects[l_I].TriggerSpell > 0 && l_SpellInfo->Effects[l_I].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
+            removeSpell(l_SpellInfo->Effects[l_I].TriggerSpell, true);
+    }
+
+    for (uint8 l_I = 0; l_I < SpellEffIndex::MAX_EFFECTS; ++l_I)
+    {
+        if (l_SpellInfo->Effects[l_I].ApplyAuraName == AuraType::SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS ||
+            l_SpellInfo->Effects[l_I].ApplyAuraName == AuraType::SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
+            RemoveAurasDueToSpell(l_SpellInfo->Effects[l_I].BasePoints);
+    }
+
+    /// If this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
+    PlayerTalentMap::iterator l_PlrTalent = GetTalentMap(GetActiveSpec())->find(p_TalentInfos->SpellID);
+    if (l_PlrTalent != GetTalentMap(GetActiveSpec())->end())
+        l_PlrTalent->second->state = PlayerSpellState::PLAYERSPELL_REMOVED;
+
+    SetUsedTalentCount(GetUsedTalentCount() - 1);
+    SetFreeTalentPoints(GetFreeTalentPoints() + 1);
 }
 
 void Player::ResetSpec(bool p_NoCost /* = false */)
