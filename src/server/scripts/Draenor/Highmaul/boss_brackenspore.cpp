@@ -364,6 +364,8 @@ class boss_brackenspore : public CreatureScript
 
                 for (Creature* l_Creature : l_BFCs)
                     l_Creature->RemoveAura(eSpells::BFC9000);
+
+                me->RemoveAllAreasTrigger();
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
