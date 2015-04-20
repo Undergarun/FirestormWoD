@@ -1988,18 +1988,18 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         std::list<Player*> l_TempListPlayer;
 
                         // Apply aura on hostile creatures in the grid
-                        (*itr)->GetCreatureListInGrid(l_TempListCreature, 6.50);
+                        (*itr)->GetCreatureListInGrid(l_TempListCreature, 5.0f);
                         for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                         {
-                            if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
+                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
 
                         // Apply aura on hostile players in the grid
-                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, 6.50);
+                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, 5.0f);
                         for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                         {
-                            if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
+                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
                     }
