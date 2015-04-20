@@ -1,0 +1,1 @@
+ALTER TABLE `gameobject` CHANGE `phaseMask` `phaseMask` INT(10) UNSIGNED DEFAULT '1' NOT NULL;

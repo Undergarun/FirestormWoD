@@ -43,6 +43,7 @@ class WorldSession;
 class Player;
 class WorldSocket;
 class SystemMgr;
+class LexicsCutter;
 
 extern uint32 gOnlineGameMaster;
 
@@ -145,6 +146,8 @@ enum WorldBoolConfigs
     CONFIG_DIE_COMMAND_MODE,
     CONFIG_DECLINED_NAMES_USED,
     CONFIG_BATTLEGROUND_CAST_DESERTER,
+    CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE,
+    CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY,
     CONFIG_BG_XP_FOR_KILL,
     CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
     CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE,
@@ -206,6 +209,7 @@ enum WorldBoolConfigs
     CONFIG_DISABLE_RESTART,
     CONFIG_TEMPLATES_ENABLED,
     CONFIG_AOE_LOOT_ENABLED,
+    CONFIG_LEXICS_CUTTER_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -374,6 +378,8 @@ enum WorldIntConfigs
     CONFIG_WARDEN_NUM_OTHER_CHECKS,
     CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION,
     CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT,
+    CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN,
+    CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE,
     CONFIG_ANTICHEAT_DETECTIONS_ENABLED,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
@@ -922,6 +928,8 @@ class World
                     return true;
             return false;
         }
+
+        bool ModerateMessage(std::string l_Text);
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -957,6 +965,10 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
+
+        uint32 m_serverDelayTimer;
+        uint32 m_serverDelaySum;
+        uint32 m_serverUpdateCount;
 
         SessionMap m_sessions;
         typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
@@ -1028,6 +1040,7 @@ class World
         PreparedQueryResultFuture m_transfertsDumpCallbacks;
         PreparedQueryResultFuture m_transfertsLoadCallbacks;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
+        LexicsCutter *m_lexicsCutter;
 };
 
 extern uint32 g_RealmID;

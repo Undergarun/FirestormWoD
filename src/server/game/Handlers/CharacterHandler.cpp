@@ -244,10 +244,6 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES, l_Statement);
 
-    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_TOYS);
-    l_Statement->setUInt32(0, m_accountId);
-    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_TOYS, l_Statement);
-
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARGES_COOLDOWN);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS, l_Statement);
@@ -1327,8 +1323,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     else
         pCurrChar->RemoveAurasDueToSpell(VOTE_BUFF);
 
-    sScriptMgr->OnPlayerLogin(pCurrChar);
-
     uint32 time9 = getMSTime() - time8;
 
     uint32 totalTime = getMSTime() - time;
@@ -1337,6 +1331,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     // Fix chat with transfert / rename
     sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
+
+    sScriptMgr->OnPlayerLogin(pCurrChar);
 
     delete holder;
 }

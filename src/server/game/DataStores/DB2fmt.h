@@ -39,7 +39,10 @@ char const LocationEntryfmt[] =
     FT_END
 };
 
+const char CurrencyTypesfmt[] = "nixxxxxiiixx";
 char const CurvePointEntryfmt[] = "niiff";
+const char GroupFinderActivityfmt[] = "nixxxxxxxxxxxss";
+const char GroupFinderCategoryfmt[] = "nsxx";
 const char Itemfmt[] = "niiiiiiii";
 const char ItemBonusfmt[] = "diiiii";
 const char ItemBonusTreeNodefmt[] = "diiii";
@@ -47,16 +50,17 @@ const char ItemXBonusTreefmt[] = "dii";
 const char ItemCurrencyCostfmt[] = "xn";
 const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
 const char ItemEffectFmt[] = "niiiiiiii";
+const char HeirloomFmt[] = "nissiiiiiiii";
 const char PvpItemfmt[] = "xni";
 const char ItemModifiedAppearanceFmt[] = "niiiii";
 const char ItemAppearanceFmt[] = "nii";
-const char ItemExtendedCostEntryfmt[] = "nxxiiiiiiiiiiiixiiiiiiiiiixxxx";
+const char ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiixiiiiiiiiiixxxxi";
 const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiiii";
 const char ItemUpgradeEntryfmt[] = "niiiii";
 const char RulesetItemUpgradeEntryfmt[] = "niii";
 const char SceneScriptEntryfmt[] = "nssii";
 const char SceneScriptPackageEntryfmt[] = "ns";
-const char TaxiNodesEntryfmt[] = "nifffsiixixx";
+const char TaxiNodesEntryfmt[] = "nifffsiixixxx";
 const char TaxiPathEntryfmt[] = "niii";
 const char TaxiPathNodeEntryfmt[] = "diiifffiiii";
 const char SpellRuneCostfmt[] = "niiiii";
@@ -70,6 +74,7 @@ const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
 const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "dxiiiii";
+const char SoundEntriesfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 const char MapChallengeModeEntryfmt[] = "nixxxiiixx";
 const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "iiiisssini";
@@ -158,6 +163,7 @@ const char GarrFollowerLevelXPEntryfmt[] =
     FT_INDEX,
     FT_INT,
     FT_INT,
+    FT_NA,
     FT_END
 };
 const char GarrSpecializationEntryfmt[] =

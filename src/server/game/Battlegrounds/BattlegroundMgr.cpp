@@ -200,7 +200,7 @@ namespace MS
             return l_LastId + 1;
         }
 
-        Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundType::Type p_BgType, Bracket const* p_BracketEntry, uint8 p_ArenaType, bool p_IsSkirmish)
+        Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundType::Type p_BgType, Bracket const* p_BracketEntry, uint8 p_ArenaType, bool p_IsSkirmish, bool p_IsWargame, bool p_UseTournamentRules)
         {
             /// Get the template battleground.
             Battleground* l_BattlegroundTemplate = GetBattlegroundTemplate(p_BgType);
@@ -217,63 +217,63 @@ namespace MS
             /// We create a copy of the template.
             switch (p_BgType)
             {
-            case BattlegroundType::AlteracValley:
-                l_Battleground = new BattlegroundAV(*(BattlegroundAV*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::Warsong:
-                l_Battleground = new BattlegroundWS(*(BattlegroundWS*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::ArathiBassin:
-                l_Battleground = new BattlegroundAB(*(BattlegroundAB*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::NagrandArena:
-                l_Battleground = new BattlegroundNA(*(BattlegroundNA*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::TolvironArena:
-                l_Battleground = new BattlegroundTV(*(BattlegroundTV*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::TigersPeaks:
-                l_Battleground = new BattlegroundTTP(*(BattlegroundTTP*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::BladeEdgeArena:
-                l_Battleground = new BattlegroundBE(*(BattlegroundBE*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::EyeOfTheStorm:
-                l_Battleground = new BattlegroundEY(*(BattlegroundEY*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::RuinsOfLordaeron:
-                l_Battleground = new BattlegroundRL(*(BattlegroundRL*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::StrandOfTheAncients:
-                l_Battleground = new BattlegroundSA(*(BattlegroundSA*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::DalaranArena:
-                l_Battleground = new BattlegroundDS(*(BattlegroundDS*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::TheRingOfValor:
-                l_Battleground = new BattlegroundRV(*(BattlegroundRV*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::IsleOfConquest:
-                l_Battleground = new BattlegroundIC(*(BattlegroundIC*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::TwinPeaks:
-                l_Battleground = new BattlegroundTP(*(BattlegroundTP*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::BattleForGilneas:
-                l_Battleground = new BattlegroundBFG(*(BattlegroundBFG*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::KotmoguTemple:
-                l_Battleground = new BattlegroundKT(*(BattlegroundKT*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::SilvershardMines:
-                l_Battleground = new BattlegroundSM(*(BattlegroundSM*)l_BattlegroundTemplate);
-                break;
-            case BattlegroundType::DeepwindGorge:
-                l_Battleground = new BattlegroundDG(*(BattlegroundDG*)l_BattlegroundTemplate);
-                break;
-            default:
-                /// Error, we got a non valid type.
-                return nullptr;
+                case BattlegroundType::AlteracValley:
+                    l_Battleground = new BattlegroundAV(*(BattlegroundAV*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::Warsong:
+                    l_Battleground = new BattlegroundWS(*(BattlegroundWS*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::ArathiBassin:
+                    l_Battleground = new BattlegroundAB(*(BattlegroundAB*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::NagrandArena:
+                    l_Battleground = new BattlegroundNA(*(BattlegroundNA*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::TolvironArena:
+                    l_Battleground = new BattlegroundTV(*(BattlegroundTV*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::TigersPeaks:
+                    l_Battleground = new BattlegroundTTP(*(BattlegroundTTP*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::BladeEdgeArena:
+                    l_Battleground = new BattlegroundBE(*(BattlegroundBE*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::EyeOfTheStorm:
+                    l_Battleground = new BattlegroundEY(*(BattlegroundEY*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::RuinsOfLordaeron:
+                    l_Battleground = new BattlegroundRL(*(BattlegroundRL*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::StrandOfTheAncients:
+                    l_Battleground = new BattlegroundSA(*(BattlegroundSA*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::DalaranArena:
+                    l_Battleground = new BattlegroundDS(*(BattlegroundDS*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::TheRingOfValor:
+                    l_Battleground = new BattlegroundRV(*(BattlegroundRV*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::IsleOfConquest:
+                    l_Battleground = new BattlegroundIC(*(BattlegroundIC*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::TwinPeaks:
+                    l_Battleground = new BattlegroundTP(*(BattlegroundTP*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::BattleForGilneas:
+                    l_Battleground = new BattlegroundBFG(*(BattlegroundBFG*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::KotmoguTemple:
+                    l_Battleground = new BattlegroundKT(*(BattlegroundKT*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::SilvershardMines:
+                    l_Battleground = new BattlegroundSM(*(BattlegroundSM*)l_BattlegroundTemplate);
+                    break;
+                case BattlegroundType::DeepwindGorge:
+                    l_Battleground = new BattlegroundDG(*(BattlegroundDG*)l_BattlegroundTemplate);
+                    break;
+                default:
+                    /// Error, we got a non valid type.
+                    return nullptr;
             }
 
             /// Set battleground difficulty before initialization.
@@ -293,9 +293,13 @@ namespace MS
             l_Battleground->SetRatedBG(l_IsRatedBg);
             l_Battleground->SetSkirmish(p_IsSkirmish);
             l_Battleground->SetRandom(true);
+            l_Battleground->SetWargame(p_IsWargame);
             l_Battleground->SetTypeID(GetIdFromType(l_IsRatedBg ? BattlegroundType::RatedBg10v10 : p_BgType));
             l_Battleground->SetRandomTypeID(GetIdFromType(p_BgType));
             l_Battleground->InitGUID();
+
+            if (p_UseTournamentRules)
+                l_Battleground->EnableTournamentRules();
 
             /// We store the battleground.
             m_Battlegrounds[p_BracketEntry->m_Id][p_BgType].emplace_back(std::make_pair(l_Battleground->GetInstanceID(), l_Battleground));

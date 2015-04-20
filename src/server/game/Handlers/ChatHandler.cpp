@@ -301,6 +301,25 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         if (ChatHandler(this).ParseCommands(l_Text.c_str()) > 0)
             return;
 
+        if (sWorld->getBoolConfig(CONFIG_LEXICS_CUTTER_ENABLE))
+        {
+            switch (l_Type)
+            {
+                case CHAT_MSG_SAY:
+                case CHAT_MSG_WHISPER:
+                case CHAT_MSG_CHANNEL:
+                case CHAT_MSG_YELL:
+                case CHAT_MSG_EMOTE:
+                {
+                    if (sWorld->ModerateMessage(l_Text))
+                    {
+                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY));
+                        return;
+                    }
+                }
+            }
+        }
+
         if (!processChatmessageFurtherAfterSecurityChecks(l_Text, l_Language))
             return;
 
@@ -577,7 +596,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 
     switch (p_RecvData.GetOpcode())
     {
-        case CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND:
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
             l_Type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_GUILD:
@@ -734,7 +753,7 @@ namespace JadeCore
     {
         public:
             EmoteChatBuilder(const Player & p_Player, uint32 p_TextEmote, uint32 p_EmoteNum, const Unit * p_Target)
-                : m_Player(p_Player), m_TextEmote(p_TextEmote), m_EmoteNum(p_EmoteNum), m_Target(p_Target) 
+                : m_Player(p_Player), m_TextEmote(p_TextEmote), m_EmoteNum(p_EmoteNum), m_Target(p_Target)
             {
 
             }
@@ -780,7 +799,6 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
     p_RecvData.readPackGUID(l_Target);
     p_RecvData >> l_Emote;
     p_RecvData >> l_SoundIndex;
-
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), l_Emote, l_SoundIndex, l_Target);
 
     const EmotesTextEntry * l_EmoteTextEntry = sEmotesTextStore.LookupEntry(l_Emote);
@@ -834,8 +852,7 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 void WorldSession::SendPlayerNotFoundNotice(std::string p_Name)
 {
     WorldPacket l_Data(SMSG_CHAT_PLAYER_NOTFOUND, p_Name.size()+1);
-    l_Data.WriteBits(p_Name.size() / 2, 8);
-    l_Data.WriteBit(p_Name.size() % 2);
+    l_Data.WriteBits(p_Name.size(), 9);
     l_Data.FlushBits();
     l_Data.WriteString(p_Name);
     SendPacket(&l_Data);

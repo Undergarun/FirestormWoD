@@ -64,7 +64,7 @@ namespace JadeCore
 
 // #include <iostream>
 // #include <fstream>
-// 
+//
 // template<class T>
 // inline
 // const T& RAND(const T& v1, const T& v2, const T& v3)
@@ -89,35 +89,35 @@ namespace MS { namespace Skill { namespace Archaeology
 
 //         ofstream myfile;
 //         myfile.open("archaeology_site_loot.sql");
-// 
+//
 //         for (uint32 l_I = 0; l_I < sResearchSiteStore.GetNumRows(); ++l_I)
 //         {
 //             ResearchSiteEntry const* l_Entry = sResearchSiteStore.LookupEntry(l_I);
-// 
+//
 //             if (!l_Entry || l_Entry->mapId != 1116)
 //                 continue;
-// 
+//
 //             ResearchPOIPoints l_Polygon;
-// 
+//
 //             for (uint32 l_Y = 0; l_Y < sQuestPOIPointStore.GetNumRows(); ++l_Y)
 //             {
 //                 QuestPOIPointEntry const* l_PointEntry = sQuestPOIPointStore.LookupEntry(l_Y);
-// 
+//
 //                 if (!l_PointEntry || l_PointEntry->ID != l_Entry->POIid)
 //                     continue;
-// 
+//
 //                 l_Polygon.push_back(ResearchPOIPoint(l_PointEntry->x, l_PointEntry->y));
 //             }
-// 
+//
 //             if (l_Polygon.empty())
 //             {
 //                 printf("Site : %u has no polygon\n", l_Entry->ID);
 //                 continue;
 //             }
-// 
+//
 //             float l_MinX = (*(l_Polygon.begin())).x, l_MinY = (*(l_Polygon.begin())).y;
 //             float l_MaxX = (*(l_Polygon.begin())).x, l_MaxY = (*(l_Polygon.begin())).y;
-// 
+//
 //             std::for_each(l_Polygon.begin(), l_Polygon.end(), [&l_MinX, &l_MinY, &l_MaxX, &l_MaxY](ResearchPOIPoint const& p_Elem)
 //             {
 //                 l_MinX = std::min(l_MinX, (float)p_Elem.x);
@@ -125,35 +125,35 @@ namespace MS { namespace Skill { namespace Archaeology
 //                 l_MaxX = std::max(l_MaxX, (float)p_Elem.x);
 //                 l_MaxY = std::max(l_MaxY, (float)p_Elem.y);
 //             });
-// 
+//
 //             double l_PolygonArea = abs(l_MaxX - l_MinX) *  abs(l_MaxY - l_MinY);
 //             int l_NumPointToCreate = l_PolygonArea / 9000;
-// 
+//
 //             Map * l_Map = sMapMgr->CreateBaseMap(l_Entry->mapId);
-// 
+//
 //             ResearchPOIPoints l_LootPoints;
-// 
+//
 //             uint32 l_Race = RAND(315, 350, 382);
 //             for (; l_LootPoints.size() < l_NumPointToCreate;)
 //             {
 //                 float l_X = l_MinX + urand(0, l_MaxX - l_MinX);
 //                 float l_Y = l_MinY + urand(0, l_MaxY - l_MinY);
 //                 float l_Z = l_Map->GetHeight(l_X, l_Y, MAX_HEIGHT);
-// 
+//
 //                 ResearchPOIPoint l_Point(l_X, l_Y);
-// 
+//
 //                 if (!JadeCore::IsPointInZone(l_Point, l_Polygon))
 //                     continue;
-// 
+//
 //                 if (l_Map->IsInWater(l_X, l_Y, l_Z))
 //                     continue;
-// 
+//
 //                 l_LootPoints.push_back(l_Point);
-// 
+//
 //                 myfile << "INSERT INTO research_loot(site_id, x, y, z, race) VALUES(" << l_Entry->ID << ", " << l_X << ", " << l_Y << ", " << l_Z << ", " << l_Race  << ");" << std::endl;
 //             }
 //         }
-// 
+//
 //         myfile.close();
     }
 
@@ -223,13 +223,10 @@ namespace MS { namespace Skill { namespace Archaeology
         m_ResearchProjects.clear();
         if (l_Fields[1].GetCString())
         {
-            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ', sResearchBranchStore.GetNumRows());
+            Tokenizer l_Tokens(l_Fields[1].GetCString(), ' ');
 
-            if (l_Tokens.size() == sResearchBranchStore.GetNumRows())
-            {
-                for (uint8 l_I = 0; l_I < sResearchBranchStore.GetNumRows(); ++l_I)
-                    m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
-            }
+            for (uint8 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+                m_ResearchProjects.insert(uint32(atoi(l_Tokens[l_I])));
         }
 
         ValidateProjects();
@@ -255,7 +252,7 @@ namespace MS { namespace Skill { namespace Archaeology
                 m_CompletedProjects.insert(std::make_pair(l_ProjectID, l_CompletedProjectEntry));
         } while (p_ResultProjects->NextRow());
     }
-    
+
     /// Save player Archaeology
     /// @p_Transaction : Destination transaction
     void Manager::SaveArchaeology(SQLTransaction& p_Transaction)
@@ -503,29 +500,21 @@ namespace MS { namespace Skill { namespace Archaeology
             ++l_Count;
         }
     }
-    
+
     /// Propagate research sites into the player dynamic update fields
     void Manager::PropagateResearchProjects()
     {
+        /// Reset research project
+        for (uint32 l_I = 0; l_I < (PLAYER_FIELD_PROFESSION_SKILL_LINE - PLAYER_FIELD_RESEARCHING); ++l_I)
+            m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_I, 0);
+
         if (!m_Player->GetSkillValue(SKILL_ARCHAEOLOGY))
             return;
 
         uint8 l_Count = 0;
-        uint32 l_NewValue = 0;
-
         for (ResearchProjectSet::const_iterator l_It = m_ResearchProjects.begin(); l_It != m_ResearchProjects.end(); ++l_It)
         {
-            if (l_Count % 2 == 1)
-            {
-                l_NewValue |= (*l_It);
-                m_Player->SetUInt32Value(PLAYER_FIELD_RESEARCHING + l_Count / 2, l_NewValue);
-
-                if (l_Count >= sResearchBranchStore.GetNumRows())
-                    break;
-            }
-            else
-                l_NewValue = (*l_It) << 16;
-
+            m_Player->SetUInt16Value(PLAYER_FIELD_RESEARCHING + (l_Count / 2), l_Count % 2, (*l_It));
             ++l_Count;
         }
     }
@@ -551,7 +540,7 @@ namespace MS { namespace Skill { namespace Archaeology
 
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
-  
+
     /// Get survey bot entry (GoB spawned when the player use his skill)
     /// @p_Orientation : Destination GoB spawn orientation
     uint32 Manager::GetSurveyBotEntry(float & p_Orientation)
@@ -816,7 +805,7 @@ namespace MS { namespace Skill { namespace Archaeology
 
         m_Player->GetSession()->SendPacket(&l_Data);
     }
-    
+
     /// Build & send SMSG_RESEARCH_COMPLETE
     void Manager::SendResearchComplete(uint32 p_ProjectID, uint32 p_FirstCompleted, uint32 p_CompletionCount)
     {
@@ -959,7 +948,7 @@ namespace MS { namespace Skill { namespace Archaeology
                     if ((l_CurrentLevel + l_Conditions->LevelAdditional) < l_RequiredLevel)
                         return RS_RESULT_FAIL;
 
-                    if (l_SkillValue < l_Conditions->RequiredLevel)
+                    if (l_SkillValue < l_Conditions->RequiredSkill)
                         return RS_RESULT_FAIL;
 
                     return RS_RESULT_OK;
@@ -1023,7 +1012,7 @@ namespace MS { namespace Skill { namespace Archaeology
     //////////////////////////////////////////////////////////////////////////
 
     /// Get random loot for a research site
-    /// @p_SiteID : Site ID 
+    /// @p_SiteID : Site ID
     /// @p_Site   : [Out]Current site descriptor
     bool Manager::GenerateDigitLoot(uint16 p_SiteID, DigitSite &p_Site)
     {
@@ -1056,9 +1045,9 @@ namespace MS { namespace Skill { namespace Archaeology
                     case 29: p_Site.LootGameObjectID = 218950; break;
                     case 229: p_Site.LootGameObjectID = 211163; break;
                     case 231: p_Site.LootGameObjectID = 211174; break;
-                    case 315: p_Site.LootGameObjectID = 234105; break; ///@Todo
-                    case 350: p_Site.LootGameObjectID = 226521; break; ///@Todo
-                    case 382: p_Site.LootGameObjectID = 234106; break; ///@Todo
+                    case 315: p_Site.LootGameObjectID = 234105; break;
+                    case 350: p_Site.LootGameObjectID = 226521; break;
+                    case 382: p_Site.LootGameObjectID = 234106; break;
                     default: p_Site.LootGameObjectID = 0; break;
                 }
             }

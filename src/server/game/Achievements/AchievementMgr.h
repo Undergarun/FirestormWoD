@@ -427,8 +427,10 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS                 = 184,  // 19116
     ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS                      = 186,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_OF_QUALITY       = 187,  // 19116 NYI
+    // 188 unused
+    ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS                 = 189,
     // 0..162 => 163 criteria types total
-    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 188
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 190
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum

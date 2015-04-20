@@ -37,7 +37,7 @@ EndScriptData */
 #include "LFGMgr.h"
 
 #include <fstream>
-
+#include <vector>
 #include "BattlegroundPacketFactory.hpp"
 
 class debug_commandscript: public CommandScript
@@ -123,8 +123,10 @@ class debug_commandscript: public CommandScript
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
+                { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
-
+                { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
+                { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2365,6 +2367,27 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleDebugHeirloom(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+                
+            int32 l_ID = atoi(arg1);
+            int32 l_Flags = atoi(arg2);
+
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size(), l_ID);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS).size(), l_Flags);
+
+            return true;
+        }
+
         static bool HandleDebugVignette(ChatHandler* p_Handler, char const* p_Args)
         {
             char* l_VignetteIDStr = strtok((char*)p_Args, " ");
@@ -2408,6 +2431,86 @@ class debug_commandscript: public CommandScript
             l_Data << uint32(0);                                   ///< UpdateDataCount 
 
             p_Handler->GetSession()->SendPacket(&l_Data);
+            return true;
+        }
+
+        static bool HandleDebugDumpCharTemplate(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./templates.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            l_StrBuilder << "DELETE FROM character_template;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_item;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_spell;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl;
+            
+            bool l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template VALUES";
+            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+            {
+                ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(l_ClassId);
+                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_ClassId << " ,\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, " \
+                    << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)", l_FirstEntry = false;
+            }
+            
+            l_StrBuilder << ";" << std::endl << std::endl;
+
+            const uint32 l_HordeMask = 0xFE5FFBB2;
+            const uint32 l_AllianceMask = 0xFD7FFC4D;
+            std::string l_SearchString = p_Args; /// Case sensitive search
+            
+            l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template_item VALUES";
+            ItemTemplateContainer const* l_Store = sObjectMgr->GetItemTemplateStore();
+            for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
+            {
+                ItemTemplate const* l_Template = &l_Iter->second;
+                if (l_Template->Name1.find(l_SearchString) != std::string::npos)
+                {
+                    int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
+                    uint32 l_Count = 1;
+
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
+                        }
+                    }
+                }
+            }
+
+
+            l_StrBuilder << ";" << std::endl;
+            std::string l_FinalString = l_StrBuilder.str();
+
+            fwrite(l_FinalString.c_str(), l_FinalString.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+            return true;
+        }
+
+        static bool HandleDebugPlayerCondition(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_ArgStr = strtok((char*)p_Args, " ");
+            if (!l_ArgStr)
+                return false;
+
+            uint32 l_ConditionID = atoi(l_ArgStr);
+  
+            auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
+
+            if (l_Result.first)
+                p_Handler->PSendSysMessage("Condition %u is satisfied", l_ConditionID);
+            else
+                p_Handler->PSendSysMessage("Condition %u failed => %s", l_ConditionID,  l_Result.second.c_str());
 
             return true;
         }

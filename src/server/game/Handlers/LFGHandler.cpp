@@ -515,7 +515,7 @@ void WorldSession::SendLfgJoinResult(uint64 p_Guid, const LfgJoinResultData & p_
 void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 p_AvgWaitTime, int32 p_WaitTimeTanks, int32 p_WaitTimeHealer, int32 p_WaitTimeDps, uint32 p_QueuedTime, uint8 p_TankCount, uint8 p_HealerCount, uint8 p_DPSCount)
 {
     LfgQueueInfo * l_Info = sLFGMgr->GetLfgQueueInfo(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetGUID() : GetPlayer()->GetGUID());
-    
+
     if (!l_Info)
         return;
 

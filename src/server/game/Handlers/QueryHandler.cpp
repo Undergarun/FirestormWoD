@@ -93,16 +93,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
 
     uint64 guid;
-
     recvData.readPackGUID(guid);
-    bool hasVirtualRealmAddress = recvData.ReadBit();
-    bool hasNativeRealmAddress = recvData.ReadBit();
-
-    if (hasVirtualRealmAddress)
-        uint32 VirtualRealmAddress = recvData.read<uint32>();
-
-    if (hasNativeRealmAddress)
-        uint32 NativeRealmAddress = recvData.read<uint32>();
 
     // This is disable by default to prevent lots of console spam
     // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);
@@ -189,7 +180,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data << uint32(itemCount);                          // quest item count
         data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         data << uint32(ci->expansionUnknown);               // unknown meaning
-        data << uint32(0);                                  // QuestTrackingId
+        data << uint32(ci->TrackingQuestID);                // QuestTrackingId
 
         if (SubName.size())
             data << SubName;                                // Sub Name

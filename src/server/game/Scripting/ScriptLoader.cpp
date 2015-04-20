@@ -44,6 +44,7 @@ void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
+void AddSC_spell_skill();
 
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
@@ -807,6 +808,8 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_spires_of_arak();
+void AddSC_frostfire_ridge();
 void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
@@ -909,6 +912,7 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_holiday_spell_scripts();
+    AddSC_spell_skill();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif
@@ -1700,6 +1704,8 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_spires_of_arak();
+    AddSC_frostfire_ridge();
     AddSC_gorgrond();
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();

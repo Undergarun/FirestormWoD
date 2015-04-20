@@ -2622,10 +2622,11 @@ enum StarfallSpells
 {
     SPELL_DRUID_MOONFIRE              = 8921,
     SPELL_DRUID_SUNFIRE               = 93402,
-    SPELL_DRUID_GLYPH_OF_GUIDED_STARS = 146655
+    SPELL_DRUID_GLYPH_OF_UNTAMED_STARS = 146655
 };
 
-/// Starfall (triggered) - 50286
+/// Last Update 6.2.1
+/// Starfall (triggered) - 50286 and Sunfall (triggered) - 155598
 class spell_dru_starfall_dummy: public SpellScriptLoader
 {
     public:
@@ -2657,8 +2658,9 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
-                /// Glyph of Guided Stars - Starfall can only hit targets with Moonfire or Sunfire
-                if (l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_GUIDED_STARS))
+                /// Starfall can only hit targets with Moonfire or Sunfire by default
+                /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
+                if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
                 {
                     if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE))
                         return;
@@ -2791,6 +2793,12 @@ class spell_dru_survival_instincts: public SpellScriptLoader
         }
 };
 
+enum SwiftmendSpells
+{
+    SPELL_DRUID_RAMPANTH_GROWTH   = 155834,
+    SPELL_DRUID_REGROWTH          = 8936
+};
+
 /// Swiftmend - 18562
 class spell_dru_swiftmend: public SpellScriptLoader
 {
@@ -2814,6 +2822,19 @@ class spell_dru_swiftmend: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
+                    if (l_Caster->HasAura(SPELL_DRUID_RAMPANTH_GROWTH))
+                    {
+                        if (Unit* l_Target = GetHitUnit())
+                        {
+                            AuraPtr l_Aura = l_Target->GetAura(SPELL_DRUID_REGROWTH, l_Caster->GetGUID());
+                            if (!l_Aura)
+                                l_Aura = l_Target->GetAura(SPELL_DRUID_REJUVENATION, l_Caster->GetGUID());
+
+                            if (l_Aura)
+                                l_Aura->Remove();
+                        }
+                    }
+
                     //Restoration soul of the forest - 114108
                     if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO_TALENT))
                         l_Caster->CastSpell(l_Caster, SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, false);
@@ -3353,7 +3374,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = -l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                int32 l_EnergyConsumed = l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                 /// 25 energy = 100% more damage
                 AddPct(l_Damage, l_EnergyConsumed * 4);
 
@@ -3396,23 +3417,43 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_frenzied_regeneration_SpellScript)
 
+            int32 m_RageForSpell;
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
-                if (l_Caster->GetPower(POWER_RAGE) < GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE))
-                    return SPELL_FAILED_NO_POWER;
+                if (l_Caster)
+                    m_RageForSpell = l_Caster->GetPower(POWER_RAGE) > GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE) ? GetSpellInfo()->Effects[EFFECT_1].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE) : l_Caster->GetPower(POWER_RAGE);
 
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster == nullptr)
+                    return;
+
+                /// Maximum we can reach (attack power * 6) health by 60 rage
+                int32 l_AttackPower = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier;
+                /// For every 1 rage we reach ((attack power * 6) / spent rage) health
+                float l_AttackPowerPerRage = l_AttackPower / GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                /// Calculate our heal, according to spent rage
+                int32 l_Heal = l_AttackPowerPerRage * (m_RageForSpell / l_Caster->GetPowerCoeff(POWER_RAGE));
+
+                SetHitHeal(l_Heal);
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ModifyPower(POWER_RAGE, -GetEffectValue() * GetCaster()->GetPowerCoeff(POWER_RAGE));
+                GetCaster()->ModifyPower(POWER_RAGE, -m_RageForSpell);
             }
 
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
+                OnHit += SpellHitFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
@@ -3663,6 +3704,7 @@ enum HealingTouchSpells
     SPELL_DRU_BLOODTALONS_TALENT = 155672
 };
 
+/// Last Uptade 6.1.2
 /// Healing Touch - 5185
 class spell_dru_healing_touch: public SpellScriptLoader
 {
@@ -3683,22 +3725,9 @@ class spell_dru_healing_touch: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, SPELL_DRU_BLOODTALONS_MOD_DAMAGE, true);
             }
 
-            void HandleHeal(SpellEffIndex)
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* l_Target = GetHitUnit())
-                    {
-                        if (l_Caster == l_Target)
-                            SetHitHeal(GetHitHeal() * 1.5f);
-                    }
-                }
-            }
-
             void Register()
             {
                 OnCast += SpellCastFn(spell_dru_healing_touch_SpellScript::HandleOnCast);
-                OnEffectHitTarget += SpellEffectFn(spell_dru_healing_touch_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 

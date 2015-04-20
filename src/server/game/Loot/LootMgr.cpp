@@ -498,6 +498,23 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
     LootTemplate const* tab = store.GetLootFor(lootId);
 
+    // if the creature was killed by players in a dungeon
+    // only those players can loot the creature 
+    // but not group members who was out of a dungeon 
+    if (Map* map = lootOwner->GetMap())
+    {
+        if (map->IsDungeon())
+        {
+            AllowedPlayers.SetEnabled(true);
+
+            Map::PlayerList const& playersList = map->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = playersList.begin(); itr != playersList.end(); ++itr)
+            {
+                AllowedPlayers.AddPlayerGuid(itr->getSource()->GetGUID());
+            }
+        }
+    }
+
     if (!tab)
     {
         if (!noEmptyError)
@@ -1327,7 +1344,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                 l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
-                l_ItemsDataBuffer.WriteBits(slottype, 3);                   ///< Ui Type
+                l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                 l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                 l_ItemsDataBuffer.FlushBits();
                 l_ItemsDataBuffer << uint32(item.count);

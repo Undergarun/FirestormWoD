@@ -954,7 +954,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 212 SPELL_EFFECT_212
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 213 SPELL_EFFECT_DEATH_GRIP
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 214 SPELL_EFFECT_214
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_215
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 216 SPELL_EFFECT_216
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 217 SPELL_EFFECT_217
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 218 SPELL_EFFECT_218
@@ -3094,16 +3094,6 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_SHAMAN:
             if (Id == 30708)
                 return false;
-            break;
-        case SPELLFAMILY_ROGUE:
-            switch (Id)
-            {
-                // Envenom must be considered as a positive effect even though it deals damage
-                case 32645:
-                    return true;
-                default:
-                    break;
-            }
             break;
         default:
             break;

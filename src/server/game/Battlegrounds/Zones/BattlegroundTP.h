@@ -223,6 +223,7 @@ class BattlegroundTP : public Battleground
         uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
+        int32 m_CheatersCheckTimer;
 
         uint64 GetFlagPickerGUID(int32 p_Team) const
         {

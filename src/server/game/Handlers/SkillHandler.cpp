@@ -73,7 +73,7 @@ void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
     
     p_RecvPacket >> l_TalentCount;
 
-    if (l_TalentCount > MAX_TALENT_SPELLS)
+    if (l_TalentCount == 0 || l_TalentCount > MAX_TALENT_SPELLS)
         return;
 
     if (l_TalentCount > m_Player->GetFreeTalentPoints())

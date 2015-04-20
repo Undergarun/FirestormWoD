@@ -1572,7 +1572,7 @@ namespace MS { namespace Garrison
             CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(l_Currency.first);
 
             if (l_CurrencyEntry)
-                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second * l_CurrencyEntry->GetPrecision());
+                m_Owner->ModifyCurrency(l_Currency.first, l_Currency.second);
         }
 
         for (auto l_Item : m_PendingMissionReward.RewardItems)
@@ -1630,7 +1630,8 @@ namespace MS { namespace Garrison
 
             /// Write follower after modifications
             const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
-
+            
+            l_Update << uint32(l_AddedXP); // Guessed
             l_Update << uint32(l_AddedXP);
             l_Update.append(l_UpdatePart);
 

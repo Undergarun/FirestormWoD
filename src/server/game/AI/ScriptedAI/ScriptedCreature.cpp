@@ -401,7 +401,8 @@ enum eNPCs
     NPC_JAN_ALAI    = 23578,
     NPC_SARTHARION  = 28860,
     NPC_BLOOD_QUEEN = 37955,
-    NPC_GARFROST    = 36494
+    NPC_GARFROST    = 36494,
+    NPC_RUKHMAR     = 83746
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -425,6 +426,10 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     switch (me->GetEntry())
     {
+        case NPC_RUKHMAR:
+            if (me->GetZoneId() == 6722)
+                return false;
+            break;
         case NPC_BLOOD_QUEEN:
             if (z > 390.0f)
                 return false;
@@ -539,35 +544,35 @@ bool BossAI::CheckBoundary(Unit* who)
         switch (itr->first)
         {
             case BOUNDARY_N:
-                if (me->GetPositionX() > itr->second)
+                if (who->GetPositionX() > itr->second)
                     return false;
                 break;
             case BOUNDARY_S:
-                if (me->GetPositionX() < itr->second)
+                if (who->GetPositionX() < itr->second)
                     return false;
                 break;
             case BOUNDARY_E:
-                if (me->GetPositionY() < itr->second)
+                if (who->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_W:
-                if (me->GetPositionY() > itr->second)
+                if (who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_NW:
-                if (me->GetPositionX() + me->GetPositionY() > itr->second)
+                if (who->GetPositionX() + who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SE:
-                if (me->GetPositionX() + me->GetPositionY() < itr->second)
+                if (who->GetPositionX() + who->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_NE:
-                if (me->GetPositionX() - me->GetPositionY() > itr->second)
+                if (who->GetPositionX() - who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SW:
-                if (me->GetPositionX() - me->GetPositionY() < itr->second)
+                if (who->GetPositionX() - who->GetPositionY() < itr->second)
                     return false;
                 break;
             default:

@@ -11,14 +11,14 @@ class FormulaScript : public ScriptObjectImpl<false>
     protected:
         /// Constructor
         /// @p_Name : Script Name
-        FormulaScript(const char * p_Name);
+        FormulaScript(const char* p_Name);
 
     public:
         /// Called after calculating honor.
         /// @p_Honor      : Dest honor
         /// @p_Level      : Player level
         /// @p_Multiplier : Honor multiplier
-        virtual void OnHonorCalculation(float & p_Honor, uint8 p_Level, float p_Multiplier)
+        virtual void OnHonorCalculation(float& p_Honor, uint8 p_Level, float p_Multiplier)
         {
             UNUSED(p_Honor);
             UNUSED(p_Level);
@@ -28,7 +28,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// Called after gray level calculation.
         /// @p_GrayLevel   : Dest gray level
         /// @p_PlayerLevel : Player level
-        virtual void OnGrayLevelCalculation(uint8 & p_GrayLevel, uint8 p_PlayerLevel)
+        virtual void OnGrayLevelCalculation(uint8& p_GrayLevel, uint8 p_PlayerLevel)
         {
             UNUSED(p_GrayLevel);
             UNUSED(p_PlayerLevel);
@@ -38,7 +38,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// @p_Color       : Dest XP Color
         /// @p_PlayerLevel : Player level
         /// @p_MobLevel    : Killed mob level
-        virtual void OnColorCodeCalculation(XPColorChar & p_Color, uint8 p_PlayerLevel, uint8 p_MobLevel)
+        virtual void OnColorCodeCalculation(XPColorChar& p_Color, uint8 p_PlayerLevel, uint8 p_MobLevel)
         {
             UNUSED(p_Color);
             UNUSED(p_PlayerLevel);
@@ -48,7 +48,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// Called after calculating zero difference.
         /// @p_Diff        : Level difference 
         /// @p_PlayerLevel : Player level
-        virtual void OnZeroDifferenceCalculation(uint8 & p_Diff, uint8 p_PlayerLevel)
+        virtual void OnZeroDifferenceCalculation(uint8& p_Diff, uint8 p_PlayerLevel)
         {
             UNUSED(p_Diff);
             UNUSED(p_PlayerLevel);
@@ -59,7 +59,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// @p_PlayerLevel : Rewarded player instance
         /// @p_MobLevel    : Killed mob level
         /// @p_Content     : Content expansion mob
-        virtual void OnBaseGainCalculation(uint32 & p_Gain, uint8 p_PlayerLevel, uint8 p_MobLevel, ContentLevels p_Content)
+        virtual void OnBaseGainCalculation(uint32& p_Gain, uint8 p_PlayerLevel, uint8 p_MobLevel, ContentLevels p_Content)
         {
             UNUSED(p_Gain);
             UNUSED(p_PlayerLevel);
@@ -71,7 +71,7 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// @p_Gain   : Dest XP Gain
         /// @p_Player : Player instance for XP computation
         /// @p_Unit   : Killed unit
-        virtual void OnGainCalculation(uint32 & p_Gain, Player * p_Player, Unit * p_Unit)
+        virtual void OnGainCalculation(uint32& p_Gain, Player* p_Player, Unit* p_Unit)
         {
             UNUSED(p_Gain);
             UNUSED(p_Player);
@@ -82,13 +82,12 @@ class FormulaScript : public ScriptObjectImpl<false>
         /// @p_Rate   : Dest XP rate
         /// @p_Count  : Group member count
         /// @p_IsRaid : Is a raid group
-        virtual void OnGroupRateCalculation(float & p_Rate, uint32 p_Count, bool p_IsRaid)
+        virtual void OnGroupRateCalculation(float& p_Rate, uint32 p_Count, bool p_IsRaid)
         {
             UNUSED(p_Rate);
             UNUSED(p_Count);
             UNUSED(p_IsRaid);
         }
-
 };
 
 /// Achievement Criteria Script Interface
@@ -97,14 +96,13 @@ class AchievementCriteriaScript : public ScriptObjectImpl<true>
     protected:
         /// Constructor
         /// @p_Name : Script Name
-        AchievementCriteriaScript(const char * p_Name);
+        AchievementCriteriaScript(const char* p_Name);
 
     public:
         /// Called when an additional criteria is checked.
         /// @p_Source : Criteria owner player
         /// @p_Target : Target instance
-        virtual bool OnCheck(Player * p_Source, Unit * p_Target) = 0;
-
+        virtual bool OnCheck(Player* p_Source, Unit* p_Target) = 0;
 };
 
 /// Condition Script Interface
@@ -113,18 +111,18 @@ class ConditionScript : public ScriptObjectImpl<true>
     protected:
         /// Constructor
         /// @p_Name : Script Name
-        ConditionScript(const char * p_Name);
+        ConditionScript(const char* p_Name);
 
     public:
         /// Called when a single condition is checked for a player.
         /// @p_Condition  : Condition instance
         /// @p_SourceInfo : Condition  source
-        virtual bool OnConditionCheck(Condition * p_Condition, ConditionSourceInfo & p_SourceInfo) 
+        virtual bool OnConditionCheck(Condition* p_Condition, ConditionSourceInfo& p_SourceInfo)
         {
             UNUSED(p_Condition);
             UNUSED(p_SourceInfo);
 
-            return true; 
+            return true;
         }
 };
 
@@ -134,14 +132,14 @@ class PlayerScript : public ScriptObjectImpl<false>
     protected:
         /// Constructor
         /// @p_Name : Script Name
-        PlayerScript(const char * p_Name);
+        PlayerScript(const char* p_Name);
 
     public:
         /// Called when a player kills another player
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
-        virtual void OnPVPKill(Player * p_Killer, Player * p_Killed)
-        { 
+        virtual void OnPVPKill(Player* p_Killer, Player* p_Killed)
+        {
             UNUSED(p_Killer);
             UNUSED(p_Killed);
         }
@@ -149,7 +147,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player kills a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
-        virtual void OnCreatureKill(Player * p_Killer, Creature * p_Killed)
+        virtual void OnCreatureKill(Player* p_Killer, Creature* p_Killed)
         {
             UNUSED(p_Killer);
             UNUSED(p_Killed);
@@ -158,7 +156,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player is killed by a creature
         /// @p_Killer : Killer instance
         /// @p_Killed : Killed instance
-        virtual void OnPlayerKilledByCreature(Creature * p_Killer, Player * p_Killed)
+        virtual void OnPlayerKilledByCreature(Creature* p_Killer, Player* p_Killed)
         {
             UNUSED(p_Killer);
             UNUSED(p_Killed);
@@ -182,7 +180,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player kills another player
         /// @p_Player : Player instance
         /// @p_Value  : New value
-        virtual void OnModifyHealth(Player * p_Player, int32 p_Value)
+        virtual void OnModifyHealth(Player* p_Player, int32 p_Value)
         {
             UNUSED(p_Player);
             UNUSED(p_Value);
@@ -191,8 +189,8 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player's level changes (right before the level is applied)
         /// @p_Player   : Player instance
         /// @p_OldLevel : Old player Level
-        virtual void OnLevelChanged(Player * p_Player, uint8 p_OldLevel)
-        { 
+        virtual void OnLevelChanged(Player* p_Player, uint8 p_OldLevel)
+        {
             UNUSED(p_Player);
             UNUSED(p_OldLevel);
         }
@@ -200,7 +198,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player's talent points are reset (right before the reset is done)
         /// @p_Player : Player instance
         /// @p_NoCost : Talent was reset without cost
-        virtual void OnTalentsReset(Player * p_Player, bool p_NoCost)
+        virtual void OnTalentsReset(Player* p_Player, bool p_NoCost)
         {
             UNUSED(p_Player);
             UNUSED(p_NoCost);
@@ -209,7 +207,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player's money is modified (before the modification is done)
         /// @p_Player : Player instance
         /// @p_Amount : Modified money amount
-        virtual void OnMoneyChanged(Player * p_Player, int64 & p_Amount)
+        virtual void OnMoneyChanged(Player* p_Player, int64& p_Amount)
         {
             UNUSED(p_Player);
             UNUSED(p_Amount);
@@ -219,7 +217,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Player : Player instance
         /// @p_Amount : Modified XP amount
         /// @p_Victim : XP Source
-        virtual void OnGiveXP(Player * p_Player, uint32 & p_Amount, Unit * p_Victim)
+        virtual void OnGiveXP(Player* p_Player, uint32& p_Amount, Unit* p_Victim)
         {
             UNUSED(p_Player);
             UNUSED(p_Amount);
@@ -231,7 +229,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_FactionID    : Reward faction ID
         /// @p_Standing     : Standing
         /// @p_Incremential : Is incremental
-        virtual void OnReputationChange(Player * p_Player, uint32 p_FactionID, int32 & p_Standing, bool p_Incremential)
+        virtual void OnReputationChange(Player* p_Player, uint32 p_FactionID, int32& p_Standing, bool p_Incremential)
         {
             UNUSED(p_Player);
             UNUSED(p_FactionID);
@@ -242,7 +240,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a duel is requested
         /// @p_Target     : Duel target
         /// @p_Challenger : Duel challenger
-        virtual void OnDuelRequest(Player * p_Target, Player * p_Challenger)
+        virtual void OnDuelRequest(Player* p_Target, Player* p_Challenger)
         {
             UNUSED(p_Target);
             UNUSED(p_Challenger);
@@ -251,7 +249,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a duel starts (after 3s countdown)
         /// @p_Player1 : First player
         /// @p_Player2 : Second player
-        virtual void OnDuelStart(Player * p_Player1, Player * p_Player2)
+        virtual void OnDuelStart(Player* p_Player1, Player* p_Player2)
         {
             UNUSED(p_Player1);
             UNUSED(p_Player2);
@@ -261,7 +259,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Winner         : Duel winner
         /// @p_Looser         : Duel looser
         /// @p_CompletionType : Duel Completion Type
-        virtual void OnDuelEnd(Player * p_Winner, Player * p_Looser, DuelCompleteType p_CompletionType) 
+        virtual void OnDuelEnd(Player* p_Winner, Player* p_Looser, DuelCompleteType p_CompletionType)
         {
             UNUSED(p_Winner);
             UNUSED(p_Looser);
@@ -271,7 +269,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player get teleport by a player
         /// @p_Player : Player
         /// @p_SpellID : SpellID
-        virtual void OnTeleport(Player * p_Player, const SpellInfo *p_SpellInfo)
+        virtual void OnTeleport(Player* p_Player, const SpellInfo* p_SpellInfo)
         {
             UNUSED(p_Player);
             UNUSED(p_SpellInfo);
@@ -282,7 +280,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Type    : Message type
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
-        virtual void OnChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message)
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message)
         {
             UNUSED(p_Player);
             UNUSED(p_Type);
@@ -296,7 +294,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Lang     : Message language (WoW)
         /// @p_Message  : Message content
         /// @p_Receiver : Message receiver
-        virtual void OnChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Player * p_Receiver)
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Player* p_Receiver)
         {
             UNUSED(p_Player);
             UNUSED(p_Type);
@@ -311,7 +309,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
         /// @p_Group   : Message group target
-        virtual void OnChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Group * p_Group)
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Group* p_Group)
         {
             UNUSED(p_Player);
             UNUSED(p_Type);
@@ -326,7 +324,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
         /// @p_Guild   : Message guild target
-        virtual void OnChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Guild * p_Guild)
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Guild* p_Guild)
         {
             UNUSED(p_Player);
             UNUSED(p_Type);
@@ -341,7 +339,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Lang    : Message language (WoW)
         /// @p_Message : Message content
         /// @p_Channel : Message channel target
-        virtual void OnChat(Player * p_Player, uint32 p_Type, uint32 p_Lang, std::string & p_Message, Channel * p_Channel)
+        virtual void OnChat(Player* p_Player, uint32 p_Type, uint32 p_Lang, std::string& p_Message, Channel* p_Channel)
         {
             UNUSED(p_Player);
             UNUSED(p_Type);
@@ -376,7 +374,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Player    : Player instance
         /// @p_Spell     : Casted spell
         /// @p_SkipCheck : Skipped checks
-        virtual void OnSpellCast(Player * p_Player, Spell * p_Spell, bool p_SkipCheck)
+        virtual void OnSpellCast(Player* p_Player, Spell* p_Spell, bool p_SkipCheck)
         {
             UNUSED(p_Player);
             UNUSED(p_Spell);
@@ -386,7 +384,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// When the player learn a spell
         /// @p_Player  : Player instance
         /// @p_SpellID : Learned spell ID
-        virtual void OnSpellLearned(Player * p_Player, uint32 p_SpellID)
+        virtual void OnSpellLearned(Player* p_Player, uint32 p_SpellID)
         {
             UNUSED(p_Player);
             UNUSED(p_SpellID);
@@ -401,14 +399,14 @@ class PlayerScript : public ScriptObjectImpl<false>
 
         /// Called when a player logs out.
         /// @p_Player : Player instance
-        virtual void OnLogout(Player * p_Player)
+        virtual void OnLogout(Player* p_Player)
         {
             UNUSED(p_Player);
         }
 
         /// Called when a player is created.
         /// @p_Player : Player instance
-        virtual void OnCreate(Player * p_Player)
+        virtual void OnCreate(Player* p_Player)
         {
             UNUSED(p_Player);
         }
@@ -423,7 +421,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a update() of a player is done
         /// @p_Player : Player instance
         /// @p_Diff : diff time
-        virtual void OnUpdate(Player * p_Player, uint32 p_Diff)
+        virtual void OnUpdate(Player* p_Player, uint32 p_Diff)
         {
             UNUSED(p_Player);
             UNUSED(p_Diff);
@@ -434,7 +432,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Difficulty : Instance Difficulty ID
         /// @p_MapID      : Instance Map ID
         /// @p_Permanent  : Is a permanent bind
-        virtual void OnBindToInstance(Player * p_Player, Difficulty p_Difficulty, uint32 p_MapID, bool p_Permanent)
+        virtual void OnBindToInstance(Player* p_Player, Difficulty p_Difficulty, uint32 p_MapID, bool p_Permanent)
         {
             UNUSED(p_Player);
             UNUSED(p_Difficulty);
@@ -447,7 +445,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_NewZoneID : New player zone ID
         /// @p_OldZoneID : Old player zone ID
         /// @p_NewAreaID : New player area ID
-        virtual void OnUpdateZone(Player * p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        virtual void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
         {
             UNUSED(p_Player);
             UNUSED(p_NewZoneID);
@@ -457,7 +455,7 @@ class PlayerScript : public ScriptObjectImpl<false>
 
         /// Called when a player updates his movement
         /// @p_Player : Player instance
-        virtual void OnUpdateMovement(Player * p_Player)
+        virtual void OnUpdateMovement(Player* p_Player)
         {
             UNUSED(p_Player);
         }
@@ -465,7 +463,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when player rewards some quest
         /// @p_Player : Player instance
         /// @p_Quest  : Rewarded quest
-        virtual void OnQuestReward(Player * p_Player, const Quest * p_Quest)
+        virtual void OnQuestReward(Player* p_Player, const Quest* p_Quest)
         {
             UNUSED(p_Player);
             UNUSED(p_Quest);
@@ -475,11 +473,38 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Player      : Player instance
         /// @p_QuestID     : Quest ID
         /// @p_ObjectiveID : Validated quest objective ID
-        virtual void OnObjectiveValidate(Player * p_Player, uint32 p_QuestID, uint32 p_ObjectiveID)
+        virtual void OnObjectiveValidate(Player* p_Player, uint32 p_QuestID, uint32 p_ObjectiveID)
         {
             UNUSED(p_Player);
             UNUSED(p_QuestID);
             UNUSED(p_ObjectiveID);
+        }
+
+        /// Called when player accepts some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Accpeted quest
+        virtual void OnQuestAccept(Player* p_Player, const Quest* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+
+        /// Called when player completes some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Completed quest
+        virtual void OnQuestComplete(Player* p_Player, const Quest* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
+        }
+
+        /// Called when player abandons some quest
+        /// @p_Player : Player instance
+        /// @p_Quest  : Removed quest
+        virtual void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Quest);
         }
 
         /// Called when a player shapeshift
@@ -494,7 +519,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// Called when a player loot an item
         /// @p_Player : Player instance
         /// @p_Item   : New looted item instance
-        virtual void OnItemLooted(Player* p_Player, Item * p_Item)
+        virtual void OnItemLooted(Player* p_Player, Item* p_Item)
         {
             UNUSED(p_Player);
             UNUSED(p_Item);
@@ -502,14 +527,14 @@ class PlayerScript : public ScriptObjectImpl<false>
 
         /// Called when a player enter in combat
         /// @p_Player : Player instance
-        virtual void OnEnterInCombat(Player * p_Player)
+        virtual void OnEnterInCombat(Player* p_Player)
         {
             UNUSED(p_Player);
         }
 
         /// Called when a player leave combat status
         /// @p_Player : Player instance
-        virtual void OnLeaveCombat(Player * p_Player)
+        virtual void OnLeaveCombat(Player* p_Player)
         {
             UNUSED(p_Player);
         }
@@ -518,7 +543,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Player          : Player instance
         /// @p_SceneInstanceID : Standalone scene instance ID
         /// @p_Event           : Event string received from client
-        virtual void OnSceneTriggerEvent(Player * p_Player, uint32 p_SceneInstanceID, std::string p_Event)
+        virtual void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event)
         {
             UNUSED(p_Player);
             UNUSED(p_SceneInstanceID);
@@ -530,7 +555,7 @@ class PlayerScript : public ScriptObjectImpl<false>
         /// @p_Player   : Player instance
         /// @p_Power    : Power to be regenerate
         /// @p_AddValue : amount of power to regenerate
-        virtual void OnRegenPower(Player * p_Player, Powers const p_Power, float& l_AddValue, bool& p_PreventDefault)
+        virtual void OnRegenPower(Player* p_Player, Powers const p_Power, float& l_AddValue, bool& p_PreventDefault)
         {
             UNUSED(p_Player);
             UNUSED(p_Power);
@@ -555,6 +580,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_DamageEffectType);
             UNUSED(p_Damage);
             UNUSED(p_CleanDamage);
+        }
+
+        /// Called when a player cancels some scene
+        /// @p_Player          : Player instance
+        /// @p_SceneInstanceID : Standalone scene instance ID
+        virtual void OnSceneCancel(Player* p_Player, uint32 p_SceneInstanceId)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_SceneInstanceId);
         }
 };
 

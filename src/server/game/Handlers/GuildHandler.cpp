@@ -602,6 +602,7 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
         for (uint32 l_Iter = 0; l_Iter < l_Rewards.size(); l_Iter++)
         {
             l_Data << uint32(l_Rewards[l_Iter].Entry);
+            l_Data << uint32(0); // Heirloom entry ???s
             l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);
             l_Data << uint32(l_Rewards[l_Iter].Racemask);
             l_Data << uint32(0);

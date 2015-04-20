@@ -46,6 +46,9 @@ public:
 
     void SetDailyReportState(bool b);
     bool GetDailyReportState();
+
+    void AddReportToHistory();
+    uint32 GetReportCountInLastSecs(uint32 p_Secondes);
 private:
     uint32 lastOpcode;
     MovementInfo lastMovementInfo;
@@ -58,6 +61,8 @@ private:
     uint32 tempReports[MAX_REPORT_TYPES];
     uint32 tempReportsTimer[MAX_REPORT_TYPES];
     bool hasDailyReport;
+
+    std::list<time_t> m_ReportsHistory;
 };
 
 #endif

@@ -1629,7 +1629,7 @@ class BattlegroundAV : public Battleground
 
         uint8 m_MaxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
         bool m_IsInformedNearVictory[2];
-
+        int32 m_CheatersCheckTimer;
 };
 
 #endif

@@ -123,8 +123,7 @@ enum ShamanSpells
     SPELL_SHA_ELEMENTAL_FUSION                  = 152257,
     SPELL_SHA_ELEMENTAL_FUSION_PROC             = 157174,
     SPELL_SHA_IMPROVED_LIGHTNING_SHIELD         = 157774,
-    SPELL_SHA_GLYPH_OF_CLEANSING_WATER          = 55445,
-    SPELL_SHA_SPELL_CLEANSING_WATER             = 86961
+    SPELL_SHA_UNLEASH_FLAME_AURA                = 73683
 };
 
 /// Called by Unleash Flame - 165462, Unleash Life - 73685 and Unleash Elements - 73680
@@ -601,6 +600,42 @@ class spell_sha_glyph_of_shamanistic_rage: public SpellScriptLoader
         }
 };
 
+/// Purge - 370
+class spell_sha_purge : public SpellScriptLoader
+{
+    public:
+        spell_sha_purge() : SpellScriptLoader("spell_sha_purge") { }
+
+        class spell_sha_purge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_purge_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfPurging  = 147762,
+                MaelstromWeapon = 53817
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster->HasAura(eSpells::GlyphOfPurging))
+                    l_Caster->CastSpell(l_Caster, eSpells::MaelstromWeapon, true);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_sha_purge_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_purge_SpellScript();
+        }
+};
+
 /// Called by Ghost Wolf - 2645
 /// Glyph of Lakestrider - 55448
 class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
@@ -628,48 +663,6 @@ class spell_sha_glyph_of_lakestrider: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_glyph_of_lakestrider_SpellScript();
-        }
-};
-
-/// Call by Cleanse Spirit - 51886
-/// Glyph of Cleansing Waters - 55445
-class spell_sha_glyph_of_cleansing_waters : public SpellScriptLoader
-{
-    public:
-        spell_sha_glyph_of_cleansing_waters() : SpellScriptLoader("spell_sha_glyph_of_cleansing_waters") { }
-
-        class spell_sha_glyph_of_cleansing_waters_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_glyph_of_cleansing_waters_SpellScript);
-
-            void HandleOnHit()
-            {
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_GLYPH_OF_CLEANSING_WATER);
-
-                if (l_SpellInfo == nullptr || l_Target == nullptr)
-                    return;
-
-                /// You also heal the target for 4% of your maximum health.
-                if (l_Caster->HasAura(SPELL_SHA_GLYPH_OF_CLEANSING_WATER))
-                {
-                    int32 l_Bp = CalculatePct(l_Caster->GetMaxHealth(), l_SpellInfo->Effects[EFFECT_0].BasePoints);
-
-                    l_Caster->CastCustomSpell(l_Target, SPELL_SHA_SPELL_CLEANSING_WATER, &l_Bp, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_glyph_of_cleansing_waters_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_glyph_of_cleansing_waters_SpellScript();
         }
 };
 
@@ -1101,7 +1094,7 @@ class spell_sha_fulmination: public SpellScriptLoader
         }
 };
 
-/// 77762 Lava Surge
+/// 77762 - Lava Surge
 class spell_sha_lava_surge: public SpellScriptLoader
 {
     public:
@@ -1111,20 +1104,19 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            void HandleAuraApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Player* l_Player = GetCaster()->ToPlayer();
 
-                if (!l_Player)
+                if (l_Player == nullptr)
                     return;
 
-                if (l_Player->HasSpellCooldown(SPELL_SHA_LAVA_BURST))
-                    l_Player->RemoveSpellCooldown(SPELL_SHA_LAVA_BURST, true);
+                l_Player->RestoreCharge(1536);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::HandleAuraApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_sha_lava_surge_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1156,11 +1148,15 @@ class spell_sha_healing_stream: public SpellScriptLoader
                 if (!GetCaster()->GetOwner())
                     return;
 
-                if (Unit* _player = GetCaster()->GetOwner())
-                    if (Unit* target = GetHitUnit())
-                        // Glyph of Healing Stream Totem
-                        if (target->GetGUID() != _player->GetGUID() && _player->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
-                            _player->CastSpell(target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                if (Unit* l_Owner = GetCaster()->GetOwner())
+                {
+                    if (Unit* l_Target = GetHitUnit())
+                    {
+                        /// Glyph of Healing Stream Totem
+                        if (l_Owner->HasAura(SPELL_SHA_GLYPH_OF_HEALING_STREAM_TOTEM))
+                            l_Owner->CastSpell(l_Target, SPELL_SHA_GLYPH_OF_HEALING_STREAM, true);
+                    }
+                }
             }
 
             void Register()
@@ -1295,7 +1291,6 @@ class spell_sha_earthquake: public SpellScriptLoader
                     m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount() / 100.0f;
                     l_Aura->Remove();
                 }
-
             }
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -1385,6 +1380,35 @@ class spell_sha_healing_rain: public SpellScriptLoader
         {
             return new spell_sha_healing_rain_AuraScript();
         }
+};
+
+/// Healing Rain (heal) - 73921
+class spell_sha_healing_rain_heal : public SpellScriptLoader
+{
+public:
+    spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
+
+    class spell_sha_healing_rain_heal_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
+
+        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        {
+            /// Healing up to 6 allies 
+            if (p_Targets.size() > 6)
+                JadeCore::RandomResizeList(p_Targets, 6);
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_healing_rain_heal_SpellScript();
+    }
 };
 
 /// Ascendance - 114049
@@ -1643,7 +1667,146 @@ class spell_sha_lava_lash_spread: public SpellScriptLoader
         }
 };
 
-/// 60103 - Lava Lash
+/// Flame Shock - 8050
+class spell_sha_flame_shock : public SpellScriptLoader
+{
+    public:
+        spell_sha_flame_shock() : SpellScriptLoader("spell_sha_flame_shock") { }
+
+        class spell_sha_flame_shock_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_flame_shock_SpellScript);
+
+            bool m_HasUnleashFlame = false;
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA) && l_UnleashFlame != nullptr)
+                {
+                    m_HasUnleashFlame = true;
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                }
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                {
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ElementalFusion->Effects[EFFECT_0].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+
+                if (!m_HasUnleashFlame || l_Target == nullptr || l_UnleashFlame == nullptr)
+                    return;
+
+                if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
+                    l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_sha_flame_shock_SpellScript::HandleAfterHit);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_flame_shock_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        class spell_sha_flame_shock_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_flame_shock_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_ElementalFusion = sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_FUSION_PROC);
+
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION_PROC) && l_ElementalFusion != nullptr)
+                {
+                    p_Amount += CalculatePct(p_Amount, l_ElementalFusion->Effects[EFFECT_0].BasePoints);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_flame_shock_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_flame_shock_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_flame_shock_SpellScript();
+        }
+};
+
+/// Healing Wave - 77472
+class spell_sha_healing_wave : public SpellScriptLoader
+{
+    public:
+        spell_sha_healing_wave() : SpellScriptLoader("spell_sha_healing_wave") { }
+
+        class spell_sha_healing_wave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_healing_wave_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfHealingWave = 55440,
+                GlyphOfHealingWaveHeal = 55533
+            };
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasSpell(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
+                {
+                    SpellInfo const* l_GlyphOfHealingWave = sSpellMgr->GetSpellInfo(eSpells::GlyphOfHealingWave);
+
+                    if (l_Caster->GetGUID() == l_Target->GetGUID() || l_GlyphOfHealingWave == nullptr) ///< When you heal someone else
+                        return;
+
+                    int32 l_HealAmount = (GetHitHeal() / l_GlyphOfHealingWave->Effects[EFFECT_0].BasePoints); ///< Your Healing Wave also heals you for 10 % of the healing effect
+                    
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfHealingWaveHeal, &l_HealAmount, nullptr, nullptr, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_healing_wave_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_healing_wave_SpellScript();
+        }
+};
+
+/// Lava Lash - 60103
 class spell_sha_lava_lash: public SpellScriptLoader
 {
     public:
@@ -1655,12 +1818,28 @@ class spell_sha_lava_lash: public SpellScriptLoader
 
             void HitTarget(SpellEffIndex)
             {
-                if (Unit* l_Target = GetHitUnit())
-                    if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
-                        GetCaster()->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                if (GetCaster()->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
-                    GetCaster()->CastSpell(GetCaster(), SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK))
+                    l_Caster->CastSpell(l_Target, SPELL_SHA_LAVA_LASH_SPREAD, true);
+
+                if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                
+                if (l_Caster->HasAura(SPELL_SHA_UNLEASH_FLAME_AURA))
+                {
+                    SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
+
+                    if (l_UnleashFlame == nullptr)
+                        return;
+
+                    SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+                    l_Caster->RemoveAurasDueToSpell(SPELL_SHA_UNLEASH_FLAME_AURA);
+                }
             }
 
             void Register()
@@ -1719,6 +1898,56 @@ class spell_sha_windfury: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_sha_windfury_AuraScript();
+        }
+};
+
+enum GlyphOfEternalEarth
+{
+    LightningBolt   = 403,
+    EarthShield     = 974
+};
+
+/// Glyph of Eternal Earth (Restoration) - 147781
+class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
+{
+    public:
+        spell_sha_glyph_of_eternal_earth() : SpellScriptLoader("spell_sha_glyph_of_eternal_earth") { }
+
+        class spell_sha_glyph_of_eternal_earth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_glyph_of_eternal_earth_AuraScript);
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_ProcInfo.GetDamageInfo())
+                    return;
+
+                if (!p_ProcInfo.GetDamageInfo()->GetSpellInfo() || p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id != GlyphOfEternalEarth::LightningBolt)
+                    return;
+
+                if (Unit* l_Caster = p_ProcInfo.GetActor())
+                {
+                    if (AuraPtr l_EarthShield = l_Caster->GetAura(GlyphOfEternalEarth::EarthShield))
+                    {
+                        if (l_EarthShield->GetCharges() >= GetSpellInfo()->Effects[EFFECT_0].BasePoints) ///< This cannot cause Earth Shield to exceed 9 charges.
+                            return;
+                        else
+                            l_EarthShield->ModCharges(1);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_glyph_of_eternal_earth_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_glyph_of_eternal_earth_AuraScript();
         }
 };
 
@@ -2134,7 +2363,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
-/// 51505 Lava Burst
+/// 51505 - Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
     public:
@@ -2154,13 +2383,28 @@ class spell_sha_lava_burst: public SpellScriptLoader
                     {
                         AuraPtr l_LightningShield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
                         if (l_LightningShield != nullptr)
-                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
+                        {
+                            if (l_LightningShield->GetCharges() < 20)
+                                l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
+                        }
                     }
                 }
             }
 
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_SHA_LAVA_SURGE_CAST_TIME))
+                    l_Player->RestoreCharge(1536);
+            }
+
             void Register()
             {
+                AfterCast += SpellCastFn(spell_sha_lava_burst_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_burst_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -2203,6 +2447,131 @@ public:
     }
 };
 
+/// 2645 Chain Heal
+class spell_sha_chain_heal: public SpellScriptLoader
+{
+    public:
+        spell_sha_chain_heal() : SpellScriptLoader("spell_sha_chain_heal") { }
+
+        class spell_sha_chain_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_chain_heal_SpellScript);
+
+            enum eSpells
+            {
+                Riptide = 61295
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                if (!l_Target)
+                    return;
+
+                if (l_Target->HasAura(eSpells::Riptide))
+                {
+                    uint32 l_Heal = GetHitHeal();
+
+                    SpellInfo const* l_Riptide = sSpellMgr->GetSpellInfo(eSpells::Riptide);
+                    if (l_Riptide == nullptr)
+                        return;
+
+                    AddPct(l_Heal, l_Riptide->Effects[EFFECT_2].BasePoints);
+                    SetHitHeal(l_Heal);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_chain_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_chain_heal_SpellScript;
+        }
+};
+
+/// Riptide - 61295
+class spell_sha_riptide : public SpellScriptLoader
+{
+    public:
+        spell_sha_riptide() : SpellScriptLoader("spell_sha_riptide") { }
+
+        enum eSpells
+        {
+            UnleashLife = 73685
+        };
+
+        class spell_sha_riptide_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_riptide_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
+
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::UnleashLife);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_riptide_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                AfterHit += SpellHitFn(spell_sha_riptide_SpellScript::HandleAfterHit);
+            }
+        };
+
+        class spell_sha_riptide_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_riptide_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashLife);
+
+                if (l_Caster == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::UnleashLife))
+                {
+                    p_Amount += CalculatePct(p_Amount, l_SpellInfo->Effects[EFFECT_2].BasePoints);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_riptide_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_riptide_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_riptide_SpellScript;
+        }
+};
+
 // Maelstrom Weapon - 53817
 uint32 g_MaelstromVisualSpellIds[] { 170588, 170587, 170586, 170585, 60349};
 class spell_sha_maelstrom_weapon: public SpellScriptLoader
@@ -2227,7 +2596,7 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
             void RemoveAllVisuals(Unit* l_Caster)
             {
-                for (int l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds); l_I++)
+                for (uint32 l_I = 0; l_I < sizeof(g_MaelstromVisualSpellIds) / sizeof(uint32); l_I++)
                     if (AuraPtr l_Aura = l_Caster->GetAura(g_MaelstromVisualSpellIds[l_I]))
                         l_Aura->Remove();
             }
@@ -2251,7 +2620,6 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
-    new spell_sha_glyph_of_cleansing_waters();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
@@ -2275,6 +2643,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthquake_tick();
     new spell_sha_earthquake();
     new spell_sha_healing_rain();
+    new spell_sha_healing_rain_heal();
     new spell_sha_ascendance();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
@@ -2293,5 +2662,11 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_liquid_magma_visual();
     new spell_sha_ghost_wolf();
     new spell_sha_lava_burst();
+    new spell_sha_chain_heal();
+    new spell_sha_glyph_of_eternal_earth();
+    new spell_sha_flame_shock();
+    new spell_sha_purge();
+    new spell_sha_healing_wave();
+    new spell_sha_riptide();
     new spell_sha_maelstrom_weapon();
 }
