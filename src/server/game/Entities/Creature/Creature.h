@@ -121,7 +121,7 @@ enum CreatureFlagsExtra
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY];
+    uint32  DifficultyEntry[Difficulty::MaxDifficulties];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
@@ -318,15 +318,16 @@ struct CreatureData
     bool dbData;
 };
 
-// `creature_addon` table
+/// `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
-    uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
-    uint32 emote;
-    std::vector<uint32> auras;
+    uint32 PathID;
+    uint32 Mount;
+    uint32 Bytes1;
+    uint32 Bytes2;
+    uint32 Emote;
+    std::vector<uint32> Auras;
+    uint32 AnimKit;
 };
 
 typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;

@@ -25,7 +25,7 @@
 #include "World.h"
 #include "Group.h"
 
-MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DifficultyNormal)
 {
     // initialize instanced maps list
     m_InstancedMaps.clear();
@@ -208,7 +208,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 
     if (GetId() != 249)
         if (entry->MaxPlayers == 40)
-            difficulty = DIFFICULTY_40;
+            difficulty = Difficulty40;
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
@@ -236,9 +236,9 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     uint8 spawnMode;
 
     if (bracketEntry)
-        spawnMode = DIFFICULTY_NORMAL; // bracketEntry->difficulty;
+        spawnMode = DifficultyNormal; // bracketEntry->difficulty;
     else
-        spawnMode = DIFFICULTY_NORMAL;
+        spawnMode = DifficultyNormal;
 
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());

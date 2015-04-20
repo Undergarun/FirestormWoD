@@ -1417,6 +1417,16 @@ void Unit::CastCustomSpell(float x, float y, float z, uint32 spellId, int32 cons
     CastSpell(targets, spellInfo, &values, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
 
+void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
+void Unit::CastSpell(G3D::Vector3 p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    CastSpell(p_Pos.x, p_Pos.y, p_Pos.z, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
 void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem, constAuraEffectPtr triggeredByAura, uint64 originalCaster)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
@@ -7969,7 +7979,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         chance = 15.0f;
                     }
                     // Judgement (any)
-                    else if (procSpell->GetSpellSpecific() == SPELL_SPECIFIC_JUDGEMENT)
+                    else if (procSpell->GetSpellSpecific() == SpellSpecificType::SpellSpecificJudgement)
                     {
                         triggered_spell_id = 40472;
                         chance = 50.0f;
@@ -16897,7 +16907,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
         // Some spells can proc on absorb
         if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 ||
-            triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
+            triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
             || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
             active = true;
 
@@ -17526,7 +17536,7 @@ bool Unit::IsPolymorphed() const
     if (!spellInfo)
         return false;
 
-    return spellInfo->GetSpellSpecific() == SPELL_SPECIFIC_MAGE_POLYMORPH;
+    return spellInfo->GetSpellSpecific() == SpellSpecificType::SpellSpecificMagePolymorph;
 }
 
 void Unit::SetDisplayId(uint32 modelId)
@@ -18240,6 +18250,40 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(id);
     SendMessageToSet(&l_Data, true);
+}
+
+void Unit::SetAIAnimKit(uint32 p_AnimKitID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
+void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
+{
+    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+
+    l_Data.WriteVector3(p_Source);
+    l_Data.WriteVector3(p_Orientation);
+    l_Data.WriteVector3(p_Target);
+    l_Data.appendPackGUID(p_TargetGuid);
+
+    l_Data << int32(p_Visual);
+    l_Data << float(p_TravelSpeed);
+    l_Data << float(0.0f);  ///< UnkFloat
+
+    l_Data.WriteBit(p_SpeedAsTime);
+    l_Data.FlushBits();
+
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
+void Unit::CancelOrphanSpellVisual(int32 p_SpellVisualID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4);
+    l_Data << int32(p_SpellVisualID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * p_SpellProto)
@@ -19389,15 +19433,22 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType)
+void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration)
 {
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
-    l_Data << uint32(0);
-
+    l_Data << uint32(p_Duration);
     SendMessageToSet(&l_Data, false);
+}
+
+void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellVisualKitID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
@@ -19433,6 +19484,14 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
         ToPlayer()->GetSession()->SendPacket(&l_Data);
     else
         SendMessageToSet(&l_Data, false);
+}
+
+void Unit::CancelSpellVisual(int32 p_SpellVisualID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << int32(p_SpellVisualID);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const

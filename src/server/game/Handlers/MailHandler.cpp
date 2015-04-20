@@ -638,13 +638,8 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
             l_MailsBuffer << uint8(l_I);
             l_MailsBuffer << uint32(l_Item ? l_Item->GetGUIDLow() : 0);
-            l_MailsBuffer << uint32(l_Item ? l_Item->GetEntry() : 0);
-            l_MailsBuffer << uint32(l_Item ? l_Item->GetItemSuffixFactor() : 0);
-            l_MailsBuffer << int32(l_Item ? l_Item->GetItemRandomPropertyId() : 0);
 
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.FlushBits();
+            Item::BuildDynamicItemDatas(l_MailsBuffer, l_Item);
 
             for (uint8 l_J = 0; l_J < MAX_INSPECTED_ENCHANTMENT_SLOT; ++l_J)
             {

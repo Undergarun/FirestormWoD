@@ -312,16 +312,16 @@ class boss_lei_shi : public CreatureScript
 
                     switch (me->GetMap()->GetSpawnMode())
                     {
-                        case DIFFICULTY_10_N:
+                        case Difficulty::Difficulty10N:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case DIFFICULTY_25_N:
+                        case Difficulty::Difficulty25N:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_NORMAL_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case DIFFICULTY_10_HC:
+                        case Difficulty::Difficulty10HC:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_10, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
-                        case DIFFICULTY_25_HC:
+                        case Difficulty::Difficulty25HC:
                             me->SummonGameObject(GOB_LEI_SHI_CHEST_HEROIC_25, leiShiPos.GetPositionX(), leiShiPos.GetPositionY(), leiShiPos.GetPositionZ(), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0);
                             break;
                         default:

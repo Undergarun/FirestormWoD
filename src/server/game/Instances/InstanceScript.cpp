@@ -963,18 +963,7 @@ void InstanceScript::SendChallengeModeComplete(uint32 p_Money)
         ///< ItemReward
         for (uint32 l_I = 0; l_I < l_ItemRewards; ++l_I)
         {
-            ///< ItemStruct
-            {
-                l_Data << int32(0);     ///< ItemEntry
-                l_Data << int32(0);     ///< RandomPropertiesSeed
-                l_Data << int32(0);     ///< RandomPropertiesID
-
-                l_Data.WriteBit(true);  ///< HasBonus
-                l_Data.WriteBit(false); ///< HasModifiers
-
-                l_Data << uint8(15);    ///< UnkByte for Bonuses
-                l_Data << uint32(0);    ///< BonusCount
-            }
+            Item::BuildDynamicItemDatas(l_Data, nullptr);
 
             l_Data << uint32(0);    ///< Quantity
         }
@@ -1144,7 +1133,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == DIFFICULTY_NONE)
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == DifficultyNone)
             l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 
@@ -1177,6 +1166,10 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data << int32(instance->GetPlayers().getSize());
             l_Data.WriteBit(true);
             l_Data.FlushBits();
+            instance->SendToPlayers(&l_Data);
+
+            l_Data.Initialize(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
+            l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
             return;

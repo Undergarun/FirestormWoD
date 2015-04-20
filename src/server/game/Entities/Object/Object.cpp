@@ -2095,15 +2095,21 @@ bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Ra
     if (p_Object == nullptr)
         return false;
 
-    if (!p_Width)
-        p_Width = GetObjectSize() / 2.0f;
-
+    float l_Dist = GetExactDist2d(p_Object->GetPositionX(), p_Object->GetPositionY());
     float l_X = p_Object->GetPositionX() + (p_Range * cos(p_Object->GetOrientation()));
     float l_Y = p_Object->GetPositionY() + (p_Range * sin(p_Object->GetOrientation()));
+
+    /// Not using sqrt() for performance
+    if ((l_Dist * l_Dist) >= p_Object->GetExactDist2dSq(l_X, l_Y))
+        return false;
+
+    if (!p_Width)
+        p_Width = GetObjectSize() / 2;
+
     float l_Angle = p_Object->GetAngle(l_X, l_Y);
 
     /// Not using sqrt() for performance
-    return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * p_Range, p_Object->GetPositionY() + sin(l_Angle) * p_Range);
+    return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
 }
 
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
@@ -3232,6 +3238,11 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     map->AddToMap(go);
 
     return go;
+}
+
+GameObject* WorldObject::SummonGameObject(uint32 p_Entry, Position const p_Pos, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3, uint32 p_RespTime, uint64 p_ViewerGuid /*= 0*/, std::list<uint64>* p_ViewerList /*= nullptr*/, uint32 p_AnimProgress /*= 100*/, uint32 p_GoHealth /*= 0*/, bool p_GarrisonPlotObject /*= false*/)
+{
+    return SummonGameObject(p_Entry, p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation, p_Rot0, p_Rot1, p_Rot2, p_Rot3, p_RespTime, p_ViewerGuid, p_ViewerList, p_AnimProgress, p_GoHealth, p_GarrisonPlotObject);
 }
 
 Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))

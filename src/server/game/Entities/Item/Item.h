@@ -29,6 +29,8 @@ class SpellInfo;
 class Bag;
 class Unit;
 
+struct VoidStorageItem;
+
 struct ItemSetEffect
 {
     uint32 setid;
@@ -232,9 +234,10 @@ namespace ItemBonus
 {
     enum Stats : uint32
     {
-        Avoidance = 40,
-        Leech     = 41,
-        Speed     = 42
+        Avoidance       = 40,
+        Leech           = 41,
+        Speed           = 42,
+        Indestructible  = 43
     };
 
     namespace Chances
@@ -358,6 +361,13 @@ class Item : public Object
         * @param p_ItemBonus: Vector of bonus to fill
         */
         static void GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus);
+
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses = std::vector<uint32>());
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses = std::vector<uint32>());
 
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);

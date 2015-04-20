@@ -192,6 +192,7 @@ class Roll : public LootValidatorRef
         uint8 totalPass;
         uint8 itemSlot;
         uint8 rollVoteMask;
+        std::vector<uint32> m_ItemBonuses;
 };
 
 struct InstanceGroupBind
@@ -439,7 +440,7 @@ class Group
         ItemQualities       m_lootThreshold;
         uint64              m_looterGuid;
         Rolls               RollId;
-        BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
+        BoundInstancesMap   m_boundInstances[Difficulty::MaxDifficulties];
         uint8*              m_subGroupsCounts;
         uint64              m_guid;
         uint32              m_UpdateCount;                      // used only in SMSG_PARTY_UPDATE

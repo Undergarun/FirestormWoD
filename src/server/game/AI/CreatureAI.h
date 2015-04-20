@@ -120,6 +120,12 @@ class CreatureAI : public UnitAI
         virtual void JustSummoned(Creature* /*summon*/) {}
         virtual void IsSummonedBy(Unit* /*summoner*/) {}
 
+        /// Called when the creature summons successfully AreaTriggers
+        virtual void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) { }
+
+        /// Called when an AreaTrigger summoned by the creature despawns
+        virtual void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) { }
+
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
 
@@ -128,6 +134,9 @@ class CreatureAI : public UnitAI
 
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
+
+        /// Called when spell miss a target
+        virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);

@@ -2071,7 +2071,7 @@ class spell_total_annihilation: public SpellScriptLoader
 
                     uint8 diffic = caster->GetMap()->GetDifficultyID();
 
-                    if ((!targetCount &&  diffic == DIFFICULTY_10_N) || (targetCount < 3 && diffic == DIFFICULTY_25_N))
+                    if ((!targetCount &&  diffic == Difficulty::Difficulty10N) || (targetCount < 3 && diffic == Difficulty::Difficulty25N))
                         caster->CastSpell(caster, SPELL_CATASTROPHIC_ANOMALY, false);
                 }
             }

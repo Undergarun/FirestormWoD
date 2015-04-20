@@ -8,12 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-
 file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
+file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   ${sources_Garrison}
+  ${sources_Highmaul}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
   Draenor/frostfire_ridge.cpp

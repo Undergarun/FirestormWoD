@@ -145,18 +145,7 @@ void WorldSession::SendBlackMarketBidResult(uint32 p_ItemEntry, uint32 p_Auction
     WorldPacket l_Data(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT, 12);
     l_Data << uint32(p_AuctionID);
 
-    ///< ItemStruct
-    {
-        l_Data << uint32(p_ItemEntry);
-        l_Data << uint32(0);   ///< RandomPropertiesSeed
-        l_Data << int32(0);    ///< RandomPropertiesID
-
-        l_Data.WriteBit(true);    ///< HasBonus
-        l_Data.WriteBit(false);    ///< HasModifiers
-
-        l_Data << uint8(15);   ///< UnkByte for Bonuses
-        l_Data << uint32(0);   ///< BonusCount
-    }
+    Item::BuildDynamicItemDatas(l_Data, p_ItemEntry);
 
     l_Data << uint32(BlackMarketBidResult::BidPlaced);    ///< Result OK
     SendPacket(&l_Data);

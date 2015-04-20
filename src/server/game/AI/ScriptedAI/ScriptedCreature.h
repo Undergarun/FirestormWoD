@@ -111,6 +111,9 @@ struct ScriptedAI : public CreatureAI
     // Called when spell hits a target
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
+    /// Called when spell miss a target
+    void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
+
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 id) {}
 
@@ -204,28 +207,23 @@ struct ScriptedAI : public CreatureAI
 
     bool EnterEvadeIfOutOfCombatArea(uint32 const diff);
 
-    // return true for heroic mode. i.e.
-    //   - for dungeon in mode 10-heroic,
-    //   - for raid in mode 10-Heroic
-    //   - for raid in mode 25-heroic
-    // DO NOT USE to check raid in mode 25-normal.
-    bool IsHeroic() const { return _isHeroic; }
-
     // return the dungeon or raid difficulty
     Difficulty GetDifficulty() const { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC || _difficulty == DIFFICULTY_LFR; }
-    bool IsLFR() const { return _difficulty == DIFFICULTY_LFR; }
+    bool Is25ManRaid() const { return _difficulty == Difficulty::Difficulty25N || _difficulty == Difficulty::Difficulty25HC || IsLFR(); }
+    bool IsLFR() const { return _difficulty == Difficulty::DifficultyRaidTool || _difficulty == Difficulty::DifficultyRaidLFR; }
+    bool IsHeroic() const { return me->GetMap()->IsHeroic(); }
+    bool IsMythic() const { return me->GetMap()->IsMythic(); }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10) const
     {
         switch (_difficulty)
         {
-            case DIFFICULTY_NORMAL:
+            case DifficultyNormal:
                 return normal5;
-            case DIFFICULTY_HEROIC:
+            case DifficultyHeroic:
                 return heroic10;
             default:
                 break;
@@ -239,9 +237,9 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case DIFFICULTY_10_N:
+            case Difficulty10N:
                 return normal10;
-            case DIFFICULTY_25_N:
+            case Difficulty25N:
                 return normal25;
             default:
                 break;
@@ -255,13 +253,13 @@ struct ScriptedAI : public CreatureAI
     {
         switch (_difficulty)
         {
-            case DIFFICULTY_10_N:
+            case Difficulty10N:
                 return normal10;
-            case DIFFICULTY_25_N:
+            case Difficulty25N:
                 return normal25;
-            case DIFFICULTY_10_HC:
+            case Difficulty10HC:
                 return heroic10;
-            case DIFFICULTY_25_HC:
+            case Difficulty25HC:
                 return heroic25;
             default:
                 break;
@@ -274,7 +272,6 @@ struct ScriptedAI : public CreatureAI
         Difficulty _difficulty;
         uint32 _evadeCheckCooldown;
         bool _isCombatMovementAllowed;
-        bool _isHeroic;
 };
 
 struct Scripted_NoMovementAI : public ScriptedAI
@@ -299,6 +296,7 @@ class BossAI : public ScriptedAI
         void SummonedCreatureDespawn(Creature* summon);
 
         virtual void UpdateAI(uint32 const p_Diff);
+        void UpdateOperations(uint32 const p_Diff);
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
@@ -310,6 +308,22 @@ class BossAI : public ScriptedAI
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
         void JustDied(Unit* /*killer*/) { _JustDied(); }
         void JustReachedHome() { _JustReachedHome(); }
+
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        {
+            m_EmptyWarned = false;
+            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
 
     protected:
         void _Reset();

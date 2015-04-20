@@ -1896,9 +1896,9 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImp
 
                     Position const* l_Center = m_caster;
                     std::list<WorldObject*> l_Targets;
-                    float l_Raidus = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
+                    float l_Radius = m_spellInfo->Effects[l_I].CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
-                    SearchAreaTargets(l_Targets, l_Raidus, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
+                    SearchAreaTargets(l_Targets, l_Radius, l_Center, m_caster, TARGET_OBJECT_TYPE_UNIT, TARGET_CHECK_RAID, m_spellInfo->Effects[l_I].ImplicitTargetConditions);
 
                     std::list<Unit*> l_UnitTargets;
                     // for compatibility with older code - add only unit and go targets
@@ -2920,6 +2920,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             if (m_caster->GetTypeId() == TYPEID_UNIT)
                 m_caster->ToCreature()->LowerPlayerDamageReq(target->damage);
         }
+    }
+
+    if (missInfo != SpellMissInfo::SPELL_MISS_NONE)
+    {
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+            m_caster->ToCreature()->AI()->SpellMissTarget(unit, m_spellInfo, missInfo);
     }
 
     if (spellHitTarget)
@@ -6030,9 +6036,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_CASTER_AURASTATE;
 
         // Note: spell 62473 requres casterAuraSpell = triggering spell
-        if (!((m_spellInfo->Id == 48020 || m_spellInfo->Id == 114794) && m_spellInfo->CasterAuraSpell == 62388) && m_spellInfo->CasterAuraSpell && !m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->CasterAuraSpell, m_caster)))
+        if (!((m_spellInfo->Id == 48020 || m_spellInfo->Id == 114794) && m_spellInfo->CasterAuraSpell == 62388) && m_spellInfo->CasterAuraSpell && !m_caster->HasAura(m_spellInfo->CasterAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
-        if (m_spellInfo->ExcludeCasterAuraSpell && m_caster->HasAura(sSpellMgr->GetSpellIdForDifficulty(m_spellInfo->ExcludeCasterAuraSpell, m_caster)))
+        if (m_spellInfo->ExcludeCasterAuraSpell && m_caster->HasAura(m_spellInfo->ExcludeCasterAuraSpell))
             return SPELL_FAILED_CASTER_AURASTATE;
 
         if (reqCombat && m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())
@@ -6874,9 +6880,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         // Drink
         switch (m_spellInfo->GetSpellSpecific())
         {
-            case SPELL_SPECIFIC_DRINK:
-            case SPELL_SPECIFIC_FOOD:
-            case SPELL_SPECIFIC_FOOD_AND_DRINK:
+            case SpellSpecificType::SpellSpecificDrink:
+            case SpellSpecificType::SpellSpecificFood:
+            case SpellSpecificType::SpellSpecificFoodAndDrink:
                 return SPELL_FAILED_CHARMED;
         default:
             break;

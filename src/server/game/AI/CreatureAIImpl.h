@@ -450,6 +450,23 @@ class EventMap : private std::map<uint32, uint32>
             }
         }
 
+        /// Delay specific event
+        void DelayEvent(uint32 p_EventID, uint32 p_Delay)
+        {
+            uint32 l_NextTime = _time + p_Delay;
+            for (iterator l_Iter = begin(); l_Iter != end() && l_Iter->first < l_NextTime;)
+            {
+                if ((l_Iter->second & 0x0000FFFF) == p_EventID)
+                {
+                    ScheduleEvent(p_EventID, l_Iter->first - _time + p_Delay);
+                    erase(l_Iter);
+                    l_Iter = begin();
+                }
+                else
+                    ++l_Iter;
+            }
+        }
+
         // Cancel events with specified id
         void CancelEvent(uint32 eventId)
         {

@@ -218,6 +218,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void SetPathToLinearDestination(std::list<Position>& l_List) { m_PathToLinearDestination = l_List; }
         Position const& GetDestination() const { return m_Destination; };
 
+        static AreaTrigger* GetAreaTrigger(WorldObject const& p_Object, uint64 p_Guid);
+
         /*
          * Cast spell by using unit trigger/dummy at areatrigger posiiton
          * Use areatrigger owner (caster) for ennemies/friends selection

@@ -866,10 +866,10 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     m_HomebindTimer = 0;
     m_InstanceValid = true;
-    m_dungeonDifficulty = DIFFICULTY_NORMAL;
-    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
-    m_LegacyRaidDifficulty = DIFFICULTY_10_N;
-    m_raidMapDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_dungeonDifficulty = DifficultyNormal;
+    m_raidDifficulty = DifficultyRaidNormal;
+    m_LegacyRaidDifficulty = Difficulty10N;
+    m_raidMapDifficulty = DifficultyRaidNormal;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -1089,7 +1089,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
         m_transport->RemovePassenger(this);
 
     // clean up player-instance binds, may unload some instance saves
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
             itr->second.save->RemovePlayer(this);
 }
@@ -4256,19 +4256,19 @@ void Player::SetInWater(bool apply)
     getHostileRefManager().updateThreatTables();
 }
 
-void Player::SetGameMaster(bool on)
+void Player::SetGameMaster(bool p_On)
 {
-    if (on)
+    if (p_On && !(m_ExtraFlags & PLAYER_EXTRA_GM_ON))
     {
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
         setFaction(35);
         SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GM);
         SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
-        if (Pet* pet = GetPet())
+        if (Pet* l_Pet = GetPet())
         {
-            pet->setFaction(35);
-            pet->getHostileRefManager().setOnlineOfflineState(false);
+            l_Pet->setFaction(35);
+            l_Pet->getHostileRefManager().setOnlineOfflineState(false);
         }
 
         RemoveByteFlag(UNIT_FIELD_SHAPESHIFT_FORM, 1, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -4280,17 +4280,17 @@ void Player::SetGameMaster(bool on)
         SetPhaseMask(uint32(PHASEMASK_ANYWHERE), false);    // see and visible in all phases
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
-    else
+    else if (!p_On && m_ExtraFlags & PLAYER_EXTRA_GM_ON)
     {
-        m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
+        m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GM);
         RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
-        if (Pet* pet = GetPet())
+        if (Pet* l_Pet = GetPet())
         {
-            pet->setFaction(getFaction());
-            pet->getHostileRefManager().setOnlineOfflineState(true);
+            l_Pet->setFaction(getFaction());
+            l_Pet->getHostileRefManager().setOnlineOfflineState(true);
         }
 
         // restore FFA PvP Server state
@@ -9996,7 +9996,7 @@ void Player::_GarrisonSetIn()
     if (!l_GarrisonSiteEntry)
         return;
 
-    Difficulty l_DungeonDiff = DIFFICULTY_NORMAL;
+    Difficulty l_DungeonDiff = DifficultyNormal;
     std::swap(l_DungeonDiff, m_dungeonDifficulty);
 
     SwitchToPhasedMap(l_GarrisonSiteEntry->MapID);
@@ -12815,6 +12815,23 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 l_Buffer << uint32(9524) << uint32(0);              // WorldStateChickenTimer
                 l_Buffer << uint32(9523) << uint32(0);              // WorldStateEnableChicken
             }
+
+            break;
+        }
+        /// Highmaul
+        case 6996:
+        {
+            if (instance && mapid == 1228)
+                instance->FillInitialWorldStates(l_Buffer);
+            else
+            {
+                l_Buffer << uint32(9722) << uint32(0); /// Iron Bombers - activation
+                l_Buffer << uint32(9723) << uint32(0); /// Iron Bombers remaining
+                l_Buffer << uint32(9724) << uint32(0); /// Drunken Bileslinger - activation
+                l_Buffer << uint32(9725) << uint32(0); /// Drunken Bileslinger remaining
+            }
+
+            break;
         }
         default:
             l_Buffer << uint32(0x914) << uint32(0x0);           // 7
@@ -17448,26 +17465,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
         l_Data.WriteBit(p_Mailed);
         l_Data.FlushBits();
 
-        l_Data << uint32(p_Entry);
-        l_Data << uint32(l_ItemTpl->RandomSuffix);
-        l_Data << uint32(l_ItemTpl->RandomProperty);
-        l_Data.WriteBit(p_ItemBonus.size() != 0);                         ///< HasBonus
-        l_Data.WriteBit(false);                                           ///< HasContext
-        l_Data.FlushBits();
-
-        /// - Context struct
-        {
-            // @TODO
-        }
-
-        /// - Bonus struct
-        if (p_ItemBonus.size() != 0)
-        {
-            l_Data << uint8(0);                                         ///< Unk
-            l_Data << uint32(p_ItemBonus.size());
-            for (auto& l_BonusId : p_ItemBonus)
-                l_Data << uint32(l_BonusId);
-        }
+        Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
         l_Data << uint32(GetLootSpecId());
         l_Data << uint32(0);                        // Unk
@@ -17481,55 +17479,39 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
     GetSession()->SendPacket(&l_Data);
 }
 
-void Player::SendNewItem(Item* item, uint32 p_Quantity, bool received, bool created, bool broadcast, std::vector<uint32> const& p_ItemBonus)
+void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool p_Created, bool p_Broadcast)
 {
-    if (!item)                                              // prevent crash
+    /// Prevent crash
+    if (!p_Item)
         return;
 
-    WorldPacket data(SMSG_ITEM_PUSH_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT);
 
-    data.appendPackGUID(GetGUID());                         ///< Player GUID
-    data << uint8(item->GetBagSlot());                      ///< Slot
-    data << uint32(0);
-    data << uint32(item->GetEntry());                       ///< Item ID
-    data << uint32(item->GetItemSuffixFactor());            ///< Random Properties Seed
-    data << uint32(item->GetItemRandomPropertyId());        ///< Random Properties ID
-    data.WriteBit(p_ItemBonus.size() != 0);                 ///< Has Item Bonus
-    data.WriteBit(false);                                   ///< Has Modifications
-    data.FlushBits();
+    l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
+    l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
+    l_Data << uint32(0);
 
-    // Context
-    {
-    }
+    Item::BuildDynamicItemDatas(l_Data, p_Item);
 
-    // Item bonus
-    if (p_ItemBonus.size() != 0)
-    {
-        data << uint8(0);                                         ///< Unk
-        data << uint32(p_ItemBonus.size());
-        for (auto& l_BonusId : p_ItemBonus)
-            data << uint32(l_BonusId);
-    }
+    l_Data << uint32(0);
+    l_Data << uint32(p_Quantity);                           ///< Quantity
+    l_Data << uint32(GetItemCount(p_Item->GetEntry()));     ///< count of items in inventory
+    l_Data << uint32(0);                                    ///< Battle Pet Species ID
+    l_Data << uint32(0);                                    ///< Battle Pet Breed ID
+    l_Data << uint32(0);                                    ///< Battle Pet Breed Quality
+    l_Data << uint32(0);                                    ///< Battle Pet Level
+    l_Data.appendPackGUID(p_Item->GetGUID());               ///< Item GUID
 
-    data << uint32(0);
-    data << uint32(p_Quantity);                             ///< Quantity
-    data << uint32(GetItemCount(item->GetEntry()));         ///< count of items in inventory
-    data << uint32(0);                                      ///< Battle Pet Species ID
-    data << uint32(0);                                      ///< Battle Pet Breed ID
-    data << uint32(0);                                      ///< Battle Pet Breed Quality
-    data << uint32(0);                                      ///< Battle Pet Level
-    data.appendPackGUID(item->GetGUID());                   ///< Item GUID
+    l_Data.WriteBit(p_Received);                            ///< Pushed
+    l_Data.WriteBit(p_Created);                             ///< Created
+    l_Data.WriteBit(true);                                  ///< Display Text
+    l_Data.WriteBit(0);                                     ///< Is Bonus Roll
+    l_Data.FlushBits();
 
-    data.WriteBit(received);                                ///< Pushed
-    data.WriteBit(created);                                 ///< Created
-    data.WriteBit(true);                                    ///< Display Text
-    data.WriteBit(0);                                       ///< Is Bonus Roll
-    data.FlushBits();
-
-    if (broadcast && GetGroup())
-        GetGroup()->BroadcastPacket(&data, true);
+    if (p_Broadcast && GetGroup())
+        GetGroup()->BroadcastPacket(&l_Data, true);
     else
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(&l_Data);
 }
 
 /*********************************************************/
@@ -18629,7 +18611,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
                     }
                 }
 
-                SendNewItem(l_Item, l_DynamicReward->Count, true, false, false, l_Item->GetAllItemBonuses());
+                SendNewItem(l_Item, l_DynamicReward->Count, true, false, false);
             }
             break;
         }
@@ -22137,7 +22119,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
 
 void Player::_LoadBoundInstances(PreparedQueryResult result)
 {
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         m_boundInstances[i].clear();
 
     Group* group = GetGroup();
@@ -22167,7 +22149,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
                 sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed or not dungeon map %d", GetName(), GetGUIDLow(), mapId);
                 deleteInstance = true;
             }
-            else if (difficulty >= MAX_DIFFICULTY)
+            else if (difficulty >= Difficulty::MaxDifficulties)
             {
                 sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
                 deleteInstance = true;
@@ -22351,7 +22333,7 @@ void Player::SendRaidInfo()
     ByteBuffer l_Buffer;
     time_t l_Now = time(NULL);
 
-    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
+    for (uint8 l_Iter = 0; l_Iter < Difficulty::MaxDifficulties; ++l_Iter)
     {
         for (BoundInstancesMap::iterator l_Itr = m_boundInstances[l_Iter].begin(); l_Itr != m_boundInstances[l_Iter].end(); ++l_Itr)
         {
@@ -22387,7 +22369,7 @@ void Player::SendSavedInstances()
     bool hasBeenSaved = false;
     WorldPacket data;
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
         {
@@ -22407,7 +22389,7 @@ void Player::SendSavedInstances()
     if (!hasBeenSaved)
         return;
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); ++itr)
         {
@@ -22427,7 +22409,7 @@ void Player::ConvertInstancesToGroup(Player* player, Group* group, bool switchLe
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
     {
         for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
@@ -23900,7 +23882,7 @@ void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->instanceType == MAP_RAID || diff == DIFFICULTY_HEROIC_RAID)
+            if (entry->instanceType == MAP_RAID || diff == DifficultyRaidHeroic)
             {
                 ++itr;
                 continue;
@@ -26659,45 +26641,54 @@ void Player::UpdateTriggerVisibility()
         GetSession()->SendPacket(&packet);
 }
 
-void Player::SendInitialVisiblePackets(Unit* target)
+void Player::SendInitialVisiblePackets(Unit* p_Target)
 {
-    SendAurasForTarget(target);
+    SendAurasForTarget(p_Target);
 
-    if (target->isAlive())
+    if (Creature* l_Creature = p_Target->ToCreature())
     {
-        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
-            target->SendMeleeAttackStart(target->getVictim());
+        if (CreatureAddon const* l_CreatureAddon = l_Creature->GetCreatureAddon())
+        {
+            if (l_CreatureAddon->AnimKit)
+                l_Creature->SetAIAnimKit(l_CreatureAddon->AnimKit);
+        }
+    }
+
+    if (p_Target->isAlive())
+    {
+        if (p_Target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && p_Target->getVictim())
+            p_Target->SendMeleeAttackStart(p_Target->getVictim());
     }
 }
 
 template<class T>
-void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow)
+void Player::UpdateVisibilityOf(T* p_Target, UpdateData& p_UpdData, std::set<Unit*>& p_VisibleNow)
 {
-    if (HaveAtClient(target))
+    if (HaveAtClient(p_Target))
     {
-        if (!canSeeOrDetect(target, false, true))
+        if (!canSeeOrDetect(p_Target, false, true))
         {
-            BeforeVisibilityDestroy<T>(target, this);
+            BeforeVisibilityDestroy<T>(p_Target, this);
 
-            target->BuildOutOfRangeUpdateBlock(&data);
-            m_clientGUIDs.erase(target->GetGUID());
-            m_VignetteMgr.OnWorldObjectDisappear(target);
+            p_Target->BuildOutOfRangeUpdateBlock(&p_UpdData);
+            m_clientGUIDs.erase(p_Target->GetGUID());
+            m_VignetteMgr.OnWorldObjectDisappear(p_Target);
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", p_Target->GetGUIDLow(), p_Target->GetTypeId(), p_Target->GetEntry(), GetGUIDLow(), GetDistance(p_Target));
             #endif
         }
     }
-    else //if (visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
+    else
     {
-        if (canSeeOrDetect(target, false, true))
+        if (canSeeOrDetect(p_Target, false, true))
         {
-            target->BuildCreateUpdateBlockForPlayer(&data, this);
-            UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
-            m_VignetteMgr.OnWorldObjectAppear(target);
+            p_Target->BuildCreateUpdateBlockForPlayer(&p_UpdData, this);
+            UpdateVisibilityOf_helper(m_clientGUIDs, p_Target, p_VisibleNow);
+            m_VignetteMgr.OnWorldObjectAppear(p_Target);
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", p_Target->GetGUIDLow(), p_Target->GetTypeId(), p_Target->GetEntry(), GetGUIDLow(), GetDistance(p_Target));
             #endif
         }
     }
@@ -26825,7 +26816,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data.WriteBit(l_IsInInstance);                                          ///< Has Instance Group Size
 
     if (l_IsInInstance)
-        l_Data << uint32(GetMap()->GetMapDifficulty()->MaxPlayers);
+        l_Data << uint32(GetMap()->GetPlayers().getSize());
 
     GetSession()->SendPacket(&l_Data);
 
@@ -27078,6 +27069,13 @@ void Player::SendRaidInstanceMessage(uint32 p_MapID, Difficulty p_Difficulty, ui
     l_Data.WriteBit(0);                                   // is locked
     l_Data.WriteBit(0);                                   // is extended, ignored if prev field is 0
     l_Data.FlushBits();
+    GetSession()->SendPacket(&l_Data);
+}
+
+void Player::SendInstanceGroupSizeChanged(uint32 p_Size)
+{
+    WorldPacket l_Data(Opcodes::SMSG_INSTANCE_GROUP_SIZE_CHANGED, 4);
+    l_Data << uint32(p_Size);
     GetSession()->SendPacket(&l_Data);
 }
 
@@ -31838,10 +31836,9 @@ uint32 Player::PlayStandaloneScene(uint32 p_ScenePackageID, uint32 p_PlaybackFla
 /// @p_SceneInstanceID : Scene instance ID
 void Player::CancelStandaloneScene(uint32 p_SceneInstanceID)
 {
-    WorldPacket l_PlayScenePacket(SMSG_CANCEL_SCENE, 4);
-    l_PlayScenePacket << uint32(p_SceneInstanceID);
-
-    SendDirectMessage(&l_PlayScenePacket);
+    WorldPacket l_Data(SMSG_CANCEL_SCENE, 4);
+    l_Data << uint32(p_SceneInstanceID);
+    SendDirectMessage(&l_Data);
 }
 
 /// Compute the unlocked pet battle slot
@@ -32438,7 +32435,7 @@ void Player::CutOffItemLevel(bool p_RescaleItems)
         l_MinLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MIN);
         l_MaxLevel = sWorld->getIntConfig(CONFIG_PVP_ITEM_LEVEL_MAX);
     }
-    else if (l_Map->GetDifficultyID() == DIFFICULTY_CHALLENGE && l_Map->IsDungeon())
+    else if (l_Map->GetDifficultyID() == DifficultyChallenge && l_Map->IsDungeon())
     {
         l_MaxLevel = sWorld->getIntConfig(CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX);
     }
@@ -33126,13 +33123,13 @@ Difficulty Player::CheckLoadedDungeonDifficultyID(Difficulty difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT))
-        return DIFFICULTY_NORMAL;
+        return DifficultyNormal;
 
     return difficulty;
 }
@@ -33141,13 +33138,13 @@ Difficulty Player::CheckLoadedRaidDifficultyID(Difficulty p_Difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_NORMAL_RAID;
+        return DifficultyRaidNormal;
 
-    if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_NORMAL_RAID;
+    if (l_DifficultyEntry->InstanceType != MAP_RAID)
+        return DifficultyRaidNormal;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || (l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
-        return DIFFICULTY_NORMAL_RAID;
+        return DifficultyRaidNormal;
 
     return p_Difficulty;
 }
@@ -33156,13 +33153,13 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty p_Difficulty)
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(p_Difficulty);
     if (!l_DifficultyEntry)
-        return DIFFICULTY_10_N;
+        return Difficulty10N;
 
-    if (l_DifficultyEntry->InstanceType != MAP_INSTANCE)
-        return DIFFICULTY_10_N;
+    if (l_DifficultyEntry->InstanceType != MAP_RAID)
+        return Difficulty10N;
 
     if (!(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_CAN_SELECT) || !(l_DifficultyEntry->Flags & DIFFICULTY_FLAG_LEGACY))
-        return DIFFICULTY_10_N;
+        return Difficulty10N;
 
     return p_Difficulty;
 }

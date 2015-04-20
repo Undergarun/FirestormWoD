@@ -106,13 +106,8 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
         l_Data.appendPackGUID(l_CreatorGUID);
 
         l_Data << uint32(l_I);
-        l_Data << uint32(l_Item->ItemEntry);
-        l_Data << uint32(l_Item->ItemSuffixFactor);
-        l_Data << uint32(l_Item->ItemRandomPropertyId);
 
-        l_Data.WriteBit(false);
-        l_Data.WriteBit(false);
-        l_Data.FlushBits();
+        Item::BuildDynamicItemDatas(l_Data, l_Item->ItemEntry);
     }
 
     SendPacket(&l_Data);
@@ -266,27 +261,19 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     for (uint8 l_I = 0; l_I < l_DepositCountSecond; ++l_I)
     {
-        uint64 l_ItemGUID       = MAKE_NEW_GUID(l_DepositItemsSecond[l_I].first.ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
-        uint64 l_CreatorGUID    = l_DepositItemsSecond[l_I].first.CreatorGuid;
+        uint64 l_ItemGUID = MAKE_NEW_GUID(l_DepositItemsSecond[l_I].first.ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
+        uint64 l_CreatorGUID = l_DepositItemsSecond[l_I].first.CreatorGuid;
 
         l_Data.appendPackGUID(l_ItemGUID);
         l_Data.appendPackGUID(l_CreatorGUID);
 
         l_Data << uint32(l_DepositItemsSecond[l_I].second);                         ///< Slot
 
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemEntry);                ///< ItemID
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemSuffixFactor);         ///< RandomPropertiesSeed
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemRandomPropertyId);     ///< RandomPropertiesID
-
-        l_Data.WriteBit(false);                                                     ///< Has Item Bonus
-        l_Data.WriteBit(false);                                                     ///< Has modification
-        l_Data.FlushBits();
+        Item::BuildDynamicItemDatas(l_Data, l_DepositItemsSecond[l_I].first);
     }
 
     for (uint8 l_I = 0; l_I < l_WithdrawCountSecond; ++l_I)
-    {
         l_Data.appendPackGUID(l_WithdrawItemsSecond[l_I]);
-    }
 
     SendPacket(&l_Data);
 
