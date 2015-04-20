@@ -76,8 +76,8 @@ enum PermissionTypes
 
 enum LootItemType
 {
-    LOOT_ITEM_TYPE_ITEM     = 0,
-    LOOT_ITEM_TYPE_CURRENCY = 1,
+    LOOT_ITEM_TYPE_CURRENCY = 2, // Guessed ????
+    LOOT_ITEM_TYPE_ITEM     = 3,
 };
 
 enum LootType
@@ -118,11 +118,11 @@ enum LootListItemType
 // type of Loot Item in Loot View
 enum LootSlotType
 {
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 1,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 3,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 0,                        // item can only be distributed by group loot master.
-    LOOT_SLOT_TYPE_LOCKED       = 4,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 2,                        // ignore binding confirmation and etc, for single player looting
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
+    LOOT_SLOT_TYPE_OWNER        = 4,                        // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;

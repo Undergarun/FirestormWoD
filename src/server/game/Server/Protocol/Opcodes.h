@@ -104,9 +104,9 @@ enum Opcodes
         SMSG_LOAD_CUF_PROFILES                      = 0x139A, ///< 6.1.2 19783
         SMSG_STANDSTATE_UPDATE                      = 0x0B37, ///< 6.1.2 19783
         SMSG_START_TIMER                            = 0x1A2D, ///< 6.1.2 19783
-        SMSG_START_ELAPSED_TIMER                    = 0x0000, ///< (unused)
-        SMSG_START_ELAPSED_TIMERS                   = 0x0000, ///< (unused)
-        SMSG_STOP_ELAPSED_TIMER                     = 0x0000, ///< (unused)
+        SMSG_START_ELAPSED_TIMER                    = 0x0E98, ///< 6.1.2 19783
+        SMSG_START_ELAPSED_TIMERS                   = 0x063D, ///< (unused)
+        SMSG_STOP_ELAPSED_TIMER                     = 0x0795, ///< 6.1.2 19783
         SMSG_DEATH_RELEASE_LOC                      = 0x0A17, ///< 6.1.2 19783
         SMSG_CORPSE_RECLAIM_DELAY                   = 0x02BA, ///< 6.1.2 19783
         SMSG_CORPSE_LOCATION                        = 0x0ABF, ///< 6.1.2 19783
@@ -164,7 +164,7 @@ enum Opcodes
         SMSG_CANCEL_AUTO_REPEAT                     = 0x1931, ///< 6.1.2 19783
         SMSG_CANCEL_COMBAT                          = 0x0220, ///< 6.1.2 19783
         SMSG_COMPLAIN_RESULT                        = 0x1C71, ///< 6.1.2 19783
-        SMSG_XPGAIN_ABORTED                         = 0x0000, ///< (unused)
+        SMSG_XPGAIN_ABORTED                         = 0x19F5, ///< (unused)
         SMSG_SUPERCEDED_SPELL                       = 0x15EA, ///< 6.1.2 19783
         SMSG_PVP_CREDIT                             = 0x0B18, ///< 6.1.2 19783
         SMSG_PRE_RESURRECT                          = 0x058D, ///< 6.1.2 19783
@@ -197,9 +197,9 @@ enum Opcodes
 
         /// Control Alert
         SMSG_LOSS_OF_CONTROL_AURA_UPDATE            = 0x0737, ///< 6.1.2 19783
-        SMSG_ADD_LOSS_OF_CONTROL                    = 0x0000, ///< (not seen on retail)
-        SMSG_CLEAR_LOSS_OF_CONTROL                  = 0x0000, ///< (not seen on retail)
-        SMSG_REMOVE_LOSS_OF_CONTROL                 = 0x0000, ///< (not seen on retail)
+        SMSG_ADD_LOSS_OF_CONTROL                    = 0x19E2, ///< (not seen on retail)
+        SMSG_CLEAR_LOSS_OF_CONTROL                  = 0x0636, ///< (not seen on retail)
+        SMSG_REMOVE_LOSS_OF_CONTROL                 = 0x0821, ///< (not seen on retail)
 
         /// Reputations
         SMSG_INITIALIZE_FACTIONS                    = 0x1C32, ///< 6.1.2 19783
@@ -250,7 +250,7 @@ enum Opcodes
         SMSG_DUEL_INBOUNDS                          = 0x0796, ///< 6.1.2 19783
         SMSG_DUEL_OUT_OF_BOUNDS                     = 0x07B1, ///< 6.1.2 19783
         SMSG_DUEL_WINNER                            = 0x1299, ///< 6.1.2 19783
-        SMSG_CAN_DUEL_RESULT                        = 0x0000, ///< (unused)
+        SMSG_CAN_DUEL_RESULT                        = 0x1831, ///< (unused)
 
         /// Vendor
         SMSG_LIST_INVENTORY                         = 0x0E40, ///< 6.1.2 19783
@@ -348,7 +348,7 @@ enum Opcodes
         SMSG_BFMGR_ENTRY_INVITE                             = 0x18B1, ///< 6.1.2 19783
         SMSG_BATTLEFIELD_MGR_EXIT_REQUEST                   = 0x0000,
         SMSG_REQUEST_PVP_REWARDS_RESPONSE                   = 0x0218, ///< 6.1.2 19783
-        SMSG_PVP_OPTIONS_ENABLED                            = 0x0000, ///< (unused)
+        SMSG_PVP_OPTIONS_ENABLED                            = 0x1E0F, ///< 6.1.2 19783
         SMSG_PVPLOG_DATA                                    = 0x063E, ///< 6.1.2 19783
         SMSG_ARENA_OPPONENT_SPECIALIZATIONS                 = 0x1876, ///< 6.1.2 19783
         SMSG_DESTROY_ARENA_UNIT                             = 0x0000, ///< (unused)
@@ -357,11 +357,11 @@ enum Opcodes
         SMSG_MAP_OBJECTIVES_INIT                            = 0x0000, ///< (unused)
         SMSG_CONQUEST_FORMULA_CONSTANTS                     = 0x0000, ///< (unused)
         SMSG_PVP_SEASON                                     = 0x1D61, ///< 6.1.2 19783
-        SMSG_WARGAME_CHECK_ENTRY                            = 0x0000, ///< (unused)
         SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x0000, ///< (unused)
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x1737, ///< 6.1.2 19783
         SMSG_AREA_SPIRIT_HEALER_TIME                        = 0x02B7, ///< 6.1.2 19783
         SMSG_BATTLEFIELD_LIST                               = 0x0338, ///< 6.1.2 19783
+        SMSG_CHECK_WARGAME_ENTRY                            = 0x129F, ///< 6.1.2 19783
 
         /// Pet
         SMSG_PET_NAME_QUERY_RESPONSE                        = 0x023D, ///< 6.1.2 19783
@@ -411,6 +411,7 @@ enum Opcodes
         SMSG_RAID_MARKERS_CHANGED                               = 0x18F5, ///< 6.1.2 19783
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
         SMSG_INSTANCE_GROUP_SIZE_CHANGED                        = 0x1C22, ///< 6.1.2 19783
+        SMSG_ENCOUNTER_END                                      = 0x0862, ///< 6.1.2 19783
 
         /// Scenarios
         SMSG_SCENARIO_POI                                       = 0x0CB2, ///< 6.1.2 19783
@@ -498,7 +499,7 @@ enum Opcodes
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x1976, ///< 6.1.2 19783
-        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x0000, ///< (NYI)
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< (NYI)
         SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x1232, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0D22, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
@@ -780,7 +781,7 @@ enum Opcodes
         SMSG_CLEAR_COOLDOWN                         = 0x0A38, ///< 6.1.2 19783
         SMSG_CLEAR_COOLDOWNS                        = 0x15ED, ///< 6.1.2 19783
         SMSG_CATEGORY_COOLDOWN                      = 0x15FA, ///< 6.1.2 19783
-        SMSG_CLEAR_SPELL_CHARGES                    = 0x151E, ///< 6.1.2 19783
+        SMSG_CLEAR_SPELL_CHARGES                    = 0x10AE, ///< 6.1.2 19783
         SMSG_SET_FLAT_SPELL_MODIFIER                = 0x192A, ///< 6.1.2 19783
         SMSG_SET_PCT_SPELL_MODIFIER                 = 0x1DAA, ///< 6.1.2 19783
         SMSG_SET_SPELL_CHARGES                      = 0x1909, ///< 6.1.2 19783
@@ -818,7 +819,7 @@ enum Opcodes
 
         /// Pet
         SMSG_PET_SPELLS_MESSAGE                     = 0x14CA, ///< 6.1.2 19783
-        SMSG_PET_UNLEARNED_SPELLS                   = 0x151E, ///< 6.1.2 19783
+        SMSG_PET_UNLEARNED_SPELLS                   = 0x15CD, ///< 6.1.2 19783
         SMSG_PET_LEARNED_SPELLS                     = 0x1099, ///< 6.1.2 19783
 
         /// Visuals
@@ -982,8 +983,8 @@ enum Opcodes
     CMSG_GARRISON_START_MISSION                             = 0x0E0E,   ///< 6.1.2 19783
     CMSG_GARRISON_COMPLETE_MISSION                          = 0x0BA2,   ///< 6.1.2 19783
     CMSG_GARRISON_MISSION_BONUS_ROLL                        = 0x07D2,   ///< 6.1.2 19783
-    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x0000,   ///< 6.1.2 19783
-    CMSG_UPGRADE_GARRISON                                   = 0x12FA,   ///< 6.1.2 19783
+    CMSG_GARRISON_REQUEST_UPGRADEABLE                       = 0x12FA,   ///< 6.1.2 19783
+    CMSG_UPGRADE_GARRISON                                   = 0x1B82,   ///< 6.1.2 19783
     CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO        = 0x0000,
     CMSG_GARRISON_MISSION_NPC_HELLO                         = 0x0BA9,   ///< 6.1.2 19783
     CMSG_GET_SHIPMENT_INFO                                  = 0x03FA,   ///< 6.1.2 19783
@@ -1256,13 +1257,13 @@ enum Opcodes
     /// Chat
     //////////////////////////////////////////////////////////////////////////
     /// Addon chat
-    CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND        = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x0000, ///<
-    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x0000, ///<
-    CMSG_ADDON_REGISTERED_PREFIXES              = 0x0000, ///<
+    CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT       = 0x1D9A, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_WHISPER             = 0x10FD, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_GUILD               = 0x1C3D, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_OFFICER             = 0x1C8D, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_RAID                = 0x10F9, ///< 6.1.2 19783
+    CMSG_CHAT_ADDON_MESSAGE_PARTY               = 0x1D89, ///< 6.1.2 19783
+    CMSG_ADDON_REGISTERED_PREFIXES              = 0x1D2A, ///< 6.1.2 19783
 
     /// Chat
     CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x147A, ///< 6.1.2 19783
@@ -1447,6 +1448,8 @@ enum Opcodes
     CMSG_BATTLEFIELD_LIST                       = 0x0250, ///< 6.1.2 19783
     CMSG_BATTLEFIELD_LEAVE                      = 0x0000,
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO         = 0x0A40, ///< 6.1.2 19783
+    CMSG_START_WAR_GAME                         = 0x12BF, ///< 6.1.2 19783
+    CMSG_ACCEPT_WARGAME_INVITE                  = 0x0E3F, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild

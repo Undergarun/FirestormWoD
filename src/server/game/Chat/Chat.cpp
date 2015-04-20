@@ -670,8 +670,6 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     else if (session)
         speakerNameLength = strlen(session->GetPlayer()->GetName());
 
-    uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
-
     uint32 targetLength = 0;
     std::string targetName;
     if (target_guid)

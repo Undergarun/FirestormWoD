@@ -595,8 +595,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
     ChatMsg     l_Type;
 
     switch (p_RecvData.GetOpcode())
-    {/*
-        case CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND:
+    {
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
             l_Type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_GUILD:
@@ -612,7 +612,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
             l_Type = CHAT_MSG_RAID;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_WHISPER:
-            l_Type = CHAT_MSG_WHISPER;*/
+            l_Type = CHAT_MSG_WHISPER;
             break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", p_RecvData.GetOpcode());

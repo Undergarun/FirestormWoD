@@ -78,10 +78,10 @@ typedef std::set<uint32> DailyLootsCooldowns;
 /// 6.0.3 19116
 enum ToastTypes
 {
-    TOAST_TYPE_MONEY        = 0,
+    TOAST_TYPE_NONE         = 0,
     TOAST_TYPE_NEW_CURRENCY = 1,
-    TOAST_TYPE_UNK1         = 2,
-    TOAST_TYPE_NEW_ITEM     = 3,
+    TOAST_TYPE_NEW_ITEM     = 2,
+    TOAST_TYPE_MONEY        = 3,
 };
 
 /// 6.0.3 19116
@@ -1486,7 +1486,15 @@ enum BattlegroundTimerTypes
     CHALLENGE_TIMER
 };
 
-namespace MS { namespace Garrison
+struct WargameRequest
+{
+    uint64 OpposingPartyMemberGUID;
+    uint64 QueueID;
+    bool   TournamentRules;
+    time_t CreationDate;
+};
+
+namespace MS { namespace Garrison 
 {
     class Manager;
 }   ///< namespace Garrison
@@ -3492,6 +3500,13 @@ class Player : public Unit, public GridObject<Player>
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
         void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
 
+        /// Wargames
+        void SetWargameRequest(WargameRequest* p_Request) { m_WargameRequest = p_Request; };
+        bool HasWargameRequest() const { return m_WargameRequest != nullptr; }
+        WargameRequest* GetWargameRequest() const { return m_WargameRequest; }
+
+        void ApplyWargameItemModifications();
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3953,6 +3968,10 @@ class Player : public Unit, public GridObject<Player>
         /// Vignette
         //////////////////////////////////////////////////////////////////////////
         Vignette::Manager m_VignetteMgr;
+
+        /// Wargame
+        WargameRequest* m_WargameRequest;
+
 };
 
 void AddItemsSetItem(Player*player, Item* item);
@@ -3980,7 +3999,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
         Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
-        if (!tmpitem || tmpitem->IsBroken() || !tmpitem->GetTemplate())
+        if (!tmpitem || tmpitem->CantBeUse() || !tmpitem->GetTemplate())
             continue;
 
         playerWeaponMask |= 1 << tmpitem->GetTemplate()->SubClass;

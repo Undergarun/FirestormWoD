@@ -967,25 +967,175 @@ void WorldSession::HandleBattleFieldRequestScoreData(WorldPacket & p_Packet)
     m_Player->SendDirectMessage(&l_ScoreData);
 }
 
-void WorldSession::HandleWargameQueryOpcode(WorldPacket& p_RecvData)
+void WorldSession::HandleStartWarGame(WorldPacket& p_Packet)
 {
-    ObjectGuid l_FirstLeader = 0;
-    ObjectGuid l_SecondLeader = 0;
+    uint64 l_OpposingPartyMemberGUID;
+    uint32 l_RealmID;
+    uint16 l_Unk16;
+    uint64 l_QueueID;
+    bool   l_TournamentRules;
 
-    l_FirstLeader[7] = p_RecvData.ReadBit();
-    l_FirstLeader[0] = p_RecvData.ReadBit();
-    l_FirstLeader[6] = p_RecvData.ReadBit();
-    l_FirstLeader[3] = p_RecvData.ReadBit();
-    l_FirstLeader[1] = p_RecvData.ReadBit();
-    l_FirstLeader[2] = p_RecvData.ReadBit();
-    l_SecondLeader[1] = p_RecvData.ReadBit();
-    l_FirstLeader[5] = p_RecvData.ReadBit();
-    l_SecondLeader[6] = p_RecvData.ReadBit();
-    l_SecondLeader[3] = p_RecvData.ReadBit();
-    l_SecondLeader[0] = p_RecvData.ReadBit();
-    l_SecondLeader[5] = p_RecvData.ReadBit();
-    l_SecondLeader[2] = p_RecvData.ReadBit();
-    l_SecondLeader[4] = p_RecvData.ReadBit();
-    l_SecondLeader[7] = p_RecvData.ReadBit();
-    l_FirstLeader[4] = p_RecvData.ReadBit();
+    p_Packet.readPackGUID(l_OpposingPartyMemberGUID);
+    p_Packet >> l_RealmID;
+    p_Packet >> l_Unk16;
+    p_Packet >> l_QueueID;
+    l_TournamentRules = p_Packet.ReadBit();
+
+    if (m_Player->GetGroup() == nullptr)
+        return;
+
+    if (m_Player->GetGroup()->GetLeaderGUID() != m_Player->GetGUID())
+        return;
+
+    /// Try to find the opposing party leader
+    Player* l_OpposingPartyLeader = sObjectAccessor->FindPlayer(l_OpposingPartyMemberGUID);
+    if (l_OpposingPartyLeader == nullptr)
+        return;
+
+    if (l_OpposingPartyLeader->GetGroup() == nullptr)
+        return;
+
+    if (l_OpposingPartyLeader->GetGroup()->GetLeaderGUID() != l_OpposingPartyLeader->GetGUID())
+        return;
+
+    /// Already one invite requested
+    if (m_Player->HasWargameRequest())
+        return;
+
+    /// The request is delete after 60 secs (handle in Player::Update)
+    WargameRequest* l_Request = new WargameRequest();
+    l_Request->OpposingPartyMemberGUID = l_OpposingPartyMemberGUID;
+    l_Request->TournamentRules         = l_TournamentRules;
+    l_Request->CreationDate            = time(nullptr);
+    l_Request->QueueID                 = l_QueueID;
+
+    m_Player->SetWargameRequest(l_Request);
+
+    /// Send invitation to opposing party
+    MS::Battlegrounds::PacketFactory::CheckWargameEntry(m_Player, l_OpposingPartyLeader, l_QueueID, l_TournamentRules);
+}
+
+void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
+{
+    uint64 l_OpposingPartyMember;
+    uint64 l_QueueID;
+    bool   l_Accept;
+
+    p_Packet.readPackGUID(l_OpposingPartyMember);
+    p_Packet >> l_QueueID;
+    l_Accept = p_Packet.ReadBit();
+
+    Group* l_Group = m_Player->GetGroup();
+    if (l_Group == nullptr
+        || !l_Group->IsLeader(m_Player->GetGUID()))
+        return;
+
+    Player* l_OpposingPartyLeader = sObjectAccessor->FindPlayer(l_OpposingPartyMember);
+    if (l_OpposingPartyLeader == nullptr)
+        return;
+
+    Group* l_OpposingGroup = l_OpposingPartyLeader->GetGroup();
+    if (l_OpposingGroup == nullptr
+        || !l_OpposingGroup->IsLeader(l_OpposingPartyLeader->GetGUID()))
+        return;
+
+    /// Check if the invitation realy exist, and isn't expired
+    if (!l_OpposingPartyLeader->HasWargameRequest())
+        return;
+
+    WargameRequest* l_Request = l_OpposingPartyLeader->GetWargameRequest();
+    if (l_Request->QueueID != l_QueueID
+        || l_Request->OpposingPartyMemberGUID != m_Player->GetGUID())
+        return;
+
+    if (!l_Accept)
+    {
+        ///@TODO: Send notification to opposing party ?
+        return;
+    }
+
+    uint32 l_BattlegroundTypeId = l_QueueID & 0xFFFF;
+
+    BattlegroundTypeId l_BGTypeID = BattlegroundTypeId(l_BattlegroundTypeId);
+    auto l_BGQueueTypeID          = MS::Battlegrounds::GetSchedulerType((BattlegroundTypeId)l_BattlegroundTypeId);
+    ArenaType l_ArenaType         = ArenaType::None;
+
+    if (MS::Battlegrounds::IsArenaType(l_BGQueueTypeID))
+    {
+        if (l_Group->GetMembersCount() != l_OpposingGroup->GetMembersCount())
+            return;
+
+        switch (l_Group->GetMembersCount())
+        {
+            case 2:
+                l_ArenaType = ArenaType::Arena2v2;
+                break;
+            case 3:
+                l_ArenaType = ArenaType::Arena3v3;
+                break;
+            case 5:
+                l_ArenaType = ArenaType::Arena5v5;
+                break;
+        }
+    }
+
+    // ignore if player is already in BG
+    if (m_Player->InBattleground())
+        return;
+
+    // get bg instance or bg template if instance not found
+    Battleground* l_BattlegroundTemplate = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::GetSchedulerType(l_BGTypeID));
+    if (l_BattlegroundTemplate == nullptr)
+        return;
+
+    if (l_Group->GetMembersCount() < l_BattlegroundTemplate->GetMinPlayersPerTeam()
+        || l_OpposingGroup->GetMembersCount() < l_BattlegroundTemplate->GetMinPlayersPerTeam())
+        return;
+
+    auto& l_Scheduler = sBattlegroundMgr->GetScheduler();
+    auto& l_InviationMgr = sBattlegroundMgr->GetInvitationsMgr();
+
+    auto l_BracketEntry = MS::Battlegrounds::Brackets::FindForLevel(m_Player->getLevel());
+    if (!l_BracketEntry)
+        return;
+
+    /// Create the new battleground.
+    Battleground* l_BattlegroundInstance = sBattlegroundMgr->CreateNewBattleground(l_BGQueueTypeID, MS::Battlegrounds::Brackets::RetreiveFromId(l_BracketEntry->m_Id), l_ArenaType, false, true, l_Request->TournamentRules);
+    if (l_BattlegroundInstance == nullptr)
+        return;
+
+    auto l_PrepareGroupToWargame = [this, &l_Scheduler, l_InviationMgr, l_BGQueueTypeID, l_ArenaType, l_BattlegroundTemplate, l_BattlegroundInstance, l_BracketEntry](Group* p_Group, uint32 p_Team) -> void
+    {
+        uint32 l_BlacklistMap[2] = { 0, 0 };
+
+        auto l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, p_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, l_ArenaType, false, 0, 0, false);
+        uint32 l_AvgTime      = l_InviationMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
+
+        for (GroupReference * l_It = p_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())
+        {
+            Player* l_Member = l_It->getSource();
+
+            if (!l_Member)
+                continue;   // this should never happen
+
+            // add to queue
+            uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
+
+            // add joined time data
+            l_Member->AddBattlegroundQueueJoinTime(l_BGQueueTypeID, l_GroupQueueInfo->m_JoinTime);
+
+            WorldPacket l_Data; // send status packet (in queue)
+            MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BattlegroundInstance, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AvgTime, l_GroupQueueInfo->m_JoinTime, l_GroupQueueInfo->m_ArenaType, false);
+            l_Member->GetSession()->SendPacket(&l_Data);
+        }
+
+        l_Scheduler.RemoveGroupFromQueues(l_GroupQueueInfo);
+        l_Scheduler.AddToBG(l_GroupQueueInfo, l_BattlegroundInstance, p_Team);
+    };
+
+    /// Add groups to the battleground and remove them from waiting groups list.
+    l_PrepareGroupToWargame(l_Group, HORDE);
+    l_PrepareGroupToWargame(l_OpposingGroup, ALLIANCE);
+
+    l_BattlegroundInstance->StartBattleground();
 }

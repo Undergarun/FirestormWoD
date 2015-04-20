@@ -1329,7 +1329,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
                 l_ItemsDataBuffer.WriteBits(l_ItemListType, 2);             ///< Type
-                l_ItemsDataBuffer.WriteBits(slottype, 3);                   ///< Ui Type
+                l_ItemsDataBuffer.WriteBits(LOOT_ITEM_UI_NORMAL, 3);        ///< Ui Type
                 l_ItemsDataBuffer.WriteBit(false);                          ///< Can Trade To Tap List
                 l_ItemsDataBuffer.FlushBits();
                 l_ItemsDataBuffer << uint32(item.count);

@@ -195,6 +195,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             data << uint16(l_Unk);
             data << uint32(l_InviterCfgRealmID);
             data.WriteBit(l_IsLocal);
+            data.WriteBit(false);   // UnkBit
             data.WriteBits(l_RealmNameActualSize, 8);
             data.WriteBits(l_NormalizedRealmNameSize, 8);
             data.FlushBits();

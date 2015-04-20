@@ -1200,6 +1200,18 @@ Anticheat.DetectionsEnabled = 31
 
 Anticheat.MaxReportsForDailyReport = 70
 
+#     AntiCheat.MaxReportsBeforeBan
+#     Description: How many reports the player are allowed to have in the check time range before get banned / kick for 10 mins
+#     Default: 200
+
+Anticheat.MaxReportsBeforeBan = 200
+
+#     AntiCheat.BanCheckTimeRange
+#     Description: Range of time (in secondes) to check max reports before get banned.
+#     Default: 120 (2 minutes)
+
+Anticheat.BanCheckTimeRange = 120
+
 #
 ###################################################################################################
 

@@ -528,7 +528,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<Creature*> rylaks;
+        std::list<uint64> rylaks;
         bool released;
         InstanceScript* instance;
 
@@ -538,11 +538,12 @@ public:
             summons.DespawnAll();
             rylaks.clear();
 
-            Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
-            rylak->setFaction(35);
-            rylak->SetReactState(REACT_PASSIVE);
-
-            rylaks.push_back(rylak);
+            if (Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
+            {
+                rylak->setFaction(35);
+                rylak->SetReactState(REACT_PASSIVE);
+                rylaks.push_back(rylak->GetGUID());
+            }
         }
         void DoAction(int32 const action)
         {
@@ -576,11 +577,14 @@ public:
                     {
                         if (!rylaks.empty())
                         {
-                            for (auto itr : rylaks)
+                            for (uint64 l_Guid : rylaks)
                             {
-                                itr->setFaction(16);
-                                itr->SetReactState(REACT_AGGRESSIVE);
-                                itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                if (Creature* l_Rylak = Creature::GetCreature(*me, l_Guid))
+                                {
+                                    l_Rylak->setFaction(16);
+                                    l_Rylak->SetReactState(REACT_AGGRESSIVE);
+                                    l_Rylak->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                }
                             }
                         }
                     }
