@@ -430,6 +430,7 @@ class InstanceScript : public ZoneScript
         virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
 
         void UpdatePhasing();
+        void UpdateCreatureGroupSizeStats();
 
     protected:
         void SetBossNumber(uint32 p_Number);

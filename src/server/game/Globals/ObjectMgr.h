@@ -1111,6 +1111,7 @@ class ObjectMgr
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
+        void LoadCreatureGroupSizeStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatureTemplatesDifficulties();
@@ -1266,6 +1267,7 @@ class ObjectMgr
         void ReturnOrDeleteOldMails(bool serverUp);
 
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
+        CreatureGroupSizeStat const* GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const;
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
@@ -1753,6 +1755,7 @@ class ObjectMgr
         MailLevelRewardContainer _mailLevelRewardStore;
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
+        CreatureGroupSizeStatsContainer m_CreatureGroupSizeStore;
 
         typedef std::map<uint32, PetStatInfo> PetStatInfoContainer;
         PetStatInfoContainer m_PetInfoStore;

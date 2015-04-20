@@ -9115,6 +9115,32 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature base stats in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadCreatureGroupSizeStats()
+{
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, groupSize, health FROM creature_groupsizestats");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature group size stats. DB table `creature_groupsizestats` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        uint32 l_CreatureEntry = l_Fields[0].GetUInt32();
+        uint32 l_Difficulty    = l_Fields[1].GetUInt32();
+        uint32 l_GroupSize     = l_Fields[2].GetUInt32();
+        uint32 l_Health        = l_Fields[3].GetUInt32();
+
+        CreatureGroupSizeStat& l_CreatureGroupSizeStat = m_CreatureGroupSizeStore[l_CreatureEntry][l_Difficulty];
+        l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
+    }
+    while (l_Result->NextRow());
+}
+
 void ObjectMgr::LoadFactionChangeAchievements()
 {
     uint32 oldMSTime = getMSTime();
@@ -10380,4 +10406,17 @@ void ObjectMgr::LoadTaxiData()
 
         _taxiNodes[entry->to] = node;
     }
+}
+
+CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const
+{
+    auto l_DifficultyIterator = m_CreatureGroupSizeStore.find(p_Entry);
+    if (l_DifficultyIterator == m_CreatureGroupSizeStore.end())
+        return nullptr;
+
+    auto l_StatsIterator = l_DifficultyIterator->second.find(p_Difficulty);
+    if (l_StatsIterator == l_DifficultyIterator->second.end())
+        return nullptr;
+
+    return &l_StatsIterator->second;
 }

@@ -1316,8 +1316,10 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
 void Creature::UpdateStatsForLevel()
 {
-    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
-    CreatureBaseStats const* l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
+    CreatureTemplate  const*     l_CreatureTemplate = GetCreatureTemplate();
+    CreatureBaseStats const*     l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
+    CreatureGroupSizeStat const* l_GroupSizeStat    = sObjectMgr->GetCreatureGroupSizeStat(GetEntry(), GetMap()->GetDifficultyID());
+
 
     uint32 l_Rank = isPet() ? 0 : l_CreatureTemplate->rank;
 
@@ -1325,6 +1327,14 @@ void Creature::UpdateStatsForLevel()
     float l_HeathMod = _GetHealthMod(l_Rank);
 
     uint32 l_BaseHP = l_Stats->GenerateHealth(l_CreatureTemplate);
+
+    if (l_GroupSizeStat != nullptr)
+    {
+        uint32 l_GroupSizeHealth = l_GroupSizeStat->GetHealthFor(GetMap()->GetPlayersCountExceptGMs());
+        if (l_GroupSizeHealth != 0)
+            l_BaseHP = l_GroupSizeHealth;
+    }
+
     uint32 l_Health = uint32(l_BaseHP * l_HeathMod);
 
     SetCreateHealth(l_Health);
@@ -1374,6 +1384,37 @@ void Creature::UpdateStatsForLevel()
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER,        BASE_VALUE, l_Stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, l_Stats->RangedAttackPower);
+}
+
+void Creature::UpdateGroupSizeStats()
+{
+    CreatureGroupSizeStat const* l_GroupSizeStat = sObjectMgr->GetCreatureGroupSizeStat(GetEntry(), GetMap()->GetDifficultyID());
+    if (l_GroupSizeStat == nullptr)
+        return;
+
+    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
+
+    /// - Update health
+    uint32 l_Rank    = isPet() ? 0 : l_CreatureTemplate->rank;
+    float l_HeathMod = _GetHealthMod(l_Rank);
+
+    float l_ActualHealthPct = GetHealthPct();
+
+    uint32 l_GroupSizeHealth = l_GroupSizeStat->GetHealthFor(GetMap()->GetPlayersCountExceptGMs());
+    if (l_GroupSizeHealth != 0)
+    {
+        uint32 l_Health = uint32(l_GroupSizeHealth * l_HeathMod);
+
+        /// - Set Base health
+        SetCreateHealth(l_Health);
+        SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)l_Health);
+
+        /// - Calculate max health with aura, bonus ... etc
+        UpdateMaxHealth();
+
+        /// - Set to the same health %
+        SetHealth(GetMaxHealth() * (l_ActualHealthPct / 100));
+    }
 }
 
 float Creature::_GetHealthMod(int32 Rank)

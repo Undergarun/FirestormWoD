@@ -367,7 +367,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* 
 {
     auto l_Effect    = spellEntry->GetSpellEffect(effIndex, difficulty);
     auto l_Scaling   = GetSpellEffectScalingEntry(l_Effect ? l_Effect->Id : 0);
-    auto l_GroupSize = sSpellEffectGroupSizeStore.LookupEntry(l_Effect->Id);
+    auto l_GroupSize = sSpellEffectGroupSizeStore.LookupEntry(l_Effect ? l_Effect->Id : 0);
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;

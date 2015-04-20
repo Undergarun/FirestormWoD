@@ -1677,6 +1677,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Base Stats...");
     sObjectMgr->LoadCreatureClassLevelStats();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Group Size Stats...");
+    sObjectMgr->LoadCreatureGroupSizeStats();
+
     //sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
     //sObjectMgr->RestructCreatureGUID(10000);
 
