@@ -3024,14 +3024,14 @@ class Player : public Unit, public GridObject<Player>
 
         // current pet slot
         PetSlot m_currentPetSlot;
-        uint32 m_petSlotUsed;
+        uint64 m_petSlotUsed;
 
         void setPetSlotUsed(PetSlot slot, bool used)
         {
             if (used)
-                m_petSlotUsed |= (1 << int32(slot));
+                m_petSlotUsed |= ((int64)1 << int64(slot));
             else
-                m_petSlotUsed &= ~(1 << int32(slot));
+                m_petSlotUsed &= ~((int64)1 << int64(slot));
         }
 
         PetSlot getSlotForNewPet()
