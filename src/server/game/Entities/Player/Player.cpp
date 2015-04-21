@@ -4663,7 +4663,7 @@ void Player::InitSpellForLevel()
     if (l_PerkList)
     {
         // perks are starting at level 90
-#define PERK_START_LEVEL 90
+        #define PERK_START_LEVEL 90
 
         float l_LevelDiff = getLevel() - PERK_START_LEVEL;
         float l_Coeff = (MAX_LEVEL - PERK_START_LEVEL) / float(l_PerkList->size());
@@ -7492,7 +7492,7 @@ void Player::RepopAtGraveyard()
 
     if (!zone)
     {
-        sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUIDLow(), GetAreaId());
+        sLog->outInfo(LOG_FILTER_PLAYER, "Player %u in null area; area id : %u", GetGUIDLow(), GetAreaId());
         return;
     }
 
@@ -8754,6 +8754,7 @@ void Player::SendDirectMessage(WorldPacket* data)
 {
     m_session->SendPacket(data);
 }
+
 //////////////////////////////////////////////////////////////////////////
 /// Cinematic
 //////////////////////////////////////////////////////////////////////////
@@ -9326,7 +9327,6 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
                 ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
         }
     }
-
     return true;
 }
 
@@ -10766,7 +10766,6 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
             }
         }
     }
-
 
     uint32 armor = proto->CalculateArmorScaling(ilvl);
     if (rescaleToItemLevel)
@@ -22965,8 +22964,8 @@ void Player::SaveToDB(bool create /*=false*/)
                 ss << item->GetEntry();
             else
                 ss << '0';
-            ss << " 0 ";
-            ss << " 0 ";
+                ss << " 0 ";
+                ss << " 0 ";
         }
 
         stmt->setString(index++, ss.str());
@@ -26452,7 +26451,7 @@ void Player::CorrectMetaGemEnchants(uint8 exceptslot, bool apply)
                 if (wasactive ^ EnchantmentFitsRequirements(condition, apply ? -1 : exceptslot))
                 {
                     // ignore item gem conditions
-                                                            //if state changed, (dis)apply enchant
+                    //if state changed, (dis)apply enchant
                     ApplyEnchantment(pItem, EnchantmentSlot(enchant_slot), !wasactive, true, true);
                 }
             }
@@ -26557,7 +26556,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                     return;
                 }
 
-                CastSpell(this, 26013, true);               // Deserter
+                CastSpell(this, 26013, true); ///< Deserter
             }
         }
     }
@@ -27134,10 +27133,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     // Hack fix for remove flags auras after crash
     if (!GetMap()->IsBattlegroundOrArena())
         RemoveFlagsAuras();
-
-    // Hack fix for Sparring - Not applied
-    if (GetSpecializationId(GetActiveSpec()) == SPEC_MONK_WINDWALKER && getLevel() >= 42)
-        AddAura(116023, this);
 
     // Hack fix for AURA_STATE_PVP_PREPARATION.
     if (GetBattleground() && GetBattleground()->GetStatus() == BattlegroundStatus::STATUS_WAIT_JOIN)
@@ -28870,6 +28865,7 @@ bool Player::isTotalImmunity()
     }
     return false;
 }
+/// @todo DO SOMETHING WITH THIS SHIT
                                    // Heurtoir,            Frappe héro,        Coup traumatisant
 #define SPELL_WAR_ATTACK_LIST   47475,                  47450,              12809
 
@@ -31743,26 +31739,13 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
 {
     switch (spellId)
     {
-        case 1463:  // Incanter's Ward
-            if (!HasAura(118858))
-            {
-                CastSpell(this, 118858, true); // +6% damage and 65% mana regen
-                UpdateManaRegen();
-            }
-            break;
         case 16188: // Ancestral Swiftness
             if (!HasAura(51470))
-                CastSpell(this, 51470, true);  // +5% spell haste
-            if (!HasAura(121617))
-                CastSpell(this, 121617, true); // +5% melee haste
+                CastSpell(this, 121617, true); ///< +5% melee/spell haste since 6.0.1 (Tue Oct 14 2014) Build 18537 
             break;
         case 96268: // Death's Advance
             if (!HasAura(124285))
                 CastSpell(this, 124285, true); // +10% speed
-            break;
-        case 108288:// Heart of the Wild
-            if (!HasAura(17005))
-                CastSpell(this, 17005, true); // +6% stats
             break;
         case 108415:// Soul Link
             RemoveAura(108503); // Remove Grimoire of sacrifice
@@ -31806,18 +31789,8 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
                     l_Pet->UnSummon();
             }
             break;
-        case 1463:  // Incanter's Ward
-            RemoveAura(118858);
-            break;
         case 16188: // Ancestral Swiftness
-            RemoveAura(51470);
             RemoveAura(121617);
-            break;
-        case 96268: // Death's Advance
-            RemoveAura(124285);
-            break;
-        case 108288:// Heart of the Wild
-            RemoveAura(17005);
             break;
         case 108415:// Soul Link
             RemoveAura(108446);

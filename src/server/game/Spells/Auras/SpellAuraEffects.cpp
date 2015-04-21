@@ -800,7 +800,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     if (GetSpellInfo()->Id == 116849)
                     {
                         // +1100% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 34.341f;
+                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 34.341f; ///< @todo update me 31.164.f since 6.1.0 (Tue Feb 24 2015) Build 19445
                     }
                     break;
                 case SPELLFAMILY_MAGE:
@@ -809,14 +809,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     {
                         // +80.68% from sp bonus
                         DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
-                    }
-                    break;
-                case SPELLFAMILY_WARLOCK:
-                    // Twilight Ward
-                    if (m_spellInfo->Id == 6229 || m_spellInfo->Id == 104048 || m_spellInfo->Id == 131623 || m_spellInfo->Id == 131624)
-                    {
-                        // +300% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 3.0f;
                     }
                     break;
                 case SPELLFAMILY_PRIEST:
@@ -877,7 +869,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             switch (GetSpellInfo()->Id)
             {
-                case 1943:  ///< Rupture
+                case 1943:  ///< Rupture @todo update me 
                 {
                     m_canBeRecalculated = false;
 
@@ -889,13 +881,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
                     /// 1 tick = Combo Points * (0.0685 * Attack power) * 0.5
                     amount += l_Combo * int32(l_AttackPower * 0.5f) * (m_periodicTimer / IN_MILLISECONDS);
-                }
-                case 50536: // Unholy Blight
-                {
-                    m_canBeRecalculated = false;
-                    // we're getting total damage on aura apply, change it to be damage per tick
-                    amount = int32((float)amount / GetTotalTicks());
-                    break;
                 }
                 case 15407: // Mind Flay
                 case 129197:// Mind Flay (Insanity)
@@ -948,9 +933,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             {
                 case 57669: // Replenishment (0.2% from max)
                     amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
-                    break;
-                case 61782: // Infinite Replenishment
-                    amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
                     break;
                 default:
                     break;
@@ -1020,11 +1002,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     level_diff = GetBase()->GetUnitOwner()->getLevel() - 60;
                     multiplier = 2;
                     break;
-                // The Eye of Diminution
-                case 28862:
-                    level_diff = GetBase()->GetUnitOwner()->getLevel() - 60;
-                    multiplier = 1;
-                    break;
             }
             if (level_diff > 0)
                 amount += int32(multiplier * level_diff);
@@ -1054,6 +1031,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             if (caster)
             {
+                ///< Seem over old @todo
                 // if Level <= 70 resist = player level
                 int32 resist = caster->getLevel();
 
@@ -1061,24 +1039,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     resist += (resist - 70) * 5;
                 else if (resist > 80)
                     resist += ((resist-70) * 5 + (resist - 80) * 7);
-
-                switch (GetId())
-                {
-                    case 20043: // Aspect of the Wild
-                    case 8185:  // Elemental Resistance
-                    case 19891: // Resistance Aura
-                    case 79106: // Shadow Protection
-                    case 79107: // Shadow Protection
-                        amount = resist;
-                        break;
-                    case 79060: // Mark of the Wild
-                    case 79061: // Mark of the Wild
-                    case 79062: // Blessing of Kings
-                    case 79063: // Blessing of Kings
-                    case 90363: // Embrace of the Shale Spider
-                        amount = resist / 2;
-                        break;
-                    }
                 break;
             }
         }
@@ -1251,30 +1211,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
             break;
         }
-        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-        {
-            switch (GetId())
-            {
-                case 49016: // Unholy Frenzy
-                {
-                    if (!caster)
-                        break;
+        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT: { }
 
-                    // Glyph of Unholy Frenzy
-                    if (caster->HasAura(58616))
-                        return 0;
-
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            break;
-        }
         default:
             break;
-
     }
 
     if (DoneActualBenefit != 0.0f && caster)

@@ -31,9 +31,7 @@ enum DeathKnightSpells
 {
     DK_SPELL_RUNIC_POWER_ENERGIZE               = 49088,
     DK_SPELL_ANTI_MAGIC_SHELL_TALENT            = 51052,
-    DK_SPELL_SCOURGE_STRIKE_TRIGGERED           = 70890,
     DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
-    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLOOD_PLAGUE                       = 55078,
     DK_SPELL_FROST_FEVER                        = 55095,
     DK_SPELL_GHOUL_AS_GUARDIAN                  = 46585,

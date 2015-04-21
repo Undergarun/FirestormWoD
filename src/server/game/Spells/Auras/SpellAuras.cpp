@@ -1273,7 +1273,7 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
-    if (GetId() == 54637 || GetId() == 98056)
+    if (GetId() == 54637)
         return true;
 
     if (IsPassive())
@@ -1305,18 +1305,9 @@ bool Aura::CanBeSaved() const
         case 29519:
         // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
         // we skip saving this aura
-        case 44413:
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
-        case 61669: // Aspect of the Beast
-        // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
-        case 48517:
-        case 48518:
-        case 67483:
-        case 67484:
-        // Pyromaniac
-        case 83582:
-        // Nature's Bounty
+        // Nature's Bounty //< @todo this spell is rename since 5.0.1
         case 96206:
         // Dark Flames
         case 99158:
@@ -1847,12 +1838,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                     int runicPowerSwitch = 0;
                     /// Glyph of Shifting Presences
-                    if (caster->HasAura(58647)) // You retain 70% of your Runic Power when switching Presences.
+                    if (caster->HasAura(58647)) ///< You retain 70% of your Runic Power when switching Presences.
                         runicPowerSwitch = int(caster->GetPower(POWER_RUNIC_POWER) * 0.7f);
 
                     caster->SetPower(POWER_RUNIC_POWER, runicPowerSwitch);
                 }
-
                 break;
             }
             default:
@@ -2088,11 +2078,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
-                case 71289: // Mind Control (Lady Deathwisper)
+                case 71289: ///< Dominate Mind (Lady Deathwisper)
                     target->ApplyPercentModFloatValue(OBJECT_FIELD_SCALE, 100.0f, apply);
                     break;
             }
             break;
+
         case SPELLFAMILY_DRUID:
         {
             if (!caster)
@@ -2165,6 +2156,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // The Beast Within cast on owner if talent present
                     if (Unit* owner = target->GetOwner())
                     {
+                        ///< @todo all this talent are removed
                         // Search talent
                         if (owner->HasAura(34692))
                         {
@@ -2201,7 +2193,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveOwnedAura(64364, GetCasterGUID());
                     }
                     break;
-                case 31842: // Divine Favor
+                case 31842: ///< Avenging Wrath name change in 6.0.1 (Tue Oct 14 2014) Build 18156
                     // Item - Paladin T10 Holy 2P Bonus
                     if (target->HasAura(70755))
                     {

@@ -619,7 +619,7 @@ enum WeaponAttackType
 // Last check : 6.0.3
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
+    CR_UNUSED_1                         = 0,    //< Deprecated, CR_UNUSED_1 in PaperDollFrame.lua
     CR_DEFENSE_SKILL                    = 1,    //< Deprecated
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -640,12 +640,12 @@ enum CombatRating
     CR_HASTE_RANGED                     = 18,
     CR_HASTE_SPELL                      = 19,
     CR_AVOIDANCE                        = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
+    CR_UNUSED_2                         = 21,   //< Deprecated, CR_UNUSED_2 in PaperDollFrame.lua
     CR_WEAPON_SKILL_RANGED              = 22,   //< Deprecated
     CR_EXPERTISE                        = 23,   //< Deprecated
     CR_ARMOR_PENETRATION                = 24,   //< Deprecated
     CR_MASTERY                          = 25,
-    CR_PVP_POWER                        = 26,   //< WoD item doesn't have pvp power, and blizz has removed pvp power from the paper doll, but i think the stat still exist for MoP items ...
+    CR_PVP_POWER                        = 26,   //< romoved since from the paper doll, but the stat still exist for MoP items
     CR_UNUSED_4                         = 27,   //< CR_UNUSED_4 in PaperDollFrame.lua
     CR_VERSATILITY_DAMAGE_DONE          = 28,
     CR_VERSATILITY_DAMAGE_TAKEN         = 30,
