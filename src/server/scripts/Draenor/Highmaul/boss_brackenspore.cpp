@@ -391,10 +391,12 @@ class boss_brackenspore : public CreatureScript
                         me->SummonCreature(eCreatures::FungalFleshEater, g_FleshEaterSpawns[urand(1, eHighmaulDatas::MaxFleshEaterPos) - 1]);
                         break;
                     case eSpells::SporeShooterDummy:
+                    {
                         uint8 l_Count = IsMythic() ? 4 : 2;
                         for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                             me->CastSpell(me, eSpells::SummonSporeShooter, true);
                         break;
+                    }
                     case eSpells::RejuvenatingMushDummy:
                         me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
                         break;
