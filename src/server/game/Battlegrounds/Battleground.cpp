@@ -802,7 +802,7 @@ void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player*
     Source->GetSession()->SendPacket(&data);
 }
 
-void Battleground::EndBattleground(uint32 winner)
+void Battleground::EndBattleground(uint32 p_Winner)
 {
     Group* winner_team = NULL;
     Group* loser_team = NULL;
@@ -817,7 +817,7 @@ void Battleground::EndBattleground(uint32 winner)
     WorldPacket data;
     int32 winmsg_id = 0;
 
-    if (winner == ALLIANCE)
+    if (p_Winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
 
@@ -825,7 +825,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         SetWinner(WINNER_ALLIANCE);
     }
-    else if (winner == HORDE)
+    else if (p_Winner == HORDE)
     {
         winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
 
@@ -840,15 +840,15 @@ void Battleground::EndBattleground(uint32 winner)
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
 
-    loser_team = GetBgRaid(GetOtherTeam(winner));
-    winner_team = GetBgRaid(winner);
+    loser_team = GetBgRaid(GetOtherTeam(p_Winner));
+    winner_team = GetBgRaid(p_Winner);
 
     if (IsRatedBG())
     {
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner), SLOT_RBG);
-            winner_matchmaker_rating = GetArenaMatchmakerRating(winner, SLOT_RBG);
+            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), SLOT_RBG);
+            winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, SLOT_RBG);
         }
 
         /// ADD GUILD REWARDS
@@ -883,17 +883,17 @@ void Battleground::EndBattleground(uint32 winner)
         if (winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
             loser_team_rating = loser_team->GetRating(slot);
-            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner), slot);
+            loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(p_Winner), slot);
             winner_team_rating = winner_team->GetRating(slot);
-            winner_matchmaker_rating = GetArenaMatchmakerRating(winner, slot);
+            winner_matchmaker_rating = GetArenaMatchmakerRating(p_Winner, slot);
 
             winner_team->WonAgainst(winner_matchmaker_rating, loser_matchmaker_rating, winner_change, slot);
             loser_team->LostAgainst(loser_matchmaker_rating, winner_matchmaker_rating, loser_change, slot);
 
-            SetArenaMatchmakerRating(winner, winner_matchmaker_rating + winner_matchmaker_change);
-            SetArenaMatchmakerRating(GetOtherTeam(winner), loser_matchmaker_rating + loser_matchmaker_change);
-            SetArenaTeamRatingChangeForTeam(winner, winner_change);
-            SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
+            SetArenaMatchmakerRating(p_Winner, winner_matchmaker_rating + winner_matchmaker_change);
+            SetArenaMatchmakerRating(GetOtherTeam(p_Winner), loser_matchmaker_rating + loser_matchmaker_change);
+            SetArenaTeamRatingChangeForTeam(p_Winner, winner_change);
+            SetArenaTeamRatingChangeForTeam(GetOtherTeam(p_Winner), loser_change);
 
         }
         // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
@@ -909,17 +909,17 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     bool guildAwarded = false;
-    uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
+    uint8 aliveWinners = GetAlivePlayersCountByTeam(p_Winner);
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        uint32 team = itr->second.Team;
+        uint32 l_Team = itr->second.Team;
 
         if (itr->second.OfflineRemoveTime)
         {
             //if rated arena match - make member lost!
             if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
             {
-                if (team == winner)
+                if (l_Team == p_Winner)
                     winner_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), winner_matchmaker_change);
                 else
                     loser_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, Arena::GetSlotByType(GetArenaType()), loser_matchmaker_change);
@@ -927,140 +927,136 @@ void Battleground::EndBattleground(uint32 winner)
             continue;
         }
 
-        Player* player = _GetPlayer(itr, "EndBattleground");
-        if (!player)
+        Player* l_Player = _GetPlayer(itr, "EndBattleground");
+        if (!l_Player)
             continue;
 
         // should remove spirit of redemption
-        if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-            player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+        if (l_Player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+            l_Player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         // Last standing - Rated 5v5 arena & be solely alive player
-        if (team == winner && isArena() && !IsSkirmish() && !IsWargame() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && player->isAlive())
-            player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
+        if (l_Team == p_Winner && isArena() && !IsSkirmish() && !IsWargame() && GetArenaType() == ArenaType::Arena5v5 && aliveWinners == 1 && l_Player->isAlive())
+            l_Player->CastSpell(l_Player, SPELL_THE_LAST_STANDING, true);
 
-        if (!player->isAlive())
+        if (!l_Player->isAlive())
         {
-            player->ResurrectPlayer(1.0f);
-            player->SpawnCorpseBones();
+            l_Player->ResurrectPlayer(1.0f);
+            l_Player->SpawnCorpseBones();
         }
         else
         {
             //needed cause else in av some creatures will kill the players at the end
-            player->CombatStop();
-            player->getHostileRefManager().deleteReferences();
+            l_Player->CombatStop();
+            l_Player->getHostileRefManager().deleteReferences();
         }
 
         // per player calculation, achievements
         if (isArena() && !IsSkirmish() && !IsWargame() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
             uint8 slot = Arena::GetSlotByType(GetArenaType());
-            if (team == winner)
+            if (l_Team == p_Winner)
             {
                 // update achievement BEFORE personal rating update
-                uint32 rating = player->GetArenaPersonalRating(slot);
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                uint32 rating = l_Player->GetArenaPersonalRating(slot);
+                l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
+                l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
                 // Member lost
 
                 // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                l_Player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
             }
         }
 
         if (IsRatedBG() && winner_team && loser_team && winner_team != loser_team && GetWinner() != 3)
         {
-            if (player->GetArenaPersonalRating(SLOT_RBG) < player->GetArenaMatchMakerRating(SLOT_RBG))
+            if (l_Player->GetArenaPersonalRating(SLOT_RBG) < l_Player->GetArenaMatchMakerRating(SLOT_RBG))
             {
-                int32 rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(SLOT_RBG), team == winner ? loser_matchmaker_rating : winner_matchmaker_rating, true);
-
-                if (player->GetArenaPersonalRating(SLOT_RBG) < 1000)
-                    rating_change = 96;
-
-                player->SetArenaPersonalRating(SLOT_RBG, player->GetArenaPersonalRating(SLOT_RBG) + rating_change);
+                int32 l_RatingChange = Arena::GetRatingMod(l_Player->GetArenaPersonalRating(SLOT_RBG), l_Team == p_Winner ? loser_matchmaker_rating : winner_matchmaker_rating, l_Team == p_Winner);
+                l_Player->SetArenaPersonalRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaPersonalRating(SLOT_RBG) + l_RatingChange));
             }
 
-            if (team == winner)
+            if (l_Team == p_Winner)
             {
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
-                player->SetArenaMatchMakerRating(SLOT_RBG, player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
+                l_Player->SetArenaMatchMakerRating(SLOT_RBG, l_Player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
 
-                player->IncrementWeekWins(SLOT_RBG);
-                player->IncrementSeasonWins(SLOT_RBG);
-                player->IncrementWeekGames(SLOT_RBG);
-                player->IncrementSeasonGames(SLOT_RBG);
+                l_Player->IncrementWeekWins(SLOT_RBG);
+                l_Player->IncrementSeasonWins(SLOT_RBG);
+                l_Player->IncrementWeekGames(SLOT_RBG);
+                l_Player->IncrementSeasonGames(SLOT_RBG);
             }
             else
             {
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(loser_matchmaker_rating, winner_matchmaker_rating, false);
-                player->SetArenaMatchMakerRating(SLOT_RBG, player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
-                player->IncrementWeekGames(SLOT_RBG);
-                player->IncrementSeasonGames(SLOT_RBG);
+                l_Player->SetArenaMatchMakerRating(SLOT_RBG, std::max(0, (int)l_Player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod));
+                l_Player->IncrementWeekGames(SLOT_RBG);
+                l_Player->IncrementSeasonGames(SLOT_RBG);
             }
         }
 
-        uint32 winner_bonus = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-        uint32 loser_bonus = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
+        uint32 winner_bonus = l_Player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+        uint32 loser_bonus = l_Player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
         // remove temporary currency bonus auras before rewarding player
-        player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);
-        player->RemoveAura(SPELL_HONORABLE_DEFENDER_60Y);
+        l_Player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);
+        l_Player->RemoveAura(SPELL_HONORABLE_DEFENDER_60Y);
 
         // Reward winner team
-        if (team == winner)
+        if (l_Team == p_Winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !IsWargame())
             {
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus);
-                if (!player->GetRandomWinner())
+                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus);
+                if (!l_Player->GetRandomWinner())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
-                    player->SetRandomWinner(true);
+                    l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    l_Player->SetRandomWinner(true);
                 }
             }
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
+                l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
 
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
             {
                 guildAwarded = true;
-                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
+                if (uint32 guildId = GetBgMap()->GetOwnerGuildId(l_Player->GetTeam()))
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
-                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, player);
+                        guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, NULL, l_Player);
                         if (isArena() && !IsSkirmish() && winner_team && loser_team && winner_team != loser_team)
-                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, NULL, player);
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(winner_team->GetRating(Arena::GetSlotByType(GetArenaType())), 1), 0, 0, NULL, l_Player);
                     }
             }
         }
         else
         {
             if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
+                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
         }
 
-        player->ResetAllPowers();
-        player->CombatStopWithPets(true);
+        l_Player->ResetAllPowers();
+        l_Player->CombatStopWithPets(true);
 
-        BlockMovement(player);
-        player->SetBattlegroundQueueTypeId(player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID)), MS::Battlegrounds::BattlegroundType::None);
+        BlockMovement(l_Player);
+        l_Player->SetBattlegroundQueueTypeId(l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID)), MS::Battlegrounds::BattlegroundType::None);
         MS::Battlegrounds::PacketFactory::PvpLogData(&data, this);
-        player->GetSession()->SendPacket(&data);
+        l_Player->GetSession()->SendPacket(&data);
 
         MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(GetTypeID(), GetArenaType(), IsSkirmish());
-        MS::Battlegrounds::PacketFactory::Status(&data, this, player, player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
-        player->GetSession()->SendPacket(&data);
+        MS::Battlegrounds::PacketFactory::Status(&data, this, l_Player, l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(GetTypeID())), STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
+        l_Player->GetSession()->SendPacket(&data);
 
         if (!IsWargame())
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+            l_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
 
     if (winmsg_id)
@@ -1159,10 +1155,10 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
                         // Update personal rating
                         int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), GetArenaMatchmakerRating(GetOtherTeam(team), slot), false);
-                        player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+                        player->SetArenaPersonalRating(slot, std::max(0,  (int)player->GetArenaPersonalRating(slot) + mod));
 
                         // Update matchmaker rating
-                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+                        player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) -12));
 
                         // Update personal played stats
                         player->IncrementWeekGames(slot);
@@ -1184,10 +1180,10 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
 
                         // Update personal rating
                         int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), GetArenaMatchmakerRating(GetOtherTeam(team), slot), false);
-                        player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+                        player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + mod));
 
                         // Update matchmaker rating
-                        player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) -12);
+                        player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) - 12));
 
                         // Update personal played stats
                         player->IncrementWeekGames(slot);

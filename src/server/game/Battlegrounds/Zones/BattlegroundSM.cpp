@@ -422,6 +422,9 @@ void BattlegroundSM::CheckPlayerNearMineCart(uint32 p_Diff)
         {
             if (Player* l_Player = ObjectAccessor::FindPlayer(l_Iter->first))
             {
+                if (l_Player->HasAuraType(AuraType::SPELL_AURA_MOD_STEALTH))
+                    continue;
+
                 if (l_Player->isDead()) 
                 {
                     UpdateWorldStateForPlayer(SM_DISPLAY_PROGRESS_BAR, BG_SM_PROGRESS_BAR_DONT_SHOW, l_Player);

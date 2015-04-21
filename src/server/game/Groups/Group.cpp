@@ -3088,10 +3088,10 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
             {
                 // update personal rating
                 int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-                p->SetArenaPersonalRating(slot, p->GetArenaPersonalRating(slot) + mod);
+                p->SetArenaPersonalRating(slot, std::max(0, (int)p->GetArenaPersonalRating(slot) + mod));
 
                 // update matchmaker rating
-                p->SetArenaMatchMakerRating(slot, p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
+                p->SetArenaMatchMakerRating(slot, std::max(0, (int)p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
 
                 // update personal played stats
                 p->IncrementWeekGames(slot);
@@ -3111,10 +3111,10 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
         {
             // Update personal rating
             int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + mod));
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
 
             // Update personal played stats
             player->IncrementWeekGames(slot);
@@ -3156,9 +3156,6 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
         {
             // Change in Team Rating
             rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, true);
-
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
 
             if (player->GetArenaPersonalRating(slot) < 1000)
                 rating_change = 96;
@@ -3224,16 +3221,13 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
             // Change in Team Rating
             rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, false);
 
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
-
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
                     if (itr2->first == itr->guid)
                         itr2->second->RatingChange = rating_change;
 
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + mod));
 
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
@@ -3247,15 +3241,12 @@ void Group::FinishGame(int32 rating_change, uint8 slot)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
-
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
                     if (itr2->first == itr->guid)
                         itr2->second->RatingChange = rating_change;
 
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
         }
