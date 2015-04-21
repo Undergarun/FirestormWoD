@@ -46,6 +46,12 @@ struct MapEntry;
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
 
+enum class GroupScalingRange : int32
+{
+    Min = 10,
+    Max = 30
+};
+
 enum RollVote
 {
     PASS              = 0,

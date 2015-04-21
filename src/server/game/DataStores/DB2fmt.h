@@ -69,6 +69,7 @@ const char SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
 const char AreaPOIEntryfmt[] = "nxxxiixffxxixxx";
 const char Holidaysfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxisix";
 const char OverrideSpellDatafmt[] = "niiiiiiiiiixx";
+const char SpellEffectGroupSizefmt[] = "xnf";
 const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
 const char SpellPowerEntryfmt[] = "nixiiiixxxffif";
 const char SpellTotemsEntryfmt[] = "niiii";

@@ -259,6 +259,30 @@ struct CreatureBaseStats
 
 typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
+#define MAX_GROUP_SCALING 30
+
+struct CreatureGroupSizeStat
+{
+    std::vector<uint32> Healths;
+    std::vector<float>  MinDamage;
+    std::vector<float>  MaxDamage;
+
+    CreatureGroupSizeStat()
+    {
+        Healths.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+    }
+
+    uint32 GetHealthFor(uint32 p_GroupSize) const
+    {
+        p_GroupSize = std::max((uint32)10, p_GroupSize);
+        return Healths[p_GroupSize];
+    }
+};
+
+typedef std::map<uint32/*CreatureEntry*/, std::map<uint32/*Difficulty*/, CreatureGroupSizeStat>> CreatureGroupSizeStatsContainer;
+
 struct CreatureLocale
 {
     StringVector Name;
@@ -482,6 +506,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
         void UpdateStatsForLevel();
+        void UpdateGroupSizeStats();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }

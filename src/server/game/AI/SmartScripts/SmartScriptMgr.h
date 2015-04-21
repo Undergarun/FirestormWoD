@@ -488,8 +488,17 @@ enum SMART_ACTION
     SMART_ACTION_SET_HOME_POS                       = 101,    // none
     SMART_ACTION_SET_HEALTH_REGEN                   = 102,    // 0/1
     SMART_ACTION_SET_ROOT                           = 103,    // off/on
+    SMART_ACTION_SET_GO_FLAG                        = 104,    // Flags
+    SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
+    SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
+    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
+    SMART_ACTION_SET_POWER                          = 108,    // PowerType, newPower
+    SMART_ACTION_ADD_POWER                          = 109,    // PowerType, newPower
+    SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
+    SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
+    SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
 
-    SMART_ACTION_END                                = 104
+    SMART_ACTION_END                                = 113
 };
 
 struct SmartAction
@@ -930,6 +939,33 @@ struct SmartAction
         {
             uint32 root;
         } setRoot;
+
+        struct
+        {
+            uint32 flag;
+        } goFlag;
+
+        struct
+        {
+            uint32 group;
+            uint32 attackInvoker;
+        } creatureGroup;
+
+        struct
+        {
+            uint32 powerType;
+            uint32 newPower;
+        } power;
+
+        struct
+        {
+            uint32 id;
+        } gameEventStop;
+
+        struct
+        {
+            uint32 id;
+        } gameEventStart;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

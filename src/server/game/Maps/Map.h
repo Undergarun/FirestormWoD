@@ -414,6 +414,11 @@ class Map : public GridRefManager<NGridType>
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
+        std::set<WorldObject*> const* GetAllWorldObjectOnMap() const
+        {
+            return &i_worldObjects;
+        }
+
         void SendToPlayers(WorldPacket const* data) const;
 
         typedef MapRefManager PlayerList;

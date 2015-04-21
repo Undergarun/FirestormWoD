@@ -188,6 +188,7 @@ public:
             { "delete",         SEC_GAMEMASTER,     false, NULL,              "", npcDeleteCommandTable },
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
+            { "groupscaling",   SEC_GAMEMASTER,     false, &HandleNpcGroupScaling,             "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1776,6 +1777,38 @@ public:
         }
 
         handler->PSendSysMessage(LANG_COMMAND_NEAROBJMESSAGE, distance, count);
+        return true;
+    }
+
+    static bool HandleNpcGroupScaling(ChatHandler* p_Handler, char const* p_Args)
+    {
+        Creature* l_Creature = NULL;
+
+        if (*p_Args)
+        {
+            // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
+            char* l_CreatureID = p_Handler->extractKeyFromLink((char*)p_Args, "Hcreature");
+            if (!l_CreatureID)
+                return false;
+
+            uint32 l_LowGUID = atoi(l_CreatureID);
+            if (!l_LowGUID)
+                return false;
+
+            if (CreatureData const* l_CreatureData = sObjectMgr->GetCreatureData(l_LowGUID))
+                l_Creature = p_Handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(l_LowGUID, l_CreatureData->id, HIGHGUID_UNIT));
+        }
+        else
+            l_Creature = p_Handler->getSelectedCreature();
+
+        if (!l_Creature || l_Creature->isPet() || l_Creature->isTotem())
+        {
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        l_Creature->UpdateGroupSizeStats();
         return true;
     }
 };

@@ -1187,3 +1187,16 @@ void InstanceScript::UpdatePhasing()
         if (Player* player = itr->getSource())
             player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
 }
+
+void InstanceScript::UpdateCreatureGroupSizeStats()
+{
+    auto l_WorldObjects = instance->GetAllWorldObjectOnMap();
+    for (auto l_WorldObject = l_WorldObjects->begin(); l_WorldObject != l_WorldObjects->end(); l_WorldObject++)
+    {
+        if ((*l_WorldObject)->GetTypeId() != TYPEID_UNIT)
+            continue;
+
+        Creature* l_Creature = (*l_WorldObject)->ToCreature();
+        l_Creature->UpdateGroupSizeStats();
+    }
+}
