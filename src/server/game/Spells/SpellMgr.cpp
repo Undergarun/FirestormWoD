@@ -3436,6 +3436,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 156157:///< Cleave (The Butcher)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
             case 163042:///< Pale Vitriol
@@ -3455,6 +3456,19 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163113:///< Withering (Living Mushroom - Brackenspore)
             case 163124:///< Withering (Rejuvenating Mushroom - Brackenspore)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
+                break;
+            case 159996:///< Infested Spores (Brackenspore)
+            {
+                for (auto l_Iter : spellInfo->SpellPowers)
+                {
+                    ((SpellPowerEntry*)l_Iter)->Cost = 500;
+                    ((SpellPowerEntry*)l_Iter)->PowerType = POWER_RAGE;
+                }
+
+                break;
+            }
+            case 163242:///< Infested Spores - triggered (Brackenspore)
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

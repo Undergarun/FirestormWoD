@@ -82,6 +82,7 @@ UPDATE creature_template SET
 minlevel = 103,
 maxlevel = 103,
 faction = 14,
+unit_class = 1,
 dmg_multiplier = 10,
 ScriptName = 'boss_brackenspore',
 mechanic_immune_mask = 617299839,
@@ -96,7 +97,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_living_mushroom' WHERE e
 UPDATE creature_template SET ScriptName = 'npc_highmaul_rejuvenating_mushroom' WHERE entry IN (78868);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_bfc9000' WHERE entry IN (81403);
 
-DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347, 163310, 165223);
+DELETE FROM spell_script_names WHERE spell_id IN (159220, 163667, 163322, 163666, 163347, 163310, 165223, 164248);
 INSERT INTO spell_script_names VALUES
 (159220, 'spell_highmaul_necrotic_breath'),
 (163667, 'spell_highmaul_flamethrower_regen'),
@@ -104,7 +105,8 @@ INSERT INTO spell_script_names VALUES
 (163666, 'spell_highmaul_pulsing_heat'),
 (163347, 'spell_highmaul_creeping_moss'),
 (163310, 'spell_highmaul_flamethrower'),
-(165223, 'spell_highmaul_burning_infusion');
+(165223, 'spell_highmaul_burning_infusion'),
+(164248, 'spell_highmaul_energy_regen');
 
 DELETE FROM areatrigger_scripts WHERE entry IN (10094);
 INSERT INTO areatrigger_scripts VALUE
