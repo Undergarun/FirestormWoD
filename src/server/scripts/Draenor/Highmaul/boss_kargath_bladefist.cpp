@@ -314,7 +314,10 @@ class boss_kargath_bladefist : public CreatureScript
 
                 m_Events.ScheduleEvent(eEvents::EventImpale, 35000);
                 m_Events.ScheduleEvent(eEvents::EventBladeDance, 3000);
-                m_Events.ScheduleEvent(eEvents::EventOpenGrates, 4000);
+
+                if (!IsLFR())
+                    m_Events.ScheduleEvent(eEvents::EventOpenGrates, 4000);
+
                 m_Events.ScheduleEvent(eEvents::EventBerserkerRush, 48000);
                 m_Events.ScheduleEvent(eEvents::EventChainHurl, 91000);
                 m_Events.ScheduleEvent(eEvents::EventBerserker, 600000);
@@ -653,7 +656,7 @@ class boss_kargath_bladefist : public CreatureScript
                     case eEvents::EventBladeDance:
                     {
                         me->CastSpell(me, eSpells::SpellBladeDance, true);
-                        m_Events.ScheduleEvent(eEvents::EventBladeDance, 23000);
+                        m_Events.ScheduleEvent(eEvents::EventBladeDance, 20000);
                         break;
                     }
                     case eEvents::EventOpenGrates:
@@ -1476,7 +1479,6 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
         enum eSpells
         {
             SpellMaul       = 161218,
-            SpellInThePit   = 161423,
             OnTheHunt       = 162497,
             SpellInflamed   = 163130
         };
@@ -1629,15 +1631,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                     for (Player* l_Player : l_PlrList)
                     {
                         if (!l_Player->isAlive())
-                        {
-                            if (l_Player->HasAura(eSpells::SpellInThePit))
-                                l_Player->RemoveAura(eSpells::SpellInThePit);
-
                             continue;
-                        }
-
-                        if (!l_Player->HasAura(eSpells::SpellInThePit))
-                            l_Player->CastSpell(l_Player, eSpells::SpellInThePit, true);
 
                         me->CastSpell(l_Player, eSpells::SpellMaul, false);
                     }
@@ -1684,15 +1678,16 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
         enum eDatas
         {
             MorphWithWeapon = 54674,
+            MorphInvisible  = 11686,
             AnimKit1        = 5865,
             AnimKit2        = 5864,
             AnimKit3        = 5863,
             AnimKit4        = 5861
         };
 
-        struct npc_highmaul_kargath_bladefist_triggerAI : public ScriptedAI
+        struct npc_highmaul_kargath_bladefist_triggerAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_kargath_bladefist_triggerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_kargath_bladefist_triggerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
 
             void Reset() override
             {
@@ -1707,14 +1702,16 @@ class npc_highmaul_kargath_bladefist_trigger : public CreatureScript
 
                 if (p_SpellInfo->Id == eSpells::BladeDanceCharge)
                 {
-                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
                     me->SetDisplayId(eDatas::MorphWithWeapon);
+                    me->CastSpell(me, eSpells::BladeDanceDmg, true, nullptr, NULLAURA_EFFECT, p_Caster->GetGUID());
                     me->CastSpell(p_Caster, eSpells::BladeDanceCharge, true);
-                    me->CastSpell(me, eSpells::SpellBladeDanceFadeOut, true);
-                    me->DespawnOrUnsummon(1500);
 
                     uint32 const l_AnimKits[4] = { eDatas::AnimKit1, eDatas::AnimKit2, eDatas::AnimKit3, eDatas::AnimKit4 };
                     me->PlayOneShotAnimKit(l_AnimKits[urand(0, 3)]);
+
+                    AddTimedDelayedOperation(100, [this]() -> void { me->CastSpell(me, eSpells::SpellBladeDanceFadeOut, true); });
+                    AddTimedDelayedOperation(500, [this]() -> void { me->SetDisplayId(eDatas::MorphInvisible); });
+                    AddTimedDelayedOperation(600, [this]() -> void { me->DespawnOrUnsummon(); });
                 }
             }
         };
@@ -2813,10 +2810,13 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
         {
             PrepareSpellScript(spell_highmaul_chain_hurl_SpellScript);
 
+            uint8 l_Count;
             uint64 m_Targets[eDatas::MaxAffectedTargets];
 
             bool Load() override
             {
+                l_Count = 0;
+
                 for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
                     m_Targets[l_I] = 0;
 
@@ -2825,7 +2825,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
             bool TargetsAlreadySelected() const
             {
-                for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
+                for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                 {
                     if (!m_Targets[l_I])
                         return false;
@@ -2904,7 +2904,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
                 JadeCore::RandomResizeList(l_DamagersList, eDatas::MaxLFRDamagers);
 
-                uint8 l_Count = 0;
+                l_Count = 0;
 
                 for (Player* l_Player : l_TanksList)
                 {
@@ -2938,7 +2938,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
                 if (TargetsAlreadySelected())
                 {
-                    for (uint8 l_I = 0; l_I < eDatas::MaxAffectedTargets; ++l_I)
+                    for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                     {
                         /// Spell has SPELL_ATTR3_ONLY_TARGET_PLAYERS
                         if (WorldObject* l_Object = Player::GetPlayer(*l_Caster, m_Targets[l_I]))
@@ -2968,7 +2968,7 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 {
                     l_PlayerList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
 
-                    uint8 l_Count = 0;
+                    l_Count = 0;
                     for (Player* l_Player : l_PlayerList)
                     {
                         if (l_Count >= eDatas::MaxAffectedTargets)
@@ -2979,6 +2979,9 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                         ++l_Count;
                     }
                 }
+
+                if (p_Targets.size() > eDatas::MaxAffectedTargets)
+                    JadeCore::RandomResizeList(p_Targets, eDatas::MaxAffectedTargets);
             }
 
             void Register() override
@@ -3335,14 +3338,19 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
                 std::list<Unit*> l_TargetList;
-                float l_Radius = 7.0f;
+                float l_Radius = 10.0f;
 
                 JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
+                {
+                    if (l_Caster->GetDistance(l_Unit) <= 7.0f)
+                        l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
+                    else
+                        l_Unit->RemoveAura(eSpells::FlameJet);
+                }
 
                 if (Creature* l_Kargath = l_Caster->FindNearestCreature(eHighmaulCreatures::KargathBladefist, 6.0f))
                 {
