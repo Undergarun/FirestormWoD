@@ -3678,6 +3678,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
 /// Explosive Shot - 53301
 class spell_hun_explosive_shot : public SpellScriptLoader
 {

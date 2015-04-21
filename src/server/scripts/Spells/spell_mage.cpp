@@ -510,6 +510,7 @@ class spell_mage_greater_invisibility_removed: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Greater Invisibility (triggered) - 110960
 class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
 {
@@ -1953,7 +1954,8 @@ class spell_mage_kindling : public SpellScriptLoader
         }
 };
 
-// Ring of Frost - 136511
+/// last update : 6.1.2 19802
+/// Ring of Frost - 136511
 class spell_mage_ring_of_frost : public SpellScriptLoader
 {
     public:
