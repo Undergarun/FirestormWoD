@@ -4379,7 +4379,7 @@ void Unit::RemoveFlagsAuras()
     {
         if (Battleground* bg = plr->GetBattleground())
         {
-            switch (bg->GetTypeID())
+            switch (bg->GetTypeID(true))
             {
                 case BATTLEGROUND_KT:
                     ((BattlegroundKT*)bg)->EventPlayerDroppedOrb(plr);
