@@ -434,7 +434,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_HUNTER_MARKSMANSHIP)
                         p_AurEff->GetBase()->Remove();
 
-                    float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
+                    float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.625f;
                     int32 l_BasePoints = l_Mastery;
 
                     if (AuraPtr l_Aura = p_AurEff->GetBase())
