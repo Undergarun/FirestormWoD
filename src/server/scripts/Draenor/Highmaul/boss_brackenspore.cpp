@@ -59,7 +59,6 @@ class boss_brackenspore : public CreatureScript
         {
             /// Misc
             Berserker               = 26662,
-            Rot                     = 163240,
             RotDot                  = 163241,
             CreepingMossPeriodic    = 163347,
             CreepingMossAreaTrigger = 173229,
@@ -102,7 +101,8 @@ class boss_brackenspore : public CreatureScript
             EventFungalFleshEater,
             EventRejuvenatingMushroom,
             EventSpecialAbility,
-            EventScheduleEnergy
+            EventScheduleEnergy,
+            EventRot
         };
 
         enum eActions
@@ -166,7 +166,6 @@ class boss_brackenspore : public CreatureScript
 
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
-                me->CastSpell(me, eSpells::Rot, true);
                 me->RemoveAura(eSpells::EnergyRegen);
 
                 me->RemoveAllAreasTrigger();
@@ -332,6 +331,7 @@ class boss_brackenspore : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
 
                 /// Mythic Specials. Shared cd, which special he uses is random.
                 if (IsMythic())
@@ -489,6 +489,11 @@ class boss_brackenspore : public CreatureScript
                         break;
                     case eEvents::EventScheduleEnergy:
                         me->CastSpell(me, eSpells::EnergyRegen, true);
+                        break;
+                    case eEvents::EventRot:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::RotDot, true);
+                        m_Events.ScheduleEvent(eEvents::EventRot, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -1267,7 +1272,7 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Radius = 8.5f;
+                    float l_Radius = 10.0f;
                     std::list<AreaTrigger*> l_CreepingMoss;
 
                     l_Caster->GetAreatriggerListInRange(l_CreepingMoss, l_Radius);
