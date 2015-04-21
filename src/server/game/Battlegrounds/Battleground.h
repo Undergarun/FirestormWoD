@@ -1129,8 +1129,8 @@ class Battleground
         /// - Debug only
         void FastStart() { m_StartDelayTime = 0; }
 
-        void AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser);
-        void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam);
+        void AwardTeams(uint32 p_Winner);
+        void AwardTeamsWithRewards(BattlegroundAward p_LooserAward, BattlegroundAward p_WinnerAward, uint32 p_Winner);
         static uint32 GetSpellIdForAward(BattlegroundAward p_Award);
     protected:
         void BuildArenaOpponentSpecializations(WorldPacket* data, uint32 team);
@@ -1179,6 +1179,11 @@ class Battleground
         bool   m_UseTournamentRules;
 
         BGHonorMode m_HonorMode;
+
+        virtual uint32 GetMaxScore() const { return 0; }
+        virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; }
+        virtual bool IsScoreIncremental() const { return true; }
+
     private:
         // Battleground
         BattlegroundTypeId m_TypeID;

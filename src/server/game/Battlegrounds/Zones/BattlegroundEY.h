@@ -398,7 +398,10 @@ class BattlegroundEY : public Battleground
         void UpdatePointStatuses();
 
         /* Scorekeeping */
-        uint32 GetTeamScore(uint32 Team) const { return m_TeamScores[GetTeamIndexByTeamId(Team)]; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_EY_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
         void AddPoints(uint32 Team, uint32 Points);
 
         void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
