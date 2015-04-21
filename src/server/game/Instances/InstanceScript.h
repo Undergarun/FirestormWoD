@@ -192,7 +192,7 @@ class InstanceScript : public ZoneScript
         virtual void OnPlayerEnter(Player* p_Player);
 
         /// Called when a player successfully exits the instance
-        virtual void OnPlayerExit(Player* p_Player) { }
+        virtual void OnPlayerExit(Player* p_Player);
 
         // Handle open / close objects
         // use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts

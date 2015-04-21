@@ -81,6 +81,12 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
+    UpdateCreatureGroupSizeStats();
+}
+
+void InstanceScript::OnPlayerExit(Player* p_Player)
+{
+    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
