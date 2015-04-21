@@ -1134,6 +1134,7 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 
 };
 
+/// last update : 6.1.2 19802
 // Guard - 115295 and Guard - 118604
 class spell_monk_guard: public SpellScriptLoader
 {
@@ -1151,9 +1152,9 @@ class spell_monk_guard: public SpellScriptLoader
                     return;
 
                 if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 9);
+                    p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
-                    p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 9);
+                    p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
             }
 
             void Register()
