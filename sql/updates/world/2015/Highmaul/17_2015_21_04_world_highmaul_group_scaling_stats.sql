@@ -115,6 +115,63 @@ INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES
 INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,29,129828871);
 INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,30,133375019);
 
+-- Highmaul - Brackenspore - LFR - group size health
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,16,49144781);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,18,58485018);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,19,60699724);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,20,63601487);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,21,69111468);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,22,62046639);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,23,67810976);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,24,71230238);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,25,74308457);
+
+-- Highmaul - Brackenspore - Normal - group size health
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,10,38968271);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,11,48716169);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,12,50309618);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,13,73208363);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,14,71817001);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,15,84293119);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,16,81203114);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,17,87069992);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,18,101500979);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,19,107369279);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,20,112073137);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,21,107153681);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,22,111899244);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,23,130458583);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,24,136071949);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,25,145062872);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,26,132604683);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,27,138681239);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,28,128223635);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,29,148832948);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,14,30,139783109);
+
+-- Highmaul - Brackenspore - Heroic - group size health
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,10,62345167);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,11,61055424);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,12,76641208);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,13,93636826);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,14,97609313);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,15,97380929);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,16,102287175);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,17,108566015);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,18,102249682);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,19,121683403);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,20,142565769);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,21,140790887);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,22,137048422);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,23,149442566);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,24,152219696);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,25,178616025);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,26,159590967);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,27,191681768);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,28,195895751);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,29,186727947);
+INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,15,30,199345548);
+
 -- Highmaul - Tectus - LFR - group size health
 INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,17,44403475);
 INSERT INTO creature_groupsizestats(entry, difficulty, groupSize, health) VALUES (78714,17,18,43770490);
