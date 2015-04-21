@@ -3006,7 +3006,8 @@ class spell_monk_zen_pilgrimage: public SpellScriptLoader
         }
 };
 
-// Provoke - 115546
+/// last update : 6.1.2 19802
+/// Provoke - 115546
 class spell_monk_provoke: public SpellScriptLoader
 {
     public:
@@ -3016,15 +3017,31 @@ class spell_monk_provoke: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_provoke_SpellScript);
 
+            bool m_IsMultiTarget = false;
+
+            enum eSpells
+            {
+                ProvokeSingleTarget = 116189,
+                ProvokeMultiTarget = 118635
+            };
+
+            enum eNpcs
+            {
+                BlackOxStatue = 61146
+            };
+
             SpellCastResult CheckCast()
             {
-                Unit* target = GetExplTargetUnit();
-                if (!target)
+                Unit* l_Target = GetExplTargetUnit();
+                if (!l_Target)
                     return SPELL_FAILED_NO_VALID_TARGETS;
-                else if (target->GetTypeId() == TYPEID_PLAYER)
+                else if (l_Target->GetTypeId() == TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
-                else if (!target->IsWithinLOSInMap(GetCaster()))
+                else if (!l_Target->IsWithinLOSInMap(GetCaster()))
                     return SPELL_FAILED_LINE_OF_SIGHT;
+
+                if (l_Target->GetEntry() == eNpcs::BlackOxStatue)
+                    m_IsMultiTarget = true;
                 return SPELL_CAST_OK;
             }
 
@@ -3032,8 +3049,13 @@ class spell_monk_provoke: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (caster->getClass() == CLASS_MONK && caster->GetTypeId() == TYPEID_PLAYER)
-                        if (Unit* target = GetHitUnit())
-                            caster->CastSpell(target, SPELL_MONK_PROVOKE, true);
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (m_IsMultiTarget)
+                            caster->CastSpell(target, eSpells::ProvokeMultiTarget, true);
+                        else
+                            caster->CastSpell(target, eSpells::ProvokeSingleTarget, true);
+                    }
             }
 
             void Register()
@@ -3046,6 +3068,46 @@ class spell_monk_provoke: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_provoke_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Provoke (launch) - 118635
+class spell_monk_provoke_launch : public SpellScriptLoader
+{
+    public:
+        spell_monk_provoke_launch() : SpellScriptLoader("spell_monk_provoke_launch") { }
+
+        class spell_monk_provoke_launch_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_provoke_launch_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    /// Unusable on pvp
+                    if (p_Object->GetTypeId() == TYPEID_PLAYER)
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_provoke_launch_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_provoke_launch_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_provoke_launch_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_provoke_launch_SpellScript();
         }
 };
 
@@ -4348,6 +4410,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_touch_of_death();
     new spell_monk_paralysis();
     new spell_monk_provoke();
+    new spell_monk_provoke_launch();
     new spell_monk_roll();
     new spell_monk_tigereye_brew_stacks();
     new spell_monk_spinning_crane_kick();
