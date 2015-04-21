@@ -129,13 +129,13 @@ namespace MS
                         *p_Data << uint32(p_Time1);                                               ///< Time until closed
 
                         if (l_Role & LFG_ROLEMASK_TANK)
-                            *p_Data << uint8(0);
+                            *p_Data << uint8(ROLE_TANK);
                         else if (l_Role & LFG_ROLEMASK_HEALER)
-                            *p_Data << uint8(1);
+                            *p_Data << uint8(ROLE_HEALER);
                         else if (l_Role & LFG_ROLEMASK_DAMAGE)
-                            *p_Data << uint8(2);
+                            *p_Data << uint8(ROLE_DAMAGE);
                         else
-                            *p_Data << uint8(2);
+                            *p_Data << uint8(ROLE_DAMAGE);
 
                         break;
                     }
@@ -158,8 +158,8 @@ namespace MS
                         p_Data->FlushBits();
 
                         *p_Data << uint32(p_BG->GetMapId());                                      ///< Map Id
-                        *p_Data << uint32(p_Time1);                                               ///< Time to Close
-                        *p_Data << uint32(GetMSTimeDiffToNow(p_Time2));                           ///< Elapsed Time
+                        *p_Data << uint32(p_BG->GetRemainingTime());                              ///< Time to Close
+                        *p_Data << uint32(p_BG->GetElapsedTime());                                ///< Elapsed Time
                         p_Data->WriteBit(p_Player->GetBGTeam() == HORDE ? 0 : 1);                 ///< Battlefield Faction ( 0 horde, 1 alliance )
                         p_Data->WriteBit(false);                                                  ///< @TODO Left early
                         p_Data->FlushBits();
