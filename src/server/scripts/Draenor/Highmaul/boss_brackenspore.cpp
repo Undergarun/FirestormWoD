@@ -67,6 +67,7 @@ class boss_brackenspore : public CreatureScript
             BFC9000                 = 164175,
             FlamethrowerAura        = 163663,
             BurningInfusion         = 165223,
+            EnergyRegen             = 164248,
             /// Necrotic Breath
             SpellNecroticBreath     = 159219,   ///< Triggers 159220 every second
             /// Infesting Spores
@@ -100,13 +101,15 @@ class boss_brackenspore : public CreatureScript
             EventSporeShooter,
             EventFungalFleshEater,
             EventRejuvenatingMushroom,
-            EventSpecialAbility
+            EventSpecialAbility,
+            EventScheduleEnergy
         };
 
         enum eActions
         {
             DoIntro,
-            CreepingMoss
+            CreepingMoss,
+            InfestingSpores
         };
 
         enum eCreatures
@@ -128,7 +131,7 @@ class boss_brackenspore : public CreatureScript
 
         enum eTalk
         {
-            InfestingSpores
+            WarnInfestingSpores
         };
 
         struct boss_brackensporeAI : public BossAI
@@ -158,7 +161,13 @@ class boss_brackenspore : public CreatureScript
                 me->RemoveAura(eSpells::Berserker);
                 me->RemoveAura(eSpells::CreepingMossPeriodic);
 
+                me->SetPower(Powers::POWER_RAGE, 0);
+                me->SetMaxPower(Powers::POWER_RAGE, 500);
+
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+
                 me->CastSpell(me, eSpells::Rot, true);
+                me->RemoveAura(eSpells::EnergyRegen);
 
                 me->RemoveAllAreasTrigger();
                 m_CreepingMoss.clear();
@@ -302,6 +311,11 @@ class boss_brackenspore : public CreatureScript
                         SummonCreepingMoss();
                         break;
                     }
+                    case eActions::InfestingSpores:
+                    {
+                        m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 1);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -311,14 +325,14 @@ class boss_brackenspore : public CreatureScript
             {
                 _EnterCombat();
 
-                m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 30 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventBerserker, 600 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventMindFungus, 10 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventLivingMushroom, 17 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventSporeShooter, 20 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventFungalFleshEater, 32 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventRejuvenatingMushroom, 80 * TimeConstants::IN_MILLISECONDS);
 
                 /// Mythic Specials. Shared cd, which special he uses is random.
                 if (IsMythic())
@@ -331,6 +345,7 @@ class boss_brackenspore : public CreatureScript
                 /// 5s for LFR, 2s for Normal mode, 1.85s for Heroic mode
                 /// 1.4s for Mythic mode and 1.75s for others
                 me->CastSpell(me, eSpells::CreepingMossPeriodic, true);
+                me->CastSpell(me, eSpells::EnergyRegen, true);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -376,7 +391,9 @@ class boss_brackenspore : public CreatureScript
                         me->SummonCreature(eCreatures::FungalFleshEater, g_FleshEaterSpawns[urand(1, eHighmaulDatas::MaxFleshEaterPos) - 1]);
                         break;
                     case eSpells::SporeShooterDummy:
-                        me->CastSpell(me, eSpells::SummonSporeShooter, true);
+                        uint8 l_Count = IsMythic() ? 4 : 2;
+                        for (uint8 l_I = 0; l_I < l_Count; ++l_I)
+                            me->CastSpell(me, eSpells::SummonSporeShooter, true);
                         break;
                     case eSpells::RejuvenatingMushDummy:
                         me->CastSpell(p_Target, eSpells::SummonRejuvenatingMush, true);
@@ -387,6 +404,12 @@ class boss_brackenspore : public CreatureScript
                     default:
                         break;
                 }
+            }
+
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            {
+                /// Brackenspore only regens by script
+                p_Value = 0;
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -434,9 +457,10 @@ class boss_brackenspore : public CreatureScript
                         me->CastSpell(me, eSpells::Berserker, true);
                         break;
                     case eEvents::EventInfestingSpores:
-                        Talk(eTalk::InfestingSpores);
+                        Talk(eTalk::WarnInfestingSpores);
+                        me->RemoveAura(eSpells::EnergyRegen);
                         me->CastSpell(me, eSpells::SpellInfestingSpores, false);
-                        m_Events.ScheduleEvent(eEvents::EventInfestingSpores, 45 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventScheduleEnergy, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventMindFungus:
                         me->CastSpell(me, eSpells::SummonMindFungus, true);
@@ -461,6 +485,9 @@ class boss_brackenspore : public CreatureScript
                     case eEvents::EventSpecialAbility:
                         DoSpecialAbility();
                         m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventScheduleEnergy:
+                        me->CastSpell(me, eSpells::EnergyRegen, true);
                         break;
                     default:
                         break;
@@ -651,7 +678,7 @@ class npc_highmaul_spore_shooter : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                m_Events.ScheduleEvent(eEvent::EventSporeShot, 100);
+                m_Events.ScheduleEvent(eEvent::EventSporeShot, urand(100, 1500));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -667,7 +694,7 @@ class npc_highmaul_spore_shooter : public CreatureScript
                 if (m_Events.ExecuteEvent() == eEvent::EventSporeShot)
                 {
                     me->CastSpell(me, eSpell::SporeShot, false);
-                    m_Events.ScheduleEvent(eEvent::EventSporeShot, 1500);
+                    m_Events.ScheduleEvent(eEvent::EventSporeShot, 4500);
                 }
             }
         };
@@ -715,6 +742,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
 
             InstanceScript* m_Instance;
             EventMap m_Events;
+            bool m_Scheduled;
 
             void Reset() override
             {
@@ -736,11 +764,17 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+
+                m_Scheduled = false;
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
             {
-                m_Events.ScheduleEvent(eEvent::EventDecay, 10 * TimeConstants::IN_MILLISECONDS);
+                if (!m_Scheduled)
+                {
+                    m_Scheduled = true;
+                    m_Events.ScheduleEvent(eEvent::EventDecay, 5 * TimeConstants::IN_MILLISECONDS);
+                }
             }
 
             void JustDied(Unit* p_Killer) override
@@ -769,7 +803,7 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 if (m_Events.ExecuteEvent() == eEvent::EventDecay)
                 {
                     me->CastSpell(me, eSpells::Decay, false);
-                    m_Events.ScheduleEvent(eEvent::EventDecay, 5 * TimeConstants::IN_MILLISECONDS);
+                    m_Events.ScheduleEvent(eEvent::EventDecay, 10 * TimeConstants::IN_MILLISECONDS);
                 }
 
                 DoMeleeAttackIfReady();
@@ -837,6 +871,12 @@ class npc_highmaul_living_mushroom : public CreatureScript
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::LivingSpores))
                     me->CastSpell(me, eSpells::LivingSpores, true);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Attacker != me)
+                    p_Damage = 0;
             }
 
             void JustDied(Unit* p_Killer) override
@@ -907,6 +947,12 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
             {
                 if ((me->GetHealth() + p_Heal) >= me->GetMaxHealth() && !me->HasAura(eSpells::RejuvenatingSpores))
                     me->CastSpell(me, eSpells::RejuvenatingSpores, true);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Attacker != me)
+                    p_Damage = 0;
             }
 
             void JustDied(Unit* p_Killer) override
@@ -1220,7 +1266,7 @@ class spell_highmaul_flamethrower : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    float l_Radius = GetSpellInfo()->Effects[p_EffIndex].CalcRadius(l_Caster);
+                    float l_Radius = 8.5f;
                     std::list<AreaTrigger*> l_CreepingMoss;
 
                     l_Caster->GetAreatriggerListInRange(l_CreepingMoss, l_Radius);
@@ -1287,6 +1333,47 @@ class spell_highmaul_burning_infusion : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_burning_infusion_AuraScript();
+        }
+};
+
+/// Energy Regen - 164248
+class spell_highmaul_energy_regen : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_energy_regen() : SpellScriptLoader("spell_highmaul_energy_regen") { }
+
+        enum eAction
+        {
+            InfestingSpores = 2
+        };
+
+        class spell_highmaul_energy_regen_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_energy_regen_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, 10, Powers::POWER_RAGE);
+
+                    if (Creature* l_Boss = l_Target->ToCreature())
+                    {
+                        if (l_Boss->IsAIEnabled && l_Boss->GetPowerPct(Powers::POWER_RAGE) >= 100.0f)
+                            l_Boss->AI()->DoAction(eAction::InfestingSpores);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_energy_regen_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_energy_regen_AuraScript();
         }
 };
 
@@ -1505,6 +1592,7 @@ void AddSC_boss_brackenspore()
     new spell_highmaul_creeping_moss();
     new spell_highmaul_flamethrower();
     new spell_highmaul_burning_infusion();
+    new spell_highmaul_energy_regen();
 
     /// AreaTriggers (Spells)
     new areatrigger_highmaul_mind_fungus();

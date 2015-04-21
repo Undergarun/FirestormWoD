@@ -691,7 +691,12 @@ void Creature::RegenerateMana()
 
     l_Addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
-    ModifyPower(POWER_MANA, std::floor(l_Addvalue));
+    int32 l_IntValue = std::floor(l_Addvalue);
+
+    if (IsAIEnabled)
+        AI()->RegeneratePower(Powers::POWER_MANA, l_IntValue);
+
+    ModifyPower(POWER_MANA, l_IntValue);
 }
 
 void Creature::RegenerateHealth()
