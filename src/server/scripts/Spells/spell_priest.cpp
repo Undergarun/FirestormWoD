@@ -1085,6 +1085,7 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Binding Heal - 32546
 class spell_pri_binding_heal : public SpellScriptLoader
 {
@@ -1108,6 +1109,8 @@ class spell_pri_binding_heal : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && l_SpellInfo != nullptr && p_Targets.size() > l_SpellInfo->Effects[EFFECT_1].BasePoints)
                     JadeCore::RandomResizeList(p_Targets, l_SpellInfo->Effects[EFFECT_1].BasePoints);
+                else
+                    p_Targets.clear();
             }
 
             void Register()
