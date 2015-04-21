@@ -123,6 +123,7 @@ class boss_the_butcher : public CreatureScript
             /// Bounding Cleave
             BoundingCleaveKnock = 156160,
             BoundingCleaveDummy = 156197,
+            BoundingCleaveDmg   = 156172,
             /// Cleave
             SpellCleave         = 156157,
             SpellGushingWounds  = 156152,
@@ -323,6 +324,7 @@ class boss_the_butcher : public CreatureScript
                         p_Target->CastSpell(me, eSpells::MeatHookJump, true);
                         break;
                     case eSpells::SpellCleave:
+                    case eSpells::BoundingCleaveDmg:
                         me->CastSpell(p_Target, eSpells::SpellGushingWounds, true);
                         break;
                     default:
