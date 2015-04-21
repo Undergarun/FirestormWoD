@@ -952,7 +952,7 @@ void Battleground::EndBattleground(uint32 winner)
                 uint32 rating = player->GetArenaPersonalRating(slot);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
@@ -977,7 +977,7 @@ void Battleground::EndBattleground(uint32 winner)
 
             if (team == winner)
             {
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
                 player->SetArenaMatchMakerRating(SLOT_RBG, player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
@@ -1008,16 +1008,18 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !IsWargame())
             {
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus);
+                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus, false);
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, winner_bonus);
+
                 if (!player->GetRandomWinner())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
                 }
             }
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
@@ -1035,7 +1037,12 @@ void Battleground::EndBattleground(uint32 winner)
         else
         {
             if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
+            {
+                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, loser_bonus, false);
+
+                if (!IsWargame())
+                    player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, loser_bonus);
+            }
         }
 
         player->ResetAllPowers();

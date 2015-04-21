@@ -9586,6 +9586,23 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
         _currencyStorage[currencyId].state = PLAYERCURRENCY_CHANGED;
 }
 
+void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
+{
+    ModifyCurrency(id, count, printLog, ignoreMultipliers, ignoreLimit);
+
+    switch (id)
+    {
+        case CURRENCY_TYPE_CONQUEST_META_ARENA_BG:
+        case CURRENCY_TYPE_CONQUEST_META_RBG:
+        case CURRENCY_TYPE_CONQUEST_META_ASHRAN:
+            id = CURRENCY_TYPE_CONQUEST_POINTS;
+        default:
+            break;
+    }
+
+    SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
+}
+
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && count >= 0 &&
