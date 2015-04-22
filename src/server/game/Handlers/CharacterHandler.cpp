@@ -309,10 +309,6 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
 
             Player::BuildEnumData(p_Result, &l_Data);
 
-            /// This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-            if (!sWorld->HasCharacterNameData(l_GuidLow))
-                sWorld->AddCharacterNameData(l_GuidLow, (*p_Result)[1].GetString(), (*p_Result)[4].GetUInt8(), (*p_Result)[2].GetUInt8(), (*p_Result)[3].GetUInt8(), (*p_Result)[7].GetUInt8());
-
             _allowedCharsToLogin.insert(l_GuidLow);
         } while (p_Result->NextRow());
     }
