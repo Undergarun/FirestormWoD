@@ -4905,12 +4905,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[1].BasePoints = 0;
                 break;
-            case 168811: ///< Sniper Training - blizzard 6.1 hotfix
-                spellInfo->Effects[0].BasePoints = 5;
-                spellInfo->Effects[1].BasePoints = 5;
-                spellInfo->Effects[2].BasePoints = 5;
-                spellInfo->Effects[3].BasePoints = 5;
-                break;
             case 11958: ///< Cold Snap
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;

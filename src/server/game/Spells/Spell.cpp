@@ -3200,7 +3200,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
-            if (m_spellInfo->IsBreakingStealth(m_caster))
+            if (m_spellInfo->IsBreakingStealth(m_caster) && !(m_procEx & PROC_EX_INTERNAL_MULTISTRIKE))
             {
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC

@@ -401,7 +401,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_thoktar_ironskull' WHERE
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_vulgor', mechanic_immune_mask = 617299839 WHERE entry = 80048;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_bladespire_sorcerer' WHERE entry = 80071;
 UPDATE creature_template SET InhabitType = 4 WHERE entry = 82734;
-UPDATE creature_template SET dmg_multiplier = 20, unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry = 78714;
+UPDATE creature_template SET dmg_multiplier = 20, unit_flags = 320, ScriptName = 'boss_kargath_bladefist', mechanic_immune_mask = 617299839, flags_extra = 0x01, Health_mod = 1133 WHERE entry = 78714;
 UPDATE creature SET unit_flags = 320 WHERE id = 78714;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_somldering_stoneguard' WHERE entry = 80051;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_imperator_margok' WHERE entry = 83268;
@@ -416,7 +416,7 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_highmaul_sweeper' WHERE 
 UPDATE creature_template SET ScriptName = 'npc_highmaul_chain_hurl_vehicle' WHERE entry = 79134;
 UPDATE creature_template SET unit_flags = 33555264 WHERE entry = 84823;
 
-DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131, 163392, 163302, 163130, 163408, 159001);
+DELETE FROM spell_script_names WHERE spell_id IN (162271, 159113, 163967, 159706, 159028, 159947, 160521, 160131, 163392, 163302, 163130, 163408, 159001, 159212);
 INSERT INTO spell_script_names VALUES
 (162271, 'spell_highmaul_earth_breaker'),
 (159113, 'spell_highmaul_impale'),
@@ -430,7 +430,8 @@ INSERT INTO spell_script_names VALUES
 (163302, 'spell_highmaul_roar_of_the_crowd'),
 (163130, 'spell_highmaul_inflamed'),
 (163408, 'spell_highmaul_heckle'),
-(159001, 'spell_highmaul_berserker_rush_periodic');
+(159001, 'spell_highmaul_berserker_rush_periodic'),
+(159212, 'spell_highmaul_blade_dance');
 
 DELETE FROM conditions WHERE SourceEntry IN (162231, 177705, 159712, 160061, 159948, 160904);
 INSERT INTO conditions (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ConditionTypeOrReference, ConditionTarget, ConditionValue1, ConditionValue2) VALUES

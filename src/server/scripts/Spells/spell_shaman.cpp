@@ -2378,6 +2378,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// 51505 - Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
@@ -2390,20 +2391,28 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
             void HitTarget(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                if (l_Player->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Player->HasSpell(SPELL_SHA_FULMINATION))
                 {
-                    if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
-                        l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                    if (l_Caster->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Caster->HasSpell(SPELL_SHA_FULMINATION))
+                    AuraPtr l_LightningShield = l_Player->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
+                    if (l_LightningShield != nullptr)
                     {
-                        AuraPtr l_LightningShield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
-                        if (l_LightningShield != nullptr)
-                        {
-                            if (l_LightningShield->GetCharges() < 20)
-                                l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
-                        }
+                        if (l_LightningShield->GetCharges() < 20)
+                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
                     }
                 }
+
+                /// Lavaburst deals 50% more damage with Flame Shock on target
+                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION && l_Target->GetTypeId() == TYPEID_PLAYER))
+                    SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
             }
 
             void HandleAfterCast()

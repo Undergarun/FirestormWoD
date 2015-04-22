@@ -3278,6 +3278,75 @@ class spell_highmaul_berserker_rush_periodic : public SpellScriptLoader
         }
 };
 
+/// Blade Dance (periodic triggered) - 159212
+class spell_highmaul_blade_dance : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_blade_dance() : SpellScriptLoader("spell_highmaul_blade_dance") { }
+
+        class spell_highmaul_blade_dance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_blade_dance_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                p_Targets.clear();
+
+                std::list<Player*> l_PlayerList;
+                l_Caster->GetPlayerListInGrid(l_PlayerList, 300.0f);
+
+                if (l_PlayerList.empty())
+                    return;
+
+                l_PlayerList.remove_if([this](Player* p_Player) -> bool
+                {
+                    if (p_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    return false;
+                });
+
+                if (l_PlayerList.empty())
+                    return;
+
+                std::list<Player*> l_SnapShot;
+
+                l_PlayerList.remove_if([this, l_Caster, &l_SnapShot](Player* p_Player) -> bool
+                {
+                    if (l_Caster->GetDistance(p_Player) <= 10.0f)
+                    {
+                        l_SnapShot.push_back(p_Player);
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                if (l_PlayerList.empty() && !l_SnapShot.empty())
+                    l_PlayerList = l_SnapShot;
+                else
+                    return;
+
+                JadeCore::RandomResizeList(l_PlayerList, 1);
+                p_Targets.push_back(l_PlayerList.front());
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_blade_dance_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_blade_dance_SpellScript();
+        }
+};
+
 /// Molten Bomb - 161634
 class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
 {
@@ -3441,6 +3510,7 @@ void AddSC_boss_kargath_bladefist()
     new spell_highmaul_inflamed();
     new spell_highmaul_heckle();
     new spell_highmaul_berserker_rush_periodic();
+    new spell_highmaul_blade_dance();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();
