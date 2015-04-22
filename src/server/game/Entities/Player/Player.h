@@ -3051,9 +3051,11 @@ class Player : public Unit, public GridObject<Player>
             else if (HasSpell(883))
                 l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
-                if ((m_petSlotUsed & (1 << i)) == 0)
-                    return PetSlot(i);
+            for (uint32 l_I = uint32(PET_SLOT_HUNTER_FIRST); l_I < l_LastKnow; ++l_I)
+            {
+                if ((m_petSlotUsed & uint64(1LL << l_I)) == 0)
+                    return PetSlot(l_I);
+            }
 
             return PET_SLOT_FULL_LIST;
         }
