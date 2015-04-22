@@ -250,7 +250,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             if (quest->GetSrcSpell() > 0)
                 m_Player->CastSpell(m_Player, quest->GetSrcSpell(), true);
 
-            if (quest->IsAutoComplete())
+            /*if (quest->IsAutoComplete())
             {
                 for (QuestObjective l_Objective : quest->QuestObjectives)
                 {
@@ -318,7 +318,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 }
 
                 m_Player->CompleteQuest(quest->GetQuestId());
-            }
+            }*/
 
             return;
         }
