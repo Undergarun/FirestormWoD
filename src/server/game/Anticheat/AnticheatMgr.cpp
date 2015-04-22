@@ -1,4 +1,4 @@
-﻿#include "AnticheatMgr.h"
+#include "AnticheatMgr.h"
 #include "AnticheatScripts.h"
 #include "MapManager.h"
 
@@ -98,32 +98,32 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movem
     }
 }
 
-void AnticheatMgr::StartHackDetection(Player* player, MovementInfo movementInfo, uint32 opcode)
+void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MovementInfo, uint32 p_Opcode)
 {
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         return;
 
-    if (player->isGameMaster())
+    if (AccountMgr::GetSecurity(p_Player->GetSession()->GetAccountId()) > AccountTypes::SEC_PLAYER)
         return;
 
-    uint32 key = player->GetGUIDLow();
+    uint32 key = p_Player->GetGUIDLow();
 
-    if (player->isInFlight() || player->GetTransport() || player->GetVehicle())
+    if (p_Player->isInFlight() || p_Player->GetTransport() || p_Player->GetVehicle())
     {
-        m_Players[key].SetLastMovementInfo(movementInfo);
-        m_Players[key].SetLastOpcode(opcode);
+        m_Players[key].SetLastMovementInfo(p_MovementInfo);
+        m_Players[key].SetLastOpcode(p_Opcode);
         return;
     }
 
-    SpeedHackDetection(player,movementInfo);
-    FlyHackDetection(player,movementInfo);
-    WalkOnWaterHackDetection(player,movementInfo);
-    JumpHackDetection(player,movementInfo,opcode);
-    TeleportPlaneHackDetection(player, movementInfo);
-    ClimbHackDetection(player,movementInfo,opcode);
+    SpeedHackDetection(p_Player, p_MovementInfo);
+    FlyHackDetection(p_Player, p_MovementInfo);
+    WalkOnWaterHackDetection(p_Player, p_MovementInfo);
+    JumpHackDetection(p_Player, p_MovementInfo, p_Opcode);
+    TeleportPlaneHackDetection(p_Player, p_MovementInfo);
+    ClimbHackDetection(p_Player, p_MovementInfo, p_Opcode);
 
-    m_Players[key].SetLastMovementInfo(movementInfo);
-    m_Players[key].SetLastOpcode(opcode);
+    m_Players[key].SetLastMovementInfo(p_MovementInfo);
+    m_Players[key].SetLastOpcode(p_Opcode);
 }
 
 // basic detection
