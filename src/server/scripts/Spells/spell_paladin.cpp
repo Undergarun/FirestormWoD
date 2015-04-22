@@ -2060,16 +2060,16 @@ public:
 // Eternal Flame Aura periodic heal- 156322
 class spell_pal_eternal_flame_periodic_heal: public SpellScriptLoader
 {
-public:
-    spell_pal_eternal_flame_periodic_heal() : SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
+    public:
+        spell_pal_eternal_flame_periodic_heal() : SpellScriptLoader("spell_pal_eternal_flame_periodic_heal") { }
 
-    class spell_pal_eternal_flame_periodic_heal_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pal_eternal_flame_periodic_heal_AuraScript);
-
-        void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+        class spell_pal_eternal_flame_periodic_heal_AuraScript : public AuraScript
         {
-            if (Unit* l_Owner = GetOwner()->ToUnit())
+            PrepareAuraScript(spell_pal_eternal_flame_periodic_heal_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr, int32 & amount, bool &)
+            {
+                if (Unit* l_Owner = GetOwner()->ToUnit())
                 if (Unit* l_Caster = GetCaster())
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_ETERNAL_FLAME);
@@ -2081,21 +2081,22 @@ public:
 
                     amount = l_Heal;
                 }
-        }
+            }
 
-        void Register()
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_eternal_flame_periodic_heal_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_eternal_flame_periodic_heal_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            return new spell_pal_eternal_flame_periodic_heal_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_pal_eternal_flame_periodic_heal_AuraScript();
-    }
 };
 
-// Holy Wrath - 119072
+/// last update : 6.1.2 19802
+/// Holy Wrath - 119072
 class spell_pal_holy_wrath: public SpellScriptLoader
 {
 public:
@@ -2105,16 +2106,29 @@ public:
     {
         PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
 
-        void HandleOnHit()
+        enum eSpells
         {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
-                    l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+            GlyphOfFinalWrath = 54935
+        };
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+            SpellInfo const* l_GlyphOfFinalWrath = sSpellMgr->GetSpellInfo(eSpells::GlyphOfFinalWrath);
+
+            if (l_Target == nullptr)
+                return;
+
+            if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
+                l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+            if (l_Caster->HasAura(eSpells::GlyphOfFinalWrath) && l_GlyphOfFinalWrath != nullptr && l_Target->GetHealthPct() < 20.0f)
+                SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_GlyphOfFinalWrath->Effects[EFFECT_0].BasePoints));
         }
 
         void Register()
         {
-            OnHit += SpellHitFn(spell_pal_holy_wrath_SpellScript::HandleOnHit);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_holy_wrath_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
