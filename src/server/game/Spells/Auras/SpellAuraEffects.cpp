@@ -878,27 +878,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     int32 l_Combo = caster->GetPower(Powers::POWER_COMBO_POINT);
                     float l_AttackPower = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                    switch (l_Combo)
-                    {
-                        case 1:
-                            amount += int32(l_AttackPower * 0.1f / 4);
-                            break;
-                        case 2:
-                            amount += int32(l_AttackPower * 0.24f / 6);
-                            break;
-                        case 3:
-                            amount += int32(l_AttackPower * 0.40f / 8);
-                            break;
-                        case 4:
-                            amount += int32(l_AttackPower * 0.56f / 10);
-                            break;
-                        case 5:
-                            amount += int32(l_AttackPower * 0.744f / 12);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                    /// 1 tick = Combo Points * (0.0685 * Attack power) * 0.5
+                    amount += l_Combo * int32(l_AttackPower * 0.5f) * (m_periodicTimer / IN_MILLISECONDS);
                 }
                 case 50536: // Unholy Blight
                 {
