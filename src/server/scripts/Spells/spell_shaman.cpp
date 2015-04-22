@@ -2645,7 +2645,6 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
-    new spell_sha_glyph_of_healing_wave();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
