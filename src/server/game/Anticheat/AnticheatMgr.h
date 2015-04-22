@@ -7,6 +7,7 @@
 #include "ScriptPCH.h"
 #include "AnticheatData.h"
 #include "Chat.h"
+#include "AccountMgr.h"
 
 class Player;
 class AnticheatData;
