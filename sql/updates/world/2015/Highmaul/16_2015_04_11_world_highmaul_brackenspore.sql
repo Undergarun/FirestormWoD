@@ -86,7 +86,8 @@ unit_class = 1,
 dmg_multiplier = 10,
 ScriptName = 'boss_brackenspore',
 mechanic_immune_mask = 617299839,
-flags_extra = 0x01
+flags_extra = 0x01,
+Health_mod = 1265
 WHERE entry = 78491;
 
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_highmaul_mind_fungus' WHERE entry IN (79082, 86611);
