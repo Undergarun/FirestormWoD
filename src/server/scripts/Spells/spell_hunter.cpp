@@ -3346,6 +3346,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Spirit Mend - 90361
 class spell_hun_spirit_mend : public SpellScriptLoader
 {
@@ -3361,7 +3362,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
                 }
             }
 

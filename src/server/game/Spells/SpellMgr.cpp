@@ -5958,6 +5958,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 30884:    ///< Nature's Guardian
                 spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
                 break;
+            case 55440: ///< Glyph of Healing Wave (Restoration)
+                spellInfo->ProcFlags = 0;
+                break;
             case 171253:    ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;

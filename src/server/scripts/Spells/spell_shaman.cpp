@@ -1397,33 +1397,34 @@ class spell_sha_healing_rain: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Healing Rain (heal) - 73921
 class spell_sha_healing_rain_heal : public SpellScriptLoader
 {
-public:
-    spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
+    public:
+        spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
 
-    class spell_sha_healing_rain_heal_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        class spell_sha_healing_rain_heal_SpellScript : public SpellScript
         {
-            /// Healing up to 6 allies 
-            if (p_Targets.size() > 6)
-                JadeCore::RandomResizeList(p_Targets, 6);
-        }
+            PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
 
-        void Register()
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 6 allies 
+                if (p_Targets.size() > 6)
+                    JadeCore::RandomResizeList(p_Targets, 6);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            return new spell_sha_healing_rain_heal_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_sha_healing_rain_heal_SpellScript();
-    }
 };
 
 /// Ascendance - 114049
@@ -1796,7 +1797,7 @@ class spell_sha_healing_wave : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Caster->HasSpell(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
+                if (l_Caster->HasAura(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
                 {
                     SpellInfo const* l_GlyphOfHealingWave = sSpellMgr->GetSpellInfo(eSpells::GlyphOfHealingWave);
 
@@ -2644,6 +2645,7 @@ void AddSC_shaman_spell_scripts()
     new npc_storm_elemental();
 
     /// Spells
+    new spell_sha_glyph_of_healing_wave();
     new spell_sha_unleashed_fury();
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
