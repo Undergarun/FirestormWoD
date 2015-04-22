@@ -1005,7 +1005,8 @@ class spell_pal_divine_shield: public SpellScriptLoader
         }
 };
 
-// Execution Sentence - 114916 and Stay of Execution - 114917
+/// last update : 6.1.2 19802
+/// Execution Sentence - 114916 and Stay of Execution - 114917
 class spell_pal_execution_sentence_dispel: public SpellScriptLoader
 {
     public:
@@ -1015,29 +1016,79 @@ class spell_pal_execution_sentence_dispel: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_execution_sentence_dispel_AuraScript);
 
+            enum eSpells
+            {
+                ExecutionSentence = 114916,
+                StayOfExecution = 114917
+            };
+
             void HandleDispel(DispelInfo* dispelData)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 spellPowerBonus = int32(caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
-                    int32 damage = spellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                    damage = int32(damage * 0.444f); // Final: 44.4%
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetAura()->GetOwner()->ToUnit();
 
-                    if (GetSpellInfo()->Id == PALADIN_SPELL_EXECUTION_SENTENCE)
-                    {
-                        if (Unit* target = GetAura()->GetOwner()->ToUnit())
-                            caster->CastCustomSpell(target, PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE, &damage, NULL, NULL, true);
-                    }
-                    else
-                    {
-                        if (Unit* target = GetAura()->GetOwner()->ToUnit())
-                            caster->CastCustomSpell(target, PALADIN_SPELL_EXECUTION_DISPEL_HEAL, &damage, NULL, NULL, true);
-                    }
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_SpellPowerBonus = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000);
+                int32 l_Damage = l_SpellPowerBonus + 26.72716306f * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                l_Damage = int32(l_Damage * 0.444f); ///< Final: 44.4%
+
+                if (GetSpellInfo()->Id == eSpells::ExecutionSentence)
+                        l_Caster->CastCustomSpell(l_Target, PALADIN_SPELL_EXECUTION_DISPEL_DAMAGE, &l_Damage, NULL, NULL, true);
+                else
+                        l_Caster->CastCustomSpell(l_Target, PALADIN_SPELL_EXECUTION_DISPEL_HEAL, &l_Damage, NULL, NULL, true);
+            }
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                float m_TickMultiplier[11];
+
+                /// Calculate Multiplier Coeff
+                if (GetSpellInfo()->Id == eSpells::ExecutionSentence) ///< Damage increases over time
+                {
+                    m_TickMultiplier[1] = 1.0f;
+                    for (int i = 2; i <= 10; ++i)
+                        m_TickMultiplier[i] = m_TickMultiplier[i - 1] * 1.1;
+                    m_TickMultiplier[10] *= 5;
                 }
+                else ///< Heal decreases over time
+                {
+                    m_TickMultiplier[10] = 1.0f;
+                    for (int i = 9; i > 0; --i)
+                        m_TickMultiplier[i] = m_TickMultiplier[i + 1] * 1.1;
+                    m_TickMultiplier[1] *= 5;
+                }
+
+                /// 1.1 + 1.1^2 + ... + 1.1^9 + 1.1^9 * 5 = 26.727163056
+                /// 1 / 26,727163056 = 0.0374151195, which is the factor to get from the whole spells SP scaling to the base scaling of the 0th tick
+                float l_BaseValue = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * GetSpellInfo()->Effects[EFFECT_1].BasePoints / 1000) * 0.0374151195;
+
+                uint32 l_TickNumber = p_AurEff->GetTickNumber();
+
+                if (AuraEffectPtr l_AuraEffect = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                        l_AuraEffect->SetAmount(int32(l_BaseValue * (m_TickMultiplier[l_TickNumber])));
             }
 
             void Register()
             {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::ExecutionSentence:
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_execution_sentence_dispel_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                    break;
+                case eSpells::StayOfExecution:
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_execution_sentence_dispel_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                    break;
+                default:
+                    break;
+                }
                 OnDispel += AuraDispelFn(spell_pal_execution_sentence_dispel_AuraScript::HandleDispel);
             }
         };
