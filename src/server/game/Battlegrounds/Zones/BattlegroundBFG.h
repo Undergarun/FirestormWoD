@@ -233,6 +233,10 @@ class BattlegroundBFG : public Battleground
         bool IsAllNodesControlledByTeam(uint32 team) const;
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return GILNEAS_BG_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
     private:
         virtual void PostUpdateImpl(uint32 diff);
 

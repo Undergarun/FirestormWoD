@@ -456,7 +456,19 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     {
         // time's up!
         uint32 winner = 0;
-        if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
+
+        if (GetMaxScore())
+        {
+            if (GetTeamScore(ALLIANCE) != GetTeamScore(HORDE))
+            {
+                winner = GetTeamScore(ALLIANCE) > GetTeamScore(HORDE) ? ALLIANCE : HORDE;
+                if (!IsScoreIncremental())
+                    winner = winner == ALLIANCE ? HORDE : ALLIANCE;
+            }
+            else
+                winner = 0;
+        }
+        else if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
             winner = ALLIANCE;
         else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
             winner = HORDE;
@@ -817,6 +829,8 @@ void Battleground::EndBattleground(uint32 winner)
     WorldPacket data;
     int32 winmsg_id = 0;
 
+    AwardTeams(winner);
+
     if (winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
@@ -938,7 +952,7 @@ void Battleground::EndBattleground(uint32 winner)
                 uint32 rating = player->GetArenaPersonalRating(slot);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
             }
             else
             {
@@ -963,7 +977,7 @@ void Battleground::EndBattleground(uint32 winner)
 
             if (team == winner)
             {
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD));
 
                 int32 MMRating_mod = Arena::GetMatchmakerRatingMod(winner_matchmaker_rating, loser_matchmaker_rating, true);
                 player->SetArenaMatchMakerRating(SLOT_RBG, player->GetArenaMatchMakerRating(SLOT_RBG) + MMRating_mod);
@@ -994,16 +1008,18 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !IsWargame())
             {
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus);
+                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, winner_bonus, false);
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, winner_bonus);
+
                 if (!player->GetRandomWinner())
                 {
                     // 100cp awarded for the first rated battleground won each day
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
+                    player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
                 }
             }
             else if (!isArena() && !IsRatedBG()) // 50cp awarded for each non-rated battleground won
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
+                player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_LAST);
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
@@ -1021,7 +1037,12 @@ void Battleground::EndBattleground(uint32 winner)
         else
         {
             if (IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, loser_bonus, !IsWargame());
+            {
+                UpdatePlayerScore(player, NULL, SCORE_BONUS_HONOR, loser_bonus, false);
+
+                if (!IsWargame())
+                    player->ModifyCurrencyAndSendToast(CURRENCY_TYPE_HONOR_POINTS, loser_bonus);
+            }
         }
 
         player->ResetAllPowers();
@@ -2206,37 +2227,59 @@ void Battleground::AddCrowdChoseYouEffect()
     m_CrowdChosed = true;
 }
 
-void Battleground::AwardTeams(uint32 p_PointsCount, uint32 p_MaxCount, uint32 p_Looser)
+void Battleground::AwardTeams(uint32 p_Winner)
 {
-    if (IsWargame())
+    if (IsSkirmish() && p_Winner)
+    {
+        AwardTeamsWithRewards(AWARD_NONE, AWARD_NONE, p_Winner);
+        return;
+    }
+
+    /// @todo: Implement rated bg rewards - random piece of CP gear 0-3 pieces per team for a win
+    if (IsWargame() || IsRatedBG() || isArena())
         return;
 
-    float l_Factor = (float)p_PointsCount / (float)p_MaxCount;
-    BattlegroundAward l_LooserAward = AWARD_NONE;
+    if (!GetMaxScore())
+        return;
 
-    if (l_Factor >= 0.666f)
+    BattlegroundAward l_LooserAward = AWARD_NONE;
+    BattlegroundAward l_WinnerAward = p_Winner ? AWARD_GOLD : AWARD_NONE;
+
+    if (!p_Winner)
+        p_Winner = ALLIANCE; /// Doesnt matter anymore
+
+    uint32 p_Looser = p_Winner ? GetOtherTeam(p_Winner) : 0;
+
+    float l_LooserFactor = (IsScoreIncremental() ? (float)GetTeamScore(p_Looser) : (float)GetMaxScore() - (float)GetTeamScore(p_Looser)) / (float)GetMaxScore();
+
+    if (l_LooserFactor >= 0.66f)
         l_LooserAward = AWARD_SILVER;
-    else if (l_Factor >= 0.333f)
+    else if (l_LooserFactor >= 0.33f)
         l_LooserAward = AWARD_BRONZE;
 
-    AwardTeamsWithRewards(l_LooserAward, p_Looser);
+    if (l_WinnerAward == AWARD_NONE)
+    {
+        float l_WinnerFactor = (IsScoreIncremental() ? (float)GetTeamScore(p_Winner) : (float)GetMaxScore() - (float)GetTeamScore(p_Winner)) / (float)GetMaxScore();
+
+        if (l_WinnerFactor >= 0.66f)
+            l_WinnerAward = AWARD_SILVER;
+        else if (l_WinnerFactor >= 0.33f)
+            l_WinnerAward = AWARD_BRONZE;
+    }
+
+    AwardTeamsWithRewards(l_LooserAward, l_WinnerAward, p_Winner);
 }
 
-void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, uint32 p_LooserTeam)
+void Battleground::AwardTeamsWithRewards(BattlegroundAward p_LooserAward, BattlegroundAward p_WinnerAward, uint32 p_Winner)
 {
-    if (IsWargame())
-        return;
-
-    uint32 l_WinnerTeam = GetOtherTeam(p_LooserTeam);
-
-    if (isBattleground() && !IsRatedBG())
+    if (isBattleground())
     {
-        CastSpellOnTeam(PVP_AWARD_SPELL_GOLDEN_STRONBOX, l_WinnerTeam);
-        CastSpellOnTeam(GetSpellIdForAward(p_LooserAward), p_LooserTeam);
+        CastSpellOnTeam(GetSpellIdForAward(p_WinnerAward), p_Winner);
+        CastSpellOnTeam(GetSpellIdForAward(p_LooserAward), GetOtherTeam(p_Winner));
     }
     else if (IsSkirmish())
     {
-        CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, l_WinnerTeam);
+        CastSpellOnTeam(PVP_AWARD_SPELL_SKIRMISH_WIN, p_Winner);
     }
 }
 

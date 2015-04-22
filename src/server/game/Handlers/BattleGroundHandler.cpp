@@ -493,7 +493,8 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
     {
         MS::Battlegrounds::BattlegroundType::Type l_BGQueueTypeID = m_Player->GetBattlegroundQueueTypeId(l_I);
         
-        if (l_BGQueueTypeID >= MS::Battlegrounds::BattlegroundType::End)
+        /// Can also be random BG
+        if (l_BGQueueTypeID == MS::Battlegrounds::BattlegroundType::End)
             continue;
 
         BattlegroundTypeId l_BGTypeId = MS::Battlegrounds::GetIdFromType(l_BGQueueTypeID);
@@ -523,7 +524,8 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
         GroupQueueInfo l_GroupQueueInfo;
         if (!l_InvitationsMgr.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo, l_BGQueueTypeID))
-            continue;
+            if (!l_Scheduler.GetPlayerGroupInfoData(m_Player->GetGUID(), l_GroupQueueInfo, l_BGQueueTypeID))
+                continue;
 
         if (l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID)
         {
