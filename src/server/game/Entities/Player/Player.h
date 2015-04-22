@@ -2252,7 +2252,7 @@ class Player : public Unit, public GridObject<Player>
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = NULL);
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL, bool removestacks = true);
+        template <class T> T ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T &p_Basevalue, Spell* p_Spell = NULL, bool p_RemoveStacks = true);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
@@ -3981,101 +3981,93 @@ void AddItemsSetItem(Player*player, Item* item);
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell, bool removestacks)
+template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T &p_Basevalue, Spell* p_Spell, bool p_RemoveStacks)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
+    if (!l_SpellInfo)
         return 0;
 
-    float totalmul = 1.0f;
-    int32 totalflat = 0;
-    bool chaosBolt = false;
-    bool pyroblast = false;
-    int32 value = 0;
+    float l_TotalMul = 1.0f;
+    int32 l_TotalFlat = 0;
+
+    bool l_ChaosBolt = false;
+    bool l_PyroBlast = false;
 
     // Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
-        spell = m_spellModTakingSpell;
+        p_Spell = m_spellModTakingSpell;
 
-    int32 playerWeaponMask = 0;
+    int32 l_PlayerWeaponMask = 0;
 
     for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
     {
-        Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
-        if (!tmpitem || tmpitem->CantBeUse() || !tmpitem->GetTemplate())
+        Item* l_Tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
+        if (!l_Tmpitem || l_Tmpitem->CantBeUse() || !l_Tmpitem->GetTemplate())
             continue;
 
-        playerWeaponMask |= 1 << tmpitem->GetTemplate()->SubClass;
+        l_PlayerWeaponMask |= 1 << l_Tmpitem->GetTemplate()->SubClass;
     }
 
-    for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
+    for (SpellModList::iterator itr = m_spellMods[p_Op].begin(); itr != m_spellMods[p_Op].end(); ++itr)
     {
-        SpellModifier* mod = *itr;
+        SpellModifier* l_SpellMod = *itr;
 
         // Charges can be set only for mods with auras
-        if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
+        if (!l_SpellMod->ownerAura)
+            ASSERT(l_SpellMod->charges == 0);
 
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        if (!IsAffectedBySpellmod(l_SpellInfo, l_SpellMod, p_Spell))
             continue;
 
-        int32 spellWeaponMask = 0;
-        if (mod->ownerAura)
+        if (l_SpellMod->ownerAura->GetSpellInfo())
         {
-            const auto temp = mod->ownerAura->GetSpellInfo();
-            if (temp)
-                spellWeaponMask = temp->EquippedItemSubClassMask;
-        }
+            int32 l_SpellWeaponMask = l_SpellMod->ownerAura->GetSpellInfo()->EquippedItemSubClassMask;
 
-        if (spellWeaponMask > 0 && playerWeaponMask > 0)
-            if (!(playerWeaponMask & spellWeaponMask))
-                continue;
+            if (l_SpellWeaponMask > 0 && l_PlayerWeaponMask > 0)
+                if (!(l_PlayerWeaponMask & l_SpellWeaponMask))
+                    continue;
+        }
 
         /// @TODO: Add hook to prevent apply of specific spellmod
 
-        if (mod->type == SPELLMOD_FLAT)
-            totalflat += mod->value;
-        else if (mod->type == SPELLMOD_PCT)
+        if (l_SpellMod->type == SPELLMOD_FLAT)
+            l_TotalFlat += l_SpellMod->value;
+        else if (l_SpellMod->type == SPELLMOD_PCT)
         {
             // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (basevalue == T(0))
+            if (p_Basevalue == T(0))
                 continue;
 
             // special case (skip > 10sec spell casts for instant cast setting)
-            if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
+            if (l_SpellMod->op == SPELLMOD_CASTING_TIME && p_Basevalue >= T(10000) && l_SpellMod->value <= -100)
                 continue;
 
-            value = mod->value;
-
             // Fix don't apply Backdraft twice for Chaos Bolt
-            if (mod->spellId == 117828 && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 116858)
+            if (l_SpellMod->spellId == 117828 && l_SpellMod->op == SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 116858)
             {
-                if (chaosBolt)
+                if (l_ChaosBolt)
                     continue;
                 else
-                    chaosBolt = true;
+                    l_ChaosBolt = true;
             }
             // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
-            else if ((mod->spellId == 48108 || mod->spellId == 12043) && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 11366)
+            else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)
             {
-                if (pyroblast)
+                if (l_PyroBlast)
                     continue;
                 else
-                    pyroblast = true;
+                    l_PyroBlast = true;
             }
 
-            if (value > 0)
-                totalmul = CalculatePct(totalmul, 100 + value);
-            else
-                totalmul = CalculatePct(totalmul, 100 + value);
+            l_TotalMul += CalculatePct(1.0f, l_SpellMod->value);
         }
 
-        if (removestacks && !m_isMoltenCored && spell)
-            DropModCharge(mod, spell);
+        if (p_RemoveStacks && p_Spell && !m_isMoltenCored)
+            DropModCharge(l_SpellMod, p_Spell);
     }
 
-    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
-    basevalue = T((float)basevalue + diff);
-    return T(diff);
+    float l_Diff = (float)p_Basevalue * (l_TotalMul - 1.0f) + (float)l_TotalFlat;
+    p_Basevalue = T((float)p_Basevalue + l_Diff);
+    return T(l_Diff);
 }
 #endif
