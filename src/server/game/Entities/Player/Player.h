@@ -3981,7 +3981,7 @@ void AddItemsSetItem(Player*player, Item* item);
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T &p_Basevalue, Spell* p_Spell, bool p_RemoveStacks)
+template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T& p_Basevalue, Spell* p_Spell, bool p_RemoveStacks)
 {
     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
     if (!l_SpellInfo)
@@ -3993,65 +3993,65 @@ template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T 
     bool l_ChaosBolt = false;
     bool l_PyroBlast = false;
 
-    // Drop charges for triggering spells instead of triggered ones
+    /// Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
         p_Spell = m_spellModTakingSpell;
 
     int32 l_PlayerWeaponMask = 0;
 
-    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
+    for (uint8 l_I = 0; l_I < WeaponAttackType::MaxAttack; ++l_I)
     {
-        Item* l_Tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
+        Item* l_Tmpitem = GetWeaponForAttack(WeaponAttackType(l_I), true);
         if (!l_Tmpitem || l_Tmpitem->CantBeUse() || !l_Tmpitem->GetTemplate())
             continue;
 
         l_PlayerWeaponMask |= 1 << l_Tmpitem->GetTemplate()->SubClass;
     }
 
-    for (SpellModList::iterator itr = m_spellMods[p_Op].begin(); itr != m_spellMods[p_Op].end(); ++itr)
+    for (SpellModList::iterator l_Iter = m_spellMods[p_Op].begin(); l_Iter != m_spellMods[p_Op].end(); ++l_Iter)
     {
-        SpellModifier* l_SpellMod = *itr;
+        SpellModifier* l_SpellMod = *l_Iter;
 
-        // Charges can be set only for mods with auras
+        /// Charges can be set only for mods with auras
         if (!l_SpellMod->ownerAura)
             ASSERT(l_SpellMod->charges == 0);
 
         if (!IsAffectedBySpellmod(l_SpellInfo, l_SpellMod, p_Spell))
             continue;
 
-        if (l_SpellMod->ownerAura->GetSpellInfo())
+        if (l_SpellMod->ownerAura && l_SpellMod->ownerAura->GetSpellInfo())
         {
             int32 l_SpellWeaponMask = l_SpellMod->ownerAura->GetSpellInfo()->EquippedItemSubClassMask;
 
             if (l_SpellWeaponMask > 0 && l_PlayerWeaponMask > 0)
+            {
                 if (!(l_PlayerWeaponMask & l_SpellWeaponMask))
                     continue;
+            }
         }
 
-        /// @TODO: Add hook to prevent apply of specific spellmod
-
-        if (l_SpellMod->type == SPELLMOD_FLAT)
+        if (l_SpellMod->type == SpellModType::SPELLMOD_FLAT)
             l_TotalFlat += l_SpellMod->value;
-        else if (l_SpellMod->type == SPELLMOD_PCT)
+        else if (l_SpellMod->type == SpellModType::SPELLMOD_PCT)
         {
-            // skip percent mods for null basevalue (most important for spell mods with charges)
+            /// Skip percent mods for null basevalue (most important for spell mods with charges)
             if (p_Basevalue == T(0))
                 continue;
 
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (l_SpellMod->op == SPELLMOD_CASTING_TIME && p_Basevalue >= T(10000) && l_SpellMod->value <= -100)
+            /// Special case (skip > 10sec spell casts for instant cast setting)
+            if (l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && p_Basevalue >= T(10000) && l_SpellMod->value <= -100)
                 continue;
 
-            // Fix don't apply Backdraft twice for Chaos Bolt
-            if (l_SpellMod->spellId == 117828 && l_SpellMod->op == SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 116858)
+            /// Fix don't apply Backdraft twice for Chaos Bolt
+            if (l_SpellMod->spellId == 117828 && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 116858)
             {
                 if (l_ChaosBolt)
                     continue;
                 else
                     l_ChaosBolt = true;
             }
-            // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
-            else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)
+            /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
+            else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)
             {
                 if (l_PyroBlast)
                     continue;
