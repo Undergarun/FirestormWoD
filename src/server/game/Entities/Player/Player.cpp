@@ -29133,10 +29133,11 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
                     guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);*/
 
-        SendNewItem(newitem, uint32(item->count), false, false, true);
 
         /// Add bonus to item if needed
         newitem->AddItemBonuses(item->itemBonuses);
+
+        SendNewItem(newitem, uint32(item->count), false, false, true);
 
         /// Handle achievement criteria related to loot
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
