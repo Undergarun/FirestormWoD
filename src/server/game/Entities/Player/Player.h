@@ -2411,6 +2411,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetBestRatingOfSeason(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfSeason[slot]; }
         uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekWins[slot]; }
         uint32 GetPrevWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekWins[slot]; }
+        uint32 GetPrevWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekGames[slot]; }
         uint32 GetSeasonWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonWins[slot]; }
         uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekGames[slot]; }
         uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonGames[slot]; }
@@ -3965,6 +3966,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_ArenaMatchMakerRating[MAX_PVP_SLOT];
         uint32 m_WeekWins[MAX_PVP_SLOT];
         uint32 m_PrevWeekWins[MAX_PVP_SLOT];
+        uint32 m_PrevWeekGames[MAX_PVP_SLOT];
         uint32 m_SeasonWins[MAX_PVP_SLOT];
         uint32 m_WeekGames[MAX_PVP_SLOT];
         uint32 m_SeasonGames[MAX_PVP_SLOT];

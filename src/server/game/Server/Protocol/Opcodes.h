@@ -355,7 +355,7 @@ enum Opcodes
         SMSG_BATTLEGROUND_POINTS                            = 0x0000, ///< (unused)
         SMSG_BATTLEGROUND_INIT                              = 0x0000, ///< (unused)
         SMSG_MAP_OBJECTIVES_INIT                            = 0x0000, ///< (unused)
-        SMSG_CONQUEST_FORMULA_CONSTANTS                     = 0x0000, ///< (unused)
+        SMSG_CONQUEST_FORMULA_CONSTANTS                     = 0x1C75, ///< 6.1.2 19783
         SMSG_PVP_SEASON                                     = 0x1D61, ///< 6.1.2 19783
         SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT  = 0x0000, ///< (unused)
         SMSG_SPIRIT_HEALER_CONFIRM                          = 0x1737, ///< 6.1.2 19783
@@ -1437,7 +1437,7 @@ enum Opcodes
     CMSG_REQUEST_PVP_REWARDS                    = 0x06DC, ///< 6.1.2 19783
     CMSG_REQUEST_PVP_OPTIONS_ENABLED            = 0x029E, ///< 6.1.2 19783
     CMSG_QUERY_COUNTDOWN_TIMER                  = 0x06F1, ///< (unused)
-    CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1B8A, ///< (unused)
+    CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS     = 0x1B8A, ///< 6.1.2 19783
     CMSG_LEAVE_BATTLEFIELD                      = 0x0272, ///< 6.1.2 19783
     CMSG_SPIRIT_HEALER_ACTIVATE                 = 0x1E8A, ///< 6.1.2 19783
     CMSG_AREA_SPIRIT_HEALER_QUERY               = 0x1825, ///< 6.1.2 19783

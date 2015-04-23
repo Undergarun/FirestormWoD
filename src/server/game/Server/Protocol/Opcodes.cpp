@@ -404,7 +404,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_BATTLEGROUND_POINTS,                             STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_BATTLEGROUND_INIT,                               STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_MAP_OBJECTIVES_INIT,                             STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_CONQUEST_FORMULA_CONSTANTS,                      STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_CONQUEST_FORMULA_CONSTANTS,                      STATUS_LOGGEDIN,      PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PVP_SEASON,                                      STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_WARGAME_REQUEST_SUCCESSFULLY_SENT_TO_OPPENENT,   STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_SPIRIT_HEALER_CONFIRM,                           STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1474,7 +1474,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PVP_REWARDS,                             STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleRequestPvpReward               );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_PVP_OPTIONS_ENABLED,                     STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::HandleRequestPvpOptions              );
     DEFINE_OPCODE_HANDLER(CMSG_QUERY_COUNTDOWN_TIMER,                           STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                          );
-    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS,              STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                          );
+    DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS,              STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleRequestConquestFormulaConstants);
     DEFINE_OPCODE_HANDLER(CMSG_LEAVE_BATTLEFIELD,                               STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleLeaveBattlefieldOpcode         );
     DEFINE_OPCODE_HANDLER(CMSG_SPIRIT_HEALER_ACTIVATE,                          STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleSpiritHealerActivateOpcode     );
     DEFINE_OPCODE_HANDLER(CMSG_AREA_SPIRIT_HEALER_QUERY,                        STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleAreaSpiritHealerQueryOpcode    );

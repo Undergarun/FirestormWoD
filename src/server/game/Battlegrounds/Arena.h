@@ -134,6 +134,37 @@ enum ArenaSlots
 
 namespace Arena
 {
+    const float g_PvpMinCPPerWeek = 1500.f;
+    const float g_PvpMaxCPPerWeek = 3000.f;
+    const float g_PvpCPNumerator = 1511.26f;
+    const float g_PvpCPBaseCoefficient = 1639.28f;
+    const float g_PvpCPExpCoefficient = 0.00412f;
+
+    inline float CalculateRatingFactor(int p_Rating)
+    {
+        return g_PvpCPNumerator / (expf(p_Rating * g_PvpCPExpCoefficient * -1.f) * g_PvpCPBaseCoefficient + 1.0f);
+    }
+
+    inline uint32 GetConquestCapFromRating(int p_Rating)
+    {
+        float v2;
+        float v3;
+        float v4;
+        float v5;
+
+        if (g_PvpMinCPPerWeek )
+        {
+            v5 = CalculateRatingFactor(1500);
+            v3 = CalculateRatingFactor(3000);
+            v4 = CalculateRatingFactor(p_Rating);
+
+            v2 = v5 <= v4 ? (v4 > v3 ? v3 : v4) : v5;
+            return g_PvpMinCPPerWeek + floor(((v2 - v5) / (v3 - v5)) * (float)(g_PvpMaxCPPerWeek - g_PvpMinCPPerWeek));
+        }
+        else
+            return 0;
+    }
+
     inline uint8 GetSlotByType(uint32 type)
     {
         switch (type)

@@ -9812,14 +9812,29 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
     switch (entry->ID)
     {
         case CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG:
-            cap = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP);
+        {
+            uint32 l_MaxRating = 0;
+            for (int l_Slot = 0; l_Slot < MAX_ARENA_SLOT; ++ l_Slot)
+                if (GetPrevWeekGames(l_Slot))
+                    l_MaxRating = std::max(l_MaxRating, GetArenaPersonalRating(l_Slot));
+
+            cap = Arena::GetConquestCapFromRating(l_MaxRating) * CURRENCY_PRECISION;
             break;
+        }
         case CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ASHRAN:
             cap = sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
             break;
         case CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS:
-            cap = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP) + sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
+        {
+            uint32 l_MaxRating = 0;
+
+            for (int l_Slot = 0; l_Slot < MAX_ARENA_SLOT; ++ l_Slot)
+                if (GetPrevWeekGames(l_Slot))
+                    l_MaxRating = std::max(l_MaxRating, GetArenaPersonalRating(l_Slot));
+
+            cap = Arena::GetConquestCapFromRating(l_MaxRating) * CURRENCY_PRECISION + sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
             break;
+        }
     }
 
     return cap;
@@ -20250,6 +20265,7 @@ void Player::_LoadArenaData(PreparedQueryResult result)
         m_WeekGames[i] = fields[j++].GetUInt32();
         m_WeekWins[i] = fields[j++].GetUInt32();
         m_PrevWeekWins[i] = fields[j++].GetUInt32();
+        m_PrevWeekGames[i] = fields[j++].GetUInt32();
         m_SeasonGames[i] = fields[j++].GetUInt32();
         m_SeasonWins[i] = fields[j++].GetUInt32();
     }
@@ -29954,6 +29970,7 @@ void Player::_SaveArenaData(SQLTransaction& trans)
         stmt->setUInt32(j++, m_WeekGames[i]);
         stmt->setUInt32(j++, m_WeekWins[i]);
         stmt->setUInt32(j++, m_PrevWeekWins[i]);
+        stmt->setUInt32(j++, m_PrevWeekGames[i]);
         stmt->setUInt32(j++, m_SeasonGames[i]);
         stmt->setUInt32(j++, m_SeasonWins[i]);
     }
@@ -31630,6 +31647,7 @@ void Player::FinishWeek()
     {
         m_BestRatingOfWeek[slot] = 0;
         m_PrevWeekWins[slot] = m_WeekWins[slot];
+        m_PrevWeekGames[slot] = m_WeekGames[slot];
         m_WeekGames[slot] = 0;
         m_WeekWins[slot] = 0;
     }

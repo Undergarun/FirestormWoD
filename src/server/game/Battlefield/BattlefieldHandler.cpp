@@ -278,3 +278,14 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 
     SendPacket(&l_Data);
 }
+
+void WorldSession::HandleRequestConquestFormulaConstants(WorldPacket& p_RecvData)
+{
+    WorldPacket l_Data(SMSG_CONQUEST_FORMULA_CONSTANTS, 5 * 4);
+    l_Data << uint32(Arena::g_PvpMinCPPerWeek);
+    l_Data << uint32(Arena::g_PvpMaxCPPerWeek);
+    l_Data << float(Arena::g_PvpCPNumerator);
+    l_Data << float(Arena::g_PvpCPBaseCoefficient);
+    l_Data << float(Arena::g_PvpCPExpCoefficient);
+    SendPacket(&l_Data);
+}
