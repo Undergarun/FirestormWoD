@@ -3479,6 +3479,7 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
@@ -3497,7 +3498,7 @@ class spell_dru_rip: public SpellScriptLoader
                     int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
                     float l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                     int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8) / l_TicksCount);
+                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 12) / l_TicksCount);
                 }
             }
 

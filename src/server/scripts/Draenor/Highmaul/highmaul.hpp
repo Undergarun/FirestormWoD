@@ -17,6 +17,7 @@
 #include "Vehicle.h"
 #include "MoveSplineInit.h"
 #include "ScriptUtils.h"
+#include "GameObjectAI.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
@@ -112,6 +113,14 @@ enum eHighmaulSpells
 {
     PlayChogallScene    = 178333,
     ChogallNight        = 163661
+};
+
+enum eHighmaulLocs
+{
+    BeachEntrance   = 4780,
+    ExitTarget      = 4782,
+    ArenaCenter     = 4783,
+    KargathDefeated = 4784
 };
 
 #endif

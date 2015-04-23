@@ -1320,7 +1320,7 @@ class spell_warr_shield_barrier: public SpellScriptLoader
                     if (l_RagetoUse > 40)
                         l_RagetoUse = 40;
 
-                    p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.125;
+                    p_Amount = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 1.4;
                     p_Amount += (p_Amount / 20) * l_RagetoUse;
 
                     l_Caster->ModifyPower(POWER_RAGE, -l_RagetoUse * l_Caster->GetPowerCoeff(POWER_RAGE));

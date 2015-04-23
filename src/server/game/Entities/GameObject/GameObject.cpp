@@ -375,7 +375,6 @@ void GameObject::Update(uint32 diff)
         if (!AIM_Initialize())
             sLog->outError(LOG_FILTER_GENERAL, "Could not initialize GameObjectAI");
     }
-    else
 
     if (AI())
         AI()->UpdateAI(diff);

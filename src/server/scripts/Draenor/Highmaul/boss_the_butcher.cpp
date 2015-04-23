@@ -236,7 +236,7 @@ class boss_the_butcher : public CreatureScript
                 /// Meat Hook is an ability that The Butcher uses to pull his tank to him.
                 /// We assume that this ability exists to prevent The Butcher from being kited,
                 /// but it is not otherwise in use during the fight.
-                m_Events.ScheduleEvent(eEvents::EventMeatHook, 4 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMeatHook, 5 * TimeConstants::IN_MILLISECONDS);
 
                 /// Mythic mode only
                 if (IsMythic())
@@ -411,16 +411,17 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
+                        m_Events.DelayEvent(eEvents::EventMeatHook, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            if (!l_Target->IsWithinMeleeRange(me))
+                            if (!l_Target->IsWithinMeleeRange(me, 5.0f))
                                 me->CastSpell(l_Target, eSpells::MeatHook, true);
                         }
-                        m_Events.ScheduleEvent(eEvents::EventMeatHook, 6 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventMeatHook, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventCadaver:
@@ -448,6 +449,7 @@ class boss_the_butcher : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 

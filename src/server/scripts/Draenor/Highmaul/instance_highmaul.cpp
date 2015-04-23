@@ -332,6 +332,11 @@ class instance_highmaul : public InstanceMapScript
                 {
                     p_Player->SetPhaseMask(2, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
+
+                    if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                        p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
+                    else
+                        p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
                 }
                 else
                 {

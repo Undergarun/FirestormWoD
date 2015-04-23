@@ -1325,7 +1325,6 @@ void Creature::UpdateStatsForLevel()
     CreatureBaseStats const*     l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
     CreatureGroupSizeStat const* l_GroupSizeStat    = sObjectMgr->GetCreatureGroupSizeStat(GetEntry(), GetMap()->GetDifficultyID());
 
-
     uint32 l_Rank = isPet() ? 0 : l_CreatureTemplate->rank;
 
     /// Health

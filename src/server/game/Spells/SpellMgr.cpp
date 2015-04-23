@@ -3381,6 +3381,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].MiscValueB = 250;
                 break;
             case 160061:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValue = 250;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
             case 151991:///< Chain Grip (Gorian Guardsman)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
                 spellInfo->Effects[EFFECT_0].MiscValue = 250;
@@ -5957,6 +5962,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 30884:    ///< Nature's Guardian
                 spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
+                break;
+            case 55440: ///< Glyph of Healing Wave (Restoration)
+                spellInfo->ProcFlags = 0;
                 break;
             case 171253:    ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
