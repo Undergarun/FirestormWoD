@@ -694,6 +694,11 @@ struct _Socket
 
 typedef std::list<SpecIndex> SpecList;
 
+namespace ItemBonus
+{
+    using GroupIdContainer = std::list<uint32>;
+};
+
 struct ItemTemplate
 {
     uint32 ItemId;
@@ -776,6 +781,9 @@ struct ItemTemplate
     uint32 FlagsCu;
     SpecList specs;
     uint32 PvPScalingLevel;
+
+    /// Item bonus group
+    ItemBonus::GroupIdContainer m_ItemBonusGroups;
 
     // helpers
     bool CanChangeEquipStateInCombat() const

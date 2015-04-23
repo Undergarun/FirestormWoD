@@ -598,6 +598,20 @@ uint32 Item::GetSkill() const
 
 void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
 {
+    auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
+    if (l_ItemTemplate == nullptr)
+        return;
+
+    /// Process item bonus group
+    for (auto l_ItemBonusGroupID : l_ItemTemplate->m_ItemBonusGroups)
+    {
+        auto l_ItemBonusGroup = sObjectMgr->GetItemBonusGroup(l_ItemBonusGroupID);
+        if (l_ItemBonusGroup == nullptr)
+            continue;
+
+        p_ItemBonus.push_back(l_ItemBonusGroup->at(rand() % l_ItemBonusGroup->size()));
+    }
+
     /// Item bonus per item are store in ItemXBonusTree.db2
     if (sItemBonusTreeByID.find(p_ItemId) == sItemBonusTreeByID.end())
         return;

@@ -10399,3 +10399,68 @@ CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry,
 
     return &l_StatsIterator->second;
 }
+
+void ObjectMgr::LoadItemBonusGroup()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, bonus FROM item_bonus_group");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Bonus Group. DB table `item_bonus_group` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields  = l_Result->Fetch();
+        uint32 l_GroupID = l_Fields[0].GetUInt32();
+
+        ItemBonus::GroupContainer l_ItemBonusGroup;
+        Tokenizer l_Tokens(l_Fields[1].GetCString(), ',');
+
+        for (uint32 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+            l_ItemBonusGroup.push_back((uint32)atoi(l_Tokens[l_I]));
+
+        m_ItemBonusGroupStore.insert(std::make_pair(l_GroupID, l_ItemBonusGroup));
+
+        l_Count++;
+    } 
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadItemBonusGroupLinked()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT itemEntry, itemBonusGroup FROM item_bonus_group_linked");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Bonus Group Linked. DB table `item_bonus_group_linked` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_ItemEntry      = l_Fields[0].GetUInt32();
+        uint32 l_ItemBonusGroup = l_Fields[1].GetUInt32();
+
+        if (_itemTemplateStore.find(l_ItemEntry) == _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& l_ItemTemplate = _itemTemplateStore[l_ItemEntry];
+        l_ItemTemplate.m_ItemBonusGroups.push_back(l_ItemBonusGroup);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}

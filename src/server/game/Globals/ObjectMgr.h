@@ -802,6 +802,13 @@ struct GarrisonPlotBuildingContent
     float X, Y, Z, O;
 };
 
+
+namespace ItemBonus
+{
+    using GroupContainer = std::vector<uint32>;
+    using Group = std::map<uint32, GroupContainer>;
+}
+
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
@@ -1136,6 +1143,8 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSpecs();
         void LoadItemSpecsOverride();
+        void LoadItemBonusGroup();
+        void LoadItemBonusGroupLinked();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1646,6 +1655,16 @@ class ObjectMgr
 
             return nullptr;
         }
+
+        ItemBonus::GroupContainer const* GetItemBonusGroup(uint32 p_GroupID) const
+        {
+            auto l_Find = m_ItemBonusGroupStore.find(p_GroupID);
+            if (l_Find == m_ItemBonusGroupStore.end())
+                return nullptr;
+
+            return &(*l_Find).second;
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1744,6 +1763,8 @@ class ObjectMgr
         ResearchLootVector _researchLoot;
 
         std::vector<GarrisonPlotBuildingContent> m_GarrisonPlotBuildingContents;
+
+        ItemBonus::Group m_ItemBonusGroupStore;
 
     private:
         CharacterTemplates m_CharacterTemplatesStore;

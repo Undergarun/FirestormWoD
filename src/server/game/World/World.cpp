@@ -1639,6 +1639,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group...");                       ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemBonusGroup();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group Linked...");                ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemBonusGroupLinked();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Taxi data");
     sObjectMgr->LoadTaxiData();
 
