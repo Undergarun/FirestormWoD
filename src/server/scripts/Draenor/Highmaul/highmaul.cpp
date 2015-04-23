@@ -430,9 +430,18 @@ class npc_highmaul_gorian_guardsman : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::ChainGripSearcher:
+                    {
+                        uint64 l_Guid = p_Target->GetGUID();
                         me->CastSpell(p_Target, eSpells::ChainGripAura, true);
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, p_Target]() -> void { me->CastSpell(p_Target, eSpells::ViciousSlash, true); });
+
+                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        {
+                            if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                me->CastSpell(l_Target, eSpells::ViciousSlash, true);
+                        });
+
                         break;
+                    }
                     default:
                         break;
                 }

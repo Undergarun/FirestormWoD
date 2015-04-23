@@ -499,6 +499,7 @@ class boss_brackenspore : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 

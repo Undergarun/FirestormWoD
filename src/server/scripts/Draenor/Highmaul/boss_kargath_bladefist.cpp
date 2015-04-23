@@ -740,6 +740,7 @@ class boss_kargath_bladefist : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 

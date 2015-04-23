@@ -411,6 +411,7 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
+                        m_Events.DelayEvent(eEvents::EventMeatHook, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:
@@ -448,6 +449,7 @@ class boss_the_butcher : public CreatureScript
                         break;
                 }
 
+                EnterEvadeIfOutOfCombatArea(p_Diff);
                 DoMeleeAttackIfReady();
             }
 
