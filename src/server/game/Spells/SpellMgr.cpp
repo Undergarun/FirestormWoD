@@ -4541,9 +4541,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 47476: ///< Strangulate
                 spellInfo->OverrideSpellList.push_back(108194); ///< Asphyxiate
                 break;
-            case 56131: ///< Glyph of Purify
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
-                break;
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
                 break;
