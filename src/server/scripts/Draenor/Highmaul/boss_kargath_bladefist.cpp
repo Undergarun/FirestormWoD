@@ -412,19 +412,8 @@ class boss_kargath_bladefist : public CreatureScript
                 {
                     case eActions::VulgorDied:
                     {
-                        if (m_Instance == nullptr)
-                            break;
-
-                        if (Creature* l_Trigger = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::CrowdAreatrigger)))
-                        {
-                            float l_X = l_Trigger->GetPositionX();
-                            float l_Y = l_Trigger->GetPositionY();
-                            float l_Z = l_Trigger->GetPositionZ();
-
-                            me->GetMotionMaster()->MoveJump(l_X, l_Y, l_Z, 30.0f, 20.0f, 0.90f, eMoves::JumpInArena);
-                            Talk(eTalks::Intro1);
-                        }
-
+                        me->GetMotionMaster()->MoveJump(eHighmaulLocs::ArenaCenter, 30.0f, 20.0f, eMoves::JumpInArena);
+                        Talk(eTalks::Intro1);
                         break;
                     }
                     case eActions::KargathLastTalk:
@@ -683,7 +672,7 @@ class boss_kargath_bladefist : public CreatureScript
                     {
                         m_ChainHurl = true;
                         Talk(eTalks::ChainHurl);
-                        me->CastSpell(me, eSpells::ChainHurlJumpAndKnock, true);
+                        me->CastSpell(eHighmaulLocs::ArenaCenter, eSpells::ChainHurlJumpAndKnock, true);
                         m_Events.ScheduleEvent(eEvents::EventChainHurl, 106000);
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfArenasStands, 45000);
 
@@ -891,7 +880,6 @@ class npc_highmaul_vulgor : public CreatureScript
             SpellCleave         = 161712,
             SpellEarthBreaker   = 162271,
             EarthBreakerSearch  = 163933,
-            SpellEyeOfTheTiger  = 161716,
 
             VulgorDieCrowdSound = 166860
         };
@@ -899,8 +887,7 @@ class npc_highmaul_vulgor : public CreatureScript
         enum eEvents
         {
             EventCleave = 1,
-            EventEarthBreaker,
-            EventEyeOfTheTiger
+            EventEarthBreaker
         };
 
         struct npc_highmaul_vulgorAI : public MS::AI::CosmeticAI
@@ -953,7 +940,6 @@ class npc_highmaul_vulgor : public CreatureScript
 
                 m_Events.ScheduleEvent(eEvents::EventCleave, 5000);
                 m_Events.ScheduleEvent(eEvents::EventEarthBreaker, 8000);
-                m_Events.ScheduleEvent(eEvents::EventEyeOfTheTiger, 18000);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -1103,10 +1089,6 @@ class npc_highmaul_vulgor : public CreatureScript
                     case eEvents::EventEarthBreaker:
                         me->CastSpell(me, eSpells::EarthBreakerSearch, true);
                         m_Events.ScheduleEvent(eEvents::EventEarthBreaker, 15000);
-                        break;
-                    case eEvents::EventEyeOfTheTiger:
-                        me->CastSpell(me, eSpells::SpellEyeOfTheTiger, true);
-                        m_Events.ScheduleEvent(eEvents::EventEyeOfTheTiger, 30000);
                         break;
                     default:
                         break;
@@ -2454,6 +2436,7 @@ class npc_highmaul_areatrigger_for_crowd : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
 
                 m_Events.Reset();
                 m_Events.ScheduleEvent(eEvent::InitObscured, 2000);
@@ -2825,13 +2808,16 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
 
             bool TargetsAlreadySelected() const
             {
+                bool l_Return = false;
                 for (uint8 l_I = 0; l_I < l_Count; ++l_I)
                 {
                     if (!m_Targets[l_I])
                         return false;
+
+                    l_Return = true;
                 }
 
-                return true;
+                return l_Return;
             }
 
             void ProcessLFRTargetting(std::list<WorldObject*>& p_Targets, std::list<Player*> p_PlayerList)
@@ -3328,8 +3314,6 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
 
                 if (l_PlayerList.empty() && !l_SnapShot.empty())
                     l_PlayerList = l_SnapShot;
-                else
-                    return;
 
                 JadeCore::RandomResizeList(l_PlayerList, 1);
                 p_Targets.push_back(l_PlayerList.front());

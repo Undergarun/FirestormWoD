@@ -3381,6 +3381,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].MiscValueB = 250;
                 break;
             case 160061:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValue = 250;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
             case 151991:///< Chain Grip (Gorian Guardsman)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
                 spellInfo->Effects[EFFECT_0].MiscValue = 250;

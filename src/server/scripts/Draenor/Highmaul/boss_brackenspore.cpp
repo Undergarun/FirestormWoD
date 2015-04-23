@@ -725,13 +725,14 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
         enum eSpells
         {
             InfestedWaters  = 164644,
-            FleshEater      = 159973,
+            FleshEater      = 159972,
             Decay           = 160013
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventDecay = 1
+            EventDecay = 1,
+            EventFleshEater
         };
 
         enum eData
@@ -753,8 +754,6 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
             void Reset() override
             {
                 me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-
-                me->CastSpell(me, eSpells::FleshEater, true);
 
                 Talk(eTalk::Warn);
 
@@ -779,7 +778,8 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 if (!m_Scheduled)
                 {
                     m_Scheduled = true;
-                    m_Events.ScheduleEvent(eEvent::EventDecay, 5 * TimeConstants::IN_MILLISECONDS);
+                    m_Events.ScheduleEvent(eEvents::EventDecay, 5 * TimeConstants::IN_MILLISECONDS);
+                    m_Events.ScheduleEvent(eEvents::EventFleshEater, 1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
@@ -806,10 +806,18 @@ class npc_highmaul_fungal_flesh_eater : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (m_Events.ExecuteEvent() == eEvent::EventDecay)
+                switch (m_Events.ExecuteEvent())
                 {
-                    me->CastSpell(me, eSpells::Decay, false);
-                    m_Events.ScheduleEvent(eEvent::EventDecay, 10 * TimeConstants::IN_MILLISECONDS);
+                    case eEvents::EventDecay:
+                        me->CastSpell(me, eSpells::Decay, false);
+                        m_Events.ScheduleEvent(eEvents::EventDecay, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventFleshEater:
+                        me->CastSpell(me, eSpells::FleshEater, true);
+                        m_Events.ScheduleEvent(eEvents::EventFleshEater, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1383,6 +1391,51 @@ class spell_highmaul_energy_regen : public SpellScriptLoader
         }
 };
 
+/// Spore Shot - 173244
+class spell_highmaul_spore_shot : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_spore_shot() : SpellScriptLoader("spell_highmaul_spore_shot") { }
+
+        class spell_highmaul_spore_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_spore_shot_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    /// Should always hit a player if possible
+                    if (p_Object->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        return false;
+                    else if (Creature* l_Creature = p_Object->ToCreature())
+                    {
+                        if (l_Creature->GetOwner() == nullptr)
+                            return true;
+                    }
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_spore_shot_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_highmaul_spore_shot_SpellScript();
+        }
+};
+
 /// Mind Fungus - 159489
 class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
 {
@@ -1406,7 +1459,12 @@ class areatrigger_highmaul_mind_fungus : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSpell::MindFungus, true);
+                {
+                    if (AuraPtr l_Aura = l_Unit->GetAura(eSpell::MindFungus, l_Caster->GetGUID()))
+                        l_Aura->RefreshDuration();
+                    else
+                        l_Caster->CastSpell(l_Unit, eSpell::MindFungus, true);
+                }
             }
         }
 
@@ -1599,6 +1657,7 @@ void AddSC_boss_brackenspore()
     new spell_highmaul_flamethrower();
     new spell_highmaul_burning_infusion();
     new spell_highmaul_energy_regen();
+    new spell_highmaul_spore_shot();
 
     /// AreaTriggers (Spells)
     new areatrigger_highmaul_mind_fungus();

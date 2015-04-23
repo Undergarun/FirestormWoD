@@ -1521,6 +1521,18 @@ class Player : public Unit, public GridObject<Player>
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
+        bool TeleportTo(uint32 p_MapID, Position const p_Pos, uint32 p_Options = 0)
+        {
+            return TeleportTo(p_MapID, p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation, p_Options);
+        }
+        bool TeleportTo(uint32 p_LocEntry, uint32 p_Options = 0)
+        {
+            WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);
+            if (l_Loc == nullptr)
+                return false;
+
+            return TeleportTo(l_Loc->map_id, l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Options);
+        }
         bool TeleportToBGEntryPoint();
         void SwitchToPhasedMap(uint32 p_MapID);
 

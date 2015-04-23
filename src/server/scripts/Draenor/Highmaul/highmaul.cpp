@@ -12,9 +12,6 @@
 Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 
-/// Elevator teleport position
-Position const g_TeleportPos = { 3466.42f, 7578.84f, 55.34f, 4.0125f };
-
 /// Mar'gok (Cosmetic) teleport position
 Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
 
@@ -78,7 +75,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
 
                 /// Teleport player
                 if (m_Instance->GetData(eHighmaulDatas::ElevatorActivated))
-                    p_Player->NearTeleportTo(g_TeleportPos);
+                    p_Player->NearTeleportTo(eHighmaulLocs::ArenaCenter);
                 else
                 {
                     me->GetMotionMaster()->MovePoint(eMove::MoveSecondPos, g_GhargSecondPos);
@@ -903,8 +900,11 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
             {
                 m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
 
-                if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
-                    me->Kill(l_IronGrunt);
+                std::list<Creature*> l_IronGrunts;
+                me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreature::IronGrunt, 35.0f);
+
+                for (Creature* l_Creature : l_IronGrunts)
+                    me->Kill(l_Creature);
 
                 me->SetAIAnimKit(0);
             }
@@ -1598,6 +1598,52 @@ class go_highmaul_arena_elevator : public GameObjectScript
         }
 };
 
+/// Instance Portal (Raid: Normal, Heroic, Mythic) - 231770
+class go_highmaul_instance_portal : public GameObjectScript
+{
+    public:
+        go_highmaul_instance_portal() : GameObjectScript("go_highmaul_instance_portal") { }
+
+        enum eData
+        {
+            DreanorMap = 1116
+        };
+
+        struct go_highmaul_instance_portalAI : public GameObjectAI
+        {
+            go_highmaul_instance_portalAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject)
+            {
+                m_CheckTimer = 1000;
+            }
+
+            uint32 m_CheckTimer;
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                if (m_CheckTimer)
+                {
+                    if (m_CheckTimer <= p_Diff)
+                    {
+                        m_CheckTimer = 1000;
+
+                        std::list<Player*> l_PlayerList;
+                        go->GetPlayerListInGrid(l_PlayerList, 5.0f);
+
+                        for (Player* l_Player : l_PlayerList)
+                            l_Player->TeleportTo(eHighmaulLocs::ExitTarget);
+                    }
+                    else
+                        m_CheckTimer -= p_Diff;
+                }
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_highmaul_instance_portalAI(p_GameObject);
+        }
+};
+
 /// Chain Grip - 151990
 class spell_highmaul_chain_grip : public SpellScriptLoader
 {
@@ -1870,6 +1916,7 @@ void AddSC_highmaul()
 
     /// GameObjects
     new go_highmaul_arena_elevator();
+    new go_highmaul_instance_portal();
 
     /// Spells
     new spell_highmaul_chain_grip();

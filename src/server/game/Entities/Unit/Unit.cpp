@@ -1422,6 +1422,15 @@ void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, I
     CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
 }
 
+void Unit::CastSpell(uint32 p_LocEntry, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);
+    if (l_Loc == nullptr)
+        return;
+
+    CastSpell(l_Loc->x, l_Loc->y, l_Loc->z, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
 void Unit::CastSpell(G3D::Vector3 p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
 {
     CastSpell(p_Pos.x, p_Pos.y, p_Pos.z, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
