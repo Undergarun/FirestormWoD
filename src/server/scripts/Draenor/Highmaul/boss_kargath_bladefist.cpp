@@ -245,7 +245,8 @@ class boss_kargath_bladefist : public CreatureScript
             ChainHurlVehicle    = 79134,
             FirePillar          = 78757,
             RavenousBloodmaw    = 79296,
-            BladefistTarget     = 83738
+            BladefistTarget     = 83738,
+            AreaTriggerForCrowd = 79260
         };
 
         struct boss_kargath_bladefistAI : public BossAI
@@ -525,6 +526,10 @@ class boss_kargath_bladefist : public CreatureScript
                             break;
 
                         p_Target->EnterVehicle(me, 0, true);
+
+                        /// This should prevent Kargath to send player under map after Impale
+                        if (Creature* l_ATForCrowd = me->FindNearestCreature(eCreatures::AreaTriggerForCrowd, 100.0f))
+                            me->SetFacingTo(me->GetAngle(l_ATForCrowd));
                         break;
                     }
                     case eSpells::SpellBladeDanceHit:
@@ -556,7 +561,7 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eSpells::ChainHurlStunAura:
                     {
-                        DoModifyThreatPercent(p_Target, -100);
+                        DoModifyThreatPercent(p_Target, -99);
                         break;
                     }
                     case eSpells::BerserkerRushDamage:
@@ -682,8 +687,8 @@ class boss_kargath_bladefist : public CreatureScript
                         if (Creature* l_ChainHurl = me->SummonCreature(eCreatures::ChainHurlVehicle, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15000))
                             l_ChainHurl->EnterVehicle(me, 1, true);
 
-                        m_Events.DelayEvent(eEvents::EventImpale, 13000);
-                        m_Events.DelayEvent(eEvents::EventBerserkerRush, 13000);
+                        m_Events.DelayEvent(eEvents::EventImpale, 15000);
+                        m_Events.DelayEvent(eEvents::EventBerserkerRush, 15000);
                         break;
                     }
                     case eEvents::EventBerserker:
@@ -900,9 +905,6 @@ class npc_highmaul_vulgor : public CreatureScript
                 m_IntroContinued    = false;
                 m_SorcererGuids[0]  = 0;
                 m_SorcererGuids[1]  = 0;
-
-                p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             InstanceScript* m_Instance;
@@ -933,6 +935,9 @@ class npc_highmaul_vulgor : public CreatureScript
                 m_Events.Reset();
 
                 m_Summons.DespawnAll();
+
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -1003,7 +1008,7 @@ class npc_highmaul_vulgor : public CreatureScript
                         me->SetWalk(false);
                         me->SetHomePosition(g_VulgorMovePos);
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
 
                         me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_BATTLEROAR);
 
@@ -1808,6 +1813,10 @@ class npc_highmaul_drunken_bileslinger : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -1890,15 +1899,20 @@ class npc_highmaul_iron_bomber : public CreatureScript
                     Position l_Pos;
                     me->GetPosition(&l_Pos);
 
-                    if (Creature* l_IronBomb = me->SummonCreature(eDatas::IronBomb, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 5500))
-                    {
+                    if (Creature* l_IronBomb = me->SummonCreature(eDatas::IronBomb, l_Pos))
                         l_IronBomb->EnterVehicle(me, 0, true);
-                        l_IronBomb->CastSpell(l_IronBomb, eSpells::FireBomb, true);
-                        l_IronBomb->SetReactState(ReactStates::REACT_PASSIVE);
-                    }
 
                     Talk(eTalk::Bomb);
                 }
+            }
+
+            void PassengerBoarded(Unit* p_Passenger, int8 p_Seat, bool p_Apply) override
+            {
+                if (p_Apply || p_Passenger->ToCreature() == nullptr)
+                    return;
+
+                p_Passenger->CastSpell(p_Passenger, eSpells::FireBomb, true);
+                p_Passenger->ToCreature()->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -1928,6 +1942,10 @@ class npc_highmaul_iron_bomber : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -1985,6 +2003,10 @@ class npc_highmaul_iron_grunt : public CreatureScript
                     return;
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -2067,6 +2089,10 @@ class npc_highmaul_iron_grunt_second : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -2117,6 +2143,10 @@ class npc_highmaul_ogre_grunt : public CreatureScript
                     return;
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -2167,6 +2197,10 @@ class npc_highmaul_ogre_grunt_second : public CreatureScript
                     return;
 
                 DoMeleeAttackIfReady();
+
+                /// Arena's trash mobs shouldn't enter into the arena
+                if (me->GetPositionZ() <= g_InArenaZ)
+                    EnterEvadeMode();
             }
         };
 
@@ -2348,7 +2382,12 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                     return;
                 }
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, p_Passenger]() -> void { p_Passenger->CastSpell(g_ArenaStandsPos, eSpells::ChainHurlJumpDest, true); });
+                uint64 l_Guid = p_Passenger->GetGUID();
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                {
+                    if (Unit* l_Passenger = Unit::GetUnit(*me, l_Guid))
+                        l_Passenger->CastSpell(g_ArenaStandsPos, eSpells::ChainHurlJumpDest, true);
+                });
 
                 me->CastSpell(p_Passenger, eSpells::Obscured, true);
 

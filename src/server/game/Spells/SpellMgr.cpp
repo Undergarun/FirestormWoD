@@ -3475,6 +3475,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163242:///< Infested Spores - triggered (Brackenspore)
                 spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
                 break;
+            case 160446:///< Spore Shooter - summon (Brackenspore)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

@@ -120,6 +120,7 @@ class boss_brackenspore : public CreatureScript
             MindFungus          = 86611,
             SporeShooter        = 86612,
             WorldTrigger        = 59481,
+            BlackrockGrunt      = 86610,
             /// Fight
             SporeShooterFight   = 79183,
             MindFungusFight     = 79082,
@@ -286,6 +287,9 @@ class boss_brackenspore : public CreatureScript
 
                                 if (Creature* l_Trigger = l_Creature->FindNearestCreature(eCreatures::WorldTrigger, 100.0f))
                                 {
+                                    l_Trigger->SetReactState(ReactStates::REACT_PASSIVE);
+                                    l_Trigger->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
                                     l_Creature->InterruptNonMeleeSpells(true);
                                     l_Creature->GetMotionMaster()->MovePoint(0, *l_Trigger);
                                 }
@@ -345,6 +349,24 @@ class boss_brackenspore : public CreatureScript
                 /// 1.4s for Mythic mode and 1.75s for others
                 me->CastSpell(me, eSpells::CreepingMossPeriodic, true);
                 me->CastSpell(me, eSpells::EnergyRegen, true);
+
+                std::list<Creature*> l_CosmeticMobs;
+                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eCreatures::BlackrockGrunt, 800.0f);
+
+                for (Creature* l_Grunt : l_CosmeticMobs)
+                    l_Grunt->DespawnOrUnsummon();
+
+                l_CosmeticMobs.clear();
+                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eCreatures::IronFlameTechnician, 80.0f);
+
+                for (Creature* l_Technician : l_CosmeticMobs)
+                    l_Technician->DespawnOrUnsummon();
+
+                l_CosmeticMobs.clear();
+                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eCreatures::IronWarmaster, 80.0f);
+
+                for (Creature* l_Warmaster : l_CosmeticMobs)
+                    l_Warmaster->DespawnOrUnsummon();
             }
 
             void JustDied(Unit* p_Killer) override
@@ -384,10 +406,11 @@ class boss_brackenspore : public CreatureScript
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::SummonMindFungus:
-                        me->SummonCreature(eCreatures::MindFungusFight, *p_Target);
+                        me->SummonCreature(eCreatures::MindFungusFight, *p_Target, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eSpells::SummonFungalFleshEater:
-                        me->SummonCreature(eCreatures::FungalFleshEater, g_FleshEaterSpawns[urand(1, eHighmaulDatas::MaxFleshEaterPos) - 1]);
+                        me->SummonCreature(eCreatures::FungalFleshEater, g_FleshEaterSpawns[urand(1, eHighmaulDatas::MaxFleshEaterPos) - 1],
+                            TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eSpells::SporeShooterDummy:
                     {
@@ -688,6 +711,11 @@ class npc_highmaul_spore_shooter : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventSporeShot, urand(100, 1500));
             }
 
+            void JustDied(Unit* p_Killer) override
+            {
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
                 if (!UpdateVictim())
@@ -898,6 +926,8 @@ class npc_highmaul_living_mushroom : public CreatureScript
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
         };
 
@@ -974,6 +1004,8 @@ class npc_highmaul_rejuvenating_mushroom : public CreatureScript
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
         };
 
