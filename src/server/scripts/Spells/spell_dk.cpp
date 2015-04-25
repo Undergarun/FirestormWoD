@@ -503,9 +503,30 @@ class spell_dk_conversion: public SpellScriptLoader
                     l_unit->CastSpell(l_unit, DK_SPELL_CONVERSION_REGEN, true);
             }
 
+            /// For visual in the tooltip - need to figure out why it doesnt show up - not so important atm
+            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                if (p_AuraEffect->GetEffIndex() != EFFECT_0)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    for (auto l_Itr : GetSpellInfo()->SpellPowers)
+                    {
+                        if (l_Itr->RequiredAuraSpellId && !l_Caster->HasAura(l_Itr->RequiredAuraSpellId))
+                            continue;
+
+                        Powers powerType = Powers(l_Itr->PowerType);
+                        p_Amount = l_Itr->CostPerSecond + int32(l_Itr->CostPerSecondPercentage * l_Caster->GetCreatePowers(powerType) / 100) / 10;
+                        return;
+                    }
+                }
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_conversion_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_conversion_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 

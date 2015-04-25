@@ -3301,6 +3301,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 119975: ///< Conversion
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
+                break;
             case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
