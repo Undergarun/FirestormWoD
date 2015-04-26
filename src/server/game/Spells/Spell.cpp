@@ -841,7 +841,7 @@ void Spell::SelectSpellTargets()
         // some spell effects don't add anything to target map (confirmed with sniffs) (like SPELL_EFFECT_DESTROY_ALL_TOTEMS)
         SelectEffectTypeImplicitTargets(i);
 
-        if (m_targets.HasDst())
+        if (m_targets.HasDst() && !IsCCSpell(m_spellInfo))
             AddDestTarget(*m_targets.GetDst(), i);
 
         if (m_spellInfo->IsChanneled())
@@ -2600,7 +2600,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         m_delayMoment = 1;
         targetInfo.timeDelay = 0;
     }
-    else if (m_spellInfo->Speed > 0.0f && m_caster != target)
+    else if (m_spellInfo->Speed > 0.0f && m_caster != target && m_spellInfo->Speed != 12345)
     {
         // calculate spell incoming interval
         // TODO: this is a hack
@@ -2665,6 +2665,12 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     {
         targetInfo.timeDelay = 100LL;
         m_delayMoment = 100LL;
+    }
+    /// Apply delay for CC spells here, can be easily tweaked.
+    else if (m_spellInfo->Speed == 12345)
+    {
+        targetInfo.timeDelay = 150LL;
+        m_delayMoment = 150LL;
     }
     else
         targetInfo.timeDelay = 0LL;
