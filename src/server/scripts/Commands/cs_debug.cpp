@@ -2586,6 +2586,9 @@ class debug_commandscript: public CommandScript
                 ItemTemplate const* l_Template = &l_Iter->second;
                 if (l_Template->Name1.find(l_SearchString) != std::string::npos)
                 {
+                    if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
+                        continue;
+
                     int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
                     uint32 l_Count = 1;
 
@@ -2594,6 +2597,58 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
+                            if (l_Template->Class == ITEM_CLASS_ARMOR)
+                            {
+                                switch (l_Template->SubClass)
+                                {
+                                    case ITEM_SUBCLASS_ARMOR_CLOTH:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PRIEST:
+                                            case CLASS_MAGE:
+                                            case CLASS_WARLOCK:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_LEATHER:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_ROGUE:
+                                            case CLASS_MONK:
+                                            case CLASS_DRUID:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_MAIL:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_HUNTER:
+                                            case CLASS_SHAMAN:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_PLATE:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PALADIN:
+                                            case CLASS_WARRIOR:
+                                            case CLASS_DEATH_KNIGHT:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
                             l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
                         }
