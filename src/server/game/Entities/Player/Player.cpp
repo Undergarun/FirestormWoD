@@ -2727,8 +2727,10 @@ void Player::SendTeleportPacket(Position &l_OldPosition)
         l_TeleportPacket.FlushBits();
     }
 
-    Relocate(&l_OldPosition);
     SendDirectMessage(&l_TeleportPacket);
+
+    GetPosition(&m_mover->m_movementInfo.pos);
+    Relocate(&l_OldPosition);
 
     WorldPacket l_TeleportUpdatePacket(SMSG_MOVE_UPDATE_TELEPORT, 300);
 
