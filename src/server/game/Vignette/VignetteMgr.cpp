@@ -199,7 +199,7 @@ namespace Vignette
         
         if (l_TrackingQuest)
         {
-            if (m_Owner->IsQuestBitFlaged(GetQuestUniqueBitFlag(l_TrackingQuest))
+            if (m_Owner->IsQuestBitFlaged(GetQuestUniqueBitFlag(l_TrackingQuest)))
                 return;
             
             l_Type = GetTrackingVignetteTypeFromWorldObject(p_Target);

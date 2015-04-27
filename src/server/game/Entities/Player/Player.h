@@ -3518,7 +3518,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
-        bool IsQuestBitFlaged(uint32 p_BitIndex);
+        bool IsQuestBitFlaged(uint32 p_BitIndex) const;
         void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
 
         /// Wargames
