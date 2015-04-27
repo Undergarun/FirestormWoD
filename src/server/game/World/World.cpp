@@ -123,6 +123,7 @@ World::World()
     m_NextWeeklyQuestReset = 0;
     m_NextCurrencyReset = 0;
     m_NextDailyLootReset = 0;
+    m_NextGuildChallengesReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -1638,6 +1639,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Specs...");                             ///< must be after LoadItemPrototypes
     sObjectMgr->LoadItemSpecs();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group...");                       ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemBonusGroup();
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Item Bonus Group Linked...");                ///< must be after LoadItemPrototypes
+    sObjectMgr->LoadItemBonusGroupLinked();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Taxi data");
     sObjectMgr->LoadTaxiData();
 
@@ -1676,6 +1683,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Base Stats...");
     sObjectMgr->LoadCreatureClassLevelStats();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Group Size Stats...");
+    sObjectMgr->LoadCreatureGroupSizeStats();
 
     //sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Restructuring Creatures GUIDs...");
     //sObjectMgr->RestructCreatureGUID(10000);
@@ -2326,6 +2336,9 @@ void World::Update(uint32 diff)
 
     if (m_gameTime >= m_NextDailyLootReset)
         ResetDailyLoots();
+
+    if (m_gameTime >= m_NextGuildChallengesReset)
+        ResetGuildChallenges();
 
     //if (m_gameTime > m_NextServerRestart)
         //AutoRestartServer();
@@ -3418,6 +3431,13 @@ void World::InitDailyLootResetTime()
     m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
+void World::InitGuildChallengesResetTime()
+{
+    time_t l_Wstime = uint64(sWorld->getWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME));
+    time_t l_CurrTime = time(NULL);
+    m_NextGuildChallengesReset = l_Wstime < l_CurrTime ? l_CurrTime : time_t(l_Wstime);
+}
+
 /*void World::InitServerAutoRestartTime()
 {
     time_t serverRestartTime = uint64(sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME));
@@ -3467,9 +3487,13 @@ void World::ResetDailyQuests()
 
 void World::ResetCurrencyWeekCap()
 {
-    CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekGames0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekGames1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekGames2` = 0, `weekWins2` = 0");
+    SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
+    l_Trans->Append("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
+    l_Trans->Append("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
+    l_Trans->Append("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekWins2` = 0");
+    l_Trans->Append("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`");
+    l_Trans->Append("UPDATE `character_arena_data` SET `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
+    CharacterDatabase.CommitTransaction(l_Trans);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
@@ -3493,6 +3517,13 @@ void World::ResetDailyLoots()
 
     m_NextDailyLootReset = time_t(m_NextDailyLootReset + DAY);
     sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, getWorldState(WS_DAILY_LOOT_RESET_TIME) + 1);
+}
+
+void World::ResetGuildChallenges()
+{
+    CharacterDatabase.Execute("UPDATE `guild_challenges` SET ChallengeCount = 0");
+    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, getWorldState(WS_WEEKLY_QUEST_RESET_TIME) + 7);
+    m_NextGuildChallengesReset = time_t(m_NextGuildChallengesReset + DAY * 7);
 }
 
 void World::LoadDBAllowedSecurityLevel()

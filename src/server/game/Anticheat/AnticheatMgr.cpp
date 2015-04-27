@@ -98,7 +98,8 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movem
     }
 }
 
-void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MovementInfo, uint32 p_Opcode)
+
+void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos, uint32 p_Opcode)
 {
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         return;
@@ -110,19 +111,21 @@ void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MovementI
 
     if (p_Player->isInFlight() || p_Player->GetTransport() || p_Player->GetVehicle())
     {
-        m_Players[key].SetLastMovementInfo(p_MovementInfo);
+
+        m_Players[key].SetLastMovementInfo(p_MoveInfos);
+
         m_Players[key].SetLastOpcode(p_Opcode);
         return;
     }
 
-    SpeedHackDetection(p_Player, p_MovementInfo);
-    FlyHackDetection(p_Player, p_MovementInfo);
-    WalkOnWaterHackDetection(p_Player, p_MovementInfo);
-    JumpHackDetection(p_Player, p_MovementInfo, p_Opcode);
-    TeleportPlaneHackDetection(p_Player, p_MovementInfo);
-    ClimbHackDetection(p_Player, p_MovementInfo, p_Opcode);
+    SpeedHackDetection(p_Player,p_MoveInfos);
+    FlyHackDetection(p_Player,p_MoveInfos);
+    WalkOnWaterHackDetection(p_Player,p_MoveInfos);
+    JumpHackDetection(p_Player,p_MoveInfos,p_Opcode);
+    TeleportPlaneHackDetection(p_Player, p_MoveInfos);
+    ClimbHackDetection(p_Player,p_MoveInfos,p_Opcode);
 
-    m_Players[key].SetLastMovementInfo(p_MovementInfo);
+    m_Players[key].SetLastMovementInfo(p_MoveInfos);
     m_Players[key].SetLastOpcode(p_Opcode);
 }
 

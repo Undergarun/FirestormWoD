@@ -1085,6 +1085,45 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Binding Heal - 32546
+class spell_pri_binding_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+
+        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfBindingHeal = 63248
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfBindingHeal);
+
+                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && l_SpellInfo != nullptr && p_Targets.size() > l_SpellInfo->Effects[EFFECT_1].BasePoints)
+                    JadeCore::RandomResizeList(p_Targets, l_SpellInfo->Effects[EFFECT_1].BasePoints);
+                else
+                    p_Targets.clear();
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
+        }
+};
 enum MasterySpells
 {
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
@@ -3436,6 +3475,42 @@ class spell_pri_divine_aegis : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Saving Grace - 152116
+class spell_pri_saving_grace : public SpellScriptLoader
+{
+    public:
+        spell_pri_saving_grace() : SpellScriptLoader("spell_pri_saving_grace") { }
+
+        class spell_pri_saving_grace_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_saving_grace_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// HotFixe February 27, 2015 : Saving Grace now heals for 25% less in PvP combat.
+                if (l_Target->GetTypeId() == TYPEID_PLAYER && l_Caster->IsPvP())
+                    SetHitHeal(GetHitHeal() - CalculatePct(GetHitHeal(), 25));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_saving_grace_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_saving_grace_SpellScript;
+        }
+};
+
 /// Power Word: Barrier - 62618
 class spell_areatrigger_power_word_barrier : public AreaTriggerEntityScript
 {
@@ -3578,6 +3653,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_aegis();
     new spell_pri_chakra_sanctuary();
     new spell_pri_surge_of_light_aura();
+    new spell_pri_binding_heal();
+    new spell_pri_saving_grace();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

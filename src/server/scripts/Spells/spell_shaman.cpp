@@ -45,9 +45,6 @@ enum ShamanSpells
     SPELL_SHA_HEALING_RAIN                      = 142923,
     SPELL_SHA_HEALING_RAIN_TICK                 = 73921,
     SPELL_SHA_HEALING_RAIN_AURA                 = 73920,
-    SPELL_SHA_EARTHQUAKE                        = 61882,
-    SPELL_SHA_EARTHQUAKE_TICK                   = 77478,
-    SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN          = 77505,
     SPELL_SHA_ELEMENTAL_BLAST                   = 117014,
     SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL     = 118517,
     SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL      = 118515,
@@ -1234,45 +1231,8 @@ class spell_sha_elemental_blast: public SpellScriptLoader
         }
 };
 
-/// Earthquake : Ticks - 77478
-class spell_sha_earthquake_tick: public SpellScriptLoader
-{
-    public:
-        spell_sha_earthquake_tick() : SpellScriptLoader("spell_sha_earthquake_tick") { }
-
-        class spell_sha_earthquake_tick_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_earthquake_tick_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_EARTHQUAKE_TICK))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                // With a 10% chance of knocking down affected targets
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
-                            caster->CastSpell(target, SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_earthquake_tick_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_earthquake_tick_SpellScript();
-        }
-};
-
 /// Earthquake - 61882
+/// last update : 6.1.2 19802
 class spell_sha_earthquake: public SpellScriptLoader
 {
     public:
@@ -1282,32 +1242,39 @@ class spell_sha_earthquake: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_earthquake_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            enum eSpells
             {
-                 m_PctBonus = 1.0f;
-
-                if (AuraPtr l_Aura = GetCaster()->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
-                {
-                    m_PctBonus = l_Aura->GetEffect(EFFECT_0)->GetAmount() / 100.0f;
-                    l_Aura->Remove();
-                }
-            }
+                Earthquake     = 61882,
+                EarthquakeTick = 77478
+            };
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                int32 l_bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster()) * m_PctBonus;
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                if (Unit* caster = GetCaster())
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
-                        caster->CastCustomSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, &l_bp0, nullptr, nullptr, true);
+                AreaTrigger* l_AreaTrigger = l_Caster->GetAreaTrigger(eSpells::Earthquake);
+                if (!l_AreaTrigger)
+                    return;
+
+                /// dealing ${$SPN * 0.11 * 10 * (1 + $170374m3 / 100)} Physical damage over $d
+                int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
+
+                if (AuraPtr l_ChainLightning = l_Caster->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
+                {
+                    l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetEffect(EFFECT_0)->GetAmount());
+                    l_ChainLightning->Remove();
+                }
+
+                l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
+
+                l_Caster->CastCustomSpell(l_AreaTrigger->GetPositionX(), l_AreaTrigger->GetPositionY(), l_AreaTrigger->GetPositionZ(), eSpells::EarthquakeTick, &l_Bp0, nullptr, nullptr, true);
             }
-
-            float m_PctBonus;
 
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectApply += AuraEffectApplyFn(spell_sha_earthquake_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1315,6 +1282,54 @@ class spell_sha_earthquake: public SpellScriptLoader
         {
             return new spell_sha_earthquake_AuraScript();
         }
+};
+
+/// Earthquake : Ticks - 77478
+/// last update : 6.1.2 19802
+class spell_sha_earthquake_tick: public SpellScriptLoader
+{
+public:
+    spell_sha_earthquake_tick() : SpellScriptLoader("spell_sha_earthquake_tick") { }
+
+    class spell_sha_earthquake_tick_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_earthquake_tick_SpellScript);
+
+        enum eSpells
+        {
+            EarthquakeTick      = 77478,
+            EarthquakeKnockDown = 77505
+        };
+
+        bool Validate(SpellInfo const* /*spell*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(eSpells::EarthquakeTick))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+            if (!l_Caster || !l_Target)
+                return;
+
+            /// 10% chance of knocking down affected targets
+            if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                l_Caster->CastSpell(l_Target, eSpells::EarthquakeKnockDown, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_sha_earthquake_tick_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_earthquake_tick_SpellScript();
+    }
 };
 
 /// Healing Rain - 73920
@@ -1382,33 +1397,34 @@ class spell_sha_healing_rain: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Healing Rain (heal) - 73921
 class spell_sha_healing_rain_heal : public SpellScriptLoader
 {
-public:
-    spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
+    public:
+        spell_sha_healing_rain_heal() : SpellScriptLoader("spell_sha_healing_rain_heal") { }
 
-    class spell_sha_healing_rain_heal_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        class spell_sha_healing_rain_heal_SpellScript : public SpellScript
         {
-            /// Healing up to 6 allies 
-            if (p_Targets.size() > 6)
-                JadeCore::RandomResizeList(p_Targets, 6);
-        }
+            PrepareSpellScript(spell_sha_healing_rain_heal_SpellScript);
 
-        void Register()
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Healing up to 6 allies 
+                if (p_Targets.size() > 6)
+                    JadeCore::RandomResizeList(p_Targets, 6);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_rain_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            return new spell_sha_healing_rain_heal_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_sha_healing_rain_heal_SpellScript();
-    }
 };
 
 /// Ascendance - 114049
@@ -1781,7 +1797,7 @@ class spell_sha_healing_wave : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (l_Caster->HasSpell(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
+                if (l_Caster->HasAura(eSpells::GlyphOfHealingWave)) ///< Glyph of Healing Wave
                 {
                     SpellInfo const* l_GlyphOfHealingWave = sSpellMgr->GetSpellInfo(eSpells::GlyphOfHealingWave);
 
@@ -2363,6 +2379,7 @@ class spell_sha_ghost_wolf: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// 51505 - Lava Burst
 class spell_sha_lava_burst: public SpellScriptLoader
 {
@@ -2375,20 +2392,28 @@ class spell_sha_lava_burst: public SpellScriptLoader
 
             void HitTarget(SpellEffIndex)
             {
-                if (Unit* l_Caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
+                    l_Player->CastSpell(l_Player, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
+                if (l_Player->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Player->HasSpell(SPELL_SHA_FULMINATION))
                 {
-                    if (l_Caster->HasAura(SPELL_SHA_ELEMENTAL_FUSION))
-                        l_Caster->CastSpell(l_Caster, SPELL_SHA_ELEMENTAL_FUSION_PROC, true);
-                    if (l_Caster->HasSpell(SPELL_SHA_IMPROVED_LIGHTNING_SHIELD) && l_Caster->HasSpell(SPELL_SHA_FULMINATION))
+                    AuraPtr l_LightningShield = l_Player->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
+                    if (l_LightningShield != nullptr)
                     {
-                        AuraPtr l_LightningShield = l_Caster->GetAura(SPELL_SHA_LIGHTNING_SHIELD_AURA);
-                        if (l_LightningShield != nullptr)
-                        {
-                            if (l_LightningShield->GetCharges() < 20)
-                                l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
-                        }
+                        if (l_LightningShield->GetCharges() < 20)
+                            l_LightningShield->SetCharges(l_LightningShield->GetCharges() + 1);
                     }
                 }
+
+                /// Lavaburst deals 50% more damage with Flame Shock on target
+                /// HotFixe February 27, 2015 : Lava burst no longer deals extra damage in PvP combat for Restoration Shaman.
+                if (l_Target->HasAura(SPELL_SHA_FLAME_SHOCK) && !(l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_SHAMAN_RESTORATION && l_Target->GetTypeId() == TYPEID_PLAYER))
+                    SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
             }
 
             void HandleAfterCast()

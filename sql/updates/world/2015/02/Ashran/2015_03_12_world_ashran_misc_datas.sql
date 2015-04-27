@@ -19,9 +19,9 @@ UPDATE creature_template SET dmg_multiplier = 15, ScriptName = 'npc_ashran_warsp
 UPDATE creature_template SET dmg_multiplier = 15, ScriptName = 'npc_ashran_stormshield_gladiator' WHERE entry = 85812;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_mandragoraster' WHERE entry = 83683;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_panthora' WHERE entry = 83691;
-UPDATE creature_template SET dmg_multiplier = 500, ScriptName = 'npc_ashran_ancient_inferno' WHERE entry = 84875;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_ancient_inferno' WHERE entry = 84875;
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_ashran_volcano' WHERE entry = 88227;
-UPDATE creature_template SET dmg_multiplier = 500, ScriptName = 'npc_ashran_goregore' WHERE entry = 84875;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_goregore' WHERE entry = 84893;
 UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_ashran_ashmaul_magma_caster' WHERE entry = 84906;
 UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, ScriptName = 'npc_ashran_volcanic_ground' WHERE entry = 84952;
 UPDATE creature_template SET dmg_multiplier = 300, ScriptName = 'npc_ashran_elder_darkweaver_kath' WHERE entry = 85771;

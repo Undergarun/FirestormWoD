@@ -298,13 +298,27 @@ void AreaTrigger::BindToCaster()
     m_Caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
 
     if (m_Caster)
+    {
         m_Caster->_RegisterAreaTrigger(this);
+
+        if (Creature* l_Creature = m_Caster->ToCreature())
+        {
+            if (l_Creature->IsAIEnabled)
+                l_Creature->AI()->AreaTriggerCreated(this);
+        }
+    }
 }
 
 void AreaTrigger::UnbindFromCaster()
 {
     if (m_Caster)
     {
+        if (Creature* l_Creature = m_Caster->ToCreature())
+        {
+            if (l_Creature->IsAIEnabled)
+                l_Creature->AI()->AreaTriggerDespawned(this);
+        }
+
         m_Caster->_UnregisterAreaTrigger(this);
         m_Caster = NULL;
     }
@@ -501,4 +515,9 @@ void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
         l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
     }
+}
+
+AreaTrigger* AreaTrigger::GetAreaTrigger(WorldObject const& p_Object, uint64 p_Guid)
+{
+    return p_Object.GetMap()->GetAreaTrigger(p_Guid);
 }

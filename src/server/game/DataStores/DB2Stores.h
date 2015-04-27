@@ -57,6 +57,7 @@ extern DB2Storage <SpellAuraRestrictionsEntry>      sSpellAuraRestrictionsStore;
 extern DB2Storage <AreaPOIEntry>                    sAreaPOIStore;
 extern DB2Storage <HolidaysEntry>                   sHolidaysStore;
 extern DB2Storage <OverrideSpellDataEntry>          sOverrideSpellDataStore;
+extern DB2Storage <SpellEffectGroupSizeEntry>       sSpellEffectGroupSizeStore;
 extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
 extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;

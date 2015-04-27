@@ -505,8 +505,11 @@ class spell_mistress_kiss: public SpellScriptLoader
             bool Load()
             {
                 if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DAMAGE_SILENCE, GetCaster()))
+                {
+                    if (sSpellMgr->GetSpellInfo(SPELL_MISTRESS_KISS_DAMAGE_SILENCE))
                         return true;
+                }
+
                 return false;
             }
 
@@ -548,8 +551,10 @@ class spell_mistress_kiss_area: public SpellScriptLoader
             bool Load()
             {
                 if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DEBUFF, GetCaster()))
+                {
+                    if (sSpellMgr->GetSpellInfo(SPELL_MISTRESS_KISS_DEBUFF))
                         return true;
+                }
                 return false;
             }
 

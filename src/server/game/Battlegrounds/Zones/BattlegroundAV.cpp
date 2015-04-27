@@ -1577,7 +1577,7 @@ public:
     bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         Battleground* l_BattleGround = p_Player->GetBattleground();
-        if (l_BattleGround == nullptr || l_BattleGround->GetTypeID() != BattlegroundTypeId::BATTLEGROUND_AV)
+        if (l_BattleGround == nullptr || l_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)
             return false;
 
         BattlegroundAV* l_AlteracBG = (BattlegroundAV*)l_BattleGround;

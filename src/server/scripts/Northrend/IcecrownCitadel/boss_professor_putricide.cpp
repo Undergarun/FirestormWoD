@@ -730,7 +730,7 @@ class npc_putricide_oozeAI : public ScriptedAI
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
         {
-            if (!_newTargetSelectTimer && spell->Id == sSpellMgr->GetSpellIdForDifficulty(_hitTargetSpellId, me))
+            if (!_newTargetSelectTimer && spell->Id == _hitTargetSpellId)
                 _newTargetSelectTimer = 1000;
         }
 
@@ -1071,7 +1071,7 @@ class spell_putricide_ooze_eruption_searcher: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 adhesiveId = sSpellMgr->GetSpellIdForDifficulty(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster());
+                uint32 adhesiveId = SPELL_VOLATILE_OOZE_ADHESIVE;
                 if (GetHitUnit()->HasAura(adhesiveId))
                 {
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
@@ -1145,7 +1145,7 @@ class spell_putricide_unbound_plague: public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(JadeCore::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, SPELL_UNBOUND_PLAGUE));
                 JadeCore::RandomResizeList(targets, 1);
             }
 
@@ -1162,7 +1162,7 @@ class spell_putricide_unbound_plague: public SpellScriptLoader
                     if (eff->GetTickNumber() < 5)
                         return;
 
-                uint32 plagueId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster());
+                    uint32 plagueId = SPELL_UNBOUND_PLAGUE;
 
                 if (!GetHitUnit()->HasAura(plagueId))
                 {
@@ -1546,7 +1546,7 @@ class spell_putricide_clear_aura_effect_value: public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
+                uint32 auraId = GetEffectValue();
                 GetHitUnit()->RemoveAurasDueToSpell(auraId);
             }
 

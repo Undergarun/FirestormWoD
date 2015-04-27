@@ -1,0 +1,1 @@
+INSERT INTO `worldstates` (`entry`, `value`) VALUE (20007, 1429028058);

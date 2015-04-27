@@ -191,6 +191,9 @@ class InstanceScript : public ZoneScript
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* p_Player);
 
+        /// Called when a player successfully exits the instance
+        virtual void OnPlayerExit(Player* p_Player);
+
         // Handle open / close objects
         // use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
         // use HandleGameObject(GUID, boolen, NULL); in any other script
@@ -430,6 +433,7 @@ class InstanceScript : public ZoneScript
         virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
 
         void UpdatePhasing();
+        void UpdateCreatureGroupSizeStats();
 
     protected:
         void SetBossNumber(uint32 p_Number);

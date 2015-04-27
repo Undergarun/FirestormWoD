@@ -2400,7 +2400,7 @@ class misc_commandscript: public CommandScript
 
         static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
         {
-            //sArenaTeamMgr->DistributeArenaPoints();
+            sWorld->ResetCurrencyWeekCap();
             return true;
         }
 

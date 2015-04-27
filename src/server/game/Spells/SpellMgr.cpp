@@ -601,50 +601,6 @@ void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
     mSpellDifficultySearcherMap[spellId] = id;
 }
 
-uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
-{
-    // Dbc supprimée au passage a MoP
-    return spellId;
-    /*if (!GetSpellInfo(spellId))
-    return spellId;
-
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
-    return spellId;
-
-    uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
-    if (mode >= MAX_DIFFICULTY)
-    {
-    sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
-    return spellId; //return source spell
-    }
-
-    uint32 difficultyId = GetSpellDifficultyId(spellId);
-    if (!difficultyId)
-    return spellId; //return source spell, it has only REGULAR_DIFFICULTY
-
-    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
-    if (!difficultyEntry)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
-    return spellId; //return source spell
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > HEROIC_DIFFICULTY)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
-    mode -= 2;
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0)
-    {
-    sLog->outError(LOG_FILTER_SQL, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
-    return spellId;
-    }
-
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
-    return uint32(difficultyEntry->SpellID[mode]);*/
-}
-
 SpellInfo const* SpellMgr::GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const
 {
     return GetSpellInfo(p_SpellId, p_Difficulty);
@@ -1377,7 +1333,7 @@ void SpellMgr::LoadSpellRanks()
     // cleanup core data before reload - remove reference to ChainNode from SpellInfo
     for (SpellChainMap::iterator itr = mSpellChains.begin(); itr != mSpellChains.end(); ++itr)
     {
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             if (mSpellInfoMap[difficulty][itr->first])
                 mSpellInfoMap[difficulty][itr->first]->ChainEntry = NULL;
@@ -1471,7 +1427,7 @@ void SpellMgr::LoadSpellRanks()
             mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
             mSpellChains[addedSpell].rank = itr->second;
             mSpellChains[addedSpell].prev = GetSpellInfo(prevRank);
-            for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+            for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
                 if (mSpellInfoMap[difficulty][addedSpell])
                     mSpellInfoMap[difficulty][addedSpell]->ChainEntry = &mSpellChains[addedSpell];
             prevRank = addedSpell;
@@ -2994,7 +2950,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellAuraOption->m_SpellID].insert(l_SpellAuraOption->m_DifficultyID);
 
-            if (l_SpellAuraOption->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellAuraOption->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellAuraOptionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellAuraOption->m_SpellID, l_SpellAuraOption->m_DifficultyID), l_SpellAuraOption->Id));
         }
     }
@@ -3006,7 +2962,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellCategories->SpellId].insert(l_SpellCategories->m_DifficultyID);
 
-            if (l_SpellCategories->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellCategories->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellCategoriesStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCategories->SpellId, l_SpellCategories->m_DifficultyID), l_SpellCategories->Id));
         }
     }
@@ -3018,7 +2974,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellCooldown->m_SpellID].insert(l_SpellCooldown->m_DifficultyID);
 
-            if (l_SpellCooldown->m_DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellCooldown->m_DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellCooldownsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellCooldown->m_SpellID, l_SpellCooldown->m_DifficultyID), l_SpellCooldown->Id));
         }
     }
@@ -3030,7 +2986,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellEffect->EffectSpellId].insert(l_SpellEffect->EffectDifficulty);
 
-            if (l_SpellEffect->EffectDifficulty != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellEffect->EffectDifficulty != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellEffectStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEffect->EffectSpellId, l_SpellEffect->EffectDifficulty), l_SpellEffect->Id));
         }
     }
@@ -3042,7 +2998,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellEquippedItem->SpellID].insert(l_SpellEquippedItem->DifficultyID);
 
-            if (l_SpellEquippedItem->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellEquippedItem->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellEquippedItemsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellEquippedItem->SpellID, l_SpellEquippedItem->DifficultyID), l_SpellEquippedItem->Id));
         }
     }
@@ -3054,7 +3010,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellInterrupt->SpellID].insert(l_SpellInterrupt->DifficultyID);
 
-            if (l_SpellInterrupt->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellInterrupt->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellInterruptsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellInterrupt->SpellID, l_SpellInterrupt->DifficultyID), l_SpellInterrupt->Id));
 
         }
@@ -3067,7 +3023,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellLevel->SpellID].insert(l_SpellLevel->DifficultyID);
 
-            if (l_SpellLevel->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellLevel->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellLevelsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellLevel->SpellID, l_SpellLevel->DifficultyID), l_SpellLevel->Id));
         }
     }
@@ -3079,7 +3035,7 @@ void SpellMgr::InitializeSpellDifficulty()
         {
             mAvaiableDifficultyBySpell[l_SpellTargetRestriction->SpellId].insert(l_SpellTargetRestriction->DifficultyID);
 
-            if (l_SpellTargetRestriction->DifficultyID != Difficulty::DIFFICULTY_NONE)
+            if (l_SpellTargetRestriction->DifficultyID != Difficulty::DifficultyNone)
                 mDatastoreSpellDifficultyKey[sSpellTargetRestrictionsStore.GetDbcFileName()].insert(std::make_pair(std::make_pair(l_SpellTargetRestriction->SpellId, l_SpellTargetRestriction->DifficultyID), l_SpellTargetRestriction->Id));
         }
     }
@@ -3090,7 +3046,7 @@ void SpellMgr::LoadSpellInfoStore()
     uint32 oldMSTime = getMSTime();
 
     UnloadSpellInfoStore();
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         mSpellInfoMap[difficulty].resize(sSpellStore.GetNumRows(), nullptr);
 
     for (uint32 l_I = 0; l_I < sSpellStore.GetNumRows(); ++l_I)
@@ -3109,7 +3065,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!spellPower)
             continue;
 
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             SpellInfo* spell = mSpellInfoMap[difficulty][spellPower->SpellId];
             if (!spell)
@@ -3125,7 +3081,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!l_TalentEntry)
             continue;
 
-        SpellInfo * l_SpellInfo = mSpellInfoMap[DIFFICULTY_NONE][l_TalentEntry->SpellID];
+        SpellInfo * l_SpellInfo = mSpellInfoMap[DifficultyNone][l_TalentEntry->SpellID];
         if (l_SpellInfo)
             l_SpellInfo->m_TalentIDs.push_back(l_TalentEntry->Id);
 
@@ -3143,7 +3099,7 @@ void SpellMgr::LoadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoStore()
 {
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
     {
         for (uint32 i = 0; i < mSpellInfoMap[difficulty].size(); ++i)
         {
@@ -3156,7 +3112,7 @@ void SpellMgr::UnloadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
-    for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+    for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
     {
         for (uint32 i = 0; i < mSpellInfoMap[difficulty].size(); ++i)
         {
@@ -3173,7 +3129,7 @@ void SpellMgr::LoadSpellCustomAttr()
     SpellInfo* spellInfo = NULL;
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
-        for (int difficulty = 0; difficulty < MAX_DIFFICULTY; difficulty++)
+        for (int difficulty = 0; difficulty < Difficulty::MaxDifficulties; difficulty++)
         {
             spellInfo = mSpellInfoMap[difficulty][i];
             if (!spellInfo)
@@ -3372,6 +3328,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 119975: ///< Conversion
+                spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
+                break;
             case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s
@@ -3438,6 +3397,116 @@ void SpellMgr::LoadSpellCustomAttr()
                 /// I guess spellmod type is failed here because of -75% damage
                 spellInfo->Effects[EFFECT_5].MiscValue = SPELLMOD_DAMAGE;
                 spellInfo->Effects[EFFECT_5].BasePoints = -65;
+                break;
+            case 162472:///< Earth Breaker (Vul'gor)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 162304:///< Earth Breaker (Summon - Vul'gor)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                break;
+            case 159995:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                break;
+            case 160061:///< Chain Hurl (Kargath)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValue = 250;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 151991:///< Chain Grip (Gorian Guardsman)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 30.0f;
+                spellInfo->Effects[EFFECT_0].MiscValue = 250;
+                spellInfo->Effects[EFFECT_0].MiscValueB = 250;
+                break;
+            case 159113:///< Impale (Kargath)
+                spellInfo->ChannelInterruptFlags = 0;
+                break;
+            case 159265:///< Blade Dance (charge visual - Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 158986:///< Berserker Rush (Kargath)
+            case 162497:///< On the Hunt (Ravenous Bloodmaw - Kargath)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+                break;
+            case 160953:///< Fire Bomb (Iron Bomber - Kargath)
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE;
+                break;
+            case 159414:///< Mauling Brew (Drunken Bileslinger - Kargath)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 159412:///< Mauling Brew (Drunken Bileslinger - Kargath)
+                spellInfo->AttributesEx3 &= ~SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                break;
+            case 161218:///< Maul (Ravenous Bloodmaw - Kargath)
+                spellInfo->Effects[EFFECT_0].Effect = 0;
+                spellInfo->Effects[EFFECT_2].Effect = 0;
+                break;
+            case 163408:///< Heckle (Kargath)
+                spellInfo->CasterAuraSpell = 0;
+                break;
+            case 175598:///< Devouring Leap (Night-Twisted Devout)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 156127:///< Meat Hook (The Butcher)
+                spellInfo->Effects[EFFECT_0].ValueMultiplier = 100.0f;
+                break;
+            case 156160:///< Bounding Cleave (The Butcher)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 156171:///< Bounding Cleave (The Butcher)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 156172:///< Bounding Cleave (The Butcher)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 156157:///< Cleave (The Butcher)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
+                break;
+            case 163042:///< Pale Vitriol
+                spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_DEAD;
+                break;
+            case 166225:///< Boar's Rush (Krush)
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(23); ///< 40 yards
+                break;
+            case 174465:///< Unstoppable Charge (Iron Flame Technician)
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 174473:///< Corrupted Blood (Iron Blood Mage)
+                spellInfo->MaxAffectedTargets = 5;
+                break;
+            case 163113:///< Withering (Living Mushroom - Brackenspore)
+            case 163124:///< Withering (Rejuvenating Mushroom - Brackenspore)
+                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
+                break;
+            case 159996:///< Infested Spores (Brackenspore)
+            {
+                for (auto l_Iter : spellInfo->SpellPowers)
+                {
+                    ((SpellPowerEntry*)l_Iter)->Cost = 500;
+                    ((SpellPowerEntry*)l_Iter)->PowerType = POWER_RAGE;
+                }
+
+                break;
+            }
+            case 163242:///< Infested Spores - triggered (Brackenspore)
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_2;
+                break;
+            case 160446:///< Spore Shooter - summon (Brackenspore)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
@@ -3529,6 +3598,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 154900: ///< Seal Conduit (second)
+            case 160425: ///< Call of the Tides (Brackenspore)
                 spellInfo->MaxAffectedTargets = 2;
                 break;
             case 154901: ///< Seal Conduit (third)
@@ -3884,10 +3954,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 128997: ///< Spirit Beast Blessing
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 break;
-            case 32546: ///< Binding Heal
-                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[1].TargetB = 0;
-                break;
             case 53390: ///< Tidal Waves
                 spellInfo->Effects[0].BasePoints = -20;
                 spellInfo->Effects[1].BasePoints = 30;
@@ -4035,8 +4101,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176037:///< Noxious Spit (DoT)
             case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
+            case 161635:///< Molten Bomb
+            case 159311:///< Flame Jet
             case 161517:///< Splitting Breath (DoT)
             case 176146:///< Volcanic Fallout
+            case 159413:///< Mauling Brew
+            case 175654:///< Rune of Disintegration
+            case 163046:///< Pale Vitriol
+            case 163140:///< Mind Fungus
+            case 163590:///< Creeping Moss (damage)
+            case 165494:///< Creeping Moss (healing)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
@@ -4178,6 +4252,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 62775:  ///< Tympanic Tantrum (XT-002 encounter)
             case 102598: ///< Void Strike, Infinite Warden
             case 154448: ///< Shrapnel Nova (Orebender Gor'Ashan)
+            case 163047: ///< Paleobomb (Night-Twisted Cadaver - The Butcher)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: ///< Sonic Screech (Auriaya)
@@ -4204,12 +4279,12 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166623: ///< Four winds (Skyreach)
             case 166664: ///< Four winds (Skyreach)
             {
-                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
-                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
-                 SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
-                 if (!durationIndex)
-                     break;
-                 spellInfo->DurationEntry = durationIndex;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                SpellDurationEntry const* durationIndex = sSpellDurationStore.LookupEntry(8);
+                if (!durationIndex)
+                    break;
+                spellInfo->DurationEntry = durationIndex;
                 break;
             }
             case 159226: ///< Solar storm (Skyreach)
@@ -4219,6 +4294,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 153907: ///< Dervish (Skyreach)
             case 156841: ///< Storm (Skyreach)
             case 72293:  ///< Mark of the Fallen Champion (Deathbringer Saurfang)
+            case 159178: ///< Open Wounds (Kargath Bladefist)
+            case 156152: ///< Gushing Wounds (The Butcher)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
                 break;
             case 116711: ///< Draw Flame
@@ -4496,9 +4573,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 47476: ///< Strangulate
                 spellInfo->OverrideSpellList.push_back(108194); ///< Asphyxiate
-                break;
-            case 56131: ///< Glyph of Purify
-                spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL_PCT;
                 break;
             case 108945: ///< Angelic Bulwark
                 spellInfo->Effects[0].TriggerSpell = 114214;
@@ -4866,12 +4940,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 0;
                 spellInfo->Effects[1].BasePoints = 0;
                 break;
-            case 168811: ///< Sniper Training - blizzard 6.1 hotfix
-                spellInfo->Effects[0].BasePoints = 5;
-                spellInfo->Effects[1].BasePoints = 5;
-                spellInfo->Effects[2].BasePoints = 5;
-                spellInfo->Effects[3].BasePoints = 5;
-                break;
             case 11958: ///< Cold Snap
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
@@ -5101,10 +5169,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 113886: ///< Demonic Gateway
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 6358:   ///< Seduce (succubus)
-            case 115268: ///< Mesmerize
-                spellInfo->SpellFamilyName = SPELLFAMILY_WARLOCK;
                 break;
             case 980: ///< Agony
                 spellInfo->StackAmount = 10;
@@ -5929,6 +5993,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 30884:    ///< Nature's Guardian
                 spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
                 break;
+            case 55440: ///< Glyph of Healing Wave (Restoration)
+                spellInfo->ProcFlags = 0;
+                break;
             case 171253:    ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
@@ -5998,6 +6065,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 61882: ///< Earthquake
                 case 152280:///< Defile
                 case 109248:///< Binding Shot
+                case 173229:///< Creeping Moss (Brackenspore)
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power
@@ -6043,7 +6111,7 @@ const SpellInfo* SpellMgr::GetSpellInfo(uint32 p_SpellID, Difficulty p_Difficult
 {
     if (p_SpellID < GetSpellInfoStoreSize())
     {
-        if (p_Difficulty != DIFFICULTY_NONE)
+        if (p_Difficulty != DifficultyNone)
         {
             /// If spell isn't available in difficulty we want, check fallback difficulty ...
             DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(p_Difficulty);
@@ -6057,7 +6125,7 @@ const SpellInfo* SpellMgr::GetSpellInfo(uint32 p_SpellID, Difficulty p_Difficult
             }
         }
 
-        return mSpellInfoMap[DIFFICULTY_NONE][p_SpellID];
+        return mSpellInfoMap[DifficultyNone][p_SpellID];
     }
 
     return nullptr;

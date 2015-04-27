@@ -1035,6 +1035,9 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 Guild::Guild() : m_id(0), m_leaderGuid(0), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(NULL),
     m_achievementMgr(this), _newsLog(this)
 {
+    for (uint8 l_Type = 0; l_Type < CHALLENGE_MAX; l_Type++)
+        m_ChallengeCount[l_Type] = 0;
+
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
 }
 
@@ -1111,6 +1114,14 @@ bool Guild::Create(Player * p_Leader, const std::string & p_Name)
     /// Call scripts on successful create
     if (l_Result)
         sScriptMgr->OnGuildCreate(this, p_Leader, p_Name);
+
+    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
+    {
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
+        l_Statement->setInt32(0, GetId());
+        l_Statement->setInt32(1, l_Itr);
+        CharacterDatabase.Execute(l_Statement);
+    }
 
     WorldPacket l_Data(SMSG_GUILD_EVENT_MOTD, 1 + 1 + m_motd.size());
 
@@ -2083,20 +2094,20 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
 
 void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithContent, bool p_WithTabInfo) const
 {
-    // Don't send packet for non purchased tab
+    /// Don't send packet for non purchased tab
     BankTab const* l_CurrTab = GetBankTab(p_TabID);
     if (!l_CurrTab && p_TabID > 0)
         return;
 
-    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_RESULTS);
+    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS);
 
     uint32 l_ItemCount = 0;
 
-    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GUILD_BANK_RIGHT_VIEW_TAB))
+    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
 	    if (BankTab const* l_BankTab = GetBankTab(p_TabID))
 	    {
-            for (uint8 l_SlotID = 0; l_SlotID < GUILD_BANK_MAX_SLOTS; ++l_SlotID)
+            for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
                 if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID))
                     ++l_ItemCount;
@@ -2124,40 +2135,36 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
         }
     }
 
-    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GUILD_BANK_RIGHT_VIEW_TAB))
+    if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
-        if (const BankTab * l_Tab = GetBankTab(p_TabID))
+        if (BankTab const* l_Tab = GetBankTab(p_TabID))
         {
-            for (uint8 l_SlotID = 0; l_SlotID < GUILD_BANK_MAX_SLOTS; ++l_SlotID)
+            for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
-                if (Item* tabItem = l_Tab->GetItem(l_SlotID))
+                if (Item* l_TabItem = l_Tab->GetItem(l_SlotID))
                 {
                     uint32 l_EnchantsCount = 0;
 
-                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
-                        if (uint32 l_EnchantId = tabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
+                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
+                    {
+                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
                             ++l_EnchantsCount;
+                    }
 
                     l_Data << uint32(l_SlotID);                             ///< Slot
 
-                    l_Data << uint32(tabItem->GetEntry());                  ///< Item ID
-                    l_Data << uint32(tabItem->GetItemSuffixFactor());       ///< Random Properties Seed
-                    l_Data << uint32(tabItem->GetItemRandomPropertyId());   ///< Random Properties ID
+                    Item::BuildDynamicItemDatas(l_Data, l_TabItem);
 
-                    l_Data.WriteBit(false);                                 ///< Has Modification
-                    l_Data.WriteBit(false);                                 ///< Has Item Bonus
-                    l_Data.FlushBits();
-
-                    l_Data << uint32(tabItem->GetCount());                  ///< Count
+                    l_Data << uint32(l_TabItem->GetCount());                ///< Count
                     l_Data << uint32(0);                                    ///< Enchantment ID
-                    l_Data << uint32(abs(tabItem->GetSpellCharges()));      ///< Charges
+                    l_Data << uint32(abs(l_TabItem->GetSpellCharges()));    ///< Charges
                     l_Data << uint32(l_EnchantsCount);                      ///< Enchant count
                     l_Data << uint32(0);                                    ///< OnUse Enchantment ID
                     l_Data << uint32(0);                                    ///< Flags
 
-                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
+                    for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
                     {
-                        if (uint32 l_EnchantId = tabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
+                        if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
                         {
                             l_Data << uint32(l_EnchantmentSlot);            ///< Socket Index
                             l_Data << uint32(l_EnchantId);                  ///< Socket Enchant ID
@@ -2464,6 +2471,18 @@ bool Guild::LoadBankItemFromDB(Field* fields)
         return false;
     }
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
+}
+
+bool Guild::LoadGuildChallengesFromDB(Field* p_Fields)
+{
+    int32 l_ChallengeType = p_Fields[1].GetInt32();
+    int32 l_ChallengeCount = p_Fields[2].GetInt32();
+
+    if (l_ChallengeType >= CHALLENGE_MAX)
+        return false;
+
+    m_ChallengeCount[l_ChallengeType] = l_ChallengeCount;
+    return true;
 }
 
 // Validates guild data loaded from database. Returns false if guild should be deleted.
@@ -3474,6 +3493,41 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
     _LogEvent((p_RankID < l_Member->GetRankId()) ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, GUID_LOPART(p_OfficierGUID), GUID_LOPART(p_OtherGUID), p_RankID);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_RANKS_UPDATE");
+}
+
+void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
+{
+    if (p_ChallengeType >= CHALLENGE_MAX)
+        return;
+
+    GuildChallengeRewardData const& l_RewardDatas = sObjectMgr->GetGuildChallengeRewardData();
+
+    int32 l_MaxCount = l_RewardDatas[p_ChallengeType].ChallengeCount;
+    int32 l_GoldReward = l_RewardDatas[p_ChallengeType].Gold;
+
+    if (m_ChallengeCount[p_ChallengeType] >= l_MaxCount)
+        return;
+
+    m_ChallengeCount[p_ChallengeType]++;
+
+    /// SaveToDB
+
+    PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_COMPLETE_GUILD_CHALLENGE);
+    l_Stmt->setInt32(0, m_ChallengeCount[p_ChallengeType]);
+    l_Stmt->setInt32(1, GetId());
+    l_Stmt->setInt32(2, p_ChallengeType);
+    CharacterDatabase.Execute(l_Stmt);
+
+    /// Reward gold
+
+    DepositMoney(l_GoldReward * GOLD);
+
+    WorldPacket l_Data(SMSG_GUILD_CHALLENGE_COMPLETED, 4 * 4);
+    l_Data << int32(p_ChallengeType);
+    l_Data << int32(m_ChallengeCount[p_ChallengeType]);
+    l_Data << int32(l_MaxCount);
+    l_Data << int32(l_GoldReward);
+    BroadcastPacket(&l_Data);
 }
 
 void Guild::GuildNewsLog::AddNewEvent(GuildNews eventType, time_t date, uint64 playerGuid, uint32 flags, uint32 data)

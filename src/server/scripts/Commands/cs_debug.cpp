@@ -57,6 +57,9 @@ class debug_commandscript: public CommandScript
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
                 { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
                 { "sscene",         SEC_ADMINISTRATOR,  false, &HandleDebugPlaySSceneCommand,      "", NULL },
+                { "oneshotanimkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlayOneShotAnimKit,     "", NULL },
+                { "spellvisualkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlaySpellVisualKit,     "", NULL },
+                { "orphanvisual",   SEC_ADMINISTRATOR,  false, &HandleDebugPlayOrphanSpellVisual,  "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -125,6 +128,7 @@ class debug_commandscript: public CommandScript
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
                 { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
                 { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
+                { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
@@ -396,6 +400,116 @@ class debug_commandscript: public CommandScript
             p_Handler->PSendSysMessage("Start playing standalone scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
             p_Handler->GetSession()->GetPlayer()->PlayStandaloneScene(id, 16, l_Location);
 
+            return true;
+        }
+
+        static bool HandleDebugPlayOneShotAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->PlayOneShotAnimKit(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->PlayOneShotAnimKit(l_ID);
+
+            return true;
+        }
+
+        static bool HandleDebugSetAIAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->SetAIAnimKit(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->SetAIAnimKit(l_ID);
+
+            return true;
+        }
+
+        static bool HandleDebugPlaySpellVisualKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrID = strtok((char*)p_Args, " ");
+            char* l_StrType = strtok(NULL, " ");
+
+            if (!l_StrID || !l_StrType)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = (uint32)atoi(l_StrID);
+            uint32 l_Type = (uint32)atoi(l_StrType);
+            if (!l_ID || !l_Type)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->SendPlaySpellVisualKit(l_ID, l_Type);
+            else
+                p_Handler->GetSession()->GetPlayer()->SendPlaySpellVisualKit(l_ID, l_Type);
+
+            return true;
+        }
+
+        static bool HandleDebugPlayOrphanSpellVisual(ChatHandler* p_Handler, char const* p_Args)
+        {
+            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+
+            G3D::Vector3 l_Source (3737.686f, 7660.064f, 24.95166f);
+            G3D::Vector3 l_Target (3737.686f, 7660.064f, 25.05166f);
+            G3D::Vector3 l_Orientation (0.0f, 4.035325f, 0.0f);
+
+            l_Data.WriteVector3(l_Source);
+            l_Data.WriteVector3(l_Orientation);
+            l_Data.WriteVector3(l_Target);
+            l_Data.appendPackGUID(0);
+
+            l_Data << int32(37116);
+            l_Data << float(1.0f);
+            l_Data << float(0.0f);
+
+            l_Data.WriteBit(true);
+            l_Data.FlushBits();
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
             return true;
         }
 
@@ -2464,6 +2578,9 @@ class debug_commandscript: public CommandScript
                 ItemTemplate const* l_Template = &l_Iter->second;
                 if (l_Template->Name1.find(l_SearchString) != std::string::npos)
                 {
+                    if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
+                        continue;
+
                     int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
                     uint32 l_Count = 1;
 
@@ -2472,6 +2589,58 @@ class debug_commandscript: public CommandScript
                         int32 l_ClassMask = 1 << (l_ClassId - 1);
                         if (l_Template->AllowableClass & l_ClassMask)
                         {
+                            if (l_Template->Class == ITEM_CLASS_ARMOR)
+                            {
+                                switch (l_Template->SubClass)
+                                {
+                                    case ITEM_SUBCLASS_ARMOR_CLOTH:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PRIEST:
+                                            case CLASS_MAGE:
+                                            case CLASS_WARLOCK:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_LEATHER:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_ROGUE:
+                                            case CLASS_MONK:
+                                            case CLASS_DRUID:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_MAIL:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_HUNTER:
+                                            case CLASS_SHAMAN:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_PLATE:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PALADIN:
+                                            case CLASS_WARRIOR:
+                                            case CLASS_DEATH_KNIGHT:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
                             l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
                         }

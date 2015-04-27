@@ -378,13 +378,14 @@ class Map : public GridRefManager<NGridType>
 
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
         bool IsHeroic() const;
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == Difficulty::Difficulty25N || i_spawnMode == Difficulty::Difficulty25HC); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsLFR() const { return i_spawnMode == Difficulty::DifficultyRaidTool || i_spawnMode == Difficulty::DifficultyRaidLFR; }
+        bool IsChallengeMode() const { return i_spawnMode == Difficulty::DifficultyChallenge; }
+        bool IsMythic() const { return i_spawnMode == Difficulty::DifficultyRaidMythic; }
 
-        bool IsLFR() const { return i_spawnMode == DIFFICULTY_LFR; }
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
-        bool IsChallengeMode() const { return i_spawnMode == DIFFICULTY_CHALLENGE; }
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
@@ -412,6 +413,11 @@ class Map : public GridRefManager<NGridType>
 
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
+
+        std::set<WorldObject*> const* GetAllWorldObjectOnMap() const
+        {
+            return &i_worldObjects;
+        }
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -445,6 +451,7 @@ class Map : public GridRefManager<NGridType>
         GameObject* GetGameObject(uint64 guid);
         Transport* GetTransport(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);
+        AreaTrigger* GetAreaTrigger(uint64 p_Guid);
 
         MapInstanced* ToMapInstanced(){ if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return NULL;  }
         const MapInstanced* ToMapInstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return NULL;  }
@@ -670,6 +677,7 @@ class InstanceMap : public Map
         void UnloadAll();
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
+        void SendInstanceGroupSizeChanged() const;
         void SetResetSchedule(bool on);
 
         uint32 GetMaxPlayers() const;

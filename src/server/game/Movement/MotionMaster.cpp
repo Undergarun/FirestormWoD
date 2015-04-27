@@ -385,6 +385,20 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
+void MotionMaster::MoveJump(Position const p_Pos, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)
+{
+    MoveJump(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpeedXY, p_SpeedZ, p_Pos.m_orientation, p_ID);
+}
+
+void MotionMaster::MoveJump(uint32 p_LocEntry, float p_SpeedXY, float p_SpeedZ, uint32 p_ID)
+{
+    WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);
+    if (l_Loc == nullptr)
+        return;
+
+    MoveJump(l_Loc->x, l_Loc->y, l_Loc->z, p_SpeedXY, p_SpeedZ, l_Loc->o, p_ID);
+}
+
 void MotionMaster::CustomJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
 {
     speedZ *= 2.3f;

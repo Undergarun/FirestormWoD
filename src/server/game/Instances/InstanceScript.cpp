@@ -26,6 +26,7 @@
 #include "CreatureAI.h"
 #include "Log.h"
 #include "LFGMgr.h"
+#include "Guild.h"
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
@@ -80,6 +81,12 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
+    UpdateCreatureGroupSizeStats();
+}
+
+void InstanceScript::OnPlayerExit(Player* p_Player)
+{
+    UpdateCreatureGroupSizeStats();
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -301,6 +308,31 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
         for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
+
+        /// ADD GUILD REWARDS
+        {
+            InstanceMap::PlayerList const &l_PlayersMap = instance->GetPlayers();
+
+            for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
+            {
+                if (Player* l_Player = l_Itr->getSource())
+                {
+                    if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
+                    {
+                        if (Guild* l_Guild = l_Player->GetGuild())
+                        {
+                            if (instance->IsRaid())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_RAID);
+                            else if (instance->IsChallengeMode())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                            else if (instance->IsDungeon())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
         /// End of challenge
         if (id == (bosses.size() - 1) && state == DONE)
@@ -937,18 +969,7 @@ void InstanceScript::SendChallengeModeComplete(uint32 p_Money)
         ///< ItemReward
         for (uint32 l_I = 0; l_I < l_ItemRewards; ++l_I)
         {
-            ///< ItemStruct
-            {
-                l_Data << int32(0);     ///< ItemEntry
-                l_Data << int32(0);     ///< RandomPropertiesSeed
-                l_Data << int32(0);     ///< RandomPropertiesID
-
-                l_Data.WriteBit(true);  ///< HasBonus
-                l_Data.WriteBit(false); ///< HasModifiers
-
-                l_Data << uint8(15);    ///< UnkByte for Bonuses
-                l_Data << uint32(0);    ///< BonusCount
-            }
+            Item::BuildDynamicItemDatas(l_Data, nullptr);
 
             l_Data << uint32(0);    ///< Quantity
         }
@@ -1118,7 +1139,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == DIFFICULTY_NONE)
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == DifficultyNone)
             l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 
@@ -1153,6 +1174,10 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data.FlushBits();
             instance->SendToPlayers(&l_Data);
 
+            l_Data.Initialize(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
+            l_Data << int32((*l_Iter)->dbcEntry->ID);
+            instance->SendToPlayers(&l_Data);
+
             return;
         }
     }
@@ -1167,4 +1192,17 @@ void InstanceScript::UpdatePhasing()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->getSource())
             player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
+}
+
+void InstanceScript::UpdateCreatureGroupSizeStats()
+{
+    auto l_WorldObjects = instance->GetAllWorldObjectOnMap();
+    for (auto l_WorldObject = l_WorldObjects->begin(); l_WorldObject != l_WorldObjects->end(); l_WorldObject++)
+    {
+        if ((*l_WorldObject)->GetTypeId() != TYPEID_UNIT)
+            continue;
+
+        Creature* l_Creature = (*l_WorldObject)->ToCreature();
+        l_Creature->UpdateGroupSizeStats();
+    }
 }

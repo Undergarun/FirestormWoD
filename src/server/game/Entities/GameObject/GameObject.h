@@ -834,7 +834,7 @@ union GameObjectValue
         std::vector<uint32>* StopFrames;
         bool ClientUpdate;
     } Transport;
-    //29 GAMEOBJECT_TYPE_CAPTURE_POINT
+    //29 GAMEOBJECT_TYPE_CONTROL_ZONE
     struct
     {
         OPvPCapturePoint *OPvPObj;

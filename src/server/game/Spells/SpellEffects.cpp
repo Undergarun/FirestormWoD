@@ -361,9 +361,9 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     SendResurrectRequest(target);
 }
 
-void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
+void Spell::EffectInstaKill(SpellEffIndex /*p_EffIndex*/)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
     if (!unitTarget || (!unitTarget->isAlive() && m_spellInfo->Id != 108503))
@@ -371,24 +371,27 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
 
     if (m_spellInfo->Id == 108503 && (!unitTarget->GetHealth() || !unitTarget->isAlive()))
     {
-        unitTarget->ToPet()->Remove(PET_SLOT_ACTUAL_PET_SLOT, false, unitTarget->ToPet()->m_Stampeded);
+        unitTarget->ToPet()->Remove(PetSlot::PET_SLOT_ACTUAL_PET_SLOT, false, unitTarget->ToPet()->m_Stampeded);
         return;
     }
 
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        if (unitTarget->ToPlayer()->GetCommandStatus(CHEAT_GOD))
+    if (unitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
+    {
+        if (unitTarget->ToPlayer()->GetCommandStatus(PlayerCommandStates::CHEAT_GOD))
             return;
+    }
 
-    if (m_caster == unitTarget)                              // prevent interrupt message
+    /// Prevent interrupt message
+    if (m_caster == unitTarget)
         finish();
 
-    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8 + 8 + 4);
-    data << uint64(m_caster->GetGUID());
-    data << uint64(unitTarget->GetGUID());
-    data << uint32(m_spellInfo->Id);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPacket l_Data(Opcodes::SMSG_SPELL_INSTAKILL_LOG, 8 + 8 + 4);
+    l_Data.appendPackGUID(unitTarget->GetGUID());
+    l_Data.appendPackGUID(m_caster->GetGUID());
+    l_Data << uint32(m_spellInfo->Id);
+    m_caster->SendMessageToSet(&l_Data, true);
 
-    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), nullptr, DamageEffectType::NODAMAGE, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 }
 
 void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
@@ -450,7 +453,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         break;
                     // Consumption
                     case 28865:
-                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL ? 2750 : 4250);
+                        damage = (((InstanceMap*)m_caster->GetMap())->GetDifficultyID() == DifficultyNormal ? 2750 : 4250);
                         break;
                     // percent from health with min
                     case 25599: // Thundercrash
@@ -4836,7 +4839,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_originalCaster->CastSpell(unitTarget, 58689, true);
                             m_originalCaster->CastSpell(unitTarget, 58692, true);
                         }
-                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficultyID() == DIFFICULTY_NORMAL)
+                        if (((InstanceMap*)m_originalCaster->GetMap())->GetDifficultyID() == DifficultyNormal)
                         {
                             m_originalCaster->CastSpell(unitTarget, 58695, true);
                             m_originalCaster->CastSpell(unitTarget, 58696, true);
@@ -7281,52 +7284,25 @@ void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
     m_caster->CastSpell(unitTarget, m_spellInfo->Effects[effIndex].TriggerSpell, true);
 }
 
-void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
+void Spell::EffectUnlearnTalent(SpellEffIndex p_EffIndex)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+    if (effectHandleMode != SpellEffectHandleMode::SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
-    Player* plr = m_caster->ToPlayer();
+    Player* l_Player = unitTarget ? unitTarget->ToPlayer() : m_caster->ToPlayer();
+    if (l_Player == nullptr)
+        return;
 
-    for (auto itr : *plr->GetTalentMap(plr->GetActiveSpec()))
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr.first);
-        if (!spell)
-            continue;
+    TalentEntry const* l_Talent = sTalentStore.LookupEntry(m_glyphIndex);
+    if (l_Talent == nullptr)
+        return;
 
-        bool l_Continue = false;
-        for (uint32 l_TalentID : spell->m_TalentIDs)
-        {
-            TalentEntry const* l_TalentEntry = sTalentStore.LookupEntry(l_TalentID);
-            if (l_TalentEntry && l_TalentID == m_glyphIndex)
-                l_Continue = true;
-        }
-
-        if (!l_Continue)
-            continue;
-
-        plr->removeSpell(itr.first, true);
-        // search for spells that the talent teaches and unlearn them
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].TriggerSpell > 0 && spell->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                plr->removeSpell(spell->Effects[i].TriggerSpell, true);
-
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS || spell->Effects[i].ApplyAuraName == SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
-                plr->RemoveAurasDueToSpell(spell->Effects[i].BasePoints);
-
-        itr.second->state = PLAYERSPELL_REMOVED;
-
-        plr->SetUsedTalentCount(plr->GetUsedTalentCount() - 1);
-        plr->SetFreeTalentPoints(plr->GetFreeTalentPoints() + 1);
-        break;
-    }
-
-    plr->SaveToDB();
-    plr->SendTalentsInfoData(false);
+    l_Player->RemoveTalent(l_Talent);
+    l_Player->SendTalentsInfoData(false);
+    l_Player->SaveToDB();
 }
 
 void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
@@ -7582,14 +7558,27 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
     if (!l_Player)
         return;
 
-    Unit* l_Caster = NULL;
-    Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    Unit* l_Caster = nullptr;
+    Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);
     if (!l_AuraList.empty())
     {
         for (Unit::AuraEffectList::const_iterator l_Itr = l_AuraList.begin(); l_Itr != l_AuraList.end(); ++l_Itr)
         {
             if (AuraPtr l_Aura = (*l_Itr)->GetBase())
                 l_Caster = l_Aura->GetCaster();
+        }
+    }
+
+    if (l_Caster == nullptr)
+    {
+        Unit::AuraEffectList const& l_AuraList = l_Player->GetAuraEffectsByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT_2);
+        if (!l_AuraList.empty())
+        {
+            for (Unit::AuraEffectList::const_iterator l_Iter = l_AuraList.begin(); l_Iter != l_AuraList.end(); ++l_Iter)
+            {
+                if (AuraPtr l_Aura = (*l_Iter)->GetBase())
+                    l_Caster = l_Aura->GetCaster();
+            }
         }
     }
 
@@ -7639,7 +7628,8 @@ void Spell::EffectLootBonus(SpellEffIndex p_EffIndex)
         }
     }
 
-    l_Player->RemoveAurasByType(SPELL_AURA_TRIGGER_BONUS_LOOT);
+    l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT);
+    l_Player->RemoveAurasByType(AuraType::SPELL_AURA_TRIGGER_BONUS_LOOT_2);
 
     if (l_Items.empty() && !l_IsBGReward)
     {
@@ -8060,14 +8050,11 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     if (l_UpgradeLevel)
         l_UpgradeId = l_UpgradeLevel <= MAX_HEIRLOOM_UPGRADE_LEVEL ? l_HeirloomEntry->UpgradeIemBonusID[l_UpgradeLevel - 1] : 0;
 
-    std::vector<uint32> l_Upgrades;
-
-    if (l_UpgradeId)
-        l_Upgrades.push_back(l_UpgradeId);
-
-    Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true);
-    l_Item->AddItemBonus(l_UpgradeId);
-    l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false, l_Upgrades);
+    if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true))
+    {
+        l_Item->AddItemBonus(l_UpgradeId);
+        l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false);
+    }
 }
 
 void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)

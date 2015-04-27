@@ -52,8 +52,6 @@ enum WarlockSpells
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_GREEN  = 113896,
     WARLOCK_DEMONIC_GATEWAY_TELEPORT_PURPLE = 120729,
     WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE = 113901,
-    WARLOCK_NIGHTFALL                       = 108558,
-    WARLOCK_NIGHTFALL_VISUAL                = 17941,
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
@@ -2190,7 +2188,7 @@ class spell_warl_burning_embers: public SpellScriptLoader
                 float l_BurningEmbersPct = 0.1f;
 
                 if (GetSpell()->IsCritForTarget(l_Target))
-                    l_BurningEmbersPct *= 0.2f;
+                    l_BurningEmbersPct = 0.2f;
 
                 if (AuraPtr l_CharredRemains = l_Caster->GetAura(SPELL_WARL_CHARRED_REMAINS))
                     AddPct(l_BurningEmbersPct, l_CharredRemains->GetEffect(EFFECT_1)->GetBaseAmount());
@@ -3141,8 +3139,9 @@ class spell_warl_havoc: public SpellScriptLoader
         }
 };
 
-// Called by Corruption - 172, 146739
-// Nightfall - 108558
+/// Called by Corruption - 146739
+/// Nightfall - 108558
+/// last update : 6.1.2 19802
 class spell_warl_nightfall : public SpellScriptLoader
 {
     public:
@@ -3152,17 +3151,28 @@ class spell_warl_nightfall : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_nightfall_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            enum eSpells
             {
-                if (!GetCaster())
+                Nightfall     = 108558,
+                NightfallGain = 17941
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
                     return;
 
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasAura(WARLOCK_NIGHTFALL))
-                        if (roll_chance_i(6))
-                            _player->CastSpell(_player, WARLOCK_NIGHTFALL_VISUAL, true);
-                }
+                if (!l_Caster->HasAura(eSpells::Nightfall))
+                    return;
+
+                const SpellInfo* l_SpellInfoNightfall = sSpellMgr->GetSpellInfo(eSpells::Nightfall);
+                if (!l_SpellInfoNightfall)
+                    return;
+
+                uint8 l_Chance = l_SpellInfoNightfall->Effects[EFFECT_0].BasePoints / 10;
+                if (roll_chance_i(l_Chance))
+                    l_Caster->CastSpell(l_Caster, eSpells::NightfallGain, true);
             }
 
             void Register()

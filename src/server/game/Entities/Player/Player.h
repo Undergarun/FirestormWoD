@@ -1521,6 +1521,18 @@ class Player : public Unit, public GridObject<Player>
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
+        bool TeleportTo(uint32 p_MapID, Position const p_Pos, uint32 p_Options = 0)
+        {
+            return TeleportTo(p_MapID, p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation, p_Options);
+        }
+        bool TeleportTo(uint32 p_LocEntry, uint32 p_Options = 0)
+        {
+            WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);
+            if (l_Loc == nullptr)
+                return false;
+
+            return TeleportTo(l_Loc->map_id, l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Options);
+        }
         bool TeleportToBGEntryPoint();
         void SwitchToPhasedMap(uint32 p_MapID);
 
@@ -1550,6 +1562,7 @@ class Player : public Unit, public GridObject<Player>
         void SendInitialPacketsAfterAddToMap();
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0);
         void SendRaidInstanceMessage(uint32 mapid, Difficulty difficulty, uint32 time);
+        void SendInstanceGroupSizeChanged(uint32 p_Size);
 
         bool CanInteractWithQuestGiver(Object* questGiver);
         Creature* GetNPCIfCanInteractWith(uint64 guid, uint32 npcflagmask);
@@ -1838,7 +1851,7 @@ class Player : public Unit, public GridObject<Player>
 
             return mainItem && ((mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip()) || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGED || mainItem->GetTemplate()->InventoryType == INVTYPE_THROWN || mainItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT);
         }
-        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false, std::vector<uint32> const& p_ItemBonus = {});
+        void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
@@ -2197,12 +2210,14 @@ class Player : public Unit, public GridObject<Player>
         void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
         void SetSpecializationId(uint8 spec, uint32 id, bool loading = false);
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
+        uint32 GetSpecializationId() const { return _talentMgr->SpecInfo[_talentMgr->ActiveSpec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId = 0);
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
 
-        bool ResetTalents(bool no_cost = false);
+        bool ResetTalents(bool p_NoCost = false);
+        void RemoveTalent(TalentEntry const* p_TalentInfos);
         uint32 GetNextResetTalentsCost() const;
         uint32 GetNextResetSpecializationCost() const;
         void InitTalentForLevel();
@@ -2251,7 +2266,7 @@ class Player : public Unit, public GridObject<Player>
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = NULL);
-        template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL, bool removestacks = true);
+        template <class T> T ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T &p_Basevalue, Spell* p_Spell = NULL, bool p_RemoveStacks = true);
         void RemoveSpellMods(Spell* spell);
         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
         void RestoreAllSpellMods(uint32 ownerAuraId = 0, AuraPtr aura = NULLAURA);
@@ -2398,6 +2413,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetBestRatingOfSeason(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_BestRatingOfSeason[slot]; }
         uint32 GetWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekWins[slot]; }
         uint32 GetPrevWeekWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekWins[slot]; }
+        uint32 GetPrevWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_PrevWeekGames[slot]; }
         uint32 GetSeasonWins(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonWins[slot]; }
         uint32 GetWeekGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_WeekGames[slot]; }
         uint32 GetSeasonGames(uint8 slot) const { ASSERT(slot < MAX_PVP_SLOT); return m_SeasonGames[slot]; }
@@ -3023,14 +3039,14 @@ class Player : public Unit, public GridObject<Player>
 
         // current pet slot
         PetSlot m_currentPetSlot;
-        uint32 m_petSlotUsed;
+        uint64 m_petSlotUsed;
 
         void setPetSlotUsed(PetSlot slot, bool used)
         {
             if (used)
-                m_petSlotUsed |= (1 << int32(slot));
+                m_petSlotUsed |= ((int64)1 << int64(slot));
             else
-                m_petSlotUsed &= ~(1 << int32(slot));
+                m_petSlotUsed &= ~((int64)1 << int64(slot));
         }
 
         PetSlot getSlotForNewPet()
@@ -3050,9 +3066,11 @@ class Player : public Unit, public GridObject<Player>
             else if (HasSpell(883))
                 l_LastKnow = 1;
 
-            for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < l_LastKnow; ++i)
-                if ((m_petSlotUsed & (1 << i)) == 0)
-                    return PetSlot(i);
+            for (uint32 l_I = uint32(PET_SLOT_HUNTER_FIRST); l_I < l_LastKnow; ++l_I)
+            {
+                if ((m_petSlotUsed & uint64(1LL << l_I)) == 0)
+                    return PetSlot(l_I);
+            }
 
             return PET_SLOT_FULL_LIST;
         }
@@ -3113,7 +3131,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_HomebindTimer;
         bool m_InstanceValid;
         // permanent binds and solo binds by difficulty
-        BoundInstancesMap m_boundInstances[MAX_DIFFICULTY];
+        BoundInstancesMap m_boundInstances[Difficulty::MaxDifficulties];
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty);
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
         InstanceSave* GetInstanceSave(uint32 mapid);
@@ -3950,6 +3968,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_ArenaMatchMakerRating[MAX_PVP_SLOT];
         uint32 m_WeekWins[MAX_PVP_SLOT];
         uint32 m_PrevWeekWins[MAX_PVP_SLOT];
+        uint32 m_PrevWeekGames[MAX_PVP_SLOT];
         uint32 m_SeasonWins[MAX_PVP_SLOT];
         uint32 m_WeekGames[MAX_PVP_SLOT];
         uint32 m_SeasonGames[MAX_PVP_SLOT];
@@ -3978,101 +3997,93 @@ void AddItemsSetItem(Player*player, Item* item);
 void RemoveItemsSetItem(Player*player, ItemTemplate const* proto);
 
 // "the bodies of template functions must be made available in a header file"
-template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell, bool removestacks)
+template <class T> T Player::ApplySpellMod(uint32 p_SpellId, SpellModOp p_Op, T& p_Basevalue, Spell* p_Spell, bool p_RemoveStacks)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
+    if (!l_SpellInfo)
         return 0;
 
-    float totalmul = 1.0f;
-    int32 totalflat = 0;
-    bool chaosBolt = false;
-    bool pyroblast = false;
-    int32 value = 0;
+    float l_TotalMul = 1.0f;
+    int32 l_TotalFlat = 0;
 
-    // Drop charges for triggering spells instead of triggered ones
+    bool l_ChaosBolt = false;
+    bool l_PyroBlast = false;
+
+    /// Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
-        spell = m_spellModTakingSpell;
+        p_Spell = m_spellModTakingSpell;
 
-    int32 playerWeaponMask = 0;
+    int32 l_PlayerWeaponMask = 0;
 
-    for (uint8 i = 0; i < WeaponAttackType::MaxAttack; ++i)
+    for (uint8 l_I = 0; l_I < WeaponAttackType::MaxAttack; ++l_I)
     {
-        Item* tmpitem = GetWeaponForAttack(WeaponAttackType(i), true);
-        if (!tmpitem || tmpitem->CantBeUse() || !tmpitem->GetTemplate())
+        Item* l_Tmpitem = GetWeaponForAttack(WeaponAttackType(l_I), true);
+        if (!l_Tmpitem || l_Tmpitem->CantBeUse() || !l_Tmpitem->GetTemplate())
             continue;
 
-        playerWeaponMask |= 1 << tmpitem->GetTemplate()->SubClass;
+        l_PlayerWeaponMask |= 1 << l_Tmpitem->GetTemplate()->SubClass;
     }
 
-    for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
+    for (SpellModList::iterator l_Iter = m_spellMods[p_Op].begin(); l_Iter != m_spellMods[p_Op].end(); ++l_Iter)
     {
-        SpellModifier* mod = *itr;
+        SpellModifier* l_SpellMod = *l_Iter;
 
-        // Charges can be set only for mods with auras
-        if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
+        /// Charges can be set only for mods with auras
+        if (!l_SpellMod->ownerAura)
+            ASSERT(l_SpellMod->charges == 0);
 
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
+        if (!IsAffectedBySpellmod(l_SpellInfo, l_SpellMod, p_Spell))
             continue;
 
-        int32 spellWeaponMask = 0;
-        if (mod->ownerAura)
+        if (l_SpellMod->ownerAura && l_SpellMod->ownerAura->GetSpellInfo())
         {
-            const auto temp = mod->ownerAura->GetSpellInfo();
-            if (temp)
-                spellWeaponMask = temp->EquippedItemSubClassMask;
+            int32 l_SpellWeaponMask = l_SpellMod->ownerAura->GetSpellInfo()->EquippedItemSubClassMask;
+
+            if (l_SpellWeaponMask > 0 && l_PlayerWeaponMask > 0)
+            {
+                if (!(l_PlayerWeaponMask & l_SpellWeaponMask))
+                    continue;
+            }
         }
 
-        if (spellWeaponMask > 0 && playerWeaponMask > 0)
-            if (!(playerWeaponMask & spellWeaponMask))
-                continue;
-
-        /// @TODO: Add hook to prevent apply of specific spellmod
-
-        if (mod->type == SPELLMOD_FLAT)
-            totalflat += mod->value;
-        else if (mod->type == SPELLMOD_PCT)
+        if (l_SpellMod->type == SpellModType::SPELLMOD_FLAT)
+            l_TotalFlat += l_SpellMod->value;
+        else if (l_SpellMod->type == SpellModType::SPELLMOD_PCT)
         {
-            // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (basevalue == T(0))
+            /// Skip percent mods for null basevalue (most important for spell mods with charges)
+            if (p_Basevalue == T(0))
                 continue;
 
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
+            /// Special case (skip > 10sec spell casts for instant cast setting)
+            if (l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && p_Basevalue >= T(10000) && l_SpellMod->value <= -100)
                 continue;
 
-            value = mod->value;
-
-            // Fix don't apply Backdraft twice for Chaos Bolt
-            if (mod->spellId == 117828 && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 116858)
+            /// Fix don't apply Backdraft twice for Chaos Bolt
+            if (l_SpellMod->spellId == 117828 && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 116858)
             {
-                if (chaosBolt)
+                if (l_ChaosBolt)
                     continue;
                 else
-                    chaosBolt = true;
+                    l_ChaosBolt = true;
             }
-            // Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
-            else if ((mod->spellId == 48108 || mod->spellId == 12043) && mod->op == SPELLMOD_CASTING_TIME && spellInfo->Id == 11366)
+            /// Fix don't apply Pyroblast! and Presence of Mind at the same time for Pyroblast
+            else if ((l_SpellMod->spellId == 48108 || l_SpellMod->spellId == 12043) && l_SpellMod->op == SpellModOp::SPELLMOD_CASTING_TIME && l_SpellInfo->Id == 11366)
             {
-                if (pyroblast)
+                if (l_PyroBlast)
                     continue;
                 else
-                    pyroblast = true;
+                    l_PyroBlast = true;
             }
 
-            if (value > 0)
-                totalmul = CalculatePct(totalmul, 100 + value);
-            else
-                totalmul = CalculatePct(totalmul, 100 + value);
+            l_TotalMul += CalculatePct(1.0f, l_SpellMod->value);
         }
 
-        if (removestacks && !m_isMoltenCored && spell)
-            DropModCharge(mod, spell);
+        if (p_RemoveStacks && p_Spell && !m_isMoltenCored)
+            DropModCharge(l_SpellMod, p_Spell);
     }
 
-    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
-    basevalue = T((float)basevalue + diff);
-    return T(diff);
+    float l_Diff = (float)p_Basevalue * (l_TotalMul - 1.0f) + (float)l_TotalFlat;
+    p_Basevalue = T((float)p_Basevalue + l_Diff);
+    return T(l_Diff);
 }
 #endif

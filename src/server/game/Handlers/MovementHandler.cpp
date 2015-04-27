@@ -453,14 +453,27 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        //AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
-        float depth = -500.0f; //zone ? zone->MaxDepth : -500.0f;
+        float l_MaxDepth = -500.0f;
 
-        // Eye of the Cyclone
+        /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
-            depth = 1000.f;
+            l_MaxDepth = 1000.f;
 
-        if (l_MovementInfo.pos.GetPositionZ() < depth)
+        /// Vash'jir zones
+        switch (l_PlayerMover->GetZoneId())
+        {
+            case 4815:
+            case 4816:
+            case 5144:
+            case 5145:
+            case 5146:
+                l_MaxDepth = -2000.0f;
+                break;
+            default:
+                break;
+        }
+
+        if (l_MovementInfo.pos.GetPositionZ() < l_MaxDepth)
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {

@@ -2768,6 +2768,41 @@ class spell_hun_chimaera_shot: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Chimaera Shot (damage), Frost - 171454, Nature - 171457
+class spell_hun_chimaera_shot_damage : public SpellScriptLoader
+{
+    public:
+        spell_hun_chimaera_shot_damage() : SpellScriptLoader("spell_hun_chimaera_shot_damage") { }
+
+        class spell_hun_chimaera_shot_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_chimaera_shot_damage_SpellScript);
+
+            void HandleDamage(SpellEffIndex)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                /// HotFixe February 27, 2015 : Chimaera Shot now deals 20% less damage in PvP combat.
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    SetHitDamage(GetHitDamage() - CalculatePct(GetHitDamage(), 20));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_chimaera_shot_damage_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_chimaera_shot_damage_SpellScript();
+        }
+};
+
 class spell_hun_last_stand_pet: public SpellScriptLoader
 {
     public:
@@ -3225,7 +3260,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             }
 
 
-            void HandleOnHit()
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Pet* l_Pet = GetCaster()->ToPet())
                 {
@@ -3300,7 +3335,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
             {
                 OnCheckCast += SpellCheckCastFn(spell_hun_claw_bite_SpellScript::CheckCastRange);
                 BeforeHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleBeforeHit);
-                OnHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_claw_bite_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 AfterHit += SpellHitFn(spell_hun_claw_bite_SpellScript::HandleAfterHit);
             }
         };
@@ -3311,6 +3346,7 @@ class spell_hun_claw_bite : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Spirit Mend - 90361
 class spell_hun_spirit_mend : public SpellScriptLoader
 {
@@ -3326,7 +3362,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (l_AuraEffect->GetAmplitude() && GetMaxDuration())
-                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.5f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
+                        l_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 2.0f) / (GetMaxDuration() / l_AuraEffect->GetAmplitude());
                 }
             }
 
@@ -3349,7 +3385,7 @@ class spell_hun_spirit_mend : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 0.75f));
+                    SetHitHeal(int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.35f * 3.0f));
                 }
             }
 
@@ -3643,6 +3679,59 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
+/// last update : 6.1.2 19802
+/// Explosive Shot - 53301
+class spell_hun_explosive_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_explosive_shot() : SpellScriptLoader("spell_hun_explosive_shot") { }
+
+        class spell_hun_explosive_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_explosive_shot_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                SetHitDamage((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_explosive_shot_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        class spell_hun_explosive_shot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_explosive_shot_AuraScript);
+
+            void CalculateAmount(constAuraEffectPtr p_AuraEffect, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster != nullptr && p_AuraEffect->GetAmplitude() > 0)
+                    p_Amount = ((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f) / (p_AuraEffect->GetBase()->GetDuration() / p_AuraEffect->GetAmplitude()));
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_explosive_shot_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_explosive_shot_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_explosive_shot_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
@@ -3696,6 +3785,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_cobra_shot();
     new spell_hun_steady_shot();
     new spell_hun_chimaera_shot();
+    new spell_hun_chimaera_shot_damage();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_scatter_shot();
@@ -3706,6 +3796,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_explosive_trap();
     new spell_hun_burrow_attack();
+    new spell_hun_explosive_shot();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

@@ -440,3 +440,4 @@ template Corpse* ObjectAccessor::GetObjectInWorld<Corpse>(uint32 mapid, float x,
 template GameObject* ObjectAccessor::GetObjectInWorld<GameObject>(uint32 mapid, float x, float y, uint64 guid, GameObject* /*fake*/);
 template DynamicObject* ObjectAccessor::GetObjectInWorld<DynamicObject>(uint32 mapid, float x, float y, uint64 guid, DynamicObject* /*fake*/);
 template Transport* ObjectAccessor::GetObjectInWorld<Transport>(uint32 mapid, float x, float y, uint64 guid, Transport* /*fake*/);
+template AreaTrigger* ObjectAccessor::GetObjectInWorld<AreaTrigger>(uint32 p_MapID, float p_X, float p_Y, uint64 p_Guid, AreaTrigger* /*p_Fake*/);

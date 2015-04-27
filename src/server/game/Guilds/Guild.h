@@ -759,7 +759,8 @@ class Guild
         void SendMoneyInfo(WorldSession* session) const;
         void SendLoginInfo(WorldSession* session);
         void SendGuildRecipes(WorldSession* session) const;
-        void SendMemberLeave(WorldSession * p_Session, uint64 p_PlayerGuid, bool p_Kicked);
+        void SendMemberLeave(WorldSession* p_Session, uint64 p_PlayerGuid, bool p_Kicked);
+        void CompleteGuildChallenge(int32 p_Type);
 
         // Load from DB
         bool LoadFromDB(Field* fields);
@@ -770,6 +771,7 @@ class Guild
         bool LoadBankTabFromDB(Field* fields);
         bool LoadBankEventLogFromDB(Field* fields);
         bool LoadBankItemFromDB(Field* fields);
+        bool LoadGuildChallengesFromDB(Field* p_Fields);
         bool Validate();
 
         void DepositMoney(uint64 amount);
@@ -826,6 +828,8 @@ class Guild
             return 0;
         }
 
+        int32 GetChallengeCount(int32 p_Type) const { return m_ChallengeCount[p_Type]; }
+
     protected:
         uint32 m_id;
         std::string m_name;
@@ -833,6 +837,7 @@ class Guild
         std::string m_motd;
         std::string m_info;
         time_t m_createdDate;
+        int32 m_ChallengeCount[CHALLENGE_MAX];
 
         EmblemInfo m_emblemInfo;
         uint32 m_accountsNumber;

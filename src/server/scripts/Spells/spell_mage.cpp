@@ -510,6 +510,7 @@ class spell_mage_greater_invisibility_removed: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Greater Invisibility (triggered) - 110960
 class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
 {
@@ -527,19 +528,23 @@ class spell_mage_greater_invisibility_triggered: public SpellScriptLoader
                     l_Target->CastSpell(l_Target, SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE, true);
                     l_Target->CombatStop();
 
-                    Unit::AuraEffectList const& l_AuraList = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
-                    if (l_AuraList.size() <= 2)
-                        l_Target->RemoveAurasByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
-                    else
-                    {
-                        std::list<uint32> l_ListID;
-                        for (Unit::AuraEffectList::const_iterator l_Iter = l_AuraList.begin(); l_Iter != l_AuraList.end(); ++l_Iter)
-                            l_ListID.push_back((*l_Iter)->GetId());
+                    Unit::AuraEffectList const& l_AuraListDamage = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DAMAGE);
+                    Unit::AuraEffectList const& l_AuraListDummy = l_Target->GetAuraEffectsByType(AuraType::SPELL_AURA_PERIODIC_DUMMY);
+                    std::list<uint32> l_ListID;
 
-                        JadeCore::Containers::RandomResizeList(l_ListID, 2);
-                        for (uint32 l_ID : l_ListID)
-                            l_Target->RemoveAura(l_ID);
+                    for (AuraEffectPtr l_AuraDummy : l_AuraListDummy)
+                    {
+                        if (!l_AuraDummy->GetSpellInfo()->IsPositive())
+                            l_ListID.push_back(l_AuraDummy->GetId());
                     }
+                    for (AuraEffectPtr l_AuraDamage : l_AuraListDamage)
+                    {
+                        l_ListID.push_back(l_AuraDamage->GetId());
+                    }
+
+                    JadeCore::Containers::RandomResizeList(l_ListID, 2);
+                    for (uint32 l_ID : l_ListID)
+                        l_Target->RemoveAura(l_ID);
                 }
             }
 
@@ -1949,7 +1954,8 @@ class spell_mage_kindling : public SpellScriptLoader
         }
 };
 
-// Ring of Frost - 136511
+/// last update : 6.1.2 19802
+/// Ring of Frost - 136511
 class spell_mage_ring_of_frost : public SpellScriptLoader
 {
     public:
@@ -1988,18 +1994,18 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         std::list<Player*> l_TempListPlayer;
 
                         // Apply aura on hostile creatures in the grid
-                        (*itr)->GetCreatureListInGrid(l_TempListCreature, 6.50);
+                        (*itr)->GetCreatureListInGrid(l_TempListCreature, 5.0f);
                         for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                         {
-                            if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
+                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
 
                         // Apply aura on hostile players in the grid
-                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, 6.50);
+                        (*itr)->GetPlayerListInGrid(l_TempListPlayer, 5.0f);
                         for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                         {
-                            if (!(*i)->IsFriendlyTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE))
+                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
                     }

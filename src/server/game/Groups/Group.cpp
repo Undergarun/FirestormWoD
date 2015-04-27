@@ -40,7 +40,7 @@
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
     totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
-    rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT)
+    rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT), m_ItemBonuses(li.itemBonuses)
 {
 }
 
@@ -59,7 +59,7 @@ Loot* Roll::getLoot()
 }
 
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_PartyFlags(PARTY_FLAG_NORMAL),
-m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_LegacyRaidDifficuty(DIFFICULTY_10_N),
+m_dungeonDifficulty(DifficultyNormal), m_raidDifficulty(DifficultyRaidNormal), m_LegacyRaidDifficuty(Difficulty10N),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0),
     m_subGroupsCounts(NULL), m_guid(0), m_UpdateCount(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0),
     m_readyCheck(false), m_membersInInstance(0)
@@ -92,7 +92,7 @@ Group::~Group()
     // it is undefined whether objectmgr (which stores the groups) or instancesavemgr
     // will be unloaded first so we must be prepared for both cases
     // this may unload some instance saves
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         for (BoundInstancesMap::iterator itr2 = m_boundInstances[i].begin(); itr2 != m_boundInstances[i].end(); ++itr2)
             itr2->second.save->RemoveGroup(this);
 
@@ -118,14 +118,14 @@ bool Group::Create(Player* leader)
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
     m_looterGuid = leaderGuid;
 
-    m_dungeonDifficulty = DIFFICULTY_NORMAL;
-    m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
-    m_LegacyRaidDifficuty = DIFFICULTY_10_N;
+    m_dungeonDifficulty = DifficultyNormal;
+    m_raidDifficulty = DifficultyRaidNormal;
+    m_LegacyRaidDifficuty = Difficulty10N;
 
     if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficultyID();
-        m_raidDifficulty = isLFGGroup() ? DIFFICULTY_LFR : leader->GetLegacyRaidDifficultyID();
+        m_raidDifficulty = isLFGGroup() ? (leader->getLevel() == MAX_LEVEL ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
 
         m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
@@ -771,7 +771,7 @@ void Group::ChangeLeader(uint64 newLeaderGuid)
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         // Remove the groups permanent instance bindings
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
         {
             for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
             {
@@ -945,7 +945,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 
-void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p_Roll)
+void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -959,12 +959,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
     l_Data << uint8(p_Roll.rollVoteMask);                   ///< roll type mask
@@ -981,7 +976,7 @@ void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, const Roll & p
     }
 }
 
-void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player * p_Player, bool p_CanNeed, Roll const& p_Roll)
+void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player* p_Player, bool p_CanNeed, Roll const& p_Roll)
 {
     if (!p_Player || !p_Player->GetSession())
         return;
@@ -998,12 +993,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_CountDown);                          ///< the countdown time to choose "need" or "greed"
     l_Data << uint8(p_Roll.totalPlayersRolling);            ///< maybe the number of players rolling for it???
@@ -1012,7 +1002,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     p_Player->GetSession()->SendPacket(&l_Data);
 }
 
-void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, const Roll & p_Roll)
+void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1026,12 +1016,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data << uint32(p_RollNumber);                         ///< 0: "Need for: [item name]" > 127: "you passed on: [item name]"      Roll number
     l_Data << uint8(rollType);                              ///< 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
@@ -1049,7 +1034,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     }
 }
 
-void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, const Roll & p_Roll)
+void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
 
@@ -1063,12 +1048,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     l_Data.appendPackGUID(p_TargetGUID);
 
@@ -1086,7 +1066,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     }
 }
 
-void Group::SendLootAllPassed(Roll const & p_Roll)
+void Group::SendLootAllPassed(Roll const& p_Roll)
 {
     WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
@@ -1099,12 +1079,7 @@ void Group::SendLootAllPassed(Roll const & p_Roll)
     l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
     l_Data << uint8(p_Roll.itemSlot);
 
-    l_Data << uint32(p_Roll.itemid);                        ///< the itemEntryId for the item that shall be rolled for
-    l_Data << uint32(p_Roll.itemRandomSuffix);
-    l_Data << uint32(p_Roll.itemRandomPropId);
-    l_Data.WriteBit(false);
-    l_Data.WriteBit(false);
-    l_Data.FlushBits();
+    Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
 
     for (Roll::PlayerVote::const_iterator l_It = p_Roll.playerVote.begin(); l_It != p_Roll.playerVote.end(); ++l_It)
     {
@@ -2368,7 +2343,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->instanceType == MAP_RAID || diff == DIFFICULTY_HEROIC_RAID)
+            if (entry->instanceType == MAP_RAID || diff == DifficultyRaidHeroic)
             {
                 ++itr;
                 continue;
@@ -2497,7 +2472,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
 
 void Group::UnbindInstance(uint32 p_MapID, uint8 p_DifficultyID, bool p_Unload)
 {
-    if (p_DifficultyID >= MAX_DIFFICULTY)
+    if (p_DifficultyID >= Difficulty::MaxDifficulties)
         return;
 
     if (m_boundInstances[p_DifficultyID].empty())
@@ -2653,18 +2628,19 @@ bool Group::IsGuildGroup(uint32 p_GuildID, bool p_SameMap, bool p_SameInstanceID
             {
                 switch (l_Player->GetMap()->GetDifficultyID())
                 {
-                    case DIFFICULTY_10_N:
-                    case DIFFICULTY_10_HC:
+                    case Difficulty::Difficulty10N:
+                    case Difficulty::Difficulty10HC:
                         if (l_Counter >= 8)
                             l_IsOkay = true;
                         break;
-                    case DIFFICULTY_25_N:
-                    case DIFFICULTY_25_HC:
-                    case DIFFICULTY_LFR:
+                    case Difficulty::Difficulty25N:
+                    case Difficulty::Difficulty25HC:
+                    case Difficulty::DifficultyRaidTool:
+                    case Difficulty::DifficultyRaidLFR:
                         if (l_Counter >= 20)
                             l_IsOkay = true;
                         break;
-                    case DIFFICULTY_40:
+                    case Difficulty::Difficulty40:
                         if (l_Counter >= 30)
                             l_IsOkay = true;
                         break;
@@ -3112,10 +3088,10 @@ void Group::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, uint8
             {
                 // update personal rating
                 int32 mod = Arena::GetRatingMod(p->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-                p->SetArenaPersonalRating(slot, p->GetArenaPersonalRating(slot) + mod);
+                p->SetArenaPersonalRating(slot, std::max(0, (int)p->GetArenaPersonalRating(slot) + mod));
 
                 // update matchmaker rating
-                p->SetArenaMatchMakerRating(slot, p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
+                p->SetArenaMatchMakerRating(slot, std::max(0, (int)p->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
 
                 // update personal played stats
                 p->IncrementWeekGames(slot);
@@ -3135,10 +3111,10 @@ void Group::MemberLost(Player* player, uint32 againstMatchmakerRating, uint8 slo
         {
             // Update personal rating
             int32 mod = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), againstMatchmakerRating, false);
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + mod);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + mod));
 
             // Update matchmaker rating
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange);
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + MatchmakerRatingChange));
 
             // Update personal played stats
             player->IncrementWeekGames(slot);
@@ -3181,9 +3157,6 @@ void Group::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rat
             // Change in Team Rating
             rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, true);
 
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
-
             if (player->GetArenaPersonalRating(slot) < 1000)
                 rating_change = 96;
 
@@ -3213,16 +3186,17 @@ bool Group::CanEnterInInstance()
     {
         switch (GetLegacyRaidDifficultyID())
         {
-            case DIFFICULTY_10_N:
-            case DIFFICULTY_10_HC:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 maxplayers = 10;
                 break;
-            case DIFFICULTY_25_N:
-            case DIFFICULTY_25_HC:
-            case DIFFICULTY_LFR:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
+            case Difficulty::DifficultyRaidTool:
+            case Difficulty::DifficultyRaidLFR:
                 maxplayers = 25;
                 break;
-            case DIFFICULTY_40:
+            case Difficulty::Difficulty40:
                 maxplayers = 40;
                 break;
         }
@@ -3247,16 +3221,13 @@ void Group::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& ra
             // Change in Team Rating
             rating_change = Arena::GetRatingMod(player->GetArenaPersonalRating(slot), Opponent_MMRating, false);
 
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
-
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
                     if (itr2->first == itr->guid)
                         itr2->second->RatingChange = rating_change;
 
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
-            player->SetArenaMatchMakerRating(slot, player->GetArenaMatchMakerRating(slot) + mod);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
+            player->SetArenaMatchMakerRating(slot, std::max(0, (int)player->GetArenaMatchMakerRating(slot) + mod));
 
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
@@ -3270,15 +3241,12 @@ void Group::FinishGame(int32 rating_change, uint8 slot)
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
         {
-            if (player->GetArenaPersonalRating(slot) < 1000 && rating_change < 0)
-                rating_change = 0;
-
             if (player->GetBattleground())
                 for (Battleground::BattlegroundScoreMap::const_iterator itr2 = player->GetBattleground()->GetPlayerScoresBegin(); itr2 != player->GetBattleground()->GetPlayerScoresEnd(); ++itr2)
                     if (itr2->first == itr->guid)
                         itr2->second->RatingChange = rating_change;
 
-            player->SetArenaPersonalRating(slot, player->GetArenaPersonalRating(slot) + rating_change);
+            player->SetArenaPersonalRating(slot, std::max(0, (int)player->GetArenaPersonalRating(slot) + rating_change));
             player->IncrementWeekGames(slot);
             player->IncrementSeasonGames(slot);
         }

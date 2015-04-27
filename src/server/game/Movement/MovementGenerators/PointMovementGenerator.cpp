@@ -103,7 +103,23 @@ enum specialSpells
 
     // Horridon - ToT
     SPELL_HORRIDON_CHARGE               = 136769,
-    SPELL_DOUBLE_SWIPE                  = 136741
+    SPELL_DOUBLE_SWIPE                  = 136741,
+
+    /// Kargath Bladefist - Highmaul
+    ChainHurlJumpDest                   = 160061,
+    ChainHurlKnockBack                  = 160062,
+    ChainHurlJumpDestPlayer             = 159995,
+    ChainHurlAoEStunPlayer              = 160904,
+    ChainHurl                           = 159947,
+    AnimChainHurl                       = 5917,
+
+    /// The Butcher - Highmaul
+    BoundingCleaveJump                  = 156171,
+    BoundingCleaveDamage                = 156172,
+
+    /// Krush - Highmaul
+    BoarsRuchJump                       = 166225,
+    Winded                              = 166227
 };
 
 template<class T>
@@ -177,9 +193,6 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
         if (creature->AI())
             creature->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
     }
-    else if (unit.GetTypeId() == TYPEID_PLAYER)
-    {
-    }
 
     switch (m_Id)
     {
@@ -191,6 +204,22 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
                 break;
             unit.CastSpell(&unit, SPELL_THUNDERING_THROW_AOE, true);
             unit.CastSpell(&unit, SPELL_THUNDERING_THROW_STUN_PLAYER, true);
+            break;
+        case specialSpells::ChainHurlJumpDest:
+            unit.CastSpell(&unit, specialSpells::ChainHurlKnockBack, true);
+            unit.CastSpell(&unit, specialSpells::ChainHurl, false);
+            unit.PlayOneShotAnimKit(specialSpells::AnimChainHurl);
+            unit.SetControlled(true, UnitState::UNIT_STATE_ROOT);
+            break;
+        case specialSpells::ChainHurlJumpDestPlayer:
+            unit.CastSpell(&unit, specialSpells::ChainHurlAoEStunPlayer, true);
+            break;
+        case specialSpells::BoundingCleaveJump:
+            unit.CastSpell(&unit, specialSpells::BoundingCleaveDamage, true);
+            break;
+        case specialSpells::BoarsRuchJump:
+            unit.CastSpell(&unit, specialSpells::Winded, true);
+            unit.ClearUnitState(UnitState::UNIT_STATE_ROOT);
             break;
         default:
             break;

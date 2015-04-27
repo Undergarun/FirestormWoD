@@ -2802,6 +2802,8 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     if (i_data)
         i_data->OnPlayerEnter(player);
 
+    SendInstanceGroupSizeChanged();
+
     return true;
 }
 
@@ -2813,15 +2815,21 @@ void InstanceMap::Update(const uint32 t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
+void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
 {
-    sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
-    //if last player set unload timer
+    /// If last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
-    Map::RemovePlayerFromMap(player, remove);
-    // for normal instances schedule the reset after all players have left
+
+    Map::RemovePlayerFromMap(p_Player, p_Remove);
+
+    /// For normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+
+    if (i_data && !p_Remove)
+        i_data->OnPlayerExit(p_Player);
+
+    SendInstanceGroupSizeChanged();
 }
 
 void InstanceMap::CreateInstanceData(bool load)
@@ -2957,6 +2965,12 @@ void InstanceMap::SendResetWarnings(uint32 timeLeft) const
         itr->getSource()->SendRaidInstanceMessage(GetId(), itr->getSource()->GetDifficultyID(GetEntry()), timeLeft);
 }
 
+void InstanceMap::SendInstanceGroupSizeChanged() const
+{
+    for (MapRefManager::const_iterator l_Iter = m_mapRefManager.begin(); l_Iter != m_mapRefManager.end(); ++l_Iter)
+        l_Iter->getSource()->SendInstanceGroupSizeChanged(m_mapRefManager.getSize());
+}
+
 void InstanceMap::SetResetSchedule(bool on)
 {
     bool l_IsGarrisonMap = false;
@@ -3000,11 +3014,11 @@ uint32 InstanceMap::GetMaxPlayers() const
 {
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
-        if (mapDiff->MaxPlayers || GetDifficultyID() == DIFFICULTY_NORMAL)    // Normal case (expect that regular difficulty always have correct maxplayers)
+        if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
             return mapDiff->MaxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DIFFICULTY_NORMAL);
+            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DifficultyNormal);
             return normalDiff ? normalDiff->MaxPlayers : 0;
         }
     }
@@ -3012,23 +3026,23 @@ uint32 InstanceMap::GetMaxPlayers() const
     {
         switch (GetDifficultyID())
         {
-            case Difficulty::DIFFICULTY_N_SCENARIO:
-            case Difficulty::DIFFICULTY_HC_SCENARIO:
+            case Difficulty::DifficultyNScenario:
+            case Difficulty::DifficultyHCScenario:
                 return 3;
-            case Difficulty::DIFFICULTY_NORMAL:
-            case Difficulty::DIFFICULTY_HEROIC:
-            case Difficulty::DIFFICULTY_CHALLENGE:
+            case Difficulty::DifficultyNormal:
+            case Difficulty::DifficultyHeroic:
+            case Difficulty::DifficultyChallenge:
                 return 5;
-            case Difficulty::DIFFICULTY_10_N:
-            case Difficulty::DIFFICULTY_10_HC:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 return 10;
-            case Difficulty::DIFFICULTY_25_N:
-            case Difficulty::DIFFICULTY_25_HC:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
                 return 25;
-            case Difficulty::DIFFICULTY_NORMAL_RAID:
-            case Difficulty::DIFFICULTY_MYTHIC_RAID:
+            case Difficulty::DifficultyRaidNormal:
+            case Difficulty::DifficultyRaidHeroic:
                 return 30;
-            case Difficulty::DIFFICULTY_HEROIC_RAID:
+            case Difficulty::DifficultyRaidMythic:
                 return 20;
             default:
                 break;
@@ -3138,6 +3152,11 @@ Transport* Map::GetTransport(uint64 guid)
 
     GameObject* go = GetGameObject(guid);
     return go ? go->ToTransport() : NULL;
+}
+
+AreaTrigger* Map::GetAreaTrigger(uint64 p_Guid)
+{
+    return ObjectAccessor::GetObjectInMap(p_Guid, this, (AreaTrigger*)nullptr);
 }
 
 void Map::UpdateIteratorBack(Player* player)

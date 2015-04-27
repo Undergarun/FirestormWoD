@@ -525,7 +525,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
     &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
-    &AuraEffect::HandleNULL,                                      //469 SPELL_AURA_469
+    &AuraEffect::HandleNoImmediateEffect,                         //469 SPELL_AURA_TRIGGER_BONUS_LOOT_2
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
     &AuraEffect::HandleAuraVersatility,                           //471 SPELL_AURA_MOD_VERSATILITY_PCT
     &AuraEffect::HandleNULL,                                      //472 SPELL_AURA_472
@@ -878,27 +878,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     int32 l_Combo = caster->GetPower(Powers::POWER_COMBO_POINT);
                     float l_AttackPower = caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
 
-                    switch (l_Combo)
-                    {
-                        case 1:
-                            amount += int32(l_AttackPower * 0.1f / 4);
-                            break;
-                        case 2:
-                            amount += int32(l_AttackPower * 0.24f / 6);
-                            break;
-                        case 3:
-                            amount += int32(l_AttackPower * 0.40f / 8);
-                            break;
-                        case 4:
-                            amount += int32(l_AttackPower * 0.56f / 10);
-                            break;
-                        case 5:
-                            amount += int32(l_AttackPower * 0.744f / 12);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
+                    /// 1 tick = Combo Points * (0.0685 * Attack power) * 0.5
+                    amount += l_Combo * int32(l_AttackPower * 0.5f) * (m_periodicTimer / IN_MILLISECONDS);
                 }
                 case 50536: // Unholy Blight
                 {
@@ -7531,35 +7512,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             }
         }
 
-        // Execution Sentence damage-per-tick calculation
-        if (GetSpellInfo()->Id == 114916)
-        {
-            int32 spellPowerBonus = int32(5.936 * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
-            damage = 12989 + spellPowerBonus;
-            uint32 totalTick = GetTotalTicks();
-            if (m_tickNumber == 1)
-                damage = int32(damage * 0.04f); // First:   4.0%
-            else if (m_tickNumber == 2)
-                damage = int32(damage * 0.044f); // Second:  4.4%
-            else if (m_tickNumber == 3)
-                damage = int32(damage * 0.05f); // Third:   5.0%
-            else if (m_tickNumber == 4)
-                damage = int32(damage * 0.055f); // Fourth:  5.5%
-            else if (m_tickNumber == 5)
-                damage = int32(damage * 0.06f); // Fifth:   6.0%
-            else if (m_tickNumber == 6)
-                damage = int32(damage * 0.066f); // Sixth:   6.6%
-            else if (m_tickNumber == 7)
-                damage = int32(damage * 0.073f); // Seventh: 7.3%
-            else if (m_tickNumber == 8)
-                damage = int32(damage * 0.08f); // Eight:   8.0%
-            else if (m_tickNumber == 9)
-                damage = int32(damage * 0.088f); // Ninth:   8.8%
-            else
-                damage = int32(damage * 0.444f); // Final:   44.4%
-        }
-        // Flame Shock
-        else if (GetSpellInfo()->Id == 8050)
+        if (GetSpellInfo()->Id == 8050)
         {
             // Glyph of Flame Shock
             if (caster->HasAura(55447))
@@ -7832,34 +7785,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             damage = uint32(float(damage) * GetDonePct()); // Single target HOTs have their % done bonus applied in Aura::HandleAuraSpecificPeriodics
 
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
-    }
-
-    // Stay of Execution heal-per-tick calculation
-    if (GetSpellInfo()->Id == 114917 && caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        int32 spellPowerBonus = int32(5.936 * caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY));
-        damage = 12989 + spellPowerBonus;
-        uint32 totalTick = GetTotalTicks();
-        if (m_tickNumber == 1)
-            damage = int32(damage * 0.04f); // First:   4.0%
-        else if (m_tickNumber == 2)
-            damage = int32(damage * 0.044f); // Second:  4.4%
-        else if (m_tickNumber == 3)
-            damage = int32(damage * 0.05f); // Third:   5.0%
-        else if (m_tickNumber == 4)
-            damage = int32(damage * 0.055f); // Fourth:  5.5%
-        else if (m_tickNumber == 5)
-            damage = int32(damage * 0.06f); // Fifth:   6.0%
-        else if (m_tickNumber == 6)
-            damage = int32(damage * 0.066f); // Sixth:   6.6%
-        else if (m_tickNumber == 7)
-            damage = int32(damage * 0.073f); // Seventh: 7.3%
-        else if (m_tickNumber == 8)
-            damage = int32(damage * 0.08f); // Eight:   8.0%
-        else if (m_tickNumber == 9)
-            damage = int32(damage * 0.088f); // Ninth:   8.8%
-        else
-            damage = int32(damage * 0.444f); // Final:   44.4%
     }
 
     bool crit = false;

@@ -88,37 +88,52 @@ void WorldSession::HandleLearnTalents(WorldPacket& p_RecvPacket)
     m_Player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CONFIRM_RESPEC_WIPE");
+    uint64 l_Guid = 0;
+    p_RecvData.readPackGUID(l_Guid);
 
-    uint8 specializationReset = recvData.read<uint8>();
+    /// 0 - Talents, 1 - Specialization
+    uint8 l_RespecType = p_RecvData.read<uint8>();
 
-    recvData.rfinish();
+    Creature* l_Trainer = m_Player->GetNPCIfCanInteractWith(l_Guid, NPCFlags::UNIT_NPC_FLAG_TRAINER);
+    if (l_Trainer == nullptr)
+        return;
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (!l_Trainer->isCanTrainingAndResetTalentsOf(m_Player))
+        return;
 
-    if (!specializationReset)
+    /// Remove fake death
+    if (m_Player->HasUnitState(UnitState::UNIT_STATE_DIED))
+        m_Player->RemoveAurasByType(AuraType::SPELL_AURA_FEIGN_DEATH);
+
+    /// Talents
+    if (!l_RespecType)
     {
         if (!m_Player->ResetTalents())
         {
-            WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
-            data << uint8(0); // 0 guid bit
-            data << uint32(0);
-            data << uint8(0);
-            SendPacket(&data);
+            /// You don't have any talents
+            m_Player->SendTalentWipeConfirm(0, false);
             return;
         }
     }
+    /// Specialization
     else
-        m_Player->ResetSpec();
+    {
+        if (m_Player->GetSpecializationId(m_Player->GetActiveSpec()) != SpecIndex::SPEC_NONE)
+            m_Player->ResetSpec();
+        else
+        {
+            /// You don't have any class specialization
+            m_Player->SendTalentWipeConfirm(0, true);
+            return;
+        }
+    }
 
     m_Player->SendTalentsInfoData(false);
 
-    if (Unit* unit = m_Player->GetSelectedUnit())
-        unit->CastSpell(m_Player, 14867, true);                  //spell: "Untalent Visual Effect"
+    /// Spell: "Untalent Visual Effect"
+    l_Trainer->CastSpell(m_Player, 14867, true);
 }
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)

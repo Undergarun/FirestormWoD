@@ -2039,6 +2039,11 @@ namespace Eclipse
         Sunfire            = 163119,    ///< Trigger to override moonfire with sunfire in solar cycle
         CelestialAlignment = 112071
     };
+
+    enum Scene
+    {
+        DruidBalanceCycle = 999
+    };
 }
 
 /// Eclipse power handling
@@ -2060,6 +2065,8 @@ class spell_dru_eclipse : public PlayerScript
             uint64 m_BalanceTime;           ///< Time in millisecondes since the current eclipse cycle is started
             uint32 m_ClientUpdateTimer;     ///< Timer in millisecondes before sending update of eclipse timer to client
 
+            uint32 m_SceneInstanceID;       ///< Scene ID for Balance Cycle
+
             EclipseData()
             {
                 m_EclipseCycleActive = false;
@@ -2070,6 +2077,8 @@ class spell_dru_eclipse : public PlayerScript
                 m_BalanceTime = 0;
                 m_LastEclipseAmount = 0.0f;
                 m_ClientUpdateTimer = 2000;
+
+                m_SceneInstanceID = 0;
             }
         };
 
@@ -2102,6 +2111,9 @@ class spell_dru_eclipse : public PlayerScript
 
             if (l_EclipseData.m_EclipseCycleActive)
                 return;
+
+            Position const* l_Pos = p_Player;
+            l_EclipseData.m_SceneInstanceID = p_Player->PlayStandaloneScene(Eclipse::Scene::DruidBalanceCycle, 16, *l_Pos);
 
             l_EclipseData.m_BalanceTime = 0;
             l_EclipseData.m_LastEclipseAmount = 0;
@@ -2173,6 +2185,9 @@ class spell_dru_eclipse : public PlayerScript
                         l_EclipseData.m_EclipseCycleActive = false;
 
                         l_EclipseData.m_BalanceTime = 0;
+
+                        p_Player->CancelStandaloneScene(l_EclipseData.m_SceneInstanceID);
+                        l_EclipseData.m_SceneInstanceID = 0;
                     }
                 }
             }
@@ -3464,6 +3479,7 @@ class spell_dru_frenzied_regeneration: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Rip - 1079
 class spell_dru_rip: public SpellScriptLoader
 {
@@ -3482,7 +3498,7 @@ class spell_dru_rip: public SpellScriptLoader
                     int32 l_TicksCount = GetMaxDuration() / GetEffect(EFFECT_0)->GetAmplitude();
                     float l_AP = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
                     int32 l_Combo = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 8) / l_TicksCount);
+                    p_Amount = (int32)((l_AP * GetSpellInfo()->Effects[EFFECT_0].AttackPowerMultiplier * l_Combo * 12) / l_TicksCount);
                 }
             }
 

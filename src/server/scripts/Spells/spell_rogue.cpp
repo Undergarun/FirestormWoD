@@ -85,7 +85,6 @@ enum RogueSpells
     ROGUE_SPELL_RELTENTLESS_STRIKES_PROC        = 14181,
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
-    ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE = 37169,
     ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
     ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
 };
@@ -1427,36 +1426,46 @@ class spell_rog_envenom: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_envenom_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
+                SliceAndDice = 5171,
+                Tier5Bonus2P = 37169
+            };
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* l_Caster = GetCaster();
+
+                int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                int32 l_Damage = 0;
+
+                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                if (l_ComboPoint)
                 {
-                    int32 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    int32 l_Damage = 0;
+                    l_Damage += int32(1.05 * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
 
-                    if (l_ComboPoint)
-                    {
-                        float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                    /// Tier 5 Bonus 2 pieces
+                    if (AuraEffectPtr l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
+                        l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
 
-                        l_Damage += int32(1.05 * l_Ap * 0.306 * l_ComboPoint + (l_ComboPoint * GetSpellInfo()->Effects[EFFECT_0].BasePoints));
-
-                        /// Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (l_Caster->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
-                        {
-                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
-                            l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
-                        }
-
-                        if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_SLICE_AND_DICE))
-                            l_SliceAndDice->RefreshDuration();
-                    }
-                    SetHitDamage(l_Damage);
+                    if (AuraPtr l_SliceAndDice = l_Caster->GetAura(eSpells::SliceAndDice))
+                        l_SliceAndDice->RefreshDuration();
                 }
+
+                /// Because we do all the calculation, need also need to reapply spellmods if any
+                if (Player* l_ModOwner = l_Caster->GetSpellModOwner())
+                    l_ModOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, l_Damage);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_rog_envenom_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_envenom_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -2352,31 +2361,37 @@ class spell_rog_evicerate : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_evicerate_SpellScript);
 
-            void HandleDamage(SpellEffIndex)
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
+                Tier5Bonus2P = 37169
+            };
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* l_Caster = GetCaster();
+
+                uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+                int32 l_Damage = 0;
+
+                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                if (l_ComboPoint)
                 {
-                    uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
-                    int32 l_Damage = 0;
+                    l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.577f) * 0.88f * l_ComboPoint);
 
-                    if (l_ComboPoint)
-                    {
-                        float l_Ap = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
-
-                        l_Damage += int32((l_Ap * 0.577f) * 0.88f * l_ComboPoint);
-
-                        // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (l_Caster->HasAura(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE))
-                        {
-                            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_EVISCERATE_ENVENOM_BONUS_DAMAGE);
-
-                            if (l_SpellInfo != nullptr)
-                                l_Damage += l_ComboPoint * l_SpellInfo->Effects[EFFECT_0].BasePoints;
-                        }
-                    }
-
-                    SetHitDamage(l_Damage);
+                    /// Tier 5 Bonus 2 pieces
+                    if (AuraEffectPtr l_Tier5Bonus2P = l_Caster->GetAuraEffect(eSpells::Tier5Bonus2P, EFFECT_0))
+                        l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
+
+                /// Because we do all the calculation, need also need to reapply spellmods if any
+                if (Player* l_ModOwner = l_Caster->GetSpellModOwner())
+                    l_ModOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, l_Damage);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()

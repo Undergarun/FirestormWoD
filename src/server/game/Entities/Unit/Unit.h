@@ -1688,6 +1688,9 @@ class Unit : public WorldObject
 
         void SendDurabilityLoss(Player* receiver, uint32 percent);
         void PlayOneShotAnimKit(uint32 id);
+        void SetAIAnimKit(uint32 p_AnimKitID);
+        void PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed = 1.0f, uint64 p_TargetGuid = 0, bool p_SpeedAsTime = true);
+        void CancelOrphanSpellVisual(int32 p_SpellVisualID);
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
@@ -1830,6 +1833,9 @@ class Unit : public WorldObject
         void CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0, float periodicDamageModifier = 0.0f);
         void CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0, float periodicDamageModifier = 0.0f);
+        void CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, constAuraEffectPtr p_AurEff = NULLAURA_EFFECT, uint64 p_OriginalCaster = 0);
+        void CastSpell(uint32 p_LocEntry, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, constAuraEffectPtr p_AurEff = NULLAURA_EFFECT, uint64 p_OriginalCaster = 0);
+        void CastSpell(G3D::Vector3 p_Pos, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem = nullptr, constAuraEffectPtr p_AurEff = NULLAURA_EFFECT, uint64 p_OriginalCaster = 0);
         void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem = NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, int32 const* bp3, int32 const* bp4, int32 const* bp5, bool triggered, Item* castItem= NULL, constAuraEffectPtr triggeredByAura = NULLAURA_EFFECT, uint64 originalCaster = 0);
@@ -1841,8 +1847,10 @@ class Unit : public WorldObject
         AuraPtr AddAura(uint32 spellId, Unit* target);
         AuraPtr AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType);
+        void SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration = 0);
+        void CancelSpellVisualKit(int32 p_SpellVisualKitID);
         void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos = false, bool p_SpeedAsTime = false);
+        void CancelSpellVisual(int32 p_SpellVisualID);
 
         void DeMorph();
 
@@ -1857,6 +1865,15 @@ class Unit : public WorldObject
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
+        void NearTeleportTo(Position const p_Position, bool p_Cast = false) { NearTeleportTo(p_Position.m_positionX, p_Position.m_positionY, p_Position.m_positionZ, p_Position.m_orientation, p_Cast); }
+        void NearTeleportTo(uint32 p_LocEntry, bool p_Cast = false)
+        {
+            WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);
+            if (l_Loc == nullptr)
+                return;
+
+            NearTeleportTo(l_Loc->x, l_Loc->y, l_Loc->z, l_Loc->o, p_Cast);
+        }
         void SendTeleportPacket(Position &p_NewPosition);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed

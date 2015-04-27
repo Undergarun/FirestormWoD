@@ -691,7 +691,12 @@ void Creature::RegenerateMana()
 
     l_Addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
-    ModifyPower(POWER_MANA, std::floor(l_Addvalue));
+    int32 l_IntValue = std::floor(l_Addvalue);
+
+    if (IsAIEnabled)
+        AI()->RegeneratePower(Powers::POWER_MANA, l_IntValue);
+
+    ModifyPower(POWER_MANA, l_IntValue);
 }
 
 void Creature::RegenerateHealth()
@@ -1316,8 +1321,9 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
 void Creature::UpdateStatsForLevel()
 {
-    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
-    CreatureBaseStats const* l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
+    CreatureTemplate  const*     l_CreatureTemplate = GetCreatureTemplate();
+    CreatureBaseStats const*     l_Stats            = sObjectMgr->GetCreatureBaseStats(GetUInt32Value(UNIT_FIELD_LEVEL), l_CreatureTemplate->unit_class);
+    CreatureGroupSizeStat const* l_GroupSizeStat    = sObjectMgr->GetCreatureGroupSizeStat(GetEntry(), GetMap()->GetDifficultyID());
 
     uint32 l_Rank = isPet() ? 0 : l_CreatureTemplate->rank;
 
@@ -1325,6 +1331,14 @@ void Creature::UpdateStatsForLevel()
     float l_HeathMod = _GetHealthMod(l_Rank);
 
     uint32 l_BaseHP = l_Stats->GenerateHealth(l_CreatureTemplate);
+
+    if (l_GroupSizeStat != nullptr)
+    {
+        uint32 l_GroupSizeHealth = l_GroupSizeStat->GetHealthFor(GetMap()->GetPlayersCountExceptGMs());
+        if (l_GroupSizeHealth != 0)
+            l_BaseHP = l_GroupSizeHealth;
+    }
+
     uint32 l_Health = uint32(l_BaseHP * l_HeathMod);
 
     SetCreateHealth(l_Health);
@@ -1374,6 +1388,37 @@ void Creature::UpdateStatsForLevel()
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER,        BASE_VALUE, l_Stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, l_Stats->RangedAttackPower);
+}
+
+void Creature::UpdateGroupSizeStats()
+{
+    CreatureGroupSizeStat const* l_GroupSizeStat = sObjectMgr->GetCreatureGroupSizeStat(GetEntry(), GetMap()->GetDifficultyID());
+    if (l_GroupSizeStat == nullptr)
+        return;
+
+    CreatureTemplate  const* l_CreatureTemplate = GetCreatureTemplate();
+
+    /// - Update health
+    uint32 l_Rank    = isPet() ? 0 : l_CreatureTemplate->rank;
+    float l_HeathMod = _GetHealthMod(l_Rank);
+
+    float l_ActualHealthPct = GetHealthPct();
+
+    uint32 l_GroupSizeHealth = l_GroupSizeStat->GetHealthFor(GetMap()->GetPlayersCountExceptGMs());
+    if (l_GroupSizeHealth != 0)
+    {
+        uint32 l_Health = uint32(l_GroupSizeHealth * l_HeathMod);
+
+        /// - Set Base health
+        SetCreateHealth(l_Health);
+        SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, (float)l_Health);
+
+        /// - Calculate max health with aura, bonus ... etc
+        UpdateMaxHealth();
+
+        /// - Set to the same health %
+        SetHealth(GetMaxHealth() * (l_ActualHealthPct / 100));
+    }
 }
 
 float Creature::_GetHealthMod(int32 Rank)
@@ -1552,20 +1597,26 @@ void Creature::LoadEquipment(int8 p_ID, bool p_Force /*= true*/)
     {
         if (p_Force)
         {
-            for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
-                SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + i, 0);
+            for (uint8 l_Iter = 0; l_Iter < MAX_EQUIPMENT_ITEMS; ++l_Iter)
+                SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + l_Iter, 0);
+
             m_equipmentId = 0;
         }
         return;
     }
 
-    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(GetEntry(), p_ID);
-    if (!einfo)
+    EquipmentInfo const* l_EquipInfos = sObjectMgr->GetEquipmentInfo(GetEntry(), p_ID);
+    if (!l_EquipInfos)
         return;
 
     m_equipmentId = p_ID;
-    for (uint8 i = 0; i < 3; ++i)
-        SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + i, einfo->ItemEntry[i]);
+
+    for (uint8 l_Iter = 0; l_Iter < 3; ++l_Iter)
+        SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + l_Iter, l_EquipInfos->ItemEntry[l_Iter]);
+
+    /// Check if creature has two weapons, and set dual wield
+    if (l_EquipInfos->ItemEntry[0] && l_EquipInfos->ItemEntry[1])
+        m_canDualWield = true;
 }
 
 bool Creature::hasQuest(uint32 quest_id) const
@@ -2342,74 +2393,76 @@ CreatureAddon const* Creature::GetCreatureAddon() const
     return sObjectMgr->GetCreatureTemplateAddon(GetCreatureTemplate()->Entry);
 }
 
-//creature_addon table
+/// creature_addon table
 bool Creature::LoadCreaturesAddon()
 {
-    CreatureAddon const* cainfo = GetCreatureAddon();
-    if (!cainfo)
+    CreatureAddon const* l_CreatureAddon = GetCreatureAddon();
+    if (!l_CreatureAddon)
         return false;
 
-    if (cainfo->mount != 0)
-        Mount(cainfo->mount);
+    if (l_CreatureAddon->Mount != 0)
+        Mount(l_CreatureAddon->Mount);
 
-    if (cainfo->bytes1 != 0)
+    if (l_CreatureAddon->Bytes1 != 0)
     {
-        // 0 StandState
-        // 1 FreeTalentPoints   Pet only, so always 0 for default creature
-        // 2 StandFlags
-        // 3 StandMiscFlags
+        /// 0 StandState
+        /// 1 FreeTalentPoints   Pet only, so always 0 for default creature
+        /// 2 StandFlags
+        /// 3 StandMiscFlags
 
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 0, uint8(cainfo->bytes1 & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 0, uint8(l_CreatureAddon->Bytes1 & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_1, 1, uint8((cainfo->bytes1 >> 8) & 0xFF));
         SetByteValue(UNIT_FIELD_ANIM_TIER, 1, 0);
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 2, uint8((cainfo->bytes1 >> 16) & 0xFF));
-        SetByteValue(UNIT_FIELD_ANIM_TIER, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 2, uint8((l_CreatureAddon->Bytes1 >> 16) & 0xFF));
+        SetByteValue(UNIT_FIELD_ANIM_TIER, 3, uint8((l_CreatureAddon->Bytes1 >> 24) & 0xFF));
 
-        //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
-        //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
-        //! Set MovementFlag_Hover. Otherwise do nothing.
+        /// Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
+        /// If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
+        /// Set MovementFlag_Hover. Otherwise do nothing.
         if (GetByteValue(UNIT_FIELD_ANIM_TIER, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
             AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
-    if (cainfo->bytes2 != 0)
+    if (l_CreatureAddon->Bytes2 != 0)
     {
-        // 0 SheathState
-        // 1 Bytes2Flags
-        // 2 UnitRename         Pet only, so always 0 for default creature
-        // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
+        /// 0 SheathState
+        /// 1 Bytes2Flags
+        /// 2 UnitRename         Pet only, so always 0 for default creature
+        /// 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
-        SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 0, uint8(cainfo->bytes2 & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
-        //SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
+        SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 0, uint8(l_CreatureAddon->Bytes2 & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 2, 0);
-        //SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
+        ///SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
         SetByteValue(UNIT_FIELD_SHAPESHIFT_FORM, 3, 0);
     }
 
-    if (cainfo->emote != 0)
-        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, cainfo->emote);
+    if (l_CreatureAddon->Emote != 0)
+        SetUInt32Value(UNIT_FIELD_EMOTE_STATE, l_CreatureAddon->Emote);
 
-    //Load Path
-    if (cainfo->path_id != 0)
-        m_path_id = cainfo->path_id;
+    /// Load Path
+    if (l_CreatureAddon->PathID != 0)
+        m_path_id = l_CreatureAddon->PathID;
 
-    if (!cainfo->auras.empty())
+    if (!l_CreatureAddon->Auras.empty())
     {
-        for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
+        for (std::vector<uint32>::const_iterator l_Iter = l_CreatureAddon->Auras.begin(); l_Iter != l_CreatureAddon->Auras.end(); ++l_Iter)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
-            if (!AdditionalSpellInfo)
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(*l_Iter);
+            if (!l_SpellInfo)
                 continue;
 
-            // skip already applied aura
-            if (HasAura(*itr))
+            /// Skip already applied aura
+            if (HasAura(*l_Iter))
                 continue;
 
-            AddAura(*itr, this);
-            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUIDLow(), GetEntry());
+            AddAura(*l_Iter, this);
         }
     }
+
+    if (l_CreatureAddon->AnimKit != 0)
+        SetAIAnimKit(l_CreatureAddon->AnimKit);
 
     return true;
 }

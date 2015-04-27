@@ -802,6 +802,13 @@ struct GarrisonPlotBuildingContent
     float X, Y, Z, O;
 };
 
+
+namespace ItemBonus
+{
+    using GroupContainer = std::vector<uint32>;
+    using Group = std::map<uint32, GroupContainer>;
+}
+
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
@@ -1031,7 +1038,7 @@ class ObjectMgr
                 return &itr->second;
             else
             {
-                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DIFFICULTY_NONE));
+                itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, DifficultyNone));
                 if (itr != _dungeonEncounterStore.end())
                     return &itr->second;
             }
@@ -1111,6 +1118,7 @@ class ObjectMgr
         bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
+        void LoadCreatureGroupSizeStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatureTemplatesDifficulties();
@@ -1135,6 +1143,8 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSpecs();
         void LoadItemSpecsOverride();
+        void LoadItemBonusGroup();
+        void LoadItemBonusGroupLinked();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1266,6 +1276,7 @@ class ObjectMgr
         void ReturnOrDeleteOldMails(bool serverUp);
 
         CreatureBaseStats const* GetCreatureBaseStats(uint8 level, uint8 unitClass);
+        CreatureGroupSizeStat const* GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const;
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
@@ -1644,6 +1655,16 @@ class ObjectMgr
 
             return nullptr;
         }
+
+        ItemBonus::GroupContainer const* GetItemBonusGroup(uint32 p_GroupID) const
+        {
+            auto l_Find = m_ItemBonusGroupStore.find(p_GroupID);
+            if (l_Find == m_ItemBonusGroupStore.end())
+                return nullptr;
+
+            return &(*l_Find).second;
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1743,6 +1764,8 @@ class ObjectMgr
 
         std::vector<GarrisonPlotBuildingContent> m_GarrisonPlotBuildingContents;
 
+        ItemBonus::Group m_ItemBonusGroupStore;
+
     private:
         CharacterTemplates m_CharacterTemplatesStore;
         void LoadScripts(ScriptsType type);
@@ -1753,6 +1776,7 @@ class ObjectMgr
         MailLevelRewardContainer _mailLevelRewardStore;
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
+        CreatureGroupSizeStatsContainer m_CreatureGroupSizeStore;
 
         typedef std::map<uint32, PetStatInfo> PetStatInfoContainer;
         PetStatInfoContainer m_PetInfoStore;
@@ -1803,8 +1827,8 @@ class ObjectMgr
         CacheVendorItemContainer _cacheVendorItemStore;
         CacheTrainerSpellContainer _cacheTrainerSpellStore;
 
-        std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-        std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+        std::set<uint32> _difficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
+        std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::set<uint32> _overwriteExtendedCosts;
 

@@ -315,6 +315,9 @@ void AuraApplication::ClientUpdate(bool p_Remove)
     if (l_AuraBase->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
         return;
 
+    if (l_AuraBase->GetCaster() == _target)
+        return;
+
     Mechanics l_Mechanic = Mechanics::MECHANIC_NONE;
     SpellEffIndex l_EffectIndex = EFFECT_0;
     LossOfControlType l_Type = LossOfControlType::TypeNone;
@@ -967,10 +970,6 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                     else
                     {
-                        /// Conversion temp fix
-                        if (m_spellInfo->Id == 119975)
-                            powerPerSecond = 50;
-
                         if (int32(caster->GetPower(powerType)) >= powerPerSecond)
                             caster->ModifyPower(powerType, -powerPerSecond);
                         else
@@ -1896,7 +1895,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                 }
 
-                if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_PRESENCE)
+                if (GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificPresence)
                 {
                     if (!caster)
                         return;
@@ -2523,7 +2522,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             return false;
     }
 
-    SpellSpecificType specificTypes[] = {SPELL_SPECIFIC_ASPECT, SPELL_SPECIFIC_WELL_FED};
+    SpellSpecificType specificTypes[] = {SpellSpecificType::SpellSpecificAspect, SpellSpecificType::SpellSpecificWellFed};
     for (uint8 i = 0; i < 2; ++i)
     {
         if (m_spellInfo->GetSpellSpecific() == specificTypes[i] || existingSpellInfo->GetSpellSpecific() == specificTypes[i])

@@ -121,7 +121,7 @@ enum CreatureFlagsExtra
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY];
+    uint32  DifficultyEntry[Difficulty::MaxDifficulties];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
@@ -259,6 +259,30 @@ struct CreatureBaseStats
 
 typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
+#define MAX_GROUP_SCALING 30
+
+struct CreatureGroupSizeStat
+{
+    std::vector<uint32> Healths;
+    std::vector<float>  MinDamage;
+    std::vector<float>  MaxDamage;
+
+    CreatureGroupSizeStat()
+    {
+        Healths.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+    }
+
+    uint32 GetHealthFor(uint32 p_GroupSize) const
+    {
+        p_GroupSize = std::max((uint32)10, p_GroupSize);
+        return Healths[p_GroupSize];
+    }
+};
+
+typedef std::map<uint32/*CreatureEntry*/, std::map<uint32/*Difficulty*/, CreatureGroupSizeStat>> CreatureGroupSizeStatsContainer;
+
 struct CreatureLocale
 {
     StringVector Name;
@@ -318,15 +342,16 @@ struct CreatureData
     bool dbData;
 };
 
-// `creature_addon` table
+/// `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
-    uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
-    uint32 emote;
-    std::vector<uint32> auras;
+    uint32 PathID;
+    uint32 Mount;
+    uint32 Bytes1;
+    uint32 Bytes2;
+    uint32 Emote;
+    std::vector<uint32> Auras;
+    uint32 AnimKit;
 };
 
 typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
@@ -481,6 +506,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
         void UpdateStatsForLevel();
+        void UpdateGroupSizeStats();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }

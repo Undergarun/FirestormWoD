@@ -101,34 +101,7 @@ void WorldSession::SendUpdateTrade(bool p_WhichPlayer /*= true*/)
         l_Data.appendPackGUID(l_GiftCreator);
         l_Data.WriteBit(true);  // IsWrapped - Always true on retail
 
-        // Item_Struct
-        {
-            l_Data << uint32(l_Item->GetEntry());
-            l_Data << uint32(l_Item->GetItemSuffixFactor());
-            l_Data << int32(l_Item->GetItemRandomPropertyId());
-
-            bool l_HasBonuses = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() > 0;
-            bool l_HasModifiers = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS).size() > 0;
-
-            l_Data.WriteBit(l_HasBonuses);
-            l_Data.WriteBit(l_HasModifiers);
-
-            if (l_HasBonuses)
-            {
-                l_Data << uint8(0);     ///< UnkByte
-                l_Data << uint32(0);    ///< Count
-            }
-
-            if (l_HasModifiers)
-            {
-                uint32 l_ModifyMask = l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-
-                l_Data << uint32(l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
-
-                if (l_ModifyMask & ITEM_TRANSMOGRIFIED)
-                    l_Data << uint32(l_Item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
-            }
-        }
+        Item::BuildDynamicItemDatas(l_Data, l_Item);
 
         l_Data << int32(0);     // EnchantID
         l_Data << int32(0);     // OnUseEnchantmentID

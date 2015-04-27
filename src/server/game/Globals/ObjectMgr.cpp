@@ -438,7 +438,7 @@ void ObjectMgr::LoadCreatureTemplates()
 
         creatureTemplate.Entry = entry;
 
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (uint8 i = 0; i < Difficulty::MaxDifficulties; ++i)
             creatureTemplate.DifficultyEntry[i] = 0;
 
         for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
@@ -555,7 +555,7 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
         uint32 l_DifficultyIndex = l_Fields[l_Index++].GetUInt32() - 2;
         uint32 l_DifficultyEntry = l_Fields[l_Index++].GetUInt32();
 
-        if (l_DifficultyIndex >= MAX_DIFFICULTY)
+        if (l_DifficultyIndex >= Difficulty::MaxDifficulties)
             continue;
 
         CreatureTemplate& l_CreatureTemplate = _creatureTemplateStore[l_Entry];
@@ -575,72 +575,61 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
 
 void ObjectMgr::LoadCreatureTemplateAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 l_OldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras FROM creature_template_addon");
-
-    if (!result)
+    ///                                                0       1       2      3       4       5      6       7
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras, animkit FROM creature_template_addon");
+    if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
         return;
     }
 
-    uint32 count = 0;
+    uint32 l_Count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 l_Entry = l_Fields[0].GetUInt32();
 
-        if (!sObjectMgr->GetCreatureTemplate(entry))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature template (Entry: %u) does not exist but has a record in `creature_template_addon`", entry);
+        if (!sObjectMgr->GetCreatureTemplate(l_Entry))
             continue;
-        }
 
-        CreatureAddon& creatureAddon = _creatureTemplateAddonStore[entry];
+        CreatureAddon& l_CreatureAddon = _creatureTemplateAddonStore[l_Entry];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
+        l_CreatureAddon.PathID  = l_Fields[1].GetUInt32();
+        l_CreatureAddon.Mount   = l_Fields[2].GetUInt32();
+        l_CreatureAddon.Bytes1  = l_Fields[3].GetUInt32();
+        l_CreatureAddon.Bytes2  = l_Fields[4].GetUInt32();
+        l_CreatureAddon.Emote   = l_Fields[5].GetUInt32();
+        l_CreatureAddon.AnimKit = l_Fields[7].GetUInt32();
 
-        Tokenizer tokens(fields[6].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        Tokenizer l_Tokens(l_Fields[6].GetString(), ' ');
+        uint8 l_Index = 0;
+        l_CreatureAddon.Auras.resize(l_Tokens.size());
+        for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
-            if (!AdditionalSpellInfo)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*l_Iter)));
+            if (!l_SpellInfo)
                 continue;
-            }
-            creatureAddon.auras[i++] = uint32(atol(*itr));
+
+            l_CreatureAddon.Auras[l_Index++] = uint32(atol(*l_Iter));
         }
 
-        if (creatureAddon.mount)
+        if (l_CreatureAddon.Mount)
         {
-            if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid displayInfoId (%u) for mount defined in `creature_template_addon`", entry, creatureAddon.mount);
-                creatureAddon.mount = 0;
-            }
+            if (!sCreatureDisplayInfoStore.LookupEntry(l_CreatureAddon.Mount))
+                l_CreatureAddon.Mount = 0;
         }
 
-        if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
-            creatureAddon.emote = 0;
-        }
+        if (!sEmotesStore.LookupEntry(l_CreatureAddon.Emote))
+            l_CreatureAddon.Emote = 0;
 
-        ++count;
+        ++l_Count;
     }
-    while (result->NextRow());
+    while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature template addons in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
@@ -649,7 +638,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         return;
 
     bool ok = true;                                     // bool to allow continue outside this loop
-    for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
+    for (uint32 diff = 0; diff < Difficulty::MaxDifficulties - 1 && ok; ++diff)
     {
         if (!cInfo->DifficultyEntry[diff])
             continue;
@@ -664,7 +653,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         }
 
         bool ok2 = true;
-        for (uint32 diff2 = 0; diff2 < MAX_DIFFICULTY - 1 && ok2; ++diff2)
+        for (uint32 diff2 = 0; diff2 < Difficulty::MaxDifficulties - 1 && ok2; ++diff2)
         {
             ok2 = false;
             if (_difficultyEntries[diff2].find(cInfo->Entry) != _difficultyEntries[diff2].end())
@@ -956,79 +945,65 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
 void ObjectMgr::LoadCreatureAddons()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 l_OldMSTime = getMSTime();
 
-    //                                                0       1       2      3       4       5      6
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras FROM creature_addon");
-
-    if (!result)
+    ///                                                0      1       2      3       4       5      6       7
+    QueryResult l_Result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras, animkit FROM creature_addon");
+    if (!l_Result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
         return;
     }
 
-    uint32 count = 0;
+    uint32 l_Count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = l_Result->Fetch();
 
-        uint32 guid = fields[0].GetUInt32();
+        uint32 l_Guid = l_Fields[0].GetUInt32();
 
-        CreatureData const* creData = GetCreatureData(guid);
-        if (!creData)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
+        CreatureData const* l_CreatureData = GetCreatureData(l_Guid);
+        if (!l_CreatureData)
             continue;
-        }
 
-        CreatureAddon& creatureAddon = _creatureAddonStore[guid];
+        CreatureAddon& l_CreatureAddon = _creatureAddonStore[l_Guid];
 
-        creatureAddon.path_id = fields[1].GetUInt32();
-        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        l_CreatureAddon.PathID = l_Fields[1].GetUInt32();
+        if (l_CreatureData->movementType == WAYPOINT_MOTION_TYPE && !l_CreatureAddon.PathID)
+            const_cast<CreatureData*>(l_CreatureData)->movementType = IDLE_MOTION_TYPE;
+
+        l_CreatureAddon.Mount   = l_Fields[2].GetUInt32();
+        l_CreatureAddon.Bytes1  = l_Fields[3].GetUInt32();
+        l_CreatureAddon.Bytes2  = l_Fields[4].GetUInt32();
+        l_CreatureAddon.Emote   = l_Fields[5].GetUInt32();
+        l_CreatureAddon.AnimKit = l_Fields[7].GetUInt32();
+
+        Tokenizer l_Tokens(l_Fields[6].GetString(), ' ');
+        uint8 l_Index = 0;
+        l_CreatureAddon.Auras.resize(l_Tokens.size());
+        for (Tokenizer::const_iterator l_Iter = l_Tokens.begin(); l_Iter != l_Tokens.end(); ++l_Iter)
         {
-            const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
-        }
-
-        creatureAddon.mount   = fields[2].GetUInt32();
-        creatureAddon.bytes1  = fields[3].GetUInt32();
-        creatureAddon.bytes2  = fields[4].GetUInt32();
-        creatureAddon.emote   = fields[5].GetUInt32();
-
-        Tokenizer tokens(fields[6].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-        {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
-            if (!AdditionalSpellInfo)
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*l_Iter)));
+            if (!l_SpellInfo)
                 continue;
-            }
-            creatureAddon.auras[i++] = uint32(atol(*itr));
+
+            l_CreatureAddon.Auras[l_Index++] = uint32(atol(*l_Iter));
         }
 
-        if (creatureAddon.mount)
+        if (l_CreatureAddon.Mount)
         {
-            if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", guid, creatureAddon.mount);
-                creatureAddon.mount = 0;
-            }
+            if (!sCreatureDisplayInfoStore.LookupEntry(l_CreatureAddon.Mount))
+                l_CreatureAddon.Mount = 0;
         }
 
-        if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", guid, creatureAddon.emote);
-            creatureAddon.emote = 0;
-        }
+        if (!sEmotesStore.LookupEntry(l_CreatureAddon.Emote))
+            l_CreatureAddon.Emote = 0;
 
-        ++count;
+        ++l_Count;
     }
-    while (result->NextRow());
+    while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature addons in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 CreatureAddon const* ObjectMgr::GetCreatureAddon(uint32 lowguid)
@@ -1622,7 +1597,7 @@ void ObjectMgr::LoadCreatures()
     std::map<uint32, uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (int k = 0; k < Difficulty::MaxDifficulties; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -1685,7 +1660,7 @@ void ObjectMgr::LoadCreatures()
             sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u) spawnMasks[data.mapid]: %u.", guid, data.spawnMask, data.mapid, spawnMasks[data.mapid]);
 
         bool ok = true;
-        for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
+        for (uint32 diff = 0; diff < Difficulty::MaxDifficulties - 1 && ok; ++diff)
         {
             if (_difficultyEntries[diff].find(data.id) != _difficultyEntries[diff].end())
             {
@@ -1957,7 +1932,7 @@ void ObjectMgr::LoadGameobjects()
     std::map<uint32, uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (int k = 0; k < Difficulty::MaxDifficulties; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -9115,6 +9090,36 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature base stats in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadCreatureGroupSizeStats()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, groupSize, health FROM creature_groupsizestats");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature group size stats. DB table `creature_groupsizestats` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        uint32 l_CreatureEntry = l_Fields[0].GetUInt32();
+        uint32 l_Difficulty    = l_Fields[1].GetUInt32();
+        uint32 l_GroupSize     = l_Fields[2].GetUInt32();
+        uint32 l_Health        = l_Fields[3].GetUInt32();
+
+        CreatureGroupSizeStat& l_CreatureGroupSizeStat = m_CreatureGroupSizeStore[l_CreatureEntry][l_Difficulty];
+        l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature group size stats in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 void ObjectMgr::LoadFactionChangeAchievements()
 {
     uint32 oldMSTime = getMSTime();
@@ -10380,4 +10385,82 @@ void ObjectMgr::LoadTaxiData()
 
         _taxiNodes[entry->to] = node;
     }
+}
+
+CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry, uint32 p_Difficulty) const
+{
+    auto l_DifficultyIterator = m_CreatureGroupSizeStore.find(p_Entry);
+    if (l_DifficultyIterator == m_CreatureGroupSizeStore.end())
+        return nullptr;
+
+    auto l_StatsIterator = l_DifficultyIterator->second.find(p_Difficulty);
+    if (l_StatsIterator == l_DifficultyIterator->second.end())
+        return nullptr;
+
+    return &l_StatsIterator->second;
+}
+
+void ObjectMgr::LoadItemBonusGroup()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT id, bonus FROM item_bonus_group");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Bonus Group. DB table `item_bonus_group` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields  = l_Result->Fetch();
+        uint32 l_GroupID = l_Fields[0].GetUInt32();
+
+        ItemBonus::GroupContainer l_ItemBonusGroup;
+        Tokenizer l_Tokens(l_Fields[1].GetCString(), ',');
+
+        for (uint32 l_I = 0; l_I < l_Tokens.size(); ++l_I)
+            l_ItemBonusGroup.push_back((uint32)atoi(l_Tokens[l_I]));
+
+        m_ItemBonusGroupStore.insert(std::make_pair(l_GroupID, l_ItemBonusGroup));
+
+        l_Count++;
+    } 
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadItemBonusGroupLinked()
+{
+    uint32 l_OldMSTime = getMSTime();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT itemEntry, itemBonusGroup FROM item_bonus_group_linked");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Bonus Group Linked. DB table `item_bonus_group_linked` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+        uint32 l_ItemEntry      = l_Fields[0].GetUInt32();
+        uint32 l_ItemBonusGroup = l_Fields[1].GetUInt32();
+
+        if (_itemTemplateStore.find(l_ItemEntry) == _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& l_ItemTemplate = _itemTemplateStore[l_ItemEntry];
+        l_ItemTemplate.m_ItemBonusGroups.push_back(l_ItemBonusGroup);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }

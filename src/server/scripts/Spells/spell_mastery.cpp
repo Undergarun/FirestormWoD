@@ -434,7 +434,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_HUNTER_MARKSMANSHIP)
                         p_AurEff->GetBase()->Remove();
 
-                    float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
+                    float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.625f;
                     int32 l_BasePoints = l_Mastery;
 
                     if (AuraPtr l_Aura = p_AurEff->GetBase())
@@ -888,8 +888,8 @@ class spell_mastery_ignite: public SpellScriptLoader
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
                                     if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
-                                        if (uint32 l_Duration = l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude())
-                                            if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Duration)
+                                        if (uint32 l_Amplitude = l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude())
+                                            if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
                                                 l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
@@ -982,10 +982,6 @@ class spell_mastery_elemental_overload: public SpellScriptLoader
                     {
                         if (Unit* unitTarget = GetHitUnit())
                         {
-                            // Lavaburst deals 50% more damage with Flame Shock on target
-                            if (procSpell->Id == 51505 && unitTarget->HasAura(8050))
-                                SetHitDamage(int32(float(GetHitDamage()) * 1.5f));
-
                             if (caster->GetTypeId() == TYPEID_PLAYER && caster->HasAura(77222))
                             {
                                 // Every Lightning Bolt, Chain Lightning and Lava Burst spells have duplicate vs 75% damage and no cost
