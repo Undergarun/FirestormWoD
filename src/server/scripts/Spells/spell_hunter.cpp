@@ -2297,7 +2297,8 @@ class spell_hun_binding_shot_areatrigger : public AreaTriggerEntityScript
         }
 };
 
-// Powershot - 109259
+/// last update : 6.1.2 19802
+/// Powershot - 109259
 class spell_hun_powershot: public SpellScriptLoader
 {
     public:
@@ -2307,64 +2308,68 @@ class spell_hun_powershot: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_powershot_SpellScript);
 
-            void HandleAfterHit()
+            enum eSpells
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                PowerShotMainTarget = 177571,
+                PowerShotSecondaryTarget = 181741
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::PowerShotMainTarget, true);
+
+                std::list<Unit*> l_TempUnitMap;
+                l_Caster->GetAttackableUnitListInRange(l_TempUnitMap, l_Caster->GetDistance(l_Target));
+                for (auto itr : l_TempUnitMap)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        std::list<Unit*> tempUnitMap;
-                        _player->GetAttackableUnitListInRange(tempUnitMap, _player->GetDistance(target));
+                    if (!itr->IsValidAttackTarget(l_Caster))
+                        continue;
 
-                        for (auto itr : tempUnitMap)
-                        {
-                            if (!itr->IsValidAttackTarget(_player))
-                                continue;
+                    if (itr->GetGUID() == l_Caster->GetGUID())
+                        continue;
 
-                            if (itr->GetGUID() == _player->GetGUID())
-                                continue;
+                    if (!itr->IsInBetween(l_Caster, l_Target, 1.0f))
+                        continue;
 
-                            if (!itr->IsInBetween(_player, target, 1.0f))
-                                continue;
+                    l_Caster->CastSpell(itr, eSpells::PowerShotSecondaryTarget, true);
 
-                            SpellNonMeleeDamage damageInfo(_player, itr, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
-                            damageInfo.damage = int32(GetHitDamage() / 2);
-                            _player->SendSpellNonMeleeDamageLog(&damageInfo);
-                            _player->DealSpellDamage(&damageInfo, true);
+                    if (Creature* creatureTarget = itr->ToCreature())
+                    if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+                        continue;
 
-                            if (Creature* creatureTarget = itr->ToCreature())
-                                if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
-                                    continue;
+                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->ToPlayer()->GetKnockBackTime())
+                        continue;
 
-                            if (itr->GetTypeId() == TYPEID_PLAYER)
-                                if (itr->ToPlayer()->GetKnockBackTime())
-                                    continue;
+                    // Instantly interrupt non melee spells being casted
+                    if (itr->IsNonMeleeSpellCasted(true))
+                        itr->InterruptNonMeleeSpells(true);
 
-                            // Instantly interrupt non melee spells being casted
-                            if (itr->IsNonMeleeSpellCasted(true))
-                                itr->InterruptNonMeleeSpells(true);
+                    float l_Ratio = 0.1f;
+                    float l_Speedxy = float(GetSpellInfo()->Effects[EFFECT_1].MiscValue) * l_Ratio;
+                    float l_Speedz = float(GetSpellInfo()->Effects[EFFECT_1].BasePoints) * l_Ratio;
+                    if (l_Speedxy < 0.1f && l_Speedz < 0.1f)
+                        return;
 
-                            float ratio = 0.1f;
-                            float speedxy = float(GetSpellInfo()->Effects[EFFECT_1].MiscValue) * ratio;
-                            float speedz = float(GetSpellInfo()->Effects[EFFECT_1].BasePoints) * ratio;
-                            if (speedxy < 0.1f && speedz < 0.1f)
-                                return;
+                    float l_X, l_Y;
+                    l_Caster->GetPosition(l_X, l_Y);
 
-                            float x, y;
-                            _player->GetPosition(x, y);
+                    itr->KnockbackFrom(l_X, l_Y, l_Speedxy, l_Speedz);
 
-                            itr->KnockbackFrom(x, y, speedxy, speedz);
-
-                            if (itr->GetTypeId() == TYPEID_PLAYER)
-                                itr->ToPlayer()->SetKnockBackTime(getMSTime());
-                        }
-                    }
+                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                        itr->ToPlayer()->SetKnockBackTime(getMSTime());
                 }
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleOnHit);
             }
         };
 
