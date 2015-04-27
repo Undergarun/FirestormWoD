@@ -1129,7 +1129,8 @@ enum MasterySpells
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
 };
 
-// Power Word: Shield - 17
+/// last update : 6.1.2 19802
+/// Power Word: Shield - 17
 class spell_pri_power_word_shield: public SpellScriptLoader
 {
     public:
@@ -1148,7 +1149,7 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
                 if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
                 {
