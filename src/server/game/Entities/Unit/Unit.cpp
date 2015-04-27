@@ -16642,7 +16642,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
 
                     // Spell Heal
-                    if (procSpell && procSpell->IsPositive() && IsFriendlyTo(target))
+                    if (procSpell && IsFriendlyTo(target))
                     {
                         HealBySpell(target, procSpell, l_MultistrikeDamage, l_IsCrit, true);
                         ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, l_MultistrikeDamage, 0, attType, procSpell);
