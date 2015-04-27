@@ -3711,7 +3711,7 @@ class spell_hun_explosive_shot : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                if (l_Caster != nullptr && p_AuraEffect->GetAmplitude() > 0)
+                if (l_Caster != nullptr && p_AuraEffect->GetAmplitude() > 0 && (p_AuraEffect->GetBase()->GetDuration() != 0)
                     p_Amount = ((int32)(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.553f * 1.08f) / (p_AuraEffect->GetBase()->GetDuration() / p_AuraEffect->GetAmplitude()));
             }
 
