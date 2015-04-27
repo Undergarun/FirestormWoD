@@ -1618,13 +1618,6 @@ class spell_warr_execute_default: public SpellScriptLoader
         }
 };
 
-enum EnhancedRendSpells
-{
-    SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
-    SPELL_WARR_REND_FINAL_BURST     = 94009,
-    SPELL_WARR_REND                 = 772
-};
-
 /// Enhanced Rend - 174737
 class spell_warr_enhanced_rend: public SpellScriptLoader
 {
@@ -1635,6 +1628,12 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_enhanced_rend_AuraScript);
 
+            enum eSpells
+            {
+                EnhancedRendDamage = 174736,
+                Rend = 772
+            };
+
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
@@ -1643,8 +1642,8 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
-                        if (l_Target->HasAura(SPELL_WARR_REND, l_Caster->GetGUID()))
-                            l_Caster->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+                        if (l_Target->HasAura(eSpells::Rend, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Target, eSpells::EnhancedRendDamage, true);
                     }
                 }
             }
@@ -1662,6 +1661,7 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
 };
 
 /// Rend - 772
+/// last update 6.1.2 19865
 class spell_warr_rend : public SpellScriptLoader
 {
     public:
@@ -1671,9 +1671,14 @@ class spell_warr_rend : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_rend_AuraScript);
 
+            enum eSpells
+            {
+                RendFinalBurst = 94009
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Owner = GetCaster();
                 Unit* l_Target = GetTarget();
 
                 if (l_Owner == nullptr || l_Target == nullptr)
@@ -1684,7 +1689,7 @@ class spell_warr_rend : public SpellScriptLoader
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                l_Owner->CastSpell(l_Target, SPELL_WARR_REND_FINAL_BURST, true);
+                l_Owner->CastSpell(l_Target, eSpells::RendFinalBurst, true);
             }
 
             void Register()
