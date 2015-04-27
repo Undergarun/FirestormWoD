@@ -1859,6 +1859,52 @@ class spell_warr_blood_craze : public SpellScriptLoader
         }
 };
 
+/// Meat Cleaver - 12950
+/// last update 6.1.2 19865
+class spell_warr_meat_cleaver : public SpellScriptLoader
+{
+    public:
+        spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
+
+        class spell_warr_meat_cleaver_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_meat_cleaver_Aurascript);
+
+            enum eSpells
+            {
+                Whirlwind = 1680,
+                MeatCleaverTargetModifier = 85739
+            };
+
+            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (!p_ProcInfo.GetDamageInfo()->GetSpellInfo() || p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::Whirlwind)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::MeatCleaverTargetModifier, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_meat_cleaver_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_meat_cleaver_Aurascript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     /// NPCs
@@ -1905,6 +1951,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
+    new spell_warr_meat_cleaver();
 
     /// Playerscripts
     new PlayerScript_second_wind();
