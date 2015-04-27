@@ -7,10 +7,8 @@ git:
 
 branches:
   only:
-    - WoD2
-    - WoD2_dev
-    - WoD2_hotfix
-    - 6.1.2
+    - wod
+    - wod_ptr
 
 before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
