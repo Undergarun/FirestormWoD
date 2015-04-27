@@ -1055,13 +1055,13 @@ class ObjectMgr
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");
-            LoadGameobjectQuestRelations();
+            LoadGameobjectQuestStarters();
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO End Quest Data...");
-            LoadGameobjectInvolvedRelations();
+            LoadGameobjectQuestEnders();
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Start Quest Data...");
-            LoadCreatureQuestRelations();
+            LoadCreatureQuestStarters();
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature End Quest Data...");
-            LoadCreatureInvolvedRelations();
+            LoadCreatureQuestEnders();
         }
         void LoadFollowerQuests();
         std::vector<uint32> FollowerQuests;
@@ -1069,10 +1069,10 @@ class ObjectMgr
         void LoadQuestForItem();
         std::map<uint32, std::vector<std::pair<uint32, uint8>>> QuestForItem;    ///< <ItemID, [<QuestID, ObjectiveIndex>]>
 
-        void LoadGameobjectQuestRelations();
-        void LoadGameobjectInvolvedRelations();
-        void LoadCreatureQuestRelations();
-        void LoadCreatureInvolvedRelations();
+        void LoadGameobjectQuestStarters();
+        void LoadGameobjectQuestEnders();
+        void LoadCreatureQuestStarters();
+        void LoadCreatureQuestEnders();
 
         QuestRelations* GetGOQuestRelationMap()
         {
