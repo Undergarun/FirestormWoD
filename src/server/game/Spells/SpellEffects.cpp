@@ -1826,6 +1826,27 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
+            /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
+            case 182078:
+            {
+                SpellValue const* l_Values = m_spellValue;
+                if (!m_spellValue)
+                    return;
+
+                if (!m_spellValue->EffectBasePoints[effIndex])
+                    return;
+                break;
+            }
+            /// Crane chi explosion
+            case 159620:
+            {
+                uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                if (l_Chi > 2 && effIndex == EFFECT_1)
+                    return;
+                else if (l_Chi < 3 && effIndex == EFFECT_2)
+                    return;
+                break;
+            }
             // Tipping of the Scales, Scales of Life
             case 96880:
             {

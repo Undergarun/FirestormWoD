@@ -4355,6 +4355,192 @@ class AreaTrigger_healing_sphere : public AreaTriggerEntityScript
         }
 };
 
+enum ChiExplosionMistweaverSpells
+{
+    SPELL_CHI_EXPLOSION_HEAL    = 182078,
+    SPELL_CHI_EXPLOSION_HOT     = 157681,
+};
+
+uint32 g_MonkHealingSphereSpells[] = { 157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689 };
+
+/// Chi Explosion - 157675
+class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_mistweaver() : SpellScriptLoader("spell_monk_chi_explosion_mistweaver") { }
+
+        class spell_monk_chi_explosion_mistweaver_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                uint8 l_Chi = l_Caster->GetPower(POWER_CHI) + 1;    /// 1 was already consumed
+                int32 l_HealAmount = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HEAL)->Effects[EFFECT_0].CalcValue(l_Caster, nullptr, l_Target) * (l_Chi); /// 1 applied in calcvalue
+                int32 l_HotTotalHealAmount = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HEAL)->Effects[EFFECT_0].CalcValue(l_Caster, nullptr, l_Target) * (l_Chi + 1);
+                int32 l_NullBP = 0;
+
+                if (l_Chi <= 2)
+                {
+                    if (l_Chi == 2)
+                    {
+                        SpellInfo const* l_HotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HOT);
+                        int32 l_HotHealing = CalculatePct(l_HotTotalHealAmount, l_HotSpellInfo->Effects[EFFECT_1].BasePoints / (l_HotSpellInfo->GetDuration() / l_HotSpellInfo->Effects[EFFECT_0].Amplitude));
+                        l_Caster->CastCustomSpell(l_Target, SPELL_CHI_EXPLOSION_HOT, &l_HotHealing, nullptr, nullptr, true);
+                    }
+
+                    l_Caster->CastCustomSpell(l_Target, SPELL_CHI_EXPLOSION_HEAL, &l_HealAmount, &l_NullBP, nullptr, true);
+                }
+                else
+                    l_Caster->CastCustomSpell(l_Target, SPELL_CHI_EXPLOSION_HEAL, &l_NullBP, &l_HealAmount, nullptr, true);
+
+                if (l_Chi == 4)
+                {
+                    for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
+                        l_Caster->CastSpell(l_Caster, g_MonkHealingSphereSpells[l_I], true);
+                }
+
+                l_Caster->SetPower(POWER_CHI, 0);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_mistweaver_SpellScript();
+        }
+};
+
+/// Chi Explosion - 182078
+class spell_monk_chi_explosion_heal: public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_heal() : SpellScriptLoader("spell_monk_chi_explosion_heal") { }
+
+        class spell_monk_chi_explosion_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_heal_SpellScript);
+
+            bool Load()
+            {
+                m_Targets = 1;
+                return true;
+            }
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                SpellValue const* l_SpellValues = GetSpellValue();
+                if (!l_SpellValues)
+                    return;
+
+                if (l_SpellValues->EffectBasePoints[EFFECT_1])
+                {
+                    if (!p_Targets.size())
+                        return;
+
+                    Unit* l_MainTarget = (*p_Targets.begin())->ToUnit();
+                    std::list<Unit*> l_UnitList;
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(l_MainTarget, l_MainTarget, 8.f);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> searcher(l_MainTarget, l_UnitList, u_check);
+                    l_MainTarget->VisitNearbyObject(8.f, searcher);
+
+                    for (auto& l_Iter : l_UnitList)
+                        if (std::find(p_Targets.begin(), p_Targets.end(), l_Iter) == p_Targets.end())
+                            p_Targets.push_back(l_Iter);
+                }
+
+                m_Targets = p_Targets.size();
+                if (!m_Targets)
+                    m_Targets = 1;
+            }
+
+            void HandleOnHit()
+            {
+                SetHitHeal(GetHitHeal() / m_Targets);
+            }
+
+            void HandleHitTarget(SpellEffIndex /*p_EffIndex*/)
+            {
+                SpellInfo const* l_HotSpellInfo = sSpellMgr->GetSpellInfo(SPELL_CHI_EXPLOSION_HOT);
+                int32 l_HotHealing = CalculatePct(GetHitHeal() / m_Targets, l_HotSpellInfo->Effects[EFFECT_1].BasePoints / (l_HotSpellInfo->GetDuration() / l_HotSpellInfo->Effects[EFFECT_0].Amplitude));
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_CHI_EXPLOSION_HOT, &l_HotHealing, nullptr, nullptr, true);
+            }
+
+            uint8 m_Targets;
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_heal_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                OnHit += SpellHitFn(spell_monk_chi_explosion_heal_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_heal_SpellScript::HandleHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_heal_SpellScript();
+        }
+};
+
+
+class spell_monk_chi_explosion_mistweaver_crane: public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_mistweaver_crane() : SpellScriptLoader("spell_monk_chi_explosion_mistweaver_crane") { }
+
+        class spell_monk_chi_explosion_mistweaver_crane_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_mistweaver_crane_SpellScript);
+
+            void HandleHitDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                SetHitDamage(GetHitDamage()* GetCaster()->GetPower(POWER_CHI) + 2); /// 1 taken + 1 as base
+            }
+
+            void HandleHitTarget(SpellEffIndex p_EffIndex)
+            {
+                uint8 l_Chi = GetCaster()->GetPower(POWER_CHI) + 1;
+
+                if (l_Chi > 2 && p_EffIndex == EFFECT_1)
+                    return;
+                else if (l_Chi < 3 && p_EffIndex == EFFECT_2)
+                    return;
+
+                SetHitHeal(GetHitHeal() * (l_Chi + 1));
+            }
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster->GetPower(POWER_CHI) == 3)
+                    for (int l_I = 0; l_I < sizeof(g_MonkHealingSphereSpells) / sizeof(int); l_I++)
+                        l_Caster->CastSpell(l_Caster, g_MonkHealingSphereSpells[l_I], true);
+
+                l_Caster->SetPower(POWER_CHI, 0);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_crane_SpellScript::HandleHitDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_crane_SpellScript::HandleHitTarget, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_crane_SpellScript::HandleHitTarget, EFFECT_2, SPELL_EFFECT_HEAL);
+                AfterCast += SpellCastFn(spell_monk_chi_explosion_mistweaver_crane_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_mistweaver_crane_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -4430,6 +4616,9 @@ void AddSC_monk_spell_scripts()
     new spell_monk_fists_of_fury_damage();
     new spell_monk_fists_of_fury_stun();
     new spell_monk_eminence_heal();
+    new spell_monk_chi_explosion_mistweaver();
+    new spell_monk_chi_explosion_heal();
+    new spell_monk_chi_explosion_mistweaver_crane();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
