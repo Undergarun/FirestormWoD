@@ -2801,6 +2801,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     if (roll < tmp)
         return SPELL_MISS_RESIST;
 
+    // Charge spells aren't suppose to takecare of dodge parry or block
+    if (spell->AttributesCu & SPELL_ATTR0_CU_CHARGE)
+        return SPELL_MISS_NONE;
+
     bool canDodge = true;
     bool canParry = true;
     bool canBlock = spell->AttributesEx3 & SPELL_ATTR3_BLOCKABLE_SPELL;
