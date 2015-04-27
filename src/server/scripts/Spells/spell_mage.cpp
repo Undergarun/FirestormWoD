@@ -2221,30 +2221,30 @@ class spell_mage_arcane_blast : public SpellScriptLoader
 /// Blink - 1953
 class spell_mage_blink : public SpellScriptLoader
 {
-public:
-    spell_mage_blink() : SpellScriptLoader("spell_mage_blink") { }
+    public:
+        spell_mage_blink() : SpellScriptLoader("spell_mage_blink") { }
 
-    class spell_mage_blink_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_blink_SpellScript);
-
-        void HandleAfterHit()
+        class spell_mage_blink_SpellScript : public SpellScript
         {
-            if (Unit* l_Caster = GetCaster())
-                if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
-                    l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
-        }
+            PrepareSpellScript(spell_mage_blink_SpellScript);
 
-        void Register()
+            void HandleAfterHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
+                        l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
+            return new spell_mage_blink_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_blink_SpellScript();
-    }
 };
 
 /// Blizzard - 42208
@@ -2475,52 +2475,52 @@ class spell_mage_flameglow : public SpellScriptLoader
 /// Remove Curse - 475
 class spell_mage_remove_curse : public SpellScriptLoader
 {
-public:
-    spell_mage_remove_curse() : SpellScriptLoader("spell_mage_remove_curse") { }
+    public:
+        spell_mage_remove_curse() : SpellScriptLoader("spell_mage_remove_curse") { }
 
-    class spell_mage_remove_curse_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_remove_curse_SpellScript);
-
-        void HandleOnHit()
+        class spell_mage_remove_curse_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
-            Unit* l_Target = GetHitUnit();
+            PrepareSpellScript(spell_mage_remove_curse_SpellScript);
 
-            if (l_Caster == nullptr)
-                return;
-            if (l_Target == nullptr)
-                return;
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-            // If target has a Hex (shaman spell) - remove it
-            if (l_Target->HasAura(SPELL_SHAMAN_HEX))
-                l_Target->RemoveAura(SPELL_SHAMAN_HEX);
-        }
+                if (l_Caster == nullptr)
+                    return;
+                if (l_Target == nullptr)
+                    return;
 
-        void Register()
+                // If target has a Hex (shaman spell) - remove it
+                if (l_Target->HasAura(SPELL_SHAMAN_HEX))
+                    l_Target->RemoveAura(SPELL_SHAMAN_HEX);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_mage_remove_curse_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_mage_remove_curse_SpellScript::HandleOnHit);
+            return new spell_mage_remove_curse_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_remove_curse_SpellScript();
-    }
 };
 
 class PlayerScript_rapid_teleportation : public PlayerScript
 {
-public:
-    PlayerScript_rapid_teleportation() :PlayerScript("PlayerScript_rapid_teleportation") {}
+    public:
+        PlayerScript_rapid_teleportation() :PlayerScript("PlayerScript_rapid_teleportation") {}
 
-    void OnTeleport(Player* p_Player, const SpellInfo * p_SpellInfo)
-    {
-        if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(SPELL_MAGE_RAPID_TELEPORTATION_AURA))
+        void OnTeleport(Player* p_Player, const SpellInfo * p_SpellInfo)
         {
-            p_Player->CastSpell(p_Player, SPELL_MAGE_RAPID_TELEPORTATION, true);
+            if (p_Player->getClass() == CLASS_MAGE &&  p_SpellInfo->SpellFamilyName == SPELLFAMILY_MAGE && p_Player->HasAura(SPELL_MAGE_RAPID_TELEPORTATION_AURA))
+            {
+                p_Player->CastSpell(p_Player, SPELL_MAGE_RAPID_TELEPORTATION, true);
+            }
         }
-    }
 };
 
 void AddSC_mage_spell_scripts()
