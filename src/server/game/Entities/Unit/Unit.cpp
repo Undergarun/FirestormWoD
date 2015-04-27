@@ -1190,12 +1190,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     return damage;
 }
 
+
+/// Last Update 6.1.2
 uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMask p_DamageSchoolMask, SpellInfo const* p_SpellProto)
 {
     if (p_Victim->GetSpecializationId(p_Victim->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
         return p_Damage;
 
-    // Stance of the Sturdy Ox
+    /// Stance of the Sturdy Ox
     if (!p_Victim->HasAura(115069))
         return p_Damage;
 
@@ -1211,7 +1213,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
     }
 
     /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
-    if (p_Victim->HasSpell(115203) && p_Victim->HasAura(117967))
+    if (p_Victim->HasAura(120954) && p_Victim->HasAura(117967))
         l_Stagger -= 0.20f;
     /// Shuffle also increase stagger amount by 20%
     if (p_Victim->HasAura(115307))
