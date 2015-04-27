@@ -33148,7 +33148,7 @@ void Player::SetQuestBit(uint32 p_BitIndex, bool p_Completed)
         RemoveFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, l_FlagValue);
 }
 
-bool Player::IsQuestBitFlaged(uint32 p_BitIndex)
+bool Player::IsQuestBitFlaged(uint32 p_BitIndex) const
 {
     uint32 l_FlagValue  = 1 << (p_BitIndex - 1) % 32;
     uint32 l_FieldIndex = (p_BitIndex - 1) / 32;
