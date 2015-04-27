@@ -926,8 +926,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     isDebugAreaTriggers = false;
 
-    m_CompletedQuestBits.SetSize(QUESTS_COMPLETED_BITS_SIZE);
-
     m_WeeklyQuestChanged = false;
 
     m_MonthlyQuestChanged = false;
@@ -1000,17 +998,17 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     /// Unlock WoD heroic dungeons
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
+        SetQuestBit(l_QuestBit, true);
 
     ///////////////////////////////////////////////////////////
 
@@ -1544,7 +1542,7 @@ void Player::RewardCurrencyAtKill(Unit* p_Victim)
     if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
     {
         uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        if (IsQuestBitFlaged(l_QuestBit))
             return;
     }
 
@@ -11582,7 +11580,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         auto l_TrackingQuest = go->GetGOInfo()->GetTrackingQuestId();
         auto l_QuestBit      = GetQuestUniqueBitFlag(l_TrackingQuest);
 
-        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        if (l_TrackingQuest && IsQuestBitFlaged(l_QuestBit))
         {
             SendLootRelease(guid);
             return;
@@ -11771,7 +11769,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type, bool fetchLoot)
         auto l_TrackingQuest = creature->GetCreatureTemplate()->TrackingQuestID;
         uint32 l_QuestBit    = GetQuestUniqueBitFlag(l_TrackingQuest);
 
-        if (l_TrackingQuest && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        if (l_TrackingQuest && IsQuestBitFlaged(l_QuestBit))
         {
             SendLootRelease(guid);
             return;
@@ -18845,10 +18843,7 @@ void Player::RewardQuest(Quest const* p_Quest, uint32 p_Reward, Object* p_QuestG
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, p_Quest->GetQuestId());
 
     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(l_QuestId))
-    {
-        m_CompletedQuestBits.SetBit(l_QuestBit - 1);
         SetQuestBit(l_QuestBit, true);
-    }
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -19525,10 +19520,7 @@ void Player::RemoveRewardedQuest(uint32 p_QuestId)
         phaseMgr.NotifyConditionChanged(phaseUdateData);
 
         if (uint32 l_QuestBit = GetQuestUniqueBitFlag(p_QuestId))
-        {
-            m_CompletedQuestBits.UnsetBit(l_QuestBit - 1);
             SetQuestBit(l_QuestBit, false);
-        }
     }
 }
 
@@ -21162,7 +21154,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     /// If creature is quest tracked and player have the quest, player isn't allowed to loot
     auto l_TrackingQuestId = creature->GetCreatureTemplate()->TrackingQuestID;
     uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-    if (l_TrackingQuestId && m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+    if (l_TrackingQuestId && IsQuestBitFlaged(l_QuestBit))
         return false;
 
     const Loot* loot = &creature->loot;
@@ -21984,7 +21976,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
                 if (!quest->IsDailyOrWeekly() && !quest->IsMonthly() && !quest->IsSeasonal())
                 {
                     if (uint32 l_QuestBit = GetQuestUniqueBitFlag(quest_id))
-                        m_CompletedQuestBits.SetBit(l_QuestBit  - 1);
+                        SetQuestBit(l_QuestBit, true);
                 }
 
                 if (uint32 talents = quest->GetBonusTalents())
@@ -22035,7 +22027,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 SetDynamicValue(PLAYER_DYNAMIC_FIELD_DAILY_QUESTS, quest_daily_idx++, quest_id);
 
             if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
-                m_CompletedQuestBits.SetBit(questBit - 1);
+                SetQuestBit(questBit , true);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -22062,7 +22054,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
             m_weeklyquests.insert(quest_id);
 
             if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
-                m_CompletedQuestBits.SetBit(questBit - 1);
+                SetQuestBit(questBit, true);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -22090,7 +22082,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
             m_seasonalquests[event_id].insert(quest_id);
 
             if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
-                m_CompletedQuestBits.SetBit(questBit - 1);
+                SetQuestBit(questBit, true);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -22117,7 +22109,7 @@ void Player::_LoadMonthlyQuestStatus(PreparedQueryResult result)
             m_monthlyquests.insert(quest_id);
 
             if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
-                m_CompletedQuestBits.SetBit(questBit - 1);
+                SetQuestBit(questBit, true);
 
             sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Monthly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
@@ -28017,7 +28009,7 @@ void Player::RewardPersonnalCurrencies(Unit* p_Victim)
     if (uint32 l_TrackingQuestId = Vignette::GetTrackingQuestIdFromWorldObject(p_Victim))
     {
         uint32 l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
-        if (m_CompletedQuestBits.GetBit(l_QuestBit - 1))
+        if (IsQuestBitFlaged(l_QuestBit))
             return;
     }
 
@@ -33147,13 +33139,21 @@ bool Player::CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32
 
 void Player::SetQuestBit(uint32 p_BitIndex, bool p_Completed)
 {
-    uint32 l_BitIndex = p_BitIndex % 32;
-    uint32 l_FieldIndex = (p_BitIndex - l_BitIndex) / 32;
+    uint32 l_FlagValue  = 1 <<  (p_BitIndex - 1) % 32;
+    uint32 l_FieldIndex = (p_BitIndex - 1) / 32;
 
     if (p_Completed)
-        SetFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, 1 << l_BitIndex);
+        SetFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, l_FlagValue);
     else
-        RemoveFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, 1 << l_BitIndex);
+        RemoveFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, l_FlagValue);
+}
+
+bool Player::IsQuestBitFlaged(uint32 p_BitIndex)
+{
+    uint32 l_FlagValue  = 1 << (p_BitIndex - 1) % 32;
+    uint32 l_FieldIndex = (p_BitIndex - 1) / 32;
+
+    return HasFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, l_FlagValue);
 }
 
 void Player::ClearQuestBits(std::vector<uint32> const& p_QuestBits)
