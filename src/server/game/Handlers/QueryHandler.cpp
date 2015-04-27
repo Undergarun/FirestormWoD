@@ -137,14 +137,14 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
                 ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
             }
         }
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", ci->Name.c_str(), entry);
 
         uint8 itemCount = 0;
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
             if (ci->questItems[i])
                 itemCount++;                                // itemId[6], quest drop
 
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE);
 
         data << uint32(entry);                                                          // creature entry
         data.WriteBit(1);                                                               // has valid data
@@ -201,18 +201,18 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         }
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (ENTRY: %u)", entry);
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 4);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", entry);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
         data.WriteBit(0); // has no valid data
         data.FlushBits();
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
 }
 

@@ -71,7 +71,7 @@ enum Opcodes
 
         /// Query
         SMSG_DB_REPLY                               = 0x09A5, ///< 6.1.2 19783
-        SMSG_CREATURE_QUERY_RESPONSE                = 0x1A15, ///< 6.1.2 19783
+        SMSG_QUERY_CREATURE_RESPONSE                = 0x1A15, ///< 6.1.2 19783
         SMSG_NPC_TEXT_UPDATE                        = 0x071E, ///< 6.1.2 19783
         SMSG_NAME_QUERY_RESPONSE                    = 0x0C71, ///< 6.1.2 19783
         SMSG_REALM_QUERY_RESPONSE                   = 0x0DF2, ///< 6.1.2 19783
@@ -1121,7 +1121,7 @@ enum Opcodes
     /// Cache
     //////////////////////////////////////////////////////////////////////////
     CMSG_REQUEST_HOTFIX                         = 0x039F, ///< 6.1.2 19783
-    CMSG_CREATURE_QUERY                         = 0x0FD3, ///< 6.1.2 19783
+    CMSG_QUERY_CREATURE                         = 0x0FD3, ///< 6.1.2 19783
     CMSG_NPC_TEXT_QUERY                         = 0x1E24, ///< 6.1.2 19783
     CMSG_NAME_QUERY                             = 0x0BBD, ///< 6.1.2 19783
     CMSG_QUEST_QUERY                            = 0x0FA9, ///< 6.1.2 19783
