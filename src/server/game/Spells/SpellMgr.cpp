@@ -5100,12 +5100,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].SpellClassMask[0] |= 0x1000;
                 break;
             case 109259: ///< Powershot
-                spellInfo->Effects[1].BasePoints = 70;
-                spellInfo->Effects[2].BasePoints = 90;
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_WEAPON_PERCENT_DAMAGE;
+                spellInfo->Effects[2].BasePoints = 0;
                 break;
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
+                break;
+            case 82938: ///< Explosive Trap (launcher)
+            case 82940: ///< Ice Trap (launcher)
+            case 60202: ///< Freezing Trap (launcher)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7);
                 break;
             case 56224: ///< Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
