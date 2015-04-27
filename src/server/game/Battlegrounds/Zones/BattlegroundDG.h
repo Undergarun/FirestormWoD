@@ -317,6 +317,10 @@ class BattlegroundDG : public Battleground
         void HandleKillPlayer(Player* player, Player* killer);
         void EventPlayerDroppedFlag(Player* player);
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_DG_MAX_VICTORY_POINTS; }
+        bool IsScoreIncremental() const { return true; }
+
     private:
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; };
 

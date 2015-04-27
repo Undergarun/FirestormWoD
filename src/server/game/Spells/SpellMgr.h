@@ -805,4 +805,6 @@ class SpellMgr
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()
 
+bool IsCCSpell(SpellInfo const* p_SpellProto);
+
 #endif

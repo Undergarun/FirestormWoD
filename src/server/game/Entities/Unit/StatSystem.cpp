@@ -284,11 +284,16 @@ void Player::UpdateArmor()
     l_Armor += GetModifierValue(l_UnitMod, TOTAL_VALUE);
     l_Armor *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    /// Bonus armor value should already have been added in armor value, we just add few auras bonuses
-    uint32 l_BonusArmor = GetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR);
-    l_BonusArmor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
-    l_BonusArmor *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
-    SetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, l_BonusArmor);
+    if (GetRoleForGroup() == ROLE_TANK)
+    {
+        uint32 l_BonusArmor  = GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_VALUE);  ///< base armor (from items)
+        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_PCT);           ///< armor percent from items
+        l_BonusArmor += GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_VALUE);
+        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_PCT);
+        SetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, l_BonusArmor);
+
+        l_Armor += l_BonusArmor;
+    }
 
     //add dynamic flat mods
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);

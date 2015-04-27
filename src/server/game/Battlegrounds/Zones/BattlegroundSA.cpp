@@ -984,8 +984,6 @@ void BattlegroundSA::EndBattleground(uint32 winner)
     RewardHonorToTeam(GetBonusHonorFromKill(2), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(2), HORDE);
 
-    // No Clue how to reward this bg, so we give always silver to the looser
-    AwardTeams(2, 3, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

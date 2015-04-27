@@ -9614,6 +9614,23 @@ void Player::ModifyCurrencyFlags(uint32 currencyId, uint8 flags)
         _currencyStorage[currencyId].state = PLAYERCURRENCY_CHANGED;
 }
 
+void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
+{
+    ModifyCurrency(id, count, printLog, ignoreMultipliers, ignoreLimit);
+
+    switch (id)
+    {
+        case CURRENCY_TYPE_CONQUEST_META_ARENA_BG:
+        case CURRENCY_TYPE_CONQUEST_META_RBG:
+        case CURRENCY_TYPE_CONQUEST_META_ASHRAN:
+            id = CURRENCY_TYPE_CONQUEST_POINTS;
+        default:
+            break;
+    }
+
+    SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
+}
+
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
 {
     if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && count >= 0 &&
@@ -10532,8 +10549,8 @@ void Player::_ApplyItemModification(Item const* p_Item, ItemBonusEntry const* p_
                     ApplyRatingMod(CR_MASTERY, int32(l_StatValue), l_ApplyStats);
                     break;
                 case ITEM_MOD_EXTRA_ARMOR:
-                    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_StatValue), l_ApplyStats);
-                    HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    HandleStatModifier(UNIT_MOD_BONUS_ARMOR, BASE_VALUE, float(l_StatValue), l_ApplyStats);
+                    UpdateArmor();
                     break;
                 case ITEM_MOD_FIRE_RESISTANCE:
                     HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(l_StatValue), l_ApplyStats);
@@ -10745,8 +10762,8 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 ApplyRatingMod(CR_MASTERY, int32(val), applyStats);
                 break;
             case ITEM_MOD_EXTRA_ARMOR:
-                ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(val), applyStats);
-                HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(val), applyStats);
+                HandleStatModifier(UNIT_MOD_BONUS_ARMOR, BASE_VALUE, float(val), applyStats);
+                UpdateArmor();
                 break;
             case ITEM_MOD_FIRE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(val), applyStats);
@@ -25456,14 +25473,14 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->RequiredItem[i])
-                DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i], true);
+                DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * count, true);
         }
 
         for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->RequiredCurrency[i])
                 if (i != 1 || iece->ID == 2999) // 1 are season count request, we must not substract it
-                    ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]), true, true);
+                    ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i] * count), true, true);
         }
 
         if (uint32 l_OverridePrice = iece->OverrideBuyPrice)
@@ -25585,7 +25602,7 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i]))
+            if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * count))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
                 return false;
@@ -25604,7 +25621,7 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
                 return false;
             }
 
-            if (!HasCurrency(iece->RequiredCurrency[i], iece->RequiredCurrencyCount[i]))
+            if (!HasCurrency(iece->RequiredCurrency[i], iece->RequiredCurrencyCount[i] * count))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
                 return false;
@@ -25633,14 +25650,14 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
         for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->RequiredItem[i])
-                DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i], true);
+                DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * count, true);
         }
 
         for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->RequiredCurrency[i])
                 if (i != 1 || iece->ID == 2999) // 1 are season count request, we must not substract it
-                    ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]), true, true);
+                    ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i] * count), true, true);
         }
     }
 
@@ -25742,7 +25759,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
-            if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i]))
+            if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * count))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
                 return false;
@@ -25766,13 +25783,13 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             // Second field in dbc is season count except two strange rows
             if (i == 1 && iece->ID != 2999)
             {
-                if ((iece->RequiredCurrencyCount[i] / precision) > GetCurrencyOnSeason(iece->RequiredCurrency[i], false))
+                if ((iece->RequiredCurrencyCount[i] * count / precision) > GetCurrencyOnSeason(iece->RequiredCurrency[i], false))
                 {
                     SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
                     return false;
                 }
             }
-            else if (!HasCurrency(iece->RequiredCurrency[i], iece->RequiredCurrencyCount[i]))
+            else if (!HasCurrency(iece->RequiredCurrency[i], iece->RequiredCurrencyCount[i]  * count))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
                 return false;
