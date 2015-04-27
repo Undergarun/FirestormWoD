@@ -996,20 +996,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     if (GetSession()->GetSecurity() > SEC_PLAYER)
         gOnlineGameMaster++;
 
-    /// Unlock WoD heroic dungeons
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
-        SetQuestBit(l_QuestBit, true);
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
-        SetQuestBit(l_QuestBit, true);
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
-        SetQuestBit(l_QuestBit, true);
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
-        SetQuestBit(l_QuestBit, true);
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
-        SetQuestBit(l_QuestBit, true);
-    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
-        SetQuestBit(l_QuestBit, true);
-
     ///////////////////////////////////////////////////////////
 
     m_WargameRequest = nullptr;
@@ -26891,6 +26877,20 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendCurrencies();
     SetMover(this);
+
+    /// Unlock WoD heroic dungeons
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37213))   ///< FLAG - Proving Grounds - Damage Silver
+        SetQuestBit(l_QuestBit, true);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33090))   ///< FLAG - Proving Grounds - Damage Silver
+        SetQuestBit(l_QuestBit, true);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33096))   ///< FLAG - Proving Grounds - Healer Silver
+        SetQuestBit(l_QuestBit, true);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37219))   ///< FLAG - Proving Grounds - Healer Silver
+        SetQuestBit(l_QuestBit, true);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(37216))   ///< FLAG - Proving Grounds - Tank Silver
+        SetQuestBit(l_QuestBit, true);
+    if (uint32 l_QuestBit = GetQuestUniqueBitFlag(33093))   ///< FLAG - Proving Grounds - Tank Silver
+        SetQuestBit(l_QuestBit, true);
 }
 
 void Player::SendCooldownAtLogin()
@@ -33141,7 +33141,10 @@ bool Player::CanUpgradeHeirloomWith(HeirloomEntry const* p_HeirloomEntry, uint32
 
 void Player::SetQuestBit(uint32 p_BitIndex, bool p_Completed)
 {
-    uint32 l_FlagValue  = 1 <<  (p_BitIndex - 1) % 32;
+    if (!p_BitIndex)
+        return;
+
+    uint32 l_FlagValue  = 1 <<  ((p_BitIndex - 1) % 32);
     uint32 l_FieldIndex = (p_BitIndex - 1) / 32;
 
     if (p_Completed)
@@ -33152,7 +33155,10 @@ void Player::SetQuestBit(uint32 p_BitIndex, bool p_Completed)
 
 bool Player::IsQuestBitFlaged(uint32 p_BitIndex) const
 {
-    uint32 l_FlagValue  = 1 << (p_BitIndex - 1) % 32;
+    if (!p_BitIndex)
+        return false;
+
+    uint32 l_FlagValue  = 1 << ((p_BitIndex - 1) % 32);
     uint32 l_FieldIndex = (p_BitIndex - 1) / 32;
 
     return HasFlag(PLAYER_FIELD_QUEST_COMPLETED + l_FieldIndex, l_FlagValue);
