@@ -2306,7 +2306,7 @@ bool GameObject::IsLootAllowedFor(Player const* p_Player) const
     auto l_TrackingQuestId = GetGOInfo()->GetTrackingQuestId();
     auto l_QuestBit = GetQuestUniqueBitFlag(l_TrackingQuestId);
 
-    if (l_TrackingQuestId && p_Player->GetCompletedQuests().GetBit(l_QuestBit - 1))
+    if (l_TrackingQuestId && p_Player->IsQuestBitFlaged(l_QuestBit))
         return false;
 
     if (!m_lootRecipient && !m_lootRecipientGroup)
