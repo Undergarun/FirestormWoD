@@ -2885,6 +2885,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -2894,6 +2895,12 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+            enum eSpells
+            {
+                PriestWoDPvPHoly2PBonus = 171158,
+                Pvp2PBonusProc          = 171162
+            };
 
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2938,6 +2945,11 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         }
                                     }
                                 }
+                            }
+                            if (l_Caster->HasAura(eSpells::PriestWoDPvPHoly2PBonus)) ///< When Prayer of Mending heals a target, you and the target gain 130 Versatility for 10 sec. Stacks up to 5 times.
+                            {
+                                l_Caster->CastSpell(l_Caster, eSpells::Pvp2PBonusProc, true);
+                                l_Caster->CastSpell(l_Target, eSpells::Pvp2PBonusProc, true);
                             }
                             l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
                         }
