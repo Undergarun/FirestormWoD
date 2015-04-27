@@ -51,7 +51,6 @@ enum WarriorSpells
     WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
     WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK        = 118895,
     WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326,
-    WARRIOR_SPELL_STORM_BOLT_STUN               = 132169,
     WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED        = 132404,
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
@@ -275,11 +274,6 @@ class spell_warr_shield_block: public SpellScriptLoader
         }
 };
 
-enum StormBoltSpells
-{
-    SpellStormBoltOffHand = 107570
-};
-
 /// Storm Bolt - 107570, Storm Bolt (Off Hand) - 145585
 class spell_warr_storm_bolt: public SpellScriptLoader
 {
@@ -290,24 +284,29 @@ class spell_warr_storm_bolt: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
 
+            enum eSpells
+            {
+                StormBoltOffHand = 107570,
+                StormBoltStun = 132169
+            };
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN);
 
-                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                if (GetSpellInfo()->Id == StormBoltSpells::SpellStormBoltOffHand && !l_Target->IsImmunedToSpellEffect(l_SpellInfo, EFFECT_0))
-                    l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                if (GetSpellInfo()->Id == eSpells::StormBoltOffHand && !l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
+                    l_Caster->CastSpell(l_Target, eSpells::StormBoltStun, true);
             }
 
             void HandleOnHit()
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), EFFECT_0))
+                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
                         SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
                 }
             }
