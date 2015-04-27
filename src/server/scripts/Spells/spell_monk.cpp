@@ -3146,7 +3146,8 @@ class spell_monk_paralysis: public SpellScriptLoader
         }
 };
 
-// Touch of Death - 115080
+/// last update : 6.1.2 19802
+/// Touch of Death - 115080
 class spell_monk_touch_of_death: public SpellScriptLoader
 {
     public:
@@ -3164,9 +3165,9 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                     {
                         if (caster->HasAura(124490))
                         {
-                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                            if (target->GetTypeId() == TYPEID_UNIT)
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && (target->GetHealth() > caster->GetHealth()))
+                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && (target->GetHealth() > caster->GetHealth() && !target->ToCreature()->IsDungeonBoss()))
                                 return SPELL_FAILED_BAD_TARGETS;
                             else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
                                 (target->GetHealthPct() > 10.0f))
@@ -3174,11 +3175,11 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                         }
                         else
                         {
-                            if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsDungeonBoss())
+                            if (target->GetTypeId() == TYPEID_UNIT)
                                 return SPELL_FAILED_BAD_TARGETS;
                             else if (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer()))
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (target->GetTypeId() == TYPEID_UNIT && (target->GetHealth() > caster->GetHealth()))
+                            else if (target->GetTypeId() == TYPEID_UNIT && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth() && !target->ToCreature()->IsDungeonBoss()))
                                 return SPELL_FAILED_BAD_TARGETS;
                         }
                         return SPELL_CAST_OK;
