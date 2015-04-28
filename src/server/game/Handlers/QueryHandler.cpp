@@ -120,82 +120,86 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     uint32 entry;
     recvData >> entry;
 
-    if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry))
+    if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry))
     {
 
-        std::string Name, SubName, Unk505;
-        Name = ci->Name;
-        SubName = ci->SubName;
-        Unk505 = "";
+        std::string Name, SubName, l_FemaleName;
+        Name = creatureInfo->Name;
+        SubName = creatureInfo->SubName;
+        l_FemaleName = creatureInfo->FemaleName;
 
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant locale = GetSessionDbLocaleIndex();
+        if (locale >= 0)
         {
-            if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(entry))
+            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(entry))
             {
-                ObjectMgr::GetLocaleString(cl->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
+                ObjectMgr::GetLocaleString(creatureLocale->Name, locale, Name);
+                ObjectMgr::GetLocaleString(creatureLocale->SubName, locale, SubName);
+                ObjectMgr::GetLocaleString(creatureLocale->l_FemaleName, locale, l_FemaleName);
             }
         }
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", ci->Name.c_str(), entry);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
 
         uint8 itemCount = 0;
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            if (ci->questItems[i])
+            if (creatureInfo->questItems[i])
                 itemCount++;                                // itemId[6], quest drop
 
         WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE);
 
-        data << uint32(entry);                                                          // creature entry
-        data.WriteBit(1);                                                               // has valid data
+        data << uint32(entry);                                                          ///< Creature entry
+        data.WriteBit(1);                                                               ///< Has valid data
         data.FlushBits();
 
         data.WriteBits(SubName.size() ? SubName.size() + 1 : 0, 11);
-        data.WriteBits(Unk505.size() ? Unk505.size() + 1 : 0, 11);
-        data.WriteBits(ci->IconName.size() ? ci->IconName.size() + 1 : 0, 6);
-        data.WriteBit(ci->RacialLeader);                                                // isRacialLeader
-        data.WriteBits(Name.size() ? Name.size() + 1 : 0, 11);                          // Male
+        data.WriteBits(l_FemaleName.size() ? l_FemaleName.size() + 1 : 0, 11);
+        data.WriteBits(creatureInfo->IconName.size() ? creatureInfo->IconName.size() + 1 : 0, 6);
+        data.WriteBit(creatureInfo->RacialLeader);                     ///< isRacialLeader
+        data.WriteBits(Name.size() ? Name.size() + 1 : 0, 11);        ///< Male
+        data.WriteBits(l_FemaleName.size() ? l_FemaleName.size() + 1 : 0, 11);        ///< Female
 
-        for (int i = 0; i < 7; i++)
-            data.WriteBits(0, 11);                          // Female and other Names - Never send it
+        for (int i = 0; i < 6; i++)
+            data.WriteBits(0, 11);                                    ///< Female and other Names - Never send it
 
         data.FlushBits();
 
-        if (ci->Name.size())
-            data << Name;                                   // Name
+        if (Name.size())
+            data << Name;                                             ///< Name
+        if (l_FemaleName.size())
+            data << l_FemaleName;                                             ///< Name
 
-        data << uint32(ci->type_flags);                     // flags
-        data << uint32(ci->type_flags2);                    // unknown meaning
-        data << uint32(ci->type);                           // CreatureType.dbc
-        data << uint32(ci->family);                         // CreatureFamily.dbc
-        data << uint32(ci->rank);                           // Creature Rank (elite, boss, etc)
-        data << uint32(ci->KillCredit[0]);                  // new in 3.1, kill credit
-        data << uint32(ci->KillCredit[1]);                  // new in 3.1, kill credit
-        data << uint32(ci->Modelid1);                       // Modelid1
-        data << uint32(ci->Modelid2);                       // Modelid2
-        data << uint32(ci->Modelid3);                       // Modelid3
-        data << uint32(ci->Modelid4);                       // Modelid4
-        data << float(ci->ModHealth);                       // dmg/hp modifier
-        data << float(ci->ModMana);                         // dmg/mana modifier
-        data << uint32(itemCount);                          // quest item count
-        data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
-        data << uint32(ci->expansionUnknown);               // unknown meaning
-        data << uint32(ci->TrackingQuestID);                // QuestTrackingId
+        data << uint32(creatureInfo->type_flags);                     ///< Flags
+        data << uint32(creatureInfo->type_flags2);                    ///< Unknown meaning
+        data << uint32(creatureInfo->type);                           ///< CreatureType.dbc
+        data << uint32(creatureInfo->family);                         ///< CreatureFamily.dbc
+        data << uint32(creatureInfo->rank);                           ///< Creature Rank (elite, boss, etc)
+        data << uint32(creatureInfo->KillCredit[0]);                  ///< Kill credit
+        data << uint32(creatureInfo->KillCredit[1]);                  ///< Kill credit
+        data << uint32(creatureInfo->Modelid1);                       ///< Modelid1
+        data << uint32(creatureInfo->Modelid2);                       ///< Modelid2
+        data << uint32(creatureInfo->Modelid3);                       ///< Modelid3
+        data << uint32(creatureInfo->Modelid4);                       ///< Modelid4
+        data << float(creatureInfo->ModHealth);                       ///< HP modifier
+        data << float(creatureInfo->ModMana);                         ///< Mana modifier
+        data << uint32(itemCount);                          ///< Quest item count
+        data << uint32(creatureInfo->movementId);                     ///< CreatureMovementInfo.dbc
+        data << uint32(creatureInfo->expansionUnknown);               ///< Unknown either 0 or 3, sent to the client / wdb
+        data << uint32(creatureInfo->TrackingQuestID);                ///< QuestTrackingId
 
         if (SubName.size())
-            data << SubName;                                // Sub Name
+            data << SubName;                                ///< Sub Name
 
-        if (Unk505.size())
-            data << Unk505;                                 // Unknow string since 5.0.5
+        if (l_FemaleName.size())
+            data << l_FemaleName;                             ///< Female Name
 
-        if (ci->IconName.size())
-            data << ci->IconName;                           // Icon Name
+        if (creatureInfo->IconName.size())
+            data << creatureInfo->IconName;                           ///< Icon Name
 
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS && itemCount > 0; ++i)
         {
-            if (ci->questItems[i])
+            if (creatureInfo->questItems[i])
             {
-                data << uint32(ci->questItems[i]);
+                data << uint32(creatureInfo->questItems[i]);
                 itemCount--;
             }
         }
@@ -208,7 +212,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", entry);
         WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
-        data.WriteBit(0); // has no valid data
+        data.WriteBit(0);                               ///< Has no valid data
         data.FlushBits();
 
         SendPacket(&data);

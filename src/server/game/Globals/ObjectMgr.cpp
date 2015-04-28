@@ -307,7 +307,7 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, subname_loc1, name_loc2, subname_loc2, name_loc3, subname_loc3, name_loc4, subname_loc4, name_loc5, subname_loc5, name_loc6, subname_loc6, name_loc7, subname_loc7, name_loc8, subname_loc8, name_loc9, subname_loc9, name_loc10, subname_loc10 FROM locales_creature");
+    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, femaleName_loc1, subname_loc1, name_loc2, femaleName_loc2, subname_loc2, name_loc3, femaleName_loc3, subname_loc3, name_loc4, femaleName_loc4, subname_loc4, name_loc5, femaleName_loc5, subname_loc5, name_loc6, femaleName_loc6, subname_loc6, name_loc7, femaleName_loc7, subname_loc7, name_loc8, femaleName_loc8, subname_loc8, name_loc9, femaleName_loc9, subname_loc9, name_loc10, femaleName_loc10, subname_loc10 FROM locales_creature");
 
     if (!result)
         return;
@@ -323,8 +323,9 @@ void ObjectMgr::LoadCreatureLocales()
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.SubName);
+            AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
+            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.l_FemaleName);
+            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.SubName);
         }
     }
     while (result->NextRow());
@@ -403,19 +404,19 @@ void ObjectMgr::LoadCreatureTemplates()
 
     //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-    //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19
-                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
-    //                                             20       21   22     23            24           25               26               27          28             29
+    //                                           6        7      8           9       10           11            12       13      14     15       16       17         18        19        20
+                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
+    //                                             21       22   23      24            25           26               27               28          29             30
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
-    //                                             30         31           32          33            34              35          36            37          38            39           40
+    //                                             31         32           33          34            35              36          37            38          39            40           41
                                              "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
-    //                                            41          42           43          44          45         46         47            48         49            50           51
+    //                                            42          43           44          45          46         47         48            49         50            51           52
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           52     53       54     55       56     57       58      59        60           61          62      63       64         65
+    //                                           53     54       55     56       57     58       59      60        61           62          63      64       65         66
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                           66             67          68         69           70           71         72            73           74          75         76          77
+    //                                           67             68          69         70           71           72         73            74           75          76         77          78
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            78           79         80          81               82               83              84            85
+    //                                            79           80         81          82               83               84              85            86
                                              "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -449,6 +450,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.Modelid3          = fields[index++].GetUInt32();
         creatureTemplate.Modelid4          = fields[index++].GetUInt32();
         creatureTemplate.Name              = fields[index++].GetString();
+        creatureTemplate.FemaleName        = fields[index++].GetString();
         creatureTemplate.SubName           = fields[index++].GetString();
         creatureTemplate.IconName          = fields[index++].GetString();
         creatureTemplate.GossipMenuId      = fields[index++].GetUInt32();
