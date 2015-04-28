@@ -619,6 +619,8 @@ class AchievementMgr
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
         uint32 GetAchievementPoints() const { return _achievementPoints; }
 
+        CompletedAchievementMap const& GetCompletedAchivements() const { return m_completedAchievements; }
+
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement) const;

@@ -479,9 +479,30 @@ namespace MS
                 if (!p_Player)
                     return;
 
+<<<<<<< HEAD
                 std::vector<uint32> l_BattleFields;
                 Bracket const* l_Bracket = nullptr;
                 if (p_BGTypeID != BATTLEGROUND_AA)
+=======
+                uint32 winner_conquest = (player->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_FIRST : BG_REWARD_WINNER_CONQUEST_LAST) / 100;
+                uint32 winner_honor = (player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_FIRST : BG_REWARD_WINNER_HONOR_LAST) / 100;
+
+                ByteBuffer dataBuffer;
+
+                /// @todo Update me
+                data->Initialize(SMSG_BATTLEFIELD_LIST);
+                data->WriteBit(0); // unk1
+                data->WriteBit(guid[4]);
+                data->WriteBit(1); // byte2C
+                data->WriteBit(guid[2]);
+                data->WriteBit(guid[6]);
+
+                if (bgTypeId == BATTLEGROUND_AA)                         // arena
+                {
+                    data->WriteBits(0, 22);                                 // unk (count?)
+                }
+                else                                                    // battleground
+>>>>>>> origin/wod_ptr
                 {
                     if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false)))
                     {

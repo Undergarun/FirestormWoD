@@ -137,9 +137,13 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt64(1, uint64(time(NULL)));
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADMAILCOUNT, l_Statement);
 
-    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILDATE);
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     l_Statement->setUInt32(0, l_LowGuid);
-    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADMAILDATE, l_Statement);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADMAIL, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILITEMS);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SOCIALLIST);
     l_Statement->setUInt32(0, m_accountId);
