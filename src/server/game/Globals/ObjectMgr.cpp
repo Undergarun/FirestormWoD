@@ -325,7 +325,7 @@ void ObjectMgr::LoadCreatureLocales()
             LocaleConstant locale = (LocaleConstant) i;
             AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
             AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.l_FemaleName);
-            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.SubName);
+            AddLocaleString(fields[1 + 3 * (i - 1) + 2].GetString(), locale, data.SubName);
         }
     }
     while (result->NextRow());

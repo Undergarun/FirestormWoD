@@ -123,10 +123,11 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry))
     {
 
-        std::string Name, SubName, l_FemaleName;
+        std::string Name, SubName, l_FemaleName, SubNameAlt;
         Name = creatureInfo->Name;
         SubName = creatureInfo->SubName;
         l_FemaleName = creatureInfo->FemaleName;
+        SubNameAlt = "";
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
         if (locale >= 0)
@@ -143,57 +144,57 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         uint8 itemCount = 0;
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
             if (creatureInfo->questItems[i])
-                itemCount++;                                // itemId[6], quest drop
+                itemCount++;                                           ///< itemId[6], quest drop
 
         WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE);
 
-        data << uint32(entry);                                                          ///< Creature entry
-        data.WriteBit(1);                                                               ///< Has valid data
+        data << uint32(entry);                                         ///< Creature entry
+        data.WriteBit(1);                                              ///< Has valid data
         data.FlushBits();
 
         data.WriteBits(SubName.size() ? SubName.size() + 1 : 0, 11);
-        data.WriteBits(l_FemaleName.size() ? l_FemaleName.size() + 1 : 0, 11);
+        data.WriteBits(SubNameAlt.size() ? SubNameAlt.size() + 1 : 0, 11);
         data.WriteBits(creatureInfo->IconName.size() ? creatureInfo->IconName.size() + 1 : 0, 6);
         data.WriteBit(creatureInfo->RacialLeader);                     ///< isRacialLeader
-        data.WriteBits(Name.size() ? Name.size() + 1 : 0, 11);        ///< Male
+        data.WriteBits(Name.size() ? Name.size() + 1 : 0, 11);         ///< Male
         data.WriteBits(l_FemaleName.size() ? l_FemaleName.size() + 1 : 0, 11);        ///< Female
 
         for (int i = 0; i < 6; i++)
-            data.WriteBits(0, 11);                                    ///< Female and other Names - Never send it
+            data.WriteBits(0, 11);                                      ///< Female and other Names - Never send it
 
         data.FlushBits();
 
         if (Name.size())
-            data << Name;                                             ///< Name
+            data << Name;                                               ///< Name
         if (l_FemaleName.size())
-            data << l_FemaleName;                                             ///< Name
+            data << l_FemaleName;                                       ///< Name
 
-        data << uint32(creatureInfo->type_flags);                     ///< Flags
-        data << uint32(creatureInfo->type_flags2);                    ///< Unknown meaning
-        data << uint32(creatureInfo->type);                           ///< CreatureType.dbc
-        data << uint32(creatureInfo->family);                         ///< CreatureFamily.dbc
-        data << uint32(creatureInfo->rank);                           ///< Creature Rank (elite, boss, etc)
-        data << uint32(creatureInfo->KillCredit[0]);                  ///< Kill credit
-        data << uint32(creatureInfo->KillCredit[1]);                  ///< Kill credit
-        data << uint32(creatureInfo->Modelid1);                       ///< Modelid1
-        data << uint32(creatureInfo->Modelid2);                       ///< Modelid2
-        data << uint32(creatureInfo->Modelid3);                       ///< Modelid3
-        data << uint32(creatureInfo->Modelid4);                       ///< Modelid4
-        data << float(creatureInfo->ModHealth);                       ///< HP modifier
-        data << float(creatureInfo->ModMana);                         ///< Mana modifier
-        data << uint32(itemCount);                          ///< Quest item count
-        data << uint32(creatureInfo->movementId);                     ///< CreatureMovementInfo.dbc
-        data << uint32(creatureInfo->expansionUnknown);               ///< Unknown either 0 or 3, sent to the client / wdb
-        data << uint32(creatureInfo->TrackingQuestID);                ///< QuestTrackingId
+        data << uint32(creatureInfo->type_flags);                       ///< Flags
+        data << uint32(creatureInfo->type_flags2);                      ///< Unknown meaning
+        data << uint32(creatureInfo->type);                             ///< CreatureType.dbc
+        data << uint32(creatureInfo->family);                           ///< CreatureFamily.dbc
+        data << uint32(creatureInfo->rank);                             ///< Creature Rank (elite, boss, etc)
+        data << uint32(creatureInfo->KillCredit[0]);                    ///< Kill credit
+        data << uint32(creatureInfo->KillCredit[1]);                    ///< Kill credit
+        data << uint32(creatureInfo->Modelid1);                         ///< Modelid1
+        data << uint32(creatureInfo->Modelid2);                         ///< Modelid2
+        data << uint32(creatureInfo->Modelid3);                         ///< Modelid3
+        data << uint32(creatureInfo->Modelid4);                         ///< Modelid4
+        data << float(creatureInfo->ModHealth);                         ///< HP modifier
+        data << float(creatureInfo->ModMana);                           ///< Mana modifier
+        data << uint32(itemCount);                                      ///< Quest item count
+        data << uint32(creatureInfo->movementId);                       ///< CreatureMovementInfo.dbc
+        data << uint32(creatureInfo->expansionUnknown);                 ///< Unknown either 0 or 3, sent to the client / wdb
+        data << uint32(creatureInfo->TrackingQuestID);                  ///< QuestTrackingId
 
         if (SubName.size())
-            data << SubName;                                ///< Sub Name
+            data << SubName;                                            ///< Sub Name
 
         if (l_FemaleName.size())
-            data << l_FemaleName;                             ///< Female Name
+            data << l_FemaleName;                                       ///< Female Name
 
         if (creatureInfo->IconName.size())
-            data << creatureInfo->IconName;                           ///< Icon Name
+            data << creatureInfo->IconName;                             ///< Icon Name
 
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS && itemCount > 0; ++i)
         {
