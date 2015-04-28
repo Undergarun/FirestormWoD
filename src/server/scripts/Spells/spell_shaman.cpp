@@ -438,46 +438,6 @@ class spell_sha_totemic_projection: public SpellScriptLoader
         }
 };
 
-/// Hex - 51514
-class spell_sha_hex: public SpellScriptLoader
-{
-    public:
-        spell_sha_hex() : SpellScriptLoader("spell_sha_hex") { }
-
-        class spell_sha_hex_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_hex_AuraScript);
-
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* target = GetTarget())
-                {
-                    if (target->IsMounted())
-                    {
-                        target->Dismount();
-                        target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                    }
-
-                    if (target->HasUnitState(UNIT_STATE_CASTING))
-                    {
-                        target->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        target->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_sha_hex_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_hex_AuraScript();
-        }
-};
-
 /// Water Ascendant - 114052
 class spell_sha_water_ascendant: public SpellScriptLoader
 {
@@ -2649,7 +2609,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_high_tide();
     new spell_sha_tidal_waves();
     new spell_sha_totemic_projection();
-    new spell_sha_hex();
     new spell_sha_water_ascendant();
     new spell_sha_glyph_of_shamanistic_rage();
     new spell_sha_glyph_of_lakestrider();

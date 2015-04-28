@@ -2870,7 +2870,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* p_AurApp, uint8 p_Mo
             l_Target->setTransForm(GetId());
 
         // polymorph case
-        if ((p_Mode & AURA_EFFECT_HANDLE_REAL) && l_Target->GetTypeId() == TYPEID_PLAYER && l_Target->IsPolymorphed())
+        if ((p_Mode & AURA_EFFECT_HANDLE_REAL) && l_Target->GetTypeId() == TYPEID_PLAYER &&
+            (l_Target->IsPolymorphed() || l_Target->HasAuraWithMechanic(1 << MECHANIC_POLYMORPH)))
         {
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
@@ -2880,6 +2881,13 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* p_AurApp, uint8 p_Mo
             //dismount polymorphed target (after patch 2.4.2)
             if (l_Target->IsMounted())
                 l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+            if (l_Target->HasUnitState(UNIT_STATE_CASTING))
+            {
+                l_Target->InterruptSpell(CURRENT_GENERIC_SPELL);
+                l_Target->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                l_Target->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            }
         }
     }
     else
