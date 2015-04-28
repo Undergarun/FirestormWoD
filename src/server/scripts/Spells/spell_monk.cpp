@@ -112,7 +112,7 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
     SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
     SPELL_MONK_MORTEL_WOUNDS                    = 115804,
-    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
+    SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS     = 130320,
     SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
     SPELL_MONK_RAPID_ROLLING                    = 147364,
     SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
@@ -4130,8 +4130,9 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
                     l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
+
+                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
                 if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
                     l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
@@ -4419,6 +4420,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Detonate Chi - 115460
 class spell_monk_detonate_chi : public SpellScriptLoader
 {

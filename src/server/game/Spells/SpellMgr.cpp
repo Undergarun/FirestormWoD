@@ -5253,12 +5253,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
-            case 130320: ///< Rising Sun Kick - Monks abilities deal 10% more damage
-                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                break;
-            case 101546: ///< Spinning Crane Kick - Decrease Speed
+            case 101546: ///< Spinning Crane Kick
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                 break;
             case 125084: ///< Charging Ox Wave
