@@ -2940,7 +2940,8 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
 
         // What must be cloned? at least display and scale
         target->SetDisplayId(caster->GetDisplayId());
-        target->SetObjectScale(caster->GetFloatValue(OBJECT_FIELD_SCALE)); // we need retail info about how scaling is handled (aura maybe?)
+
+        //target->SetObjectScale(caster->GetFloatValue(OBJECT_FIELD_SCALE)); // we need retail info about how scaling is handled (aura maybe?)
     }
     else
         target->SetDisplayId(target->GetNativeDisplayId());
@@ -7470,6 +7471,11 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             cleanDamage.mitigated_damage += damage - damageReductedArmor;
             damage = damageReductedArmor;
         }
+
+        /// Poisoned Ammo
+        if (GetSpellInfo()->Id == 162543)
+            /// To prevent double multiplication
+            damage = std::max(GetAmount(), 0);
 
         // Deep Wounds
         if (GetSpellInfo()->Id == 115767)

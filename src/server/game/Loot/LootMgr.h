@@ -156,8 +156,11 @@ struct LootStoreItem
 
 typedef std::set<uint32> AllowedLooterSet;
 
+struct Loot;
+
 struct LootItem
 {
+    Loot*   currentLoot;
     uint32  itemid;
     uint8   type;                                           // 0 = item, 1 = currency
     uint32  randomSuffix;
@@ -177,7 +180,7 @@ struct LootItem
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
-    explicit LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty);
+    explicit LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty, Loot* p_Loot);
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -198,7 +201,6 @@ struct QuestItem
         : index(_index), is_looted(_islooted) {}
 };
 
-struct Loot;
 class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;

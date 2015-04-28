@@ -6307,6 +6307,12 @@ bool Player::ResetTalents(bool p_NoCost /*= false*/)
         return false;
     }
 
+    if (isInStun() || isInRoots())
+    {
+        SendEquipError(EQUIP_ERR_GENERIC_STUNNED, 0, 0, 0);
+        return false;
+    }
+
     if (Pet* l_Pet = GetPet())
         RemovePet(l_Pet, PetSlot::PET_SLOT_ACTUAL_PET_SLOT, true, l_Pet->m_Stampeded);
     else
@@ -6398,12 +6404,18 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return;
         }
+    }
 
-        if (isInCombat())
-        {
-            SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
-            return;
-        }
+    if (isInCombat())
+    {
+        SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, 0, 0, 0);
+        return;
+    }
+
+    if (isInStun() || isInRoots())
+    {
+        SendEquipError(EQUIP_ERR_GENERIC_STUNNED, 0, 0, 0);
+        return;
     }
 
     if (GetSpecializationId(GetActiveSpec()) == SpecIndex::SPEC_NONE)
@@ -7897,6 +7909,18 @@ float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
             break;
     }
     return 0.0f;
+}
+
+float Player::GetPvpHealingBonus() const
+{
+    // Pvp healing cannot work in dungeons
+    if (Map* l_Map = GetMap())
+        if (l_Map->IsDungeon())
+            return 1.0f;
+
+    float l_PvpPower = (1 + GetFloatValue(PLAYER_FIELD_PVP_POWER_HEALING) / 100);
+
+    return l_PvpPower;
 }
 
 float Player::OCTRegenMPPerSpirit()
@@ -10217,7 +10241,7 @@ void Player::CheckDuelDistance(time_t currTime)
 
     if (m_Duel->outOfBound == 0)
     {
-        if (!IsWithinDistInMap(obj, 50))
+        if (!IsWithinDistInMap(obj, 100))
         {
             m_Duel->outOfBound = currTime;
 
@@ -10227,7 +10251,7 @@ void Player::CheckDuelDistance(time_t currTime)
     }
     else
     {
-        if (IsWithinDistInMap(obj, 40))
+        if (IsWithinDistInMap(obj, 80))
         {
             m_Duel->outOfBound = 0;
 

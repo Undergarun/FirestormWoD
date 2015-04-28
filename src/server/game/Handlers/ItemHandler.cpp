@@ -28,6 +28,7 @@
 #include "ObjectAccessor.h"
 #include "SpellInfo.h"
 #include "GuildMgr.h"
+#include "Spell.h"
 #include <vector>
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
@@ -68,6 +69,18 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+    for (uint32 l_I = CURRENT_MELEE_SPELL; l_I < CURRENT_AUTOREPEAT_SPELL; ++l_I)
+    {
+        if (Spell* l_Spell = m_Player->GetCurrentSpell(l_I))
+        {
+            if (l_Spell->m_castItemGUID)
+            {
+                m_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, NULL, NULL);
+                return;
+            }
+        }
+    }
+
     m_Player->SplitItem(l_Src, l_Dest, l_Count);
 }
 
@@ -101,6 +114,18 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket& p_RecvData)
     {
         m_Player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
+    }
+
+    for (uint32 l_I = CURRENT_MELEE_SPELL; l_I < CURRENT_AUTOREPEAT_SPELL; ++l_I)
+    {
+        if (Spell* l_Spell = m_Player->GetCurrentSpell(l_I))
+        {
+            if (l_Spell->m_castItemGUID)
+            {
+                m_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, NULL, NULL);
+                return;
+            }
+        }
     }
 
     uint16 l_Src    = ((INVENTORY_SLOT_BAG_0 << 8) | l_Slot1);
@@ -172,10 +197,10 @@ void WorldSession::HandleSwapItem(WorldPacket& p_RecvData)
 
     std::vector<uint8> l_InventoryBags(l_ItemCount, 0);
     std::vector<uint8> l_InventorySlots(l_ItemCount, 0);
-    for (uint8 i = 0; i < l_ItemCount; ++i)
+    for (uint8 l_I = 0; l_I < l_ItemCount; ++l_I)
     {
-        p_RecvData >> l_InventoryBags[i];
-        p_RecvData >> l_InventorySlots[i];
+        p_RecvData >> l_InventoryBags[l_I];
+        p_RecvData >> l_InventorySlots[l_I];
     }
 
     p_RecvData >> l_DestBag >> l_SourceBag >> l_DestSlot >> l_SourceSlot;
@@ -197,6 +222,18 @@ void WorldSession::HandleSwapItem(WorldPacket& p_RecvData)
     {
         m_Player->SendEquipError(EQUIP_ERR_WRONG_SLOT, NULL, NULL);
         return;
+    }
+
+    for (uint32 l_I = CURRENT_MELEE_SPELL; l_I < CURRENT_AUTOREPEAT_SPELL; ++l_I)
+    {
+        if (Spell* l_Spell = m_Player->GetCurrentSpell(l_I))
+        {
+            if (l_Spell->m_castItemGUID)
+            {
+                m_Player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, NULL, NULL);
+                return;
+            }
+        }
     }
 
     m_Player->SwapItem(l_Source, l_Dest);

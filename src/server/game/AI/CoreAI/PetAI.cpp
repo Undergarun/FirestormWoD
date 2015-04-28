@@ -465,15 +465,6 @@ void PetAI::DoAttack(Unit* target, bool chase)
     {
         if (me->Attack(target, true))
         {
-            /// Blink Strikes
-            if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER && me->GetOwner()->HasAura(130392) && !me->GetOwner()->ToPlayer()->HasSpellCooldown(130392) &&
-                target->IsWithinLOSInMap(me) && me->GetDistance(target) > 10.0f && me->GetDistance(target) < 30.0f && !me->isInRoots() && !me->isInStun())
-            {
-                me->GetMotionMaster()->Clear();
-                me->CastSpell(target, 130393, true);
-                me->GetOwner()->ToPlayer()->AddSpellCooldown(130392, 0, time(NULL) + 20);
-            }
-
             me->GetCharmInfo()->SetIsAtStay(false);
             me->GetCharmInfo()->SetIsFollowing(false);
             me->GetCharmInfo()->SetIsReturning(false);
@@ -483,15 +474,6 @@ void PetAI::DoAttack(Unit* target, bool chase)
     }
     else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
     {
-        /// Blink Strikes
-        if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER && me->GetOwner()->HasAura(130392) && !me->GetOwner()->ToPlayer()->HasSpellCooldown(130392) &&
-            target->IsWithinLOSInMap(me) && me->GetDistance(target) > 10.0f && me->GetDistance(target) < 30.0f && !me->isInRoots() && !me->isInStun())
-        {
-            me->GetMotionMaster()->Clear();
-            me->CastSpell(target, 130393, true);
-            me->GetOwner()->ToPlayer()->AddSpellCooldown(130392, 0, time(NULL) + 20);
-        }
-
         me->GetCharmInfo()->SetIsAtStay(true);
         me->GetCharmInfo()->SetIsFollowing(false);
         me->GetCharmInfo()->SetIsReturning(false);

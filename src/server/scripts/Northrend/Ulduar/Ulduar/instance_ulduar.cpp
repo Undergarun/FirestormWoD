@@ -247,11 +247,13 @@ class instance_ulduar : public InstanceMapScript
                 if (_summonAlgalon)
                 {
                     _summonAlgalon = false;
-                    TempSummon* algalon = instance->SummonCreature(NPC_ALGALON, AlgalonLandPos);
-                    if (_algalonTimer && _algalonTimer <= 60)
-                        algalon->AI()->DoAction(ACTION_INIT_ALGALON);
-                    else
-                        algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    if (TempSummon* algalon = instance->SummonCreature(NPC_ALGALON, AlgalonLandPos))
+                    {
+                        if (_algalonTimer && _algalonTimer <= 60)
+                            algalon->AI()->DoAction(ACTION_INIT_ALGALON);
+                        else
+                            algalon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    }
                 }
             }
 
@@ -648,6 +650,24 @@ class instance_ulduar : public InstanceMapScript
                     case GO_GIFT_OF_THE_OBSERVER_10:
                     case GO_GIFT_OF_THE_OBSERVER_25:
                         GiftOfTheObserverGUID = gameObject->GetGUID();
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* gameObject)
+            {
+                switch (gameObject->GetEntry())
+                {
+                    case GO_LEVIATHAN_DOOR:
+                    case GO_XT_002_DOOR:
+                    case GO_DOODAD_UL_SIGILDOOR_03:
+                    case GO_DOODAD_UL_UNIVERSEFLOOR_01:
+                    case GO_DOODAD_UL_UNIVERSEFLOOR_02:
+                    case GO_DOODAD_UL_UNIVERSEGLOBE01:
+                    case GO_DOODAD_UL_ULDUAR_TRAPDOOR_03:
+                        AddDoor(gameObject, false);
+                        break;
+                    default:
                         break;
                 }
             }

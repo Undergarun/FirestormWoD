@@ -342,10 +342,11 @@ class boss_hodir : public CreatureScript
             void Reset()
             {
                 _Reset();
+
                 me->SetReactState(REACT_DEFENSIVE);
                 _encounterFinished = _encounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
 
-                if (!_encounterFinished)
+                if (instance->CheckRequiredBosses(BOSS_HODIR) && !_encounterFinished)
                 {
                     for (uint8 n = 0; n < FRIENDS_COUNT; ++n)
                         if (Creature* FrozenHelper = me->SummonCreature(Entry[n], SummonPositions[n], TEMPSUMMON_MANUAL_DESPAWN))

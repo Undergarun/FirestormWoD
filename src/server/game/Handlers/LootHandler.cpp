@@ -241,20 +241,24 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 if (player->IsWithinDistInMap(member, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                     playersNear.push_back(member);
             }
-             /*@todo: check me for 5.0.5*/
-            uint32 goldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
 
-            loot->NotifyMoneyRemoved(goldPerPlayer);
+            // Gold already has been divided in Unit::Kill & Loot::GenerateMoneyLoot for raids
+            bool l_IsRaid = player->GetMap()->IsRaid();
+            uint32 l_GoldPerPlayer = loot->Gold;
+            if (!l_IsRaid)
+                l_GoldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
+
+            loot->NotifyMoneyRemoved(l_GoldPerPlayer);
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney(goldPerPlayer);
-                (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
+                (*i)->ModifyMoney(l_GoldPerPlayer);
+                (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, l_GoldPerPlayer);
 
                 if ((*i)->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
                 {
                     if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     {
-                        uint64 guildGold = uint64(CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
+                        uint64 guildGold = uint64(CalculatePct(l_GoldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
                         if (guildGold > MAX_MONEY_AMOUNT)
                             guildGold = MAX_MONEY_AMOUNT;
 
@@ -269,7 +273,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
+                data << uint32(l_GoldPerPlayer);
                 data.WriteBit(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
                 data.FlushBits();
                 (*i)->GetSession()->SendPacket(&data);

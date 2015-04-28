@@ -3567,9 +3567,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(27);  ///< 50y
                 break;
-            case 157174: ///< Elemental Fusion
-                spellInfo->ProcCharges = 1;
-                break;
             case 77442: ///< Focus
                 spellInfo->Effects[0].Effect = 0;
                 spellInfo->Effects[0].ApplyAuraName = 0;
@@ -3630,6 +3627,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 55076:  ///< Sun Scope
             case 60023:  ///< Scourge Banner Aura
             case 137502: ///< Growing Fury
+            case 58105:  ///< Power of Shadron
+            case 61248:  ///< Power of Tenebron
+            case 61251:  ///< Power of Vesperon
                 spellInfo->AttributesEx4 |= SPELL_ATTR4_NOT_STEALABLE;
                 break;
             case 132205: ///< Sha of Anger Bonus
@@ -3699,6 +3699,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 14161: ///< Ruthlessness
                 spellInfo->Effects[1].ApplyAuraName = 0;
                 spellInfo->Effects[1].Effect = 0;
+                spellInfo->ProcChance = 20;
                 break;
             case 174597:///< Ruthlessness (passive aura)
                 spellInfo->Effects[0].Effect = 0;
@@ -3726,9 +3727,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(48); ///< 60 yards
                 spellInfo->ProcFlags = 0x8A20;
-                break;
-            case 73685:
-                spellInfo->ProcFlags = 0;
                 break;
             case 53563: ///< Beacon of Light
                 spellInfo->Effects[1].Effect = 0;
@@ -4550,10 +4548,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1); ///< 10s
                 spellInfo->Speed = 100.0f;
                 break;
-            case 118864: ///< Combo Breaker (tiger palm)
-            case 116768: ///< Combo Breaker (blackout kick)
-                spellInfo->ProcFlags = 0;
-                break;
             case 117050: ///< Glaive Toss (talent)
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
@@ -5100,9 +5094,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[2].SpellClassMask[0] |= 0x1000;
                 break;
             case 109259: ///< Powershot
-                spellInfo->Effects[1].BasePoints = 70;
-                spellInfo->Effects[2].BasePoints = 90;
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_WEAPON_PERCENT_DAMAGE;
+                spellInfo->Effects[5].Effect = 0;
+                spellInfo->Effects[2].BasePoints = 840;
                 break;
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
@@ -5132,12 +5125,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
+            /// All spells - ProcFlags = 0
+            case 165995: ///< Item - Rogue WoD PvP 2P Bonus
+            case 182303: ///< Item - Rogue WoD PvP Combat 4P Bonus
+            case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
+            case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
+            case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
-                spellInfo->ProcChance = 0;
-                break;
-            case 87160: ///< Surge of Darkness
+            case 87160:  ///< Surge of Darkness
+            case 85804:  ///< Selfless Healer
+            case 73685:  ///< Unleash Life (restoration)
+            case 118864: ///< Combo Breaker (tiger palm)
+            case 116768: ///< Combo Breaker (blackout kick)
                 spellInfo->ProcFlags = 0;
                 break;
+            /// All spells - ProcCharges = 1
             case 6346:   ///< Fear Ward
             case 48108:  ///< Hot Streak
             case 132158: ///< Nature's Swiftness
@@ -5155,6 +5157,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73683:  ///< Unleash Flame
             case 165462: ///< Unleash Flame
             case 52437:  ///< Sudden Death
+            case 157174: ///< Elemental Fusion
                 spellInfo->ProcCharges = 1;
                 break;
             case 117957: ///< Nether Attunement
@@ -5948,6 +5951,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109772: ///< Flare
                 spellInfo->SetDurationIndex(18); ///< 20s Duration
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 break;
             /// Player Damage Reduction Level 90, we have S13, so we need to decrease to 65% of base resilience
             /// @TODO: Remove this hack when we out S14

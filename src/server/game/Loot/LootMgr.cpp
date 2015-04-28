@@ -370,8 +370,9 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 //
 
 // Constructor, copies most fields from LootStoreItem and generates random count
-LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty)
+LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty, Loot* p_Loot)
 {
+    currentLoot = p_Loot;
     itemid      = p_LootItem.itemid;
     type        = p_LootItem.type;
     conditions  = p_LootItem.conditions;
@@ -432,6 +433,15 @@ bool LootItem::AllowedForPlayer(Player const* player) const
         if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
             return false;
 
+        if (currentLoot)
+        {
+            if (currentLoot->AllowedPlayers.IsEnabled())
+            {
+                if (!currentLoot->AllowedPlayers.HasPlayerGuid(player->GetGUID()))
+                    return false;
+            }
+        }
+
         // check quest requirements
         if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
             return false;
@@ -470,11 +480,11 @@ void Loot::AddItem(LootStoreItem const & item)
     if (item.needs_quest)                                   // Quest drop
     {
         if (QuestItems.size() < MAX_NR_QUEST_ITEMS)
-            QuestItems.push_back(LootItem(item, ItemBonusDifficulty));
+            QuestItems.push_back(LootItem(item, ItemBonusDifficulty, this));
     }
     else if (Items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
     {
-        Items.push_back(LootItem(item, ItemBonusDifficulty));
+        Items.push_back(LootItem(item, ItemBonusDifficulty, this));
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
