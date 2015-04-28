@@ -474,73 +474,42 @@ namespace MS
                 p_Data->appendPackGUID(p_Guid);
             }
 
-            static void List(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId)
+            static void List(WorldPacket* p_Data, uint64 p_GUID, Player* p_Player, BattlegroundTypeId p_BGTypeID, uint32 p_BattlemasterListID, bool p_PvpAnywhere, bool p_IsRandomBG, bool p_HasHolidayWinToday, bool p_HasRandomWinToday)
             {
-                if (!player)
+                if (!p_Player)
                     return;
 
-                uint32 winner_conquest = (player->GetRandomWinner() ? BG_REWARD_WINNER_CONQUEST_FIRST : BG_REWARD_WINNER_CONQUEST_LAST) / 100;
-                uint32 winner_honor = (player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_FIRST : BG_REWARD_WINNER_HONOR_LAST) / 100;
-
-                ByteBuffer dataBuffer;
-
-                data->Initialize(SMSG_BATTLEFIELD_LIST);
-                data->WriteBit(0); // unk1
-                data->WriteBit(guid[4]);
-                data->WriteBit(1); // byte2C
-                data->WriteBit(guid[2]);
-                data->WriteBit(guid[6]);
-
-                if (bgTypeId == BATTLEGROUND_AA)                         // arena
+                std::vector<uint32> l_BattleFields;
+                Bracket const* l_Bracket = nullptr;
+                if (p_BGTypeID != BATTLEGROUND_AA)
                 {
-                    data->WriteBits(0, 22);                                 // unk (count?)
-                }
-                else                                                    // battleground
-                {
-                    uint32 count = 0;
-                    if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(bgTypeId, 0, false)))
+                    if (Battleground* l_BGTemplate = sBattlegroundMgr->GetBattlegroundTemplate(GetTypeFromId(p_BGTypeID, 0, false)))
                     {
-                        // expected bracket entry
-                        if (Bracket const* l_Bracket = Brackets::FindForLevel(player->getLevel()))
+                        /// Expected bracket entry
+                        if (l_Bracket = Brackets::FindForLevel(p_Player->getLevel()))
                         {
-                            Bracket::Id bracketId = l_Bracket->m_Id;
-                            auto l_ClientBattlegroundIds = sBattlegroundMgr->GetClientBattlegroundIds(GetSchedulerType(bgTypeId), bracketId);
-                            for (std::set<uint32>::iterator itr = l_ClientBattlegroundIds.begin(); itr != l_ClientBattlegroundIds.end(); ++itr)
-                            {
-                                dataBuffer << uint32(*itr);
-                                ++count;
-                            }
+                            auto l_ClientBattlegroundIds = sBattlegroundMgr->GetClientBattlegroundIds(GetSchedulerType(p_BGTypeID), l_Bracket->m_Id);
+                            for (std::set<uint32>::iterator l_It = l_ClientBattlegroundIds.begin(); l_It != l_ClientBattlegroundIds.end(); ++l_It)
+                                l_BattleFields.push_back(*l_It);
                         }
                     }
-                    data->WriteBits(count, 22);
                 }
+                
+                p_Data->Initialize(SMSG_BATTLEFIELD_LIST);
+                p_Data->appendPackGUID(p_GUID);
+                *p_Data << uint32(p_BattlemasterListID);
+                *p_Data << uint8(l_Bracket ? l_Bracket->m_MinLevel : 90); ///< MinLevel
+                *p_Data << uint8(l_Bracket ? l_Bracket->m_MaxLevel : 90); ///< MaxLevel
+                *p_Data << uint32(l_BattleFields.size());
 
-                data->WriteBit(0); // byte40
-                data->WriteBit(guid[7]);
-                data->WriteBit(1); // byte50
-                data->WriteBit(guid[1]);
-                data->WriteBit(guid[0]);
-                data->WriteBit(guid[3]);
-                data->WriteBit(guid[5]);
+                for (uint32 l_BattleField : l_BattleFields)
+                    *p_Data << uint32(l_BattleField);
 
-                *data << uint32(winner_conquest); // dword28
-                data->WriteByteSeq(guid[4]);
-                *data << uint32(45); // dword20
-                data->WriteByteSeq(guid[2]);
-                data->WriteByteSeq(guid[7]);
-                *data << uint32(32); // dword24
-                *data << uint8(90); // byte41
-                data->WriteByteSeq(guid[1]);
-                data->WriteByteSeq(guid[5]);
-                data->WriteByteSeq(guid[0]);
-                *data << uint32(45); // dword18
-                *data << uint8(90); // byte48
-                data->WriteByteSeq(guid[3]);
-                *data << uint32(winner_honor); // dword4C
-                *data << uint32(winner_conquest); // dword1C
-                data->append(dataBuffer);
-                data->WriteByteSeq(guid[6]);
-                *data << uint32(winner_honor); // dword44
+                p_Data->WriteBit(p_PvpAnywhere);
+                p_Data->WriteBit(p_HasHolidayWinToday);
+                p_Data->WriteBit(p_HasRandomWinToday);
+                p_Data->WriteBit(p_IsRandomBG);
+                p_Data->FlushBits();
             }
 
             static void AreaSpiritHealerQuery(Player * p_Player, Battleground * p_Battleground, uint64 p_Guid)

@@ -69,7 +69,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId)
 {
     WorldPacket data;
-    MS::Battlegrounds::PacketFactory::List(&data, guid, m_Player, bgTypeId);
+    MS::Battlegrounds::PacketFactory::List(&data, guid, m_Player, bgTypeId, 0, false, false, false, false);
     SendPacket(&data);
 }
 
@@ -292,7 +292,7 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)
     }
 
     WorldPacket l_Data;
-    MS::Battlegrounds::PacketFactory::List(&l_Data, 0, m_Player, BattlegroundTypeId(l_ListID));
+    MS::Battlegrounds::PacketFactory::List(&l_Data, 0, m_Player, BattlegroundTypeId(l_ListID), l_ListID, false, false, false, false);
 
     SendPacket(&l_Data);
 }
