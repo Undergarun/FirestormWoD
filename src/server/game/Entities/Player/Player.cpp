@@ -7998,7 +7998,7 @@ void Player::UpdateRating(CombatRating p_CombatRating)
 
         ///< Way of the Monk
         if (HasAura(120275))
-            l_HastePct += 40.0f;
+            l_HastePct += 55.0f;
 
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
         for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
