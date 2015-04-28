@@ -465,14 +465,18 @@ class boss_unsok : public CreatureScript
 
                             if (canCast)
                             {
+                                uint8 l_Count = 0;
                                 do
                                 {
                                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5000.0f, true);
-                                    reshapedGuid = target->GetGUID();
-
-                                } while (!target || target->HasAura(SPELL_RESHAPE_LIFE));
+                                    if (target != nullptr)
+                                        reshapedGuid = target->GetGUID();
+                                    l_Count++;
+                                } while ((!target || target->HasAura(SPELL_RESHAPE_LIFE)) && l_Count < 10);
                                 Talk(TALK_RESHAPE);
-                                me->CastSpell(target, SPELL_RESHAPED, false);
+
+                                if (target)
+                                    me->CastSpell(target, SPELL_RESHAPED, false);
                                 events.ScheduleEvent(EVENT_RESHAPE_ACTIVE, 1800);
                             }
 
