@@ -4419,6 +4419,55 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         }
 };
 
+/// Detonate Chi - 115460
+class spell_monk_detonate_chi : public SpellScriptLoader
+{
+    public:
+        spell_monk_detonate_chi() : SpellScriptLoader("spell_monk_detonate_chi") { }
+
+        class spell_monk_detonate_chi_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_detonate_chi_SpellScript);
+
+            enum eSpells
+            {
+                HealingSphereAreaTrigger    = 119031,
+                HealingSphereDetonate       = 135920,
+            };
+
+            void HandleCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                std::list<AreaTrigger*> l_HealingSphereList;
+                l_Caster->GetAreaTriggerList(l_HealingSphereList, eSpells::HealingSphereAreaTrigger);
+
+                if (!l_HealingSphereList.empty())
+                {
+                    for (auto itr : l_HealingSphereList)
+                    {
+                        Unit* l_Caster = itr->GetCaster();
+
+                        if (l_Caster != nullptr)
+                            l_Caster->CastSpell(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), eSpells::HealingSphereDetonate, true);
+                        itr->SetDuration(0);
+                        break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_detonate_chi_SpellScript::HandleCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_detonate_chi_SpellScript();
+        }
+};
+
 /// Chi Explosion - 182078
 class spell_monk_chi_explosion_heal: public SpellScriptLoader
 {
@@ -4620,6 +4669,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_mistweaver();
     new spell_monk_chi_explosion_heal();
     new spell_monk_chi_explosion_mistweaver_crane();
+    new spell_monk_detonate_chi();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

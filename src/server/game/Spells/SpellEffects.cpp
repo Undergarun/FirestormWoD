@@ -7402,7 +7402,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
         break;
     }
-    case 115460:// Healing Sphere
+    case 119031:/// Healing Sphere
     {
         int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
 

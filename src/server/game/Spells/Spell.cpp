@@ -1626,8 +1626,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
 
                     m_caster->CastSpell(m_caster, 129881, true);
                     m_caster->ToPlayer()->AddSpellCooldown(129881, 0, 3 * IN_MILLISECONDS);
-                    if (m_caster->HasAura(139598))
-                        m_caster->AddAura(139597, m_caster);
                     break;
                 default:
                     break;
