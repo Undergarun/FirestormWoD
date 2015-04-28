@@ -1004,6 +1004,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
     PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS          = 51,
     PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
+    PLAYER_LOGIN_QUERY_LOADMAIL                     = 53,
+    PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS               = 54,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2068,7 +2070,6 @@ class Player : public Unit, public GridObject<Player>
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 
-        bool m_mailsLoaded;
         bool m_mailsUpdated;
 
         void SetBindPoint(uint64 guid);
@@ -2116,7 +2117,6 @@ class Player : public Unit, public GridObject<Player>
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
-        bool IsMailsLoaded() const { return m_mailsLoaded; }
 
         void RemoveMail(uint32 id);
 
@@ -3237,6 +3237,11 @@ class Player : public Unit, public GridObject<Player>
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->MaskID); }
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
+        /// For somes reasons, sometimes players didn't get achievement rewards when achievement is validate
+        /// We use that function to ensure the player get rewards
+        /// ONLY SUPPORT MOUNT & PETS ITEMS
+        void RewardCompletedAchievementsIfNeeded();
+
         //bool isActiveObject() const { return true; }
         bool canSeeSpellClickOn(Creature const* creature) const;
 
@@ -3606,8 +3611,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
-        void _LoadMail();
-        void _LoadMailedItems(Mail* mail);
+        void _LoadMail(PreparedQueryResult p_Mail);
+        void _LoadMailedItems(PreparedQueryResult p_MailedItems);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestObjectiveStatus(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
