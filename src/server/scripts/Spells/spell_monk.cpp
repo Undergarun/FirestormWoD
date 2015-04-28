@@ -2310,7 +2310,7 @@ class spell_monk_spear_hand_strike: public SpellScriptLoader
         }
 };
 
-// Tigereye Brew - 116740
+/// Tigereye Brew - 116740
 class spell_monk_tigereye_brew: public SpellScriptLoader
 {
     public:
@@ -2319,6 +2319,12 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
         class spell_monk_tigereye_brew_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_monk_tigereye_brew_SpellScript);
+
+            enum eSpells
+            {
+                MonkWoDPvPWindwalker4PBonus = 181742,
+                MonkWoDPvPWindwalkerAura    = 181744
+            };
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2329,31 +2335,37 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (AuraPtr l_TigereyeBrewStacks = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                 {
-                    if (Unit* target = GetHitUnit())
+                    uint8 l_StackConsumed = l_TigereyeBrewStacks->GetStackAmount();
+                    uint8 l_Stacks = l_TigereyeBrewStacks->GetStackAmount();
+
+                    if (l_StackConsumed > 10)
+                        l_StackConsumed = 10;
+
+                    int32 l_EffectAmount = l_StackConsumed * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                    if (AuraPtr l_TigereyeBrew = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW))
                     {
-                        int32 stacks = 0;
-                        if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
-                        {
-                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                            stacks = tigereyeBrewStacks->GetStackAmount();
-
-                            if (stacks >= 10)
-                                effectAmount = 60;
-
-                            if (AuraPtr tigereyeBrew = _player->GetAura(SPELL_MONK_TIGEREYE_BREW))
-                            {
-                                tigereyeBrew->GetEffect(0)->ChangeAmount(effectAmount);
-                                tigereyeBrew->GetEffect(1)->ChangeAmount(effectAmount);
-                            }
-
-                            if (stacks >= 10)
-                                tigereyeBrewStacks->SetStackAmount(stacks - 10);
-                            else
-                                _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
-                        }
+                        l_TigereyeBrew->GetEffect(0)->ChangeAmount(l_EffectAmount);
+                        l_TigereyeBrew->GetEffect(1)->ChangeAmount(l_EffectAmount);
                     }
+
+                    if (l_Caster->HasAura(eSpells::MonkWoDPvPWindwalker4PBonus))
+                    {
+                        SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::MonkWoDPvPWindwalker4PBonus);
+
+                        l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPWindwalkerAura, true);
+                        if (AuraPtr l_FortitudeOfXuen = l_Caster->GetAura(eSpells::MonkWoDPvPWindwalkerAura))
+                            l_FortitudeOfXuen->GetEffect(0)->ChangeAmount(l_StackConsumed * (l_SpellInfo->Effects[EFFECT_0].BasePoints / 1000));
+                    }
+
+                    if (l_TigereyeBrewStacks->GetStackAmount() >= 10)
+                        l_TigereyeBrewStacks->SetStackAmount(l_Stacks - l_StackConsumed);
+                    else
+                        l_Caster->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
                 }
             }
 
