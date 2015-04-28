@@ -4843,7 +4843,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
             case 33110: ///< Prayer of Mending
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;;
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 47753: ///< Divine Aegis
@@ -5942,9 +5942,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 114255: ///< Surge of Light (proc)
                 spellInfo->StackAmount = 2;
-                break;
-            case 129197: ///< Insanity
-                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60f;
                 break;
             case 1543: ///< Flare
                 spellInfo->Effects[0].TriggerSpell = 109772;
