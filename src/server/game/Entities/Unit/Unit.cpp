@@ -5771,51 +5771,21 @@ void Unit::SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist)
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
+void Unit::SendSpellDamageImmune(Unit* p_Target, uint32 p_SpellID)
 {
-    ObjectGuid unitGuid = GetGUID();
-    ObjectGuid targetGuid = target->GetGUID();
-    WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 21);
+    uint64 l_CasterGUID = GetGUID();
+    uint64 l_TargetGUID = p_Target->GetGUID();
+    bool l_IsPeriodic = sSpellMgr->GetSpellInfo(p_SpellID) ? sSpellMgr->GetSpellInfo(p_SpellID)->IsPeriodic() : false;
 
-    data << uint32(spellId);
+    WorldPacket l_Data(SMSG_SPELL_OR_DAMAGE_IMMUNE, (2 * (16 + 2)) + 4 + 1);
 
-    data.WriteBit(targetGuid[4]);
-    data.WriteBit(targetGuid[1]);
-    data.WriteBit(targetGuid[5]);
-    data.WriteBit(unitGuid[2]);
-    data.WriteBit(unitGuid[1]);
-    data.WriteBit(targetGuid[3]);
-    data.WriteBit(unitGuid[5]);
-    data.WriteBit(targetGuid[7]);
-    data.WriteBit(targetGuid[0]);
-    data.WriteBit(unitGuid[0]);
-    data.WriteBit(unitGuid[7]);
-    data.WriteBit(unitGuid[3]);
-    data.WriteBit(targetGuid[6]);
-    data.WriteBit(targetGuid[2]);
-    data.WriteBit(false);           // Has Power data
-    data.WriteBit(unitGuid[4]);
-    data.WriteBit(false);           // bool - log format: 0-default, 1-debug
-    data.WriteBit(unitGuid[6]);
+    l_Data.appendPackGUID(l_CasterGUID);
+    l_Data.appendPackGUID(l_TargetGUID);
+    l_Data << uint32(p_SpellID);
+    l_Data.WriteBit(l_IsPeriodic);
+    l_Data.FlushBits();
 
-    data.WriteByteSeq(unitGuid[0]);
-    data.WriteByteSeq(targetGuid[1]);
-    data.WriteByteSeq(targetGuid[3]);
-    data.WriteByteSeq(targetGuid[2]);
-    data.WriteByteSeq(targetGuid[6]);
-    data.WriteByteSeq(unitGuid[7]);
-    data.WriteByteSeq(targetGuid[7]);
-    data.WriteByteSeq(unitGuid[4]);
-    data.WriteByteSeq(targetGuid[0]);
-    data.WriteByteSeq(unitGuid[3]);
-    data.WriteByteSeq(unitGuid[5]);
-    data.WriteByteSeq(targetGuid[4]);
-    data.WriteByteSeq(targetGuid[5]);
-    data.WriteByteSeq(unitGuid[6]);
-    data.WriteByteSeq(unitGuid[2]);
-    data.WriteByteSeq(unitGuid[1]);
-
-    SendMessageToSet(&data, true);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)

@@ -797,7 +797,7 @@ enum Opcodes
         SMSG_SPELL_DELAYED                          = 0x14FD, ///< 6.1.2 19783
         SMSG_SPELL_GO                               = 0x1CB9, ///< 6.1.2 19783
         SMSG_SPELL_MULTISTRIKE_EFFECT               = 0x0000, ///< (unused)
-        SMSG_SPELL_OR_DAMAGE_IMMUNE                 = 0x0000,
+        SMSG_SPELL_OR_DAMAGE_IMMUNE                 = 0x11B9, ///< 6.1.2 19783
         SMSG_SPELL_START                            = 0x14BA, ///< 6.1.2 19783
         SMSG_SPELL_UPDATE_CHAIN_TARGETS             = 0x0000, ///< (unused)
 
