@@ -13558,9 +13558,9 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 GetVehicleKit()->Reset();
 
                 WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
-                l_Data.appendPackGUID(GetGUID());
-                l_Data << uint32(0);
-                l_Data << uint32(VehicleId);
+                l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
+                l_Data << uint32(0);                ///< SequenceIndex
+                l_Data << uint32(VehicleId);        ///< VehicleRecID
                 ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // Send others that we now have a vehicle

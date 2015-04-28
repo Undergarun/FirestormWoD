@@ -590,7 +590,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data << uint32(l_HideItemReward ? 0 : p_Quest->GetRewMoney());                            ///< Reward Money
     l_Data << uint32(p_Quest->GetRewMoneyMaxLevel());                                           ///< Reward Money Difficulty
     l_Data << float(0);                                                                         ///< Unk
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< RewardBonusMoney in TC
     l_Data << uint32(p_Quest->GetRewSpell());                                                   ///< Reward Display Spell, this spell will display (icon) (casted if RewSpellCast == 0)
     l_Data << int32(p_Quest->GetRewSpellCast());                                                ///< Reward Spell
     l_Data << uint32(p_Quest->GetRewHonorAddition());                                           ///< Reward Honor
@@ -664,10 +664,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
 
     l_Data << uint32(p_Quest->GetSoundAccept());                                                ///< Accepted Sound Kit ID
     l_Data << uint32(p_Quest->GetSoundTurnIn());                                                ///< Complete Sound Kit ID
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< AreaGroupID
     l_Data << uint32(p_Quest->GetLimitTime());                                                  ///< Time Allowed
     l_Data << uint32(p_Quest->QuestObjectives.size());                                          ///< Objective Count
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< AllowableRaces
 
     for (QuestObjective l_Objective : p_Quest->QuestObjectives)
     {

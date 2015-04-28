@@ -17537,7 +17537,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
         Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
         l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(0);                        // Unk
+        l_Data << uint32(0);                        // Unk: Quantity ?
     }
     else
         l_Data.FlushBits();
@@ -25289,6 +25289,25 @@ void Player::ContinueTaxiFlight()
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
+void Player::TaxiRequestEarlyLanding()
+{
+//     uint32 l_Current = m_taxi.GetCurrentTaxiPath();
+// 
+//     if (!l_Current)
+//         return;
+// 
+//     std::deque<uint32> l_CurrentDestination = m_taxi.GetCurrentDestinationQueue();
+//     std::deque<uint32> l_NewDestination;
+//     l_NewDestination.push_back(l_Current);
+// 
+//     if (!l_CurrentDestination.size())
+//         return;
+// 
+//     l_NewDestination.push_back(l_CurrentDestination[1]);
+// 
+//     m_taxi.SetDestinationQueue(l_NewDestination);
+}
+
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -26849,11 +26868,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     l_Data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour
-    l_Data << float(0.01666667f);                                 // game speed
-    l_Data << uint32(1);                                          // added in 5.4.0
-    l_Data << uint32(1);                                          // added in 3.1.2
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour    ServerTime
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour     GameTime
+    l_Data << float(0.01666667f);                                 // game speed     NewSpeed
+    l_Data << uint32(1);                                          // added in 5.4.0 GameTimeHolidayOffset or ServerTimeHolidayOffset
+    l_Data << uint32(1);                                          // added in 3.1.2 GameTimeHolidayOffset or ServerTimeHolidayOffset
     GetSession()->SendPacket(&l_Data);
 
     bool l_IsInInstance = GetMap()->GetMapDifficulty() ? GetMap()->GetMapDifficulty()->MaxPlayers : false;
@@ -31193,12 +31212,12 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     if (!l_MountDisplayInfo)
     {
         WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(sWorld->GetGameTime());
-        l_Data << float(p_Height);
-        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
-        l_Data << uint32(0);
-        l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
+        l_Data.appendPackGUID(GetGUID());                   ///< MoverGUID
+        l_Data << uint32(sWorld->GetGameTime());            ///< SequenceIndex
+        l_Data << float(p_Height);                          ///< Height
+        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE)); ///< Scale
+        l_Data << uint32(0);                                ///< MountDisplayID
+        l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2); ///< Reason
         SendDirectMessage(&l_Data);
         return;
     }

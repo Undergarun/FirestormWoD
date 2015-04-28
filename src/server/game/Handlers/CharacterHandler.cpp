@@ -1003,8 +1003,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     pCurrChar->SendDungeonDifficulty();
 
     WorldPacket l_Data(SMSG_RESUME_TOKEN, 5);
-    l_Data << uint32(0);
-    l_Data << uint8(0x80);
+    l_Data << uint32(0);                                                    ///< Sequence
+    l_Data << uint8(0x80);                                                  ///< Reason
     SendPacket(&l_Data);
 
     l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
@@ -2007,7 +2007,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& p_RecvData)
     }
 
     WorldPacket l_Data(SMSG_USE_EQUIPMENT_SET_RESULT);
-    l_Data << uint8(0);   // 4 - equipment swap failed - inventory is full
+    l_Data << uint8(0);   ///< Reason 4 - equipment swap failed - inventory is full
     SendPacket(&l_Data);
 }
 

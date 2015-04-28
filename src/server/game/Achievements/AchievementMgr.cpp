@@ -1247,9 +1247,9 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cri
     l_Data << uint32(1);
 
     l_Data << uint32(p_Entry->ID);
-    l_Data << uint32(p_Progress->date);      /// Unknown date
-    l_Data << uint32(p_Progress->date);      /// Unknown date
-    l_Data << uint32(p_Progress->date);      /// Last update time (not packed!)
+    l_Data << uint32(p_Progress->date);      ///< DateCreated
+    l_Data << uint32(p_Progress->date);      ///< DateStarted
+    l_Data << uint32(p_Progress->date);      ///< Last update time (not packed!)
     l_Data << uint64(p_Progress->counter);
     l_Data.appendPackGUID(p_Progress->CompletedGUID);
     l_Data << uint32(p_Progress->changed);

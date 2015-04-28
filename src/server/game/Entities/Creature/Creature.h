@@ -128,6 +128,7 @@ struct CreatureTemplate
     uint32  Modelid3;
     uint32  Modelid4;
     std::string  Name;
+    std::string  FemaleName;
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
@@ -287,6 +288,7 @@ struct CreatureLocale
 {
     StringVector Name;
     StringVector SubName;
+    StringVector l_FemaleName;
 };
 
 struct GossipMenuItemsLocale
