@@ -25297,6 +25297,25 @@ void Player::ContinueTaxiFlight()
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
+void Player::TaxiRequestEarlyLanding()
+{
+//     uint32 l_Current = m_taxi.GetCurrentTaxiPath();
+// 
+//     if (!l_Current)
+//         return;
+// 
+//     std::deque<uint32> l_CurrentDestination = m_taxi.GetCurrentDestinationQueue();
+//     std::deque<uint32> l_NewDestination;
+//     l_NewDestination.push_back(l_Current);
+// 
+//     if (!l_CurrentDestination.size())
+//         return;
+// 
+//     l_NewDestination.push_back(l_CurrentDestination[1]);
+// 
+//     m_taxi.SetDestinationQueue(l_NewDestination);
+}
+
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)

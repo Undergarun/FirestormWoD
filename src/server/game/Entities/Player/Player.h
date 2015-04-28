@@ -1189,6 +1189,15 @@ class PlayerTaxi
         }
         bool empty() const { return m_TaxiDestinations.empty(); }
 
+        std::deque<uint32> GetCurrentDestinationQueue()
+        {
+            return m_TaxiDestinations;
+        }
+        void SetDestinationQueue(std::deque<uint32> p_Destinations)
+        {
+            m_TaxiDestinations = p_Destinations;
+        }
+
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
         TaxiMask m_taximask;
@@ -1594,6 +1603,7 @@ class Player : public Unit, public GridObject<Player>
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
+        void TaxiRequestEarlyLanding();
                                                             // mount_id can be used in scripting calls
         bool IsAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
