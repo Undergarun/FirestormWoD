@@ -5775,6 +5775,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
     ObjectGuid unitGuid = GetGUID();
     ObjectGuid targetGuid = target->GetGUID();
+    /// @todo update me
     WorldPacket data(SMSG_SPELL_OR_DAMAGE_IMMUNE, 21);
 
     data << uint32(spellId);
@@ -11454,6 +11455,7 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, uint32 damage, Powers powerType)
 {
+    ///@todo update me
     WorldPacket data(SMSG_SPELL_ENERGIZE_LOG, 60);
     ObjectGuid targetGuid = victim->GetGUID();
     ObjectGuid casterGuid = GetGUID();
