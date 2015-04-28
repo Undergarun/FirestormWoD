@@ -1803,6 +1803,7 @@ class Player : public Unit, public GridObject<Player>
         */
 
         void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
+        void ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool ignoreLimit = false);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
@@ -2031,8 +2032,6 @@ class Player : public Unit, public GridObject<Player>
 
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
-
-        MS::Utilities::BitSet const& GetCompletedQuests() const { return m_CompletedQuestBits; }
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
@@ -3519,6 +3518,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SetQuestBit(uint32 p_BitIndex, bool p_Completed);
+        bool IsQuestBitFlaged(uint32 p_BitIndex) const;
         void ClearQuestBits(std::vector<uint32> const& p_QuestBits);
 
         /// Wargames
@@ -3836,8 +3836,6 @@ class Player : public Unit, public GridObject<Player>
 
         typedef std::set<uint32> DailyQuestList;
         DailyQuestList m_dailyQuestStorage;
-
-        MS::Utilities::BitSet m_CompletedQuestBits;
 
         std::queue<std::function<void()>> m_CriticalOperation;
         ACE_Thread_Mutex m_CriticalOperationLock;

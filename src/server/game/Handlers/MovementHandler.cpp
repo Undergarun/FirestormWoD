@@ -430,7 +430,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     uint32 l_MSTime = getMSTime();
 
-    if (m_clientTimeDelay == 0)
+    //if (m_clientTimeDelay == 0)
         m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
 
     l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay;
@@ -603,7 +603,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
     uint32 l_MSTime = getMSTime();
 
-    if (m_clientTimeDelay == 0)
+    //if (m_clientTimeDelay == 0)
         m_clientTimeDelay = l_MSTime - m_Player->m_movementInfo.time;
 
     m_Player->m_movementInfo.time = m_Player->m_movementInfo.time + m_clientTimeDelay;

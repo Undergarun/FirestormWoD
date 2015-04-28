@@ -2648,7 +2648,7 @@ class npc_exarch_maladaar_tanaan_cave : public CreatureScript
 
                 if (m_PlayerGuid)
                 {
-                    if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 40.0f))
+                    if (GameObject* l_Gob = GetClosestGameObjectWithEntry(me, TanaanGameObjects::GobIronCageDoor, 80.0f))
                     {
                         if (Player* l_Player = me->GetPlayer(*me, m_PlayerGuid))
                             l_Gob->UseDoorOrButton(120000, false, l_Player);
@@ -4165,7 +4165,7 @@ class gob_main_cannon_trigger : public GameObjectScript
                 l_PhaseMask |= TanaanPhases::PhasePortalDestroyed;
                 p_Player->SetPhaseMask(l_PhaseMask, true);
             }
-            return true;
+            return false;
         }
 };
 

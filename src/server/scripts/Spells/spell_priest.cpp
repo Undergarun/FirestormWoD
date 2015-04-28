@@ -1136,7 +1136,8 @@ enum MasterySpells
     MASTERY_SPELL_DISCIPLINE_SHIELD = 77484
 };
 
-// Power Word: Shield - 17
+/// last update : 6.1.2 19802
+/// Power Word: Shield - 17
 class spell_pri_power_word_shield: public SpellScriptLoader
 {
     public:
@@ -1155,7 +1156,7 @@ class spell_pri_power_word_shield: public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 5) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
+                p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
                 if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
                 {
@@ -2386,6 +2387,56 @@ class spell_pri_penance: public SpellScriptLoader
         }
 };
 
+/// Last Update 6.1.2
+/// Penance - 47750 (heal) and Penance - 47666 (damage)
+class spell_pri_penance_effect : public SpellScriptLoader
+{
+    public:
+        spell_pri_penance_effect() : SpellScriptLoader("spell_pri_penance_effect") { }
+
+        class spell_pri_penance_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_penance_effect_SpellScript);
+
+            enum eSpells
+            {
+                PenanceHeal                     = 47750,
+                PenanceDamage                   = 47666,
+                PriestWoDPvPDiscipline2PBonus   = 171124,
+                BonusHeal                       = 171130,
+                BonusDamage                     = 171131
+
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::PriestWoDPvPDiscipline2PBonus))
+                {
+                    if (GetSpellInfo()->Id == eSpells::PenanceHeal)
+                        l_Caster->CastSpell(l_Target, eSpells::BonusHeal, true);
+                    else
+                        l_Caster->CastSpell(l_Target, eSpells::BonusDamage, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_penance_effect_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_penance_effect_SpellScript();
+        }
+};
+
 // Vampiric Touch - 34914
 class spell_pri_vampiric_touch: public SpellScriptLoader
 {
@@ -2855,6 +2906,7 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -2864,6 +2916,12 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+            enum eSpells
+            {
+                PriestWoDPvPHoly2PBonus = 171158,
+                Pvp2PBonusProc          = 171162
+            };
 
             void HandleHeal(SpellEffIndex /*p_EffIndex*/)
             {
@@ -2908,6 +2966,11 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                                         }
                                     }
                                 }
+                            }
+                            if (l_Caster->HasAura(eSpells::PriestWoDPvPHoly2PBonus)) ///< When Prayer of Mending heals a target, you and the target gain 130 Versatility for 10 sec. Stacks up to 5 times.
+                            {
+                                l_Caster->CastSpell(l_Caster, eSpells::Pvp2PBonusProc, true);
+                                l_Caster->CastSpell(l_Target, eSpells::Pvp2PBonusProc, true);
                             }
                             l_Target->RemoveAura(PrayerOfMendingSpells::PrayerOfMendingAura);
                         }
@@ -3698,6 +3761,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_psychic_horror();
     new spell_pri_guardian_spirit();
     new spell_pri_penance();
+    new spell_pri_penance_effect();
     new spell_pri_vampiric_touch();
     new spell_pri_renew();
     new spell_pri_evangelism();

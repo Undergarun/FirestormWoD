@@ -8495,13 +8495,31 @@ void AuraEffect::HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurA
         l_Player->UpdateParryPercentage();
 }
 
-void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool /*p_Apply*/) const
+void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
     if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    if (Player* l_Player = p_AurApp->GetTarget()->ToPlayer())
-        l_Player->UpdateArmor();
+    Player* l_Player = p_AurApp->GetTarget()->ToPlayer();
+    if (!l_Player)
+        return;
+
+    UnitModifierType l_Type;
+
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_MOD_BONUS_ARMOR:
+            l_Type = TOTAL_VALUE;
+            break;
+        case SPELL_AURA_MOD_BONUS_ARMOR_PCT:
+            l_Type = TOTAL_PCT;
+            break;
+        default:
+            return;
+    }
+
+    l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
+    l_Player->UpdateArmor();
 }
 
 void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

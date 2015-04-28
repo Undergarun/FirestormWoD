@@ -595,14 +595,14 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     case 115080:// Touch of Death
                     {
-                        if (Unit* caster = GetCaster())
+                        if (Unit* l_Caster = GetCaster())
                         {
                             if (unitTarget)
                             {
-                                uint32 damage = unitTarget->GetHealth();
-                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-                                m_caster->DealDamageMods(unitTarget, damage, NULL);
-                                m_caster->DealDamage(unitTarget, damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
+                                uint32 l_Damage = l_Caster->GetHealth();
+                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, l_Damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
+                                m_caster->DealDamageMods(unitTarget, l_Damage, NULL);
+                                m_caster->DealDamage(unitTarget, l_Damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
                             }
                         }
                         return;
@@ -1837,6 +1837,27 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
+            /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
+            case 182078:
+            {
+                SpellValue const* l_Values = m_spellValue;
+                if (!m_spellValue)
+                    return;
+
+                if (!m_spellValue->EffectBasePoints[effIndex])
+                    return;
+                break;
+            }
+            /// Crane chi explosion
+            case 159620:
+            {
+                uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                if (l_Chi > 2 && effIndex == EFFECT_1)
+                    return;
+                else if (l_Chi < 3 && effIndex == EFFECT_2)
+                    return;
+                break;
+            }
             // Tipping of the Scales, Scales of Life
             case 96880:
             {

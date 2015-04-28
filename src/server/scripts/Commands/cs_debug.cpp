@@ -2463,21 +2463,13 @@ class debug_commandscript: public CommandScript
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
 
-            char* arg1 = strtok((char*)p_Args, " ");
-            char* arg2 = strtok(NULL, " ");
-
-            if (!arg1 || !arg2)
-                return false;
-
-            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
-            int32 l_Points = atoi(arg2);
             if (!l_Battleground)
             {
-                p_Handler->PSendSysMessage("You're not in a battleground !");
+                p_Handler->PSendSysMessage("You're not in a battleground!");
                 return false;
             }
 
-            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
+            l_Battleground->AwardTeams(l_Battleground->GetOtherTeam(p_Handler->GetSession()->GetPlayer()->GetTeam()));
             return true;
         }
 

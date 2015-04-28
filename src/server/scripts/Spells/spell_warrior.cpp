@@ -29,16 +29,13 @@
 
 enum WarriorSpells
 {
-    WARRIOR_SPELL_LAST_STAND_TRIGGERED          = 12976,
     WARRIOR_SPELL_VICTORY_RUSH_DAMAGE           = 34428,
     WARRIOR_SPELL_VICTORY_RUSH_HEAL             = 118779,
     WARRIOR_SPELL_VICTORIOUS_STATE              = 32216,
     WARRIOR_SPELL_BLOODTHIRST                   = 23881,
     WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
-    WARRIOR_SPELL_WEAKENED_BLOWS                = 115798,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
-    WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
     WARRIOR_SPELL_RALLYING_CRY                  = 97463,
     WARRIOR_SPELL_GLYPH_OF_MORTAL_STRIKE        = 58368,
     WARRIOR_SPELL_SWORD_AND_BOARD               = 50227,
@@ -46,25 +43,18 @@ enum WarriorSpells
     WARRIOR_SPELL_ALLOW_RAGING_BLOW             = 131116,
     WARRIOR_SPELL_MOCKING_BANNER_TAUNT          = 114198,
     WARRIOR_NPC_MOCKING_BANNER                  = 59390,
-    WARRIOR_SPELL_BERZERKER_RAGE_EFFECT         = 23691,
     WARRIOR_SPELL_ENRAGE                        = 12880,
     WARRIOR_SPELL_COLOSSUS_SMASH                = 167105,
     WARRIOR_SPELL_MORTAL_STRIKE_AURA            = 12294,
     WARRIOR_SPELL_TASTE_FOR_BLOOD               = 56636,
     WARRIOR_SPELL_ALLOW_OVERPOWER               = 60503,
-    WARRIOR_SPELL_TASTE_FOR_BLOOD_DAMAGE_DONE   = 125831,
     WARRIOR_SPELL_SECOND_WIND_REGEN             = 16491,
     WARRIOR_SPELL_DRAGON_ROAR_KNOCK_BACK        = 118895,
-    WARRIOR_SPELL_MEAT_CLEAVER_PROC             = 85739,
     WARRIOR_SPELL_PHYSICAL_VULNERABILITY        = 81326,
-    WARRIOR_SPELL_STORM_BOLT_STUN               = 132169,
     WARRIOR_SPELL_SHIELD_BLOCK_TRIGGERED        = 132404,
     WARRIOR_SPELL_GLYPH_OF_HINDERING_STRIKES    = 58366,
     WARRIOR_SPELL_SLUGGISH                      = 129923,
     WARRIOR_SPELL_IMPENDING_VICTORY             = 103840,
-    WARRIOR_SPELL_GLYPH_OF_RESONATING_POWER     = 58356,
-    WARRIOR_SPELL_SWEEPING_STRIKES              = 12328,
-    WARRIOR_SPELL_SLAM_AOE                      = 146361,
     WARRIOR_SPELL_BLOODSURGE                    = 46915,
     WARRIOR_SPELL_BLOODSURGE_PROC               = 46916,
     WARRIOR_SPELL_GLYPH_OF_COLOSSUS_SMASH       = 89003,
@@ -77,7 +67,6 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
-    WARRIOR_SPELL_WILD_STRIKE                   = 100130,
     WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184
 };
 
@@ -285,11 +274,6 @@ class spell_warr_shield_block: public SpellScriptLoader
         }
 };
 
-enum StormBoltSpells
-{
-    SpellStormBoltOffHand = 107570
-};
-
 /// Storm Bolt - 107570, Storm Bolt (Off Hand) - 145585
 class spell_warr_storm_bolt: public SpellScriptLoader
 {
@@ -300,24 +284,29 @@ class spell_warr_storm_bolt: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
 
+            enum eSpells
+            {
+                StormBoltOffHand = 107570,
+                StormBoltStun = 132169
+            };
+
             void HandleOnCast()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetExplTargetUnit();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN);
 
-                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                if (GetSpellInfo()->Id == StormBoltSpells::SpellStormBoltOffHand && !l_Target->IsImmunedToSpellEffect(l_SpellInfo, EFFECT_0))
-                    l_Caster->CastSpell(l_Target, WARRIOR_SPELL_STORM_BOLT_STUN, true);
+                if (GetSpellInfo()->Id == eSpells::StormBoltOffHand && !l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
+                    l_Caster->CastSpell(l_Target, eSpells::StormBoltStun, true);
             }
 
             void HandleOnHit()
             {
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(WARRIOR_SPELL_STORM_BOLT_STUN), EFFECT_0))
+                    if (l_Target->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(eSpells::StormBoltStun), EFFECT_0))
                         SetHitDamage(GetHitDamage() * 4); ///< Deals quadruple damage to targets permanently immune to stuns
                 }
             }
@@ -1456,11 +1445,11 @@ class spell_warr_execute: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
-                int32 l_MaxConsumed = -GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+                int32 l_MaxConsumed = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE));
-                l_Damage += (l_RageConsumed * (405.f / l_MaxConsumed));
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE)) / l_Caster->GetPowerCoeff(POWER_RAGE);
+                l_Damage += CalculatePct(l_Damage, -l_RageConsumed * (405.f / -l_MaxConsumed));
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
@@ -1628,13 +1617,6 @@ class spell_warr_execute_default: public SpellScriptLoader
         }
 };
 
-enum EnhancedRendSpells
-{
-    SPELL_WARR_ENHANCED_REND_DAMAGE = 174736,
-    SPELL_WARR_REND_FINAL_BURST     = 94009,
-    SPELL_WARR_REND                 = 772
-};
-
 /// Enhanced Rend - 174737
 class spell_warr_enhanced_rend: public SpellScriptLoader
 {
@@ -1645,6 +1627,12 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_enhanced_rend_AuraScript);
 
+            enum eSpells
+            {
+                EnhancedRendDamage = 174736,
+                Rend = 772
+            };
+
             void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& l_ProcInfo)
             {
                 PreventDefaultAction();
@@ -1653,8 +1641,8 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
                 {
                     if (Unit* l_Caster = GetCaster())
                     {
-                        if (l_Target->HasAura(SPELL_WARR_REND, l_Caster->GetGUID()))
-                            l_Caster->CastSpell(l_Target, SPELL_WARR_ENHANCED_REND_DAMAGE, true);
+                        if (l_Target->HasAura(eSpells::Rend, l_Caster->GetGUID()))
+                            l_Caster->CastSpell(l_Target, eSpells::EnhancedRendDamage, true);
                     }
                 }
             }
@@ -1672,6 +1660,7 @@ class spell_warr_enhanced_rend: public SpellScriptLoader
 };
 
 /// Rend - 772
+/// last update 6.1.2 19865
 class spell_warr_rend : public SpellScriptLoader
 {
     public:
@@ -1681,9 +1670,14 @@ class spell_warr_rend : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_rend_AuraScript);
 
+            enum eSpells
+            {
+                RendFinalBurst = 94009
+            };
+
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Owner = GetCaster();
                 Unit* l_Target = GetTarget();
 
                 if (l_Owner == nullptr || l_Target == nullptr)
@@ -1694,7 +1688,7 @@ class spell_warr_rend : public SpellScriptLoader
                 if (l_RemoveMode != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                l_Owner->CastSpell(l_Target, SPELL_WARR_REND_FINAL_BURST, true);
+                l_Owner->CastSpell(l_Target, eSpells::RendFinalBurst, true);
             }
 
             void Register()
@@ -1869,6 +1863,52 @@ class spell_warr_blood_craze : public SpellScriptLoader
         }
 };
 
+/// Meat Cleaver - 12950
+/// last update 6.1.2 19865
+class spell_warr_meat_cleaver : public SpellScriptLoader
+{
+    public:
+        spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
+
+        class spell_warr_meat_cleaver_Aurascript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_meat_cleaver_Aurascript);
+
+            enum eSpells
+            {
+                Whirlwind = 1680,
+                MeatCleaverTargetModifier = 85739
+            };
+
+            void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+
+                if (!p_ProcInfo.GetDamageInfo() || !p_ProcInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                if (!p_ProcInfo.GetDamageInfo()->GetSpellInfo() || p_ProcInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::Whirlwind)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::MeatCleaverTargetModifier, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warr_meat_cleaver_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_meat_cleaver_Aurascript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     /// NPCs
@@ -1915,6 +1955,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_bath();
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
+    new spell_warr_meat_cleaver();
 
     /// Playerscripts
     new PlayerScript_second_wind();

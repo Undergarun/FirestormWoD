@@ -1190,12 +1190,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     return damage;
 }
 
+
+/// Last Update 6.1.2
 uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMask p_DamageSchoolMask, SpellInfo const* p_SpellProto)
 {
     if (p_Victim->GetSpecializationId(p_Victim->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
         return p_Damage;
 
-    // Stance of the Sturdy Ox
+    /// Stance of the Sturdy Ox
     if (!p_Victim->HasAura(115069))
         return p_Damage;
 
@@ -1211,7 +1213,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
     }
 
     /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
-    if (p_Victim->HasSpell(115203) && p_Victim->HasAura(117967))
+    if (p_Victim->HasAura(120954) && p_Victim->HasAura(117967))
         l_Stagger -= 0.20f;
     /// Shuffle also increase stagger amount by 20%
     if (p_Victim->HasAura(115307))
@@ -2798,6 +2800,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     tmp += victim->GetMechanicResistChance(spell) * 100;
     if (roll < tmp)
         return SPELL_MISS_RESIST;
+
+    // Charge spells aren't suppose to takecare of dodge parry or block
+    if (spell->AttributesCu & SPELL_ATTR0_CU_CHARGE)
+        return SPELL_MISS_NONE;
 
     bool canDodge = true;
     bool canParry = true;
@@ -16639,7 +16645,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         l_TakenProcFlag |= PROC_FLAG_TAKEN_PERIODIC;
 
                     // Spell Heal
-                    if (procSpell && procSpell->IsPositive() && IsFriendlyTo(target))
+                    if (procSpell && IsFriendlyTo(target))
                     {
                         HealBySpell(target, procSpell, l_MultistrikeDamage, l_IsCrit, true);
                         ProcDamageAndSpell(target, l_DoneProcFlag, l_TakenProcFlag, l_ExFlag, l_MultistrikeDamage, 0, attType, procSpell);

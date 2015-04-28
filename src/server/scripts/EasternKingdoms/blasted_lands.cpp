@@ -189,11 +189,23 @@ class npc_archmage_khadgar_gossip : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
-            if (p_Player->GetQuestStatus(QUEST_START_DRAENOR) == QUEST_STATUS_INCOMPLETE)
+            if (p_Player->GetTeamId() == TEAM_ALLIANCE)
             {
-                p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
-                p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
-                p_Player->KilledMonsterCredit(78419);
+                if (p_Player->GetQuestStatus(35884) != QUEST_STATUS_REWARDED)
+                {
+                    p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                    p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
+                    p_Player->KilledMonsterCredit(78419);
+                }
+            }
+            else if (p_Player->GetTeamId() == TEAM_HORDE)
+            {
+                if (p_Player->GetQuestStatus(34446) != QUEST_STATUS_REWARDED)
+                {
+                    p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                    p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
+                    p_Player->KilledMonsterCredit(78419);
+                }
             }
             return true;
         }

@@ -2310,6 +2310,33 @@ void SpellMgr::LoadSpellPetAuras()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell pet auras in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+bool IsCCSpell(SpellInfo const* p_SpellProto)
+{
+    if (p_SpellProto->SpellFamilyName == SPELLFAMILY_HUNTER ||
+        p_SpellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
+        return false; 
+
+    for (uint8 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; l_EffectIndex++)
+    {
+        switch (p_SpellProto->Effects[l_EffectIndex].ApplyAuraName)
+        {
+            case SPELL_AURA_MOD_CONFUSE:
+            case SPELL_AURA_MOD_FEAR:
+            case SPELL_AURA_MOD_STUN:
+            case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_TRANSFORM:
+                if (!p_SpellProto->IsPositiveEffect(l_EffectIndex))
+                    return true;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
 // Fill custom data about enchancments
 void SpellMgr::LoadEnchantCustomAttr()
 {
@@ -4824,9 +4851,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
-            case 119611: ///< Renewing Mist 
-                spellInfo->Effects[0].BonusMultiplier = 0.109984f;
-                break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                 break;
@@ -5072,6 +5096,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
+                break;
+            case 82938: ///< Explosive Trap (launcher)
+            case 82940: ///< Ice Trap (launcher)
+            case 60202: ///< Freezing Trap (launcher)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7);
                 break;
             case 56224: ///< Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
@@ -5998,6 +6027,10 @@ void SpellMgr::LoadSpellCustomAttr()
             default:
                 break;
         }
+
+        /// Speed needs to be set for some reason, else delay won't apply
+        if (IsCCSpell(spellInfo) && !spellInfo->Speed)
+            spellInfo->Speed = 12345.0f;
 
             switch (spellInfo->SpellFamilyName)
             {

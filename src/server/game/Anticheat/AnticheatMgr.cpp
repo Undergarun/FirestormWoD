@@ -1,4 +1,4 @@
-﻿#include "AnticheatMgr.h"
+#include "AnticheatMgr.h"
 #include "AnticheatScripts.h"
 #include "MapManager.h"
 
@@ -98,6 +98,7 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movem
     }
 }
 
+
 void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos, uint32 p_Opcode)
 {
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
@@ -110,7 +111,9 @@ void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos
 
     if (p_Player->isInFlight() || p_Player->GetTransport() || p_Player->GetVehicle())
     {
+
         m_Players[key].SetLastMovementInfo(p_MoveInfos);
+
         m_Players[key].SetLastOpcode(p_Opcode);
         return;
     }
