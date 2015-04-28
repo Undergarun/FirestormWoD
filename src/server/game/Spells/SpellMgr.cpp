@@ -3331,6 +3331,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
+            case 178533: ///< Horde Reward
+            case 178531: ///< Alliance Reward
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                break;
             case 115294: ///< Mana Tea
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_OBS_MOD_POWER;
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36); ///< 1s

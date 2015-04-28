@@ -93,60 +93,72 @@ const struct RewriteItem Mac64Patchs[] =
 
 #endif
 
-///-  19116 live
+///-  19865 live
 #ifdef LIVE
 
 const uint8_t jam_dispatch_check_data_win32[] = { 0xEB, 0x1D };     ///< jmp to bypass socket check
 const uint8_t jam_quest_check_data_win32[]    = { 0x90, 0x90 };     ///< jmp to bypass socket check
-const uint8_t jam_spell_check_data_win32[]    = { 0xEB, 0x1D };     ///< jmp to bypass socket check
-const uint8_t jam_guild_check_data_win32[]    = { 0x74, 0x19 };     ///< jmp to bypass socket check
 const uint8_t client_check_data_win32[]       = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x22, 0x01, 0x00, 0x00 };     ///< jmp to bypass socket check
 
 const struct RewriteItem Win32Patchs[] =
 {
-    { 0x009A3320, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
-    { 0x009BA6A0, sizeof(build_date_data),                       build_date_data                        },        ///< Change build date
-    { 0x00A4481C, sizeof(bnet_portal_data),                      bnet_portal_data                       },        ///< Change bnet portal
-    { 0x00AD732C, sizeof(bnet_logon_data),                       bnet_logon_data                        },        ///< Change bnet logon
-    { 0x009C2C94, sizeof(bnet_agent_data),                       bnet_agent_data                        },        ///< Change bnet agent
-    { 0x009A2668, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
-    { 0x009A2694, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
-    { 0x0020D232, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
-    { 0x00202E6C, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< bypass jam quest dispatch socket check
-    { 0x00264B09, sizeof(client_check_data_win32),               client_check_data_win32                },        ///< bypass client dispatch socket check
-    //{ 0x008AD992, sizeof(jam_spell_check_data_win32),            jam_spell_check_data_win32             },        ///< bypass jam spell dispatch socket check
-    //{ 0x0021ECDD, sizeof(jam_guild_check_data_win32),            jam_guild_check_data_win32             },        ///< bypass jam guild dispatch socket check
+    { 0x009A3128, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
+    { 0x009BA4F8, sizeof(build_date_data),                       build_date_data                        },        ///< Change build date
+    { 0x00A4471C, sizeof(bnet_portal_data),                      bnet_portal_data                       },        ///< Change bnet portal
+    { 0x00AD722C, sizeof(bnet_logon_data),                       bnet_logon_data                        },        ///< Change bnet logon
+    { 0x009C2AF4, sizeof(bnet_agent_data),                       bnet_agent_data                        },        ///< Change bnet agent
+    { 0x009A2470, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
+    { 0x009A249C, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
+    { 0x0020D0A3, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
+    { 0x00202D1A, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< bypass jam quest dispatch socket check
+    { 0x00264AEB, sizeof(client_check_data_win32),               client_check_data_win32                },        ///< bypass client dispatch socket check
+};
+
+const uint8_t client_check_data_win64[]         = { 0x41, 0xBE, 0x00, 0x00, 0x00, 0x00, ///< mov r14d, 0
+                                                    0xBF, 0x00, 0x00, 0x00, 0x00,       ///< mov edi, 0
+                                                    0xE9, 0x11, 0x01, 0x00, 0x00        ///< jmp loc_140408A3F
+                                                  };
+const uint8_t jam_dispatch_check_data_win64[]   = { 0xEB, 0x2B };                       ///< jmp loc_14037F0E3
+const uint8_t jam_quest_check_data_win64[]      = { 0x90,                               ///< nop
+                                                    0x90                                ///< nop
+                                                  };
+
+const struct RewriteItem Win64Patchs[] =
+{
+    { 0x00F09CC8, sizeof(config_data),                           config_data                            },        ///< Change default configuration file
+    { 0x00F260E0, sizeof(build_date_data),                       build_date_data                        },        ///< Change build date
+    { 0x00FC5BE0, sizeof(bnet_portal_data),                      bnet_portal_data                       },        ///< Change bnet portal
+    { 0x01064728, sizeof(bnet_logon_data),                       bnet_logon_data                        },        ///< Change bnet logon
+    { 0x00F2F210, sizeof(bnet_agent_data),                       bnet_agent_data                        },        ///< Change bnet agent
+    { 0x00F08F68, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
+    { 0x00F08F98, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
+    { 0x0037E4B6, sizeof(jam_dispatch_check_data_win64),         jam_dispatch_check_data_win64          },        ///< Bypass jam dispatch socket check
+    { 0x0036E481, sizeof(jam_quest_check_data_win64),            jam_quest_check_data_win64             },        ///< bypass jam quest dispatch socket check
+    { 0x00407D1E, sizeof(client_check_data_win64),               client_check_data_win64                },        ///< bypass client dispatch socket check
 };
 
 const uint8_t client_packets_check_data_mac64[]     = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
-const uint8_t client_packets_check2_data_mac64[]    = { 0xE9 };                                                         ///< jmp to bypass socket check
 const uint8_t jam_dispatch_check_data_mac64[]       = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
-const uint8_t jam_quest_check_data_mac64[]          = { 0xEB, 0x53 };                                                   ///< jmp to bypass socket check
-const uint8_t jam_spell_check_data_mac64[]          = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
-const uint8_t jam_guild_check_data_mac64[]          = { 0xEB, 0x58 };                                                   ///< jmp to bypass socket check
 
 const struct RewriteItem Mac64Patchs[] =
 {
-    { 0x014AA0E0, sizeof(config_data),                           config_data                       },             ///< Change default configuration file
-    { 0x01469FE1, sizeof(build_date_data),                       build_date_data                   },             ///< Change build date
-    { 0x01494509, sizeof(bnet_portal_data),                      bnet_portal_data                  },             ///< Change bnet portal
-    { 0x0149374F, sizeof(bnet_agent_data),                       bnet_agent_data                   },             ///< Change bnet agent
-    { 0x015E0DA0, sizeof(bnet_logon_data),                       bnet_logon_data                   },             ///< Change bnet logon
-    { 0x014A89EA, sizeof(bnet_versions_data),                    bnet_versions_data                },             ///< Change bnet versions data
-    { 0x014A8A16, sizeof(bnet_cdns_data),                        bnet_cdns_data                    },             ///< Change bnet cdns data
-    { 0x00108C3D6, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket check
-    //{ 0x01042437, sizeof(jam_quest_check_data_mac64),            jam_quest_check_data_mac64        },             ///< Bypass jam quest socket check
-    //{ 0x0104D156, sizeof(jam_spell_check_data_mac64),            jam_spell_check_data_mac64        },             ///< Bypass jam spell socket check
-    //{ 0x01028017, sizeof(jam_guild_check_data_mac64),            jam_guild_check_data_mac64        },             ///< Bypass jam guild socket check
-    { 0x0064896C, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
+     { 0x014B276A, sizeof(config_data),                           config_data                       },             ///< Change default configuration file
+     { 0x014727DB, sizeof(build_date_data),                       build_date_data                   },             ///< Change build date
+     { 0x0149CC61, sizeof(bnet_portal_data),                      bnet_portal_data                  },             ///< Change bnet portal
+     { 0x0149BEB7, sizeof(bnet_agent_data),                       bnet_agent_data                   },             ///< Change bnet agent
+     { 0x015E93A0, sizeof(bnet_logon_data),                       bnet_logon_data                   },             ///< Change bnet logon
+     { 0x014B1076, sizeof(bnet_versions_data),                    bnet_versions_data                },             ///< Change bnet versions data
+     { 0x014B10A2, sizeof(bnet_cdns_data),                        bnet_cdns_data                    },             ///< Change bnet cdns data
+     { 0x01094A26, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket check
+     { 0x0064810C, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
 };
 #endif
 
 const struct SystemItem gSystems[] = {
     { "win32",  CLIENT_TYPE_WIN32,  _countof(Win32Patchs),  Win32Patchs },
+    { "win64",  CLIENT_TYPE_WIN64,  _countof(Win64Patchs),  Win64Patchs },
     { "mac64",  CLIENT_TYPE_MAC64,  _countof(Mac64Patchs),  Mac64Patchs },
 };
-
 
 FILE* gFile = 0;
 
