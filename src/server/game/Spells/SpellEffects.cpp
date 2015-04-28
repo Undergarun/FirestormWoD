@@ -599,7 +599,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         {
                             if (unitTarget)
                             {
-                                uint32 l_Damage = l_Caster->GetHealth();
+                                uint32 l_Damage = l_Caster->GetMaxHealth();
                                 m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, l_Damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
                                 m_caster->DealDamageMods(unitTarget, l_Damage, NULL);
                                 m_caster->DealDamage(unitTarget, l_Damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
