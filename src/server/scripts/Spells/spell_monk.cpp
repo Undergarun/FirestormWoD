@@ -2482,28 +2482,36 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_torpedo_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPBrewmaster2PBonus = 165691,
+                MonkWoDPvPBrewmasterAura = 165692
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                std::list<Unit*> l_TempUnitMap;
+                l_Player->GetAttackableUnitListInRange(l_TempUnitMap, 20.0f);
+
+                for (auto itr : l_TempUnitMap)
                 {
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        std::list<Unit*> tempUnitMap;
-                        _player->GetAttackableUnitListInRange(tempUnitMap, 20.0f);
+                    if (!l_Player->isInFront(itr, M_PI / 3) && itr->GetGUID() != l_Player->GetGUID())
+                        continue;
 
-                        for (auto itr : tempUnitMap)
-                        {
-                            if (!_player->isInFront(itr, M_PI / 3) && itr->GetGUID() != _player->GetGUID())
-                                continue;
-
-                            uint32 spell = _player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_TORPEDO_DAMAGE : SPELL_MONK_CHI_TORPEDO_HEAL;
-                            _player->CastSpell(itr, spell, true);
-                        }
-
-                        if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
-                            caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                    }
+                    uint32 spell = l_Player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_TORPEDO_DAMAGE : SPELL_MONK_CHI_TORPEDO_HEAL;
+                    l_Player->CastSpell(itr, spell, true);
                 }
+
+                if (l_Player->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                    l_Player->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+
+                if (l_Player->HasAura(eSpells::MonkWoDPvPBrewmaster2PBonus))
+                    l_Player->CastSpell(l_Player, eSpells::MonkWoDPvPBrewmasterAura, true);
             }
 
             void Register()
@@ -3240,6 +3248,12 @@ class spell_monk_roll: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_roll_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPBrewmaster2PBonus     = 165691,
+                MonkWoDPvPBrewmasterAura        = 165692
+            };
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
@@ -3262,14 +3276,17 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                Unit* caster = GetCaster();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || l_Caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER, true);
 
-                if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                    l_Caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+
+                if (l_Caster->HasAura(eSpells::MonkWoDPvPBrewmaster2PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPBrewmasterAura, true);
             }
 
             void Register()
@@ -4420,6 +4437,33 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         }
 };
 
+/// Monk WoD PvP Brewmaster 2P Bonus - 165691
+class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_WoDPvPBrewmaster2PBonus() : SpellScriptLoader("spell_monk_WoDPvPBrewmaster2PBonus") { }
+
+        class spell_monk_WoDPvPBrewmaster2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_WoDPvPBrewmaster2PBonus_AuraScript();
+        }
+};
+
 /// last update : 6.1.2 19802
 /// Detonate Chi - 115460
 class spell_monk_detonate_chi : public SpellScriptLoader
@@ -4672,6 +4716,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_heal();
     new spell_monk_chi_explosion_mistweaver_crane();
     new spell_monk_detonate_chi();
+    new spell_monk_WoDPvPBrewmaster2PBonus();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

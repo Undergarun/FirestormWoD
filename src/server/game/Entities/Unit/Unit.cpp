@@ -1215,7 +1215,7 @@ uint32 Unit::CalcStaggerDamage(Player* p_Victim, uint32 p_Damage, SpellSchoolMas
     /// Brewmaster Training : Your Fortifying Brew also increase stagger amount by 20%
     if (p_Victim->HasAura(120954) && p_Victim->HasAura(117967))
         l_Stagger -= 0.20f;
-    /// Shuffle also increase stagger amount by 20%
+    /// Shuffle also increase stagger amount by 10%
     if (p_Victim->HasAura(115307))
         l_Stagger -= 0.10f;
     /// Staggering increase stagger amount by 6%
