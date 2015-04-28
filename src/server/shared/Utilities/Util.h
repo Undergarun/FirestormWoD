@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <cctype>
+#include <iomanip>
+#include <sstream>
 
  void init_sfmt();
 
@@ -370,6 +373,28 @@ bool IsIPAddress(char const* ipaddress);
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+
+inline std::string UrlEncode(const std::string & p_Value)
+{
+    std::ostringstream l_Espaced;
+    l_Espaced.fill('0');
+    l_Espaced << std::hex;
+
+    for (std::string::const_iterator l_I = p_Value.begin(); l_I != p_Value.end(); ++l_I)
+    {
+        std::string::value_type l_Char = (*l_I);
+
+        if (isalnum(l_Char) || l_Char == '-' || l_Char == '_' || l_Char == '.' || l_Char == '~')
+        {
+            l_Espaced << l_Char;
+            continue;
+        }
+
+        l_Espaced << '%' << std::setw(2) << int((unsigned char)l_Char);
+    }
+
+    return l_Espaced.str();
+}
 #endif
 
 //handler for operations on large flags
