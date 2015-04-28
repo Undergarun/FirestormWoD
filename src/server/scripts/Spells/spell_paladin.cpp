@@ -77,6 +77,7 @@ enum PaladinSpells
     PALADIN_SPELL_BEACON_OF_LIGHT               = 53563,
     PALADIN_SPELL_BEACON_OF_FAITH               = 156910,
     PALADIN_SPELL_SELFLESS_HEALER_STACK         = 114250,
+    PALADIN_SPELL_SELFLESS_HEALER               = 85804,
     PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC  = 132403,
     PALADIN_SPELL_BASTION_OF_GLORY              = 114637,
     PALADIN_SPELL_DIVINE_PURPOSE_AURA           = 90174,
@@ -135,7 +136,11 @@ enum PaladinSpells
     PALADIN_SPELL_FLASH_OF_LIGHT                = 19750,
     PALADIN_SPELL_HOLY_LIGHT                    = 13952,
     PALADIN_NPC_LIGHTS_HAMMER                   = 59738,
-    PALADIN_SPELL_LIGHTS_HAMMER_TICK            = 114918
+    PALADIN_SPELL_LIGHTS_HAMMER_TICK            = 114918,
+    PALADIN_PVP_RETRIBUTION_2P_BONUS            = 165886,
+    PALADIN_SPELL_RIGHTEOUS_DETERMINATION       = 165889,
+    PALADIN_PVP_RETRIBUTION_4P_BONUS            = 165895,
+    PALADIN_VINDICATORS_FURY                    = 165903
 };
 
 // Glyph of devotion aura - 146955
@@ -468,9 +473,16 @@ class spell_pal_glyph_of_avenging_wrath: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(PALADIN_SPELL_GLYPH_OF_AVENGING_WRATH))
-                        _player->CastSpell(_player, PALADIN_SPELL_AVENGING_WRATH_REGEN_BY_GLYPH, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasAura(PALADIN_SPELL_GLYPH_OF_AVENGING_WRATH))
+                    l_Player->CastSpell(l_Player, PALADIN_SPELL_AVENGING_WRATH_REGEN_BY_GLYPH, true);
+
+                if (l_Player->HasAura(PALADIN_PVP_RETRIBUTION_2P_BONUS))
+                    l_Player->CastSpell(l_Player, PALADIN_SPELL_RIGHTEOUS_DETERMINATION, true);
             }
 
             void Register()
@@ -533,17 +545,19 @@ class spell_pal_selfless_healer: public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*l_EffIndex*/)
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                if (Player* l_Caster = GetCaster()->ToPlayer())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Player->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
+                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER))
+                            l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+                        if (l_Caster->HasAura(PALADIN_SPELL_SELFLESS_HEALER_STACK))
                         {
-                            int32 l_Charges = l_Player->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
+                            int32 l_Charges = l_Caster->GetAura(PALADIN_SPELL_SELFLESS_HEALER_STACK)->GetStackAmount();
 
-                            if (l_Player->IsValidAssistTarget(l_Target) && l_Target != l_Player)
+                            if (l_Caster->IsValidAssistTarget(l_Target) && l_Target != l_Caster)
                             {
-                                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                                if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_PALADIN_HOLY)
                                     SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_3].BasePoints / 100) * l_Charges)));
                                 else
                                     SetHitHeal(int32(GetHitHeal() + ((GetHitHeal() * sSpellMgr->GetSpellInfo(PALADIN_SPELL_SELFLESS_HEALER_STACK)->Effects[EFFECT_1].BasePoints / 100) * l_Charges)));
@@ -2427,6 +2441,31 @@ public:
     }
 };
 
+/// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
+class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
+{
+public:
+    PlayerScript_paladin_wod_pvp_4p_bonus() :PlayerScript("PlayerScript_paladin_wod_pvp_4p_bonus") {}
+
+    void OnModifyPower(Player* p_Player, Powers p_Power, int32 p_OldValue, int32& p_NewValue, bool p_Regen)
+    {
+        if (p_Regen)
+            return;
+
+        if (p_OldValue > p_NewValue && p_Player->getClass() == CLASS_PALADIN && p_Player->GetSpecializationId(p_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && p_Power == POWER_HOLY_POWER)
+        {
+            // Get the power earn (if > 0 ) or consum (if < 0)
+            int32 l_SpentPower = p_OldValue - p_NewValue;
+
+            if (p_Player->HasAura(PALADIN_PVP_RETRIBUTION_4P_BONUS))
+            {
+                /// Spending Holy Power increases your damage and healing by 2 % per Holy Power
+                int32 l_EffectValue = l_SpentPower * sSpellMgr->GetSpellInfo(PALADIN_VINDICATORS_FURY)->Effects[EFFECT_0].BasePoints;
+                p_Player->CastCustomSpell(p_Player, PALADIN_VINDICATORS_FURY, &l_EffectValue, &l_EffectValue, &l_EffectValue, true);
+            }
+        }
+    }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -2483,4 +2522,5 @@ void AddSC_paladin_spell_scripts()
     // Player Script
     new PlayerScript_empowered_divine_storm();
     new PlayerScript_saved_by_the_light();
+    new PlayerScript_paladin_wod_pvp_4p_bonus();
 }

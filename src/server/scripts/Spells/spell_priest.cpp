@@ -137,7 +137,14 @@ enum PriestSpells
     PRIEST_GLYPH_OF_MIND_HARVEST                    = 162532,
     PRIEST_SPELL_VOID_ENTROPY                       = 155361,
     PRIEST_GLYPH_OF_MIND_BLAST                      = 87194,
-    PRIEST_SPELL_CIRCLE_OF_HEALING                  = 34861
+    PRIEST_SPELL_CIRCLE_OF_HEALING                  = 34861,
+    PRIEST_PVP_SHADOW_2P_BONUS                      = 171146,
+    PRIEST_SPELL_SHADOW_POWER                       = 171150,
+    PRIEST_SPELL_WOD_PVP_DISCIPLINE_2P_BONUS        = 171124,
+    PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY  = 171130,
+    PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY = 171131,
+    PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS            = 171151,
+    PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS_EFFECT     = 171153
 };
 
 // Shadow Orb - 77487 & Glyph od Shadow ravens - 57985
@@ -2199,7 +2206,7 @@ class spell_pri_psychic_horror: public SpellScriptLoader
                             {
                                 l_Caster->SetPsychicHorrorGainedPower(true);
 
-                                int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB);
+                                int32 l_CurrentPowerUsed = l_Caster->GetPower(POWER_SHADOW_ORB) + 1;
                                 if (l_CurrentPowerUsed > 2) ///< Maximum 3 Shadow Orb can be consumed (1 of them is base spell cost)
                                     l_CurrentPowerUsed = 2;
                                  l_Caster->ModifyPower(POWER_SHADOW_ORB, -l_CurrentPowerUsed);
@@ -2211,6 +2218,20 @@ class spell_pri_psychic_horror: public SpellScriptLoader
 
                                 if (l_NewDuration > l_MaxDuration)
                                     l_PsychicHorror->SetMaxDuration(l_NewDuration);
+
+                                if (l_Caster->HasAura(PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS))
+                                {
+                                    l_Caster->CastSpell(l_Caster, PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS_EFFECT, true);
+
+                                    /// Shadow Orbs spent on Psychic Horror are refunded over 3 seconds.
+                                    /// For one spent shadow orb - 3 seconds of duration, maximum 3 shadow orbs - so it's 9 seconds
+                                    int32 l_SpecialDuration = (l_CurrentPowerUsed) * 3000;
+                                    if (AuraPtr l_ShadowPvpBonusEffect = l_Caster ->GetAura((PRIEST_SPELL_WOD_PVP_SHADOW_4P_BONUS_EFFECT), l_Caster->GetGUID()))
+                                    {
+                                        l_ShadowPvpBonusEffect->SetMaxDuration(l_SpecialDuration);
+                                        l_ShadowPvpBonusEffect->SetDuration(l_SpecialDuration);
+                                    }
+                                }
                             }
                         }
                     }
@@ -2309,10 +2330,10 @@ class spell_pri_penance: public SpellScriptLoader
                 if (sSpellMgr->GetFirstSpellInChain(PRIEST_SPELL_PENANCE) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
-                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, rank, true))
+                uint8 l_Rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank, true))
                     return false;
-                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, rank, true))
+                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank, true))
                     return false;
 
                 return true;
@@ -2320,33 +2341,33 @@ class spell_pri_penance: public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    if (Unit* unitTarget = GetHitUnit())
+                    if (Unit* l_UnitTarget = GetHitUnit())
                     {
-                        if (!unitTarget->isAlive())
+                        if (!l_UnitTarget->isAlive())
                             return;
 
-                        uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                        uint8 l_Rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
-                        if (_player->IsFriendlyTo(unitTarget))
-                            _player->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, rank), false, 0);
+                        if (l_Player->IsFriendlyTo(l_UnitTarget))
+                            l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
                         else
-                            _player->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, rank), false, 0);
+                            l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_DAMAGE, l_Rank), false, 0);
 
                         // Divine Insight (Discipline)
-                        if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
-                            if (_player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
-                                _player->CastSpell(_player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PRIEST_DISCIPLINE)
+                            if (l_Player->HasAura(PRIEST_SPELL_DIVINE_INSIGHT_TALENT))
+                                l_Player->CastSpell(l_Player, PRIEST_SPELL_DIVINE_INSIGHT_DISCIPLINE, true);
                     }
                 }
             }
 
             SpellCastResult CheckCast()
             {
-                Player* caster = GetCaster()->ToPlayer();
-                if (Unit* target = GetExplTargetUnit())
-                    if (!caster->IsFriendlyTo(target) && !caster->IsValidAttackTarget(target))
+                Player* l_Caster = GetCaster()->ToPlayer();
+                if (Unit* l_Target = GetExplTargetUnit())
+                    if (!l_Caster->IsFriendlyTo(l_Target) && !l_Caster->IsValidAttackTarget(l_Target))
                         return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
@@ -3586,6 +3607,40 @@ class spell_pri_shadowy_apparition : public SpellScriptLoader
         }
 };
 
+/// Dispersion - 47585
+class spell_pri_dispersion : public SpellScriptLoader
+{
+public:
+    spell_pri_dispersion() : SpellScriptLoader("spell_pri_dispersion") { }
+
+    class spell_pri_dispersion_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_dispersion_AuraScript);
+
+        void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            /// Item - Priest WoD PvP Shadow 2P Bonus - 171146
+            if (l_Caster->HasAura(PRIEST_PVP_SHADOW_2P_BONUS))
+                l_Caster->CastSpell(l_Caster, PRIEST_SPELL_SHADOW_POWER, true);
+        }
+
+        void Register()
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_dispersion_AuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowy_apparition();
@@ -3653,6 +3708,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_aegis();
     new spell_pri_chakra_sanctuary();
     new spell_pri_surge_of_light_aura();
+    new spell_pri_dispersion();
     new spell_pri_binding_heal();
     new spell_pri_saving_grace();
 

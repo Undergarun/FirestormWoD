@@ -133,7 +133,9 @@ enum HunterSpells
     HUNTER_SPELL_ENTRAPMENT                         = 64803,
     HUNTER_SPELL_FRENZY                             = 19623,
     HUNTER_SPELL_COMBAT_EXPERIENCE                  = 20782,
-    HUNTER_SPELL_BLINK_STRIKES                      = 130392
+    HUNTER_SPELL_BLINK_STRIKES                      = 130392,
+    HUNTER_SPELL_BLINK_STRIKES_TELEPORT             = 130393,
+    HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS           = 170884
 };
 
 /// Lesser Proportion - 57894
@@ -2617,12 +2619,9 @@ class spell_hun_kill_command_proc : public SpellScriptLoader
             {
                 if (Unit* l_Owner = GetCaster()->GetOwner())
                 {
-                    int32 l_Damage = int32(1.5f * (l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.36f));
-                    l_Damage = l_Owner->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                    l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Owner, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
-
-                    if (GetCaster()->HasAura(HUNTER_SPELL_COMBAT_EXPERIENCE))
-                        SetHitDamage(int32(GetHitDamage() * 1.5f));
+                    int32 l_Damage = int32(l_Owner->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 1.632f);
+                    l_Damage = GetCaster()->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                    l_Damage = GetHitUnit()->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                     SetHitDamage(l_Damage);
                 }
@@ -2684,19 +2683,9 @@ class spell_hun_steady_shot: public SpellScriptLoader
                     l_Caster->CastSpell(l_Caster, HUNTER_SPELL_STEADY_SHOT_ENERGIZE, true);
             }
 
-            void HandleOnHit()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
-                }
-            }
-
             void Register()
             {
                 AfterCast += SpellCastFn(spell_hun_steady_shot_SpellScript::HandleAfterCast);
-                OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
             }
         };
 
@@ -3252,9 +3241,24 @@ class spell_hun_claw_bite : public SpellScriptLoader
                 if (l_Owner == nullptr)
                     return SPELL_FAILED_DONT_REPORT;
 
-                if (l_Owner->HasAura(HUNTER_SPELL_BLINK_STRIKES) && l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) &&
-                    l_Caster->GetDistance(GetExplTargetUnit()) > 10.0f)
-                    return SPELL_FAILED_OUT_OF_RANGE;
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Owner->HasAura(HUNTER_SPELL_BLINK_STRIKES))
+                {
+                    if (l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Caster->GetDistance(l_Target) > 10.0f)
+                        return SPELL_FAILED_OUT_OF_RANGE;
+
+                    if (!l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Target->IsWithinLOSInMap(l_Caster) && 
+                        l_Caster->GetDistance(l_Target) > 10.0f && l_Caster->GetDistance(l_Target) < 30.0f && !l_Caster->isInRoots() && !l_Caster->isInStun())
+                    {
+                        l_Caster->GetMotionMaster()->Clear();
+                        l_Caster->CastSpell(l_Target, HUNTER_SPELL_BLINK_STRIKES_TELEPORT, true);
+                        l_Owner->ToPlayer()->AddSpellCooldown(HUNTER_SPELL_BLINK_STRIKES, 0, 20 * IN_MILLISECONDS, true);
+                    }
+                }
 
                 return SPELL_CAST_OK;
             }
@@ -3266,9 +3270,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
                 {
                     if (Unit* l_Hunter = GetCaster()->GetOwner())
                     {
-                        int32 l_Damage = int32(1.5f * l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
-                        l_Damage = l_Hunter->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Hunter, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        int32 l_Damage = int32(l_Hunter->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack) * 0.333f);
+                        l_Damage = l_Pet->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Pet, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                         SpellInfo const* l_SpikedCollar = sSpellMgr->GetSpellInfo(HUNTER_SPELL_SPIKED_COLLAR);
                         SpellInfo const* l_EnhancedBasicAttacks = sSpellMgr->GetSpellInfo(eSpells::EnhancedBasicAttacksAura);
@@ -3299,9 +3303,15 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Hunter->HasAura(HUNTER_SPELL_FRENZY) && roll_chance_i(l_Frenzy->Effects[EFFECT_1].BasePoints))
                             l_Pet->CastSpell(l_Pet, HUNTER_SPELL_FRENZY_STACKS, true);
 
-                        /// Combat Experience
-                        if (l_Pet->HasAura(HUNTER_SPELL_COMBAT_EXPERIENCE))
-                            l_Damage = int32(l_Damage * 1.5f);
+                        // WoD: Apply factor on damages depending on creature level and expansion
+                        if (l_Pet->IsPetGuardianStuff() && GetHitUnit()->GetTypeId() == TYPEID_UNIT)
+                            l_Damage *= l_Pet->CalculateDamageDealtFactor(l_Pet, GetHitUnit()->ToCreature());
+                        else if (l_Pet->GetTypeId() == TYPEID_UNIT && (GetHitUnit()->GetTypeId() == TYPEID_PLAYER || GetHitUnit()->IsPetGuardianStuff()))
+                            l_Damage *= l_Pet->CalculateDamageTakenFactor(GetHitUnit(), l_Pet->ToCreature());
+
+                        /// Reduce damage by armor
+                        if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
+                            l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
 
                         /// Critical damage
                         if (GetSpell()->IsCritForTarget(GetHitUnit()))
@@ -3565,8 +3575,10 @@ class AreaTrigger_ice_trap_effect : public AreaTriggerEntityScript
 
 enum class HunterFreezingTrap : uint32
 {
-    SpellIncapacitate   = 3355,
-    SpellGlyphOfSolace  = 119407
+    SpellIncapacitate         = 3355,
+    SpellGlyphOfSolace        = 119407,
+    HunterWodPvp2PBonus       = 166005,
+    HunterWodPvp2PBonusEffect = 166009
 };
 
 /// Freezing Trap - 1499
@@ -3588,7 +3600,7 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = 3.0f;
+                float l_Radius = 2.0f;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -3603,6 +3615,10 @@ class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
                         l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, l_AreaTriggerCaster->GetGUID());
                     l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
                     p_AreaTrigger->Remove(0);
+
+                    /// Item - Hunter WoD PvP 2P Bonus
+                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::HunterWodPvp2PBonus))
+                        l_AreaTriggerCaster->CastSpell(l_AreaTriggerCaster, (uint32)HunterFreezingTrap::HunterWodPvp2PBonusEffect, true);
                 }
             }
         }
@@ -3661,7 +3677,7 @@ class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
 
             if (l_AreaTriggerCaster && l_CreateSpell)
             {
-                float l_Radius = l_CreateSpell->Effects[0].CalcRadius(l_AreaTriggerCaster);
+                float l_Radius = 5.0f;
                 Unit* l_Target = nullptr;
 
                 JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
@@ -3732,6 +3748,99 @@ class spell_hun_explosive_shot : public SpellScriptLoader
         }
 };
 
+/// Poisoned Ammo - 162543
+class spell_hun_poisoned_ammo : public SpellScriptLoader
+{
+public:
+    spell_hun_poisoned_ammo() : SpellScriptLoader("spell_hun_poisoned_ammo") { }
+
+    class spell_hun_poisoned_ammo_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_poisoned_ammo_SpellScript);
+
+        int32 m_Damage = 0;
+
+        void HandleOnHit()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetHitUnit())
+                {
+                    if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                    {
+                        const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(HUNTER_SPELL_POISONED_AMMO_AURA);
+
+                        if (m_Damage > 0)
+                            m_Damage = m_Damage / (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
+
+                        int32 l_BasicDamage = int32(0.046f * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::RangedAttack));
+                        l_BasicDamage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_BasicDamage, 0, DOT, l_PoisonedAmmo->GetEffect(0)->GetBase()->GetStackAmount());
+                        l_BasicDamage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_BasicDamage, DOT, l_PoisonedAmmo->GetEffect(0)->GetBase()->GetStackAmount());
+
+                        m_Damage += l_BasicDamage;
+
+                        l_PoisonedAmmo->GetEffect(0)->SetAmount(m_Damage);
+                    }
+                }
+            }
+        }
+
+        void HandleBeforeHit()
+        {
+            if (Unit* l_Target = GetHitUnit())
+            {
+                if (AuraPtr l_PoisonedAmmo = l_Target->GetAura(HUNTER_SPELL_POISONED_AMMO))
+                    m_Damage = l_PoisonedAmmo->GetEffect(0)->GetAmount() * (l_PoisonedAmmo->GetDuration() / l_PoisonedAmmo->GetEffect(0)->GetAmplitude());
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_hun_poisoned_ammo_SpellScript::HandleBeforeHit);
+            OnHit += SpellHitFn(spell_hun_poisoned_ammo_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_poisoned_ammo_SpellScript();
+    }
+};
+
+// Aimed Shot - 19434
+class spell_hun_aimed_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_aimed_shot() : SpellScriptLoader("spell_hun_aimed_shot") { }
+
+    class spell_hun_aimed_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_aimed_shot_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->HasAura(HUNTER_SPELL_ITEM_WOD_PVP_MM_4P_BONUS))
+                {
+                    if (l_Player->HasSpellCooldown(HUNTER_SPELL_RAPID_FIRE))
+                        l_Player->ReduceSpellCooldown(HUNTER_SPELL_RAPID_FIRE, 5000);
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterCast += SpellCastFn(spell_hun_aimed_shot_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_aimed_shot_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     /// Spells
@@ -3797,6 +3906,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_explosive_trap();
     new spell_hun_burrow_attack();
     new spell_hun_explosive_shot();
+    new spell_hun_aimed_shot();
+    new spell_hun_poisoned_ammo();
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();

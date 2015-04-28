@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -1665,8 +1665,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (GetTypeId() == TYPEID_PLAYER)
-        damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
         damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
@@ -9584,20 +9582,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 85804: // Selfless Healer
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 20271)
-                return false;
-
-            // Holy Insight with Selfless Healer grants the player with Holy power
-            if (HasAura(112859))
-                EnergizeBySpell(this, procSpell->Id, 1, POWER_HOLY_POWER);
-
-            break;
-        }
         case 144593://Item - Paladin T16 Retribution 4P Bonus
         {
             if (!procSpell)
@@ -9653,6 +9637,26 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!HasAura(48265))
+                return false;
+
+            break;
+        }
+        case 166012:///< Item  Hunter WoD PvP Survival 4P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 3674)
+                return false;
+
+            break;
+        }
+        case 180721:///< Item - Mage WoD PvP Frost 2P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 120)
                 return false;
 
             break;
@@ -10475,9 +10479,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     // player cannot attack in mount state
     if (GetTypeId() == TYPEID_PLAYER && IsMounted())
-        return false;
-
-    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
         return false;
 
     // nobody can attack GM in GM-mode
@@ -16914,6 +16915,11 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (procSpell && procSpell->Id == 123725 && itr->first == 123393)
             continue;
 
+        /// Custom WoD Script
+        /// Ruthlessness can proc just from finishing spells
+        if (itr->first == 14161 && (!procSpell || (procSpell && procSpell->Id != 14181 && procSpell->Id != 408 && procSpell->Id != 2098 && procSpell->Id != 73651 && procSpell->Id != 5171 && procSpell->Id != 26679 && procSpell->Id != 1943)))
+            continue;
+
         // Some spells can proc on absorb
         if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 ||
             triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
@@ -18386,7 +18392,20 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
                 l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
 
-            l_Loot->generateMoneyLoot(l_KilledCreature->GetCreatureTemplate()->mingold, l_KilledCreature->GetCreatureTemplate()->maxgold);
+            uint32 mingold = l_KilledCreature->GetCreatureTemplate()->mingold;
+            uint32 maxgold = l_KilledCreature->GetCreatureTemplate()->maxgold;
+
+            if (l_KilledCreature->GetMap()->IsRaid())
+            {
+                uint32 maxplayers = l_KilledCreature->GetMap()->GetEntry()->MaxPlayers;
+                if (maxplayers < 1)
+                    maxplayers = 1;
+
+                mingold /= maxplayers;
+                maxgold /= maxplayers;
+            }
+
+            l_Loot->generateMoneyLoot(mingold, maxgold);
         }
 
         l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
@@ -19505,7 +19524,10 @@ void Unit::CancelSpellVisual(int32 p_SpellVisualID)
 void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle
-    if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
+    if (IsVehicle() && GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER)
         return;
 
     // Resilience works only for players or pets against other players or pets

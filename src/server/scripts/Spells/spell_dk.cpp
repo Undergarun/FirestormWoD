@@ -87,7 +87,11 @@ enum DeathKnightSpells
     DK_SPELL_FREEZING_FOG_AURA                  = 59052,
     DK_SPELL_ENHANCED_DEATH_COIL                = 157343,
     DK_SPELL_SHADOW_OF_DEATH                    = 164047,
-    DK_SPELL_DEATH_COIL                         = 47541
+    DK_SPELL_DEATH_COIL                         = 47541,
+    DK_WOD_PVP_UNHOLY_4P_BONUS                  = 166061,
+    DK_WOD_PVP_UNHOLY_4P_BONUS_EFFECT           = 166062,
+    DK_WOD_PVP_FROST_4P_BONUS                   = 166056,
+    DK_WOD_PVP_FROST_4P_BONUS_EFFECT            = 166057
 };
 
 enum DeathKnightPresence
@@ -284,6 +288,10 @@ class spell_dk_dark_transformation_form: public SpellScriptLoader
                             l_Player->RemoveAura(DarkTransformationSpells::DarkTransformationAuraDummy);
                             l_Pet->RemoveAura(DarkTransformationSpells::DarkInfusionStacks);
                         }
+
+                        /// When you activate Dark Transformation, your Shadow damage dealt is increased  by 20% for 15 sec.
+                        if (l_Player->HasAura(DK_WOD_PVP_UNHOLY_4P_BONUS))
+                            l_Player->CastSpell(l_Player, DK_WOD_PVP_UNHOLY_4P_BONUS_EFFECT, true);
                     }
                 }
             }
@@ -1816,9 +1824,18 @@ class spell_dk_empowered_obliterate_icy_touch : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(DK_SPELL_EMPOWERED_OBLITERATE);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
 
                 if (m_HasAura && l_SpellInfo != nullptr)
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+
+                /// When you have Freezing Fog active, your next Howling Blast will increase Frost damage taken on all targets by 10% for 8 sec.
+                if (m_HasAura && l_Caster->HasAura(DK_WOD_PVP_FROST_4P_BONUS))
+                    l_Caster->CastSpell(l_Target, DK_WOD_PVP_FROST_4P_BONUS_EFFECT, true);
             }
 
             void Register()

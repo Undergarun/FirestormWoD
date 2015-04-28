@@ -2429,22 +2429,24 @@ class Player : public Unit, public GridObject<Player>
             return max_value;
         }
 
-        void SetArenaPersonalRating(uint8 slot, uint32 value)
+        void SetArenaPersonalRating(uint8 p_Slot, uint32 p_Value)
         {
-            if (slot >= MAX_PVP_SLOT)
+            if (p_Slot >= MAX_PVP_SLOT)
                 return;
 
-            if (value > 3500)
+            if (p_Value > 3500)
             {
                 ACE_Stack_Trace trace;
-                sLog->outError(LOG_FILTER_GENERAL, "Suspiciously high personal rating. Rating: %u, Slot: %u, Player: %u, Trace log: %s", value, slot, GUID_LOPART(GetGUID()), trace.c_str());
+                sLog->outError(LOG_FILTER_GENERAL, "Suspiciously high personal rating. Rating: %u, Slot: %u, Player: %u, Trace log: %s", p_Value, p_Slot, GUID_LOPART(GetGUID()), trace.c_str());
             }
 
-            m_ArenaPersonalRating[slot] = value;
-            if (m_BestRatingOfWeek[slot] < value)
-                m_BestRatingOfWeek[slot] = value;
-            if (m_BestRatingOfSeason[slot] < value)
-                m_BestRatingOfSeason[slot] = value;
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, p_Value, Arena::GetTypeBySlot(p_Slot));
+
+            m_ArenaPersonalRating[p_Slot] = p_Value;
+            if (m_BestRatingOfWeek[p_Slot] < p_Value)
+                m_BestRatingOfWeek[p_Slot] = p_Value;
+            if (m_BestRatingOfSeason[p_Slot] < p_Value)
+                m_BestRatingOfSeason[p_Slot] = p_Value;
         }
 
         void SetArenaMatchMakerRating(uint8 slot, uint32 value)
@@ -2551,6 +2553,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateVersatilityPercentage();
         void UpdateAvoidancePercentage();
         void UpdateSpeedPercentage();
+
+        float GetPvpHealingBonus() const;
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

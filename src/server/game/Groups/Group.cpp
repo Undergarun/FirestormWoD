@@ -1413,7 +1413,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
     }
 }
 
-void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
+void Group::MasterLoot(Loot* loot, WorldObject* p_LootedObject)
 {
     uint32 l_Count = 0;
 
@@ -1442,6 +1442,13 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
         if (!l_Looter->IsInWorld())
             continue;
 
+        if (loot && loot->AllowedPlayers.IsEnabled())
+        {
+            if (!loot->AllowedPlayers.HasPlayerGuid(l_Looter->GetGUID()))
+                continue;
+        }
+
+
         if (l_Looter->IsWithinDistInMap(p_LootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
         {
             l_Data.appendPackGUID(l_Looter->GetGUID());
@@ -1451,6 +1458,12 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* p_LootedObject)
     for (GroupReference* l_It = GetFirstMember(); l_It != NULL; l_It = l_It->next())
     {
         Player * l_Looter = l_It->getSource();
+
+        if (loot && loot->AllowedPlayers.IsEnabled())
+        {
+            if (!loot->AllowedPlayers.HasPlayerGuid(l_Looter->GetGUID()))
+                continue;
+        }
 
         if (l_Looter->IsWithinDistInMap(p_LootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
             l_Looter->GetSession()->SendPacket(&l_Data);

@@ -85,6 +85,10 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_SPIRIT:
             break;
+        case STAT_STRENGTH:
+            if (getLevel() == MAX_LEVEL && (getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR || getClass() == CLASS_PALADIN))
+                UpdateParryPercentage();
+            break;
         default:
             break;
     }
@@ -504,20 +508,26 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     }
 
     float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
-    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
     float attackPower = GetTotalAttackPowerValue(attType);
+
+    /// If player doesn't have weapons we should calculate damage with this values: min damage = 1 and max damage = 2
+    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE) == 0 ? 1.0f : GetWeaponDamageRange(attType, MINDAMAGE);
+    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE) == 0 ? 2.0f : GetWeaponDamageRange(attType, MAXDAMAGE);
 
     bool dualWield = mainItem && l_OffHandItem && !l_NoLongerDualWields;
     float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
     if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
         dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
-    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f * 0.8f);
-    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f * 1.2f);
+    float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed * dualWieldModifier;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed * dualWieldModifier;
+    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
+    if (getClass() == CLASS_HUNTER && normalized)
+    {
+        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
+        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
+    }
 
     if (IsInFeralForm())
     {
@@ -527,13 +537,19 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f));
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f));
+            /// Special cases for Cat form
+            if (weapon_mindamage == 1)
+                weapon_mindamage = 2;
+            if (weapon_maxdamage == 2)
+                weapon_maxdamage = 3;
+
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f));
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f));
         }
         else if (GetShapeshiftForm() == FORM_BEAR)
         {
-            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f * 0.8f)) * 2.5f;
-            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f * 1.2f)) * 2.5f;
+            weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
+            weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f)) * 2.5f;
         }
     }
 
@@ -541,6 +557,9 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float base_pct = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
+
+    /// Apply Versatility rating to damage calculation
+    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
 
     min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
@@ -946,6 +965,12 @@ void Player::UpdateVersatilityPercentage()
 
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);
     SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, valueBonus);
+
+    /// Update damage after applying versatility rating
+    if (getClass() == CLASS_HUNTER)
+        UpdateDamagePhysical(WeaponAttackType::RangedAttack);
+    else
+        UpdateDamagePhysical(WeaponAttackType::BaseAttack);
 }
 
 void Player::UpdateAvoidancePercentage()

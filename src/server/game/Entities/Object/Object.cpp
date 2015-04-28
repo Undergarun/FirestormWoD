@@ -2158,7 +2158,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         {
             // non fly unit don't must be in air
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->CanFly())
+            if (!ToCreature()->CanFly() && !ToCreature()->GetMap()->Instanceable())
             {
                 bool canSwim = ToCreature()->isPet() ? true : ToCreature()->canSwim();
                 float ground_z = z;

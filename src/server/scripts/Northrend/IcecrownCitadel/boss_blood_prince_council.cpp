@@ -195,6 +195,9 @@ class boss_blood_council_controller : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
+                if (!who)
+                    return;
+
                 if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == IN_PROGRESS)
                     return;
 
@@ -213,7 +216,7 @@ class boss_blood_council_controller : public CreatureScript
                 {
                     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, keleseth);
                     keleseth->SetInCombatWithZone();
-                    if (who && !keleseth->isInCombat())
+                    if (!keleseth->isInCombat())
                         keleseth->AI()->EnterCombat(who);
                 }
 

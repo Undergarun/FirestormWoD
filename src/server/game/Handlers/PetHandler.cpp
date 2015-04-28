@@ -228,13 +228,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                         if (pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled)
                         {
-                            /// Blink Strikes
-                            if (pet->GetOwner() && pet->GetOwner()->HasAura(130392) && TargetUnit->IsWithinLOSInMap(pet) && pet->GetDistance(TargetUnit) <= 30.f)
-                            {
-                                pet->GetMotionMaster()->Clear();
-                                pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
-                            }
-
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
                             charmInfo->SetIsFollowing(false);

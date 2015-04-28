@@ -5932,7 +5932,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         // Can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
-            && !(player->HasAura(46924) && m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
+            && !(player->HasAura(46924) && m_spellInfo->Id == 55694 || m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
             || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499)) // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
@@ -8224,8 +8224,8 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         uint32 targetAmount = m_UniqueTargetInfo.size();
-                        if (targetAmount > 10)
-                            m_damage = m_damage * 10/targetAmount;
+                        if (targetAmount > 20)
+                            m_damage = m_damage * 20 / targetAmount;
 
                         // Hack Fix Frost Bomb, Beast Cleave : Doesn't add AoE damage to main target
                         if (m_spellInfo->Id == 113092 || m_spellInfo->Id == 118459)

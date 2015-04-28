@@ -395,7 +395,7 @@ class spell_mastery_recently_moved : public SpellScriptLoader
                     if (Player* l_Player = l_Caster->ToPlayer())
                     {
                         float l_Mastery = l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 0.5f;
-                        int32 l_BasePoints = l_Mastery;
+                        int32 l_BasePoints = l_Mastery + 1; ///< Sniper Training - blizzard 6.1 hotfix
 
                         l_Player->CastCustomSpell(l_Player, Masteries::SniperTrainingAura, &l_BasePoints, &l_BasePoints, &l_BasePoints, &l_BasePoints, NULL, NULL, true);
                     }
@@ -442,7 +442,7 @@ class spell_mastery_sniper_training_aura : public SpellScriptLoader
                         for (uint8 l_I = 0; l_I < 4; ++l_I)
                         {
                             if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
-                                l_Effect->ChangeAmount(l_BasePoints);
+                                l_Effect->ChangeAmount(l_BasePoints, true, true);
                         }
                     }
                 }

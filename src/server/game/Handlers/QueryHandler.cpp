@@ -407,7 +407,10 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
 
     /// Text probability
     for (size_t l_I = 0; l_I < MAX_GOSSIP_TEXT_OPTIONS; l_I++)
-        l_Buffer << float(pGossip ? pGossip->Options[l_I].Probability : 0);
+        l_Buffer << float(0);
+
+        /// Look like that make random bug on gossip
+        //l_Buffer << float(pGossip ? pGossip->Options[l_I].Probability : 0);
 
     l_Buffer << uint32(l_TextID);
 

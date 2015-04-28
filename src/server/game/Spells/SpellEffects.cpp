@@ -1170,6 +1170,17 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                     return;
 
+                /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
+                if (unitTarget->getLevel() == 100)
+                {
+                    /// Assasination
+                    if (unitTarget->HasAura(170883))
+                        unitTarget->CastSpell(unitTarget, 170882, true);
+                    /// Combat
+                    else if (unitTarget->HasAura(182303))
+                        unitTarget->CastSpell(unitTarget, 182304, true);
+                }
+
                 /// See if we already are stealthed. If so, we're done.
                 if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
                     return;
@@ -4222,6 +4233,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     // Furious Stone Breath cannot be interrupted except by Shell Concussion
                     if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
+
+                    /// Item - Rogue WoD PvP 2P Bonus - 165995
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(unitTarget, 165996, true);
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
