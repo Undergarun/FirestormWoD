@@ -484,6 +484,7 @@ namespace MS
 
                 ByteBuffer dataBuffer;
 
+                /// @todo Update me
                 data->Initialize(SMSG_BATTLEFIELD_LIST);
                 data->WriteBit(0); // unk1
                 data->WriteBit(guid[4]);

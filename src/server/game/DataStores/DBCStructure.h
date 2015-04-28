@@ -325,8 +325,8 @@ struct CinematicCameraEntry
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
-    //uint32      unk1;                                     // 1 always 0
-    uint32      cinematicCamera;                            // 2 id in CinematicCamera.dbc                                                        // 3-9 always 0
+    //uint32      SoundID;                                  // 1
+    uint32      cinematicCamera;                            // 2-9
 };
 
 struct CreatureDisplayInfoEntry

@@ -2047,6 +2047,7 @@ void WorldSession::SendItemUpgradeResult(bool success)
 
 void WorldSession::HandleUpgradeItemOpcode(WorldPacket& recvData)
 {
+    /// Upgrade system is removed on WoD, on retail is used only for existed upgrade
     /*sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM");
 
     ObjectGuid npcGuid;

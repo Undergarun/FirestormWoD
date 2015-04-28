@@ -4262,6 +4262,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
+                    ///@todo update me
                     WorldPacket interrupt(SMSG_SPELL_INTERRUPT_LOG);
                     ObjectGuid targetGuid = unitTarget->GetGUID();
                     ObjectGuid casterGuid = m_originalCasterGUID;
