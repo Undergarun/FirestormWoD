@@ -802,7 +802,7 @@ enum Opcodes
         SMSG_SPELL_UPDATE_CHAIN_TARGETS             = 0x0000, ///< (unused)
 
         /// Logging
-        SMSG_SPELL_DISPELL_LOG                      = 0x0000,
+        SMSG_SPELL_DISPELL_LOG                      = 0x10FD, ///< 6.1.2 19783
         SMSG_SPELL_ENERGIZE_LOG                     = 0x1C3D, ///< 6.1.2 19783
         SMSG_SPELL_EXECUTE_LOG                      = 0x1D9A, ///< 6.1.2 19783
         SMSG_SPELL_NON_MELEE_DAMAGE_LOG             = 0x141E, ///< 6.1.2 19783
