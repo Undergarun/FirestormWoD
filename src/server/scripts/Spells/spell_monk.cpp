@@ -2420,7 +2420,7 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
 
                         l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPWindwalkerAura, true);
                         if (AuraPtr l_FortitudeOfXuen = l_Caster->GetAura(eSpells::MonkWoDPvPWindwalkerAura))
-                            l_FortitudeOfXuen->GetEffect(0)->ChangeAmount(l_StackConsumed * (l_SpellInfo->Effects[EFFECT_0].BasePoints / 1000));
+                            l_FortitudeOfXuen->GetEffect(0)->ChangeAmount(l_StackConsumed * (l_SpellInfo->Effects[EFFECT_0].BasePoints / 1000) * -1);
                     }
 
                     if (l_TigereyeBrewStacks->GetStackAmount() >= 10)
