@@ -3495,6 +3495,7 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                             l_Itr->second.m_Timers[l_SubItr] = l_SubItr ? 0 : 16000;
 
                         m_SceneMap.insert(std::make_pair(p_Guid, m_Scene));
+                        break;
                     }
                 }
             }
