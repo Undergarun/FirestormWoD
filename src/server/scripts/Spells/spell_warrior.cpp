@@ -1448,7 +1448,7 @@ class spell_warr_execute: public SpellScriptLoader
                 uint32 l_MaxConsumed = GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE)) / l_Caster->GetPowerCoeff(POWER_RAGE);
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE))) / l_Caster->GetPowerCoeff(POWER_RAGE);
                 l_Damage += CalculatePct(l_Damage, -l_RageConsumed * (405.f / l_MaxConsumed));
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
