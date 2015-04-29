@@ -1,0 +1,2 @@
+ALTER TABLE `creature_template` CHANGE `femaleName` `femaleName` CHAR(100) CHARSET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `creature_template` CHANGE `WDBVerified` `BuildVerified` SMALLINT(6) DEFAULT 1 NULL; 
