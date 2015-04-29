@@ -1779,7 +1779,6 @@ enum Opcodes
     CMSG_WHOIS                                          = 0x17BF,
     CMSG_WORLD_TELEPORT                                 = 0x0000,
     CMSG_WRAP_ITEM                                      = 0x0000,
-    CMSG_ZONEUPDATE                                     = 0x0000,
     CMSG_ARENA_2v2_STATS_REQUEST                        = 0x0000,
     CMSG_ARENA_3v3_STATS_REQUEST                        = 0x0000,
 
