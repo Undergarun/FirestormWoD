@@ -5177,9 +5177,6 @@ void Spell::SendLogExecute()
     if (m_effectExecuteData.size() <= 0)
         return;
 
-    ByteBuffer l_PowerDrainBuffer;
-    ByteBuffer l_GenericVictimTargetsBuffer;
-    ByteBuffer l_TradeSkillTargetsBuffer;
     WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG);
 
     l_Data.appendPackGUID(m_caster->GetGUID());
@@ -5191,39 +5188,40 @@ void Spell::SendLogExecute()
         auto l_EffIndex = l_Iter.first;
         auto l_Helper = l_Iter.second;
 
-        l_Data << uint32(m_spellInfo->Effects[l_EffIndex].Effect);
-        l_Data << uint32(l_Helper.Energizes.size());    ///< PowerDrainTargets
+        l_Data << uint32(m_spellInfo->Effects[l_EffIndex].Effect);      ///< Effect
+        l_Data << uint32(l_Helper.Energizes.size());                    ///< PowerDrainTargets
+        l_Data << uint32(l_Helper.ExtraAttacks.size());                 ///< ExtraAttacksTargets
+        l_Data << uint32(l_Helper.DurabilityDamages.size());            ///< DurabilityDamageTargets
+        l_Data << uint32(l_Helper.Targets.size());                      ///< GenericVictimTargets
+        l_Data << uint32(l_Helper.CreatedItems.size());                 ///< TradeSkillTargets
+        l_Data << uint32(0);                                            ///< FeedPetTargets
 
-        for (SpellLog_EnergyzeHelper l_Energyze : l_Helper.Energizes)
+        for (auto l_Energyze : l_Helper.Energizes)
         {
-            l_PowerDrainBuffer.appendPackGUID(l_Energyze.Guid);
-            l_PowerDrainBuffer << uint32(l_Energyze.Value);
-            l_PowerDrainBuffer << uint32(l_Energyze.PowerType);
-            l_PowerDrainBuffer << float(l_Energyze.Multiplier);
+            l_Data.appendPackGUID(l_Energyze.Guid);
+            l_Data << uint32(l_Energyze.Value);
+            l_Data << uint32(l_Energyze.PowerType);
+            l_Data << float(l_Energyze.Multiplier);
         }
 
-        l_Data << uint32(0);    ///< ExtraAttacksTargets
-        l_Data << uint32(0);    ///< DurabilityDamageTargets
-        l_Data << uint32(l_Helper.Targets.size());      ///< GenericVictimTargets
+        for (auto l_ExtraAttacksTarget : l_Helper.ExtraAttacks)
+        {
+            l_Data.appendPackGUID(l_ExtraAttacksTarget.Victim);
+            l_Data << uint32(l_ExtraAttacksTarget.NumAttacks);
+        }
 
-        for (ObjectGuid l_Guid : l_Helper.Targets)
-            l_GenericVictimTargetsBuffer.appendPackGUID(uint64(l_Guid));
+        for (auto l_DurabilityDamage : l_Helper.DurabilityDamages)
+        {
+            l_Data.appendPackGUID(l_DurabilityDamage.Victim);
+            l_Data << uint32(l_DurabilityDamage.ItemID);
+            l_Data << uint32(l_DurabilityDamage.Amount);
+        }
 
-        l_Data << uint32(l_Helper.CreatedItems.size()); ///< TradeSkillTargets
+        for (auto l_Guid : l_Helper.Targets)
+            l_Data.appendPackGUID(l_Guid);
 
-        for (uint32 l_ItemID : l_Helper.CreatedItems)
-            l_TradeSkillTargetsBuffer << uint32(l_ItemID);
-
-        l_Data << uint32(0);    ///< FeedPetTargets
-
-        if (l_Helper.Energizes.size())
-            l_Data.append(l_PowerDrainBuffer);
-
-        if (l_Helper.Targets.size())
-            l_Data.append(l_GenericVictimTargetsBuffer);
-
-        if (l_Helper.CreatedItems.size())
-            l_Data.append(l_TradeSkillTargetsBuffer);
+        for (auto l_ItemID : l_Helper.CreatedItems)
+            l_Data << uint32(l_ItemID);
     }
 
     l_Data.WriteBit(false); ///< HasLogData
@@ -5241,9 +5239,8 @@ void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32
 
 void Spell::ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 attCount)
 {
-    /*InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(attCount);*/
+    InitEffectExecuteData(effIndex);
+    m_effectExecuteData[effIndex].AddExtraAttack(victim->GetGUID(), attCount);
 }
 
 void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId)
@@ -5253,12 +5250,11 @@ void Spell::ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 s
     *m_effectExecuteData[effIndex] << uint32(spellId);*/
 }
 
-void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 /*itemslot*/, uint32 damage)
+void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 p_ItemID, uint32 damage)
 {
-    /*InitEffectExecuteData(effIndex);
-    m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(m_spellInfo->Id);
-    *m_effectExecuteData[effIndex] << uint32(damage);*/
+
+    InitEffectExecuteData(effIndex);
+    m_effectExecuteData[effIndex].AddDurabilityDamage(victim->GetGUID(), p_ItemID, damage);
 }
 
 void Spell::ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj)

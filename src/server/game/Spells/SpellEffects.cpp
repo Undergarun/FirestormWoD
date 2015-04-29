@@ -6284,6 +6284,7 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
     if (slot < 0)
     {
         unitTarget->ToPlayer()->DurabilityPointsLossAll(damage, (slot < -1));
+        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, (uint32)-1, (uint32)-1);
         return;
     }
 
@@ -6292,9 +6293,11 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
         return;
 
     if (Item* item = unitTarget->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+    {
         unitTarget->ToPlayer()->DurabilityPointsLoss(item, damage);
+        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, item->GetEntry(), damage);
+    }
 
-    ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, slot, damage);
 }
 
 void Spell::EffectDurabilityDamagePCT(SpellEffIndex effIndex)
