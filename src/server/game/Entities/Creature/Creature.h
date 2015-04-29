@@ -259,7 +259,7 @@ struct CreatureBaseStats
 
 typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
-#define MAX_GROUP_SCALING 30
+#define MAX_GROUP_SCALING 31
 
 struct CreatureGroupSizeStat
 {
@@ -271,7 +271,7 @@ struct CreatureGroupSizeStat
     {
         Healths.resize(MAX_GROUP_SCALING);
         MinDamage.resize(MAX_GROUP_SCALING);
-        MinDamage.resize(MAX_GROUP_SCALING);
+        MaxDamage.resize(MAX_GROUP_SCALING);
     }
 
     uint32 GetHealthFor(uint32 p_GroupSize) const
