@@ -1859,7 +1859,11 @@ class Unit : public WorldObject
         void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log);
         void SendSpellNonMeleeDamageLog(Unit* target, uint32 SpellID, uint32 Damage, SpellSchoolMask damageSchoolMask, uint32 AbsorbedDamage, uint32 Resist, bool PhysicalDamage, uint32 Blocked, bool CriticalHit = false);
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
-        void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
+        /// Build and send SMSG_SPELL_MISS_LOG packet
+        /// @p_Target   : Target for the missed spell
+        /// @p_SpellId  : Missed spell ID
+        /// @p_MissInfo : Miss type
+        void SendSpellMiss(Unit* p_Target, uint32 p_SpellID, SpellMissInfo p_MissInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
         void SendSpellDamageImmune(Unit* target, uint32 spellId);
         void SendMessageUnfriendlyToSetInRange(WorldPacket* data, float fist);

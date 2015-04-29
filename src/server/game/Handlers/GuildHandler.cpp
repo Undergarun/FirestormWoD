@@ -329,7 +329,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
 {
     uint64 l_Banker = 0;
     uint8 l_Tab = 0;
-    bool l_FullUpdate = false;;
+    bool l_FullUpdate = false;
 
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Tab;

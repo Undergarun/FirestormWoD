@@ -183,37 +183,6 @@ void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
     }
 }
 
-void WorldSession::HandleActivateTaxiExpressOpcode(WorldPacket& p_RecvPacket)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXIEXPRESS");
-
-    uint64 l_UnitGuid;
-    uint32 l_NodeCount;
-
-    std::vector<uint32> l_Nodes;
-
-    p_RecvPacket.readPackGUID(l_UnitGuid);
-    p_RecvPacket >> l_NodeCount;
-
-    for (uint32 l_I = 0; l_I < l_NodeCount; ++l_I)
-        l_Nodes.push_back(p_RecvPacket.read<uint32>());
-
-    Creature* l_Npc = GetPlayer()->GetNPCIfCanInteractWith(l_UnitGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
-
-    if (!l_Npc)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiExpressOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(l_UnitGuid)));
-        return;
-    }
-
-    if (l_Nodes.empty())
-        return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXIEXPRESS from %d to %d", l_Nodes.front(), l_Nodes.back());
-
-    GetPlayer()->ActivateTaxiPathTo(l_Nodes, l_Npc);
-}
-
 void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 {
     HandleMovementOpcodes(p_RecvPacket);

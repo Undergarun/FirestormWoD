@@ -1337,26 +1337,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     delete holder;
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_ATWAR");
+    uint8 l_FactionIndex;
+    p_Packet >> l_FactionIndex;
 
-    uint8 repListID;
-
-    recvData >> repListID;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, true);
+    GetPlayer()->GetReputationMgr().SetAtWar(l_FactionIndex, true);
 }
 
-void WorldSession::HandleUnSetFactionAtWar(WorldPacket& recvData)
+void WorldSession::HandleUnSetFactionAtWar(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNSET_FACTION_ATWAR");
+    uint8 l_FactionIndex;
+    p_Packet >> l_FactionIndex;
 
-    uint8 repListID;
-
-    recvData >> repListID;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, false);
+    GetPlayer()->GetReputationMgr().SetAtWar(l_FactionIndex, false);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists

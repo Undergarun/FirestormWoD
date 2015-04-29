@@ -157,7 +157,7 @@ public:
     uint32* _dynamicValues;
     bool* _dynamicChangedFields;
 
-    const static uint32 Count = sizeof(uint32)*8;;
+    const static uint32 Count = sizeof(uint32)*8;
 };
 
 class Object

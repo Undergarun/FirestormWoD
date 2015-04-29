@@ -676,7 +676,7 @@ class debug_commandscript: public CommandScript
             if (opcodeId == 0 && *result != '0')
                 return false;
 
-            WorldPacket data(Opcodes(opcodeId), 10);;
+            WorldPacket data(Opcodes(opcodeId), 10);
             ObjectGuid playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
             Player* player = handler->GetSession()->GetPlayer();
 

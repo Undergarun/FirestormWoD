@@ -112,7 +112,7 @@ enum MonkSpells
     SPELL_MONK_COMBO_BREAKER_TIGER_PALM         = 118864,
     SPELL_MONK_COMBO_BREAKER_BLACKOUT_KICK      = 116768,
     SPELL_MONK_MORTEL_WOUNDS                    = 115804,
-    SPELL_MONK_RISING_SUN_KICK_DOT              = 130320,
+    SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS     = 130320,
     SPELL_MONK_GLYPH_OF_RAPID_ROLLING           = 146951,
     SPELL_MONK_RAPID_ROLLING                    = 147364,
     SPELL_MONK_GLYPH_OF_TARGETED_EXPULSION      = 146950,
@@ -2310,7 +2310,7 @@ class spell_monk_spear_hand_strike: public SpellScriptLoader
         }
 };
 
-// Tigereye Brew - 116740
+/// Tigereye Brew - 116740
 class spell_monk_tigereye_brew: public SpellScriptLoader
 {
     public:
@@ -2319,6 +2319,12 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
         class spell_monk_tigereye_brew_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_monk_tigereye_brew_SpellScript);
+
+            enum eSpells
+            {
+                MonkWoDPvPWindwalker4PBonus = 181742,
+                MonkWoDPvPWindwalkerAura    = 181744
+            };
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
@@ -2329,31 +2335,37 @@ class spell_monk_tigereye_brew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (AuraPtr l_TigereyeBrewStacks = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
                 {
-                    if (Unit* target = GetHitUnit())
+                    uint8 l_StackConsumed = l_TigereyeBrewStacks->GetStackAmount();
+                    uint8 l_Stacks = l_TigereyeBrewStacks->GetStackAmount();
+
+                    if (l_StackConsumed > 10)
+                        l_StackConsumed = 10;
+
+                    int32 l_EffectAmount = l_StackConsumed * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+                    if (AuraPtr l_TigereyeBrew = l_Caster->GetAura(SPELL_MONK_TIGEREYE_BREW))
                     {
-                        int32 stacks = 0;
-                        if (AuraPtr tigereyeBrewStacks = _player->GetAura(SPELL_MONK_TIGEREYE_BREW_STACKS))
-                        {
-                            int32 effectAmount = tigereyeBrewStacks->GetStackAmount() * GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                            stacks = tigereyeBrewStacks->GetStackAmount();
-
-                            if (stacks >= 10)
-                                effectAmount = 60;
-
-                            if (AuraPtr tigereyeBrew = _player->GetAura(SPELL_MONK_TIGEREYE_BREW))
-                            {
-                                tigereyeBrew->GetEffect(0)->ChangeAmount(effectAmount);
-                                tigereyeBrew->GetEffect(1)->ChangeAmount(effectAmount);
-                            }
-
-                            if (stacks >= 10)
-                                tigereyeBrewStacks->SetStackAmount(stacks - 10);
-                            else
-                                _player->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
-                        }
+                        l_TigereyeBrew->GetEffect(0)->ChangeAmount(l_EffectAmount);
+                        l_TigereyeBrew->GetEffect(1)->ChangeAmount(l_EffectAmount);
                     }
+
+                    if (l_Caster->HasAura(eSpells::MonkWoDPvPWindwalker4PBonus))
+                    {
+                        SpellInfo const * l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::MonkWoDPvPWindwalker4PBonus);
+
+                        l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPWindwalkerAura, true);
+                        if (AuraPtr l_FortitudeOfXuen = l_Caster->GetAura(eSpells::MonkWoDPvPWindwalkerAura))
+                            l_FortitudeOfXuen->GetEffect(0)->ChangeAmount(l_StackConsumed * (l_SpellInfo->Effects[EFFECT_0].BasePoints / 1000));
+                    }
+
+                    if (l_TigereyeBrewStacks->GetStackAmount() >= 10)
+                        l_TigereyeBrewStacks->SetStackAmount(l_Stacks - l_StackConsumed);
+                    else
+                        l_Caster->RemoveAura(SPELL_MONK_TIGEREYE_BREW_STACKS);
                 }
             }
 
@@ -2482,28 +2494,36 @@ class spell_monk_chi_torpedo: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_chi_torpedo_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPBrewmaster2PBonus = 165691,
+                MonkWoDPvPBrewmasterAura = 165692
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* caster = GetCaster())
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                std::list<Unit*> l_TempUnitMap;
+                l_Player->GetAttackableUnitListInRange(l_TempUnitMap, 20.0f);
+
+                for (auto itr : l_TempUnitMap)
                 {
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        std::list<Unit*> tempUnitMap;
-                        _player->GetAttackableUnitListInRange(tempUnitMap, 20.0f);
+                    if (!l_Player->isInFront(itr, M_PI / 3) && itr->GetGUID() != l_Player->GetGUID())
+                        continue;
 
-                        for (auto itr : tempUnitMap)
-                        {
-                            if (!_player->isInFront(itr, M_PI / 3) && itr->GetGUID() != _player->GetGUID())
-                                continue;
-
-                            uint32 spell = _player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_TORPEDO_DAMAGE : SPELL_MONK_CHI_TORPEDO_HEAL;
-                            _player->CastSpell(itr, spell, true);
-                        }
-
-                        if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
-                            caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-                    }
+                    uint32 spell = l_Player->IsValidAttackTarget(itr) ? SPELL_MONK_CHI_TORPEDO_DAMAGE : SPELL_MONK_CHI_TORPEDO_HEAL;
+                    l_Player->CastSpell(itr, spell, true);
                 }
+
+                if (l_Player->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                    l_Player->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+
+                if (l_Player->HasAura(eSpells::MonkWoDPvPBrewmaster2PBonus))
+                    l_Player->CastSpell(l_Player, eSpells::MonkWoDPvPBrewmasterAura, true);
             }
 
             void Register()
@@ -3167,7 +3187,7 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                         {
                             if (target->GetTypeId() == TYPEID_UNIT)
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && (target->GetHealth() > caster->GetHealth() && !target->ToCreature()->IsDungeonBoss()))
+                            else if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth()))
                                 return SPELL_FAILED_BAD_TARGETS;
                             else if (((target->GetOwner() && target->GetOwner()->ToPlayer()) || target->GetTypeId() == TYPEID_PLAYER) &&
                                 (target->GetHealthPct() > 10.0f))
@@ -3177,9 +3197,9 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                         {
                             if (target->GetTypeId() == TYPEID_UNIT)
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer()))
+                            else if ((target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->ToPlayer())) && target->GetHealthPct() > 10.0f)
                                 return SPELL_FAILED_BAD_TARGETS;
-                            else if (target->GetTypeId() == TYPEID_UNIT && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth() && !target->ToCreature()->IsDungeonBoss()))
+                            else if (target->GetTypeId() == TYPEID_UNIT && target->GetHealthPct() > 10.0f && target->GetHealth() > caster->GetMaxHealth())
                                 return SPELL_FAILED_BAD_TARGETS;
                         }
                         return SPELL_CAST_OK;
@@ -3240,6 +3260,12 @@ class spell_monk_roll: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_roll_SpellScript);
 
+            enum eSpells
+            {
+                MonkWoDPvPBrewmaster2PBonus     = 165691,
+                MonkWoDPvPBrewmasterAura        = 165692
+            };
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_ROLL))
@@ -3262,14 +3288,17 @@ class spell_monk_roll: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                Unit* caster = GetCaster();
-                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || l_Caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                caster->CastSpell(caster, SPELL_MONK_ROLL_TRIGGER, true);
+                l_Caster->CastSpell(l_Caster, SPELL_MONK_ROLL_TRIGGER, true);
 
-                if (caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
-                    caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_PVP_GLOVES_BONUS))
+                    l_Caster->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
+
+                if (l_Caster->HasAura(eSpells::MonkWoDPvPBrewmaster2PBonus))
+                    l_Caster->CastSpell(l_Caster, eSpells::MonkWoDPvPBrewmasterAura, true);
             }
 
             void Register()
@@ -4130,8 +4159,9 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
                 if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_WINDWALKER)
                     l_Player->CastSpell(l_Target, SPELL_MONK_MORTEL_WOUNDS, true);
-                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_MONK_BREWMASTER)
-                    l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DOT, true);
+
+                /// Causing all enemies within 8 yards to take 20% increased damage from your abilities for 15 sec.
+                l_Player->CastSpell(l_Player, SPELL_MONK_RISING_SUN_KICK_DAMAGE_BONUS, true);
 
                 if (l_Player->HasAura(RisingSunKickSpells::PoolOfMists))
                     l_PctModifier = l_Player->GetAura(RisingSunKickSpells::PoolOfMists)->GetEffect(EFFECT_3)->GetAmount();
@@ -4419,6 +4449,83 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         }
 };
 
+/// Monk WoD PvP Brewmaster 2P Bonus - 165691
+class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_WoDPvPBrewmaster2PBonus() : SpellScriptLoader("spell_monk_WoDPvPBrewmaster2PBonus") { }
+
+        class spell_monk_WoDPvPBrewmaster2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript);
+
+            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& p_ProcInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_monk_WoDPvPBrewmaster2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_WoDPvPBrewmaster2PBonus_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Detonate Chi - 115460
+class spell_monk_detonate_chi : public SpellScriptLoader
+{
+    public:
+        spell_monk_detonate_chi() : SpellScriptLoader("spell_monk_detonate_chi") { }
+
+        class spell_monk_detonate_chi_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_detonate_chi_SpellScript);
+
+            enum eSpells
+            {
+                HealingSphereAreaTrigger    = 119031,
+                HealingSphereDetonate       = 135920,
+            };
+
+            void HandleCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                std::list<AreaTrigger*> l_HealingSphereList;
+                l_Caster->GetAreaTriggerList(l_HealingSphereList, eSpells::HealingSphereAreaTrigger);
+
+                if (!l_HealingSphereList.empty())
+                {
+                    for (auto itr : l_HealingSphereList)
+                    {
+                        Unit* l_Caster = itr->GetCaster();
+
+                        if (l_Caster != nullptr)
+                            l_Caster->CastSpell(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), eSpells::HealingSphereDetonate, true);
+                        itr->SetDuration(0);
+                        break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_detonate_chi_SpellScript::HandleCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_detonate_chi_SpellScript();
+        }
+};
+
 /// Chi Explosion - 182078
 class spell_monk_chi_explosion_heal: public SpellScriptLoader
 {
@@ -4620,6 +4727,8 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_mistweaver();
     new spell_monk_chi_explosion_heal();
     new spell_monk_chi_explosion_mistweaver_crane();
+    new spell_monk_detonate_chi();
+    new spell_monk_WoDPvPBrewmaster2PBonus();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

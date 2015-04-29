@@ -2170,6 +2170,7 @@ enum Targets
     TOTAL_SPELL_TARGETS
 };
 
+/// Last check : 6.1.2 19865
 enum SpellMissInfo
 {
     SPELL_MISS_NONE                    = 0,
