@@ -2134,7 +2134,7 @@ class spell_monk_healing_elixirs: public SpellScriptLoader
         }
 };
 
-// Zen Sphere - 124081
+/// Zen Sphere - 124081
 class spell_monk_zen_sphere: public SpellScriptLoader
 {
     public:
@@ -2144,19 +2144,28 @@ class spell_monk_zen_sphere: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_zen_sphere_hot_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_ZEN_SPHERE_DAMAGE, true);
+                ZenSphereTick = 124081
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->GetHealthPct() < (float)GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    p_AurEff->GetBase()->SetDuration(0);
+
+                l_Caster->CastSpell(l_Caster, eSpells::ZenSphereTick, true);
             }
 
-            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
-                {
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_ZEN_SPHERE_DETONATE_HEAL, true);
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_ZEN_SPHERE_DETONATE_DAMAGE, true);
-                }
+                    l_Caster->CastSpell(l_Caster, eSpells::ZenSphereTick, true);
             }
 
             void Register()
@@ -2169,6 +2178,56 @@ class spell_monk_zen_sphere: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_zen_sphere_hot_AuraScript();
+        }
+};
+
+/// Zen Sphere (tick) - 182032
+class spell_monk_zen_sphere_tick : public SpellScriptLoader
+{
+    public:
+        spell_monk_zen_sphere_tick() : SpellScriptLoader("spell_monk_zen_sphere_tick") { }
+
+        enum eSpells
+        {
+            ZenSphereAura = 124081
+        };
+
+        class spell_monk_zen_sphere_tick_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_zen_sphere_tick_SpellScript);
+
+            void HandleHealExplosion(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                {
+                    if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
+                        PreventHitDefaultEffect(p_EffIndex);
+                }
+            }
+
+            void HandleDamageExplosion(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
+                {
+                    if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
+                        PreventHitDefaultEffect(p_EffIndex);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_zen_sphere_tick_SpellScript::HandleHealExplosion, EFFECT_2, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_zen_sphere_tick_SpellScript::HandleDamageExplosion, EFFECT_3, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_zen_sphere_tick_SpellScript();
         }
 };
 
@@ -4729,6 +4788,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_mistweaver_crane();
     new spell_monk_detonate_chi();
     new spell_monk_WoDPvPBrewmaster2PBonus();
+    new spell_monk_zen_sphere_tick();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
