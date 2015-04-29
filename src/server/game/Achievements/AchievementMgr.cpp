@@ -582,7 +582,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
             // New/changed record data
             ssAccDel << iter->first;
-            ssAccIns << '(' << GetOwner()->GetSession()->GetAccountId() << ',' << iter->second.first_guid << ',' << iter->first << ',' << iter->second.date << ')';
+            ssAccIns << '(' << GetOwner()->GetSession()->GetAccountId() << ',' << GUID_LOPART(iter->second.first_guid) << ',' << iter->first << ',' << iter->second.date << ')';
 
             if (mustSaveForCharacter)
             {
@@ -857,7 +857,7 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
-            ca.first_guid = first_guid;
+            ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
             ca.completedByThisCharacter = false;
 
             _achievementPoints += achievement->Points;
@@ -2192,7 +2192,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
-    l_Data.first_guid = GetOwner()->GetGUIDLow();
+    l_Data.first_guid = MAKE_NEW_GUID(GetOwner()->GetGUIDLow(), 0, HIGHGUID_PLAYER);
     l_Data.changed = true;
 
     // Don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
