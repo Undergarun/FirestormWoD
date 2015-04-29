@@ -2134,6 +2134,7 @@ class spell_monk_healing_elixirs: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Zen Sphere - 124081
 class spell_monk_zen_sphere: public SpellScriptLoader
 {
@@ -2181,6 +2182,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Zen Sphere (tick) - 182032
 class spell_monk_zen_sphere_tick : public SpellScriptLoader
 {
