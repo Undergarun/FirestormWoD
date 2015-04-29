@@ -7778,17 +7778,17 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
 
-        // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellIconID == 2864)
+        // Wild Growth
+        if (m_spellInfo->Id == 48438)
         {
-            int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+            float l_SetMod = 0.f;
 
             // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffectPtr aurEff = caster->GetAuraEffect(70658, 0))
-                // divided by 50 instead of 100 because calculated as for every 2 tick
-                addition += abs(int32((addition * aurEff->GetAmount()) / 50));
+            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
+                l_SetMod = l_AurEff->GetAmount() / 100.f;
 
-            damage += addition;
+            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.f) * (2.f + l_SetMod) + 100.f) / 100.f;
+            damage *= l_Mod;
         }
 
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
