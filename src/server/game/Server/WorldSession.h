@@ -699,7 +699,6 @@ class WorldSession
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
-        void HandleActivateTaxiExpressOpcode(WorldPacket& recvPacket);
         void HandleMoveSplineDoneOpcode(WorldPacket& recvPacket);
         void HandleTaxiRequestEarlyLandingOpcode(WorldPacket & p_Packet);
         void SendActivateTaxiReply(ActivateTaxiReply reply);

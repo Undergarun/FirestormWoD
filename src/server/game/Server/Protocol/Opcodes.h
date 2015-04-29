@@ -1170,34 +1170,34 @@ enum Opcodes
     CMSG_TOTEM_DESTROYED                        = 0x19B5, ///< 6.1.2 19783
     CMSG_CONFIRM_RESPEC_WIPE                    = 0x1226, ///< 6.1.2 19783
     CMSG_CANCEL_TRADE                           = 0x0E0F, ///< 6.1.2 19783
-    CMSG_SET_TRADE_CURRENCY                     = 0x06F2,   ///< 6.1.2 19783
-    CMSG_SET_TRADE_GOLD                         = 0x0E5A,   ///< 6.1.2 19783
-    CMSG_SET_TRADE_ITEM                         = 0x0626,   ///< 6.1.2 19783
-    CMSG_CLEAR_TRADE_ITEM                       = 0x0F7B,   ///< 6.1.2 19783
-    CMSG_ACCEPT_TRADE                           = 0x0F07,   ///< 6.1.2 19783
-    CMSG_BUSY_TRADE                             = 0x0E2B,   ///< 6.1.2 19783
-    CMSG_BEGIN_TRADE                            = 0x0E53,   ///< 6.1.2 19783
-    CMSG_IGNORE_TRADE                           = 0x1A08,   ///< 6.1.2 19783
-    CMSG_INITIATE_TRADE                         = 0x1A8C,   ///< 6.1.2 19783
-    CMSG_UNACCEPT_TRADE                         = 0x0AD1,   ///< 6.1.2 19783
-    CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0EC8,   ///< 6.1.2 19783
-    CMSG_INSPECT                                = 0x1C21,   ///< 6.1.2 19783
-    CMSG_INSPECT_HONOR_STATS                    = 0x1207,   ///< 6.1.2 19783
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0A9E,   ///< 6.1.2 19783
-    CMSG_TIME_SYNC_RESP                         = 0x0550,   ///< 6.1.2 19783
-    CMSG_UNLEARN_SKILL                          = 0x0931,   ///< 6.1.2 19783
-    CMSG_EMOTE                                  = 0x0E03,   ///< 6.1.2 19783
-    CMSG_SEND_TEXT_EMOTE                        = 0x01EE,   ///< 6.1.2 19783
-    CMSG_ALTER_APPEARANCE                       = 0x0F82,   ///< 6.1.2 19783
-    CMSG_SELF_RES                               = 0x1E0B,   ///< 6.1.2 19783
-    CMSG_READ_ITEM                              = 0x042A,   ///< 6.1.2 19783
-    CMSG_COMPLETE_MOVIE                         = 0x1E0A,   ///< 6.1.2 19783
-    CMSG_SCENE_TRIGGER_EVENT                    = 0x0589,   ///< 6.1.2 19783
-    CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74,   ///< 6.1.2 19783
-    CMSG_SHOW_TRADE_SKILL                       = 0x1735,   ///< 6.1.2 19783
-    CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C,   ///< 6.1.2 19783
-    CMSG_REQUEST_RESEARCH_HISTORY               = 0x0EA9,   ///< 6.1.2 19783
-    CMSG_SUMMON_RESPONSE                        = 0x0740,   ///< 6.1.2 19783
+    CMSG_SET_TRADE_CURRENCY                     = 0x06F2, ///< 6.1.2 19783
+    CMSG_SET_TRADE_GOLD                         = 0x0E5A, ///< 6.1.2 19783
+    CMSG_SET_TRADE_ITEM                         = 0x0626, ///< 6.1.2 19783
+    CMSG_CLEAR_TRADE_ITEM                       = 0x0F7B, ///< 6.1.2 19783
+    CMSG_ACCEPT_TRADE                           = 0x0F07, ///< 6.1.2 19783
+    CMSG_BUSY_TRADE                             = 0x0E2B, ///< 6.1.2 19783
+    CMSG_BEGIN_TRADE                            = 0x0E53, ///< 6.1.2 19783
+    CMSG_IGNORE_TRADE                           = 0x1A08, ///< 6.1.2 19783
+    CMSG_INITIATE_TRADE                         = 0x1A8C, ///< 6.1.2 19783
+    CMSG_UNACCEPT_TRADE                         = 0x0AD1, ///< 6.1.2 19783
+    CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x0EC8, ///< 6.1.2 19783
+    CMSG_INSPECT                                = 0x1C21, ///< 6.1.2 19783
+    CMSG_INSPECT_HONOR_STATS                    = 0x1207, ///< 6.1.2 19783
+    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0A9E, ///< 6.1.2 19783
+    CMSG_TIME_SYNC_RESP                         = 0x0550, ///< 6.1.2 19783
+    CMSG_UNLEARN_SKILL                          = 0x0931, ///< 6.1.2 19783
+    CMSG_EMOTE                                  = 0x0E03, ///< 6.1.2 19783
+    CMSG_SEND_TEXT_EMOTE                        = 0x01EE, ///< 6.1.2 19783
+    CMSG_ALTER_APPEARANCE                       = 0x0F82, ///< 6.1.2 19783
+    CMSG_SELF_RES                               = 0x1E0B, ///< 6.1.2 19783
+    CMSG_READ_ITEM                              = 0x042A, ///< 6.1.2 19783
+    CMSG_COMPLETE_MOVIE                         = 0x1E0A, ///< 6.1.2 19783
+    CMSG_SCENE_TRIGGER_EVENT                    = 0x0589, ///< 6.1.2 19783
+    CMSG_GET_MIRRORIMAGE_DATA                   = 0x0E74, ///< 6.1.2 19783
+    CMSG_SHOW_TRADE_SKILL                       = 0x1735, ///< 6.1.2 19783
+    CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C, ///< 6.1.2 19783
+    CMSG_REQUEST_RESEARCH_HISTORY               = 0x0EA9, ///< 6.1.2 19783
+    CMSG_SUMMON_RESPONSE                        = 0x0740, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1537,28 +1537,28 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// LFG
     //////////////////////////////////////////////////////////////////////////
-    CMSG_DFGET_SYSTEM_INFO                         = 0x1298,    ///< 6.1.2 19783
-    CMSG_LFG_GET_PLAYER_INFO                       = 0x0000,
-    CMSG_LFG_GET_STATUS                            = 0x1236,    ///< 6.1.2 19783
-    CMSG_LFG_JOIN                                  = 0x1237,    ///< 6.1.2 19783
-    CMSG_LFG_LEAVE                                 = 0x029D,    ///< 6.1.2 19783
-    CMSG_LFG_PROPOSAL_RESULT                       = 0x0795,    ///< 6.1.2 19783
-    CMSG_LFG_SET_BOOT_VOTE                         = 0x0EBF,    ///< 6.1.2 19783
-    CMSG_LFG_SET_COMMENT                           = 0x0000,    ///< (unused)
-    CMSG_DFSET_ROLES                               = 0x0297,    ///< 6.1.2 19783
-    CMSG_LFG_TELEPORT                              = 0x0FB7,    ///< 6.1.2 19783
-    CMSG_SEARCH_LFG_JOIN                           = 0x0000,    ///< (unused)
-    CMSG_SEARCH_LFG_LEAVE                          = 0x0000,    ///< (unused)
-    CMSG_RESET_INSTANCES                           = 0x0A97,    ///< 6.1.2 19783
+    CMSG_DFGET_SYSTEM_INFO                         = 0x1298, ///< 6.1.2 19783
+    CMSG_LFG_GET_PLAYER_INFO                       = 0x0000, 
+    CMSG_LFG_GET_STATUS                            = 0x1236, ///< 6.1.2 19783
+    CMSG_LFG_JOIN                                  = 0x1237, ///< 6.1.2 19783
+    CMSG_LFG_LEAVE                                 = 0x029D, ///< 6.1.2 19783
+    CMSG_LFG_PROPOSAL_RESULT                       = 0x0795, ///< 6.1.2 19783
+    CMSG_LFG_SET_BOOT_VOTE                         = 0x0EBF, ///< 6.1.2 19783
+    CMSG_LFG_SET_COMMENT                           = 0x0000, ///< (unused)
+    CMSG_DFSET_ROLES                               = 0x0297, ///< 6.1.2 19783
+    CMSG_LFG_TELEPORT                              = 0x0FB7, ///< 6.1.2 19783
+    CMSG_SEARCH_LFG_JOIN                           = 0x0000, ///< (unused)
+    CMSG_SEARCH_LFG_LEAVE                          = 0x0000, ///< (unused)
+    CMSG_RESET_INSTANCES                           = 0x0A97, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG LIST
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LFG_LIST_JOIN                              = 0x13B6,   ///< 6.1.2 19783
-    CMSG_LFG_LIST_UPDATE_REQUEST                    = 0x12B7,   ///< 6.1.2 19783
-    CMSG_LFG_LIST_LEAVE                             = 0x0B20,   ///< 6.1.2 19783
-    CMSG_LFG_LIST_SEARCH                            = 0x1A1D,   ///< 6.1.2 19783
-    CMSG_REQUEST_LFG_LIST_BLACKLIST                 = 0x0A02,   ///< 6.1.2 19783
+    CMSG_LFG_LIST_JOIN                              = 0x13B6, ///< 6.1.2 19783
+    CMSG_LFG_LIST_UPDATE_REQUEST                    = 0x12B7, ///< 6.1.2 19783
+    CMSG_LFG_LIST_LEAVE                             = 0x0B20, ///< 6.1.2 19783
+    CMSG_LFG_LIST_SEARCH                            = 0x1A1D, ///< 6.1.2 19783
+    CMSG_REQUEST_LFG_LIST_BLACKLIST                 = 0x0A02, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
@@ -1924,12 +1924,6 @@ enum Opcodes
     SMSG_SERVER_BUCK_DATA                               = 0x0000,
     SMSG_SERVER_BUCK_DATA_START                         = 0x0000,
     SMSG_SHOW_MAILBOX                                   = 0x0000,
-
-    /// RIP
-    SMSG_SET_QUEST_COMPLETED_BIT                = 0x0000, ///<
-    SMSG_CLEAR_QUEST_COMPLETED_BITS             = 0x0000, ///<
-    SMSG_CLEAR_QUEST_COMPLETED_BIT              = 0x0000, ///<
-    CMSG_ACTIVATE_TAXI_EXPRESS                  = 0x0000, ///<
 };
 
 /// Player state
