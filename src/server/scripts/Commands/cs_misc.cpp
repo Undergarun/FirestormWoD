@@ -168,7 +168,7 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            Player* l_SecondLeader = sObjectAccessor->FindPlayerByName(l_SecondName);;
+            Player* l_SecondLeader = sObjectAccessor->FindPlayerByName(l_SecondName);
             if (!l_SecondLeader || l_SecondLeader->getLevel() < 90)
             {
                 p_Handler->PSendSysMessage("Error about player %s.", l_SecondName);

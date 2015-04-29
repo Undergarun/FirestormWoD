@@ -136,7 +136,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & p_Packet)
 void WorldSession::HandleBfEntryInviteResponse(WorldPacket & p_Packet)
 {
     uint64 l_QueueID = 0;
-    bool l_AcceptedInvite = false;;
+    bool l_AcceptedInvite = false;
 
     p_Packet >> l_QueueID;
     l_AcceptedInvite = p_Packet.ReadBit();
