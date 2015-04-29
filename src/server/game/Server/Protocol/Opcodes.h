@@ -1198,6 +1198,8 @@ enum Opcodes
     CMSG_SCENE_PLAYBACK_CANCELED                = 0x0A8C, ///< 6.1.2 19783
     CMSG_REQUEST_RESEARCH_HISTORY               = 0x0EA9, ///< 6.1.2 19783
     CMSG_SUMMON_RESPONSE                        = 0x0740, ///< 6.1.2 19783
+    CMSG_SET_FACTION_ATWAR                      = 0x1C66, ///< 6.1.2 19783
+    CMSG_UNSET_FACTION_ATWAR                    = 0x0DF2, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
@@ -1747,8 +1749,6 @@ enum Opcodes
     CMSG_SET_ALLOW_LOW_LEVEL_RAID1                      = 0x0000,
     CMSG_SET_ALLOW_LOW_LEVEL_RAID2                      = 0x0000,
     CMSG_SET_CURRENCY_FLAGS                             = 0x0000,
-    CMSG_SET_FACTION_ATWAR                              = 0x1C66, ///< 6.1.2 19783
-    CMSG_UNSET_FACTION_ATWAR                            = 0x0DF2, ///< 6.1.2 19783
     CMSG_SET_FACTION_CHEAT                              = 0x0000,
     CMSG_SET_LFG_COMMENT                                = 0x0000,
     CMSG_SET_PREFERED_CEMETERY                          = 0x0000,
