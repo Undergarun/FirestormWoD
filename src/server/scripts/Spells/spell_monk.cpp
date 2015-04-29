@@ -4506,6 +4506,7 @@ class spell_monk_chi_explosion_mistweaver: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Monk WoD PvP Brewmaster 2P Bonus - 165691
 class spell_monk_WoDPvPBrewmaster2PBonus : public SpellScriptLoader
 {
@@ -4547,7 +4548,7 @@ class spell_monk_detonate_chi : public SpellScriptLoader
             enum eSpells
             {
                 HealingSphereAreaTrigger    = 119031,
-                HealingSphereDetonate       = 135920,
+                HealingSphereDetonate       = 135920
             };
 
             void HandleCast()
