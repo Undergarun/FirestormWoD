@@ -30479,7 +30479,7 @@ void Player::SendRefundInfo(Item* p_Item)
         for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
             l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
-            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I] / 100); ///< Must be devided by precision
+            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I]);
         }
     }
 

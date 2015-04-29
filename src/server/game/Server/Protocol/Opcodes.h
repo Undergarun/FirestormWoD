@@ -192,7 +192,7 @@ enum Opcodes
         SMSG_PLAY_SCENE                             = 0x09B1, ///< 6.1.2 19783
         SMSG_CANCEL_SCENE                           = 0x0AB8, ///< 6.1.2 19783
         SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x01E3, ///< 6.1.2 19783
-        SMSG_SET_ITEM_PURCHASE_DATA                 = 0x0316, ///< 6.1.2 19783
+        SMSG_SET_ITEM_PURCHASE_DATA                 = 0x179E, ///< 6.1.2 19783
         SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x1E0D, ///< 6.1.2 19783
 
         /// Control Alert
