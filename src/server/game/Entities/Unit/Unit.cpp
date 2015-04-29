@@ -1816,128 +1816,132 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 {
-    Unit* victim = damageInfo->target;
+    Unit* l_Victim = damageInfo->target;
 
-    if (!victim->isAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode()))
+    if (!l_Victim->isAlive() || l_Victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (l_Victim->GetTypeId() == TYPEID_UNIT && l_Victim->ToCreature()->IsInEvadeMode()))
         return;
 
     // Hmmmm dont like this emotes client must by self do all animations
     if (damageInfo->HitInfo & HITINFO_CRITICALHIT)
-        victim->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
+        l_Victim->HandleEmoteCommand(EMOTE_ONESHOT_WOUND_CRITICAL);
     if (damageInfo->blocked_amount && damageInfo->TargetState != VICTIMSTATE_BLOCKS)
-        victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
+        l_Victim->HandleEmoteCommand(EMOTE_ONESHOT_PARRY_SHIELD);
 
     if (damageInfo->TargetState == VICTIMSTATE_PARRY)
     {
         // Get attack timers
-        float offtime  = float(victim->getAttackTimer(WeaponAttackType::OffAttack));
-        float basetime = float(victim->getAttackTimer(WeaponAttackType::BaseAttack));
+        float offtime  = float(l_Victim->getAttackTimer(WeaponAttackType::OffAttack));
+        float basetime = float(l_Victim->getAttackTimer(WeaponAttackType::BaseAttack));
         // Reduce attack time
-        if (victim->haveOffhandWeapon() && offtime < basetime)
+        if (l_Victim->haveOffhandWeapon() && offtime < basetime)
         {
-            float percent20 = victim->GetAttackTime(WeaponAttackType::OffAttack) * 0.20f;
+            float percent20 = l_Victim->GetAttackTime(WeaponAttackType::OffAttack) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (offtime > percent20 && offtime <= percent60)
-                victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(percent20));
+                l_Victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(percent20));
             else if (offtime > percent60)
             {
                 offtime -= 2.0f * percent20;
-                victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(offtime));
+                l_Victim->setAttackTimer(WeaponAttackType::OffAttack, uint32(offtime));
             }
         }
         else
         {
-            float percent20 = victim->GetAttackTime(WeaponAttackType::BaseAttack) * 0.20f;
+            float percent20 = l_Victim->GetAttackTime(WeaponAttackType::BaseAttack) * 0.20f;
             float percent60 = 3.0f * percent20;
             if (basetime > percent20 && basetime <= percent60)
-                victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(percent20));
+                l_Victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(percent20));
             else if (basetime > percent60)
             {
                 basetime -= 2.0f * percent20;
-                victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(basetime));
+                l_Victim->setAttackTimer(WeaponAttackType::BaseAttack, uint32(basetime));
             }
         }
     }
 
     // Call default DealDamage
     CleanDamage cleanDamage(damageInfo->cleanDamage, damageInfo->absorb, damageInfo->attackType, damageInfo->hitOutCome);
-    DealDamage(victim, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), NULL, durabilityLoss);
+    DealDamage(l_Victim, damageInfo->damage, &cleanDamage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask), NULL, durabilityLoss);
 
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
     if ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
-        GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(M_PI, this)
-        && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss()))
+        GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !l_Victim->HasInArc(M_PI, this)
+        && (l_Victim->GetTypeId() == TYPEID_PLAYER || !l_Victim->ToCreature()->isWorldBoss()))
     {
         // -probability is between 0% and 40%
         // 20% base chance
-        float Probability = 20.0f;
+        float l_Probability = 20.0f;
 
         // there is a newbie protection, at level 10 just 7% base chance; assuming linear function
-        if (victim->getLevel() < 30)
-            Probability = 0.65f * victim->getLevel() + 0.5f;
+        if (l_Victim->getLevel() < 30)
+            l_Probability = 0.65f * l_Victim->getLevel() + 0.5f;
 
-        uint32 VictimDefense = victim->GetMaxSkillValueForLevel(this);
+        uint32 VictimDefense = l_Victim->GetMaxSkillValueForLevel(this);
         uint32 AttackerMeleeSkill = GetMaxSkillValueForLevel();
 
-        Probability *= AttackerMeleeSkill/(float)VictimDefense;
+        l_Probability *= AttackerMeleeSkill/(float)VictimDefense;
 
-        if (Probability > 40.0f)
-            Probability = 40.0f;
+        if (l_Probability > 40.0f)
+            l_Probability = 40.0f;
 
-        if (roll_chance_f(Probability))
-            CastSpell(victim, 1604, true);
+        if (roll_chance_f(l_Probability))
+            CastSpell(l_Victim, 1604, true);
     }
 
     if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->CastItemCombatSpell(victim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
+        ToPlayer()->CastItemCombatSpell(l_Victim, damageInfo->attackType, damageInfo->procVictim, damageInfo->procEx);
 
     // Do effect if any damage done to target
     if (damageInfo->damage)
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vDamageShieldsCopy(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
+        AuraEffectList vDamageShieldsCopy(l_Victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
         for (AuraEffectList::const_iterator dmgShieldItr = vDamageShieldsCopy.begin(); dmgShieldItr != vDamageShieldsCopy.end(); ++dmgShieldItr)
         {
-            SpellInfo const* i_spellProto = (*dmgShieldItr)->GetSpellInfo();
+            SpellInfo const* l_SpellProto = (*dmgShieldItr)->GetSpellInfo();
             // Damage shield can be resisted...
-            if (SpellMissInfo missInfo = victim->SpellHitResult(this, i_spellProto, false))
+            if (SpellMissInfo missInfo = l_Victim->SpellHitResult(this, l_SpellProto, false))
             {
-                victim->SendSpellMiss(this, i_spellProto->Id, missInfo);
+                l_Victim->SendSpellMiss(this, l_SpellProto->Id, missInfo);
                 continue;
             }
 
             // ...or immuned
-            if (IsImmunedToDamage(i_spellProto))
+            if (IsImmunedToDamage(l_SpellProto))
             {
-                victim->SendSpellDamageImmune(this, i_spellProto->Id);
+                l_Victim->SendSpellDamageImmune(this, l_SpellProto->Id);
                 continue;
             }
 
-            uint32 damage = (*dmgShieldItr)->GetAmount();
+            uint32 l_Damage = (*dmgShieldItr)->GetAmount();
 
-            if (Unit* caster = (*dmgShieldItr)->GetCaster())
+            if (Unit* l_Caster = (*dmgShieldItr)->GetCaster())
             {
-                damage = caster->SpellDamageBonusDone(this, i_spellProto, damage, (*dmgShieldItr)->GetEffIndex(), SPELL_DIRECT_DAMAGE);
-                damage = this->SpellDamageBonusTaken(caster, i_spellProto, damage, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Caster->SpellDamageBonusDone(this, l_SpellProto, l_Damage, (*dmgShieldItr)->GetEffIndex(), SPELL_DIRECT_DAMAGE);
+                l_Damage = this->SpellDamageBonusTaken(l_Caster, l_SpellProto, l_Damage, SPELL_DIRECT_DAMAGE);
             }
 
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
-            victim->DealDamageMods(this, damage, NULL);
+            l_Victim->DealDamageMods(this, l_Damage, NULL);
 
             // TODO: Move this to a packet handler
-            WorldPacket data(SMSG_SPELL_DAMAGE_SHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
-            data << uint64(victim->GetGUID());
-            data << uint64(GetGUID());
-            data << uint32(i_spellProto->Id);
-            data << uint32(damage);                  // Damage
-            int32 overkill = int32(damage) - int32(GetHealth());
-            data << uint32(overkill > 0 ? overkill : 0); // Overkill
-            data << uint32(i_spellProto->SchoolMask);
-            data << uint32(0); // FIX ME: Send resisted damage, both fully resisted and partly resisted
-            victim->SendMessageToSet(&data, true);
+            int32 l_OverKill = int32(l_Damage) - int32(GetHealth());
 
-            victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
+            WorldPacket l_Data(SMSG_SPELL_DAMAGE_SHIELD, (2 * (16 + 2)) + 4 + 4 + 4 + 4 + 4 + 1);
+            l_Data.appendPackGUID(l_Victim->GetGUID());             ///< Defender
+            l_Data.appendPackGUID(GetGUID());                       ///< Attacker
+            l_Data << uint32(l_SpellProto->Id);                     ///< SpellID
+            l_Data << uint32(l_Damage);                             ///< TotalDamage
+            l_Data << uint32(l_OverKill > 0 ? l_OverKill : 0);      ///< OverKill
+            l_Data << uint32(l_SpellProto->SchoolMask);             ///< SchoolMask
+            l_Data << uint32(0);                                    ///< LogAbsorbed => FIX ME: Send resisted damage, both fully resisted and partly resisted
+
+            l_Data.WriteBit(false);                                 ///< HasLogData
+            l_Data.FlushBits();
+
+            l_Victim->SendMessageToSet(&l_Data, true);
+            l_Victim->DealDamage(this, l_Damage, 0, SPELL_DIRECT_DAMAGE, l_SpellProto->GetSchoolMask(), l_SpellProto, true);
         }
     }
 }

@@ -793,7 +793,7 @@ enum Opcodes
         SMSG_SPELL_CHANNEL_START                    = 0x103E, ///< 6.1.2 19783
         SMSG_SPELL_COOLDOWN                         = 0x1D2A, ///< 6.1.2 19783
         SMSG_SPELL_CHANNEL_UPDATE                   = 0x10D9, ///< 6.1.2 19783
-        SMSG_SPELL_DAMAGE_SHIELD                    = 0x0000,
+        SMSG_SPELL_DAMAGE_SHIELD                    = 0x10FE, ///< 6.1.2 19783
         SMSG_SPELL_DELAYED                          = 0x14FD, ///< 6.1.2 19783
         SMSG_SPELL_GO                               = 0x1CB9, ///< 6.1.2 19783
         SMSG_SPELL_MULTISTRIKE_EFFECT               = 0x0000, ///< (unused)
