@@ -148,15 +148,25 @@ struct LocalDB2Data
 };
 
 template<class T>
-inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename)
+inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename, std::string customTableName = "", std::string customIndexName = "")
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDB2_assert_print(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
 
     ++DB2FilesCount;
-
     std::string db2_filename = db2_path + filename;
-    if (!storage.Load(db2_filename.c_str()))
+    SqlDbc * sql = NULL;
+    if (!customTableName.empty())
+    {
+        std::string l_SQLFormat = "";
+
+        for (uint32 l_I = 0; l_I < strlen(storage.GetFormat()); ++l_I)
+            l_SQLFormat += "p";
+
+        sql = new SqlDbc(&customTableName, l_SQLFormat, customIndexName, storage.GetFormat());
+    }
+
+    if (!storage.Load(db2_filename.c_str(), sql))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))
@@ -169,6 +179,9 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         else
             errlist.push_back(db2_filename);
     }
+
+    if (sql)
+        delete sql;
 }
 
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem)
