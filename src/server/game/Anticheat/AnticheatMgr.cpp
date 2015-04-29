@@ -104,7 +104,7 @@ void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         return;
 
-    if (AccountMgr::GetSecurity(p_Player->GetSession()->GetAccountId()) > AccountTypes::SEC_PLAYER)
+    if (p_Player->GetSession()->GetSecurity() > AccountTypes::SEC_PLAYER)
         return;
 
     uint32 key = p_Player->GetGUIDLow();
