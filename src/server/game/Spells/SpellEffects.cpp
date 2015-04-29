@@ -6703,7 +6703,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         uint32 l_Rolled = 0;
         uint32 l_Needed = 0;
 
-        l_DispellData << uint32(l_It->first));                  ///< SpellID
+        l_DispellData << uint32(l_It->first);                   ///< SpellID
         l_DispellData.WriteBit(false);                          ///< Harmful : 0 - dispelled !=0 cleansed
         l_DispellData.WriteBit(!!l_Rolled);                     ///< IsRolled
         l_DispellData.WriteBit(!!l_Needed);                     ///< IsNeeded
