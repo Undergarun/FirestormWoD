@@ -2203,6 +2203,55 @@ class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Mage WoD PvP Frost 2P Bonus - 180721
+class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_mage_WoDPvPFrost2PBonus() : SpellScriptLoader("spell_mage_WoDPvPFrost2PBonus") { }
+
+        class spell_mage_WoDPvPFrost2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_WoDPvPFrost2PBonus_AuraScript);
+
+            enum eSpells
+            {
+                PvpFrost2PBonusTrigger  = 180723,
+                ConeOfCold              = 120
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ConeOfCold)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_WoDPvPFrost2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_WoDPvPFrost2PBonus_AuraScript();
+        }
+};
+
 // Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
 class spell_mage_novas_talent : public SpellScriptLoader
 {
@@ -2617,6 +2666,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_prysmatic_crystal_damage();
     new spell_mage_glyph_of_the_unbound_elemental();
+    new spell_mage_WoDPvPFrost2PBonus();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();
