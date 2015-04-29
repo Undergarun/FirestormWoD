@@ -100,6 +100,7 @@ enum DBCFormer
     FT_LOGIC = 'l',                                           //Logical (boolean)
     FT_SQL_PRESENT = 'p',                                     //Used in sql format to mark column present in sql dbc
     FT_SQL_ABSENT = 'a',                                      //Used in sql format to mark column absent in sql dbc
+    FT_SQL_SUP = 'o',                                         // Supp sql row (not in dbc)
     FT_END = '\0'
 };
 #endif //TRINITY_DEFINE_H

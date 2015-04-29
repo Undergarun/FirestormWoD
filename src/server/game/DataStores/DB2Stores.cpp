@@ -155,15 +155,14 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
 
     ++DB2FilesCount;
     std::string db2_filename = db2_path + filename;
-    SqlDbc * sql = NULL;
+    std::string l_SQLFormat;
+    SqlDb2 * sql = NULL;
     if (!customTableName.empty())
     {
-        std::string l_SQLFormat = "";
+        l_SQLFormat = std::string(strlen(storage.GetFormat()), FT_SQL_PRESENT);
+        l_SQLFormat.append(1, FT_SQL_SUP);
 
-        for (uint32 l_I = 0; l_I < strlen(storage.GetFormat()); ++l_I)
-            l_SQLFormat += "p";
-
-        sql = new SqlDbc(&customTableName, l_SQLFormat, customIndexName, storage.GetFormat());
+        sql = new SqlDb2(&customTableName, &l_SQLFormat, &customIndexName, storage.GetFormat());
     }
 
     if (!storage.Load(db2_filename.c_str(), sql))
