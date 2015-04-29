@@ -809,7 +809,7 @@ enum Opcodes
         SMSG_SPELL_HEAL_LOG                         = 0x155A, ///< 6.1.2 19783
         SMSG_SPELL_INSTAKILL_LOG                    = 0x11FE, ///< 6.1.2 19783
         SMSG_SPELL_INTERRUPT_LOG                    = 0x0000,
-        SMSG_SPELL_MISS_LOG                         = 0x0000,
+        SMSG_SPELL_MISS_LOG                         = 0x147A, ///< 6.1.2 19783
         SMSG_ENVIRONMENTAL_DAMAGE_LOG               = 0x183E, ///< 6.1.2 19783
         SMSG_SPELL_PERIODIC_AURA_LOG                = 0x14E9, ///< 6.1.2 19783
         SMSG_SPELL_PROC_SCRIPT_LOG                  = 0x0000, ///< Debug opcode (disabled)

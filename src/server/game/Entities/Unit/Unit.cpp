@@ -5736,18 +5736,30 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
     SendMessageToSet(&l_Data, true);
 }
 
-void Unit::SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo)
+/// Build and send SMSG_SPELL_MISS_LOG packet
+/// @p_Target   : Target for the missed spell
+/// @p_SpellId  : Missed spell ID
+/// @p_MissInfo : Miss type
+void Unit::SendSpellMiss(Unit* p_Target, uint32 p_SpellID, SpellMissInfo p_MissInfo)
 {
-    WorldPacket data(SMSG_SPELL_MISS_LOG, (4+8+1+4+8+1));
-    data << uint32(spellID);
-    data << uint64(GetGUID());
-    data << uint8(0);                                       // can be 0 or 1
-    data << uint32(1);                                      // target count
-    // for (i = 0; i < target count; ++i)
-    data << uint64(target->GetGUID());                      // target GUID
-    data << uint8(missInfo);
-    // end loop
-    SendMessageToSet(&data, true);
+    WorldPacket l_Data(SMSG_SPELL_MISS_LOG, (4 + 8 + 1 + 4 + 8 + 1));
+    l_Data << uint32(p_SpellID);                                    ///< SpellID
+    l_Data.appendPackGUID(GetGUID());                               ///< Caster
+    l_Data << uint32(1);                                            ///< EntriesCount
+
+    /// for (l_I = 0; l_I < EntriesCount; ++l_I)
+        l_Data.appendPackGUID(p_Target->GetGUID());                 ///< Victim
+        l_Data << uint8(p_MissInfo);                                ///< MissReason
+        l_Data.WriteBit(false);                                     ///< HasDebug
+        l_Data.FlushBits();
+
+        /// if (HasDebug)
+            ///data << float(0.f);                                  ///< HitRoll
+            ///data << float(0.f);                                  ///< HitRollNeeded
+        /// endif
+    /// end loop
+
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::SendSpellDamageResist(Unit * p_Target, uint32 p_SpellID)
