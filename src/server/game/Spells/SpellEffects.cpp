@@ -4241,18 +4241,18 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     {
         if (Spell* spell = unitTarget->GetCurrentSpell(CurrentSpellTypes(i)))
         {
-            SpellInfo const* curSpellInfo = spell->m_spellInfo;
+            SpellInfo const* l_CurrentSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
-                && curSpellInfo->PreventionType & (SpellPreventionMask::Silence)
-                && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
-                || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
+                && l_CurrentSpellInfo->PreventionType & (SpellPreventionMask::Silence)
+                && ((i == CURRENT_GENERIC_SPELL && l_CurrentSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
+                || (i == CURRENT_CHANNELED_SPELL && l_CurrentSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {
                 if (m_originalCaster)
                 {
                     // Furious Stone Breath cannot be interrupted except by Shell Concussion
-                    if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
+                    if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
@@ -4260,54 +4260,21 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
 
                     int32 duration = m_spellInfo->GetDuration();
-                    unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
+                    unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
-                    ///@todo update me
-                    WorldPacket interrupt(SMSG_SPELL_INTERRUPT_LOG);
-                    ObjectGuid targetGuid = unitTarget->GetGUID();
-                    ObjectGuid casterGuid = m_originalCasterGUID;
+                    uint64 l_TargetGUID = unitTarget->GetGUID();
+                    uint64 l_CasterGUID = m_originalCasterGUID;
 
-                    interrupt.WriteBit(casterGuid[5]);
-                    interrupt.WriteBit(targetGuid[5]);
-                    interrupt.WriteBit(targetGuid[4]);
-                    interrupt.WriteBit(casterGuid[2]);
-                    interrupt.WriteBit(targetGuid[0]);
-                    interrupt.WriteBit(casterGuid[6]);
-                    interrupt.WriteBit(0);
-                    interrupt.WriteBit(targetGuid[6]);
-                    interrupt.WriteBit(casterGuid[4]);
-                    interrupt.WriteBit(casterGuid[1]);
-                    interrupt.WriteBit(targetGuid[2]);
-                    interrupt.WriteBit(casterGuid[0]);
-                    interrupt.WriteBit(targetGuid[3]);
-                    interrupt.WriteBit(casterGuid[3]);
-                    interrupt.WriteBit(targetGuid[1]);
-                    interrupt.WriteBit(casterGuid[7]);
-                    interrupt.WriteBit(targetGuid[7]);
+                    WorldPacket l_Data(SMSG_SPELL_INTERRUPT_LOG);
+                    l_Data.appendPackGUID(l_CasterGUID);
+                    l_Data.appendPackGUID(l_TargetGUID);
+                    l_Data << uint32(m_spellInfo->Id);
+                    l_Data << uint32(l_CurrentSpellInfo->Id);
 
-                    interrupt.WriteByteSeq(casterGuid[0]);
-                    interrupt.WriteByteSeq(casterGuid[4]);
-                    interrupt.WriteByteSeq(targetGuid[3]);
-                    interrupt.WriteByteSeq(casterGuid[3]);
-                    interrupt << uint32(m_spellInfo->Id);
-                    interrupt.WriteByteSeq(targetGuid[4]);
-                    interrupt.WriteByteSeq(casterGuid[1]);
-                    interrupt.WriteByteSeq(targetGuid[7]);
-                    interrupt.WriteByteSeq(targetGuid[0]);
-                    interrupt.WriteByteSeq(casterGuid[5]);
-                    interrupt << uint32(curSpellInfo->Id);
-                    interrupt.WriteByteSeq(targetGuid[1]);
-                    interrupt.WriteByteSeq(targetGuid[5]);
-                    interrupt.WriteByteSeq(casterGuid[7]);
-                    interrupt.WriteByteSeq(targetGuid[6]);
-                    interrupt.WriteByteSeq(casterGuid[6]);
-                    interrupt.WriteByteSeq(casterGuid[2]);
-                    interrupt.WriteByteSeq(targetGuid[2]);
-
-                    m_originalCaster->SendMessageToSet(&interrupt, true);
+                    m_originalCaster->SendMessageToSet(&l_Data, true);
                 }
 
-                ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
+                ExecuteLogEffectInterruptCast(effIndex, unitTarget, l_CurrentSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
         }
