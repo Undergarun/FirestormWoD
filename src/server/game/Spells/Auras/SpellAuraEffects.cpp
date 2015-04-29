@@ -7787,7 +7787,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
                 l_SetMod = l_AurEff->GetAmount() / 100.f;
 
-            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.f) * (2.f + l_SetMod) + 100.f) / 100.f;
+            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
             damage *= l_Mod;
         }
 
