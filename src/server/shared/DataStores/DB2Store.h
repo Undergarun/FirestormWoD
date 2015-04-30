@@ -69,251 +69,378 @@ struct SqlDb2
     }
 };
 
-template<class T>
-class DB2Storage
+class DB2StorageBase
 {
-    typedef std::list<char*> StringPoolList;
-    typedef std::vector<T*> DataTableEx;
-public:
-    explicit DB2Storage(const char *f) : nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL) { }
-    ~DB2Storage() { Clear(); }
-
-    T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }
-    uint32  GetNumRows() const { return nCount; }
-    char const* GetFormat() const { return fmt; }
-    uint32 GetFieldCount() const { return fieldCount; }
-
-    /// Copies the provided entry and stores it.
-    void AddEntry(uint32 id, const T* entry, bool p_DontCopy = false)
-    {
-        if (LookupEntry(id))
-            return;
-
-        if (id >= nCount)
+    public:
+        /// Constructor
+        /// @p_Format :  DB2 format
+        DB2StorageBase(const char * p_Format)
+            : m_MaxID(0), m_FieldCount(0), m_Format(p_Format), m_TableHash(0)
         {
-            // reallocate index table
-            char** tmpIdxTable = new char*[id+1];
-            memset(tmpIdxTable, 0, (id+1) * sizeof(char*));
-            memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
-            delete[] ((char*)indexTable);
-            nCount = id + 1;
-            indexTable = (T**)tmpIdxTable;
+
         }
 
-        if (!p_DontCopy)
+        /// Get DB2 hash
+        uint32 GetHash() const
         {
-            T* entryDst = new T;
-            memcpy((char*)entryDst, (char*)entry, sizeof(T));
-            m_dataTableEx.push_back(entryDst);
-            indexTable[id] = entryDst;
+            return m_TableHash;
         }
-        else
+        /// Get num rows
+        uint32 GetNumRows() const
         {
-            m_dataTableEx.push_back(const_cast<T*>(entry));
-            indexTable[id] = const_cast<T*>(entry);
+            return m_MaxID;
         }
-    }
-
-    bool Load(char const* fn, SqlDb2 * sql)
-    {
-        DB2FileLoader db2;
-        // Check if load was sucessful, only then continue
-        if (!db2.Load(fn, fmt))
-            return false;
-
-        uint32 sqlRecordCount = 0;
-        uint32 sqlHighestIndex = 0;
-        Field* fields = NULL;
-        QueryResult result = QueryResult(NULL);
-        // Load data from sql
-        if (sql)
+        /// Get format descriptor
+        char const* GetFormat() const
         {
-            std::string query = "SELECT * FROM " + sql->m_SQLTableName;
-            if (sql->m_IndexPosition >= 0)
-                query += " ORDER BY " + *sql->m_IndexName + " DESC";
-            query += ';';
+            return m_Format;
+        }
+        /// Get field count
+        uint32 GetFieldCount() const
+        {
+            return m_FieldCount;
+        }
 
+        /// Get raw entry by index
+        /// @p_ID : Entry index
+        virtual char * LookupEntryRaw(uint32 p_ID) const = 0;
 
-            result = WorldDatabase.Query(query.c_str());
-            if (result)
+        /// Write record into a ByteBuffer
+        /// @p_ID     : Record ID
+        /// @p_Buffer : Destination buffer
+        virtual bool WriteRecord(uint32 p_ID, ByteBuffer & p_Buffer)
+        {
+            char const* l_Raw = LookupEntryRaw(p_ID);
+
+            if (!l_Raw)
+                return false;
+
+            std::size_t l_FieldCount = strlen(m_Format);
+            for (uint32 l_I = 0; l_I < l_FieldCount; ++l_I)
             {
-                sqlRecordCount = uint32(result->GetRowCount());
-                if (sql->m_IndexPosition >= 0)
+                switch (m_Format[l_I])
                 {
-                    fields = result->Fetch();
-                    sqlHighestIndex = fields[sql->m_SQLIndexPosition].GetUInt32();
-                }
-                // Check if sql index pos is valid
-                if (int32(result->GetFieldCount() - 1) < sql->m_SQLIndexPosition)
-                {
-                    sLog->outError(LOG_FILTER_GENERAL, "Invalid index pos for db2:'%s'", sql->m_SQLTableName.c_str());
-                    return false;
+                    case FT_INDEX:
+                    case FT_INT:
+                        p_Buffer << *(uint32*)l_Raw;
+                        l_Raw += 4;
+                        break;
+                    case FT_FLOAT:
+                        p_Buffer << *(float*)l_Raw;
+                        l_Raw += 4;
+                        break;
+                    case FT_BYTE:
+                        p_Buffer << *(uint8*)l_Raw;
+                        l_Raw += 1;
+                        break;
+                    case FT_STRING:
+                    {
+                        char* locStr = *(char**)l_Raw;
+                        l_Raw += sizeof(char*);
+
+                        std::string l_String(locStr);
+
+                        std::size_t l_Lenght = l_String.length();
+                        p_Buffer << uint16(l_Lenght ? l_Lenght + 1 : 0);
+
+                        if (l_Lenght)
+                        {
+                            p_Buffer.WriteString(l_String);
+                            p_Buffer << uint8(0);
+                        }
+                        break;
+                    }
                 }
             }
+
+            return true;
         }
 
-        fieldCount = db2.GetCols();
+    protected:
+        uint32 m_TableHash;
+        uint32 m_MaxID;
+        uint32 m_FieldCount;
+        char const* m_Format;
 
-        // load raw non-string data
-        m_dataTable = (T*)db2.AutoProduceData(fmt, nCount, (char**&)indexTable);
+};
 
-        // create string holders for loaded string fields
-        m_stringPoolList.push_back(db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable));
+template<class T> class DB2Storage : DB2StorageBase
+{
+    using StringPoolList = std::list<char*>;
+    using DataTableEx = std::vector<T*>;
 
-        // load strings from dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable));
+    public:
+        /// Constructor
+        /// @p_Format :  DB2 format
+        explicit DB2Storage(char const* p_Format)
+            : DB2StorageBase(p_Format), m_IndexTable(NULL), m_DataTable(NULL)
+        { 
 
-        // Insert sql data into arrays
-        if (result)
+        }
+        /// Destructor
+        ~DB2Storage()
+        { 
+            Clear();
+        }
+
+        /// Get entry by index
+        /// @p_ID : Entry index
+        T const* LookupEntry(uint32 p_ID) const
         {
-            if (indexTable)
+            return (p_ID >= m_MaxID) ? nullptr: m_IndexTable[p_ID];
+        }
+        /// Get raw entry by index
+        /// @p_ID : Entry index
+        virtual char * LookupEntryRaw(uint32 p_ID) const
+        {
+            return (char*)LookupEntry(p_ID);
+        }
+
+        /// Copies the provided entry and stores it.
+        /// @p_ID       : Entry index
+        /// @p_Entry    : The entry
+        /// @p_DontCopy : Do not copy the entry
+        void AddEntry(uint32 p_ID, T const* p_Entry, bool p_DontCopy = false)
+        {
+            if (LookupEntry(p_ID))
+                return;
+
+            if (p_ID >= m_MaxID)
             {
-                uint32 offset = 0;
-                uint32 rowIndex = db2.GetNumRows();
-                do
+                // reallocate index table
+                char** l_TempIndexTable = new char*[p_ID+1];
+                memset(l_TempIndexTable, 0, (p_ID+1) * sizeof(char*));
+                memcpy(l_TempIndexTable, (char*)m_IndexTable, m_MaxID * sizeof(char*));
+                delete[] ((char*)m_IndexTable);
+
+                m_MaxID      = p_ID + 1;
+                m_IndexTable = (T**)l_TempIndexTable;
+            }
+
+            if (!p_DontCopy)
+            {
+                T* l_EntryCopy = new T;
+                memcpy((char*)l_EntryCopy, (char*)p_Entry, sizeof(T));
+                m_DataTableEx.push_back(l_EntryCopy);
+                m_IndexTable[p_ID] = l_EntryCopy;
+            }
+            else
+            {
+                m_DataTableEx.push_back(const_cast<T*>(p_Entry));
+                m_IndexTable[p_ID] = const_cast<T*>(p_Entry);
+            }
+        }
+        /// Erase an entry
+        /// @p_ID       : Entry index
+        void EraseEntry(uint32 p_ID)
+        {
+            m_IndexTable[p_ID] = nullptr;
+        }
+
+        /// Load the DB2 from a file
+        /// @p_FileName : DB2 file path
+        /// @p_SQL      : SQL options
+        bool Load(char const* p_FileName, SqlDb2 * p_SQL)
+        {
+            DB2FileLoader l_DB2Reader;
+
+            /// Check if load was successful, only then continue
+            if (!l_DB2Reader.Load(p_FileName, m_Format))
+                return false;
+
+            uint32 l_SQLlRecordCount = 0;
+            uint32 l_SQLHighestIndex = 0;
+            Field* l_SQLFields = nullptr;
+
+            QueryResult l_SQLQueryResult = QueryResult(nullptr);
+
+            /// Load data from SQL
+            if (p_SQL)
+            {
+                std::string l_SQLQueryStr = "SELECT * FROM " + p_SQL->m_SQLTableName;
+
+                if (p_SQL->m_IndexPosition >= 0)
+                    l_SQLQueryStr += " ORDER BY " + *p_SQL->m_IndexName + " DESC";
+                l_SQLQueryStr += ';';
+
+
+                l_SQLQueryResult = WorldDatabase.Query(l_SQLQueryStr.c_str());
+                if (l_SQLQueryResult)
                 {
-                    if (!fields)
-                        fields = result->Fetch();
-
-                    uint32 id = fields[sql->m_IndexPosition].GetUInt32();
-                    T * l_NewEntry = new T();
-                    char * l_WritePtr = (char*)l_NewEntry;
-
-                    uint32 columnNumber = 0;
-                    uint32 sqlColumnNumber = 0;
-
-                    for (; columnNumber < sql->m_FormatString->size(); ++columnNumber)
+                    l_SQLlRecordCount = uint32(l_SQLQueryResult->GetRowCount());
+                    if (p_SQL->m_IndexPosition >= 0)
                     {
-                        if ((*sql->m_FormatString)[columnNumber] == FT_SQL_SUP)
-                        {
-                            break;
-                        }
-                        else if ((*sql->m_FormatString)[columnNumber] == FT_SQL_ABSENT)
-                        {
-                            switch (fmt[columnNumber])
-                            {
-                                case FT_FLOAT:
-                                    *((float*)(&l_WritePtr[offset])) = 0.0f;
-                                    offset += 4;
-                                    break;
-                                case FT_INDEX:
-                                case FT_INT:
-                                    *((uint32*)(&l_WritePtr[offset])) = uint32(0);
-                                    offset += 4;
-                                    break;
-                                case FT_BYTE:
-                                    *((uint8*)(&l_WritePtr[offset])) = uint8(0);
-                                    offset += 1;
-                                    break;
-                                case FT_STRING:
-                                    // Beginning of the pool - empty string
-                                    *((char**)(&l_NewEntry[offset])) = m_stringPoolList.back();
-                                    offset += sizeof(char*);
-                                    break;
-                            }
-                        }
-                        else if ((*sql->m_FormatString)[columnNumber] == FT_SQL_PRESENT)
-                        {
-                            bool validSqlColumn = true;
-                            switch (fmt[columnNumber])
-                            {
-                                case FT_FLOAT:
-                                    *((float*)(&l_WritePtr[offset])) = fields[sqlColumnNumber].GetFloat();
-                                    offset += 4;
-                                    break;
-                                case FT_INDEX:
-                                case FT_INT:
-                                    *((uint32*)(&l_WritePtr[offset])) = fields[sqlColumnNumber].GetUInt32();
-                                    offset += 4;
-                                    break;
-                                case FT_BYTE:
-                                    *((uint8*)(&l_WritePtr[offset])) = fields[sqlColumnNumber].GetUInt8();
-                                    offset += 1;
-                                    break;
-                                case FT_STRING:
-                                    sLog->outError(LOG_FILTER_GENERAL, "Unsupported data type in table '%s' at char %d", sql->m_SQLTableName.c_str(), columnNumber);
-                                    return false;
-                                case FT_SORT:
-                                    break;
-                                default:
-                                    validSqlColumn = false;
-                            }
-                            if (validSqlColumn && (columnNumber != (sql->m_FormatString->size() - 1)))
-                                sqlColumnNumber++;
-                        }
-                        else
-                        {
-                            sLog->outError(LOG_FILTER_GENERAL, "Incorrect sql format string '%s' at char %d", sql->m_SQLTableName.c_str(), columnNumber);
-                            return false;
-                        }
+                        l_SQLFields = l_SQLQueryResult->Fetch();
+                        l_SQLHighestIndex = l_SQLFields[p_SQL->m_SQLIndexPosition].GetUInt32();
                     }
-                    if (sqlColumnNumber != (result->GetFieldCount() - 1))
+                    /// Check if SQL index pos is valid
+                    if (int32(l_SQLQueryResult->GetFieldCount() - 1) < p_SQL->m_SQLIndexPosition)
                     {
-                        sLog->outError(LOG_FILTER_GENERAL, "SQL and DB2 format strings are not matching for table: '%s'", sql->m_SQLTableName.c_str());
+                        sLog->outError(LOG_FILTER_GENERAL, "Invalid index pos for db2:'%s'", p_SQL->m_SQLTableName.c_str());
                         return false;
                     }
-
-                    fields = NULL;
-                    ++rowIndex;
-
-                    AddEntry(id, l_NewEntry, true);
-                } while (result->NextRow());
+                }
             }
+
+            m_FieldCount    = l_DB2Reader.GetCols();
+            m_TableHash     = l_DB2Reader.GetHash();
+
+            m_DataTable = (T*)l_DB2Reader.AutoProduceData(m_Format, m_MaxID, (char**&)m_IndexTable);                    ///< Load raw non-string data
+            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStringsArrayHolders(m_Format, (char*)m_DataTable));       ///< Create string holders for loaded string fields
+            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable));                   ///< Load strings from dbc data
+
+            /// Insert SQL data into arrays
+            if (l_SQLQueryResult)
+            {
+                if (m_IndexTable)
+                {
+                    uint32 l_WritePosition = 0;
+                    do
+                    {
+                        if (!l_SQLFields)
+                            l_SQLFields = l_SQLQueryResult->Fetch();
+
+                        uint32 l_Entry = l_SQLFields[p_SQL->m_IndexPosition].GetUInt32();
+                        T * l_NewEntry = new T();
+                        char * l_WritePtr = (char*)l_NewEntry;
+
+                        uint32 l_ColumnNumber       = 0;
+                        uint32 l_SQLColumnNumber    = 0;
+
+                        for (; l_ColumnNumber < p_SQL->m_FormatString->size(); ++l_ColumnNumber)
+                        {
+                            if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
+                            {
+                                break;
+                            }
+                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
+                            {
+                                switch (m_Format[l_ColumnNumber])
+                                {
+                                    case FT_FLOAT:
+                                        *((float*)(&l_WritePtr[l_WritePosition])) = 0.0f;
+                                        l_WritePosition += 4;
+                                        break;
+                                    case FT_INDEX:
+                                    case FT_INT:
+                                        *((uint32*)(&l_WritePtr[l_WritePosition])) = uint32(0);
+                                        l_WritePosition += 4;
+                                        break;
+                                    case FT_BYTE:
+                                        *((uint8*)(&l_WritePtr[l_WritePosition])) = uint8(0);
+                                        l_WritePosition += 1;
+                                        break;
+                                    case FT_STRING:
+                                        // Beginning of the pool - empty string
+                                        *((char**)(&l_NewEntry[l_WritePosition])) = m_StringPoolList.back();
+                                        l_WritePosition += sizeof(char*);
+                                        break;
+                                }
+                            }
+                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
+                            {
+                                bool l_IsalidSqlColumn = true;
+                                switch (m_Format[l_ColumnNumber])
+                                {
+                                    case FT_FLOAT:
+                                        *((float*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetFloat();
+                                        l_WritePosition += 4;
+                                        break;
+                                    case FT_INDEX:
+                                    case FT_INT:
+                                        *((uint32*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetUInt32();
+                                        l_WritePosition += 4;
+                                        break;
+                                    case FT_BYTE:
+                                        *((uint8*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetUInt8();
+                                        l_WritePosition += 1;
+                                        break;
+                                    case FT_STRING:
+                                        sLog->outError(LOG_FILTER_GENERAL, "Unsupported data type in table '%s' at char %d", p_SQL->m_SQLTableName.c_str(), l_ColumnNumber);
+                                        return false;
+                                    case FT_SORT:
+                                        break;
+                                    default:
+                                        l_IsalidSqlColumn = false;
+                                }
+                                if (l_IsalidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString->size() - 1)))
+                                    l_SQLColumnNumber++;
+                            }
+                            else
+                            {
+                                sLog->outError(LOG_FILTER_GENERAL, "Incorrect SQL format string '%s' at char %d", p_SQL->m_SQLTableName.c_str(), l_ColumnNumber);
+                                return false;
+                            }
+                        }
+                        if (l_SQLColumnNumber != (l_SQLQueryResult->GetFieldCount() - 1))
+                        {
+                            sLog->outError(LOG_FILTER_GENERAL, "SQL and DB2 format strings are not matching for table: '%s'", p_SQL->m_SQLTableName.c_str());
+                            return false;
+                        }
+
+                        l_SQLFields = nullptr;
+
+                        AddEntry(l_Entry, l_NewEntry, true);
+                    } while (l_SQLQueryResult->NextRow());
+                }
+            }
+
+            /// Error in DB2 file at loading if NULL
+            return m_IndexTable != nullptr;
         }
 
-        // error in dbc file at loading if NULL
-        return indexTable!=NULL;
-    }
-
-    bool LoadStringsFrom(char const* fn)
-    {
-        // DBC must be already loaded using Load
-        if (!indexTable)
-            return false;
-
-        DB2FileLoader db2;
-        // Check if load was successful, only then continue
-        if (!db2.Load(fn, fmt))
-            return false;
-
-        // load strings from another locale dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable));
-
-        return true;
-    }
-
-    void Clear()
-    {
-        if (!indexTable)
-            return;
-
-        delete[] ((char*)indexTable);
-        indexTable = NULL;
-        delete[] ((char*)m_dataTable);
-        m_dataTable = NULL;
-            for (typename DataTableEx::const_iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
-                delete *itr;
-            m_dataTableEx.clear();
-
-        while (!m_stringPoolList.empty())
+        /// Load string from an other DB2
+        /// @p_FileName : DB2 file path
+        bool LoadStringsFrom(char const* p_FileName)
         {
-            delete[] m_stringPoolList.front();
-            m_stringPoolList.pop_front();
+            /// DBC must be already loaded using Load
+            if (!m_IndexTable)
+                return false;
+
+            DB2FileLoader l_DB2Reader;
+
+            /// Check if load was successful, only then continue
+            if (!l_DB2Reader.Load(p_FileName, m_Format))
+                return false;
+
+            /// load strings from another locale dbc data
+            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable));
+
+            return true;
         }
-        nCount = 0;
-    }
 
-    void EraseEntry(uint32 id) { indexTable[id] = NULL; }
+        /// Clear the DB2
+        void Clear()
+        {
+            if (!m_IndexTable)
+                return;
 
-private:
-    uint32 nCount;
-    uint32 fieldCount;
-    uint32 recordSize;
-    char const* fmt;
-    T** indexTable;
-    T* m_dataTable;
-    DataTableEx m_dataTableEx;
-    StringPoolList m_stringPoolList;
+            delete[]((char*)m_IndexTable);
+            delete[]((char*)m_DataTable);
+
+            m_IndexTable = nullptr;
+            m_DataTable  = nullptr;
+
+            for (typename DataTableEx::const_iterator l_It = m_DataTableEx.begin(); l_It != m_DataTableEx.end(); ++l_It)
+                delete *l_It;
+
+            m_DataTableEx.clear();
+
+            while (!m_StringPoolList.empty())
+            {
+                delete[] m_StringPoolList.front();
+                m_StringPoolList.pop_front();
+            }
+
+            m_MaxID = 0;
+        }
+
+    private:
+        T** m_IndexTable;
+        T* m_DataTable;
+        DataTableEx m_DataTableEx;
+        StringPoolList m_StringPoolList;
+
 };
 
 #endif
