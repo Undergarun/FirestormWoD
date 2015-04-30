@@ -251,9 +251,9 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
     LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");
-    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");
-    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
-    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
+    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2",              "item_effect",              "ID");
+    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2",  "item_modified_appearance", "ID");
+    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",          "item_appearance",          "ID");
     LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
     LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2");
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
