@@ -647,7 +647,9 @@ enum AtLoginFlags
     AT_LOGIN_CHANGE_FACTION         = 0x040,
     AT_LOGIN_CHANGE_RACE            = 0x080,
     AT_LOGIN_UNLOCK                 = 0x100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200
+    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
+    AT_LOGIN_RESET_SPECS            = 0x400,
+    AT_LOGIN_DELETE_INVALID_SPELL   = 0x800     ///< Used at expension switch
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -2187,6 +2189,7 @@ class Player : public Unit, public GridObject<Player>
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
+        void DeleteInvalidSpells();
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -2242,6 +2245,7 @@ class Player : public Unit, public GridObject<Player>
         void RemovePassiveTalentSpell(SpellInfo const* info);
 
         void ResetSpec(bool p_NoCost = false);
+        void ResetAllSpecs();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);

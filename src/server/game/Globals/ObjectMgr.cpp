@@ -10466,3 +10466,31 @@ void ObjectMgr::LoadItemBonusGroupLinked()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
+
+void ObjectMgr::LoadSpellInvalid()
+{
+    uint32 l_OldMSTime = getMSTime();
+    m_SpellInvalid.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT spellid FROM spell_invalid");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Spell Invalid. DB table `spell_invalid` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields    = l_Result->Fetch();
+        uint32 l_SpellID   = l_Fields[0].GetUInt32();
+
+        m_SpellInvalid.push_back(l_SpellID);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}

@@ -1201,6 +1201,7 @@ class ObjectMgr
 
         void LoadPhaseDefinitions();
         void LoadSpellPhaseInfo();
+        void LoadSpellInvalid();
         void LoadBattlePetTemplate();
 
         void LoadItemExtendedCost();
@@ -1665,6 +1666,14 @@ class ObjectMgr
             return &(*l_Find).second;
         }
 
+        bool IsInvalidSpell(uint32 p_SpellId)
+        {
+            if (std::find(m_SpellInvalid.begin(), m_SpellInvalid.end(), p_SpellId) != m_SpellInvalid.end())
+                return true;
+
+            return false;
+        }
+
     private:
         // first free id for selected id type
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _auctionId;
@@ -1829,6 +1838,8 @@ class ObjectMgr
 
         std::set<uint32> _difficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[Difficulty::MaxDifficulties - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+
+        std::list<uint32> m_SpellInvalid;
 
         std::set<uint32> _overwriteExtendedCosts;
 

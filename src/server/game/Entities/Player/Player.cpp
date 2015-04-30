@@ -6454,6 +6454,54 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     SetSpecializationResetTime(time(nullptr));
 }
 
+void Player::ResetAllSpecs()
+{
+    for (int l_SpecIdx = 0; l_SpecIdx < 2; l_SpecIdx++)
+    {
+        /// Remove specialization Glyphs
+        std::vector<uint32> l_Glyphs = GetGlyphMap(l_SpecIdx);
+        uint8 l_Slot = 0;
+        for (uint32 l_Glyph : l_Glyphs)
+        {
+            GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+            for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+            {
+                if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+                {
+                    if (l_GlyphRequirements->GlyphID == l_Glyph)
+                    {
+                        l_GlyphReq = l_GlyphRequirements;
+                        break;
+                    }
+                }
+            }
+
+            if (l_GlyphReq == nullptr)
+            {
+                ++l_Slot;
+                continue;
+            }
+
+            /// If glyph has a spec requirement, remove it
+            if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+            {
+                RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+                SetGlyph(l_Slot, 0);
+            }
+
+            ++l_Slot;
+        }
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), false);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    SetSpecializationResetTime(time(nullptr));
+}
+
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
     /// Remove specialization talents
@@ -33415,5 +33463,15 @@ void Player::RewardCompletedAchievementsIfNeeded()
             l_Draft.SendMailTo(l_Transaction, this, MailSender(MAIL_CREATURE, l_Reward->sender));
             CharacterDatabase.CommitTransaction(l_Transaction);
         }
+    }
+}
+
+void Player::DeleteInvalidSpells()
+{
+    PlayerSpellMap l_SpellMap = GetSpellMap();
+    for (PlayerSpellMap::const_iterator l_Iterator = l_SpellMap.begin(); l_Iterator != l_SpellMap.end(); ++l_Iterator)
+    {
+        if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
+        removeSpell(l_Iterator->first, false, false);
     }
 }

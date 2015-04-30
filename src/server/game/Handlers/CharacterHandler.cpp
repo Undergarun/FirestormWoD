@@ -1277,6 +1277,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         pCurrChar->SendTalentsInvoluntarilyReset();
     }
 
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_SPECS))
+    {
+        pCurrChar->ResetAllSpecs();
+        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_RESET_SPECS);
+    }
+
+    if (pCurrChar->HasAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL))
+    {
+        pCurrChar->DeleteInvalidSpells();
+        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_RESET_SPECS);
+    }
+
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
