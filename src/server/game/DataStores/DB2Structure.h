@@ -661,7 +661,7 @@ struct GarrPlotEntry
     char*  Name;                                                    ///< 4
     uint32 Unk4;                                                    ///< 5
     uint32 Unk5;                                                    ///< 6
-    uint32 BuildingGameObject[2];                                   ///< 8-9
+    uint32 BuildingGameObject[2];                                   ///< 7-8
 };
 
 struct GarrPlotUICategoryEntry
