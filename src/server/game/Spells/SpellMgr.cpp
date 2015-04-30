@@ -3328,6 +3328,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 159407: ///< Combo Breaker: Chi Explosion
+                spellInfo->ProcCharges = 0;
+                spellInfo->ProcFlags = 0;
+                spellInfo->ProcChance = 0;
+                break;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;

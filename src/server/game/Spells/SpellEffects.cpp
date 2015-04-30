@@ -593,6 +593,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 switch (m_spellInfo->Id)
                 {
+                    /// Chi Explosion
+                    case 152174:
+                    case 157676:
+                    {
+                        uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                        if (l_Chi > 3 && effIndex == EFFECT_0)
+                            return;
+                        else if (l_Chi < 4 && effIndex == EFFECT_1)
+                            return;
+                        break;
+                    }
                     case 115080:// Touch of Death
                     {
                         if (Unit* l_Caster = GetCaster())
