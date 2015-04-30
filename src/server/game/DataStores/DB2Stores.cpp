@@ -187,7 +187,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
             errlist.push_back(db2_filename);
     }
 
-    if (sDB2PerHash.find(storage.GetHash()) != sDB2PerHash.end())
+    if (sDB2PerHash.find(storage.GetHash()) == sDB2PerHash.end())
         sDB2PerHash[storage.GetHash()] = &storage;
 
     if (sql)

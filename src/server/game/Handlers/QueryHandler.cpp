@@ -697,25 +697,29 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         }
         else if (l_DB2Store)
         {
-            WorldPacket l_Data(SMSG_DB_REPLY, 44);
-            l_Data << uint32(l_Type);
 
             ByteBuffer l_ResponseData;
             if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
             {
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                l_Data << uint32(l_Type);
                 l_Data << uint32(l_Entry);
                 l_Data << uint32(sObjectMgr->GetHotfixDate(l_Entry, l_Type));
                 l_Data << uint32(l_ResponseData.size());
                 l_Data.append(l_ResponseData);
+
+                SendPacket(&l_Data);
             }
             else
             {
-                l_Data << uint32(-1);
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                l_Data << uint32(l_Type);
+                l_Data << uint32(-int32(l_Entry));
                 l_Data << uint32(time(NULL));
                 l_Data << uint32(0);
-            }
 
-            SendPacket(&l_Data);
+                SendPacket(&l_Data);
+            }
         }
     }
 
