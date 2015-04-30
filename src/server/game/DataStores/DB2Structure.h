@@ -319,6 +319,7 @@ struct ItemExtendedCostEntry
     uint32      RequiredFactionId;                                      // 24
     uint32      RequiredFactionStanding;                                // 25
     uint32      RequirementFlags;                                       // 26
+    uint32      RequiredAchievement;                                    // 27
     uint32      OverrideBuyPrice;                                       // 28
 };
 
@@ -443,10 +444,11 @@ struct TaxiNodesEntry
     float   z;                                              // 4        m_z
     char*   name;                                           // 5        m_Name_lang
     uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
-    uint32    m_ConditionID;                                // 8        m_ConditionID
-    uint32    m_Flags;                                      // 9        m_Flags
-    float     m_MapOffsetX;                                 // 10       m_MapOffset
-    float     m_MapOffsetY;                                 // 11       m_MapOffset
+    uint32  m_ConditionID;                                  // 8        m_ConditionID
+    uint32  LearnableIndex;                                 // 9 - some kind of index only for learnable nodes
+    uint32  m_Flags;                                        // 10        m_Flags
+    float   m_MapOffsetX;                                   // 11       m_MapOffset
+    float   m_MapOffsetY;                                   // 12       m_MapOffset
 };
 
 struct SpellRuneCostEntry
@@ -597,8 +599,6 @@ struct SpellTotemsEntry
     uint32    Id;                                           // 0  m_ID
     uint32    TotemCategory[MAX_SPELL_TOTEMS];              // 1  m_requiredTotemCategoryID
     uint32    Totem[MAX_SPELL_TOTEMS];                      // 2  m_totem
-    uint32    unk_1;                                        // 3
-    uint32    unk_2;                                        // 4  only 1925
 };
 
 struct SpellTotem
