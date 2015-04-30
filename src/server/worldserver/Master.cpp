@@ -894,7 +894,7 @@ bool Master::_StartDB()
 
     synch_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.SynchThreads", 1));
 
-    ///- Initialize the monitoring database
+    ///- Initialize the hotfix database
     if (!HotfixDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Hotfix database %s", dbstring.c_str());
