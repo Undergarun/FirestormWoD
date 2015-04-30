@@ -4608,6 +4608,12 @@ class spell_monk_chi_explosion_mistweaver_crane: public SpellScriptLoader
             {
                 uint8 l_Chi = GetCaster()->GetPower(POWER_CHI) + 1;
 
+                if (l_Chi < 2)
+                {
+                    PreventHitHeal();
+                    return;
+                }
+
                 if (l_Chi > 2 && p_EffIndex == EFFECT_1)
                     return;
                 else if (l_Chi < 3 && p_EffIndex == EFFECT_2)
