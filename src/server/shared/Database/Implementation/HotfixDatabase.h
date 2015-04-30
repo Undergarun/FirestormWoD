@@ -31,7 +31,7 @@ class HotfixDatabaseConnection : public MySQLConnection
         void DoPrepareStatements();
 };
 
-typedef DatabaseWorkerPool<HotfixDatabaseConnection> LoginDatabaseWorkerPool;
+typedef DatabaseWorkerPool<HotfixDatabaseConnection> HotfixDatabaseWorkerPool;
 
 enum HotfixDatabaseStatements
 {
