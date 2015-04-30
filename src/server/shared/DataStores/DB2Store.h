@@ -23,7 +23,7 @@
 #include "Log.h"
 #include "Field.h"
 #include "DatabaseWorkerPool.h"
-#include "Implementation/WorldDatabase.h"
+#include "Implementation/HotfixDatabase.h"
 #include "DatabaseEnv.h"
 
 #include <vector>
@@ -263,8 +263,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                     l_SQLQueryStr += " ORDER BY " + *p_SQL->m_IndexName + " DESC";
                 l_SQLQueryStr += ';';
 
-
-                l_SQLQueryResult = WorldDatabase.Query(l_SQLQueryStr.c_str());
+                l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
                 if (l_SQLQueryResult)
                 {
                     l_SQLlRecordCount = uint32(l_SQLQueryResult->GetRowCount());
