@@ -877,6 +877,33 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    dbstring = ConfigMgr::GetStringDefault("HotfixDatabaseInfo", "");
+    if (dbstring.empty())
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
+        return false;
+    }
+
+    async_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.WorkerThreads", 1));
+    if (async_threads < 1 || async_threads > 32)
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database: invalid number of worker threads specified. "
+                       "Please pick a value between 1 and 32.");
+        return false;
+    }
+
+    synch_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.SynchThreads", 1));
+
+    ///- Initialize the monitoring database
+    if (!HotfixDatabase.Open(dbstring, async_threads, synch_threads))
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Hotfix database %s", dbstring.c_str());
+        return false;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     ///- Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!g_RealmID)
