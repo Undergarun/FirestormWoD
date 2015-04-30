@@ -877,33 +877,6 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    dbstring = ConfigMgr::GetStringDefault("MonitoringDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database not specified in configuration file");
-        return false;
-    }
-
-    async_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.WorkerThreads", 1));
-    if (async_threads < 1 || async_threads > 32)
-    {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database: invalid number of worker threads specified. "
-            "Please pick a value between 1 and 32.");
-        return false;
-    }
-
-    synch_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.SynchThreads", 1));
-
-    ///- Initialize the monitoring database
-    if (!MonitoringDatabase.Open(dbstring, async_threads, synch_threads))
-    {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to monitoring database %s", dbstring.c_str());
-        return false;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
     ///- Get the realm Id from the configuration file
     g_RealmID = ConfigMgr::GetIntDefault("RealmID", 0);
     if (!g_RealmID)
@@ -932,7 +905,6 @@ void Master::_StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
-    MonitoringDatabase.Close();
 
     MySQL::Library_End();
 }

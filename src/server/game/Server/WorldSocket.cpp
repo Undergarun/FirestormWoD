@@ -783,8 +783,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 {
     ACE_ASSERT (new_pct);
 
-    gReceivedBytes += new_pct->size() + 2;
-
     // manage memory ;)
     ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
 
