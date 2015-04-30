@@ -1,4 +1,4 @@
-drop table spell_invalid;
+drop table if exists spell_invalid;
 
 create table `spell_invalid` 
 (
