@@ -42,9 +42,6 @@
 #include "Common.h"
 #include "AuthCrypt.h"
 
-extern uint32_t gReceivedBytes;
-extern uint32_t gSentBytes;
-
 class ACE_Message_Block;
 class WorldPacket;
 class WorldSession;
