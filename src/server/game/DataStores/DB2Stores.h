@@ -152,9 +152,7 @@ class TaxiNode
     public:
         TaxiNode() { }
         TaxiNode(uint32 ID, uint32 map, Position& pos, std::string& name, uint32 cost) :
-            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost)
-        {
-        }
+            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost) { }
 
         uint32 GetID() { return m_id; }
 
@@ -165,7 +163,6 @@ class TaxiNode
         TaxiNodesEntry const* GetTaxiNodesEntry() { return sTaxiNodesStore.LookupEntry(m_id); }
 
     private:
-
         uint32 m_id;
         uint32 m_mapID;
         Position m_position;
@@ -203,6 +200,7 @@ struct TaxiPathBySourceAndDestination
     uint32    ID;
     uint32    price;
 };
+
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;

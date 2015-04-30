@@ -2430,9 +2430,9 @@
     <field type="int" name="FollowerID" />
     <field type="int" name="EntryH" />
     <field type="int" name="EntryA" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
+    <field type="int" name="classH" />
+    <field type="int" name="classA" />
+    <field type="int" name="quality" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
     <field type="int" name="field8" />
@@ -2441,13 +2441,13 @@
     <field type="int" name="ItemLevelWeapon" />
     <field type="int" name="ItemLevelArmor" />
     <field type="int" name="field13" />
-    <field type="int" name="Bias" />
+    <field type="int" name="field14" />
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
-    <field type="int" name="dfg" />
-    <field type="int" name="dfgdfg" />
     <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
   </GarrFollower>
   <GarrFollowerQuality build="0">
     <index>
@@ -2548,7 +2548,7 @@
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
     <field type="int" name="LocPrefixID" />
-    <field type="int" name="field9" />
+    <field type="int" name="Category" />
     <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Location" />
@@ -2971,7 +2971,7 @@
     <field type="int" name="field1" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="string" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
@@ -4799,4 +4799,29 @@
     <field type="int" name="field1" />
     <field type="int" name="field2" />
   </PvpItem>
+  <SpellTotems build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </SpellTotems>
+  <Mount build="19853">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="Category" />
+    <field type="int" name="CreatureDisplayID" />
+    <field type="int" name="Flags" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="string" name="Icon" />
+    <field type="int" name="Unknow" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="PlayerConditionID" />
+  </Mount>
 </DBFilesClient>
