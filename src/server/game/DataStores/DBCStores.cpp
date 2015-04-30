@@ -231,14 +231,7 @@ DBCStorage <SpellRangeEntry> sSpellRangeStore(SpellRangefmt);
 DBCStorage <SpellShapeshiftEntry> sSpellShapeshiftStore(SpellShapeshiftEntryfmt);
 DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftFormfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
-
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
-TaxiMask sTaxiNodesMask;
-TaxiMask sOldContinentsNodesMask;
-TaxiMask sHordeTaxiNodesMask;
-TaxiMask sAllianceTaxiNodesMask;
-TaxiMask sDeathKnightTaxiNodesMask;
-
 DBCStorage <TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 DBCStorage <TransportAnimationEntry> sTransportAnimationStore(TransportAnimationfmt);
 DBCStorage <TransportRotationEntry> sTransportRotationStore(TransportRotationfmt);

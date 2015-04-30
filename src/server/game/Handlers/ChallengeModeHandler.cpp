@@ -166,32 +166,3 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*p_RecvData*
 
     SendPacket(&l_Data);
 }
-
-void WorldSession::SendMapChallengeModeDBReply(uint32 p_Entry)
-{
-    MapChallengeModeHotfix* l_HotFix = sObjectMgr->GetMapChallengeModeHotfix(p_Entry);
-    if (l_HotFix == nullptr)
-        return;
-
-    WorldPacket l_Data(SMSG_DB_REPLY, 56);
-    l_Data << uint32(DB2_REPLY_MAP_CHALLENGE_MODE);
-    l_Data << int32(p_Entry);
-    l_Data << uint32(time(NULL));
-    l_Data << uint32(40);   ///< Size of MapChallengeMode.db2
-
-    ///< MapChallengeMode.db2
-    {
-        l_Data << uint32(l_HotFix->m_ID);
-        l_Data << uint32(l_HotFix->m_MapID);
-        l_Data << uint32(l_HotFix->m_Field2);
-        l_Data << uint32(l_HotFix->m_Field3);
-        l_Data << uint32(l_HotFix->m_Field4);
-        l_Data << uint32(l_HotFix->m_BronzeTime);
-        l_Data << uint32(l_HotFix->m_SilverTime);
-        l_Data << uint32(l_HotFix->m_GoldTime);
-        l_Data << uint32(l_HotFix->m_Field8);
-        l_Data << uint32(l_HotFix->m_Field9);
-    }
-
-    SendPacket(&l_Data);
-}

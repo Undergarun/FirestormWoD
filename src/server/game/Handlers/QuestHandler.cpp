@@ -976,27 +976,3 @@ void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
 
     SendPacket(&l_Data);
 }
-
-void WorldSession::SendQuestPackageItemDB2Reply(uint32 p_Entry)
-{
-    QuestPackageItemEntry const* l_QuestPackageItemHotfix = sQuestPackageItemStore.LookupEntry(p_Entry);
-    if (l_QuestPackageItemHotfix == nullptr)
-        return;
-
-    WorldPacket l_Data(SMSG_DB_REPLY, 56);
-    l_Data << uint32(DB2_REPLY_QUEST_PACKAGE_ITEM);
-    l_Data << int32(p_Entry);
-    l_Data << uint32(time(NULL));
-    l_Data << uint32(sizeof(QuestPackageItemEntry));
-
-    // QuestPackageItem.db2
-    {
-        l_Data << uint32(l_QuestPackageItemHotfix->ID);
-        l_Data << uint32(l_QuestPackageItemHotfix->PackageID);
-        l_Data << uint32(l_QuestPackageItemHotfix->ItemId);
-        l_Data << uint32(l_QuestPackageItemHotfix->Count);
-        l_Data << uint32(l_QuestPackageItemHotfix->Type);
-    }
-
-    SendPacket(&l_Data);
-}

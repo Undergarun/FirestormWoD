@@ -44,7 +44,7 @@
 #include "AccountMgr.h"
 #include "DBCStores.h"
 #include "LFGMgr.h"
-
+#include <time.h>
 #include <Reporting/Reporter.hpp>
 
 class LoginQueryHolder : public SQLQueryHolder
@@ -984,7 +984,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
-    uint32 time = getMSTime();
+    uint32 time0 = getMSTime();
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder, accountResult))
@@ -997,7 +997,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         return;
     }
 
-    uint32 time1 = getMSTime() - time;
+    uint32 time1 = getMSTime() - time0;
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
@@ -1123,41 +1123,25 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
         if (!extendedCost)
             continue;
 
-        //WorldPacket data(SMSG_DB_REPLY);
-        //ByteBuffer buff;
-        //
-        //buff << uint32(extendedCost->ID);
-        //buff << uint32(0); // reqhonorpoints
-        //buff << uint32(0); // reqarenapoints
-        //buff << uint32(extendedCost->RequiredArenaSlot);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-        //    buff << uint32(extendedCost->RequiredItem[i]);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-        //    buff << uint32(extendedCost->RequiredItemCount[i]);
-        //
-        //buff << uint32(extendedCost->RequiredPersonalArenaRating);
-        //buff << uint32(0); // ItemPurchaseGroup
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(extendedCost->RequiredCurrency[i]);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(extendedCost->RequiredCurrencyCount[i]);
-        //
-        //// Unk
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(0);
-        //
-        //data << uint32(buff.size());
-        //data.append(buff);
-        //
-        //data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
-        //data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
-        //data << uint32(extendedCost->ID);
+        WorldPacket l_Data(SMSG_DB_REPLY, 44);
+        l_Data << uint32(sItemExtendedCostStore.GetHash());
 
-        //SendPacket(&data);
+        ByteBuffer l_ResponseData;
+        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData))
+        {
+            l_Data << uint32(extendedCost->ID);
+            l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
+            l_Data << uint32(l_ResponseData.size());
+            l_Data.append(l_ResponseData);
+        }
+        else
+        {
+            l_Data << uint32(-1);
+            l_Data << uint32(time(NULL));
+            l_Data << uint32(0);
+        }
+
+        SendPacket(&l_Data);
     }
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
@@ -1325,7 +1309,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     uint32 time9 = getMSTime() - time8;
 
-    uint32 totalTime = getMSTime() - time;
+    uint32 totalTime = getMSTime() - time0;
     //if (totalTime > 50)
     //    sLog->outAshran("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 

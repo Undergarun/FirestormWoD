@@ -25,6 +25,8 @@
 
 #include <map>
 
+std::map<uint32, DB2StorageBase*> sDB2PerHash;
+
 DB2Storage <PathNodeEntry>                  sPathNodeStore(PathNodeEntryfmt);
 DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
@@ -119,6 +121,12 @@ DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(Battl
 TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 TaxiNodesByMap      sTaxiNodesByMap;
+TaxiMask sTaxiNodesMask;
+TaxiMask sOldContinentsNodesMask;
+TaxiMask sHordeTaxiNodesMask;
+TaxiMask sAllianceTaxiNodesMask;
+TaxiMask sDeathKnightTaxiNodesMask;
+
 SpellTotemMap       sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
@@ -178,6 +186,9 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         else
             errlist.push_back(db2_filename);
     }
+
+    if (sDB2PerHash.find(storage.GetHash()) != sDB2PerHash.end())
+        sDB2PerHash[storage.GetHash()] = &storage;
 
     if (sql)
         delete sql;

@@ -164,7 +164,7 @@ class DB2StorageBase
 
 };
 
-template<class T> class DB2Storage : DB2StorageBase
+template<class T> class DB2Storage : public DB2StorageBase
 {
     using StringPoolList = std::list<char*>;
     using DataTableEx = std::vector<T*>;
