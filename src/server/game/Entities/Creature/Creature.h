@@ -277,7 +277,7 @@ struct CreatureGroupSizeStat
 
     uint32 GetHealthFor(uint32 p_GroupSize) const
     {
-        p_GroupSize = std::max((uint32)10, p_GroupSize);
+        p_GroupSize = std::min(std::max((uint32)10, p_GroupSize), (uint32)MAX_GROUP_SCALING - 1);
         return Healths[p_GroupSize];
     }
 };

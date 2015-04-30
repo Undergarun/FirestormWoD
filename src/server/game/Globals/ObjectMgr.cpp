@@ -9114,8 +9114,27 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
         uint32 l_GroupSize     = l_Fields[2].GetUInt32();
         uint32 l_Health        = l_Fields[3].GetUInt32();
 
+        if (!sObjectMgr->GetCreatureTemplate(l_CreatureEntry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature template entry (entry: %u) used in `creature_groupsizestats` does not exist.", l_CreatureEntry);
+            continue;
+        }
+
+        if (l_Difficulty >= MaxDifficulties)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty);
+            continue;
+        }
+
+        if (l_GroupSize >= MAX_GROUP_SCALING)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize);
+            continue;
+        }
+
         CreatureGroupSizeStat& l_CreatureGroupSizeStat = m_CreatureGroupSizeStore[l_CreatureEntry][l_Difficulty];
         l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
+        ++l_Count;
     }
     while (l_Result->NextRow());
 
