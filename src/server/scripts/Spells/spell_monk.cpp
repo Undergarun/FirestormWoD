@@ -4957,6 +4957,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_heal();
     new spell_monk_chi_explosion_mistweaver_crane();
     new spell_monk_chi_explosion_brewmaster();
+    new spell_monk_chi_explosion_windwalker();
     new spell_monk_detonate_chi();
     new spell_monk_WoDPvPBrewmaster2PBonus();
     new spell_monk_zen_sphere_tick();
