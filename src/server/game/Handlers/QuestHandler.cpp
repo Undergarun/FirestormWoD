@@ -676,12 +676,13 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
             if (quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))                  // some items required
                 m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
+            {
                 m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID);
+                m_Player->SaveToDB();
+            }
         }
     }
 
-    if (m_Player)
-        m_Player->SaveToDB();
 }
 
 void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
