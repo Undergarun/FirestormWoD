@@ -4677,7 +4677,7 @@ enum TranscendenceSpiritSpells
 
 enum transcendenceActions
 {
-    ACTION_TELEPORT
+    ACTION_TELEPORT = 1
 };
 
 class npc_transcendence_spirit : public CreatureScript

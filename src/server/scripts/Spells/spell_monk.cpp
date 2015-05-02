@@ -869,7 +869,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -879,7 +879,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
                         {
                             Creature* clone = (*itr)->ToCreature();
                             if (clone && clone->AI())
-                                clone->AI()->DoAction(0);
+                                clone->AI()->DoAction(1);
                         }
                     }
                 }
@@ -888,7 +888,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckSpiritRange);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnHit += SpellHitFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy);
             }
         };
 
