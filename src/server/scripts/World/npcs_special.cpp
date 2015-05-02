@@ -4711,7 +4711,7 @@ class npc_transcendence_spirit : public CreatureScript
 
                 me->SetMaxHealth(owner->GetMaxHealth() / 2);
                 me->SetHealth(me->GetMaxHealth());
-                
+
                 me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
                 owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
                 owner->CastSpell(me, SPELL_CLONE_CASTER, true);
