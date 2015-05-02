@@ -4667,10 +4667,10 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
-                if (p_EffIndex == EFFECT_1)
-                    l_Chi = 2;
-
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
+                if (GetHitUnit() != GetExplTargetUnit())
+                    l_Damage /= 3;
+
                 SetHitDamage(l_Damage);
 
                 if (l_Chi >= 1)
@@ -4744,10 +4744,11 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
-                if (p_EffIndex == EFFECT_1)
-                    l_Chi = 2;
+                int32 l_Damage = GetHitDamage() * (l_Chi + 1);
+                if (GetHitUnit() != GetExplTargetUnit())
+                    l_Damage /= 3;
 
-                SetHitDamage(GetHitDamage() * (l_Chi + 1));
+                SetHitDamage(l_Damage);
             }
 
             void HandleAfterCast()
