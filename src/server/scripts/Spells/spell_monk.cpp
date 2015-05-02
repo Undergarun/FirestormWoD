@@ -4407,47 +4407,6 @@ class spell_monk_afterlife: public SpellScriptLoader
         }
 };
 
-enum GiftOfTheSerpent
-{
-    SpellHealingSphere = 124041
-};
-
-/// Gift of the Serpent (healing sphere) - 119031
-class AreaTrigger_healing_sphere : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_healing_sphere() : AreaTriggerEntityScript("at_healing_sphere") { }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_healing_sphere();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster && l_CreateSpell)
-            {
-                float l_Radius = 1.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    l_AreaTriggerCaster->CastSpell(l_Target, GiftOfTheSerpent::SpellHealingSphere, true);
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-        }
-};
-
 enum ChiExplosionMistweaverSpells
 {
     SPELL_CHI_EXPLOSION_HEAL    = 182078,
@@ -4966,7 +4925,4 @@ void AddSC_monk_spell_scripts()
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
     new spell_monk_vital_mists();
-
-    /// AreaTrigger Script
-    new AreaTrigger_healing_sphere();
 }

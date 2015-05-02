@@ -27,6 +27,8 @@ set(scripts_STAT_SRCS
   Spells/spell_monk.cpp
   Spells/spell_mastery.cpp
   Spells/spell_skill.cpp
+  Spells/spell_npc.cpp
+  Spells/spell_at.cpp
 )
 
 message("  -> Prepared: Spells")

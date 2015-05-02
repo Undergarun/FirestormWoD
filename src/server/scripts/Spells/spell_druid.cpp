@@ -1585,84 +1585,6 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
         }
 };
 
-/// Fungal Growth - 164717
-class AreaTrigger_fungal_growth : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_fungal_growth() : AreaTriggerEntityScript("at_fungal_growth") { }
-
-        std::list<uint64> m_Targets;
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
-        {
-            auto l_SpellInfo = sSpellMgr->GetSpellInfo(WildMushroomSpells::SpellDruidWildMushroomBalance);
-            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster == nullptr || l_SpellInfo == nullptr)
-                return;
-
-            std::list<Unit*> l_TargetList;
-            float l_Radius = (float)l_SpellInfo->Effects[EFFECT_0].BasePoints;
-
-            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-            for (Unit* l_Target : l_TargetList)
-            {
-                if (l_Target == nullptr)
-                    return;
-
-                if (!l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud))
-                {
-                    l_AreaTriggerCaster->CastSpell(l_Target, WildMushroomSpells::SpellDruidWildMushroomFungalCloud, true);
-                    m_Targets.push_back(l_Target->GetGUID());
-                }
-            }
-            for (uint64 l_TargetGuid : m_Targets)
-            {
-                Unit* l_Target = ObjectAccessor::GetUnit(*l_AreaTriggerCaster, l_TargetGuid);
-
-                if (l_Target == nullptr)
-                    return;
-
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()) && l_Target->GetDistance(l_AreaTriggerCaster) <= l_Radius)
-                    return;
-
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
-
-                m_Targets.remove(l_TargetGuid);
-            }
-        }
-
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
-        {
-            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster == nullptr)
-                return;
-
-            for (uint64 l_TargetGuid : m_Targets)
-            {
-                Unit* l_Target = ObjectAccessor::GetUnit(*l_AreaTriggerCaster, l_TargetGuid);
-
-                if (l_Target == nullptr)
-                    return;
-
-                if (l_Target->HasAura(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID()))
-                    l_Target->RemoveAurasDueToSpell(WildMushroomSpells::SpellDruidWildMushroomFungalCloud, l_AreaTriggerCaster->GetGUID());
-
-                m_Targets.remove(l_TargetGuid);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_fungal_growth();
-        }
-};
-
 /// Wild Mushroom (heal) - 81262
 class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 {
@@ -3897,6 +3819,4 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wrath();
     new spell_dru_wild_mushroom_heal();
     new spell_dru_wild_mushroom_heal_proc();
-
-    new AreaTrigger_fungal_growth();
 }

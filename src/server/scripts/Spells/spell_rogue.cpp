@@ -25,7 +25,6 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "ScriptedCreature.h"
 
 enum RogueSpells
 {
@@ -411,160 +410,6 @@ class spell_rog_death_from_above : public SpellScriptLoader
         }
 };
 
-/// Shadow Reflection - 77726
-class npc_rogue_shadow_reflection : public CreatureScript
-{
-    public:
-        npc_rogue_shadow_reflection() : CreatureScript("npc_rogue_shadow_reflection") { }
-
-        struct npc_rogue_shadow_reflectionAI : public ScriptedAI
-        {
-            npc_rogue_shadow_reflectionAI(Creature* p_Creature) : ScriptedAI(p_Creature), m_Queuing(true) { }
-
-            enum eSpells
-            {
-                SpellShadowReflectionAura = 156744,
-                ShadowReflectionClone     = 168691
-            };
-
-            enum eDatas
-            {
-                AddSpellToQueue = 0,
-                FinishFirstPhase
-            };
-
-            struct SpellData
-            {
-                SpellData(uint32 p_ID, uint32 p_Time)
-                {
-                    ID = p_ID;
-                    Time = p_Time;
-                }
-
-                uint32 ID;
-                uint32 Time;
-            };
-
-            bool m_Queuing;
-
-            /// Automatically stored in good time order
-            std::queue<SpellData> m_SpellQueue;
-
-            void Reset()
-            {
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-                me->CastSpell(me, eSpells::SpellShadowReflectionAura, true);
-            }
-
-            void SetGUID(uint64 p_Data, int32 p_ID)
-            {
-                switch (p_ID)
-                {
-                    case eDatas::AddSpellToQueue:
-                    {
-                        if (!m_Queuing)
-                            break;
-                        uint32 l_SpellID = p_Data & 0xFFFFFFFF;
-                        uint32 l_Time = p_Data >> 32;
-                        m_SpellQueue.push(SpellData(l_SpellID, l_Time));
-                        break;
-                    }
-                    case eDatas::FinishFirstPhase:
-                    {
-                        if (!m_Queuing || me->ToTempSummon() == nullptr)
-                            break;
-
-                        m_Queuing = false;
-                        me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-
-                        if (Unit* l_Owner = me->ToTempSummon()->GetOwner())
-                        {
-                            Unit* l_OwnerTarget = nullptr;
-                            if (Player* l_Player = l_Owner->ToPlayer())
-                                l_OwnerTarget = l_Player->GetSelectedUnit();
-                            else
-                                l_OwnerTarget = l_Owner->getVictim();
-
-                            if (l_OwnerTarget)
-                                AttackStart(l_OwnerTarget);
-                        }
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }
-
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo)
-            {
-                if (p_SpellInfo->Id == eSpells::ShadowReflectionClone && p_Caster != nullptr && p_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
-                {
-                    for (uint8 l_AttType = 0; l_AttType < WeaponAttackType::MaxAttack; ++l_AttType)
-                    {
-                        me->SetBaseWeaponDamage((WeaponAttackType)l_AttType, MAXDAMAGE, p_Caster->GetWeaponDamageRange((WeaponAttackType)l_AttType, MAXDAMAGE));
-                        me->SetBaseWeaponDamage((WeaponAttackType)l_AttType, MINDAMAGE, p_Caster->GetWeaponDamageRange((WeaponAttackType)l_AttType, MINDAMAGE));
-                    }
-
-                    me->UpdateAttackPowerAndDamage();
-
-                    if (Item* l_MH = p_Caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                    {
-                        if (uint32 l_Transmo = l_MH->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0))
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_Transmo);
-                        else
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MH->GetTemplate()->DisplayInfoID);
-                    }
-
-                    if (Item* l_OH = p_Caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                    {
-                        if (uint32 l_Transmo = l_OH->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0))
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Transmo);
-                        else
-                            me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OH->GetTemplate()->DisplayInfoID);
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 const p_Diff)
-            {
-                if (m_Queuing)
-                    return;
-
-                if (!UpdateVictim())
-                    return;
-
-                if (SpellData* l_SpellData = GetNextSpellData())
-                {
-                    if (l_SpellData->Time <= p_Diff)
-                    {
-                        if (Unit* l_Target = me->getVictim())
-                            me->CastSpell(l_Target, l_SpellData->ID, true);
-
-                        m_SpellQueue.pop();
-                    }
-                    else
-                        l_SpellData->Time -= p_Diff;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            SpellData* GetNextSpellData()
-            {
-                if (m_SpellQueue.empty())
-                    return nullptr;
-
-                return &m_SpellQueue.front();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_rogue_shadow_reflectionAI(p_Creature);
-        }
-};
-
 /// Shadow Reflection (aura proc) - 152151
 class spell_rog_shadow_reflection_proc : public SpellScriptLoader
 {
@@ -682,39 +527,6 @@ class spell_rog_shadow_reflection : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_rog_shadow_reflection_SpellScript();
-        }
-};
-
-/// Smoke Bomb - 76577
-class spell_areatrigger_smoke_bomb : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_smoke_bomb() : AreaTriggerEntityScript("spell_areatrigger_smoke_bomb") { }
-
-        enum eSmokeSpells
-        {
-            SmokeBombAura = 88611
-        };
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 8.0f;
-
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_smoke_bomb();
         }
 };
 
@@ -2480,13 +2292,6 @@ class PlayerScript_ruthlessness : public PlayerScript
 
 void AddSC_rogue_spell_scripts()
 {
-    /// Summons
-    new npc_rogue_shadow_reflection();
-
-    /// AreaTriggers
-    new spell_areatrigger_smoke_bomb();
-
-    /// Spells
     new spell_rog_anticipation();
     new spell_rog_venom_rush();
     new spell_rog_death_from_above_return();
