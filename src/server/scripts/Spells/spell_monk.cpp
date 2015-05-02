@@ -2152,7 +2152,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
 
             enum eSpells
             {
-                ZenSphereTick = 124081
+                ZenSphereTick = 182032
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
