@@ -129,4 +129,10 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_INS_ACCOUNT_TOYS, "INSERT INTO account_toys (account_id, item_id, is_favorite) VALUE (?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(LOGIN_UPD_TOY_FAVORITE, "UPDATE account_toys SET is_favorite = ? WHERE account_id = ? AND item_id = ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// User Reporting
+    PREPARE_STATEMENT(LOGIN_UPD_USER_REPORTING_STEP, "UPDATE user_reporting SET step = ?, last_ip = ? WHERE account_id = ? AND step < ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
+
 }
