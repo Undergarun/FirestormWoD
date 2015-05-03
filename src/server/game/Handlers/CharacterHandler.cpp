@@ -64,7 +64,6 @@ class LoginDBQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_AccountId;
-        uint64 m_Guid;
     public:
         LoginDBQueryHolder(uint32 p_AccountId)
             : m_AccountId(p_AccountId) { }
@@ -77,7 +76,6 @@ bool LoginDBQueryHolder::Initialize()
     SetSize(MAX_PLAYER_LOGINDB_QUERY);
 
     bool l_Result = true;
-    uint32 l_LowGuid = GUID_LOPART(m_Guid);
     PreparedStatement* l_Statement = nullptr;
 
     l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
