@@ -250,89 +250,314 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
         }
 };
 
+class spell_npc_sha_capacitor_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
+
+        struct spell_npc_sha_capacitor_totemAI : public ScriptedAI
+        {
+            spell_npc_sha_capacitor_totemAI(Creature* creature) : ScriptedAI(creature) { }
+
+            uint32 CastTimer;
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                me->CastSpell(me, 118905, false);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_capacitor_totemAI(creature);
+        }
+};
+
+class spell_npc_sha_spirit_link_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_spirit_link_totem() : CreatureScript("npc_spirit_link_totem") { }
+
+        struct spell_npc_sha_spirit_link_totemAI : public ScriptedAI
+        {
+            uint32 CastTimer;
+
+            spell_npc_sha_spirit_link_totemAI(Creature* creature) : ScriptedAI(creature)
+            {
+                CastTimer = 1000;
+
+                if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (creature->GetEntry() == 53006)
+                    {
+                        creature->CastSpell(creature, 98007, false);
+                        creature->CastSpell(creature, 98017, true);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (CastTimer >= diff)
+                {
+                    if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if (me->GetEntry() == 53006)
+                        {
+                            me->CastSpell(me, 98007, false);
+                            me->CastSpell(me, 98017, true);
+                        }
+                    }
+                }
+
+                CastTimer = 0;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_spirit_link_totemAI(creature);
+        }
+};
+
+#define STONE_BULWARK_TOTEM_ABSORB      114889
+
+class spell_npc_sha_stone_bulwark_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_stone_bulwark_totem() : CreatureScript("npc_stone_bulwark_totem") { }
+
+        struct spell_npc_sha_stone_bulwark_totemAI : public ScriptedAI
+        {
+            spell_npc_sha_stone_bulwark_totemAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->CastSpell(creature, STONE_BULWARK_TOTEM_ABSORB, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!me->HasAura(STONE_BULWARK_TOTEM_ABSORB))
+                    me->CastSpell(me, STONE_BULWARK_TOTEM_ABSORB, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_stone_bulwark_totemAI(creature);
+        }
+};
+
+#define EARTHGRAB       116943
+
+class spell_npc_sha_earthgrab_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_earthgrab_totem() : CreatureScript("npc_earthgrab_totem") { }
+
+        struct spell_npc_sha_earthgrab_totemAI : public ScriptedAI
+        {
+            spell_npc_sha_earthgrab_totemAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->CastSpell(creature, EARTHGRAB, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!me->HasAura(EARTHGRAB))
+                    me->CastSpell(me, EARTHGRAB, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_earthgrab_totemAI(creature);
+        }
+};
+
+#define WINDWALK     114896
+
+class spell_npc_sha_windwalk_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_windwalk_totem() : CreatureScript("npc_windwalk_totem") { }
+
+        struct spell_npc_sha_windwalk_totemAI : public ScriptedAI
+        {
+            spell_npc_sha_windwalk_totemAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->CastSpell(creature, WINDWALK, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!me->HasAura(WINDWALK))
+                    me->CastSpell(me, WINDWALK, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_windwalk_totemAI(creature);
+        }
+};
+
+#define HEALING_TIDE     114941
+
+class spell_npc_sha_healing_tide_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") { }
+
+        struct spell_npc_sha_healing_tide_totemAI : public ScriptedAI
+        {
+            spell_npc_sha_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
+            {
+                creature->CastSpell(creature, HEALING_TIDE, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!me->HasAura(HEALING_TIDE))
+                    me->CastSpell(me, HEALING_TIDE, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_sha_healing_tide_totemAI(creature);
+        }
+};
+
 /// Storm Elemental - 77936
 class spell_npc_sha_storm_elemental : public CreatureScript
 {
-public:
-    spell_npc_sha_storm_elemental() : CreatureScript("npc_storm_elemental") { }
+    public:
+        spell_npc_sha_storm_elemental() : CreatureScript("npc_storm_elemental") { }
 
-    struct spell_npc_sha_storm_elementalAI : public ScriptedAI
-    {
-        spell_npc_sha_storm_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+        struct spell_npc_sha_storm_elementalAI : public ScriptedAI
+        {
+            spell_npc_sha_storm_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                SpellWindGust       = 157333,
+                SpellCallLightning  = 157348
+            };
+
+            enum eEvents
+            {
+                EventWindGust = 1,
+                EventCallLightning
+            };
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
+                m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
+
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
+
+                    return;
+                }
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventWindGust:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellWindGust, false);
+                        m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
+                        break;
+                    case eEvents::EventCallLightning:
+                        if (Unit* l_Target = me->getVictim())
+                            me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
+                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_storm_elementalAI(p_Creature);
+        }
+};
+
+class spell_npc_sha_feral_spirit : public CreatureScript
+{
+    public:
+        spell_npc_sha_feral_spirit() : CreatureScript("npc_feral_spirit") { }
 
         enum eSpells
         {
-            SpellWindGust       = 157333,
-            SpellCallLightning  = 157348
+            SpiritLeap           = 58867,
+            SpiritWalk           = 58875,
+            GlyphOfSpiritRaptors = 147783,
+            RaptorTranform       = 147908
         };
 
-        enum eEvents
+        struct spell_npc_sha_feral_spiritAI : public ScriptedAI
         {
-            EventWindGust = 1,
-            EventCallLightning
-        };
-
-        EventMap m_Events;
-
-        void Reset()
-        {
-            m_Events.Reset();
-        }
-
-        void EnterCombat(Unit* p_Attacker)
-        {
-            m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
-            m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
-        }
-
-        void UpdateAI(uint32 const p_Diff)
-        {
-            if (!UpdateVictim())
+            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
             {
-                if (Unit* l_Owner = me->GetOwner())
+                Unit* l_Owner = p_Creature->GetOwner();
+                if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit* l_OwnerTarget = nullptr;
+                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
+                        p_Creature->CastSpell(p_Creature, eSpells::RaptorTranform, true);
+
+                    Unit* l_OwnerTarget = NULL;
                     if (Player* l_Player = l_Owner->ToPlayer())
                         l_OwnerTarget = l_Player->GetSelectedUnit();
                     else
                         l_OwnerTarget = l_Owner->getVictim();
 
                     if (l_OwnerTarget)
-                        AttackStart(l_OwnerTarget);
+                        p_Creature->CastSpell(l_OwnerTarget, eSpells::SpiritLeap, true);
+
                 }
 
-                return;
+                p_Creature->CastSpell(p_Creature, eSpells::SpiritWalk, true);
             }
+        };
 
-            m_Events.Update(p_Diff);
-
-            if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
-                return;
-
-            switch (m_Events.ExecuteEvent())
-            {
-                case eEvents::EventWindGust:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eSpells::SpellWindGust, false);
-                    m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
-                    break;
-                case eEvents::EventCallLightning:
-                    if (Unit* l_Target = me->getVictim())
-                        me->CastSpell(l_Target, eSpells::SpellCallLightning, false);
-                    m_Events.ScheduleEvent(eEvents::EventCallLightning, 15000);
-                    break;
-                default:
-                    break;
-            }
-
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_feral_spiritAI(p_Creature);
         }
-    };
-
-    CreatureAI* GetAI(Creature* p_Creature) const
-    {
-        return new spell_npc_sha_storm_elementalAI(p_Creature);
-    }
 };
 
 /// Ravager - 76168
@@ -391,6 +616,86 @@ class spell_npc_warr_ravager : public CreatureScript
         }
 };
 
+#define FIREBOLT   104318
+
+class spell_npc_warl_wild_imp : public CreatureScript
+{
+    public:
+        spell_npc_warl_wild_imp() : CreatureScript("npc_wild_imp") { }
+
+        struct spell_npc_warl_wild_impAI : public ScriptedAI
+        {
+            uint32 charges;
+
+            spell_npc_warl_wild_impAI(Creature *creature) : ScriptedAI(creature)
+            {
+                charges = 10;
+                me->SetReactState(REACT_HELPER);
+            }
+
+            void Reset()
+            {
+                me->SetReactState(REACT_HELPER);
+
+                if (me->GetOwner())
+                    if (me->GetOwner()->getVictim())
+                        AttackStart(me->GetOwner()->getVictim());
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (me->GetReactState() != REACT_HELPER)
+                    me->SetReactState(REACT_HELPER);
+
+                Unit* owner = me->GetOwner();
+                if (!owner)
+                    return;
+
+                Player* pOwner = owner->ToPlayer();
+                if (!pOwner)
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                if (!charges)
+                {
+                    me->DespawnOrUnsummon();
+                    return;
+                }
+
+                if ((me->getVictim() || pOwner->getAttackerForHelper()))
+                {
+                    me->CastSpell(me->getVictim() ? me->getVictim() : pOwner->getAttackerForHelper(), FIREBOLT, false);
+                    pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
+                    charges--;
+
+                    if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
+                        if (roll_chance_i(8))
+                            pOwner->CastSpell(pOwner, 122355, true);
+                }
+                else if (Pet* pet = pOwner->GetPet())
+                {
+                    if (pet->getAttackerForHelper())
+                    {
+                        me->CastSpell(me->getVictim() ? me->getVictim() : pet->getAttackerForHelper(), FIREBOLT, false);
+                        pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
+                        charges--;
+
+                        if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
+                            if (roll_chance_i(8))
+                                pOwner->CastSpell(pOwner, 122355, true);
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new spell_npc_warl_wild_impAI(creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -400,8 +705,18 @@ void AddSC_npc_spell_scripts()
     new spell_npc_rogue_shadow_reflection();
 
     /// Shaman NPC
+    new spell_npc_sha_capacitor_totem();
+    new spell_npc_sha_spirit_link_totem();
+    new spell_npc_sha_stone_bulwark_totem();
+    new spell_npc_sha_earthgrab_totem();
+    new spell_npc_sha_windwalk_totem();
+    new spell_npc_sha_healing_tide_totem();
     new spell_npc_sha_storm_elemental();
+    new spell_npc_sha_feral_spirit();
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
+
+    /// Warlock NPC
+    new spell_npc_warl_wild_imp();
 }
