@@ -13733,6 +13733,10 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
     if (!isAlive())
         return;
 
+    if (Creature* l_Creature = enemy->ToCreature())
+        if (l_Creature->GetEntry() == 900000)   /// Sovaks training dummy
+            PvP = true;
+
     if (PvP)
     {
         if (Player* player = ToPlayer())
