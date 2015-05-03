@@ -7643,8 +7643,6 @@ void Player::RepopAtGraveyard()
             ResurrectPlayer(1.0f);
             SpawnCorpseBones();
         }
-        else
-            sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
     }
     else
     {
@@ -16297,8 +16295,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     /// If we want to swap the same item it is useless.
     if (pSrcItem == pDstItem)
         return;
-
-    sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
 
     if (!pSrcItem)
         return;
