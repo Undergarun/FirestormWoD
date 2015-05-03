@@ -11,6 +11,7 @@
 #include "SpellAuraEffects.h"
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 /// Areatrigger defile - 152280
 class spell_at_dk_defile : public AreaTriggerEntityScript

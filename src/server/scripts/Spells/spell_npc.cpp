@@ -10,9 +10,9 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ScriptedCreature.h"
-
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 /// Prismatic Crystal - 76933
 class spell_npc_mage_prismatic_crystal : public CreatureScript
