@@ -7003,15 +7003,25 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     switch (m_spellInfo->Id)
     {
-    case 81283: // Fungal Growth
-        numGuardians = 1;
-        break;
-    case 49028: // Dancing Rune Weapon
-        // 20% Parry
-        m_originalCaster->CastSpell(m_originalCaster, 81256, true);
-        break;
-    default:
-        break;
+        case 81283: // Fungal Growth
+            numGuardians = 1;
+            break;
+        case 49028: // Dancing Rune Weapon
+            // 20% Parry
+            m_originalCaster->CastSpell(m_originalCaster, 81256, true);
+            break;
+        case 101643: /// Transencence
+            for (Unit::ControlList::const_iterator itr = m_originalCaster->m_Controlled.begin(); itr != m_originalCaster->m_Controlled.end(); ++itr)
+            {
+                if ((*itr)->GetEntry() == 54569)
+                {
+                    ((Creature*)(*itr))->DespawnOrUnsummon();
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
     }
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
@@ -7037,6 +7047,17 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->GetEntry() == 27829)
         {
             summon->setFaction(caster->getFaction());
+            ExecuteLogEffectSummonObject(i, summon);
+            return;
+        }
+
+        /// Transcendence shouldn't be initialized twice
+        if (summon->GetEntry() == 54569)
+        {
+            summon->SetOwnerGUID(m_originalCaster->GetGUID());
+            summon->SetCreatorGUID(m_originalCaster->GetGUID());
+            summon->setFaction(m_originalCaster->getFaction());
+            summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
             ExecuteLogEffectSummonObject(i, summon);
             return;
         }

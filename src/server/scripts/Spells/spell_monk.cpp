@@ -869,7 +869,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -879,7 +879,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
                         {
                             Creature* clone = (*itr)->ToCreature();
                             if (clone && clone->AI())
-                                clone->AI()->DoAction(0);
+                                clone->AI()->DoAction(1);
                         }
                     }
                 }
@@ -888,7 +888,7 @@ class spell_monk_transcendence_transfer: public SpellScriptLoader
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckSpiritRange);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnHit += SpellHitFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy);
             }
         };
 
@@ -2152,7 +2152,7 @@ class spell_monk_zen_sphere: public SpellScriptLoader
 
             enum eSpells
             {
-                ZenSphereTick = 124081
+                ZenSphereTick = 182032
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -4407,47 +4407,6 @@ class spell_monk_afterlife: public SpellScriptLoader
         }
 };
 
-enum GiftOfTheSerpent
-{
-    SpellHealingSphere = 124041
-};
-
-/// Gift of the Serpent (healing sphere) - 119031
-class AreaTrigger_healing_sphere : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_healing_sphere() : AreaTriggerEntityScript("at_healing_sphere") { }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_healing_sphere();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster && l_CreateSpell)
-            {
-                float l_Radius = 1.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    l_AreaTriggerCaster->CastSpell(l_Target, GiftOfTheSerpent::SpellHealingSphere, true);
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-        }
-};
-
 enum ChiExplosionMistweaverSpells
 {
     SPELL_CHI_EXPLOSION_HEAL    = 182078,
@@ -4667,10 +4626,10 @@ class spell_monk_chi_explosion_windwalker: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
-                if (p_EffIndex == EFFECT_1)
-                    l_Chi = 2;
-
                 int32 l_Damage = GetHitDamage() * (l_Chi + 1);
+                if (GetHitUnit() != GetExplTargetUnit())
+                    l_Damage /= 3;
+
                 SetHitDamage(l_Damage);
 
                 if (l_Chi >= 1)
@@ -4744,10 +4703,11 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                 else if (l_Chi < 4 && p_EffIndex == EFFECT_1)
                     return;
 
-                if (p_EffIndex == EFFECT_1)
-                    l_Chi = 2;
+                int32 l_Damage = GetHitDamage() * (l_Chi + 1);
+                if (GetHitUnit() != GetExplTargetUnit())
+                    l_Damage /= 3;
 
-                SetHitDamage(GetHitDamage() * (l_Chi + 1));
+                SetHitDamage(l_Damage);
             }
 
             void HandleAfterCast()
@@ -4965,7 +4925,4 @@ void AddSC_monk_spell_scripts()
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
     new spell_monk_vital_mists();
-
-    /// AreaTrigger Script
-    new AreaTrigger_healing_sphere();
 }

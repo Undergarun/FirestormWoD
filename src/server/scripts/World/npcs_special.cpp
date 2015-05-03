@@ -1832,7 +1832,9 @@ enum imagesSpells
     SPELL_MAGE_FROSTBOLT    = 59638,
     SPELL_MAGE_FIREBALL     = 133,
     SPELL_MAGE_ARCANE_BLAST = 30451,
-    SPELL_MAGE_GLYPH        = 63093
+    SPELL_MAGE_GLYPH        = 63093,
+    SPELL_INITIALIZE_IMAGES = 102284,
+    SPELL_CLONE_CASTER      = 102288,
 };
 
 class npc_mirror_image : public CreatureScript
@@ -1847,6 +1849,15 @@ class npc_mirror_image : public CreatureScript
             void InitializeAI()
             {
                 CasterAI::InitializeAI();
+            }
+
+            void Reset()
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    l_Owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                    l_Owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                }
             }
 
             void IsSummonedBy(Unit* owner)
@@ -1873,7 +1884,6 @@ class npc_mirror_image : public CreatureScript
                 // here mirror image casts on summoner spell (not present in client dbc) 49866
                 // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
                 // Clone Me!
-                owner->CastSpell(me, 45204, true);
 
                 for (int attackType = 0; attackType < WeaponAttackType::MaxAttack; attackType++)
                 {
@@ -1882,9 +1892,6 @@ class npc_mirror_image : public CreatureScript
                 }
 
                 me->UpdateAttackPowerAndDamage();
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) ? plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)->GetEntry() : 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 0);
             }
 
             void EnterCombat(Unit* who)
@@ -4668,16 +4675,14 @@ class npc_past_self : public CreatureScript
 
 enum TranscendenceSpiritSpells
 {
-    SPELL_INITIALIZE_IMAGES = 102284,
-    SPELL_CLONE_CASTER      = 102288,
-    SPELL_VISUAL_SPIRIT     = 119053,
     SPELL_MEDITATE          = 124416,
     SPELL_ROOT_FOR_EVER     = 31366,
+    SPELL_VISUAL_SPIRIT     = 119053,
 };
 
 enum transcendenceActions
 {
-    ACTION_TELEPORT
+    ACTION_TELEPORT = 1
 };
 
 class npc_transcendence_spirit : public CreatureScript

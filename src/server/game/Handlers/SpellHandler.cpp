@@ -978,26 +978,20 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             EQUIPMENT_SLOT_FEET,
             EQUIPMENT_SLOT_WRISTS,
             EQUIPMENT_SLOT_HANDS,
-            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_END
         };
 
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+        for (EquipmentSlots const* itr = itemSlots; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
                 data << uint32(0);
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-            {
-                // Display Transmogrifications on player's clone
-                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                    data << uint32(proto->ItemId);
-                else
-                    data << uint32(item->GetTemplate()->ItemId);
-            }
+            else if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(player->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (*itr * 3))))
+                data << uint32(l_Proto->DisplayInfoID);
             else
                 data << uint32(0);
         }
