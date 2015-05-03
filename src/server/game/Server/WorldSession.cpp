@@ -1288,6 +1288,9 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
+    uint32 l_StartTime = getMSTime();
+    std::vector<uint32> l_Times;
+
     PreparedQueryResult result;
 
     //! Vote
@@ -1336,6 +1339,8 @@ void WorldSession::ProcessQueryCallbacks()
         }
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //! HandleCharEnumOpcode
     if (m_CharEnumCallback.ready())
     {
@@ -1344,12 +1349,16 @@ void WorldSession::ProcessQueryCallbacks()
         m_CharEnumCallback.cancel();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
         HandleCharCreateCallback(result, _charCreateCallback.GetParam());
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
 
     //! HandlePlayerLoginOpcode
     if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
@@ -1362,6 +1371,9 @@ void WorldSession::ProcessQueryCallbacks()
         m_AccountSpellCallback.cancel();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     //! HandleAddFriendOpcode
     if (_addFriendCallback.IsReady())
     {
@@ -1370,6 +1382,8 @@ void WorldSession::ProcessQueryCallbacks()
         HandleAddFriendOpcodeCallBack(result, param);
         _addFriendCallback.FreeResult();
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
 
     //- HandleCharRenameOpcode
     if (_charRenameCallback.IsReady())
@@ -1380,6 +1394,8 @@ void WorldSession::ProcessQueryCallbacks()
         _charRenameCallback.FreeResult();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //- HandleCharAddIgnoreOpcode
     if (m_AddIgnoreCallback.ready())
     {
@@ -1387,6 +1403,8 @@ void WorldSession::ProcessQueryCallbacks()
         HandleAddIgnoreOpcodeCallBack(result);
         m_AddIgnoreCallback.cancel();
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
 
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
@@ -1397,6 +1415,8 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //- HandleStableSwapPet
     if (_setPetSlotCallback.IsReady())
     {
@@ -1404,6 +1424,20 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.GetResult(result);
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
+    }
+
+    uint32 l_EndTime = getMSTime() - l_StartTime;
+
+    if (l_EndTime > 80)
+    {
+        sLog->outAshran("ProcessQueryCallbacks take more than 80 ms to execute for account [%u]", GetAccountId());
+
+        uint32 l_Idx = 0;
+        for (auto l_DiffTime : l_Times)
+        {
+            sLog->outAshran("[%u] -----> (%u ms)", l_Idx, l_DiffTime);
+            l_Idx++;
+        }
     }
 }
 
