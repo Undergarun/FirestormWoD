@@ -73,6 +73,7 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_AGILITY:
+            UpdateDodgePercentage();
             UpdateAllCritPercentages();
             break;
         case STAT_STAMINA:
@@ -746,13 +747,25 @@ void Player::UpdateDodgePercentage()
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
 
+    /*
+        3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
+
+        4.61 = 3.36 + (x * 145.5604 / (x + 145.5604 * 0.9880))
+        1.25 = (145.5604x / (x + 143.8136752)
+        1.25x + 179.767094 = 145.5604x
+        144.3104x = 179.767094
+        x = 1.245764057198927
+        221 agi = 1.245764057198927
+        1 agi = 0.0056369414352893
+    */
+
     // Dodge from rating
     diminishing += GetRatingBonusValue(CR_DODGE);
+    diminishing += GetTotalStatValue(STAT_AGILITY, false) * 0.0056369f;
 
     uint32 pClass = getClass() - 1;
-
     // apply diminishing formula to diminishing dodge chance
-    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + dodgeCap[pClass] * k_constant[pClass]));
+    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + (dodgeCap[pClass] * k_constant[pClass])));
     if (value < 0.0f)
         value = 0.0f;
 

@@ -15521,7 +15521,7 @@ float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) co
     return m_auraModifiersGroup[unitMod][modifierType];
 }
 
-float Unit::GetTotalStatValue(Stats stat) const
+float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) const
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + stat);
 
@@ -15529,7 +15529,11 @@ float Unit::GetTotalStatValue(Stats stat) const
         return 0.0f;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE] + GetCreateStat(stat);
+    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
+
+    if (l_IncludeCreateStat)
+        value += GetCreateStat(stat);
+
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
