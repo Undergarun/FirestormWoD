@@ -1008,7 +1008,19 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
     PLAYER_LOGIN_QUERY_LOADMAIL                     = 53,
     PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS               = 54,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM                = 55,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD                = 56,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     MAX_PLAYER_LOGIN_QUERY
+};
+
+enum PlayerLoginDBQueryIndex
+{
+    PLAYER_LOGINGB_SPELL                = 0,
+    PLAYER_LOGINDB_HEIRLOOM_COLLECTION  = 1,
+    PLAYER_LOGINDB_TOYS                 = 2,
+    MAX_PLAYER_LOGINDB_QUERY
 };
 
 class PetLoginQueryHolder : public SQLQueryHolder
@@ -2051,7 +2063,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult);
+        bool LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder);
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
@@ -3961,7 +3973,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
-        uint8 m_storeCallbackCounter;
 
         uint32 m_emote;
 
@@ -3970,13 +3981,7 @@ class Player : public Unit, public GridObject<Player>
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
         // Store callback
-        PreparedQueryResultFuture _storeGoldCallback;
-        PreparedQueryResultFuture _storeTitleCallback;
-        PreparedQueryResultFuture _storeItemCallback;
-        PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
-        PreparedQueryResultFuture _HeirloomStoreCallback;
-        PreparedQueryResultFuture _PlayersToysCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;

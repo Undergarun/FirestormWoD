@@ -60,6 +60,41 @@ class LoginQueryHolder : public SQLQueryHolder
         bool Initialize();
 };
 
+class LoginDBQueryHolder : public SQLQueryHolder
+{
+    private:
+        uint32 m_AccountId;
+        uint64 m_Guid;
+    public:
+        LoginDBQueryHolder(uint32 p_AccountId)
+            : m_AccountId(p_AccountId) { }
+        uint32 GetAccountId() const { return m_AccountId; }
+        bool Initialize();
+};
+
+bool LoginDBQueryHolder::Initialize()
+{
+    SetSize(MAX_PLAYER_LOGINDB_QUERY);
+
+    bool l_Result = true;
+    uint32 l_LowGuid = GUID_LOPART(m_Guid);
+    PreparedStatement* l_Statement = nullptr;
+
+    l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
+    l_Statement->setUInt32(0, m_AccountId);
+    l_Result &= SetPreparedQuery(PLAYER_LOGINGB_SPELL, l_Statement);
+
+    l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
+    l_Statement->setUInt32(0, m_AccountId);
+    l_Result &= SetPreparedQuery(PLAYER_LOGINDB_HEIRLOOM_COLLECTION, l_Statement);
+
+    l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
+    l_Statement->setUInt32(0, m_AccountId);
+    l_Result &= SetPreparedQuery(PLAYER_LOGINDB_TOYS, l_Statement);
+
+    return l_Result;
+}
+
 bool LoginQueryHolder::Initialize()
 {
     SetSize(MAX_PLAYER_LOGIN_QUERY);
@@ -279,6 +314,22 @@ bool LoginQueryHolder::Initialize()
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_DAILY_LOOT_COOLDOWNS);
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
+    l_Statement->setInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
+    l_Statement->setInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
+    l_Statement->setInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
+    l_Statement->setInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL, l_Statement);
 
     return l_Result;
 }
@@ -950,21 +1001,19 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
         return;
     }
 
-    LoginQueryHolder * l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), l_PlayerGuid);
+    LoginQueryHolder* l_LoginQueryHolder = new LoginQueryHolder(GetAccountId(), l_PlayerGuid);
+    LoginDBQueryHolder* l_LoginDBQueryHolder = new LoginDBQueryHolder(GetAccountId());
 
-    if (!l_LoginQueryHolder->Initialize())
+    if (!l_LoginQueryHolder->Initialize() || !l_LoginDBQueryHolder->Initialize())
     {
         delete l_LoginQueryHolder;                                      // delete all unprocessed queries
+        delete l_LoginDBQueryHolder;                                    // delete all unprocessed queries
         m_playerLoading = false;
         return;
     }
 
     m_CharacterLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)l_LoginQueryHolder);
-
-    PreparedStatement* l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHARACTER_SPELL);
-    l_Stmt->setUInt32(0, GetAccountId());
-
-    m_AccountSpellCallback = LoginDatabase.AsyncQuery(l_Stmt);
+    m_CharacterLoginDBCallback = LoginDatabase.DelayQueryHolder((SQLQueryHolder*)l_LoginDBQueryHolder);
 }
 
 void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
@@ -976,9 +1025,9 @@ void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
     recvPacket.ReadBit();
 }
 
-void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResult accountResult)
+void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginDBQueryHolder* l_LoginHolder)
 {
-    uint64 playerGuid = holder->GetGuid();
+    uint64 playerGuid = l_CharacterHolder->GetGuid();
 
     Player* pCurrChar = new Player(this);
      // for send server info and strings (config)
@@ -987,12 +1036,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     uint32 time = getMSTime();
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
-    if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder, accountResult))
+    if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), l_CharacterHolder, l_LoginHolder))
     {
         SetPlayer(NULL);
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
         delete pCurrChar;                                   // delete it manually
-        delete holder;                                      // delete all unprocessed queries
+        delete l_CharacterHolder;                           // delete all unprocessed queries
+        delete l_LoginHolder;                               // delete all unprocessed queries
         m_playerLoading = false;
         return;
     }
@@ -1017,7 +1067,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     SendPacket(&l_Data);
 
     // load player specific part before send times
-    LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
+    LoadAccountData(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(pCurrChar->GetGUID());
     SendFeatureSystemStatus();
 
@@ -1082,7 +1132,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
     }
 
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
-    if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
+    if (PreparedQueryResult resultGuild = l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
         Field* fields = resultGuild->Fetch();
         pCurrChar->SetInGuild(fields[0].GetUInt32());
@@ -1346,7 +1396,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder, PreparedQueryResu
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
-    delete holder;
+    pCurrChar->HandleStoreItemCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM));
+    pCurrChar->HandleStoreGoldCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD));
+    pCurrChar->HandleStoreTitleCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE));
+    pCurrChar->HandleStoreLevelCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL));
+    pCurrChar->SaveToDB();
+
+    delete l_CharacterHolder;
+    delete l_LoginHolder;
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& p_Packet)

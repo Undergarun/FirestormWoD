@@ -975,7 +975,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     }
 
     m_initializeCallback = false;
-    m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
 
@@ -1868,38 +1867,14 @@ void Player::Update(uint32 p_time)
         return;
 
     //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
-
     if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeItemCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeGoldCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeTitleCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeLevelCallback = CharacterDatabase.AsyncQuery(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt32(1, m_currentPetSlot);
         _petPreloadCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _HeirloomStoreCallback = LoginDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _PlayersToysCallback = LoginDatabase.AsyncQuery(stmt);
 
         m_initializeCallback = true;
     }
@@ -1908,57 +1883,11 @@ void Player::Update(uint32 p_time)
     {
         PreparedQueryResult result;
 
-        if (_storeItemCallback.ready())
-        {
-            _storeItemCallback.get(result);
-            HandleStoreItemCallback(result);
-            _storeItemCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeGoldCallback.ready())
-        {
-            _storeGoldCallback.get(result);
-            HandleStoreGoldCallback(result);
-            _storeGoldCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeTitleCallback.ready())
-        {
-            _storeTitleCallback.get(result);
-            HandleStoreTitleCallback(result);
-            _storeTitleCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeLevelCallback.ready())
-        {
-            _storeLevelCallback.get(result);
-            HandleStoreLevelCallback(result);
-            _storeLevelCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
         if (_petPreloadCallback.ready())
         {
             _petPreloadCallback.get(result);
             LoadPet(result);
             _petPreloadCallback.cancel();
-        }
-
-        if (_HeirloomStoreCallback.ready())
-        {
-            _HeirloomStoreCallback.get(result);
-            _LoadHeirloomCollection(result);
-            _HeirloomStoreCallback.cancel();
-        }
-
-        if (_PlayersToysCallback.ready())
-        {
-            _PlayersToysCallback.get(result);
-            _LoadToyBox(result);
-            _PlayersToysCallback.cancel();
         }
 
         if (_petLoginCallback.ready())
@@ -1973,13 +1902,6 @@ void Player::Update(uint32 p_time)
             delete param;
 
             _petLoginCallback.cancel();
-        }
-
-        // All store callback are check, we can save to db player
-        if (m_storeCallbackCounter == 4)
-        {
-            SaveToDB();
-            m_storeCallbackCounter++;
         }
     }
 
@@ -20419,7 +20341,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
+bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder)
 {
     /// 0             1               2               3                  4                         5                         6                7                  8                    9
     /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes,
@@ -20572,6 +20494,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     std::string taxi_nodes = fields[38].GetString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
+
+    _LoadHeirloomCollection(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_HEIRLOOM_COLLECTION));
+    _LoadToyBox(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_TOYS));
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -20912,7 +20837,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
-    if (accountResult)
+    if (PreparedQueryResult accountResult = p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINGB_SPELL))
     {
         do
         {
@@ -21201,7 +21126,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         delete l_Garrison;
 
     RewardCompletedAchievementsIfNeeded();
-
     return true;
 }
 

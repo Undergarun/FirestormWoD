@@ -1357,14 +1357,15 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_CharacterLoginDBCallback.ready())
     {
-        SQLQueryHolder* param;
-        m_CharacterLoginCallback.get(param);
-        m_AccountSpellCallback.get(result);
-        HandlePlayerLogin((LoginQueryHolder*)param, result);
+        SQLQueryHolder* l_Param;
+        SQLQueryHolder* l_Param2;
+        m_CharacterLoginCallback.get(l_Param);
+        m_CharacterLoginDBCallback.get(l_Param2);
+        HandlePlayerLogin((LoginQueryHolder*)l_Param, (LoginDBQueryHolder*)l_Param2);
         m_CharacterLoginCallback.cancel();
-        m_AccountSpellCallback.cancel();
+        m_CharacterLoginDBCallback.cancel();
     }
 
     //! HandleAddFriendOpcode
