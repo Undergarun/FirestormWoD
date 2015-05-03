@@ -27,15 +27,13 @@ namespace MS { namespace UserReporting
      */
     void UpdateUserStep(WorldSession* p_Session, State p_State)
     {
-        std::string l_Query = "UPDATE user_reporting SET step = %u, last_ip = '%s' WHERE account_id = %u AND step < %u";
-        LoginDatabase.PExecute
-        (
-            l_Query.c_str(),
-            p_State,                                   ///< step
-            p_Session->GetRemoteAddress().c_str(),     ///< last_ip
-            p_Session->GetAccountId(),                 ///< account_id
-            p_State                                    ///< step
-        );
+        PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USER_REPORTING_STEP);
+        l_Statement->setUInt32(0, p_State);
+        l_Statement->setString(1, p_Session->GetRemoteAddress().c_str());
+        l_Statement->setUInt32(2, p_Session->GetAccountId());
+        l_Statement->setUInt32(3, p_State);
+
+        LoginDatabase.Execute(l_Statement);
     }
 
     class PlayerUserReporting : public PlayerScript
