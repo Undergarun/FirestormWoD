@@ -3505,6 +3505,8 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                 if (m_SceneMap.empty())
                     return;
 
+                bool l_RestartLoop = false;
+
                 for (SceneMap::iterator l_Itr = m_SceneMap.begin(); l_Itr != m_SceneMap.end(); l_Itr++)
                 {
                     if (l_Itr->second.m_Done)
@@ -3529,13 +3531,9 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                                 {
                                     m_GuidList.push_back(l_Itr->first);
                                     l_Itr = m_SceneMap.erase(l_Itr);
-
-                                    if (l_Itr == m_SceneMap.end())
-                                        break;
-
-                                    continue;
+                                    l_RestartLoop = true;
+                                    break;
                                 }
-
 
                                 l_Player->AddAura(m_Auras[l_SubItr], l_Player);
                             }
@@ -3543,8 +3541,10 @@ class npc_thaelin_tanaan_questgiver : public CreatureScript
                                 l_Itr->second.m_Timers[l_SubItr] -= p_Diff;
                         }
                     }
-                }
 
+                    if (l_RestartLoop)
+                        break;
+                }
             }
         };
 };
