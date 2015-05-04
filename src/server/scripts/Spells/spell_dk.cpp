@@ -778,7 +778,8 @@ class spell_dk_blood_tap: public SpellScriptLoader
         }
 };
 
-// Death Siphon - 108196
+/// last update : 6.1.2 19802
+/// Death Siphon - 108196
 class spell_dk_death_siphon: public SpellScriptLoader
 {
     public:
@@ -790,19 +791,15 @@ class spell_dk_death_siphon: public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 bp = GetHitDamage() * 3.35f;
-                        _player->CastCustomSpell(_player, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+
+                int32 bp = GetHitDamage() * (GetSpellInfo()->Effects[EFFECT_1].BasePoints / 100);
+                l_Caster->CastCustomSpell(l_Caster, DK_SPELL_DEATH_SIPHON_HEAL, &bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_death_siphon_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_siphon_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
