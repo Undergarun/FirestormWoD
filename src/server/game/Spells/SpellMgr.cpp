@@ -4831,6 +4831,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118291: ///< Greater Fire Elemental
             case 118323: ///< Greater Earth Elemental
+            case 157319: ///< Greater Storm Elemental
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
                 break;
             case 114942: ///< Healing Tide
