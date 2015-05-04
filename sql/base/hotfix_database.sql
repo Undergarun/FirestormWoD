@@ -228,5 +228,6 @@ CREATE TABLE `item_x_bonus_tree` (
 	`ID` INT NOT NULL DEFAULT '0',
 	`ItemID` INT NOT NULL DEFAULT '0',
 	`ItemBonusTreeCategory` INT NOT NULL DEFAULT '0',
+    `BuildVerified` int(10) unsigned DEFAULT NULL,
 	PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
