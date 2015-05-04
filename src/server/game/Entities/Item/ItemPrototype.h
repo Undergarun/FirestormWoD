@@ -168,7 +168,7 @@ enum ItemProtoFlags
 enum ItemFieldFlags
 {
     ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
-    ITEM_FLAG_UNK1          = 0x00000002, // ?
+    ITEM_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
     ITEM_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
     ITEM_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
     ITEM_FLAG_DISABLE       = 0x00000010, // Item is disable (red filter)
@@ -224,6 +224,7 @@ enum ItemFlags3
     ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS     = 0x0080,   // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
     ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP    = 0x0100,
     ITEM_FLAG3_HEIRLOOM_QUALITY             = 0x0200,   // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS  = 0x1000,   // Item is not included in the guild news panel
     ITEM_FLAG3_WARGAME_ONLY                 = 0x2000,
 };
 

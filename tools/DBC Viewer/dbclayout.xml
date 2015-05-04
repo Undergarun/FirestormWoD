@@ -4427,15 +4427,15 @@
   </SoundEntries>
   <ItemDisenchantLoot build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
-    <field type="int" name="field6" />
+    <field type="int" name="ID" />
+    <field type="int" name="Class" />
+    <field type="int" name="Subclass" />
+    <field type="int" name="Quality" />
+    <field type="int" name="MinLevel" />
+    <field type="int" name="MaxLevel" />
+    <field type="int" name="SkillRequired" />
   </ItemDisenchantLoot>
   <ItemPurchaseGroup build="0">
     <index>
@@ -4754,4 +4754,46 @@
     <field type="int" name="field5" />
     <field type="int" name="field6" />
   </SpellClassOptions>
+  <gtNpcTotalHpExp2 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNpcTotalHpExp2>
+  <gtNpcTotalHpExp1 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNpcTotalHpExp1>
+  <gtNpcTotalHpExp5 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNpcTotalHpExp5>
+  <gtNpcTotalHpExp3 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNpcTotalHpExp3>
+  <gtNpcTotalHpExp4 build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNpcTotalHpExp4>
+  <gtNPCManaCostScaler build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="float" name="field1" />
+  </gtNPCManaCostScaler>
 </DBFilesClient>
