@@ -1178,6 +1178,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
             l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
+            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
+
             return;
         }
     }

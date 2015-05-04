@@ -463,4 +463,14 @@ enum CurrencyTypes
     CURRENCY_TYPE_OIL                              = 1101 ///< Oil 6.1.X
 };
 
+/// Used for CRITERIA_CONDITION_LEGACY_RAID_TYPE
+enum class CriteriaLegacyRaidType : uint8
+{
+    Normal10    = 0,
+    Normal25    = 1,
+    Heroic10    = 2,
+    Heroic25    = 3,
+    None        = 255     ///< Custom ID, internal to server
+};
+
 #endif

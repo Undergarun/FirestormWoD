@@ -2332,6 +2332,12 @@ struct CriteriaEntry
             uint32 RequiredLevel;
         } BattlePetLevelUp;
 
+        /// ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER
+        struct
+        {
+            uint32 EncounterID;
+        } DefeatEncounter;
+
         struct
         {
             uint32 criteriaArg1;
