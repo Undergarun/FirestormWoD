@@ -18303,12 +18303,17 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
+            if (!l_Specialization)
+                l_Specialization = GetDefaultSpecId();
+
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization))
                     {
-                        // Hard fix to apply dynamic rewards for low level quests
+                        /// @TODO: Since we have default spec id, this is may be useless
+                        /// Hard fix to apply dynamic rewards for low level quests
                         if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
                             break;
 
@@ -33394,4 +33399,12 @@ void Player::DeleteInvalidSpells()
         if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
         removeSpell(l_Iterator->first, false, false);
     }
+}
+
+uint32 Player::GetDefaultSpecId() const
+{
+    ChrClassesEntry const* l_CharClasseEntry = sChrClassesStore.LookupEntry(getClass());
+    if (l_CharClasseEntry)
+        return l_CharClasseEntry->m_DefaultSpec;
+    return 0;
 }
