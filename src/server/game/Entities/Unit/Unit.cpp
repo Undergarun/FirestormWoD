@@ -1497,7 +1497,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
         damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
@@ -6799,7 +6799,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     }
                     else
                     {
-                        RemoveAura(48107);
+                        if (AuraPtr l_HeatingUp = this->GetAura(48107, this->GetGUID()))
+                            l_HeatingUp->SetDuration(500);
                         return false;
                     }
                 }
@@ -9626,6 +9627,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!HasAura(48265))
+                return false;
+
+            break;
+        }
+        case 170877:///< Item Rogue WoD PvP Subtlety 4P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 1966)
                 return false;
 
             break;
@@ -16826,7 +16837,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (AuraPtr fingersOfFrost = GetAura(44544, GetGUID()))
             fingersOfFrost->ModStackAmount(-1);
         if (AuraPtr fingersVisual = GetAura(126084, GetGUID()))
-            fingersVisual->ModStackAmount(-1);
+            fingersVisual->Remove();
     }
 
     // Hack Fix Immolate - Critical strikes generate burning embers

@@ -3220,6 +3220,11 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     DispelChargesList l_DispelList;
     unitTarget->GetDispellableAuraList(m_caster, l_DispelMask, l_DispelList);
 
+    /// Handler for dispel cooldown
+    /// If nothing to dispel we should remove cooldown from spell
+    if (m_caster->ToPlayer() && l_DispelList.empty())
+        m_caster->SetDispelSuccessful(false);
+
     if (l_DispelList.empty())
         return;
 
@@ -3297,6 +3302,11 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
 
     if (l_SuccessList.empty())
         return;
+
+    /// Dispel is successful, so player receive cooldown on spell
+    if (m_caster->ToPlayer())
+        m_caster->SetDispelSuccessful(true);
+
 
     bool l_IsBreak = true;
     bool l_IsSteal = false;

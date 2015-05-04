@@ -723,7 +723,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         // Custom entries
         switch (GetSpellInfo()->Id)
         {
+            /// Intimidating Shout - 4% of max hp, not 10%
+            case 5246:
+            {
+                m_CrowdControlDamage = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(4));
+                amount = m_CrowdControlDamage;
+                l_CustomAmount = true;
+                break;
+            }
             case 3355:  // Freezing Trap
+            case 118:  /// Polymorph
             {
                 amount = 1;
                 l_CustomAmount = true;
@@ -1145,6 +1154,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             switch (GetId())
             {
+                case 12654: ///< Ignite
+                {
+                    /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
+                    if (caster->HasAura(61205))
+                        amount = -50;
+                    break;
+                }
                 case 73682: // Unleash Frost
                 {
                     if (Unit* target = GetBase()->GetUnitOwner())

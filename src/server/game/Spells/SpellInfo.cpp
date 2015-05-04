@@ -642,6 +642,10 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         }
     }
 
+    /// Don't need to change our value for Arcane Barrage triggered spell, it's already calculated
+    if (_spellInfo->Id == 50273)
+        l_Value = float(l_BasePoints);
+
     return int32(l_Value);
 }
 
@@ -3652,6 +3656,8 @@ bool SpellInfo::IsIgnoringCombat() const
 
     switch (Id)
     {
+        /// Meteor
+        case 153561:
         // Marked for Death
         case 137619:
         // Slice and Dice

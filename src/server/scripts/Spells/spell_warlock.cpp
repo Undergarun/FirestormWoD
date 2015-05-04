@@ -122,7 +122,9 @@ enum WarlockSpells
     WARLOCK_GLYPH_OF_DARK_SOUL              = 159665,
     WARLOCK_SPELL_SYPHON_LIFE               = 63106,
     WARLOCK_SPELL_SOULBURN_HAUNT            = 157698,
-    WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109
+    WARLOCK_SPELL_SOULBURN_HAUNT_AURA       = 152109,
+    WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS     = 171379,
+    WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF = 171380
 };
 
 enum BurningEmbersSpells
@@ -2787,6 +2789,9 @@ class spell_warl_demonic_circle_teleport: public SpellScriptLoader
                 {
                     if (GameObject* circle = player->GetGameObject(WARLOCK_DEMONIC_CIRCLE_SUMMON))
                     {
+                        /// Item - Warlock WoD PvP Affliction 4P Bonus
+                        if (player->getLevel() == 100 && player->HasAura(WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS))
+                            player->CastSpell(player, WARLOCK_WOD_PVP_AFFLICTION_4P_BONUS_EFF, true);
                         player->NearTeleportTo(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation());
                         player->RemoveMovementImpairingAuras();
                         player->Relocate(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation());

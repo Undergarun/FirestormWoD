@@ -406,7 +406,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         default:
             break;
     }
-    
+
     return DIMINISHING_NONE;
 }
 
@@ -2314,7 +2314,7 @@ bool IsCCSpell(SpellInfo const* p_SpellProto)
 {
     if (p_SpellProto->SpellFamilyName == SPELLFAMILY_HUNTER ||
         p_SpellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
-        return false; 
+        return false;
 
     for (uint8 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; l_EffectIndex++)
     {
@@ -4423,10 +4423,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
-            case 111397:
+            case 111397: ///< Blood Horror
                 spellInfo->ProcFlags = 0;
                 break;
-            case 12654: ///< Ignite
+            case 114635:///< Ember Tap
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
             case 99002: ///< Fiery Claws, Item - Druid T12 Feral 2P Bonus
@@ -4859,7 +4859,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 47753: ///< Divine Aegis
-            case 86273: ///< Illuminated Healing 
+            case 86273: ///< Illuminated Healing
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 109186: ///< Surge of light
@@ -4928,6 +4928,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 177345: ///< Meteor
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2 seconds
                 break;
             case 19574: ///< Bestial Wrath
                 spellInfo->Effects[3].Effect = 0;
@@ -5138,8 +5139,29 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
+            case 118:   ///< Polymorph
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
+            case 50273: ///< Arcane Barrage
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 153596:///< Comet Storm
+                spellInfo->Speed = 0;
+                break;
+            case 12654: ///< Ignite
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
+                spellInfo->Effects[2].BasePoints = 0;
+                break;
+            case 73651: ///< Recuperate
+                spellInfo->Effects[1].Effect = 0;
+                break;
             /// All spells - ProcFlags = 0
+            case 165639: ///< Item - Warrior WoD PvP Fury 2P Bonus
+            case 165636: ///< Item - Warrior WoD PvP Arms 2P Bonus
+            case 165641: ///< Item - Warrior WoD PvP Protection 2P Bonus
             case 165995: ///< Item - Rogue WoD PvP 2P Bonus
+            case 170877: ///< Item  Rogue WoD PvP Subtlety 4P Bonus
             case 182303: ///< Item - Rogue WoD PvP Combat 4P Bonus
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus

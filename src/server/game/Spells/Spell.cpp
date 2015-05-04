@@ -2645,6 +2645,12 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
                 targetInfo.timeDelay = 100LL;
                 m_delayMoment = 100LL;
             }
+        /// Comet Storm
+        else if (m_spellInfo->Id == 153596)
+        {
+            targetInfo.timeDelay = 200LL;
+            m_delayMoment = 200LL;
+        }
         }
         else if (m_spellInfo->Id == 24259) // Spell Lock - Silenced
         {
@@ -5533,6 +5539,27 @@ void Spell::TakePower()
         int32 pct = 20;
         if (powerType == POWER_RUNIC_POWER)
             pct = 10;
+
+        /// WoD Custom Script - Arcane Blast mana cost with Arcane Charge and Improved Arcane Power
+        if (powerType == POWER_MANA && m_spellInfo && m_spellInfo->Id == 30451 && m_caster->HasAura(157604))
+        {
+            SpellInfo const* l_ArcaneBlast = sSpellMgr->GetSpellInfo(30451);
+
+            /// Arcane Charge increase mana cost of Arcane Blast
+            if (AuraPtr l_ArcaneCharge = m_caster->GetAura(36032))
+            {
+                /// Base Arcane Blast mana cost
+                int32 l_PowerCost = 3200;
+                /// For every stack of arcane charge +100% of mana cost
+                uint8 l_ArcaneChargeStacks = l_ArcaneCharge->GetStackAmount() + 1;
+                l_PowerCost = int32(l_PowerCost * l_ArcaneChargeStacks);
+                /// Reduce mana cost for 10% by Improved Arcane Power just if we have Arcane Power buff
+                if (m_caster->HasAura(12042))
+                    l_PowerCost = CalculatePct(l_PowerCost, 90);
+
+                m_powerCost[0] = l_PowerCost;
+            }
+        }
 
         if (hit)
             m_caster->ModifyPower(powerType, -m_powerCost[POWER_TO_INDEX(powerType)]);
