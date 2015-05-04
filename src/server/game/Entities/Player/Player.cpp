@@ -33300,6 +33300,11 @@ void Player::RewardCompletedAchievementsIfNeeded()
         if (l_Achievement == nullptr)
             continue;
 
+        /// Make sure the achievement is for the right faction
+        if ((GetTeamId() == TeamId::TEAM_HORDE && l_Achievement->Faction == 1)
+            || (GetTeamId() == TeamId::TEAM_ALLIANCE && l_Achievement->Faction == 0))
+            continue;
+
         AchievementReward const* l_Reward = sAchievementMgr->GetAchievementReward(l_Achievement);
         if (l_Reward == nullptr)
             continue;
