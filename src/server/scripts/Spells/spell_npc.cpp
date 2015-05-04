@@ -525,32 +525,50 @@ class spell_npc_sha_feral_spirit : public CreatureScript
         {
             SpiritLeap           = 58867,
             SpiritWalk           = 58875,
+            SpiritHunt           = 58877,
             GlyphOfSpiritRaptors = 147783,
             RaptorTranform       = 147908
         };
 
         struct spell_npc_sha_feral_spiritAI : public ScriptedAI
         {
-            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            spell_npc_sha_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
             {
-                Unit* l_Owner = p_Creature->GetOwner();
-                if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
+                Unit* l_Owner = me->GetOwner();
+                if (l_Owner && l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
+                    me->CastSpell(me, eSpells::RaptorTranform, true);
+
+                me->CastSpell(me, eSpells::SpiritWalk, true);
+                me->CastSpell(me, eSpells::SpiritHunt, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                me->CastSpell(p_Attacker, eSpells::SpiritLeap, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (!UpdateVictim())
                 {
-                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
-                        p_Creature->CastSpell(p_Creature, eSpells::RaptorTranform, true);
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        Unit* l_OwnerTarget = nullptr;
+                        if (Player* l_Player = l_Owner->ToPlayer())
+                            l_OwnerTarget = l_Player->GetSelectedUnit();
+                        else
+                            l_OwnerTarget = l_Owner->getVictim();
 
-                    Unit* l_OwnerTarget = NULL;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
+                        if (l_OwnerTarget)
+                            AttackStart(l_OwnerTarget);
+                    }
 
-                    if (l_OwnerTarget)
-                        p_Creature->CastSpell(l_OwnerTarget, eSpells::SpiritLeap, true);
-
+                    return;
                 }
 
-                p_Creature->CastSpell(p_Creature, eSpells::SpiritWalk, true);
+                DoMeleeAttackIfReady();
             }
         };
 
