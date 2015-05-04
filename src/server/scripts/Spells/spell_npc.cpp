@@ -616,20 +616,25 @@ class spell_npc_warr_ravager : public CreatureScript
         }
 };
 
-#define FIREBOLT   104318
-
 class spell_npc_warl_wild_imp : public CreatureScript
 {
     public:
         spell_npc_warl_wild_imp() : CreatureScript("npc_wild_imp") { }
 
+        enum eSpells
+        {
+            Firebolt = 104318,
+            MoltenCore = 122351,
+            MoltenCoreAura = 122355
+        };
+
         struct spell_npc_warl_wild_impAI : public ScriptedAI
         {
-            uint32 charges;
+            uint32 m_Charges;
 
             spell_npc_warl_wild_impAI(Creature *creature) : ScriptedAI(creature)
             {
-                charges = 10;
+                m_Charges = 10;
                 me->SetReactState(REACT_HELPER);
             }
 
@@ -642,51 +647,43 @@ class spell_npc_warl_wild_imp : public CreatureScript
                         AttackStart(me->GetOwner()->getVictim());
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 p_Diff)
             {
-                if (me->GetReactState() != REACT_HELPER)
-                    me->SetReactState(REACT_HELPER);
-
-                Unit* owner = me->GetOwner();
-                if (!owner)
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner)
                     return;
 
-                Player* pOwner = owner->ToPlayer();
-                if (!pOwner)
+                if (!UpdateVictim())
+                {
+                    Unit* l_OwnerTarget = nullptr;
+                    if (Player* l_Player = l_Owner->ToPlayer())
+                        l_OwnerTarget = l_Player->GetSelectedUnit();
+                    else
+                        l_OwnerTarget = l_Owner->getVictim();
+
+                    if (l_OwnerTarget)
+                        AttackStart(l_OwnerTarget);
+
+                    return;
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!charges)
+                if (m_Charges == 0)
                 {
                     me->DespawnOrUnsummon();
                     return;
                 }
 
-                if ((me->getVictim() || pOwner->getAttackerForHelper()))
-                {
-                    me->CastSpell(me->getVictim() ? me->getVictim() : pOwner->getAttackerForHelper(), FIREBOLT, false);
-                    pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                    charges--;
+                me->CastSpell(me->getVictim(), eSpells::Firebolt, false);
+                m_Charges--;
 
-                    if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                        if (roll_chance_i(8))
-                            pOwner->CastSpell(pOwner, 122355, true);
-                }
-                else if (Pet* pet = pOwner->GetPet())
-                {
-                    if (pet->getAttackerForHelper())
-                    {
-                        me->CastSpell(me->getVictim() ? me->getVictim() : pet->getAttackerForHelper(), FIREBOLT, false);
-                        pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                        charges--;
+                l_Owner->EnergizeBySpell(l_Owner, eSpells::Firebolt, 5 * l_Owner->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
 
-                        if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                            if (roll_chance_i(8))
-                                pOwner->CastSpell(pOwner, 122355, true);
-                    }
-                }
+                if (AuraEffectPtr l_MoltenCore = l_Owner->GetAuraEffect(eSpells::MoltenCore, EFFECT_0))
+                    if (roll_chance_i(l_MoltenCore->GetAmount()))
+                        l_Owner->CastSpell(l_Owner, eSpells::MoltenCoreAura, true);
             }
         };
 
