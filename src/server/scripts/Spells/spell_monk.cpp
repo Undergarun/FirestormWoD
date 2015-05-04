@@ -4893,7 +4893,6 @@ class spell_monk_detonate_chi : public SpellScriptLoader
                         if (l_Caster != nullptr)
                             l_Caster->CastSpell(itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), eSpells::HealingSphereDetonate, true);
                         itr->SetDuration(0);
-                        break;
                     }
                 }
             }
