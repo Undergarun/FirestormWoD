@@ -1203,7 +1203,6 @@ class ObjectMgr
         void LoadSpellPhaseInfo();
         void LoadBattlePetTemplate();
 
-        void LoadItemExtendedCost();
         void LoadGuildChallengeRewardInfo();
 
         void LoadResearchSiteZones();

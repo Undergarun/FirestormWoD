@@ -41,6 +41,8 @@ enum HotfixDatabaseStatements
         name for a suiting suffix.
     */
 
+    HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME,
+
     MAX_HOTFIXDATABASE_STATEMENTS
 };
 

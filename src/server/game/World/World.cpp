@@ -2100,9 +2100,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading item extended cost...");
-    sObjectMgr->LoadItemExtendedCost();
-
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading guild challenge rewards...");
     sObjectMgr->LoadGuildChallengeRewardInfo();
 
