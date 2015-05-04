@@ -105,7 +105,7 @@ enum MageSpells
     SPELL_MAGE_IMPROVED_BLINK                    = 157606,
     SPELL_MAGE_IMPROVED_BLINK_PROC               = 157610,
     SPELL_MAGE_IMPROVED_BLIZZARD                 = 157727,
-    SPELL_MAGE_FORZEN_ORB                        = 84714,
+    SPELL_MAGE_FORZEN_ORB                        = 84714,   /// @TODO: This spell doesn't have visual effect, need to sniff
     SPELL_MAGE_ENHANCED_FROSTBOLT                = 157646,
     SPELL_MAGE_ENHANCED_FROSTBOLT_PROC           = 157648,
     SPELL_MAGE_FLAMEGLOW                         = 140468,
@@ -343,7 +343,7 @@ class spell_mage_prysmatic_crystal_damage : public SpellScriptLoader
         }
 };
 
-/// Comet Storm - 153595
+/// Comet Storm - 153595 and Comet Storm damage spel - 153596
 class spell_mage_comet_storm : public SpellScriptLoader
 {
     public:
@@ -359,19 +359,45 @@ class spell_mage_comet_storm : public SpellScriptLoader
                 CometStorm  = 153596
             };
 
+            void HandleOnHit()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    {
+                        int32 l_AmountOfUsedComets = l_Caster->GetAmountOfComets();
+                        if (GetSpellInfo()->Id == 153596 && l_AmountOfUsedComets >= 1 && l_AmountOfUsedComets <= 7)
+                        {
+                            l_Caster->SetAmountOfComets(l_AmountOfUsedComets + 1);
+                            /// It's done, all comets are used
+                            if (l_AmountOfUsedComets >= 7)
+                                l_Caster->SetAmountOfComets(0);
+                            else
+                            {
+                                float l_X = l_Caster->GetCometStartCoordinateX() + frand(-4.0f, 4.0f);
+                                float l_Y = l_Caster->GetCometStartCoordinateY() + frand(-4.0f, 4.0f);
+
+                                l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
+                            }
+                        }
+                    }
+                }
+            }
+
             void HandleAfterCast()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (WorldLocation const* l_Dest = GetExplTargetDest())
                     {
-                        for (uint8 l_I = 0; l_I < eCometDatas::MaxComets; ++l_I)
+                        if (GetSpellInfo()->Id == 153595)
                         {
-                            float l_X = l_Dest->m_positionX + frand(-4.0f, 4.0f);
-                            float l_Y = l_Dest->m_positionY + frand(-4.0f, 4.0f);
-
-                            /// @TODO: Add delay of 500ms between casts
-                            l_Caster->CastSpell(l_X, l_Y, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
+                            /// Store launch information
+                            l_Caster->SetAmountOfComets(1);
+                            l_Caster->SetCometStartCoordinateX(l_Dest->m_positionX);
+                            l_Caster->SetCometStartCoordinateY(l_Dest->m_positionY);
+                            /// First comet
+                            l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eCometDatas::CometStorm, true);
                         }
                     }
                 }
@@ -379,6 +405,7 @@ class spell_mage_comet_storm : public SpellScriptLoader
 
             void Register()
             {
+                OnHit += SpellHitFn(spell_mage_comet_storm_SpellScript::HandleOnHit);
                 AfterCast += SpellCastFn(spell_mage_comet_storm_SpellScript::HandleAfterCast);
             }
         };
@@ -487,30 +514,13 @@ class spell_mage_glyph_of_slow: public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (!caster->HasAura(SPELL_MAGE_GLYPH_OF_SLOW))
+                    if (!l_Caster->HasAura(SPELL_MAGE_GLYPH_OF_SLOW))
                         return;
 
-                    if (Unit* target = GetHitUnit())
-                    {
-                        std::list<Unit*> targetList;
-                        float radius = 50.0f;
-                        bool found = false;
-
-                        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(caster, caster, radius);
-                        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(caster, targetList, u_check);
-                        caster->VisitNearbyObject(radius, searcher);
-
-                        for (auto itr : targetList)
-                            if (itr->HasAura(SPELL_MAGE_SLOW))
-                                found = true;
-
-                        if (found)
-                            return;
-                        else
-                            caster->CastSpell(target, SPELL_MAGE_SLOW, true);
-                    }
+                    if (Unit* l_Target = GetHitUnit())
+                        l_Caster->CastSpell(l_Target, SPELL_MAGE_SLOW, true);
                 }
             }
 
@@ -532,41 +542,19 @@ class spell_mage_pet_frost_nova: public SpellScriptLoader
     public:
         spell_mage_pet_frost_nova() : SpellScriptLoader("spell_mage_pet_frost_nova") { }
 
-        class spell_mage_pet_frost_nova_SpellScript : public SpellScript
+        class spell_mage_pet_frost_nova_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_mage_pet_frost_nova_SpellScript);
+            PrepareAuraScript(spell_mage_pet_frost_nova_AuraScript);
 
-            bool Load()
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                bool result = true;
-
-                if (!GetCaster())
-                    return false;
-
-                result &= GetCaster()->GetTypeId() == TYPEID_UNIT;
-
-                if (!GetCaster()->GetOwner())
-                    return false;
-
-                result &= GetCaster()->GetOwner()->GetTypeId() == TYPEID_PLAYER;
-                result &= GetCaster()->GetOwner()->getLevel() >= 24;
-
-                return result;
-            }
-
-            void HandleOnHit()
-            {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (caster->GetOwner())
+                    if (l_Caster->GetOwner())
                     {
-                        if (Player* _player = caster->GetOwner()->ToPlayer())
+                        if (Player* l_Player = l_Caster->GetOwner()->ToPlayer())
                         {
-                            if (_player->GetSpecializationId(_player->GetActiveSpec()) != SPEC_MAGE_FROST)
-                                return;
-
-                            _player->CastSpell(_player, SPELL_MAGE_FINGER_OF_FROST_VISUAL, true);
-                            _player->CastSpell(_player, SPELL_MAGE_FINGER_OF_FROST_EFFECT, true);
+                            l_Player->CastSpell(l_Player, SPELL_MAGE_FINGER_OF_FROST_VISUAL, true);
                         }
                     }
                 }
@@ -574,13 +562,13 @@ class spell_mage_pet_frost_nova: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_pet_frost_nova_SpellScript::HandleOnHit);
+                OnEffectApply += AuraEffectApplyFn(spell_mage_pet_frost_nova_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_mage_pet_frost_nova_SpellScript();
+            return new spell_mage_pet_frost_nova_AuraScript();
         }
 };
 
@@ -785,23 +773,52 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_barrage_SpellScript);
 
-            void HandleOnHit()
+            uint8 m_ChargeCount;
+
+            void HandleBeforeCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    m_ChargeCount = 0;
+
+                    if (AuraPtr arcaneCharge = _player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                        m_ChargeCount = arcaneCharge->GetStackAmount();
+                }
+            }
+
+            void HandleAfterHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
+                {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (Unit* l_MainTarget = ObjectAccessor::FindUnit(l_Player->GetSelection()))
-                            if (l_Target != l_MainTarget)
-                                SetHitDamage(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints));
+                        int32 l_Basepoints = 0;
 
-                        if (AuraPtr arcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                            arcaneCharge->DropCharge();
+                        if (m_ChargeCount)
+                        {
+                            l_Basepoints = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+
+                            std::list<Unit*> l_TargetList;
+
+                            l_Target->GetAttackableUnitListInRange(l_TargetList, 10.0f);
+                            l_TargetList.remove_if(CheckArcaneBarrageImpactPredicate(l_Player, l_Target));
+
+                            JadeCore::Containers::RandomResizeList(l_TargetList, m_ChargeCount);
+
+                            for (auto itr : l_TargetList)
+                                l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
+
+                            if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                                l_ArcaneCharge->DropStack();
+                        }
                     }
+                }
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_arcane_barrage_SpellScript::HandleOnHit);
+                BeforeCast += SpellCastFn(spell_mage_arcane_barrage_SpellScript::HandleBeforeCast);
+                AfterHit += SpellHitFn(spell_mage_arcane_barrage_SpellScript::HandleAfterHit);
             }
         };
 
@@ -888,6 +905,13 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
                     if (l_Caster->HasAura(SPELL_MAGE_BRAIN_FREEZE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
+                }
+            }
+
+            void HandleAfterCast()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
                     
                     if (l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT) && l_Caster->getLevel() >= 92 && !l_Caster->HasAura(SPELL_MAGE_ENHANCED_FROSTBOLT_PROC))
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_ENHANCED_FROSTBOLT_PROC, true);
@@ -898,6 +922,7 @@ class spell_mage_frostbolt: public SpellScriptLoader
             {
                 OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
+                AfterCast += SpellCastFn(spell_mage_frostbolt_SpellScript::HandleAfterCast);
             }
         };
 
@@ -1325,8 +1350,13 @@ class spell_mage_evocation: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->EnergizeBySpell(_player, GetSpellInfo()->Id, int32(_player->GetMaxPower(POWER_MANA) * 0.15), POWER_MANA);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, int32(l_Player->GetMaxPower(POWER_MANA) * 0.15), POWER_MANA);
+
+                    if (l_Player->HasAura(SPELL_MAGE_ARCANE_CHARGE))
+                        l_Player->RemoveAura(SPELL_MAGE_ARCANE_CHARGE);
+                }
             }
 
             void Register()
@@ -1736,7 +1766,11 @@ class spell_mage_ice_lance: public SpellScriptLoader
                     if (l_Caster->HasSpell(SPELL_MAGE_THERMAL_VOID))
                     {
                         if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_ICY_VEINS, l_Caster->GetGUID()))
-                            l_Aura->SetDuration(l_Aura->GetDuration() + sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS);
+                        {
+                            int32 l_IncreaseDuration = sSpellMgr->GetSpellInfo(SPELL_MAGE_THERMAL_VOID)->Effects[EFFECT_0].BasePoints * IN_MILLISECONDS;
+                            int32 l_NewDuration = (l_Aura->GetDuration() + l_IncreaseDuration) > 30000 ? 30000 : (l_Aura->GetDuration() + l_IncreaseDuration);
+                            l_Aura->SetDuration(l_NewDuration);
+                        }
                     }
 
 
@@ -1911,11 +1945,15 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         std::list<Creature*> l_TempListCreature;
                         std::list<Player*> l_TempListPlayer;
 
+                        /// Save ring position, to add some additional range checks
+                        Position l_Position;
+                        (*itr)->GetPosition(&l_Position);
+
                         // Apply aura on hostile creatures in the grid
                         (*itr)->GetCreatureListInGrid(l_TempListCreature, 5.0f);
                         for (std::list<Creature*>::iterator i = l_TempListCreature.begin(); i != l_TempListCreature.end(); ++i)
                         {
-                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
+                            if (!(*i)->IsWithinDist3d(&l_Position, 1.0f) && (*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
 
@@ -1923,7 +1961,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                         (*itr)->GetPlayerListInGrid(l_TempListPlayer, 5.0f);
                         for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
                         {
-                            if ((*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
+                            if (!(*i)->IsWithinDist3d(&l_Position, 1.0f) && (*i)->IsHostileTo(l_Caster) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_AURA) && !(*i)->HasAura(SPELL_MAGE_RING_OF_FROST_IMMUNATE) && l_Caster->IsValidAttackTarget(*i))
                                 l_Caster->CastSpell((*i), SPELL_MAGE_RING_OF_FROST_AURA, true);
                         }
                     }
@@ -2241,6 +2279,10 @@ class spell_mage_blizzard : public SpellScriptLoader
 
                 /// Slowing enemies by 50%
                 l_Caster->CastSpell(l_Target, SPELL_MAGE_CHILLED, true);
+
+                /// Improved Blizzard
+                if (l_Caster->ToPlayer() && l_Caster->ToPlayer()->HasSpellCooldown(SPELL_MAGE_FORZEN_ORB))
+                    l_Caster->ToPlayer()->ReduceSpellCooldown(SPELL_MAGE_FORZEN_ORB, 500);
             }
 
             void HandleAfterHit()

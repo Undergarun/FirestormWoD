@@ -996,7 +996,13 @@ enum ChargeSpells
     SPELL_WARR_DOUBLE_TIME        = 103827,
     SPELL_WARR_WARBRINGER         = 103828,
     SPELL_WARR_CHARGE_ROOT        = 105771,
-    SPELL_WARR_DOUBLE_TIME_MARKER = 124184
+    SPELL_WARR_DOUBLE_TIME_MARKER = 124184,
+    SPELL_WOD_PVP_FURY_2P         = 165639,
+    SPELL_WOD_PVP_FURY_2P_EFFECT  = 165640,
+    SPELL_WOD_PVP_ARMS_2P         = 165636,
+    SPELL_WOD_PVP_ARMS_2P_EFFECT  = 165638,
+    SPELL_WOD_PVP_PROT_2P         = 165641,
+    SPELL_WOD_PVP_PROT_2P_EFFECT  = 165642
 };
 
 /// Charge - 100
@@ -1014,8 +1020,38 @@ class spell_warr_charge: public SpellScriptLoader
         void HandleOnCast()
         {
             if (Unit* l_Caster = GetCaster())
+            {
                 if (l_Caster->HasAura(WARRIOR_SPELL_DOUBLE_TIME_MARKER))
                     m_HasAuraDoubleTimeMarker = true;
+
+                /// Warrior WoD PvP 2P bonuses
+                if (l_Caster->getLevel() == 100)
+                {
+                    switch (l_Caster->ToPlayer()->GetSpecializationId())
+                    {
+                        case SPEC_WARRIOR_FURY:
+                        {
+                            if (l_Caster->HasAura(SPELL_WOD_PVP_FURY_2P))
+                                l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_FURY_2P_EFFECT, true);
+                            break;
+                        }
+                        case SPEC_WARRIOR_ARMS:
+                        {
+                            if (l_Caster->HasAura(SPELL_WOD_PVP_ARMS_2P))
+                                l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_ARMS_2P_EFFECT, true);
+                            break;
+                        }
+                        case SPEC_WARRIOR_PROTECTION:
+                        {
+                            if (l_Caster->HasAura(SPELL_WOD_PVP_PROT_2P))
+                                l_Caster->CastSpell(l_Caster, SPELL_WOD_PVP_PROT_2P_EFFECT, true);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+            }
         }
 
         void HandleCharge(SpellEffIndex /*effIndex*/)

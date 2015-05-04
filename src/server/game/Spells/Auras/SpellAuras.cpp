@@ -2223,6 +2223,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (apply)
                     {
                         int32 basepoints0 = aurEff->GetAmount();
+
+                        /// Enhanced Stealth
+                        if (constAuraEffectPtr enhancedStealth = target->GetAuraEffect(157704, 0))
+                            basepoints0 += enhancedStealth->GetAmount();
+
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL , true);
                     }
                     else if (!target->GetAuraEffect(SPELL_AURA_MOD_SHAPESHIFT, SPELLFAMILY_ROGUE, 0x400800, 0, 0))

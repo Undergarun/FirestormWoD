@@ -3190,6 +3190,9 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     if (l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Caster->GetDistance(l_Target) > 10.0f)
                         return SPELL_FAILED_OUT_OF_RANGE;
 
+                    if (l_Caster->isInRoots() || l_Caster->isInStun())
+                        return SPELL_FAILED_ROOTED;
+
                     if (!l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Target->IsWithinLOSInMap(l_Caster) && 
                         l_Caster->GetDistance(l_Target) > 10.0f && l_Caster->GetDistance(l_Target) < 30.0f && !l_Caster->isInRoots() && !l_Caster->isInStun())
                     {
