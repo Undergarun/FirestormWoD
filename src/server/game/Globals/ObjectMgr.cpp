@@ -307,7 +307,7 @@ void ObjectMgr::LoadCreatureLocales()
 
     _creatureLocaleStore.clear();                              // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, subname_loc1, name_loc2, subname_loc2, name_loc3, subname_loc3, name_loc4, subname_loc4, name_loc5, subname_loc5, name_loc6, subname_loc6, name_loc7, subname_loc7, name_loc8, subname_loc8, name_loc9, subname_loc9, name_loc10, subname_loc10 FROM locales_creature");
+    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, femaleName_loc1, subname_loc1, name_loc2, femaleName_loc2, subname_loc2, name_loc3, femaleName_loc3, subname_loc3, name_loc4, femaleName_loc4, subname_loc4, name_loc5, femaleName_loc5, subname_loc5, name_loc6, femaleName_loc6, subname_loc6, name_loc7, femaleName_loc7, subname_loc7, name_loc8, femaleName_loc8, subname_loc8, name_loc9, femaleName_loc9, subname_loc9, name_loc10, femaleName_loc10, subname_loc10 FROM locales_creature");
 
     if (!result)
         return;
@@ -323,8 +323,9 @@ void ObjectMgr::LoadCreatureLocales()
         for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.SubName);
+            AddLocaleString(fields[1 + 3 * (i - 1)].GetString(), locale, data.Name);
+            AddLocaleString(fields[1 + 3 * (i - 1) + 1].GetString(), locale, data.l_FemaleName);
+            AddLocaleString(fields[1 + 3 * (i - 1) + 2].GetString(), locale, data.SubName);
         }
     }
     while (result->NextRow());
@@ -403,19 +404,19 @@ void ObjectMgr::LoadCreatureTemplates()
 
     //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
-    //                                           6        7      8       9            10           11        12       13    14        15          16       17         18        19
-                                             "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
-    //                                             20       21   22     23            24           25               26               27          28             29
+    //                                           6        7      8           9       10           11            12       13      14     15       16       17         18        19        20
+                                             "modelid4, name, femaleName, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction, npcflag, npcflag2, speed_walk, speed_run, "
+    //                                             21       22   23      24            25           26               27               28          29             30
                                              "speed_fly, scale, rank,  dmgschool, dmg_multiplier, baseattacktime, rangeattacktime, baseVariance, rangeVariance,  unit_class, "
-    //                                             30         31           32          33            34              35          36            37          38            39           40
+    //                                             31         32           33          34            35              36          37            38          39            40           41
                                              "unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID,   family, trainer_type, trainer_spell, trainer_class, trainer_race, type, "
-    //                                            41          42           43          44          45         46         47            48         49            50           51
+    //                                            42          43           44          45          46         47         48            49         50            51           52
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                           52     53       54     55       56     57       58      59        60           61          62      63       64         65
+    //                                           53     54       55     56       57     58       59      60        61           62          63      64       65         66
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                           66             67          68         69           70           71         72            73           74          75         76          77
+    //                                           67             68          69         70           71           72         73            74           75          76         77          78
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            78           79         80          81               82               83              84            85
+    //                                            79           80         81          82               83               84              85            86
                                              "questItem6, movementId, VignetteID, TrackingQuestID,  RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -449,6 +450,7 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.Modelid3          = fields[index++].GetUInt32();
         creatureTemplate.Modelid4          = fields[index++].GetUInt32();
         creatureTemplate.Name              = fields[index++].GetString();
+        creatureTemplate.FemaleName        = fields[index++].GetString();
         creatureTemplate.SubName           = fields[index++].GetString();
         creatureTemplate.IconName          = fields[index++].GetString();
         creatureTemplate.GossipMenuId      = fields[index++].GetUInt32();
@@ -5562,7 +5564,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         if (serverUp)
             player = ObjectAccessor::FindPlayer((uint64)m->receiver);
 
-        if (player && player->m_mailsLoaded)
+        if (player)
         {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
             // his in mailbox and he has already listed his mails)
             delete m;
@@ -7701,45 +7703,45 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest relations from %s in %u ms", count, table.c_str(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadGameobjectQuestRelations()
+void ObjectMgr::LoadGameobjectQuestStarters()
 {
-    LoadQuestRelationsHelper(_goQuestRelations, "gameobject_questrelation", true, true);
+    LoadQuestRelationsHelper(_goQuestRelations, "gameobject_queststarter", true, true);
 
     for (QuestRelations::iterator itr = _goQuestRelations.begin(); itr != _goQuestRelations.end(); ++itr)
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
         if (!goInfo)
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_questrelation` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_queststarter` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
         else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_questrelation` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_queststarter` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
-void ObjectMgr::LoadGameobjectInvolvedRelations()
+void ObjectMgr::LoadGameobjectQuestEnders()
 {
-    LoadQuestRelationsHelper(_goQuestInvolvedRelations, "gameobject_involvedrelation", false, true);
+    LoadQuestRelationsHelper(_goQuestInvolvedRelations, "gameobject_questender", false, true);
 
     for (QuestRelations::iterator itr = _goQuestInvolvedRelations.begin(); itr != _goQuestInvolvedRelations.end(); ++itr)
     {
         GameObjectTemplate const* goInfo = GetGameObjectTemplate(itr->first);
         if (!goInfo)
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_involvedrelation` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_questender` have data for not existed gameobject entry (%u) and existed quest %u", itr->first, itr->second);
         else if (goInfo->type != GAMEOBJECT_TYPE_QUESTGIVER)
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_involvedrelation` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_questender` have data gameobject entry (%u) for quest %u, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", itr->first, itr->second);
     }
 }
 
-void ObjectMgr::LoadCreatureQuestRelations()
+void ObjectMgr::LoadCreatureQuestStarters()
 {
-    LoadQuestRelationsHelper(_creatureQuestRelations, "creature_questrelation", true, false);
+    LoadQuestRelationsHelper(_creatureQuestRelations, "creature_queststarter", true, false);
 
     for (QuestRelations::const_iterator l_Iterator = _creatureQuestRelations.begin(); l_Iterator != _creatureQuestRelations.end(); ++l_Iterator)
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(l_Iterator->first);
         if (!cInfo)
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` have data for not existed creature entry (%u) and existed quest %u", l_Iterator->first, l_Iterator->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_queststarter` have data for not existed creature entry (%u) and existed quest %u", l_Iterator->first, l_Iterator->second);
         else if (!(cInfo->NpcFlags1 & UNIT_NPC_FLAG_QUESTGIVER))
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_questrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", l_Iterator->first, l_Iterator->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_queststarter` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", l_Iterator->first, l_Iterator->second);
 
         Quest* l_Quest = const_cast<Quest*>(GetQuestTemplate(l_Iterator->second));
         if (l_Quest != nullptr)
@@ -7747,17 +7749,17 @@ void ObjectMgr::LoadCreatureQuestRelations()
     }
 }
 
-void ObjectMgr::LoadCreatureInvolvedRelations()
+void ObjectMgr::LoadCreatureQuestEnders()
 {
-    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, "creature_involvedrelation", false, false);
+    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, "creature_questender", false, false);
 
     for (QuestRelations::iterator itr = _creatureQuestInvolvedRelations.begin(); itr != _creatureQuestInvolvedRelations.end(); ++itr)
     {
         CreatureTemplate const* cInfo = GetCreatureTemplate(itr->first);
         if (!cInfo)
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_involvedrelation` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_questender` have data for not existed creature entry (%u) and existed quest %u", itr->first, itr->second);
         else if (!(cInfo->NpcFlags1 & UNIT_NPC_FLAG_QUESTGIVER))
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_involvedrelation` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
+            sLog->outError(LOG_FILTER_SQL, "Table `creature_questender` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
 }
 
@@ -9112,8 +9114,27 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
         uint32 l_GroupSize     = l_Fields[2].GetUInt32();
         uint32 l_Health        = l_Fields[3].GetUInt32();
 
+        if (!sObjectMgr->GetCreatureTemplate(l_CreatureEntry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature template entry (entry: %u) used in `creature_groupsizestats` does not exist.", l_CreatureEntry);
+            continue;
+        }
+
+        if (l_Difficulty >= MaxDifficulties)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty);
+            continue;
+        }
+
+        if (l_GroupSize >= MAX_GROUP_SCALING)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize);
+            continue;
+        }
+
         CreatureGroupSizeStat& l_CreatureGroupSizeStat = m_CreatureGroupSizeStore[l_CreatureEntry][l_Difficulty];
         l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
+        ++l_Count;
     }
     while (l_Result->NextRow());
 
@@ -10457,6 +10478,34 @@ void ObjectMgr::LoadItemBonusGroupLinked()
 
         ItemTemplate& l_ItemTemplate = _itemTemplateStore[l_ItemEntry];
         l_ItemTemplate.m_ItemBonusGroups.push_back(l_ItemBonusGroup);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadSpellInvalid()
+{
+    uint32 l_OldMSTime = getMSTime();
+    m_SpellInvalid.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT spellid FROM spell_invalid");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Spell Invalid. DB table `spell_invalid` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields    = l_Result->Fetch();
+        uint32 l_SpellID   = l_Fields[0].GetUInt32();
+
+        m_SpellInvalid.push_back(l_SpellID);
 
         l_Count++;
     }

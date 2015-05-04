@@ -127,20 +127,37 @@ struct SpellLog_EnergyzeHelper
     uint32 Value;
     float Multiplier;
     uint8 PowerType;
-    ObjectGuid Guid;
+    uint64 Guid;
+};
+
+struct SpellLog_ExtraAttack
+{
+    uint64 Victim;
+    uint32 NumAttacks;
+};
+
+struct SpellLog_DurabilityDamage
+{
+    uint64 Victim;
+    uint32 ItemID;
+    uint32 Amount;
 };
 
 struct SpellLogHelper
 {
-    std::list<ObjectGuid> Targets; // Guid3
-    std::list<SpellLog_EnergyzeHelper> Energizes; // Guid4
-    std::list<uint32> CreatedItems;
-
+    std::list<uint64>                       Targets;
+    std::list<SpellLog_EnergyzeHelper>      Energizes;
+    std::list<uint32>                       CreatedItems;
+    std::list<SpellLog_DurabilityDamage>    DurabilityDamages;
+    std::list<SpellLog_ExtraAttack>         ExtraAttacks;
+    
     SpellLogHelper()
     {
         Targets.clear();
         Energizes.clear();
         CreatedItems.clear();
+        DurabilityDamages.clear();
+        ExtraAttacks.clear();
     }
 
     void AddTarget(ObjectGuid guid)
@@ -158,15 +175,34 @@ struct SpellLogHelper
         Energizes.push_back(energize);
     }
 
-    void AddEnergize(ObjectGuid guid, float mult, uint32 val, uint8 type)
+    void AddEnergize(uint64 guid, float mult, uint32 val, uint8 type)
     {
         SpellLog_EnergyzeHelper helper;
-        helper.Value = val;
-        helper.PowerType = type;
-        helper.Guid = guid;
-        helper.Multiplier = mult;
+        helper.Value        = val;
+        helper.PowerType    = type;
+        helper.Guid         = guid;
+        helper.Multiplier   = mult;
 
         AddEnergize(helper);
+    }
+
+    void AddDurabilityDamage(uint64 p_Victim, uint32 p_ItemID, uint32 p_Amount)
+    {
+        SpellLog_DurabilityDamage l_Data;
+        l_Data.Victim = p_Victim;
+        l_Data.ItemID = p_ItemID;
+        l_Data.Amount = p_Amount;
+
+        DurabilityDamages.push_back(l_Data);
+    }
+
+    void AddExtraAttack(uint64 p_Victim, uint32 p_NumAttacks)
+    {
+        SpellLog_ExtraAttack l_Data;
+        l_Data.Victim       = p_Victim;
+        l_Data.NumAttacks   = p_NumAttacks;
+
+        ExtraAttacks.push_back(l_Data);
     }
 };
 
@@ -581,7 +617,7 @@ public:
     void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 powerTaken, float gainMultiplier);
     void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 attCount);
     void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId);
-    void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 itemslot, uint32 damage);
+    void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 p_ItemID, uint32 damage);
     void ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj);
     void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
     void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);

@@ -1801,6 +1801,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
+    sObjectMgr->LoadSpellInvalid();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
@@ -2151,6 +2154,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();
 
+    PlayerDump::LoadColumnsName();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
@@ -2415,7 +2420,7 @@ void World::Update(uint32 diff)
                 bool l_Error = true;
                 std::string l_Dump;
 
-                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump))
+                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
                 {
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
                     stmt->setString(0, l_Dump);

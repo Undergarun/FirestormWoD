@@ -676,7 +676,7 @@ class debug_commandscript: public CommandScript
             if (opcodeId == 0 && *result != '0')
                 return false;
 
-            WorldPacket data(Opcodes(opcodeId), 10);;
+            WorldPacket data(Opcodes(opcodeId), 10);
             ObjectGuid playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
             Player* player = handler->GetSession()->GetPlayer();
 
@@ -699,6 +699,7 @@ class debug_commandscript: public CommandScript
 
                     break;
                 }
+                /// @todo Update me ?
                 case SMSG_SERVER_FIRST_ACHIEVEMENT:
                 {
                     data.WriteBits(1, 21);
@@ -855,6 +856,7 @@ class debug_commandscript: public CommandScript
             {
                 case 0x20:
                 {
+                    ///@todo update me ?
                     // La migration de votre guilde est terminée. Rendez-vous sur [cette page Internet] pour de plus amples informations.
                     Player* player = handler->GetSession()->GetPlayer();
                     WorldPacket data(Opcodes(1346), 20);

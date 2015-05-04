@@ -947,9 +947,9 @@ void Group::Disband(bool hideDestroy /* = false */)
 
 void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
+    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
-    l_Data << uint32(p_MapID);                              ///< 3.3.3 mapid
+    l_Data << uint32(p_MapID);                              ///< mapid
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
     l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type
@@ -983,7 +983,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
 
     WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
     l_Data.appendPackGUID(p_Roll.lootedGUID);
-    l_Data << uint32(p_MapID);                              ///< 3.3.3 mapid
+    l_Data << uint32(p_MapID);                              ///< mapid
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
     l_Data.WriteBits(LOOT_ITEM_UI_NORMAL, 3);               ///< Ui Type

@@ -647,7 +647,9 @@ enum AtLoginFlags
     AT_LOGIN_CHANGE_FACTION         = 0x040,
     AT_LOGIN_CHANGE_RACE            = 0x080,
     AT_LOGIN_UNLOCK                 = 0x100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200
+    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
+    AT_LOGIN_RESET_SPECS            = 0x400,
+    AT_LOGIN_DELETE_INVALID_SPELL   = 0x800     ///< Used at expension switch
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1004,7 +1006,21 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_GARRISON_BUILDINGS           = 50,
     PLAYER_LOGIN_QUERY_GARRISON_WORKORDERS          = 51,
     PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
+    PLAYER_LOGIN_QUERY_LOADMAIL                     = 53,
+    PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS               = 54,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM                = 55,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD                = 56,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     MAX_PLAYER_LOGIN_QUERY
+};
+
+enum PlayerLoginDBQueryIndex
+{
+    PLAYER_LOGINGB_SPELL                = 0,
+    PLAYER_LOGINDB_HEIRLOOM_COLLECTION  = 1,
+    PLAYER_LOGINDB_TOYS                 = 2,
+    MAX_PLAYER_LOGINDB_QUERY
 };
 
 class PetLoginQueryHolder : public SQLQueryHolder
@@ -1188,6 +1204,15 @@ class PlayerTaxi
             return GetTaxiDestination();
         }
         bool empty() const { return m_TaxiDestinations.empty(); }
+
+        std::deque<uint32> GetCurrentDestinationQueue()
+        {
+            return m_TaxiDestinations;
+        }
+        void SetDestinationQueue(std::deque<uint32> p_Destinations)
+        {
+            m_TaxiDestinations = p_Destinations;
+        }
 
         friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
@@ -1594,6 +1619,7 @@ class Player : public Unit, public GridObject<Player>
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0, bool p_Triggered = false);
         void CleanupAfterTaxiFlight();
         void ContinueTaxiFlight();
+        void TaxiRequestEarlyLanding();
                                                             // mount_id can be used in scripting calls
         bool IsAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
@@ -2037,7 +2063,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult);
+        bool LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder);
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
@@ -2068,7 +2094,6 @@ class Player : public Unit, public GridObject<Player>
         static void DeleteOldCharacters();
         static void DeleteOldCharacters(uint32 keepDays);
 
-        bool m_mailsLoaded;
         bool m_mailsUpdated;
 
         void SetBindPoint(uint64 guid);
@@ -2116,7 +2141,6 @@ class Player : public Unit, public GridObject<Player>
         void SendNewMail();
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
-        bool IsMailsLoaded() const { return m_mailsLoaded; }
 
         void RemoveMail(uint32 id);
 
@@ -2177,6 +2201,7 @@ class Player : public Unit, public GridObject<Player>
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
+        void DeleteInvalidSpells();
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -2232,6 +2257,7 @@ class Player : public Unit, public GridObject<Player>
         void RemovePassiveTalentSpell(SpellInfo const* info);
 
         void ResetSpec(bool p_NoCost = false);
+        void ResetAllSpecs();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -3237,6 +3263,11 @@ class Player : public Unit, public GridObject<Player>
         bool HasTitle(CharTitlesEntry const* title) { return HasTitle(title->MaskID); }
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
+        /// For somes reasons, sometimes players didn't get achievement rewards when achievement is validate
+        /// We use that function to ensure the player get rewards
+        /// ONLY SUPPORT MOUNT & PETS ITEMS
+        void RewardCompletedAchievementsIfNeeded();
+
         //bool isActiveObject() const { return true; }
         bool canSeeSpellClickOn(Creature const* creature) const;
 
@@ -3606,8 +3637,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
-        void _LoadMail();
-        void _LoadMailedItems(Mail* mail);
+        void _LoadMail(PreparedQueryResult p_Mail);
+        void _LoadMailedItems(PreparedQueryResult p_MailedItems);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestObjectiveStatus(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
@@ -3942,7 +3973,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
-        uint8 m_storeCallbackCounter;
 
         uint32 m_emote;
 
@@ -3951,13 +3981,7 @@ class Player : public Unit, public GridObject<Player>
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
         // Store callback
-        PreparedQueryResultFuture _storeGoldCallback;
-        PreparedQueryResultFuture _storeTitleCallback;
-        PreparedQueryResultFuture _storeItemCallback;
-        PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
-        PreparedQueryResultFuture _HeirloomStoreCallback;
-        PreparedQueryResultFuture _PlayersToysCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;

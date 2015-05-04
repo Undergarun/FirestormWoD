@@ -1131,9 +1131,10 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_StoreIsDisabledByParentalControls    = false;
     bool l_StoreIsAvailable                     = true;
     bool l_IsRestrictedAccount                  = false;
-    bool l_IsTutorialEnabled                    = true;
+    bool l_IsTutorialEnabled                    = false;
     bool l_ShowNPETutorial                      = true;
     bool l_TwitterEnabled                       = true;
+    bool l_CommerceSystemEnabled                = true;
 
     uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
     uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
@@ -1147,6 +1148,10 @@ void WorldSession::SendFeatureSystemStatus()
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 
+    uint32 l_TwitterMsTillCanPost = 20;
+    uint32 l_TokenPollTimeSeconds = 300;
+    uint32 l_TokenRedeemIndex = 0;
+
     WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 50);
 
     l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
@@ -1155,9 +1160,9 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
     l_Data << uint32(60);                                           ///< Unk 6.1.0
-    l_Data << uint32(20);                                           ///< Unk 6.1.0
-    l_Data << uint32(300);                                          ///< Unk 6.1.2
-    l_Data << uint32(0);                                            ///< Unk 6.1.2
+    l_Data << uint32(l_TwitterMsTillCanPost);                       ///< TwitterMsTillCanPost
+    l_Data << uint32(l_TokenPollTimeSeconds);                       ///< TokenPollTimeSeconds
+    l_Data << uint32(l_TokenRedeemIndex);                           ///< TokenRedeemIndex
 
     l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
     l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
@@ -1173,19 +1178,19 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
-    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface -- guessed
-    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 WoWToken Enabled ?
+    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface 
+    l_Data.WriteBit(l_CommerceSystemEnabled);                       ///< Commerce System Enabled (WoWToken)
     l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
-    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796 WillKickFromWorld (From TC)
     l_Data.WriteBit(0);                                             ///< Unk 6.1.2 19796 -- unk block
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)
     {
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                      ///< TicketsEnabled
+        l_Data.WriteBit(true);                                      ///< BugsEnabled
+        l_Data.WriteBit(true);                                      ///< ComplaintsEnabled
+        l_Data.WriteBit(true);                                      ///< SuggestionsEnabled
         l_Data.FlushBits();
 
         l_Data << uint32(10);                                       ///< Max Tries
@@ -1361,14 +1366,15 @@ void WorldSession::ProcessQueryCallbacks()
     l_Times.push_back(getMSTime() - l_StartTime);
 
     //! HandlePlayerLoginOpcode
-    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_CharacterLoginDBCallback.ready())
     {
-        SQLQueryHolder* param;
-        m_CharacterLoginCallback.get(param);
-        m_AccountSpellCallback.get(result);
-        HandlePlayerLogin((LoginQueryHolder*)param, result);
+        SQLQueryHolder* l_Param;
+        SQLQueryHolder* l_Param2;
+        m_CharacterLoginCallback.get(l_Param);
+        m_CharacterLoginDBCallback.get(l_Param2);
+        HandlePlayerLogin((LoginQueryHolder*)l_Param, (LoginDBQueryHolder*)l_Param2);
         m_CharacterLoginCallback.cancel();
-        m_AccountSpellCallback.cancel();
+        m_CharacterLoginDBCallback.cancel();
     }
 
     l_Times.push_back(getMSTime() - l_StartTime);

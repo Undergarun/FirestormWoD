@@ -246,6 +246,7 @@ public:
                     // Also needs an exception in spell system.
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, NULLAURA_EFFECT, me->GetGUID());
                     // Use packet hack
+                    /// @todo update me or remove the hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                     ObjectGuid guid = unit->GetGUID();
                     uint8 bitOrder[8] = {0, 1, 6, 5, 7, 2, 3, 4};

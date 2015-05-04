@@ -3649,7 +3649,6 @@ bool SpellInfo::IsBreakingCamouflage() const
         case 82945: // Immolation Trap Launcher
         case 82948: // Snake Trap launcher
         case 93435: // Roar of Courage (Special Ability)
-        case 109259:// Powershot
             return false;
     }
 

@@ -593,16 +593,27 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 switch (m_spellInfo->Id)
                 {
+                    /// Chi Explosion
+                    case 152174:
+                    case 157676:
+                    {
+                        uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                        if (l_Chi > 3 && effIndex == EFFECT_0)
+                            return;
+                        else if (l_Chi < 4 && effIndex == EFFECT_1)
+                            return;
+                        break;
+                    }
                     case 115080:// Touch of Death
                     {
-                        if (Unit* caster = GetCaster())
+                        if (Unit* l_Caster = GetCaster())
                         {
                             if (unitTarget)
                             {
-                                uint32 damage = unitTarget->GetHealth();
-                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
-                                m_caster->DealDamageMods(unitTarget, damage, NULL);
-                                m_caster->DealDamage(unitTarget, damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
+                                uint32 l_Damage = l_Caster->GetMaxHealth();
+                                m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, l_Damage, m_spellInfo->GetSchoolMask(), 0, 0, false, 0, false);
+                                m_caster->DealDamageMods(unitTarget, l_Damage, NULL);
+                                m_caster->DealDamage(unitTarget, l_Damage, NULL, SPELL_DIRECT_DAMAGE, m_spellInfo->GetSchoolMask(), m_spellInfo, false);
                             }
                         }
                         return;
@@ -1837,6 +1848,27 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
+            /// Chi Explosion Heal -- Prevent executing both effects if BP if one is 0
+            case 182078:
+            {
+                SpellValue const* l_Values = m_spellValue;
+                if (!m_spellValue)
+                    return;
+
+                if (!m_spellValue->EffectBasePoints[effIndex])
+                    return;
+                break;
+            }
+            /// Crane chi explosion
+            case 159620:
+            {
+                uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                if (l_Chi > 2 && effIndex == EFFECT_1)
+                    return;
+                else if (l_Chi < 3 && effIndex == EFFECT_2)
+                    return;
+                break;
+            }
             // Tipping of the Scales, Scales of Life
             case 96880:
             {
@@ -3249,23 +3281,39 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
     if (l_SuccessList.empty())
         return;
 
-    WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + l_SuccessList.size() * 5);
-    // Send packet header
-    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
-    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
-    dataSuccess << uint8(0);                               // not used
-    dataSuccess << uint32(l_SuccessList.size());            // count
+    bool l_IsBreak = true;
+    bool l_IsSteal = false;
 
-    for (DispelChargesList::iterator itr = l_SuccessList.begin(); itr != l_SuccessList.end(); ++itr)
+    WorldPacket l_DispellData(SMSG_SPELL_DISPELL_LOG, (2 * (16 + 2)) + 4 + 4 + (l_SuccessList.size() * (4 + 1 + 4 + 4)));
+    l_DispellData.WriteBit(l_IsSteal);                          ///< IsSteal
+    l_DispellData.WriteBit(l_IsBreak);                          ///< IsBreak
+    l_DispellData.FlushBits();
+    l_DispellData.appendPackGUID(unitTarget->GetGUID());        ///< TargetGUID
+    l_DispellData.appendPackGUID(m_caster->GetGUID());          ///< CasterGUID
+    l_DispellData << uint32(m_spellInfo->Id);                   ///< DispelledBySpellID
+    l_DispellData << uint32(l_SuccessList.size());              ///< DispellData
+
+    for (DispelChargesList::iterator l_It = l_SuccessList.begin(); l_It != l_SuccessList.end(); ++l_It)
     {
-        // Send dispelled spell info
-        dataSuccess << uint32(itr->first->GetId());              // Spell Id
-        dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellByDispel(itr->first->GetId(), m_spellInfo->Id, itr->first->GetCasterGUID(), m_caster, itr->second);
+        uint32 l_Rolled = 0;
+        uint32 l_Needed = 0;
+
+        l_DispellData << uint32(l_It->first->GetId());          ///< SpellID
+        l_DispellData.WriteBit(false);                          ///< Harmful : 0 - dispelled !=0 cleansed
+        l_DispellData.WriteBit(!!l_Rolled);                     ///< IsRolled
+        l_DispellData.WriteBit(!!l_Needed);                     ///< IsNeeded
+        l_DispellData.FlushBits();
+       
+        if (l_Rolled)
+            l_DispellData << uint32(l_Rolled);                  ///< Rolled
+
+        if (l_Needed)
+            l_DispellData << uint32(l_Needed);                  ///< Needed
+
+        unitTarget->RemoveAurasDueToSpellByDispel(l_It->first->GetId(), m_spellInfo->Id, l_It->first->GetCasterGUID(), m_caster, l_It->second);
     }
 
-    m_caster->SendMessageToSet(&dataSuccess, true);
+    m_caster->SendMessageToSet(&l_DispellData, true);
 
     /// On success dispel
     /// @Todo: we need to find a better way to handle this, bool on every effect handlers, add hook ?
@@ -4220,18 +4268,18 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
     {
         if (Spell* spell = unitTarget->GetCurrentSpell(CurrentSpellTypes(i)))
         {
-            SpellInfo const* curSpellInfo = spell->m_spellInfo;
+            SpellInfo const* l_CurrentSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
-                && curSpellInfo->PreventionType & (SpellPreventionMask::Silence)
-                && ((i == CURRENT_GENERIC_SPELL && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
-                || (i == CURRENT_CHANNELED_SPELL && curSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
+                && l_CurrentSpellInfo->PreventionType & (SpellPreventionMask::Silence)
+                && ((i == CURRENT_GENERIC_SPELL && l_CurrentSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT)
+                || (i == CURRENT_CHANNELED_SPELL && l_CurrentSpellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT)))
             {
                 if (m_originalCaster)
                 {
                     // Furious Stone Breath cannot be interrupted except by Shell Concussion
-                    if (curSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
+                    if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
@@ -4239,53 +4287,21 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
 
                     int32 duration = m_spellInfo->GetDuration();
-                    unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
+                    unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
-                    WorldPacket interrupt(SMSG_SPELL_INTERRUPT_LOG);
-                    ObjectGuid targetGuid = unitTarget->GetGUID();
-                    ObjectGuid casterGuid = m_originalCasterGUID;
+                    uint64 l_TargetGUID = unitTarget->GetGUID();
+                    uint64 l_CasterGUID = m_originalCasterGUID;
 
-                    interrupt.WriteBit(casterGuid[5]);
-                    interrupt.WriteBit(targetGuid[5]);
-                    interrupt.WriteBit(targetGuid[4]);
-                    interrupt.WriteBit(casterGuid[2]);
-                    interrupt.WriteBit(targetGuid[0]);
-                    interrupt.WriteBit(casterGuid[6]);
-                    interrupt.WriteBit(0);
-                    interrupt.WriteBit(targetGuid[6]);
-                    interrupt.WriteBit(casterGuid[4]);
-                    interrupt.WriteBit(casterGuid[1]);
-                    interrupt.WriteBit(targetGuid[2]);
-                    interrupt.WriteBit(casterGuid[0]);
-                    interrupt.WriteBit(targetGuid[3]);
-                    interrupt.WriteBit(casterGuid[3]);
-                    interrupt.WriteBit(targetGuid[1]);
-                    interrupt.WriteBit(casterGuid[7]);
-                    interrupt.WriteBit(targetGuid[7]);
+                    WorldPacket l_Data(SMSG_SPELL_INTERRUPT_LOG);
+                    l_Data.appendPackGUID(l_CasterGUID);
+                    l_Data.appendPackGUID(l_TargetGUID);
+                    l_Data << uint32(m_spellInfo->Id);
+                    l_Data << uint32(l_CurrentSpellInfo->Id);
 
-                    interrupt.WriteByteSeq(casterGuid[0]);
-                    interrupt.WriteByteSeq(casterGuid[4]);
-                    interrupt.WriteByteSeq(targetGuid[3]);
-                    interrupt.WriteByteSeq(casterGuid[3]);
-                    interrupt << uint32(m_spellInfo->Id);
-                    interrupt.WriteByteSeq(targetGuid[4]);
-                    interrupt.WriteByteSeq(casterGuid[1]);
-                    interrupt.WriteByteSeq(targetGuid[7]);
-                    interrupt.WriteByteSeq(targetGuid[0]);
-                    interrupt.WriteByteSeq(casterGuid[5]);
-                    interrupt << uint32(curSpellInfo->Id);
-                    interrupt.WriteByteSeq(targetGuid[1]);
-                    interrupt.WriteByteSeq(targetGuid[5]);
-                    interrupt.WriteByteSeq(casterGuid[7]);
-                    interrupt.WriteByteSeq(targetGuid[6]);
-                    interrupt.WriteByteSeq(casterGuid[6]);
-                    interrupt.WriteByteSeq(casterGuid[2]);
-                    interrupt.WriteByteSeq(targetGuid[2]);
-
-                    m_originalCaster->SendMessageToSet(&interrupt, true);
+                    m_originalCaster->SendMessageToSet(&l_Data, true);
                 }
 
-                ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
+                ExecuteLogEffectInterruptCast(effIndex, unitTarget, l_CurrentSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
         }
@@ -6279,6 +6295,7 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
     if (slot < 0)
     {
         unitTarget->ToPlayer()->DurabilityPointsLossAll(damage, (slot < -1));
+        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, (uint32)-1, (uint32)-1);
         return;
     }
 
@@ -6287,9 +6304,11 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
         return;
 
     if (Item* item = unitTarget->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+    {
         unitTarget->ToPlayer()->DurabilityPointsLoss(item, damage);
+        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, item->GetEntry(), damage);
+    }
 
-    ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, slot, damage);
 }
 
 void Spell::EffectDurabilityDamagePCT(SpellEffIndex effIndex)
@@ -6623,7 +6642,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // Ok if exist some buffs for dispel try dispel it
-    DispelList success_list;
+    DispelList l_SuccessList;
 
     uint64 l_CasterGUID = m_caster->GetGUID();
     uint64 l_VictimGUID = unitTarget->GetGUID();
@@ -6650,7 +6669,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         {
             if (roll_chance_i(chance))
             {
-                success_list.push_back(std::make_pair(l_DispelChargeIT->first->GetId(), l_DispelChargeIT->first->GetCasterGUID()));
+                l_SuccessList.push_back(std::make_pair(l_DispelChargeIT->first->GetId(), l_DispelChargeIT->first->GetCasterGUID()));
                 --l_DispelChargeIT->second;
                 if (l_DispelChargeIT->second <= 0)
                     steal_list.erase(l_DispelChargeIT);
@@ -6678,24 +6697,42 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         m_caster->SendMessageToSet(&l_SpellFailedPacket, true);
     }
 
-    if (success_list.empty())
+    if (l_SuccessList.empty())
         return;
 
-    // @TODO : add the SMSG_SPELLSTEALLOG
-    /*WorldPacket dataSuccess(SMSG_SPELL_DISPELL_LOG, 8 + 8 + 4 + 1 + 4 + success_list.size() * 5);
-    // Send packet header
-    dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
-    dataSuccess.append(m_caster->GetPackGUID());           // Caster GUID
-    dataSuccess << uint32(success_list.size());            // count
-    dataSuccess << uint32(m_spellInfo->Id);                // dispel spell id
-    dataSuccess << uint32(0);                              // */
+    bool l_IsBreak = true;
+    bool l_IsSteal = true;
 
-    for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
+    WorldPacket l_DispellData(SMSG_SPELL_DISPELL_LOG, (2 * (16 + 2)) + 4 + 4 + (l_SuccessList.size() * (4 + 1 + 4 + 4)));
+    l_DispellData.WriteBit(l_IsSteal);                          ///< IsSteal
+    l_DispellData.WriteBit(l_IsBreak);                          ///< IsBreak
+    l_DispellData.FlushBits();
+    l_DispellData.appendPackGUID(unitTarget->GetGUID());        ///< TargetGUID
+    l_DispellData.appendPackGUID(m_caster->GetGUID());          ///< CasterGUID
+    l_DispellData << uint32(m_spellInfo->Id);                   ///< DispelledBySpellID
+    l_DispellData << uint32(l_SuccessList.size());              ///< DispellData
+
+    for (DispelList::iterator l_It = l_SuccessList.begin(); l_It != l_SuccessList.end(); ++l_It)
     {
-        // dataSuccess << uint32(itr->first);              // Spell Id
-        // dataSuccess << uint8(0);                        // 0 - dispelled !=0 cleansed
-        unitTarget->RemoveAurasDueToSpellBySteal(itr->first, itr->second, m_caster);
+        uint32 l_Rolled = 0;
+        uint32 l_Needed = 0;
+
+        l_DispellData << uint32(l_It->first);                   ///< SpellID
+        l_DispellData.WriteBit(false);                          ///< Harmful : 0 - dispelled !=0 cleansed
+        l_DispellData.WriteBit(!!l_Rolled);                     ///< IsRolled
+        l_DispellData.WriteBit(!!l_Needed);                     ///< IsNeeded
+        l_DispellData.FlushBits();
+
+        if (l_Rolled)
+            l_DispellData << uint32(l_Rolled);                  ///< Rolled
+
+        if (l_Needed)
+            l_DispellData << uint32(l_Needed);                  ///< Needed
+
+        unitTarget->RemoveAurasDueToSpellBySteal(l_It->first, l_It->second, m_caster);
     }
+
+    m_caster->SendMessageToSet(&l_DispellData, true);
 
     // Glyph of SpellSteal
     if (m_caster->HasAura(115713))
@@ -6966,15 +7003,25 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     switch (m_spellInfo->Id)
     {
-    case 81283: // Fungal Growth
-        numGuardians = 1;
-        break;
-    case 49028: // Dancing Rune Weapon
-        // 20% Parry
-        m_originalCaster->CastSpell(m_originalCaster, 81256, true);
-        break;
-    default:
-        break;
+        case 81283: // Fungal Growth
+            numGuardians = 1;
+            break;
+        case 49028: // Dancing Rune Weapon
+            // 20% Parry
+            m_originalCaster->CastSpell(m_originalCaster, 81256, true);
+            break;
+        case 101643: /// Transencence
+            for (Unit::ControlList::const_iterator itr = m_originalCaster->m_Controlled.begin(); itr != m_originalCaster->m_Controlled.end(); ++itr)
+            {
+                if ((*itr)->GetEntry() == 54569)
+                {
+                    ((Creature*)(*itr))->DespawnOrUnsummon();
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
     }
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
@@ -7000,6 +7047,17 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->GetEntry() == 27829)
         {
             summon->setFaction(caster->getFaction());
+            ExecuteLogEffectSummonObject(i, summon);
+            return;
+        }
+
+        /// Transcendence shouldn't be initialized twice
+        if (summon->GetEntry() == 54569)
+        {
+            summon->SetOwnerGUID(m_originalCaster->GetGUID());
+            summon->SetCreatorGUID(m_originalCaster->GetGUID());
+            summon->setFaction(m_originalCaster->getFaction());
+            summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
             ExecuteLogEffectSummonObject(i, summon);
             return;
         }
@@ -7380,7 +7438,7 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
         break;
     }
-    case 115460:// Healing Sphere
+    case 119031:/// Healing Sphere
     {
         int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
 

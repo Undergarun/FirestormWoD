@@ -2870,7 +2870,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* p_AurApp, uint8 p_Mo
             l_Target->setTransForm(GetId());
 
         // polymorph case
-        if ((p_Mode & AURA_EFFECT_HANDLE_REAL) && l_Target->GetTypeId() == TYPEID_PLAYER && l_Target->IsPolymorphed())
+        if ((p_Mode & AURA_EFFECT_HANDLE_REAL) && l_Target->GetTypeId() == TYPEID_PLAYER &&
+            (l_Target->IsPolymorphed() || l_Target->HasAuraWithMechanic(1 << MECHANIC_POLYMORPH)))
         {
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
@@ -2880,6 +2881,13 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* p_AurApp, uint8 p_Mo
             //dismount polymorphed target (after patch 2.4.2)
             if (l_Target->IsMounted())
                 l_Target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+            if (l_Target->HasUnitState(UNIT_STATE_CASTING))
+            {
+                l_Target->InterruptSpell(CURRENT_GENERIC_SPELL);
+                l_Target->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                l_Target->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            }
         }
     }
     else
@@ -2941,10 +2949,19 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
         // What must be cloned? at least display and scale
         target->SetDisplayId(caster->GetDisplayId());
 
-        //target->SetObjectScale(caster->GetFloatValue(OBJECT_FIELD_SCALE)); // we need retail info about how scaling is handled (aura maybe?)
+        uint32 l_MainHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_MAINHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID);
+        uint32 l_OffHand = displayOwner->GetTypeId() == TYPEID_PLAYER ? displayOwner->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (EQUIPMENT_SLOT_OFFHAND * 3)) : displayOwner->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1);
+
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MainHand);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OffHand);
+
     }
     else
+    {
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, 0);
+        target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
         target->SetDisplayId(target->GetNativeDisplayId());
+    }
 }
 
 void AuraEffect::HandleAuraInitializeImages(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7559,10 +7576,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
 
-    bool crit = false;
-
-    if (CanPeriodicTickCrit(target, caster))
-        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+    bool crit = CanPeriodicTickCrit(target, caster);
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -7651,10 +7665,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
                 damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
 
-    bool crit = false;
-
-    if (CanPeriodicTickCrit(target, caster))
-        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+    bool crit = CanPeriodicTickCrit(target, caster);
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -7770,17 +7781,17 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
 
-        // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellIconID == 2864)
+        // Wild Growth
+        if (m_spellInfo->Id == 48438)
         {
-            int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+            float l_SetMod = 0.f;
 
             // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffectPtr aurEff = caster->GetAuraEffect(70658, 0))
-                // divided by 50 instead of 100 because calculated as for every 2 tick
-                addition += abs(int32((addition * aurEff->GetAmount()) / 50));
+            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
+                l_SetMod = l_AurEff->GetAmount() / 100.f;
 
-            damage += addition;
+            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
+            damage *= l_Mod;
         }
 
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
@@ -7793,10 +7804,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
     }
 
-    bool crit = false;
-
-    if (CanPeriodicTickCrit(target, caster))
-        crit = roll_chance_f(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+    bool crit = CanPeriodicTickCrit(target, caster);
 
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);

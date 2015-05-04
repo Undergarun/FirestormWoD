@@ -1,11 +1,14 @@
 
 -- fix Ember Tap stacking
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_ember_tap_glyph' AND spell_id = 114635;
 INSERT INTO `spell_script_names` VALUES (114635, 'spell_warl_ember_tap_glyph');
 
 -- fix Chaos Bolt, removes stacks of Backdraft
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_warl_chaos_bolt' AND spell_id = 116858;
 INSERT INTO `spell_script_names` VALUES (116858, 'spell_warl_chaos_bolt');
 
 -- fix Divine Insight (shadow) if proc while player is casting
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_pri_mind_blast' AND spell_id = 8092;
 INSERT INTO `spell_script_names` VALUES ('8092', 'spell_pri_mind_blast');
 
 -- fix flight after death

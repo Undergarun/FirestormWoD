@@ -850,7 +850,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     rest_type=REST_TYPE_NO;
     ////////////////////Rest System/////////////////////
 
-    m_mailsLoaded = false;
     m_mailsUpdated = false;
     unReadMails = 0;
     m_nextMailDelivereTime = 0;
@@ -976,7 +975,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     }
 
     m_initializeCallback = false;
-    m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
 
@@ -1869,38 +1867,14 @@ void Player::Update(uint32 p_time)
         return;
 
     //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
-
     if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeItemCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeGoldCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeTitleCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeLevelCallback = CharacterDatabase.AsyncQuery(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt32(1, m_currentPetSlot);
         _petPreloadCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _HeirloomStoreCallback = LoginDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _PlayersToysCallback = LoginDatabase.AsyncQuery(stmt);
 
         m_initializeCallback = true;
     }
@@ -1909,57 +1883,11 @@ void Player::Update(uint32 p_time)
     {
         PreparedQueryResult result;
 
-        if (_storeItemCallback.ready())
-        {
-            _storeItemCallback.get(result);
-            HandleStoreItemCallback(result);
-            _storeItemCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeGoldCallback.ready())
-        {
-            _storeGoldCallback.get(result);
-            HandleStoreGoldCallback(result);
-            _storeGoldCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeTitleCallback.ready())
-        {
-            _storeTitleCallback.get(result);
-            HandleStoreTitleCallback(result);
-            _storeTitleCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeLevelCallback.ready())
-        {
-            _storeLevelCallback.get(result);
-            HandleStoreLevelCallback(result);
-            _storeLevelCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
         if (_petPreloadCallback.ready())
         {
             _petPreloadCallback.get(result);
             LoadPet(result);
             _petPreloadCallback.cancel();
-        }
-
-        if (_HeirloomStoreCallback.ready())
-        {
-            _HeirloomStoreCallback.get(result);
-            _LoadHeirloomCollection(result);
-            _HeirloomStoreCallback.cancel();
-        }
-
-        if (_PlayersToysCallback.ready())
-        {
-            _PlayersToysCallback.get(result);
-            _LoadToyBox(result);
-            _PlayersToysCallback.cancel();
         }
 
         if (_petLoginCallback.ready())
@@ -1974,13 +1902,6 @@ void Player::Update(uint32 p_time)
             delete param;
 
             _petLoginCallback.cancel();
-        }
-
-        // All store callback are check, we can save to db player
-        if (m_storeCallbackCounter == 4)
-        {
-            SaveToDB();
-            m_storeCallbackCounter++;
         }
     }
 
@@ -6455,6 +6376,54 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     SetSpecializationResetTime(time(nullptr));
 }
 
+void Player::ResetAllSpecs()
+{
+    for (int l_SpecIdx = 0; l_SpecIdx < 2; l_SpecIdx++)
+    {
+        /// Remove specialization Glyphs
+        std::vector<uint32> l_Glyphs = GetGlyphMap(l_SpecIdx);
+        uint8 l_Slot = 0;
+        for (uint32 l_Glyph : l_Glyphs)
+        {
+            GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+            for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+            {
+                if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+                {
+                    if (l_GlyphRequirements->GlyphID == l_Glyph)
+                    {
+                        l_GlyphReq = l_GlyphRequirements;
+                        break;
+                    }
+                }
+            }
+
+            if (l_GlyphReq == nullptr)
+            {
+                ++l_Slot;
+                continue;
+            }
+
+            /// If glyph has a spec requirement, remove it
+            if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+            {
+                RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+                SetGlyph(l_Slot, 0);
+            }
+
+            ++l_Slot;
+        }
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), false);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    SetSpecializationResetTime(time(nullptr));
+}
+
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
     /// Remove specialization talents
@@ -7995,9 +7964,9 @@ void Player::UpdateRating(CombatRating p_CombatRating)
     {
         float l_HastePct = l_Amount * GetRatingMultiplier(p_CombatRating);
 
-        ///< Way of the Monk
-        if (HasAura(120275))
-            l_HastePct += 40.0f;
+        /// last update : 6.1.2 19802
+        if (HasAura(120275)) ///< Way of the Monk
+            l_HastePct += 55.0f;
 
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
         for (AuraEffectList::const_iterator l_Iter = l_HasteAuras.begin(); l_Iter != l_HasteAuras.end(); ++l_Iter)
@@ -17534,7 +17503,7 @@ void Player::SendDisplayToast(uint32 p_Entry, uint32 p_Count, DisplayToastMethod
         Item::BuildDynamicItemDatas(l_Data, p_Entry, p_ItemBonus);
 
         l_Data << uint32(GetLootSpecId());
-        l_Data << uint32(0);                        // Unk
+        l_Data << uint32(0);                        // Unk: Quantity ?
     }
     else
         l_Data.FlushBits();
@@ -20368,7 +20337,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
+bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder)
 {
     /// 0             1               2               3                  4                         5                         6                7                  8                    9
     /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes,
@@ -20521,6 +20490,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     std::string taxi_nodes = fields[38].GetString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
+
+    _LoadHeirloomCollection(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_HEIRLOOM_COLLECTION));
+    _LoadToyBox(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_TOYS));
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -20836,7 +20808,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
-    //_LoadMail();
+    _LoadMail(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL));
+    _LoadMailedItems(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS));
 
     SetSpecsCount(fields[53].GetUInt8());
     SetActiveSpec(fields[54].GetUInt8());
@@ -20860,7 +20833,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
-    if (accountResult)
+    if (PreparedQueryResult accountResult = p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINGB_SPELL))
     {
         do
         {
@@ -21148,6 +21121,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     else
         delete l_Garrison;
 
+    RewardCompletedAchievementsIfNeeded();
     return true;
 }
 
@@ -21701,60 +21675,61 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
 }
 
 // load mailed item which should receive current player
-void Player::_LoadMailedItems(Mail* mail)
+void Player::_LoadMailedItems(PreparedQueryResult p_MailedItems)
 {
     // data needs to be at first place for Item::LoadFromDB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
-    stmt->setUInt32(0, mail->messageID);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
+    if (!p_MailedItems)
         return;
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = p_MailedItems->Fetch();
 
-        uint32 itemGuid = fields[14].GetUInt32();
-        uint32 itemTemplate = fields[15].GetUInt32();
+        uint32 l_ItemGuid     = l_Fields[14].GetUInt32();
+        uint32 l_ItemTemplate = l_Fields[15].GetUInt32();
+        uint32 l_MailId       = l_Fields[17].GetUInt32();
 
-        mail->AddItem(itemGuid, itemTemplate);
+        Mail* l_Mail = GetMail(l_MailId);
+        if (l_Mail == nullptr)
+            continue;
 
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemTemplate);
+        l_Mail->AddItem(l_ItemGuid, l_ItemTemplate);
 
-        if (!proto)
+        ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_ItemTemplate);
+
+        if (!l_Proto)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUIDLow(), itemGuid, itemTemplate, mail->messageID);
+            sLog->outError(LOG_FILTER_PLAYER, "Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUIDLow(), l_ItemGuid, l_ItemTemplate, l_Mail->messageID);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
-            stmt->setUInt32(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
+            l_Statement->setUInt32(0, l_ItemGuid);
+            CharacterDatabase.Execute(l_Statement);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt32(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
+            l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            l_Statement->setUInt32(0, l_ItemGuid);
+            CharacterDatabase.Execute(l_Statement);
             continue;
         }
 
-        Item* item = NewItemOrBag(proto);
-
-        if (!item->LoadFromDB(itemGuid, MAKE_NEW_GUID(fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), fields, itemTemplate))
+        Item* l_Item = NewItemOrBag(l_Proto);
+        if (!l_Item->LoadFromDB(l_ItemGuid, MAKE_NEW_GUID(l_Fields[16].GetUInt32(), 0, HIGHGUID_PLAYER), l_Fields, l_ItemTemplate))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, itemGuid);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", l_Mail->messageID, l_ItemGuid);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-            stmt->setUInt32(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
+            l_Statement->setUInt32(0, l_ItemGuid);
+            CharacterDatabase.Execute(l_Statement);
 
-            item->FSetState(ITEM_REMOVED);
+            l_Item->FSetState(ITEM_REMOVED);
 
-            SQLTransaction temp = SQLTransaction(NULL);
-            item->SaveToDB(temp);                               // it also deletes item object !
+            SQLTransaction l_Tmp = SQLTransaction(NULL);
+            l_Item->SaveToDB(l_Tmp);                               // it also deletes item object !
             continue;
         }
 
-        AddMItem(item);
+        AddMItem(l_Item);
     }
-    while (result->NextRow());
+    while (p_MailedItems->NextRow());
 }
 
 void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery)
@@ -21770,19 +21745,15 @@ void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult
         m_nextMailDelivereTime = time_t((*resultDelivery)[0].GetUInt32());
 }
 
-void Player::_LoadMail()
+void Player::_LoadMail(PreparedQueryResult p_MailResult)
 {
     m_mail.clear();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
-    stmt->setUInt32(0, GetGUIDLow());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
+    if (p_MailResult)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field* fields = p_MailResult->Fetch();
             Mail* m = new Mail;
 
             m->messageID      = fields[0].GetUInt32();
@@ -21808,14 +21779,10 @@ void Player::_LoadMail()
 
             m->state = MAIL_STATE_UNCHANGED;
 
-            if (has_items)
-                _LoadMailedItems(m);
-
             m_mail.push_back(m);
         }
-        while (result->NextRow());
+        while (p_MailResult->NextRow());
     }
-    m_mailsLoaded = true;
 }
 
 void Player::LoadPet(PreparedQueryResult result)
@@ -23268,9 +23235,6 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
 
 void Player::_SaveMail(SQLTransaction& trans)
 {
-    if (!m_mailsLoaded)
-        return;
-
     PreparedStatement* stmt = NULL;
 
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
@@ -25293,6 +25257,25 @@ void Player::ContinueTaxiFlight()
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
+void Player::TaxiRequestEarlyLanding()
+{
+//     uint32 l_Current = m_taxi.GetCurrentTaxiPath();
+// 
+//     if (!l_Current)
+//         return;
+// 
+//     std::deque<uint32> l_CurrentDestination = m_taxi.GetCurrentDestinationQueue();
+//     std::deque<uint32> l_NewDestination;
+//     l_NewDestination.push_back(l_Current);
+// 
+//     if (!l_CurrentDestination.size())
+//         return;
+// 
+//     l_NewDestination.push_back(l_CurrentDestination[1]);
+// 
+//     m_taxi.SetDestinationQueue(l_NewDestination);
+}
+
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -26853,11 +26836,11 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     l_Data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour
-    l_Data << float(0.01666667f);                                 // game speed
-    l_Data << uint32(1);                                          // added in 5.4.0
-    l_Data << uint32(1);                                          // added in 3.1.2
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour    ServerTime
+    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour     GameTime
+    l_Data << float(0.01666667f);                                 // game speed     NewSpeed
+    l_Data << uint32(1);                                          // added in 5.4.0 GameTimeHolidayOffset or ServerTimeHolidayOffset
+    l_Data << uint32(1);                                          // added in 3.1.2 GameTimeHolidayOffset or ServerTimeHolidayOffset
     GetSession()->SendPacket(&l_Data);
 
     bool l_IsInInstance = GetMap()->GetMapDifficulty() ? GetMap()->GetMapDifficulty()->MaxPlayers : false;
@@ -30464,7 +30447,7 @@ void Player::SendRefundInfo(Item* p_Item)
         for (uint8 l_I = 0; l_I < MAX_ITEM_EXT_COST_CURRENCIES; ++l_I)
         {
             l_Data << uint32(l_ExtendedCost->RequiredCurrency[l_I]);
-            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I] / 100); ///< Must be devided by precision
+            l_Data << uint32(l_ExtendedCost->RequiredCurrencyCount[l_I]);
         }
     }
 
@@ -31197,12 +31180,12 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     if (!l_MountDisplayInfo)
     {
         WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
-        l_Data.appendPackGUID(GetGUID());
-        l_Data << uint32(sWorld->GetGameTime());
-        l_Data << float(p_Height);
-        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE));
-        l_Data << uint32(0);
-        l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2);
+        l_Data.appendPackGUID(GetGUID());                   ///< MoverGUID
+        l_Data << uint32(sWorld->GetGameTime());            ///< SequenceIndex
+        l_Data << float(p_Height);                          ///< Height
+        l_Data << float(GetFloatValue(OBJECT_FIELD_SCALE)); ///< Scale
+        l_Data << uint32(0);                                ///< MountDisplayID
+        l_Data.WriteBits(UPDATE_COLLISION_HEIGHT_MOUNT, 2); ///< Reason
         SendDirectMessage(&l_Data);
         return;
     }
@@ -33301,5 +33284,114 @@ void Player::ApplyWargameItemModifications()
                 _ApplyItemMods(l_Item, l_I, true);
             }
         }
+    }
+}
+
+void Player::RewardCompletedAchievementsIfNeeded()
+{
+    for (auto l_Iterator : GetAchievementMgr().GetCompletedAchivements())
+    {
+        AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(l_Iterator.first);
+        if (l_Achievement == nullptr)
+            continue;
+
+        AchievementReward const* l_Reward = sAchievementMgr->GetAchievementReward(l_Achievement);
+        if (l_Reward == nullptr)
+            continue;
+
+        /// Titles are already handle at achievement loading
+        /// So we just handle item case here
+        if (l_Reward->itemId == 0)
+            continue;
+
+        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Reward->itemId);
+        if (l_ItemTemplate == nullptr)
+            continue;
+
+        uint32 l_SpellLearned = 0;
+        for (uint8 l_Index = 0; l_Index < MAX_ITEM_PROTO_SPELLS; ++l_Index)
+        {
+            if (l_ItemTemplate->Spells[l_Index].SpellTrigger == ItemSpelltriggerType::ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+            {
+                l_SpellLearned = l_ItemTemplate->Spells[l_Index].SpellId;
+                break;
+            }
+        }
+
+        /// - Only support mount / pet items
+        /// - Because we have not way to know if the player have already get the reward otherwise
+        if (!l_SpellLearned)
+            continue;
+
+        /// Check if the player have already get the reward
+        /// 1 - Check if player already have learned the spell
+        if (HasSpell(l_SpellLearned))
+            continue;
+
+        /// 2 - Check his bags / bank
+        if (GetItemCount(l_ItemTemplate->ItemId, true) != 0)
+            continue;
+
+        /// 3 - Check in mail (achievements rewards are sended by mails)
+        {
+            bool l_FoundInMail = false;
+            for (auto l_Item : mMitems)
+            {
+                if (l_Item.second->GetEntry() == l_ItemTemplate->ItemId)
+                {
+                    l_FoundInMail = true;
+                    break;
+                }
+            }
+
+            if (l_FoundInMail)
+                continue;
+        }
+
+        /// We are now sure the player didn't get the reward, send it to him with mail!
+        // Mail
+        if (l_Reward->sender)
+        {
+            Item* l_Item = l_Reward->itemId ? Item::CreateItem(l_Reward->itemId, 1, this) : nullptr;
+
+            int l_LocIDX = GetSession()->GetSessionDbLocaleIndex();
+
+            // Subject and text
+            std::string l_Subject = l_Reward->subject;
+            std::string l_Text = l_Reward->text;
+            if (l_LocIDX >= 0)
+            {
+                if (AchievementRewardLocale const* l_Locale = sAchievementMgr->GetAchievementRewardLocale(l_Achievement))
+                {
+                    ObjectMgr::GetLocaleString(l_Locale->subject, l_LocIDX, l_Subject);
+                    ObjectMgr::GetLocaleString(l_Locale->text, l_LocIDX, l_Text);
+                }
+            }
+
+            MailDraft l_Draft(l_Subject, l_Text);
+
+            SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+            if (l_Item)
+            {
+                // Save new item before send
+                l_Item->SaveToDB(l_Transaction);                               // Save for prevent lost at next mail load, if send fail then item will deleted
+
+                // Item
+                l_Draft.AddItem(l_Item);
+            }
+
+            l_Draft.SendMailTo(l_Transaction, this, MailSender(MAIL_CREATURE, l_Reward->sender));
+            CharacterDatabase.CommitTransaction(l_Transaction);
+        }
+    }
+}
+
+void Player::DeleteInvalidSpells()
+{
+    PlayerSpellMap l_SpellMap = GetSpellMap();
+    for (PlayerSpellMap::const_iterator l_Iterator = l_SpellMap.begin(); l_Iterator != l_SpellMap.end(); ++l_Iterator)
+    {
+        if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
+        removeSpell(l_Iterator->first, false, false);
     }
 }

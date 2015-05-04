@@ -578,7 +578,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
+    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4 + 4 + 4));
     uint32 l_Count = 0;
     uint32 l_TotalCount = 0;
 

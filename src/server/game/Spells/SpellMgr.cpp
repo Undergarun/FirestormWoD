@@ -3328,6 +3328,14 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
+                spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
+                break;
+            case 159407: ///< Combo Breaker: Chi Explosion
+                spellInfo->ProcCharges = 0;
+                spellInfo->ProcFlags = 0;
+                spellInfo->ProcChance = 0;
+                break;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -4638,7 +4646,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 88767: ///< Fulmination (triggered)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
-            case 51514:  ///< Hex
             case 130616: ///< Glyph of Fear effect
             case 117961: ///< Impervious Shield
             case 117837: ///< Delirious
@@ -4845,15 +4852,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(51485);
                 break;
             case 33110: ///< Prayer of Mending
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;;
+                spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                break;
-            case 119611: ///< Renewing Mist 
-                spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
@@ -5101,6 +5105,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
+            case 82938: ///< Explosive Trap (launcher)
+            case 82940: ///< Ice Trap (launcher)
+            case 60202: ///< Freezing Trap (launcher)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7);
+                break;
             case 56224: ///< Glyph of Healthstone
                 spellInfo->Effects[0].BasePoints = 0;
                 break;
@@ -5253,14 +5262,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
-            case 130320: ///< Rising Sun Kick - Monks abilities deal 10% more damage
-                spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
-                spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                break;
-            case 101546: ///< Spinning Crane Kick - Decrease Speed
-                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
-                spellInfo->Effects[1].BasePoints = -30;
+            case 101546: ///< Spinning Crane Kick
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                 break;
             case 125084: ///< Charging Ox Wave
@@ -5942,9 +5944,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 114255: ///< Surge of Light (proc)
                 spellInfo->StackAmount = 2;
-                break;
-            case 129197: ///< Insanity
-                spellInfo->Effects[EFFECT_0].BonusMultiplier = 0.60f;
                 break;
             case 1543: ///< Flare
                 spellInfo->Effects[0].TriggerSpell = 109772;

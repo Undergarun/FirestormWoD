@@ -1,6 +1,7 @@
 #80167/NPC - Groog
 
 	UPDATE `creature_template` SET `minlevel` = 90,`maxlevel` = 90,`exp` = 5,`ScriptName` = 'npc_groog' WHERE `entry` = 80167;
+	DELETE FROM spell_script_names WHERE ScriptName = 'spell_groog_rampage';
 	INSERT INTO spell_script_names VALUE (148852,"spell_groog_rampage");
 
 	UPDATE `creature_template` SET `lootid`=80167 WHERE `entry`=80167;

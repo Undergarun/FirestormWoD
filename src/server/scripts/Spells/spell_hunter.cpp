@@ -129,8 +129,6 @@ enum HunterSpells
     HUNTER_SPELL_POISONED_AMMO_AURA                 = 170661,
     HUNTER_SPELL_GLYPH_OF_MEND_PET                  = 19573,
     HUNTER_SPELL_GLYPH_OF_MEND_PET_TICK             = 24406,
-    HUNTER_SPELL_ENTRAPMENT_AURA                    = 19387,
-    HUNTER_SPELL_ENTRAPMENT                         = 64803,
     HUNTER_SPELL_FRENZY                             = 19623,
     HUNTER_SPELL_COMBAT_EXPERIENCE                  = 20782,
     HUNTER_SPELL_BLINK_STRIKES                      = 130392,
@@ -2235,71 +2233,8 @@ class spell_hun_binding_shot_zone : public SpellScriptLoader
         }
 };
 
-/// Binding Shot - 109248
-class spell_hun_binding_shot_areatrigger : public AreaTriggerEntityScript
-{
-    public:
-        spell_hun_binding_shot_areatrigger() : AreaTriggerEntityScript("spell_hun_binding_shot_areatrigger") { }
-
-        enum eSpells
-        {
-            BindingShotLink         = 117405,
-            BindingShotImmune       = 117553,
-            BindingShotVisualLink   = 117614
-        };
-
-        uint32 m_LinkVisualTimer = 1000;
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId())->Effects[EFFECT_1].CalcRadius(l_Caster);
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                if (l_TargetList.empty())
-                    return;
-
-                l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
-                {
-                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
-                        return true;
-
-                    if (p_Unit->HasAura(eSpells::BindingShotImmune))
-                        return true;
-
-                    return false;
-                });
-
-                for (Unit* l_Target : l_TargetList)
-                {
-                    if (!l_Target->HasAura(eSpells::BindingShotLink))
-                        l_Caster->CastSpell(l_Target, eSpells::BindingShotLink, true);
-                }
-
-                if (m_LinkVisualTimer <= p_Time)
-                {
-                    m_LinkVisualTimer = 1000;
-
-                    for (Unit* l_Target : l_TargetList)
-                        l_Target->CastSpell(p_AreaTrigger->m_positionX, p_AreaTrigger->m_positionY, p_AreaTrigger->m_positionZ, eSpells::BindingShotVisualLink, true);
-                }
-                else
-                    m_LinkVisualTimer -= p_Time;
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_hun_binding_shot_areatrigger();
-        }
-};
-
-// Powershot - 109259
+/// last update : 6.1.2 19802
+/// Powershot - 109259
 class spell_hun_powershot: public SpellScriptLoader
 {
     public:
@@ -2309,64 +2244,68 @@ class spell_hun_powershot: public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_powershot_SpellScript);
 
-            void HandleAfterHit()
+            enum eSpells
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                PowerShotMainTarget = 177571,
+                PowerShotSecondaryTarget = 181741
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, eSpells::PowerShotMainTarget, true);
+
+                std::list<Unit*> l_TempUnitMap;
+                l_Caster->GetAttackableUnitListInRange(l_TempUnitMap, l_Caster->GetDistance(l_Target));
+                for (auto itr : l_TempUnitMap)
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        std::list<Unit*> tempUnitMap;
-                        _player->GetAttackableUnitListInRange(tempUnitMap, _player->GetDistance(target));
+                    if (!itr->IsValidAttackTarget(l_Caster))
+                        continue;
 
-                        for (auto itr : tempUnitMap)
-                        {
-                            if (!itr->IsValidAttackTarget(_player))
-                                continue;
+                    if (itr->GetGUID() == l_Caster->GetGUID())
+                        continue;
 
-                            if (itr->GetGUID() == _player->GetGUID())
-                                continue;
+                    if (!itr->IsInBetween(l_Caster, l_Target, 1.0f))
+                        continue;
 
-                            if (!itr->IsInBetween(_player, target, 1.0f))
-                                continue;
+                    l_Caster->CastSpell(itr, eSpells::PowerShotSecondaryTarget, true);
 
-                            SpellNonMeleeDamage damageInfo(_player, itr, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
-                            damageInfo.damage = int32(GetHitDamage() / 2);
-                            _player->SendSpellNonMeleeDamageLog(&damageInfo);
-                            _player->DealSpellDamage(&damageInfo, true);
+                    if (Creature* creatureTarget = itr->ToCreature())
+                    if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
+                        continue;
 
-                            if (Creature* creatureTarget = itr->ToCreature())
-                                if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
-                                    continue;
+                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                    if (itr->ToPlayer()->GetKnockBackTime())
+                        continue;
 
-                            if (itr->GetTypeId() == TYPEID_PLAYER)
-                                if (itr->ToPlayer()->GetKnockBackTime())
-                                    continue;
+                    // Instantly interrupt non melee spells being casted
+                    if (itr->IsNonMeleeSpellCasted(true))
+                        itr->InterruptNonMeleeSpells(true);
 
-                            // Instantly interrupt non melee spells being casted
-                            if (itr->IsNonMeleeSpellCasted(true))
-                                itr->InterruptNonMeleeSpells(true);
+                    float l_Ratio = 0.1f;
+                    float l_Speedxy = float(GetSpellInfo()->Effects[EFFECT_1].MiscValue) * l_Ratio;
+                    float l_Speedz = float(GetSpellInfo()->Effects[EFFECT_1].BasePoints) * l_Ratio;
+                    if (l_Speedxy < 0.1f && l_Speedz < 0.1f)
+                        return;
 
-                            float ratio = 0.1f;
-                            float speedxy = float(GetSpellInfo()->Effects[EFFECT_1].MiscValue) * ratio;
-                            float speedz = float(GetSpellInfo()->Effects[EFFECT_1].BasePoints) * ratio;
-                            if (speedxy < 0.1f && speedz < 0.1f)
-                                return;
+                    float l_X, l_Y;
+                    l_Caster->GetPosition(l_X, l_Y);
 
-                            float x, y;
-                            _player->GetPosition(x, y);
+                    itr->KnockbackFrom(l_X, l_Y, l_Speedxy, l_Speedz);
 
-                            itr->KnockbackFrom(x, y, speedxy, speedz);
-
-                            if (itr->GetTypeId() == TYPEID_PLAYER)
-                                itr->ToPlayer()->SetKnockBackTime(getMSTime());
-                        }
-                    }
+                    if (itr->GetTypeId() == TYPEID_PLAYER)
+                        itr->ToPlayer()->SetKnockBackTime(getMSTime());
                 }
             }
 
             void Register()
             {
-                AfterHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleAfterHit);
+                OnHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleOnHit);
             }
         };
 
@@ -3474,162 +3413,6 @@ class PlayerScript_thrill_of_the_hunt: public PlayerScript
         }
 };
 
-enum class HunterIceTrap : uint32
-{
-    SpellIceTrapEffect  = 13810
-};
-
-/// Ice Trap - 13809
-/// Ice Trap (Frost - Trap Launcher) - 82940
-class AreaTrigger_ice_trap : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_ice_trap() : AreaTriggerEntityScript("at_ice_trap") { }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_ice_trap();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            Unit* l_Caster                 = p_AreaTrigger->GetCaster();
-
-            if (l_Caster && l_CreateSpell)
-            {
-                float l_Radius = 5.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterIceTrap::SpellIceTrapEffect, true);
-
-                    if (l_Caster->HasAura(HUNTER_SPELL_ENTRAPMENT_AURA)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HUNTER_SPELL_ENTRAPMENT, true);
-                    p_AreaTrigger->Remove(0);
-                }
-            }
-        }
-};
-
-/// Ice trap effect - 13810
-class AreaTrigger_ice_trap_effect : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_ice_trap_effect()
-            : AreaTriggerEntityScript("at_ice_trap_effect")
-        {
-        }
-
-        enum eSpells
-        {
-            GlyphOfBlackIce = 109263,
-            BlackIceEffect = 83559,
-            IceTrapEffect = 135299
-
-        };
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_ice_trap_effect();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            std::list<Unit*> targetList;
-            float l_Radius = 10.0f;
-            Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
-            p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
-
-            for (auto itr : targetList)
-                itr->CastSpell(itr, IceTrapEffect, true);
-
-            // Glyph of Black Ice
-            if (l_Caster->GetDistance(p_AreaTrigger) <= l_Radius && l_Caster->HasAura(GlyphOfBlackIce) && !l_Caster->HasAura(BlackIceEffect))
-                l_Caster->CastSpell(l_Caster, BlackIceEffect, true);
-            if (l_Caster->GetDistance(p_AreaTrigger) > l_Radius || !l_Caster->HasAura(GlyphOfBlackIce))
-                l_Caster->RemoveAura(BlackIceEffect);
-        }
-
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
-        {
-            Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            if (l_Caster->HasAura(BlackIceEffect))
-                l_Caster->RemoveAura(BlackIceEffect);
-        }
-};
-
-enum class HunterFreezingTrap : uint32
-{
-    SpellIncapacitate         = 3355,
-    SpellGlyphOfSolace        = 119407,
-    HunterWodPvp2PBonus       = 166005,
-    HunterWodPvp2PBonusEffect = 166009
-};
-
-/// Freezing Trap - 1499
-/// Freezing Trap (Frost - Trap Launcher) - 60202
-class AreaTrigger_freezing_trap : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_freezing_trap() : AreaTriggerEntityScript("at_freezing_trap") { }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_freezing_trap();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            auto l_CreateSpell       = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster && l_CreateSpell)
-            {
-                float l_Radius = 2.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::SpellGlyphOfSolace)) ///< Your Freezing Trap also removes all damage over time effects from its target.
-                        l_Target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, l_AreaTriggerCaster->GetGUID());
-                    l_AreaTriggerCaster->CastSpell(l_Target, (uint32)HunterFreezingTrap::SpellIncapacitate, true);
-                    p_AreaTrigger->Remove(0);
-
-                    /// Item - Hunter WoD PvP 2P Bonus
-                    if (l_AreaTriggerCaster->HasAura((uint32)HunterFreezingTrap::HunterWodPvp2PBonus))
-                        l_AreaTriggerCaster->CastSpell(l_AreaTriggerCaster, (uint32)HunterFreezingTrap::HunterWodPvp2PBonusEffect, true);
-                }
-            }
-        }
-};
-
-enum class HunterExplosiveTrap : uint32
-{
-    SpellExplosiveEffect = 13812,
-    SpellGlyphOfExplosiveTrap = 119403
-};
-
 // Explosive Trap (damage) - 13812
 class spell_hun_explosive_trap : public SpellScriptLoader
 {
@@ -3640,9 +3423,14 @@ class spell_hun_explosive_trap : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_explosive_trap_SpellScript);
 
+            enum HunterExplosiveTrap
+            {
+                SpellGlyphOfExplosiveTrap = 119403
+            };
+
             void HandlePeriodicDamage(SpellEffIndex p_EffIndex)
             {
-                if (GetCaster()->HasAura((uint32)HunterExplosiveTrap::SpellGlyphOfExplosiveTrap))
+                if (GetCaster()->HasAura(HunterExplosiveTrap::SpellGlyphOfExplosiveTrap))
                     PreventHitAura();
             }
 
@@ -3655,43 +3443,6 @@ class spell_hun_explosive_trap : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_explosive_trap_SpellScript();
-        }
-};
-
-/// Explosive Trap - 13813
-/// Explosive Trap (Fire - Trap Launcher) - 82938
-class AreaTrigger_explosive_trap : public AreaTriggerEntityScript
-{
-    public:
-        AreaTrigger_explosive_trap() : AreaTriggerEntityScript("at_explosive_trap") { }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new AreaTrigger_explosive_trap();
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
-            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
-
-            if (l_AreaTriggerCaster && l_CreateSpell)
-            {
-                float l_Radius = 5.0f;
-                Unit* l_Target = nullptr;
-
-                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
-                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
-                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
-                if (!l_Target)
-                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
-
-                if (l_Target != nullptr)
-                {
-                    l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), (uint32)HunterExplosiveTrap::SpellExplosiveEffect, true);
-                    p_AreaTrigger->Remove(0);
-                }
-            }
         }
 };
 
@@ -3850,7 +3601,6 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
-    /// Spells
     new spell_hun_lesser_proportion();
     new spell_hun_glyph_of_lesser_proportion();
     new spell_hun_enhanced_basic_attacks();
@@ -3918,11 +3668,4 @@ void AddSC_hunter_spell_scripts()
 
     // Player Script
     new PlayerScript_thrill_of_the_hunt();
-
-    /// AreaTrigger Scripts
-    new AreaTrigger_ice_trap();
-    new AreaTrigger_ice_trap_effect();
-    new AreaTrigger_freezing_trap();
-    new AreaTrigger_explosive_trap();
-    new spell_hun_binding_shot_areatrigger();
 }

@@ -558,10 +558,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
     Player* player = m_Player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
-
     // client can't work with packets > max int16 value
     const uint32 maxPacketSize = 32767;
 
@@ -756,9 +752,6 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
     WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8);
-
-    if (!m_Player->m_mailsLoaded)
-        m_Player->_LoadMail();
 
     if (m_Player->unReadMails > 0)
     {

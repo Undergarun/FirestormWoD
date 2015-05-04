@@ -329,7 +329,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
 {
     uint64 l_Banker = 0;
     uint8 l_Tab = 0;
-    bool l_FullUpdate = false;;
+    bool l_FullUpdate = false;
 
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Tab;
@@ -601,13 +601,13 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
 
         for (uint32 l_Iter = 0; l_Iter < l_Rewards.size(); l_Iter++)
         {
-            l_Data << uint32(l_Rewards[l_Iter].Entry);
-            l_Data << uint32(0); // Heirloom entry ???s
-            l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);
-            l_Data << uint32(l_Rewards[l_Iter].Racemask);
-            l_Data << uint32(0);
-            l_Data << uint32(l_Rewards[l_Iter].Standing);
-            l_Data << uint64(l_Rewards[l_Iter].Price);
+            l_Data << uint32(l_Rewards[l_Iter].Entry);                      ///<
+            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);  ///< AchievementsRequired
+            l_Data << uint32(l_Rewards[l_Iter].Racemask);                   ///< RaceMask
+            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(l_Rewards[l_Iter].Standing);                   ///< MinGuildRep
+            l_Data << uint64(l_Rewards[l_Iter].Price);                      ///< Cost
 
             if (l_Rewards[l_Iter].AchievementId)
                 l_Data << uint32(l_Rewards[l_Iter].AchievementId);

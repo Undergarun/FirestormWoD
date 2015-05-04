@@ -325,8 +325,8 @@ struct CinematicCameraEntry
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
-    //uint32      unk1;                                     // 1 always 0
-    uint32      cinematicCamera;                            // 2 id in CinematicCamera.dbc                                                        // 3-9 always 0
+    //uint32      SoundID;                                  // 1
+    uint32      cinematicCamera;                            // 2-9
 };
 
 struct CreatureDisplayInfoEntry
@@ -506,7 +506,7 @@ struct DifficultyEntry
     uint32 GroupSizeDmgCurveID;
     uint32 GroupSizeSpellPointsCurveID;
     char*  NameLang;
-    uint32 Unknow1;
+    uint32 ItemBonusTreeModID;
 };
 
 struct DungeonEncounterEntry
@@ -1185,7 +1185,7 @@ struct MovieEntry
     //uint32    Volume;                                     // 1        m_Volume
     //uint32    KeyID;                                      // 2        m_KeyID
     //uint32    AudioFileDataID;                            // 3        m_AudioFileDataID
-    //uint32    unk3m_SubtitleFileDataID;                   // 4        m_SubtitleFileDataID
+    //uint32    m_SubtitleFileDataID;                       // 4        m_SubtitleFileDataID
 };
 
 struct NameGenEntry

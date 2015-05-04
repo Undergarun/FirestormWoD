@@ -128,6 +128,7 @@ struct CreatureTemplate
     uint32  Modelid3;
     uint32  Modelid4;
     std::string  Name;
+    std::string  FemaleName;
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
@@ -276,7 +277,7 @@ struct CreatureGroupSizeStat
 
     uint32 GetHealthFor(uint32 p_GroupSize) const
     {
-        p_GroupSize = std::max((uint32)10, p_GroupSize);
+        p_GroupSize = std::min(std::max((uint32)10, p_GroupSize), (uint32)MAX_GROUP_SCALING - 1);
         return Healths[p_GroupSize];
     }
 };
@@ -287,6 +288,7 @@ struct CreatureLocale
 {
     StringVector Name;
     StringVector SubName;
+    StringVector l_FemaleName;
 };
 
 struct GossipMenuItemsLocale
