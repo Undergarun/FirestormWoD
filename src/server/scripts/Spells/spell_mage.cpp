@@ -746,7 +746,8 @@ class spell_mage_arcane_explosion: public SpellScriptLoader
         }
 };
 
-// Frostbolt - 116
+/// Last Update 6.1.2
+/// Frostbolt - 116
 class spell_mage_frostbolt: public SpellScriptLoader
 {
     public:
@@ -755,6 +756,13 @@ class spell_mage_frostbolt: public SpellScriptLoader
         class spell_mage_frostbolt_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_frostbolt_SpellScript);
+
+            bool m_TargetIsSnare = false;
+
+            enum eSpells
+            {
+                WoDPvPFrost4PBonus = 180741
+            };
 
             SpellCastResult CheckTarget()
             {
@@ -781,6 +789,34 @@ class spell_mage_frostbolt: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnPrepare()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || l_Target->HasAuraType(SPELL_AURA_MOD_ROOT))
+                    m_TargetIsSnare = true;
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPFrost4PBonus);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPFrost4PBonus))
+                {
+                    if (m_TargetIsSnare)
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                }
+            }
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -800,6 +836,8 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_mage_frostbolt_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
             }
