@@ -8126,7 +8126,7 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true))
     {
         l_Item->AddItemBonus(l_UpgradeId);
-        l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false);
+        l_Player->SendNewItem(l_Item, 1, false, false, false);
     }
 }
 
