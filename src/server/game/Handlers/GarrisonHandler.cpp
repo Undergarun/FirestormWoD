@@ -637,8 +637,14 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         return;
 
     uint64 l_NpcGUID = 0;
+    uint32 l_Count = 0;
 
     p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_Count;
+
+    /// Min 1 work order
+    if (!l_Count)
+        l_Count = 1;
 
     Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
 
@@ -670,68 +676,71 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         return;
     }
 
-    if (((int32)l_OrderMax - (int32)l_Garrison->GetWorkOrderCount(l_PlotInstanceID)) < 1)
+    for (uint32 l_OrderI = 0; l_OrderI < l_Count; ++l_OrderI)
     {
-        l_OnError("Max work order for this building reached");
-        return;
+        if (((int32)l_OrderMax - (int32)l_Garrison->GetWorkOrderCount(l_PlotInstanceID)) < 1)
+        {
+            l_OnError("Max work order for this building reached");
+            return;
+        }
+
+        const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_ShipmentID);
+
+        if (!l_ShipmentEntry)
+        {
+            l_OnError("Shipment entry not found");
+            return;
+        }
+
+        const SpellInfo * l_Spell = sSpellMgr->GetSpellInfo(l_ShipmentEntry->SpellID);
+
+        if (!l_Spell)
+        {
+            l_OnError("Shipment spell not found");
+            return;
+        }
+
+        bool l_HasReagents = true;
+        for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
+        {
+            uint32 l_ItemEntry = l_Spell->Reagent[l_I];
+            uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
+
+            if (!l_ItemEntry || !l_ItemCount)
+                continue;
+
+            if (!m_Player->HasItemCount(l_ItemEntry, l_ItemCount))
+                l_HasReagents = false;
+        }
+
+        if (!l_HasReagents)
+        {
+            l_OnError("Doesn't have reagents");
+            return;
+        }
+
+        for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
+        {
+            uint32 l_ItemEntry = l_Spell->Reagent[l_I];
+            uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
+
+            if (!l_ItemEntry || !l_ItemCount)
+                continue;
+
+            m_Player->DestroyItemCount(l_ItemEntry, l_ItemCount, true);
+        }
+
+        m_Player->CastSpell(m_Player, l_Spell, TRIGGERED_FULL_MASK);
+
+        uint64 l_DatabaseID = l_Garrison->StartWorkOrder(l_PlotInstanceID, l_ShipmentID);
+
+        WorldPacket l_Ack(SMSG_CREATE_SHIPMENT_RESPONSE, 16);
+        l_Ack << uint64(l_DatabaseID);
+        l_Ack << uint32(l_ShipmentID);
+        l_Ack << uint32(l_DatabaseID == 0);
+
+        m_Player->SendDirectMessage(&l_Ack);
     }
-
-    const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_ShipmentID);
-
-    if (!l_ShipmentEntry)
-    {
-        l_OnError("Shipment entry not found");
-        return;
-    }
-
-    const SpellInfo * l_Spell = sSpellMgr->GetSpellInfo(l_ShipmentEntry->SpellID);
-
-    if (!l_Spell)
-    {
-        l_OnError("Shipment spell not found");
-        return;
-    }
-
-    bool l_HasReagents = true;
-    for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
-    {
-        uint32 l_ItemEntry = l_Spell->Reagent[l_I];
-        uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
-
-        if (!l_ItemEntry || !l_ItemCount)
-            continue;
-
-        if (!m_Player->HasItemCount(l_ItemEntry, l_ItemCount))
-            l_HasReagents = false;
-    }
-
-    if (!l_HasReagents)
-    {
-        l_OnError("Doesn't have reagents");
-        return;
-    }
-
-    for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
-    {
-        uint32 l_ItemEntry = l_Spell->Reagent[l_I];
-        uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
-        
-        if (!l_ItemEntry || !l_ItemCount)
-            continue;
-
-        m_Player->DestroyItemCount(l_ItemEntry, l_ItemCount, true);
-    }
-
-    m_Player->CastSpell(m_Player, l_Spell, TRIGGERED_FULL_MASK);
-
-    uint64 l_DatabaseID = l_Garrison->StartWorkOrder(l_PlotInstanceID, l_ShipmentID);
-
-    WorldPacket l_Ack(SMSG_CREATE_SHIPMENT_RESPONSE, 16);
-    l_Ack << uint64(l_DatabaseID);
-    l_Ack << uint32(l_ShipmentID);
-    l_Ack << uint32(l_DatabaseID == 0);
-
-    m_Player->SendDirectMessage(&l_Ack);
 }
 
 void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
