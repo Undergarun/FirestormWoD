@@ -250,32 +250,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
         }
 };
 
-class spell_npc_sha_capacitor_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
-
-        struct spell_npc_sha_capacitor_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_capacitor_totemAI(Creature* creature) : ScriptedAI(creature) { }
-
-            uint32 CastTimer;
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                me->CastSpell(me, 118905, false);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_capacitor_totemAI(creature);
-        }
-};
-
 class spell_npc_sha_spirit_link_totem : public CreatureScript
 {
     public:
@@ -720,7 +694,6 @@ void AddSC_npc_spell_scripts()
     new spell_npc_rogue_shadow_reflection();
 
     /// Shaman NPC
-    new spell_npc_sha_capacitor_totem();
     new spell_npc_sha_spirit_link_totem();
     new spell_npc_sha_stone_bulwark_totem();
     new spell_npc_sha_earthgrab_totem();
