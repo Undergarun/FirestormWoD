@@ -193,7 +193,7 @@ namespace MS { namespace Garrison
             {
                 WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
                 l_Data.appendPackGUID(me->GetGUID());
-                l_Data << uint32(0x31);
+                l_Data << uint32(l_ShipmentID);
 
                 p_Player->SendDirectMessage(&l_Data);
             }

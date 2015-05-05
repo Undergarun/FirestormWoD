@@ -598,8 +598,10 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
 
             l_Response << uint32(l_WorkOrders[l_I].ShipmentID);
             l_Response << uint64(l_WorkOrders[l_I].DatabaseID);
+            l_Response << uint64(0);                                    ///< 6.1.x FollowerID
             l_Response << uint32(l_WorkOrders[l_I].CreationTime);
             l_Response << uint32(l_Duration);
+            l_Response << uint32(0);                                    ///< 6.1.x Rewarded XP
         }
     }
     else
@@ -737,7 +739,7 @@ void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
         WorldPacket l_Ack(SMSG_CREATE_SHIPMENT_RESPONSE, 16);
         l_Ack << uint64(l_DatabaseID);
         l_Ack << uint32(l_ShipmentID);
-        l_Ack << uint32(l_DatabaseID == 0);
+        l_Ack << uint32(l_DatabaseID != 0);
 
         m_Player->SendDirectMessage(&l_Ack);
     }
