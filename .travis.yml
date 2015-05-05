@@ -38,8 +38,10 @@ before_script:
   - mysql -umsstudio -pmsstudio auth < sql/base/auth_database.sql
   - mysql -umsstudio -pmsstudio characters < sql/base/characters_database.sql
   - mysql -umsstudio -pmsstudio world < sql/base/world_database.sql
+  - mysql -umsstudio -pmsstudio hotfix < sql/base/hotfix_database.sql
   - cat sql/updates/character/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio characters
   - cat sql/updates/world/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio world
+  - cat sql/updates/hotfix/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio hotfix
 
 script:
   - mkdir build && cd build

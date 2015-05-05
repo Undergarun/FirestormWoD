@@ -3,9 +3,9 @@ GRANT USAGE ON * . * TO 'msstudio'@'localhost' IDENTIFIED BY 'msstudio' WITH MAX
 CREATE DATABASE `world` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE `characters` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE DATABASE `auth` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-CREATE DATABASE `monitoring` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE `hotfix` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 GRANT ALL PRIVILEGES ON `world` . * TO 'msstudio'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON `characters` . * TO 'msstudio'@'localhost' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON `auth` . * TO 'msstudio'@'localhost' WITH GRANT OPTION;
-GRANT ALL PRIVILEGES ON `monitoring` . * TO 'msstudio'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON `hotfix` . * TO 'msstudio'@'localhost' WITH GRANT OPTION;
