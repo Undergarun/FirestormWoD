@@ -4423,6 +4423,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
+            case 111397:
+                spellInfo->ProcFlags = 0;
+                break;
             case 12654: ///< Ignite
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
