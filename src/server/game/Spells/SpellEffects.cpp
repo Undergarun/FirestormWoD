@@ -6754,6 +6754,10 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
     // Glyph of SpellSteal
     if (m_caster->HasAura(115713))
         m_caster->HealBySpell(m_caster, m_spellInfo, m_caster->CountPctFromMaxHealth(5));
+
+    /// Item - Mage WoD PvP Arcane 2P Bonus
+    if (m_caster->HasAura(171349))
+        m_caster->CastSpell(m_caster, 79683, true);
 }
 
 void Spell::EffectKillCreditPersonal(SpellEffIndex effIndex)
