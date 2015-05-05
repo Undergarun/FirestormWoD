@@ -12239,6 +12239,14 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                     }
                 }
+                /// Custom crit
+                switch (spellProto->Id)
+                {
+                case 25912: ///< Holy Shock (damage)
+                case 25914: ///< Holy Shock (heal)
+                    crit_chance *= 2.0f;
+                    break;
+                }
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
@@ -12265,17 +12273,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             if (HasAura(117216))
                                 crit_chance *= 1.3f;
                             break;
-                        }
-                        break;
-                    }
-                    case SPELLFAMILY_PALADIN:
-                    {
-                        switch (spellProto->Id)
-                        {
-                            case 25912: // Holy Shock (damage)
-                            case 25914: // Holy Shock (heal)
-                                crit_chance *= 2.0f;
-                                break;
                         }
                         break;
                     }

@@ -2937,14 +2937,31 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         }
         case 33663:  ///< Earth Elemental Totem
         case 117663: ///< Fire Elemental Totem
+        case 157299: ///< Storm Elemental Totem
         {
-            if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
+            if (m_originalCaster->GetTypeId() == TYPEID_UNIT && m_originalCaster->isTotem())
             {
-                if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
+                if (m_originalCaster->GetOwner() && m_originalCaster->GetOwner()->HasAura(117013)) ///< Primal Elementalist
                 {
-                    if (m_originalCaster->GetOwner()->HasAura(117013)) ///< Primal Elementalist
+                    uint32 l_SpellId = 0;
+                    switch (m_spellInfo->Id)
                     {
-                        m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
+                        case 33663:  ///< Earth Elemental Totem
+                            l_SpellId = 118323;
+                            break;
+                        case 117663: ///< Fire Elemental Totem
+                            l_SpellId = 118291;
+                            break;
+                        case 157299: ///< Storm Elemental Totem
+                            l_SpellId = 157319;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_SpellId)
+                    {
+                        m_originalCaster->CastSpell(m_originalCaster, l_SpellId, true);
                         return;
                     }
                 }
