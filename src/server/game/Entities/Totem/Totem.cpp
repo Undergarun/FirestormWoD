@@ -140,8 +140,9 @@ void Totem::InitStats(uint32 duration)
             break;
     }
 
-    if (m_owner->HasAura(63298))
-        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
+    /// Glyph of Totemic Vigor
+    if (AuraEffectPtr l_Aura = m_owner->GetAuraEffect(63298, EFFECT_0))
+        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * (l_Aura->GetAmount() / 100));
 
     if (spellId1)
         m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
