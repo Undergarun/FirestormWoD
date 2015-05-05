@@ -2994,35 +2994,76 @@ public:
     }
 };
 
-// Corruption - 172
+/// last update : 6.1.2 19802
+/// Call by Corruption - 146739 and Doom - 603
+/// Item - Warlock WoD PvP Demonology 4P Bonus
+class spell_warl_WodPvPDemonology4PBonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_WodPvPDemonology4PBonus() : SpellScriptLoader("spell_warl_WodPvPDemonology4PBonus") { }
+
+        class spell_warl_WodPvPDemonology4PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_WodPvPDemonology4PBonus_AuraScript);
+
+            enum eSpells
+            {
+                WoDPvPDemonology4PBonusAura = 165967,
+                WoDPvPDemonology4PBonus     = 165968
+            };
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPDemonology4PBonusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPDemonology4PBonus, true);
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_warl_WodPvPDemonology4PBonus_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_WodPvPDemonology4PBonus_AuraScript();
+        }
+};
+
+/// Corruption - 172
 class spell_warl_corruption : public SpellScriptLoader
 {
-public:
-    spell_warl_corruption() : SpellScriptLoader("spell_warl_corruption") { }
+    public:
+        spell_warl_corruption() : SpellScriptLoader("spell_warl_corruption") { }
 
-    class spell_warl_corruption_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_corruption_SpellScript);
-
-        void HandleOnHit()
+        class spell_warl_corruption_SpellScript : public SpellScript
         {
-            if (Player* l_Player = GetCaster()->ToPlayer())
+            PrepareSpellScript(spell_warl_corruption_SpellScript);
+
+            void HandleOnHit()
             {
-                if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
-                    l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    if (l_Player->HasAura(WARLOCK_GLYPH_OF_SIPHON_LIFE) && l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
+                        l_Player->CastSpell(l_Player, WARLOCK_SPELL_SYPHON_LIFE, true);
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_corruption_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnHit += SpellHitFn(spell_warl_corruption_SpellScript::HandleOnHit);
+            return new spell_warl_corruption_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_corruption_SpellScript();
-    }
 };
 
 /// Dark Soul - 77801
@@ -3320,4 +3361,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_nightfall();
     new spell_warl_chaos_bolt();
     new spell_warl_chaos_wave();
+    new spell_warl_WodPvPDemonology4PBonus();
 }
