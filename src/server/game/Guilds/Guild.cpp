@@ -2158,8 +2158,8 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
                     l_Data << uint32(l_TabItem->GetCount());                ///< Count
                     l_Data << uint32(0);                                    ///< Enchantment ID
                     l_Data << uint32(abs(l_TabItem->GetSpellCharges()));    ///< Charges
-                    l_Data << uint32(l_EnchantsCount);                      ///< Enchant count
                     l_Data << uint32(0);                                    ///< OnUse Enchantment ID
+                    l_Data << uint32(l_EnchantsCount);                      ///< Enchant count
                     l_Data << uint32(0);                                    ///< Flags
 
                     for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
