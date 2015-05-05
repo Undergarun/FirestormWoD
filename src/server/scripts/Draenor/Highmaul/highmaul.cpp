@@ -531,7 +531,10 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
 
                 if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
+                {
                     me->Kill(l_IronGrunt);
+                    DoZoneInCombat(me, 40.0f);
+                }
 
                 me->SetAIAnimKit(0);
             }
@@ -911,6 +914,21 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
 
                 std::list<Creature*> l_IronGrunts;
                 me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreature::IronGrunt, 35.0f);
+
+                if (l_IronGrunts.size() > 0)
+                {
+                    std::list<Unit*> l_Allies;
+
+                    JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, 50.0f);
+                    JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Allies, l_Check);
+                    me->VisitNearbyObject(50.0f, l_Searcher);
+
+                    for (Unit* l_Unit : l_Allies)
+                    {
+                        if (l_Unit->ToCreature() != nullptr && l_Unit->ToCreature()->AI())
+                            l_Unit->ToCreature()->AI()->AttackStart(p_Attacker);
+                    }
+                }
 
                 for (Creature* l_Creature : l_IronGrunts)
                     me->Kill(l_Creature);

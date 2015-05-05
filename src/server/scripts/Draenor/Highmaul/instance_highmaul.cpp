@@ -330,7 +330,7 @@ class instance_highmaul : public InstanceMapScript
             {
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
-                    p_Player->SetPhaseMask(2, true);
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
                     if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
@@ -340,7 +340,7 @@ class instance_highmaul : public InstanceMapScript
                 }
                 else
                 {
-                    p_Player->SetPhaseMask(1, true);
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
                     p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                     p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
                 }
@@ -350,6 +350,7 @@ class instance_highmaul : public InstanceMapScript
             {
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
+                p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)
