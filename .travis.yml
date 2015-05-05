@@ -38,7 +38,6 @@ before_script:
   - mysql -umsstudio -pmsstudio auth < sql/base/auth_database.sql
   - mysql -umsstudio -pmsstudio characters < sql/base/characters_database.sql
   - mysql -umsstudio -pmsstudio world < sql/base/world_database.sql
-  - mysql -umsstudio -pmsstudio monitoring < sql/base/monitoring_database.sql
   - cat sql/updates/character/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio characters
   - cat sql/updates/world/2015/$(date +"%m")/*.sql | mysql -umsstudio -pmsstudio world
 
