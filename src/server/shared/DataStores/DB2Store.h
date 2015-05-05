@@ -293,11 +293,9 @@ template<class T> class DB2Storage : public DB2StorageBase
             {
                 if (m_IndexTable)
                 {
-                    uint32 l_WritePosition = 0;
                     do
                     {
-                        if (!l_SQLFields)
-                            l_SQLFields = l_SQLQueryResult->Fetch();
+                        l_SQLFields = l_SQLQueryResult->Fetch();
 
                         uint32 l_Entry = l_SQLFields[p_SQL->m_IndexPosition].GetUInt32();
                         T * l_NewEntry = new T();
@@ -305,6 +303,7 @@ template<class T> class DB2Storage : public DB2StorageBase
 
                         uint32 l_ColumnNumber       = 0;
                         uint32 l_SQLColumnNumber    = 0;
+                        uint32 l_WritePosition      = 0;
 
                         for (; l_ColumnNumber < p_SQL->m_FormatString->size(); ++l_ColumnNumber)
                         {
@@ -338,7 +337,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                             }
                             else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
                             {
-                                bool l_IsalidSqlColumn = true;
+                                bool l_IsValidSqlColumn = true;
                                 switch (m_Format[l_ColumnNumber])
                                 {
                                     case FT_FLOAT:
@@ -355,14 +354,22 @@ template<class T> class DB2Storage : public DB2StorageBase
                                         l_WritePosition += 1;
                                         break;
                                     case FT_STRING:
-                                        sLog->outError(LOG_FILTER_GENERAL, "Unsupported data type in table '%s' at char %d", p_SQL->m_SQLTableName.c_str(), l_ColumnNumber);
-                                        return false;
+                                    {
+                                        m_CustomStrings.push_back(l_SQLFields[l_SQLColumnNumber].GetString());
+                                        char * l_NewString = const_cast<char*>(m_CustomStrings.back().c_str());
+                                        char ** l_StringInStructPtr = ((char**)(&l_WritePtr[l_WritePosition]));
+
+                                        *l_StringInStructPtr = l_NewString;
+
+                                        l_WritePosition += sizeof(char*);
+                                        break;
+                                    }
                                     case FT_SORT:
                                         break;
                                     default:
-                                        l_IsalidSqlColumn = false;
+                                        l_IsValidSqlColumn = false;
                                 }
-                                if (l_IsalidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString->size() - 1)))
+                                if (l_IsValidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString->size() - 1)))
                                     l_SQLColumnNumber++;
                             }
                             else
@@ -376,8 +383,6 @@ template<class T> class DB2Storage : public DB2StorageBase
                             sLog->outError(LOG_FILTER_GENERAL, "SQL and DB2 format strings are not matching for table: '%s'", p_SQL->m_SQLTableName.c_str());
                             return false;
                         }
-
-                        l_SQLFields = nullptr;
 
                         AddEntry(l_Entry, l_NewEntry, true);
                     } while (l_SQLQueryResult->NextRow());
@@ -439,6 +444,7 @@ template<class T> class DB2Storage : public DB2StorageBase
         T* m_DataTable;
         DataTableEx m_DataTableEx;
         StringPoolList m_StringPoolList;
+        std::list<std::string> m_CustomStrings;
 
 };
 
