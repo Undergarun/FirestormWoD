@@ -2709,7 +2709,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->BuildingType == p_BuildingType)
+            if (l_BuildingEntry->BuildingType == p_BuildingType && (*l_It).Active == true)
                 return true;
         }
 
@@ -3614,7 +3614,7 @@ namespace MS { namespace Garrison
 
         }
 
-        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap)
+        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && HasBuildingType(BuildingType::Barracks))
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);
