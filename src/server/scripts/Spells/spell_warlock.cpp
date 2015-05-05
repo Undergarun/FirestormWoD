@@ -3035,6 +3035,47 @@ class spell_warl_WodPvPDemonology4PBonus : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Immolation - 157736
+/// Item - Warlock WoD PvP Destruction 2P Bonus
+class spell_warl_WoDPvPDestruction2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_WoDPvPDestruction2PBonus() : SpellScriptLoader("spell_warl_WoDPvPDestruction2PBonus") { }
+
+        class spell_warl_WoDPvPDestruction2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_WoDPvPDestruction2PBonus_AuraScript);
+
+            enum eSpells
+            {
+                WoDPvPDestruction2PBonusAura    = 171383,
+                WoDPvPDestruction2PBonus        = 171384
+            };
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPDestruction2PBonusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPDestruction2PBonus, true);
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_warl_WoDPvPDestruction2PBonus_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_WoDPvPDestruction2PBonus_AuraScript();
+        }
+};
+
 /// Corruption - 172
 class spell_warl_corruption : public SpellScriptLoader
 {
@@ -3362,4 +3403,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_bolt();
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
+    new spell_warl_WoDPvPDestruction2PBonus();
 }
