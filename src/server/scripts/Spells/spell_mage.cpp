@@ -2137,9 +2137,22 @@ class spell_mage_blink : public SpellScriptLoader
     public:
         spell_mage_blink() : SpellScriptLoader("spell_mage_blink") { }
 
+        enum eSpells
+        {
+            GlyphOfRapidDisplacement = 163558
+        };
+
         class spell_mage_blink_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blink_SpellScript);
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfRapidDisplacement))
+                    PreventHitAura();
+            }
 
             void HandleAfterHit()
             {
@@ -2150,6 +2163,8 @@ class spell_mage_blink : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
             }
         };
