@@ -308,7 +308,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_GIVE_EXPERIENCE
+    &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
     &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
@@ -7925,6 +7925,39 @@ void Spell::EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex)
     {
 
     }
+}
+
+void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player || !l_Player->GetGarrison() || l_Player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return;
+
+    float l_MaxXP = l_Player->GetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP);
+    l_Player->GiveXP(l_MaxXP * 0.03f, nullptr);
+
+    uint64 l_PlayerGUID = l_Player->GetGUID();
+    uint64 l_ItemGUID   = m_CastItem->GetGUID();
+
+    l_Player->AddCriticalOperation([l_PlayerGUID, l_ItemGUID]() -> void
+    {
+        if (Player * l_Player = sObjectAccessor->FindPlayer(l_PlayerGUID))
+        {
+            uint32 l_DestroyCount = 1;
+
+            if (Item * l_Item = l_Player->GetItemByGuid(l_ItemGUID))
+                l_Player->DestroyItemCount(l_Item, l_DestroyCount, true);
+        }
+    });
+
+    m_CastItem = nullptr;
 }
 
 void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
