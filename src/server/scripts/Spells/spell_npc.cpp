@@ -250,6 +250,45 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
         }
 };
 
+class spell_npc_sha_capacitor_totem : public CreatureScript
+{
+    public:
+        spell_npc_sha_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
+
+        struct spell_npc_sha_capacitor_totemAI : public ScriptedAI
+        {
+            enum eSpells
+            {
+                StaticCharge = 118905
+            };
+
+            bool m_HasBeenCasted;
+
+            spell_npc_sha_capacitor_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_HasBeenCasted = false;
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                if (!me->HasAura(eSpells::StaticCharge) && !m_HasBeenCasted)
+                {
+                    me->CastSpell(me, eSpells::StaticCharge, false);
+                    m_HasBeenCasted = true;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_capacitor_totemAI(p_Creature);
+        }
+};
+
 class spell_npc_sha_spirit_link_totem : public CreatureScript
 {
     public:
@@ -586,6 +625,7 @@ void AddSC_npc_spell_scripts()
     new spell_npc_rogue_shadow_reflection();
 
     /// Shaman NPC
+    new spell_npc_sha_capacitor_totem();
     new spell_npc_sha_spirit_link_totem();
     new spell_npc_sha_storm_elemental();
     new spell_npc_sha_feral_spirit();
