@@ -25,6 +25,8 @@
 
 #include <map>
 
+std::map<uint32, DB2StorageBase*> sDB2PerHash;
+
 DB2Storage <PathNodeEntry>                  sPathNodeStore(PathNodeEntryfmt);
 DB2Storage <LocationEntry>                  sLocationStore(LocationEntryfmt);
 
@@ -119,6 +121,12 @@ DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(Battl
 TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 TaxiNodesByMap      sTaxiNodesByMap;
+TaxiMask sTaxiNodesMask;
+TaxiMask sOldContinentsNodesMask;
+TaxiMask sHordeTaxiNodesMask;
+TaxiMask sAllianceTaxiNodesMask;
+TaxiMask sDeathKnightTaxiNodesMask;
+
 SpellTotemMap       sSpellTotemMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
@@ -148,15 +156,24 @@ struct LocalDB2Data
 };
 
 template<class T>
-inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename)
+inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename, std::string customTableName = "", std::string customIndexName = "")
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDB2_assert_print(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
 
     ++DB2FilesCount;
-
     std::string db2_filename = db2_path + filename;
-    if (!storage.Load(db2_filename.c_str()))
+    std::string l_SQLFormat;
+    SqlDb2 * sql = NULL;
+    if (!customTableName.empty())
+    {
+        l_SQLFormat = std::string(strlen(storage.GetFormat()), FT_SQL_PRESENT);
+        l_SQLFormat.append(1, FT_SQL_SUP);
+
+        sql = new SqlDb2(&customTableName, &l_SQLFormat, &customIndexName, storage.GetFormat());
+    }
+
+    if (!storage.Load(db2_filename.c_str(), sql))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))
@@ -169,6 +186,12 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         else
             errlist.push_back(db2_filename);
     }
+
+    if (sDB2PerHash.find(storage.GetHash()) == sDB2PerHash.end())
+        sDB2PerHash[storage.GetHash()] = &storage;
+
+    if (sql)
+        delete sql;
 }
 
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem)
@@ -225,13 +248,13 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Item DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2");
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2");
-    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2");
-    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2");
-    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2");
-    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2",                    "item",                     "ID");
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2",        "item_currency_cost",       "ID");
+    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2",             "item_sparse",              "ID");
+    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2",              "item_effect",              "ID");
+    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2",  "item_modified_appearance", "ID");
+    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",          "item_appearance",          "ID");
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2",        "item_extended_cost",       "ID");
     LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2");
     LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
     LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
@@ -240,9 +263,9 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Item Bonus DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2");
-    LoadDB2(bad_db2_files, sItemBonusTreeNodeStore,         db2Path, "ItemBonusTreeNode.db2");
-    LoadDB2(bad_db2_files, sItemXBonusTreeStore,            db2Path, "ItemXBonusTree.db2");
+    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2",               "item_bonus",               "ID");
+    LoadDB2(bad_db2_files, sItemBonusTreeNodeStore,         db2Path, "ItemBonusTreeNode.db2",       "item_bonus_tree_node",     "ID");
+    LoadDB2(bad_db2_files, sItemXBonusTreeStore,            db2Path, "ItemXBonusTree.db2",          "item_x_bonus_tree",        "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell DB2
@@ -352,7 +375,7 @@ void LoadDB2Stores(const std::string& dataPath)
         sItemBonusesByID[l_Entry->Entry][l_Entry->Index] = l_Entry;
     }
 
-    /// - Load quest package items
+    /// Load quest package items
     for (uint32 l_I = 0; l_I < sQuestPackageItemStore.GetNumRows(); l_I++)
     {
         QuestPackageItemEntry const* l_QuestPackageItem = sQuestPackageItemStore.LookupEntry(l_I);
@@ -362,7 +385,7 @@ void LoadDB2Stores(const std::string& dataPath)
         sQuestPackageItemsByGroup[l_QuestPackageItem->PackageID].push_back(l_QuestPackageItem);
     }
 
-    /// - Load Item Bonus Tree
+    /// Load Item Bonus Tree
     for (uint32 l_I = 0; l_I < sItemXBonusTreeStore.GetNumRows(); l_I++)
     {
         auto l_ItemXBonusTree = sItemXBonusTreeStore.LookupEntry(l_I);
@@ -372,8 +395,8 @@ void LoadDB2Stores(const std::string& dataPath)
         sItemBonusTreeByID[l_ItemXBonusTree->ItemId].push_back(l_ItemXBonusTree);
     }
 
-    // Initialize global taxinodes mask
-    // Include existed nodes that have at least single not spell base (scripted) path
+    /// Initialize global taxinodes mask
+    /// Include existed nodes that have at least single not spell base (scripted) path
     {
         std::set<uint32> spellPaths;
         for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
@@ -392,7 +415,7 @@ void LoadDB2Stores(const std::string& dataPath)
             if (!node)
                 continue;
 
-            // Needed for getting the current flight path
+            /// Needed for getting the current flight path
             sTaxiNodesByMap[node->map_id].push_back(node);
 
             TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
@@ -401,7 +424,7 @@ void LoadDB2Stores(const std::string& dataPath)
                 bool ok = false;
                 for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
                 {
-                    // Not spell path
+                    /// Not spell path
                     if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
                     {
                         ok = true;
@@ -413,7 +436,7 @@ void LoadDB2Stores(const std::string& dataPath)
                     continue;
             }
 
-            // Valid taxi network node
+            /// Valid taxi network node
             uint8  field   = (uint8)((i - 1) / 8);
             uint32 submask = 1 << ((i-1) % 8);
 
@@ -425,16 +448,15 @@ void LoadDB2Stores(const std::string& dataPath)
             if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
                 sDeathKnightTaxiNodesMask[field] |= submask;
 
-            // Old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
+            /// Old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
             if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
                 sOldContinentsNodesMask[field] |= submask;
 
-            // Fix DK node at Ebon Hold and Shadow Vault flight master
+            /// Fix DK node at Ebon Hold and Shadow Vault flight master
             if (i == 315 || i == 333)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
         }
     }
-
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
@@ -442,9 +464,9 @@ void LoadDB2Stores(const std::string& dataPath)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
 
-    // Calculate path nodes count
+    /// Calculate path nodes count
     std::vector<uint32> pathLength;
-    pathLength.resize(pathCount);                           // 0 and some other indexes not used
+    pathLength.resize(pathCount);                           ///< 0 and some other indexes not used
     for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
     if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
     {
@@ -452,12 +474,12 @@ void LoadDB2Stores(const std::string& dataPath)
             pathLength[entry->path] = entry->index + 1;
     }
 
-    // Set path length
-    sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
+    /// Set path length
+    sTaxiPathNodesByPath.resize(pathCount);                 ///< 0 and some other indexes not used
     for (uint32 l_I = 1; l_I < sTaxiPathNodesByPath.size(); ++l_I)
         sTaxiPathNodesByPath[l_I].resize(pathLength[l_I]);
 
-    // fill data
+    /// Fill data
     for (uint32 l_I = 1; l_I < sTaxiPathNodeStore.GetNumRows(); ++l_I)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(l_I))
             sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
@@ -479,7 +501,7 @@ void LoadDB2Stores(const std::string& dataPath)
             HeirloomEntryByItemID.insert({ l_HeroicID, l_Heirloom});
     }
 
-    // error checks
+    /// error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
         sLog->outError(LOG_FILTER_GENERAL, "\nIncorrect DataDir value in worldserver.conf or ALL required *.db2 files (%d) not found by path: %sdb2", DB2FilesCount, dataPath.c_str());
@@ -495,14 +517,13 @@ void LoadDB2Stores(const std::string& dataPath)
         exit(1);
     }
 
-    // Check loaded DB2 files proper version
-    if (!sItemStore.LookupEntry(106130)             ||      // last item added in 5.4 (17371)
-        !sItemExtendedCostStore.LookupEntry(5268)  )        // last item extended cost added in 5.4 (17371)
+    /// Check loaded DB2 files proper version
+    if (!sItemStore.LookupEntry(123975) ||              ///< Last item added in 6.1.2
+        !sItemExtendedCostStore.LookupEntry(5853) )     ///< Last item extended cost added in 6.1.2
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 5.4 17371.");
+        sLog->outError(LOG_FILTER_GENERAL, "Please extract correct db2 files from client 6.1.2");
         exit(1);
     }
-
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
 }
 
@@ -514,12 +535,12 @@ std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id)
 
 uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
 {
-    // Assuming linear item level scaling for heirlooms
+    /// Assuming linear item level scaling for heirlooms
     auto itr = HeirloomCurvePoints.find(curveId);
     if (itr == HeirloomCurvePoints.end())
         return 0;
 
-    auto it2 = itr->second.begin(); // Highest scaling point
+    auto it2 = itr->second.begin(); ///< Highest scaling point
     if (level >= it2->second->X)
         return it2->second->Y;
 
@@ -528,7 +549,7 @@ uint32 GetHeirloomItemLevel(uint32 curveId, uint32 level)
         if (level >= it2->second->X)
             return uint32((previousItr->second->Y - it2->second->Y) / (previousItr->second->X - it2->second->X) * (float(level) - it2->second->X) + it2->second->Y);
 
-    return uint32(previousItr->second->Y);  // Lowest scaling point
+    return uint32(previousItr->second->Y);  ///< Lowest scaling point
 }
 
 HeirloomEntry const* GetHeirloomEntryByItemID(uint32 p_ItemID)
@@ -543,7 +564,7 @@ std::vector<TaxiNodesEntry const*> const* GetTaxiNodesForMapId(uint32 l_MapID)
     return l_Iter != sTaxiNodesByMap.end() ? &l_Iter->second : nullptr;
 }
 
-// basic pathing algorithm which paths from the start to the destination
+/// Basic pathing algorithm which paths from the start to the destination
 uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player)
 {
     clear();
@@ -563,7 +584,7 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
     std::set<uint32> closed;
     while (1)
     {
-        // path complete
+        /// Path complete
         if (currentNode == destNode)
             break;
 
@@ -583,13 +604,6 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
             continue;
         }
 
-        // 6.1.0: players can path to unknown nodes if it is on the way to their dest
-        //if (!player->KnowsNode(nextNode))
-        //{
-            //closed.insert(nextNode->GetID())
-            //continue;
-        //}
-
         closed.insert(currentNode->GetID());
         push_back(nextNode);
         currentNode = nextNode;
@@ -604,14 +618,14 @@ uint32 TaxiPath::CalculateTaxiPath(uint32 startId, uint32 destId, Player* player
     }
 
     res |= TAXIPATH_RES_SUCCESS;
-    //push_back(destNode);
+    ///push_back(destNode);
 
     return res;
 }
 
 TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, Player* player)
 {
-    float dist = -1.f;//GetPosition()->GetExactDist2d(node->GetPosition());
+    float dist = -1.f; ///GetPosition()->GetExactDist2d(node->GetPosition());
     TaxiNode* heuristic = nullptr;
     for (std::set<uint32>::iterator itr = m_connectedNodes.begin(); itr != m_connectedNodes.end(); ++itr)
     {
@@ -625,7 +639,7 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
             break;
         }
 
-        // I don't think this is possible
+        /// I don't think this is possible
         if (!connectedNode || !l_TaxiNode)
             continue;
 
@@ -638,7 +652,7 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
             continue;
         }
 
-        // skip not taxi network nodes
+        /// Skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
         {
             closed.insert(connectedNode->GetID());
@@ -663,6 +677,5 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
             heuristic = connectedNode;
         }
     }
-
     return heuristic;
 }

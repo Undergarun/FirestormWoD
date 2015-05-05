@@ -37,12 +37,12 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/CharacterDatabase.h"
 #include "Implementation/WorldDatabase.h"
-#include "Implementation/MonitoringDatabase.hpp"
+#include "Implementation/HotfixDatabase.h"
 
 extern WorldDatabaseWorkerPool WorldDatabase;
 extern CharacterDatabaseWorkerPool CharacterDatabase;
 extern LoginDatabaseWorkerPool LoginDatabase;
-extern MonitoringDatabaseWorkerPool MonitoringDatabase;
+extern HotfixDatabaseWorkerPool HotfixDatabase;
 
 #endif
 

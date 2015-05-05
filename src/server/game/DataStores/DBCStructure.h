@@ -443,27 +443,6 @@ struct CurrencyCategoryEntry
 };
 */
 
-// @issue : #284
-struct CurrencyTypesEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint32  Category;                                       // 1        m_CategoryID
-    //char*     m_NameLang;                                 // 2        m_NameLang
-    //char*     m_InventoryIcon;                            // 3        m_InventoryIcon
-    //char*     m_InventoryIcon2;                           // 4        m_InventoryIcon2
-    //uint32    m_SpellWeight;                              // 5        m_SpellWeight
-    //uint32    m_SpellCategory;                            // 6        m_SpellCategory
-    uint32  TotalCap;                                       // 7        m_MaxQty
-    uint32  WeekCap;                                        // 8        m_MaxEarnablePerWeek
-    uint32  Flags;                                          // 9        m_Flags
-    //uint32    m_Quality                                   // 10       m_Quality
-    //char*     m_DescriptionLang;                          // 11       m_DescriptionLang
-
-    bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
-    bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
-    float GetPrecision() const  { return HasPrecision() ? 100.0f : 1.0f; }
-};
-
 struct DestructibleModelDataEntry
 {
     uint32  Id;                                             // 0        m_ID
@@ -1708,21 +1687,6 @@ struct TalentEntry
     char*   DescriptionLang;    // 10
 };
 
-struct TaxiNodesEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint32  map_id;                                         // 1        m_ContinentID
-    float   x;                                              // 2        m_x
-    float   y;                                              // 3        m_y
-    float   z;                                              // 4        m_z
-    char*   name;                                           // 5        m_Name_lang
-    uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
-    //uint32    m_ConditionID                               // 8        m_ConditionID
-    uint32    m_Flags;                                      // 9        m_Flags
-    //float     m_MapOffset                                 // 10       m_MapOffset
-    //float     m_MapOffset                                 // 11       m_MapOffset
-};
-
 struct TaxiPathEntry
 {
     uint32  ID;                                             // 0        m_ID
@@ -2437,18 +2401,4 @@ struct SpellEffect
 
 typedef std::map<uint32, SpellEffect> SpellEffectMap;
 
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
-
-    uint32    ID;
-    uint32    price;
-};
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
-typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
-
-#define TaxiMaskSize 201
-typedef uint8 TaxiMask[TaxiMaskSize];
 #endif

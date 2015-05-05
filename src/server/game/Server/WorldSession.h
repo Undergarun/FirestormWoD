@@ -764,10 +764,6 @@ class WorldSession
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
-        void SendItemDb2Reply(uint32 entry);
-        void SendMapChallengeModeDBReply(uint32 p_Entry);
-        void SendQuestPackageItemDB2Reply(uint32 p_Entry);
-        void SendItemSparseDb2Reply(uint32 entry);
         void SendBroadcastTextDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
@@ -1069,7 +1065,7 @@ class WorldSession
         void HandleQuestPOIQuery(WorldPacket& recvData);
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
-        void HandleRequestHotfix(WorldPacket& recvPacket);
+        void HandleDBQueryBulk(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);

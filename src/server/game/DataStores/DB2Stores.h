@@ -25,6 +25,8 @@
 
 #include <list>
 
+extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
+
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
@@ -150,9 +152,7 @@ class TaxiNode
     public:
         TaxiNode() { }
         TaxiNode(uint32 ID, uint32 map, Position& pos, std::string& name, uint32 cost) :
-            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost)
-        {
-        }
+            m_id(ID), m_mapID(map), m_name(name), m_position(pos), m_cost(cost) { }
 
         uint32 GetID() { return m_id; }
 
@@ -163,7 +163,6 @@ class TaxiNode
         TaxiNodesEntry const* GetTaxiNodesEntry() { return sTaxiNodesStore.LookupEntry(m_id); }
 
     private:
-
         uint32 m_id;
         uint32 m_mapID;
         Position m_position;
@@ -192,4 +191,28 @@ public:
 };
 
 TaxiNode* GetTaxiNodeByID(uint32 ID);
+
+struct TaxiPathBySourceAndDestination
+{
+    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
+    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
+
+    uint32    ID;
+    uint32    price;
+};
+
+typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
+typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
+typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
+
+#define TaxiMaskSize 201
+typedef uint8 TaxiMask[TaxiMaskSize];
+
+extern TaxiMask                                  sTaxiNodesMask;
+extern TaxiMask                                  sOldContinentsNodesMask;
+extern TaxiMask                                  sHordeTaxiNodesMask;
+extern TaxiMask                                  sAllianceTaxiNodesMask;
+extern TaxiMask                                  sDeathKnightTaxiNodesMask;
+extern TaxiPathSetBySource                       sTaxiPathSetBySource;
+
 #endif

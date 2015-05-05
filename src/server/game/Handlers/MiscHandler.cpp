@@ -2156,52 +2156,6 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     m_Player->SetPendingBind(0, 0);
 }
 
-void WorldSession::HandleRequestHotfix(WorldPacket& p_RecvPacket)
-{
-    uint32 l_Type   = 0;
-    uint32 l_Count  = 0;
-
-    p_RecvPacket >> l_Type;
-    l_Count = p_RecvPacket.ReadBits(13);
-
-    uint64 * l_Guids = new uint64[l_Count];
-
-    for (uint32 l_I = 0; l_I < l_Count; ++l_I)
-    {
-        uint32 l_Entry;
-
-        p_RecvPacket.readPackGUID(l_Guids[l_I]);
-        p_RecvPacket >> l_Entry;
-
-        switch (l_Type)
-        {
-            case DB2_REPLY_ITEM:
-                SendItemDb2Reply(l_Entry);
-                break;
-            case DB2_REPLY_SPARSE:
-                SendItemSparseDb2Reply(l_Entry);
-                break;
-            case DB2_REPLY_BROADCAST_TEXT:
-                SendBroadcastTextDb2Reply(l_Entry);
-                break;
-            case DB2_REPLY_MAP_CHALLENGE_MODE:
-                SendMapChallengeModeDBReply(l_Entry);
-                break;
-            case DB2_REPLY_QUEST_PACKAGE_ITEM:
-                SendQuestPackageItemDB2Reply(l_Entry);
-                break;
-            // TODO
-            case DB2_REPLY_BATTLE_PET_EFFECT_PROPERTIES:
-            case DB2_REPLY_SCENE_SCRIPT:
-                break;
-            default:
-                break;
-        }
-    }
-
-    delete[] l_Guids;
-}
-
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_MISSILE_TRAJECTORY");
