@@ -421,6 +421,153 @@ class spell_npc_sha_storm_elemental : public CreatureScript
         }
 };
 
+class spell_npc_sha_fire_elemental : public CreatureScript
+{
+    public:
+        spell_npc_sha_fire_elemental() : CreatureScript("npc_fire_elemental") { }
+
+        struct spell_npc_sha_fire_elementalAI : public ScriptedAI
+        {
+            spell_npc_sha_fire_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+            enum fireEvents
+            {
+                EVENT_FIRE_NOVA     = 1,
+                EVENT_FIRE_BLAST    = 2,
+                EVENT_FIRE_SHIELD   = 3
+            };
+
+            enum fireSpells
+            {
+                SPELL_SHAMAN_FIRE_BLAST     = 57984,
+                SPELL_SHAMAN_FIRE_NOVA      = 12470,
+                SPELL_SHAMAN_FIRE_SHIELD    = 13376
+            };
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_SHIELD, 0);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
+                    return;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_FIRE_NOVA:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_NOVA);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_BLAST:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_BLAST);
+                        events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_SHIELD:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_SHIELD);
+                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 4000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI *GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_fire_elementalAI(p_Creature);
+        }
+};
+
+
+class spell_npc_sha_earth_elemental : public CreatureScript
+{
+    public:
+        spell_npc_sha_earth_elemental() : CreatureScript("npc_earth_elemental") { }
+
+        struct spell_npc_sha_earth_elementalAI : public ScriptedAI
+        {
+            spell_npc_sha_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+            enum eSpells
+            {
+                AngeredEarth = 36213
+            };
+
+            uint32 AngeredEarth_Timer;
+
+            void Reset()
+            {
+                AngeredEarth_Timer = 0;
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
+                    return;
+                }
+
+                if (AngeredEarth_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), eSpells::AngeredEarth);
+                    AngeredEarth_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    AngeredEarth_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_earth_elementalAI(p_Creature);
+        }
+};
+
+
 class spell_npc_sha_feral_spirit : public CreatureScript
 {
     public:
@@ -628,6 +775,8 @@ void AddSC_npc_spell_scripts()
     new spell_npc_sha_capacitor_totem();
     new spell_npc_sha_spirit_link_totem();
     new spell_npc_sha_storm_elemental();
+    new spell_npc_sha_fire_elemental();
+    new spell_npc_sha_earth_elemental();
     new spell_npc_sha_feral_spirit();
 
     /// Warrior NPC

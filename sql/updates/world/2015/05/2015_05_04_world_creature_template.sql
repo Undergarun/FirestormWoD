@@ -6,3 +6,6 @@ UPDATE `creature_template` SET `spell1` = 3606, `ScriptName` = '' WHERE `entry` 
 
 -- Capacitor totem
 UPDATE `creature_template` SET `spell1` = '', `ScriptName` = 'npc_capacitor_totem' WHERE `entry` = 61245;
+
+-- Primal Storm Elemental
+UPDATE `creature_template` SET `ScriptName` = 'npc_storm_elemental' WHERE `entry` = 77942;
