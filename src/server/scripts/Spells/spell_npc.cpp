@@ -297,114 +297,6 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
         }
 };
 
-#define STONE_BULWARK_TOTEM_ABSORB      114889
-
-class spell_npc_sha_stone_bulwark_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_stone_bulwark_totem() : CreatureScript("npc_stone_bulwark_totem") { }
-
-        struct spell_npc_sha_stone_bulwark_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_stone_bulwark_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, STONE_BULWARK_TOTEM_ABSORB, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(STONE_BULWARK_TOTEM_ABSORB))
-                    me->CastSpell(me, STONE_BULWARK_TOTEM_ABSORB, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_stone_bulwark_totemAI(creature);
-        }
-};
-
-#define EARTHGRAB       116943
-
-class spell_npc_sha_earthgrab_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_earthgrab_totem() : CreatureScript("npc_earthgrab_totem") { }
-
-        struct spell_npc_sha_earthgrab_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_earthgrab_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, EARTHGRAB, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(EARTHGRAB))
-                    me->CastSpell(me, EARTHGRAB, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_earthgrab_totemAI(creature);
-        }
-};
-
-#define WINDWALK     114896
-
-class spell_npc_sha_windwalk_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_windwalk_totem() : CreatureScript("npc_windwalk_totem") { }
-
-        struct spell_npc_sha_windwalk_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_windwalk_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, WINDWALK, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(WINDWALK))
-                    me->CastSpell(me, WINDWALK, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_windwalk_totemAI(creature);
-        }
-};
-
-#define HEALING_TIDE     114941
-
-class spell_npc_sha_healing_tide_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") { }
-
-        struct spell_npc_sha_healing_tide_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, HEALING_TIDE, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(HEALING_TIDE))
-                    me->CastSpell(me, HEALING_TIDE, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_healing_tide_totemAI(creature);
-        }
-};
-
 /// Storm Elemental - 77936
 class spell_npc_sha_storm_elemental : public CreatureScript
 {
@@ -695,10 +587,6 @@ void AddSC_npc_spell_scripts()
 
     /// Shaman NPC
     new spell_npc_sha_spirit_link_totem();
-    new spell_npc_sha_stone_bulwark_totem();
-    new spell_npc_sha_earthgrab_totem();
-    new spell_npc_sha_windwalk_totem();
-    new spell_npc_sha_healing_tide_totem();
     new spell_npc_sha_storm_elemental();
     new spell_npc_sha_feral_spirit();
 
