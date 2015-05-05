@@ -7937,7 +7937,7 @@ void Spell::EffectGiveExperience(SpellEffIndex p_EffIndex)
 
     Player* l_Player = unitTarget->ToPlayer();
 
-    if (!l_Player || !l_Player->GetGarrison() || l_Player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (!l_Player || l_Player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         return;
 
     float l_MaxXP = l_Player->GetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP);
