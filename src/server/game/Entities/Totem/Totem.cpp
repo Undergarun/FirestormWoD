@@ -128,9 +128,6 @@ void Totem::InitStats(uint32 duration)
         if (totemSpell->CalcCastTime())   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
 
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        SetReactState(REACT_AGGRESSIVE);
-
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
@@ -161,9 +158,7 @@ void Totem::InitStats(uint32 duration)
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
-    {
         CastSpell(this, GetSpell(), true);
-    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
@@ -212,10 +207,6 @@ void Totem::UnSummon(uint32 msTime)
     }
 
     m_owner->RemoveAurasDueToSpell(GetSpell(), GetGUID());
-
-    // Remove Sentry Totem Aura
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        m_owner->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
 
     //remove aura all party members too
     if (Player* owner = m_owner->ToPlayer())
