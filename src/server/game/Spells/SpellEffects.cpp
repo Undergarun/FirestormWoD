@@ -1949,7 +1949,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         // 77495 - Mastery : Harmony
         if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_DRUID)
         {
-            if (caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift
+            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -3036,6 +3037,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->isTotem())
                         return;
+
+                    // Glyph of Totemic Vigor
+                    if (m_caster->HasAura(63298))
+                        damage += m_caster->CountPctFromMaxHealth(2);
 
                     if (damage)                                            // if not spell info, DB values used
                     {
@@ -4312,6 +4317,17 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
                     if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
+
+                    /// Item - Druid WoD PvP Feral 2P Bonus
+                    if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
+                    { 
+                        if (Player* l_Player = m_originalCaster->ToPlayer())
+                        {
+                            /// Interrupting a spell with Skull Bash resets the cooldown of Tiger's Fury.
+                            if (l_Player->HasSpellCooldown(5217))
+                                l_Player->RemoveSpellCooldown(5217, true);
+                        }
+                    }
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));

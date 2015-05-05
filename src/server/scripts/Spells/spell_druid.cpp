@@ -129,7 +129,8 @@ class spell_dru_tooth_and_claw_absorb: public SpellScriptLoader
 
 enum GenesisSpells
 {
-    SPELL_DRUID_REJUVENATION = 774
+    SPELL_DRUID_REJUVENATION = 774,
+    SPELL_DRUID_GENESIS_HEAL = 162359
 };
 
 /// Genesis - 145518
@@ -157,10 +158,17 @@ class spell_dru_genesis: public SpellScriptLoader
                         if (!itr->IsWithinDist(plr, 60.0f) || !itr->IsWithinLOSInMap(plr))
                             continue;
 
-                        if (AuraEffectPtr rejuvenation = itr->GetAuraEffect(SPELL_DRUID_REJUVENATION, EFFECT_0))
+                        if (AuraPtr rejuvenation = itr->GetAura(SPELL_DRUID_REJUVENATION, plr->GetGUID()))
                         {
-                            itr->SetHealth(itr->GetHealth() + plr->GetHealingDoneInPastSecs(3));
+                            /// Calculate left heal from rejuvenation (1 tick on the aura applying, so we add it)
+                            int8 l_TicksLeft = uint8(rejuvenation->GetDuration() / rejuvenation->GetEffect(0)->GetAmplitude()) + 1;
+                            int32 l_HealAmount = rejuvenation->GetEffect(0)->GetAmount();
+                            /// Per tick heal for our Genesis spell
+                            int32 l_NewHeal = uint32(l_TicksLeft * l_HealAmount / 5);
+                            plr->CastCustomSpell(itr, SPELL_DRUID_GENESIS_HEAL, &l_NewHeal, NULL, NULL, true);
                             itr->RemoveAura(SPELL_DRUID_REJUVENATION);
+
+                            //itr->SetHealth(itr->GetHealth() + plr->GetHealingDoneInPastSecs(3));
                         }
                     }
                 }
@@ -968,6 +976,7 @@ public:
             }
         }
 
+
         void Register()
         { 
             BeforeHit += SpellHitFn(spell_dru_rejuvenation_SpellScript::HandleBeforeHit);
@@ -1397,6 +1406,11 @@ class spell_dru_natures_cure: public SpellScriptLoader
         }
 };
 
+enum CatFormSpells
+{
+    SPELL_DRUID_GLYPH_OF_CAT_FORM = 47180
+};
+
 /// Cat Form - 768
 class spell_dru_cat_form: public SpellScriptLoader
 {
@@ -1409,8 +1423,14 @@ class spell_dru_cat_form: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                    caster->RemoveMovementImpairingAuras();
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->RemoveMovementImpairingAuras();
+
+                    /// Glyph of Cat Form
+                    if (!l_Player->HasGlyph(SPELL_DRUID_GLYPH_OF_CAT_FORM))
+                        l_Player->RemoveAura(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+                }
             }
 
             void Register()
@@ -1884,15 +1904,29 @@ class spell_dru_on_desactivate_cat_form : public SpellScriptLoader
 
                 if (l_Target->HasAura(SPELL_DRUID_PROWL))
                     l_Target->RemoveAura(SPELL_DRUID_PROWL);
-                if (l_Target->HasAura(SPELL_DRUID_DASH))
-                    l_Target->RemoveAura(SPELL_DRUID_DASH);
                 if (l_Target->HasAura(SPELL_DRUID_DESPLACER_BEAST_AURA))
                     l_Target->RemoveAura(SPELL_DRUID_DESPLACER_BEAST_AURA);
+                /// When we remove cat form dash shouldn't increase movement speed
+                if (AuraPtr l_DashAura = l_Target->GetAura(SPELL_DRUID_DASH))
+                    l_DashAura->GetEffect(0)->SetAmount(0);
+            }
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (!l_Target)
+                    return;
+
+                /// If we have dash, we should restore it to increase movement speed
+                if (AuraPtr l_DashAura = l_Target->GetAura(SPELL_DRUID_DASH))
+                    l_DashAura->GetEffect(0)->SetAmount(sSpellMgr->GetSpellInfo(SPELL_DRUID_DASH)->Effects[EFFECT_0].BasePoints);
             }
 
             void Register()
             {
                 OnEffectRemove += AuraEffectRemoveFn(spell_dru_on_desactivate_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_dru_on_desactivate_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -3312,13 +3346,17 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
+                /// Prevent double call
+                if (l_Damage == 0)
+                    return;
+
                 if (l_Caster->GetTypeId() == TYPEID_PLAYER)
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = l_Caster->ModifyPower(POWER_ENERGY, -GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                int32 l_EnergyConsumed = l_Caster->ModifyPower(POWER_ENERGY, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
                 /// 25 energy = 100% more damage
-                AddPct(l_Damage, l_EnergyConsumed * 4);
+                AddPct(l_Damage, -(l_EnergyConsumed * 4));
 
                 SetHitDamage(l_Damage);
 
@@ -3753,6 +3791,104 @@ class spell_dru_glyph_of_the_shapemender : public SpellScriptLoader
         }
 };
 
+enum DreamOfCenariusFeralSpells
+{
+    SPELL_DRU_DREAM_OF_CENARIUS_FERAL = 158497,
+    SPELL_DRU_HEALING_TOUCH = 5185,
+    SPELL_DRU_REJUVENATION = 774
+
+};
+
+/// Last Update - 6.1.2
+/// Dream of Cenarius (feral) - 158497
+/// Called by Healing Touch (5185) and Rejuvenation (774)
+class spell_dru_dream_of_cenarius_feral : public SpellScriptLoader
+{
+public:
+    spell_dru_dream_of_cenarius_feral() : SpellScriptLoader("spell_dru_dream_of_cenarius_feral") { }
+
+    class spell_dru_dream_of_cenarius_feral_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_dream_of_cenarius_feral_SpellScript);
+
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return;
+
+            if (GetSpellInfo()->Id == SPELL_DRU_HEALING_TOUCH)
+            {
+                if (l_Caster != l_Target && l_Caster->HasAura(SPELL_DRU_DREAM_OF_CENARIUS_FERAL))
+                    l_Caster->HealBySpell(l_Caster, GetSpellInfo(), GetHitHeal(), GetSpell()->IsCritForTarget(l_Target));
+            }
+            else if (GetSpellInfo()->Id == SPELL_DRU_REJUVENATION)
+            {
+                if (l_Caster != l_Target && l_Caster->HasAura(SPELL_DRU_DREAM_OF_CENARIUS_FERAL))
+                    l_Caster->AddAura(SPELL_DRUID_REJUVENATION, l_Caster);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_dream_of_cenarius_feral_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_dream_of_cenarius_feral_SpellScript();
+    }
+};
+
+enum WodPvpRestoration2pSpells
+{
+    SPELL_DRU_WOD_PVP_2P_BONUS = 170853,
+    SPELL_DRU_WOD_PVP_2P_BONUS_EFFECT = 170856
+
+};
+
+
+/// Last Update - 6.1.2
+/// Item - Druid WoD PvP Restoration 2P Bonus - 170853
+/// Called by Barskin (22812) and Ironbark (102342)
+class spell_dru_wod_pvp_2p_restoration : public SpellScriptLoader
+{
+public:
+    spell_dru_wod_pvp_2p_restoration() : SpellScriptLoader("spell_dru_wod_pvp_2p_restoration") { }
+
+    class spell_dru_wod_pvp_2p_restoration_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_wod_pvp_2p_restoration_SpellScript);
+
+
+        void HandleOnHit()
+        {
+            Unit* l_Caster = GetCaster();
+            Unit* l_Target = GetHitUnit();
+
+            if (l_Caster == nullptr || l_Target == nullptr)
+                return;
+
+            if (l_Caster->HasAura(SPELL_DRU_WOD_PVP_2P_BONUS))
+                l_Caster->CastSpell(l_Target, SPELL_DRU_WOD_PVP_2P_BONUS_EFFECT, true);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_dru_wod_pvp_2p_restoration_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_dru_wod_pvp_2p_restoration_SpellScript();
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_lifebloom_final_heal();
@@ -3824,4 +3960,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wrath();
     new spell_dru_wild_mushroom_heal();
     new spell_dru_wild_mushroom_heal_proc();
+    new spell_dru_dream_of_cenarius_feral();
+    new spell_dru_wod_pvp_2p_restoration();
 }

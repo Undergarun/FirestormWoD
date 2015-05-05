@@ -5354,6 +5354,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         m_spells[spellId] = newspell;
 
+        /// WoD Custom Fix : Firebolt just for Fire specialization
+        if (spellId == 133 && GetSpecializationId() != SPEC_MAGE_FIRE)
+            newspell->disabled = true;
+
         // return false if spell disabled
         if (newspell->disabled)
             return false;

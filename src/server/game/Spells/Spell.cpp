@@ -2959,7 +2959,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             {
                 if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL && m_damage != 0)
                         l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
                 else if (l_Caster->HasAura(14161)) ///< Ruthlessness
@@ -3172,8 +3172,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    // Hack fix for Cloak of Shadows (just Blood Plague can hit to Cloak of Shadows)
-    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879)
+    // Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune

@@ -9630,6 +9630,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
+        case 165698:///< Item - Druid WoD PvP Feral 4P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 5221)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            break;
+        }
         case 170877:///< Item Rogue WoD PvP Subtlety 4P Bonus
         {
             if (!procSpell)
@@ -12540,8 +12553,8 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     if (spellProto->Id == 48503 || spellProto->Id == 114911)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal
-    if (spellProto->Id == 33778)
+    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
         return healamount;
 
     // No bonus for Eminence (statue) and Eminence
@@ -12727,12 +12740,12 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
 
-    // No bonus for Living Seed
-    if (spellProto->Id == 48503)
+    // No bonus for Living Seed and Spirint Bond (heal)
+    if (spellProto->Id == 48503 || spellProto->Id == 149254)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal
-    if (spellProto->Id == 33778)
+    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
         return healamount;
 
     // No bonus for Devouring Plague heal

@@ -642,8 +642,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         }
     }
 
-    /// Don't need to change our value for Arcane Barrage triggered spell, it's already calculated
-    if (_spellInfo->Id == 50273)
+    /// Don't need to change our value for Arcane Barrage triggered spell and Mangle (bear), it's already calculated
+    if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
         l_Value = float(l_BasePoints);
 
     return int32(l_Value);

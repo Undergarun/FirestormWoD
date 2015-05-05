@@ -36,3 +36,53 @@ INSERT INTO `spell_script_names` VALUES (124916, 'spell_warl_chaos_wave');
 -- fix Poisoned Ammo damage coef
 UPDATE `spell_bonus_data` SET `ap_dot_bonus`='0.046' WHERE `entry`='162543';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_poisoned_ammo';
+
+-- fix Kill Command damage
+DELETE FROM `spell_bonus_data` WHERE `entry`='83381';
+
+-- fix Explosive Shot damage
+DELETE FROM `spell_bonus_data` WHERE `entry`='53301';
+INSERT INTO `spell_bonus_data` (`entry`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES ('53301', '0.553', '0.553', 'Hunter - Explosive Shot');
+
+-- fix Item - Hunter WoD PvP Marksmanship 4P Bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_aimed_shot';
+INSERT INTO `spell_script_names` VALUES (19434, 'spell_hun_aimed_shot');
+
+-- fix Poisoned Ammo
+DELETE FROM `spell_bonus_data` WHERE `entry`='162543';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_poisoned_ammo';
+INSERT INTO `spell_script_names` VALUES (162543, 'spell_hun_poisoned_ammo');
+
+-- fix Item - Priest WoD PvP Shadow 2P Bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pri_dispersion';
+INSERT INTO `spell_script_names` VALUES (47585, 'spell_pri_dispersion');
+
+-- fix Item - Mage WoD PvP Frost 2P Bonus
+DELETE FROM `areatrigger_template` WHERE `spell_id`=180723;
+INSERT INTO `areatrigger_template` (`spell_id`, `entry`, `scale_x`, `scale_y`, `flags`, `ScriptName`) VALUES (180723, 180723, 1, 1, 16384, 'at_mage_wod_frost_2p_bonus');
+
+-- fix Explosive Shot
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_explosive_shot';
+
+-- fix Item � Rogue WoD PvP Subtlety 4P Bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_feint';
+INSERT INTO `spell_script_names` VALUES (1966, 'spell_rog_feint');
+
+-- fix Comet Storm
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_mage_comet_storm';
+INSERT INTO `spell_script_names` VALUES (153595, 'spell_mage_comet_storm');
+INSERT INTO `spell_script_names` VALUES (153596, 'spell_mage_comet_storm');
+
+-- fix Fingers of Frost
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_mage_fingers_of_frost';
+INSERT INTO `spell_script_names` VALUES (44544, 'spell_mage_fingers_of_frost');
+
+-- fix Dream of Cenarius (feral)
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dru_dream_of_cenarius_feral';
+INSERT INTO `spell_script_names` VALUES (5185, 'spell_dru_dream_of_cenarius_feral');
+INSERT INTO `spell_script_names` VALUES (774, 'spell_dru_dream_of_cenarius_feral');
+
+-- fix Item - Druid WoD PvP Restoration 2P Bonus
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dru_wod_pvp_2p_restoration';
+INSERT INTO `spell_script_names` VALUES (22812, 'spell_dru_wod_pvp_2p_restoration');
+INSERT INTO `spell_script_names` VALUES (102342, 'spell_dru_wod_pvp_2p_restoration');
