@@ -2250,7 +2250,7 @@ class spell_hun_powershot: public SpellScriptLoader
                 PowerShotSecondaryTarget = 181741
             };
 
-            void HandleOnHit()
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
@@ -2262,12 +2262,13 @@ class spell_hun_powershot: public SpellScriptLoader
 
                 std::list<Unit*> l_TempUnitMap;
                 l_Caster->GetAttackableUnitListInRange(l_TempUnitMap, l_Caster->GetDistance(l_Target));
+
                 for (auto itr : l_TempUnitMap)
                 {
                     if (!itr->IsValidAttackTarget(l_Caster))
                         continue;
 
-                    if (itr->GetGUID() == l_Caster->GetGUID())
+                    if (itr->GetGUID() == l_Caster->GetGUID() || itr->GetGUID() == l_Target->GetGUID())
                         continue;
 
                     if (!itr->IsInBetween(l_Caster, l_Target, 1.0f))
@@ -2305,7 +2306,7 @@ class spell_hun_powershot: public SpellScriptLoader
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_hun_powershot_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_powershot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
