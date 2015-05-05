@@ -3164,7 +3164,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
-                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                    case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -3356,7 +3356,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907: ///< Earthrending Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
-				break;
+                break;
             case 124694: ///< Way of the Grill
             case 125584: ///< Way of the Wok
             case 125586: ///< Way of the Pot
