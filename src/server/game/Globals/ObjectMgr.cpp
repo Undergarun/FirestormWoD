@@ -10291,7 +10291,7 @@ void ObjectMgr::LoadFollowerQuests()
         if (!l_Info)
             continue;
 
-        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_OBTAIN_FOLLOWER)
+        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
             continue;
 
         FollowerQuests.push_back(l_Quest->Id);
