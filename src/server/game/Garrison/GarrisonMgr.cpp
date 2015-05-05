@@ -1380,6 +1380,7 @@ namespace MS { namespace Garrison
             l_MissionFollowers[l_FollowerIt]->Write(l_UpdatePart);
 
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
@@ -1631,8 +1632,8 @@ namespace MS { namespace Garrison
             /// Write follower after modifications
             const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
             
-            l_Update << uint32(l_AddedXP); // Guessed
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
