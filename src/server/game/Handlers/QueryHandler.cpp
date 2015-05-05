@@ -680,14 +680,14 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_Type;
     l_Count = p_RecvPacket.ReadBits(13);
 
-    uint64 * l_Guids = new uint64[l_Count];
-    DB2StorageBase * l_DB2Store = sDB2PerHash[l_Type];
+    DB2StorageBase* l_DB2Store = sDB2PerHash[l_Type];
 
     for (uint32 l_I = 0; l_I < l_Count; ++l_I)
     {
+        uint64 l_GUID;
         uint32 l_Entry;
 
-        p_RecvPacket.readPackGUID(l_Guids[l_I]);
+        p_RecvPacket.readPackGUID(l_GUID);
         p_RecvPacket >> l_Entry;
 
         /// Specific case, localized string not yet supported by the system
@@ -697,7 +697,6 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         }
         else if (l_DB2Store)
         {
-
             ByteBuffer l_ResponseData;
             if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
             {
@@ -722,6 +721,4 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
             }
         }
     }
-
-    delete[] l_Guids;
 }
