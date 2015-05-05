@@ -267,6 +267,9 @@ bool AnticheatMgr::MustCheckTempReports(uint8 type)
 
 void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
 {
+    if (p_Player->GetTransport() != nullptr)
+        return;
+
     uint32 l_Key = p_Player->GetGUIDLow();
 
     if (MustCheckTempReports(p_ReportType))
