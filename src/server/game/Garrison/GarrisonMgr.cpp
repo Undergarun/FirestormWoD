@@ -2273,6 +2273,7 @@ namespace MS { namespace Garrison
         m_Followers.push_back(l_Follower);
 
         WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
+        l_AddFollowerResult << uint32(PurchaseBuildingResults::Ok);
         l_Follower.Write(l_AddFollowerResult);
 
         m_Owner->SendDirectMessage(&l_AddFollowerResult);
