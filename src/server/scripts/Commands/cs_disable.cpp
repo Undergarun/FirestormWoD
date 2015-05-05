@@ -55,6 +55,7 @@ public:
             { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
             { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleAddDisableOutdoorPvPCommand,             "", NULL },
             { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleAddDisableVmapCommand,                   "", NULL },
+            { "itemsell",               SEC_ADMINISTRATOR,      true,   &HandleAddDisableItemSellCommand,               "", NULL },
             { NULL,                     0,                      false,  NULL,                                           "", NULL }
         };
         static ChatCommand disableCommandTable[] =
@@ -351,6 +352,25 @@ public:
             return false;
 
         return HandleRemoveDisables(handler, args, DISABLE_TYPE_VMAP);
+    }
+
+    static bool HandleAddDisableItemSellCommand(ChatHandler* p_Handler, char const* p_Args)
+    {
+        if (!p_Args)
+            return false;
+
+        char* l_EntryStr = strtok((char*)p_Args, " ");
+        uint32 l_Entry   = uint32(atoi(l_EntryStr));
+
+        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Entry);
+        if (l_ItemTemplate == nullptr)
+            return false;
+
+        const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
+
+        WorldDatabase.PExecute("INSERT INTO item_template_addon (Id, FlagsCu) VALUES (%u, %u) ON DUPLICATE KEY UPDATE FlagsCu = %u", l_Entry, ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL, ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL);
+
+        return true;
     }
 };
 

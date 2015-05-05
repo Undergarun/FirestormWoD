@@ -686,6 +686,12 @@ void WorldSession::HandleSellItemOpcode(WorldPacket& p_RecvPacket)
 
         if (l_PlayerItemTemplate)
         {
+            if (l_PlayerItemTemplate->FlagsCu & ITEM_FLAGS_CU_CANT_BE_SELL)
+            {
+                m_Player->SendSellError(SELL_ERR_CANT_SELL_ITEM, l_Creature, l_ItemGUID);
+                return;
+            }
+
             if (l_PlayerItemTemplate->SellPrice > 0)
             {
                 if (l_Amount < l_PlayerItem->GetCount())               // need split items

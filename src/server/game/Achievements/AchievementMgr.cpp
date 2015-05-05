@@ -3880,11 +3880,15 @@ void AchievementGlobalMgr::LoadRewards()
 
         if (l_Reward.itemId)
         {
-            if (!sObjectMgr->GetItemTemplate(l_Reward.itemId))
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Reward.itemId);
+
+            if (l_ItemTemplate == nullptr)
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) has invalid item id %u, reward mail will not contain item.", l_Entry, l_Reward.itemId);
                 l_Reward.itemId = 0;
             }
+
+            const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
         }
 
         m_achievementRewards[l_Entry] = l_Reward;
