@@ -265,7 +265,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190                     internal spell
     &Spell::EffectTeleportToDigsite,                        //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE     Teleport player to an random digsite (Archaeology)
     &Spell::EffectUncagePetBattle,                          //192 SPELL_EFFECT_UNCAGE_BATTLE_PET       Battle pet exchange (123302)
-    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_193                     157417 Launch NPC Pet Battle
+    &Spell::EffectNULL,                                     //193 SPELL_EFFECT_START_PET_BATTLE        157417 Launch NPC Pet Battle
     &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194                     Unused 6.0.3
     &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195                     Scene related
     &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196                     summon multi NPC
@@ -276,53 +276,53 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectCanPetBattle,                             //201 SPELL_EFFECT_CAN_PETBATTLE           Battle pet first slot and track
     &Spell::EffectNULL,                                     //202 SPELL_EFFECT_202                     Unk 5.4.0
     &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203                     Unk 5.4.0
-    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_204                     BATTLEPET System 5.4.0
-    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_205                     Garrison related 6.0.3
+    &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
+    &Spell::EffectNULL,                                     //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_206                     used for TimelessIsle 5.4.0
-    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_207                     Quest Garrison related (value = questid)
+    &Spell::EffectNULL,                                     //207 SPELL_EFFECT_LAUNCH_QUEST_TASK       Quest Garrison related (value = questid)
     &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208                     Unk 5.4.0
     &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209                     test spell
     &Spell::EffectLearnBluePrint,                           //210 SPELL_EFFECT_LEARN_BLUE_PRINT
-    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_211                     Garrison learn (specialization)
-    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.0.3
+    &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
+    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212                     Unused 6.1.2
     &Spell::EffectDeathGrip,                                //213 SPELL_EFFECT_DEATH_GRIP
-    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_214                     Create Garrison
-    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY Unlock talents for powerleveled chars in retail
+    &Spell::EffectNULL,                                     //214 SPELL_EFFECT_CREATE_GARRISON
+    &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS Unlocks boosted players' spells (ChrUpgrade*.db2)
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
-    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_217                     Upgrade Garrison (171905)
+    &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON        171905
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218                     Unk 6.0.1
     &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219                     Unk 6.0.1
-    &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_OBTAIN_FOLLOWER         Obtain a garrison follower (contract item)
+    &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER     Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_223                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
-    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_225                     Battle-Training Stone
-    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.0.1
+    &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
+    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.1.2
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227                     Teleport Into Karabor
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228                     Recruit A Friend Summon Effect
-    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_229                     Upgrade follower to epic
-    &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL   Upgrade follower iLvL
-    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_231                     level up an follower (debug PTR spell)
-    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_232                     Phase related
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_233                     Retrain Follower (Reroll the abilities and traits on a follower.)
-    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_236                     Burst of Experience (follower)
-    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_237                     Unk 6.0.1
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_238                     Garrison restore item (give X in skill)
-    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_239                     Garrison skip contruction
-    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_243                     Illusion spells (visual enchant)
-    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_244                     learn an follower ability NYI
-    &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM        Unused 6.0.3
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_246                     Unused 6.0.3
-    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_246                     Unused 6.1
-    &Spell::EffectNULL,                                     //248 SPELL_EFFECT_246                     Unused 6.1
-    &Spell::EffectNULL,                                     //249 SPELL_EFFECT_246                     Unused 6.1
-    &Spell::EffectNULL,                                     //250 SPELL_EFFECT_246                     Unused 6.1
+    &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
+    &Spell::EffectUpgradeFolloweriLvl,                      //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL   Upgrade follower iLvL
+    &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
+    &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
+    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //236 SPELL_EFFECT_GIVE_EXPERIENCE
+    &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
+    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
+    &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
+    &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
+    &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY  NYI
+    &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
+    &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
+    &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249                     Unused 6.1.2
+    &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -593,6 +593,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 switch (m_spellInfo->Id)
                 {
+                    /// Chi Explosion
+                    case 152174:
+                    case 157676:
+                    {
+                        uint32 l_Chi = m_caster->GetPower(POWER_CHI) + 1;
+                        if (l_Chi > 3 && effIndex == EFFECT_0)
+                            return;
+                        else if (l_Chi < 4 && effIndex == EFFECT_1)
+                            return;
+                        break;
+                    }
                     case 115080:// Touch of Death
                     {
                         if (Unit* l_Caster = GetCaster())
@@ -2926,14 +2937,31 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         }
         case 33663:  ///< Earth Elemental Totem
         case 117663: ///< Fire Elemental Totem
+        case 157299: ///< Storm Elemental Totem
         {
-            if (m_originalCaster->GetTypeId() == TYPEID_UNIT)
+            if (m_originalCaster->GetTypeId() == TYPEID_UNIT && m_originalCaster->isTotem())
             {
-                if (m_originalCaster->isTotem() && m_originalCaster->GetOwner())
+                if (m_originalCaster->GetOwner() && m_originalCaster->GetOwner()->HasAura(117013)) ///< Primal Elementalist
                 {
-                    if (m_originalCaster->GetOwner()->HasAura(117013)) ///< Primal Elementalist
+                    uint32 l_SpellId = 0;
+                    switch (m_spellInfo->Id)
                     {
-                        m_originalCaster->CastSpell(m_originalCaster, m_spellInfo->Id == 33663 ? 118323 : 118291, true);
+                        case 33663:  ///< Earth Elemental Totem
+                            l_SpellId = 118323;
+                            break;
+                        case 117663: ///< Fire Elemental Totem
+                            l_SpellId = 118291;
+                            break;
+                        case 157299: ///< Storm Elemental Totem
+                            l_SpellId = 157319;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (l_SpellId)
+                    {
+                        m_originalCaster->CastSpell(m_originalCaster, l_SpellId, true);
                         return;
                     }
                 }
@@ -6992,15 +7020,25 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     switch (m_spellInfo->Id)
     {
-    case 81283: // Fungal Growth
-        numGuardians = 1;
-        break;
-    case 49028: // Dancing Rune Weapon
-        // 20% Parry
-        m_originalCaster->CastSpell(m_originalCaster, 81256, true);
-        break;
-    default:
-        break;
+        case 81283: // Fungal Growth
+            numGuardians = 1;
+            break;
+        case 49028: // Dancing Rune Weapon
+            // 20% Parry
+            m_originalCaster->CastSpell(m_originalCaster, 81256, true);
+            break;
+        case 101643: /// Transencence
+            for (Unit::ControlList::const_iterator itr = m_originalCaster->m_Controlled.begin(); itr != m_originalCaster->m_Controlled.end(); ++itr)
+            {
+                if ((*itr)->GetEntry() == 54569)
+                {
+                    ((Creature*)(*itr))->DespawnOrUnsummon();
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
     }
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
@@ -7026,6 +7064,17 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         if (summon->GetEntry() == 27829)
         {
             summon->setFaction(caster->getFaction());
+            ExecuteLogEffectSummonObject(i, summon);
+            return;
+        }
+
+        /// Transcendence shouldn't be initialized twice
+        if (summon->GetEntry() == 54569)
+        {
+            summon->SetOwnerGUID(m_originalCaster->GetGUID());
+            summon->SetCreatorGUID(m_originalCaster->GetGUID());
+            summon->setFaction(m_originalCaster->getFaction());
+            summon->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, m_spellInfo->Id);
             ExecuteLogEffectSummonObject(i, summon);
             return;
         }
@@ -8094,7 +8143,7 @@ void Spell::EffectCreateHeirloom(SpellEffIndex p_EffIndex)
     if (Item* l_Item = l_Player->StoreNewItem(l_Destination, l_HeirloomEntry->ItemID, true))
     {
         l_Item->AddItemBonus(l_UpgradeId);
-        l_Player->SendNewItem(l_Item, l_HeirloomEntry->ItemID, false, false, false);
+        l_Player->SendNewItem(l_Item, 1, false, false, false);
     }
 }
 

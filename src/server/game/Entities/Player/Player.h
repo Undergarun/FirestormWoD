@@ -647,7 +647,9 @@ enum AtLoginFlags
     AT_LOGIN_CHANGE_FACTION         = 0x040,
     AT_LOGIN_CHANGE_RACE            = 0x080,
     AT_LOGIN_UNLOCK                 = 0x100,
-    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200
+    AT_LOGIN_LOCKED_FOR_TRANSFER    = 0x200,
+    AT_LOGIN_RESET_SPECS            = 0x400,
+    AT_LOGIN_DELETE_INVALID_SPELL   = 0x800     ///< Used at expension switch
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
@@ -1006,7 +1008,19 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS         = 52,
     PLAYER_LOGIN_QUERY_LOADMAIL                     = 53,
     PLAYER_LOGIN_QUERY_LOADMAIL_ITEMS               = 54,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM                = 55,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD                = 56,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
+    PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     MAX_PLAYER_LOGIN_QUERY
+};
+
+enum PlayerLoginDBQueryIndex
+{
+    PLAYER_LOGINGB_SPELL                = 0,
+    PLAYER_LOGINDB_HEIRLOOM_COLLECTION  = 1,
+    PLAYER_LOGINDB_TOYS                 = 2,
+    MAX_PLAYER_LOGINDB_QUERY
 };
 
 class PetLoginQueryHolder : public SQLQueryHolder
@@ -2049,7 +2063,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult);
+        bool LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder);
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
@@ -2187,6 +2201,7 @@ class Player : public Unit, public GridObject<Player>
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
+        void DeleteInvalidSpells();
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -2224,6 +2239,8 @@ class Player : public Unit, public GridObject<Player>
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
 
+        uint32 GetDefaultSpecId() const;
+
         bool ResetTalents(bool p_NoCost = false);
         void RemoveTalent(TalentEntry const* p_TalentInfos);
         uint32 GetNextResetTalentsCost() const;
@@ -2242,6 +2259,7 @@ class Player : public Unit, public GridObject<Player>
         void RemovePassiveTalentSpell(SpellInfo const* info);
 
         void ResetSpec(bool p_NoCost = false);
+        void ResetAllSpecs();
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
@@ -3957,7 +3975,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_groupUpdateDelay;
 
         bool m_initializeCallback;
-        uint8 m_storeCallbackCounter;
 
         uint32 m_emote;
 
@@ -3966,13 +3983,7 @@ class Player : public Unit, public GridObject<Player>
         MS::Skill::Archaeology::Manager m_archaeologyMgr;
 
         // Store callback
-        PreparedQueryResultFuture _storeGoldCallback;
-        PreparedQueryResultFuture _storeTitleCallback;
-        PreparedQueryResultFuture _storeItemCallback;
-        PreparedQueryResultFuture _storeLevelCallback;
         PreparedQueryResultFuture _petPreloadCallback;
-        PreparedQueryResultFuture _HeirloomStoreCallback;
-        PreparedQueryResultFuture _PlayersToysCallback;
         QueryResultHolderFuture _petLoginCallback;
 
         uint8 m_bgRoles;

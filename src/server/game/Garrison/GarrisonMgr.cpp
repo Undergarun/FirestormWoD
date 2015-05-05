@@ -1589,7 +1589,7 @@ namespace MS { namespace Garrison
             {
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
 
-                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_OBTAIN_FOLLOWER)
+                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
                 {
                     l_IsContractItem = true;
                     m_Owner->CastSpell(m_Owner, l_SpellInfo, TRIGGERED_FULL_MASK);

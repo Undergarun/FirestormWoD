@@ -1793,6 +1793,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spells invalid...");
+    sObjectMgr->LoadSpellInvalid();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
@@ -2140,6 +2143,8 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();
 
+    PlayerDump::LoadColumnsName();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
@@ -2404,7 +2409,7 @@ void World::Update(uint32 diff)
                 bool l_Error = true;
                 std::string l_Dump;
 
-                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump))
+                if (PlayerDumpWriter().GetDump(l_CharGUID, l_AccountID, l_Dump, false))
                 {
                     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
                     stmt->setString(0, l_Dump);
@@ -3450,13 +3455,11 @@ void World::ResetDailyQuests()
 
 void World::ResetCurrencyWeekCap()
 {
-    SQLTransaction l_Trans = CharacterDatabase.BeginTransaction();
-    l_Trans->Append("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
-    l_Trans->Append("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
-    l_Trans->Append("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekWins2` = 0");
-    l_Trans->Append("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`");
-    l_Trans->Append("UPDATE `character_arena_data` SET `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
-    CharacterDatabase.CommitTransaction(l_Trans);
+    CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekWins2` = 0");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())

@@ -8941,8 +8941,27 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
         uint32 l_GroupSize     = l_Fields[2].GetUInt32();
         uint32 l_Health        = l_Fields[3].GetUInt32();
 
+        if (!sObjectMgr->GetCreatureTemplate(l_CreatureEntry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature template entry (entry: %u) used in `creature_groupsizestats` does not exist.", l_CreatureEntry);
+            continue;
+        }
+
+        if (l_Difficulty >= MaxDifficulties)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Difficulty %u (entry %u) used in `creature_groupsizestats` is invalid.", l_Difficulty);
+            continue;
+        }
+
+        if (l_GroupSize >= MAX_GROUP_SCALING)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Group size %u (entry %u) used in `creature_groupsizestats` is invalid.", l_GroupSize);
+            continue;
+        }
+
         CreatureGroupSizeStat& l_CreatureGroupSizeStat = m_CreatureGroupSizeStore[l_CreatureEntry][l_Difficulty];
         l_CreatureGroupSizeStat.Healths[l_GroupSize] = l_Health;
+        ++l_Count;
     }
     while (l_Result->NextRow());
 
@@ -10055,7 +10074,7 @@ void ObjectMgr::LoadFollowerQuests()
         if (!l_Info)
             continue;
 
-        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_OBTAIN_FOLLOWER)
+        if (l_Info->Effects[EFFECT_0].Effect != SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
             continue;
 
         FollowerQuests.push_back(l_Quest->Id);
@@ -10242,6 +10261,34 @@ void ObjectMgr::LoadItemBonusGroupLinked()
 
         ItemTemplate& l_ItemTemplate = _itemTemplateStore[l_ItemEntry];
         l_ItemTemplate.m_ItemBonusGroups.push_back(l_ItemBonusGroup);
+
+        l_Count++;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
+void ObjectMgr::LoadSpellInvalid()
+{
+    uint32 l_OldMSTime = getMSTime();
+    m_SpellInvalid.clear();
+
+    QueryResult l_Result = WorldDatabase.Query("SELECT spellid FROM spell_invalid");
+
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Spell Invalid. DB table `spell_invalid` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+    do
+    {
+        Field* l_Fields    = l_Result->Fetch();
+        uint32 l_SpellID   = l_Fields[0].GetUInt32();
+
+        m_SpellInvalid.push_back(l_SpellID);
 
         l_Count++;
     }

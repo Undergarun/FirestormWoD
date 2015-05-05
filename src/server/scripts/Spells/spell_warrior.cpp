@@ -25,7 +25,6 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
-#include "ScriptedCreature.h"
 
 enum WarriorSpells
 {
@@ -68,62 +67,6 @@ enum WarriorSpells
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
     WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184
-};
-
-/// Ravager - 76168
-class npc_warrior_ravager : public CreatureScript
-{
-    public:
-        npc_warrior_ravager() : CreatureScript("npc_warrior_ravager") { }
-
-        struct npc_warrior_ravagerAI : public ScriptedAI
-        {
-            npc_warrior_ravagerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eSpells
-            {
-                RavagerAura = 153709
-            };
-
-            void IsSummonedBy(Unit* p_Summoner)
-            {
-                me->CastSpell(me, eSpells::RavagerAura, true);
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
-
-                if (p_Summoner == nullptr || p_Summoner->GetTypeId() != TypeID::TYPEID_PLAYER)
-                    return;
-
-                if (Player* l_Player = p_Summoner->ToPlayer())
-                {
-                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_MAINHAND))
-                    {
-                        /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Proto->ItemId);
-                        else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID, l_Item->GetTemplate()->ItemId);
-                    }
-
-                    if (Item* l_Item = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, EquipmentSlots::EQUIPMENT_SLOT_OFFHAND))
-                    {
-                        /// Display Transmogrifications on player's clone
-                        if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(l_Item->GetDynamicValue(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Proto->ItemId);
-                        else
-                            me->SetUInt32Value(EUnitFields::UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_Item->GetTemplate()->ItemId);
-                    }
-                }
-            }
-
-            void UpdateAI(uint32 const p_Diff) { }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_warrior_ravagerAI(p_Creature);
-        }
 };
 
 /// Ravager - 152277
@@ -1448,7 +1391,7 @@ class spell_warr_execute: public SpellScriptLoader
                 uint32 l_MaxConsumed = GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE)) / l_Caster->GetPowerCoeff(POWER_RAGE);
+                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE))) / l_Caster->GetPowerCoeff(POWER_RAGE);
                 l_Damage += CalculatePct(l_Damage, -l_RageConsumed * (405.f / l_MaxConsumed));
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
@@ -1911,10 +1854,6 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
-    /// NPCs
-    new npc_warrior_ravager();
-
-    /// Spells
     new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
     new spell_warr_rend();

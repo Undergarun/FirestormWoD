@@ -24,10 +24,6 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "ScriptedCreature.h"
-
-#include "Cell.h"
-#include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 
@@ -124,101 +120,6 @@ enum MageSpells
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170
 };
 
-/// Item - Mage WoD PvP Frost 2P Bonus - 180723
-class spell_areatrigger_mage_wod_frost_2p_bonus : public AreaTriggerEntityScript
-{
-public:
-    spell_areatrigger_mage_wod_frost_2p_bonus()
-        : AreaTriggerEntityScript("at_mage_wod_frost_2p_bonus")
-    {
-    }
-
-    enum eSpells
-    {
-        SlickIce = 180724
-    };
-
-    AreaTriggerEntityScript* GetAI() const
-    {
-        return new spell_areatrigger_mage_wod_frost_2p_bonus();
-    }
-
-    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-    {
-        std::list<Unit*> targetList;
-        float l_Radius = 20.0f;
-        Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
-
-        for (auto itr : targetList)
-        {
-            if (itr->GetDistance(p_AreaTrigger) <= 6.0f)
-                l_Caster->CastSpell(itr, eSpells::SlickIce, true);
-            else
-                itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
-        }
-    }
-
-    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
-    {
-        std::list<Unit*> targetList;
-        float l_Radius = 10.0f;
-        Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
-        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
-        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
-
-        for (auto itr : targetList)
-        {
-            if (itr->HasAura(eSpells::SlickIce, l_Caster->GetGUID()))
-                itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
-        }
-    }
-};
-
-/// Arcane Orb - 153626
-class spell_areatrigger_arcane_orb : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_arcane_orb() : AreaTriggerEntityScript("spell_areatrigger_arcane_orb") { }
-
-        enum eArcaneOrbSpell
-        {
-            ArcaneOrbDamage = 153640
-        };
-
-        void OnCreate(AreaTrigger* p_AreaTrigger)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-                l_Caster->CastSpell(l_Caster, SPELL_MAGE_ARCANE_CHARGE, true);
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 2.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_arcane_orb();
-        }
-};
-
 /// Arcane Charge - 36032
 class spell_mage_arcane_charge : public SpellScriptLoader
 {
@@ -262,73 +163,6 @@ class spell_mage_arcane_charge : public SpellScriptLoader
         }
 };
 
-/// Meteor Burn - 175396
-class spell_areatrigger_meteor_burn : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_meteor_burn() : AreaTriggerEntityScript("spell_areatrigger_meteor_burn") { }
-
-        enum eMeteorSpell
-        {
-            MeteorDoT = 155158,
-            VisualID  = 45326
-        };
-
-        void OnCreate(AreaTrigger* p_AreaTrigger)
-        {
-            /// VisualID of 175396 is not the same of his AreaTrigger
-            p_AreaTrigger->SetUInt32Value(EAreaTriggerFields::AREATRIGGER_FIELD_SPELL_VISUAL_ID, eMeteorSpell::VisualID);
-        }
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 8.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                    l_Caster->CastSpell(l_Unit, eMeteorSpell::MeteorDoT, true);
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_meteor_burn();
-        }
-};
-
-/// Meteor - 177345
-class spell_areatrigger_meteor_timestamp : public AreaTriggerEntityScript
-{
-    public:
-        spell_areatrigger_meteor_timestamp() : AreaTriggerEntityScript("spell_areatrigger_meteor_timestamp") {}
-
-        enum eSpells
-        {
-            MeteorDamage = 153564
-        };
-
-        AreaTriggerEntityScript* GetAI() const
-        {
-            return new spell_areatrigger_meteor_timestamp();
-        }
-
-        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
-        {
-            Unit* l_Caster = p_AreaTrigger->GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            l_Caster->CastSpell(p_AreaTrigger->m_positionX, p_AreaTrigger->m_positionY, p_AreaTrigger->m_positionZ, eSpells::MeteorDamage, true);
-        }
-};
-
 /// Meteor - 153561
 class spell_mage_meteor : public SpellScriptLoader
 {
@@ -362,88 +196,6 @@ class spell_mage_meteor : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_meteor_SpellScript();
-        }
-};
-
-/// Prismatic Crystal - 76933
-class npc_mage_prismatic_crystal : public CreatureScript
-{
-    public:
-        npc_mage_prismatic_crystal() : CreatureScript("npc_mage_prismatic_crystal") { }
-
-        struct npc_mage_prismatic_crystalAI : public ScriptedAI
-        {
-            npc_mage_prismatic_crystalAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
-
-            enum eSpells
-            {
-                PrismaticCrystalAura    = 155153,
-                PrismaticCrystalDamage  = 155152
-            };
-
-            enum eDatas
-            {
-                FactionHostile = 14,
-                FactionFriend  = 35
-            };
-
-            uint64 m_Owner = 0;
-
-            void IsSummonedBy(Unit* p_Summoner)
-            {
-                m_Owner = p_Summoner->GetGUID();
-
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-
-                if (Player* l_Player = p_Summoner->ToPlayer())
-                {
-                    if (AuraPtr l_Aura = me->AddAura(eSpells::PrismaticCrystalAura, me))
-                    {
-                        if (AuraEffectPtr l_DamageTaken = l_Aura->GetEffect(SpellEffIndex::EFFECT_0))
-                        {
-                            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SpecIndex::SPEC_MAGE_FROST)
-                                l_DamageTaken->ChangeAmount(10);    ///< BasePoint = 30, but only for Arcane and Fire spec
-                        }
-                    }
-                }
-
-                me->setFaction(eDatas::FactionHostile);
-                me->ForceValuesUpdateAtIndex(EUnitFields::UNIT_FIELD_FACTION_TEMPLATE);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
-            {
-                if (p_Attacker->GetGUID() != m_Owner)
-                {
-                    p_Damage = 0;
-                    return;
-                }
-
-                if (p_SpellInfo && p_SpellInfo->Id != eSpells::PrismaticCrystalDamage)
-                {
-                    if (Unit* l_Owner = sObjectAccessor->FindUnit(m_Owner))
-                    {
-                        int32 l_BasePoint = p_Damage;
-                        l_Owner->CastCustomSpell(me, eSpells::PrismaticCrystalDamage, nullptr, &l_BasePoint, nullptr, true);
-                    }
-                }
-            }
-
-            void OnSendFactionTemplate(uint32& p_FactionID, Player* p_Target)
-            {
-                if (m_Owner == p_Target->GetGUID())
-                    p_FactionID = eDatas::FactionHostile;
-                else
-                    p_FactionID = eDatas::FactionFriend;
-            }
-
-            void UpdateAI(uint32 const p_Diff) { }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_mage_prismatic_crystalAI(p_Creature);
         }
 };
 
@@ -994,7 +746,8 @@ class spell_mage_arcane_explosion: public SpellScriptLoader
         }
 };
 
-// Frostbolt - 116
+/// Last Update 6.1.2
+/// Frostbolt - 116
 class spell_mage_frostbolt: public SpellScriptLoader
 {
     public:
@@ -1003,6 +756,13 @@ class spell_mage_frostbolt: public SpellScriptLoader
         class spell_mage_frostbolt_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_frostbolt_SpellScript);
+
+            bool m_TargetIsSnare = false;
+
+            enum eSpells
+            {
+                WoDPvPFrost4PBonus = 180741
+            };
 
             SpellCastResult CheckTarget()
             {
@@ -1029,6 +789,34 @@ class spell_mage_frostbolt: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnPrepare()
+            {
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || l_Target->HasAuraType(SPELL_AURA_MOD_ROOT))
+                    m_TargetIsSnare = true;
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPFrost4PBonus);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WoDPvPFrost4PBonus))
+                {
+                    if (m_TargetIsSnare)
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                }
+            }
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1048,6 +836,8 @@ class spell_mage_frostbolt: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_mage_frostbolt_SpellScript::HandleOnPrepare);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::HandleOnHit);
                 OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::CheckTarget);
             }
@@ -2203,6 +1993,55 @@ class spell_mage_enhanced_pyrotechnics : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Mage WoD PvP Frost 2P Bonus - 180721
+class spell_mage_WoDPvPFrost2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_mage_WoDPvPFrost2PBonus() : SpellScriptLoader("spell_mage_WoDPvPFrost2PBonus") { }
+
+        class spell_mage_WoDPvPFrost2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_WoDPvPFrost2PBonus_AuraScript);
+
+            enum eSpells
+            {
+                PvpFrost2PBonusTrigger  = 180723,
+                ConeOfCold              = 120
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetActor()->GetGUID() != l_Caster->GetGUID())
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo())
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != eSpells::ConeOfCold)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::PvpFrost2PBonusTrigger, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_mage_WoDPvPFrost2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_WoDPvPFrost2PBonus_AuraScript();
+        }
+};
+
 // Call by Blast Wave 157981 - Supernova 157980 - Ice Nova 157997
 class spell_mage_novas_talent : public SpellScriptLoader
 {
@@ -2562,16 +2401,6 @@ class PlayerScript_rapid_teleportation : public PlayerScript
 
 void AddSC_mage_spell_scripts()
 {
-    /// AreaTriggers
-    new spell_areatrigger_mage_wod_frost_2p_bonus();
-    new spell_areatrigger_arcane_orb();
-    new spell_areatrigger_meteor_burn();
-    new spell_areatrigger_meteor_timestamp();
-
-    /// Npcs
-    new npc_mage_prismatic_crystal();
-
-    /// Spells
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();
@@ -2617,6 +2446,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ice_barrier();
     new spell_mage_prysmatic_crystal_damage();
     new spell_mage_glyph_of_the_unbound_elemental();
+    new spell_mage_WoDPvPFrost2PBonus();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

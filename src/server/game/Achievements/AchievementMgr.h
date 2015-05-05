@@ -136,7 +136,7 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_UNK16                                = 16,   // 19116 - NYI - See: http://www.wowhead.com/achievement=1260
     CRITERIA_CONDITION_SOURCE_AREA_OR_ZONE                  = 17,   // 19116
     CRITERIA_CONDITION_TARGET_AREA_OR_ZONE                  = 18,   // 19116
-    CRITERIA_CONDITION_MAP_DIFFICULTY                       = 20,   // 19116
+    CRITERIA_CONDITION_LEGACY_RAID_TYPE                     = 20,   // 19116
     CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP            = 21,   // 19116
     CRITERIA_CONDITION_ARENA_TYPE                           = 24,   // 19116
     CRITERIA_CONDITION_SOURCE_RACE                          = 25,   // 19116
@@ -166,7 +166,7 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_PROJECT_RARITY                       = 65,   // 19116
     CRITERIA_CONDITION_PROJECT_RACE                         = 66,   // 19116
     CRITERIA_CONDITION_UNK67                                = 67,   // 19116 - NYI - See: http://www.wowhead.com/achievement=156 - May need hard code
-    CRITERIA_CONDITION_RAID_DIFFICULTY                      = 68,   // 19116
+    CRITERIA_CONDITION_DIFFICULTY                           = 68,   // 19116
     CRITERIA_CONDITION_UNK69                                = 69,   // 19116 - Not used
     CRITERIA_CONDITION_TARGET_MIN_LEVEL                     = 70,   // 19116
     CRITERIA_CONDITION_UNK73                                = 73,   // 19116 - NYI - See: http://www.wowhead.com/achievement=6683 - May need hard code
@@ -413,7 +413,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_UNK162                            = 162,  // 19116 - Not used
     ACHIEVEMENT_CRITERIA_TYPE_PLACE_WORK_ORDER                  = 163,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_UNK164                            = 164,  // 19116 - Not used
-    ACHIEVEMENT_CRITERIA_TYPE_UNK165                            = 165,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER                  = 165,  // 19116
     ACHIEVEMENT_CRITERIA_TYPE_UNK167                            = 167,  // 19116 - Not used
     ACHIEVEMENT_CRITERIA_TYPE_UPDATE_BUILDING_LEVEL             = 168,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_BUILD_PRESET_BUILDING             = 169,  // 19116 NYI

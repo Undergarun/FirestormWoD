@@ -975,7 +975,6 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     }
 
     m_initializeCallback = false;
-    m_storeCallbackCounter = 0;
 
     m_needSummonPetAfterStopFlying = false;
 
@@ -1862,38 +1861,14 @@ void Player::Update(uint32 p_time)
         return;
 
     //sAnticheatMgr->HandleHackDetectionTimer(this, p_time);
-
     if (!m_initializeCallback)
     {
         PreparedStatement* stmt;
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeItemCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeGoldCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_TITLE);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeTitleCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_LEVEL);
-        stmt->setInt32(0, GetGUIDLow());
-        _storeLevelCallback = CharacterDatabase.AsyncQuery(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT);
         stmt->setUInt32(0, GetGUIDLow());
         stmt->setUInt32(1, m_currentPetSlot);
         _petPreloadCallback = CharacterDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_HEIRLOOM_COLLECTION);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _HeirloomStoreCallback = LoginDatabase.AsyncQuery(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOYS);
-        stmt->setUInt32(0, GetSession()->GetAccountId());
-        _PlayersToysCallback = LoginDatabase.AsyncQuery(stmt);
 
         m_initializeCallback = true;
     }
@@ -1902,57 +1877,11 @@ void Player::Update(uint32 p_time)
     {
         PreparedQueryResult result;
 
-        if (_storeItemCallback.ready())
-        {
-            _storeItemCallback.get(result);
-            HandleStoreItemCallback(result);
-            _storeItemCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeGoldCallback.ready())
-        {
-            _storeGoldCallback.get(result);
-            HandleStoreGoldCallback(result);
-            _storeGoldCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeTitleCallback.ready())
-        {
-            _storeTitleCallback.get(result);
-            HandleStoreTitleCallback(result);
-            _storeTitleCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
-        if (_storeLevelCallback.ready())
-        {
-            _storeLevelCallback.get(result);
-            HandleStoreLevelCallback(result);
-            _storeLevelCallback.cancel();
-            m_storeCallbackCounter++;
-        }
-
         if (_petPreloadCallback.ready())
         {
             _petPreloadCallback.get(result);
             LoadPet(result);
             _petPreloadCallback.cancel();
-        }
-
-        if (_HeirloomStoreCallback.ready())
-        {
-            _HeirloomStoreCallback.get(result);
-            _LoadHeirloomCollection(result);
-            _HeirloomStoreCallback.cancel();
-        }
-
-        if (_PlayersToysCallback.ready())
-        {
-            _PlayersToysCallback.get(result);
-            _LoadToyBox(result);
-            _PlayersToysCallback.cancel();
         }
 
         if (_petLoginCallback.ready())
@@ -1967,13 +1896,6 @@ void Player::Update(uint32 p_time)
             delete param;
 
             _petLoginCallback.cancel();
-        }
-
-        // All store callback are check, we can save to db player
-        if (m_storeCallbackCounter == 4)
-        {
-            SaveToDB();
-            m_storeCallbackCounter++;
         }
     }
 
@@ -6448,6 +6370,54 @@ void Player::ResetSpec(bool p_NoCost /* = false */)
     SetSpecializationResetTime(time(nullptr));
 }
 
+void Player::ResetAllSpecs()
+{
+    for (int l_SpecIdx = 0; l_SpecIdx < 2; l_SpecIdx++)
+    {
+        /// Remove specialization Glyphs
+        std::vector<uint32> l_Glyphs = GetGlyphMap(l_SpecIdx);
+        uint8 l_Slot = 0;
+        for (uint32 l_Glyph : l_Glyphs)
+        {
+            GlyphRequiredSpecEntry const* l_GlyphReq = nullptr;
+            for (uint32 l_I = 0; l_I < sGlyphRequiredSpecStore.GetNumRows(); ++l_I)
+            {
+                if (GlyphRequiredSpecEntry const* l_GlyphRequirements = sGlyphRequiredSpecStore.LookupEntry(l_I))
+                {
+                    if (l_GlyphRequirements->GlyphID == l_Glyph)
+                    {
+                        l_GlyphReq = l_GlyphRequirements;
+                        break;
+                    }
+                }
+            }
+
+            if (l_GlyphReq == nullptr)
+            {
+                ++l_Slot;
+                continue;
+            }
+
+            /// If glyph has a spec requirement, remove it
+            if (GlyphPropertiesEntry const* l_GlyphProp = sGlyphPropertiesStore.LookupEntry(l_Glyph))
+            {
+                RemoveAurasDueToSpell(l_GlyphProp->SpellId);
+                SetGlyph(l_Slot, 0);
+            }
+
+            ++l_Slot;
+        }
+    }
+
+    RemoveSpecializationSpells();
+    SetSpecializationId(GetActiveSpec(), false);
+    InitSpellForLevel();
+    UpdateMasteryPercentage();
+    SendTalentsInfoData(false);
+
+    SetSpecializationResetTime(time(nullptr));
+}
+
 void Player::SetSpecializationId(uint8 p_Spec, uint32 p_Specialization, bool p_Loading)
 {
     /// Remove specialization talents
@@ -7589,8 +7559,6 @@ void Player::RepopAtGraveyard()
             ResurrectPlayer(1.0f);
             SpawnCorpseBones();
         }
-        else
-            sLog->outAshran("MapEntranceTrigger not found for map %u.", GetMapId());
     }
     else
     {
@@ -7990,8 +7958,8 @@ void Player::UpdateRating(CombatRating p_CombatRating)
     {
         float l_HastePct = l_Amount * GetRatingMultiplier(p_CombatRating);
 
-        ///< Way of the Monk
-        if (HasAura(120275))
+        /// last update : 6.1.2 19802
+        if (HasAura(120275)) ///< Way of the Monk
             l_HastePct += 55.0f;
 
         AuraEffectList const& l_HasteAuras = GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
@@ -16244,8 +16212,6 @@ void Player::SwapItem(uint16 src, uint16 dst)
     if (pSrcItem == pDstItem)
         return;
 
-    sLog->outAshran("Player::SwapItem[%u] srcbag : %u destbag : %u pSrcItem %u pDstItem %u", GetGUIDLow(), src, dst, pSrcItem ? pSrcItem->GetEntry() : 0, pDstItem ? pDstItem->GetEntry() : 0);
-
     if (!pSrcItem)
         return;
 
@@ -18331,12 +18297,17 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 p_Reward, bool msg)
             if (!l_ItemTemplate)
                 return false;
 
+            uint32 l_Specialization = GetSpecializationId(GetActiveSpec());
+            if (!l_Specialization)
+                l_Specialization = GetDefaultSpecId();
+
             switch (l_DynamicReward->Type)
             {
                 case uint8(PackageItemRewardType::SpecializationReward):
-                    if (!l_ItemTemplate->HasSpec((SpecIndex)GetSpecializationId(GetActiveSpec())))
+                    if (!l_ItemTemplate->HasSpec((SpecIndex)l_Specialization))
                     {
-                        // Hard fix to apply dynamic rewards for low level quests
+                        /// @TODO: Since we have default spec id, this is may be useless
+                        /// Hard fix to apply dynamic rewards for low level quests
                         if (quest->GetQuestLevel() < 10 && l_ItemTemplate->HasClassSpec(getClass()))
                             break;
 
@@ -20365,7 +20336,7 @@ float Player::GetFloatValueFromArray(Tokenizer const& data, uint16 index)
     return result;
 }
 
-bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult accountResult)
+bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_LoginDBQueryHolder)
 {
     /// 0             1               2               3                  4                         5                         6                7                  8                    9
     /// guid,         account,        name,           race,              class,                    gender,                   level,           xp,                money,               playerBytes,
@@ -20518,6 +20489,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
     std::string taxi_nodes = fields[38].GetString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
+
+    _LoadHeirloomCollection(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_HEIRLOOM_COLLECTION));
+    _LoadToyBox(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_TOYS));
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -20858,7 +20832,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
-    if (accountResult)
+    if (PreparedQueryResult accountResult = p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINGB_SPELL))
     {
         do
         {
@@ -21147,7 +21121,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder, PreparedQueryResult
         delete l_Garrison;
 
     RewardCompletedAchievementsIfNeeded();
-
     return true;
 }
 
@@ -33321,6 +33294,11 @@ void Player::RewardCompletedAchievementsIfNeeded()
         if (l_Achievement == nullptr)
             continue;
 
+        /// Make sure the achievement is for the right faction
+        if ((GetTeamId() == TeamId::TEAM_HORDE && l_Achievement->Faction == 1)
+            || (GetTeamId() == TeamId::TEAM_ALLIANCE && l_Achievement->Faction == 0))
+            continue;
+
         AchievementReward const* l_Reward = sAchievementMgr->GetAchievementReward(l_Achievement);
         if (l_Reward == nullptr)
             continue;
@@ -33410,4 +33388,22 @@ void Player::RewardCompletedAchievementsIfNeeded()
             CharacterDatabase.CommitTransaction(l_Transaction);
         }
     }
+}
+
+void Player::DeleteInvalidSpells()
+{
+    PlayerSpellMap l_SpellMap = GetSpellMap();
+    for (PlayerSpellMap::const_iterator l_Iterator = l_SpellMap.begin(); l_Iterator != l_SpellMap.end(); ++l_Iterator)
+    {
+        if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
+        removeSpell(l_Iterator->first, false, false);
+    }
+}
+
+uint32 Player::GetDefaultSpecId() const
+{
+    ChrClassesEntry const* l_CharClasseEntry = sChrClassesStore.LookupEntry(getClass());
+    if (l_CharClasseEntry)
+        return l_CharClasseEntry->m_DefaultSpec;
+    return 0;
 }

@@ -925,10 +925,6 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     for (uint8 l_I = SPELL_SCHOOL_HOLY; l_I < MAX_SPELL_SCHOOL; ++l_I)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + l_I), BASE_VALUE, float(l_CreatureTemplate->resistance[l_I]));
 
-    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetFullHealth();
-
     Powers l_PetPower    = l_PetStat->m_Power;
     uint32 l_CreatePower = 0;
 
@@ -958,6 +954,10 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
+
+    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetFullHealth();
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy

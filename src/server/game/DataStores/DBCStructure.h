@@ -232,7 +232,7 @@ struct ChrClassesEntry
     uint32  AttackPowerPerStrength;                         // 10       m_AttackPowerPerStrength        Attack Power bonus per point of strength
     uint32  AttackPowerPerAgility;                          // 11       m_AttackPowerPerAgility         Attack Power bonus per point of agility
     uint32  RangedAttackPowerPerAgility;                    // 12       m_RangedAttackPowerPerAgility   Ranged Attack Power bonus per point of agility
-    //uint32    m_DefaultSpec;                              // 13       m_DefaultSpec
+    uint32  m_DefaultSpec;                                  // 13       m_DefaultSpec
     //uint32    m_CreateScreenFileDataID;                   // 14       m_CreateScreenFileDataID
     //uint32    m_SelectScreenFileDataID;                   // 15       m_SelectScreenFileDataID
     //uint32    m_LowResScreenFileDataID;                   // 16       m_LowResScreenFileDataID
@@ -2295,6 +2295,12 @@ struct CriteriaEntry
         {
             uint32 RequiredLevel;
         } BattlePetLevelUp;
+
+        /// ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER
+        struct
+        {
+            uint32 EncounterID;
+        } DefeatEncounter;
 
         struct
         {

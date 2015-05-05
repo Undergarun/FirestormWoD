@@ -90,9 +90,6 @@ void WorldRunnable::run()
     sWorld->KickAll();                                       // save and kick all players
     sWorld->UpdateSessions( 1 );                             // real players unload required UpdateSessions call
 
-    // unload battleground templates before different singletons destroyed
-    sBattlegroundMgr->DeleteAllBattlegrounds();
-
     sWorldSocketMgr->StopNetwork();
 
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)

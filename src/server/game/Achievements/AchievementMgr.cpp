@@ -582,7 +582,7 @@ void AchievementMgr<Player>::SaveToDB(SQLTransaction& trans)
 
             // New/changed record data
             ssAccDel << iter->first;
-            ssAccIns << '(' << GetOwner()->GetSession()->GetAccountId() << ',' << iter->second.first_guid << ',' << iter->first << ',' << iter->second.date << ')';
+            ssAccIns << '(' << GetOwner()->GetSession()->GetAccountId() << ',' << GUID_LOPART(iter->second.first_guid) << ',' << iter->first << ',' << iter->second.date << ')';
 
             if (mustSaveForCharacter)
             {
@@ -857,7 +857,7 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.date = time_t(fields[2].GetUInt32());
             ca.changed = false;
-            ca.first_guid = first_guid;
+            ca.first_guid = MAKE_NEW_GUID(first_guid, 0, HIGHGUID_PLAYER);
             ca.completedByThisCharacter = false;
 
             _achievementPoints += achievement->Points;
@@ -1375,6 +1375,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
             case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON:
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS:
+            case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
                 SetCriteriaProgress(l_AchievementCriteria, 1, p_ReferencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1825,6 +1826,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
             return l_Progress->counter >= l_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2192,7 +2194,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
     l_Data.completedByThisCharacter = true;
     l_Data.date = time(NULL);
-    l_Data.first_guid = GetOwner()->GetGUIDLow();
+    l_Data.first_guid = MAKE_NEW_GUID(GetOwner()->GetGUIDLow(), 0, HIGHGUID_PLAYER);
     l_Data.changed = true;
 
     // Don't insert for ACHIEVEMENT_FLAG_REALM_FIRST_KILL since otherwise only the first group member would reach that achievement
@@ -2964,6 +2966,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             return false;
+        case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
+            if (!p_MiscValue1 || p_MiscValue1 != p_Criteria->DefeatEncounter.EncounterID)
+                return false;
         default:
             break;
     }
@@ -3061,10 +3066,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
-            case CRITERIA_CONDITION_MAP_DIFFICULTY:                     // 20
-                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetDifficultyID()) != (l_ReqValue + 1))
+            case CRITERIA_CONDITION_LEGACY_RAID_TYPE:                     // 20
+            {
+                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetLegacyRaidType()) != (l_ReqValue))
                     return false;
                 break;
+            }
             case CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP:          // 21
                 if (!p_Unit || !p_ReferencePlayer || p_Unit->getLevel() + 5 <= p_ReferencePlayer->getLevel())
                     return false;
@@ -3250,7 +3257,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
-            case CRITERIA_CONDITION_RAID_DIFFICULTY:                    // 68
+            case CRITERIA_CONDITION_DIFFICULTY:                    // 68
                 if (!p_ReferencePlayer || p_ReferencePlayer->GetMap()->GetDifficultyID() != Difficulty(l_ReqValue))
                     return false;
                 break;
@@ -3873,11 +3880,15 @@ void AchievementGlobalMgr::LoadRewards()
 
         if (l_Reward.itemId)
         {
-            if (!sObjectMgr->GetItemTemplate(l_Reward.itemId))
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Reward.itemId);
+
+            if (l_ItemTemplate == nullptr)
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) has invalid item id %u, reward mail will not contain item.", l_Entry, l_Reward.itemId);
                 l_Reward.itemId = 0;
             }
+
+            const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
         }
 
         m_achievementRewards[l_Entry] = l_Reward;

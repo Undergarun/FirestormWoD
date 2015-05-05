@@ -40,6 +40,9 @@ enum eHighmaulDatas
     ElevatorActivated = 0,
 
     /// Misc values
+    /// Global
+    PhaseNone = 1,
+    PhaseKargathDefeated = 2,
     /// Kargath
     RaidGrate001 = 0,
     RaidGrate002,

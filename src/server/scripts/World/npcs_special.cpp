@@ -1832,7 +1832,9 @@ enum imagesSpells
     SPELL_MAGE_FROSTBOLT    = 59638,
     SPELL_MAGE_FIREBALL     = 133,
     SPELL_MAGE_ARCANE_BLAST = 30451,
-    SPELL_MAGE_GLYPH        = 63093
+    SPELL_MAGE_GLYPH        = 63093,
+    SPELL_INITIALIZE_IMAGES = 102284,
+    SPELL_CLONE_CASTER      = 102288,
 };
 
 class npc_mirror_image : public CreatureScript
@@ -1847,6 +1849,15 @@ class npc_mirror_image : public CreatureScript
             void InitializeAI()
             {
                 CasterAI::InitializeAI();
+            }
+
+            void Reset()
+            {
+                if (Unit* l_Owner = me->GetOwner())
+                {
+                    l_Owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                    l_Owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                }
             }
 
             void IsSummonedBy(Unit* owner)
@@ -1873,7 +1884,6 @@ class npc_mirror_image : public CreatureScript
                 // here mirror image casts on summoner spell (not present in client dbc) 49866
                 // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
                 // Clone Me!
-                owner->CastSpell(me, 45204, true);
 
                 for (int attackType = 0; attackType < WeaponAttackType::MaxAttack; attackType++)
                 {
@@ -1882,9 +1892,6 @@ class npc_mirror_image : public CreatureScript
                 }
 
                 me->UpdateAttackPowerAndDamage();
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND) ? plrOwner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND)->GetEntry() : 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, 0);
-                me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 2, 0);
             }
 
             void EnterCombat(Unit* who)
@@ -3372,135 +3379,6 @@ class npc_rate_xp_modifier : public CreatureScript
 };
 
 /*######
-## npc_capacitor_totem
-######*/
-
-class npc_capacitor_totem : public CreatureScript
-{
-    public:
-        npc_capacitor_totem() : CreatureScript("npc_capacitor_totem") { }
-
-    struct npc_capacitor_totemAI : public ScriptedAI
-    {
-        uint32 CastTimer;
-
-        npc_capacitor_totemAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            me->CastSpell(me, 118905, false);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_capacitor_totemAI(creature);
-    }
-};
-
-/*######
-## npc_feral_spirit
-######*/
-
-class npc_feral_spirit : public CreatureScript
-{
-    public:
-        npc_feral_spirit() : CreatureScript("npc_feral_spirit") { }
-
-        enum eSpells
-        {
-            SpiritLeap           = 58867,
-            SpiritWalk           = 58875,
-            GlyphOfSpiritRaptors = 147783,
-            RaptorTranform       = 147908
-        };
-
-        struct npc_feral_spiritAI : public ScriptedAI
-        {
-            npc_feral_spiritAI(Creature* p_Creature) : ScriptedAI(p_Creature)
-            {
-                Unit* l_Owner = p_Creature->GetOwner();
-                if (l_Owner && l_Owner->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (l_Owner->HasAura(eSpells::GlyphOfSpiritRaptors))
-                        p_Creature->CastSpell(p_Creature, eSpells::RaptorTranform, true);
-
-                    Unit* l_OwnerTarget = NULL;
-                    if (Player* l_Player = l_Owner->ToPlayer())
-                        l_OwnerTarget = l_Player->GetSelectedUnit();
-                    else
-                        l_OwnerTarget = l_Owner->getVictim();
-
-                    if (l_OwnerTarget)
-                        p_Creature->CastSpell(l_OwnerTarget, eSpells::SpiritLeap, true);
-
-                }
-
-                p_Creature->CastSpell(p_Creature, eSpells::SpiritWalk, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* p_Creature) const
-        {
-            return new npc_feral_spiritAI(p_Creature);
-        }
-};
-
-/*######
-## npc_spirit_link_totem
-######*/
-
-class npc_spirit_link_totem : public CreatureScript
-{
-    public:
-        npc_spirit_link_totem() : CreatureScript("npc_spirit_link_totem") { }
-
-    struct npc_spirit_link_totemAI : public ScriptedAI
-    {
-        uint32 CastTimer;
-
-        npc_spirit_link_totemAI(Creature* creature) : ScriptedAI(creature)
-        {
-            CastTimer = 1000;
-
-            if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (creature->GetEntry() == 53006)
-                {
-                    creature->CastSpell(creature, 98007, false);
-                    creature->CastSpell(creature, 98017, true);
-                }
-            }
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (CastTimer >= diff)
-            {
-                if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-                {
-                    if (me->GetEntry() == 53006)
-                    {
-                        me->CastSpell(me, 98007, false);
-                        me->CastSpell(me, 98017, true);
-                    }
-                }
-            }
-
-            CastTimer = 0;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_spirit_link_totemAI(creature);
-    }
-};
-
-/*######
 # npc_demoralizing_banner
 ######*/
 
@@ -3612,7 +3490,7 @@ class npc_frozen_orb : public CreatureScript
                         float x = p_Owner->GetPositionX() + (l_I * cos(rotation));
                         float y = p_Owner->GetPositionY() + (l_I * sin(rotation));
 
-                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT); 
+                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT);
 
                         me->SetPosition(x, y, l_Z, 0);
 
@@ -4020,214 +3898,6 @@ class npc_dire_beast : public CreatureScript
         }
 };
 
-#define FIREBOLT   104318
-
-/*######
-# npc_wild_imp
-######*/
-
-class npc_wild_imp : public CreatureScript
-{
-    public:
-        npc_wild_imp() : CreatureScript("npc_wild_imp") { }
-
-        struct npc_wild_impAI : public ScriptedAI
-        {
-            uint32 charges;
-
-            npc_wild_impAI(Creature *creature) : ScriptedAI(creature)
-            {
-                charges = 10;
-                me->SetReactState(REACT_HELPER);
-            }
-
-            void Reset()
-            {
-                me->SetReactState(REACT_HELPER);
-
-                if (me->GetOwner())
-                    if (me->GetOwner()->getVictim())
-                        AttackStart(me->GetOwner()->getVictim());
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (me->GetReactState() != REACT_HELPER)
-                    me->SetReactState(REACT_HELPER);
-
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
-
-                Player* pOwner = owner->ToPlayer();
-                if (!pOwner)
-                    return;
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (!charges)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-
-                if ((me->getVictim() || pOwner->getAttackerForHelper()))
-                {
-                    me->CastSpell(me->getVictim() ? me->getVictim() : pOwner->getAttackerForHelper(), FIREBOLT, false);
-                    pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                    charges--;
-
-                    if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                        if (roll_chance_i(8))
-                            pOwner->CastSpell(pOwner, 122355, true);
-                }
-                else if (Pet* pet = pOwner->GetPet())
-                {
-                    if (pet->getAttackerForHelper())
-                    {
-                        me->CastSpell(me->getVictim() ? me->getVictim() : pet->getAttackerForHelper(), FIREBOLT, false);
-                        pOwner->EnergizeBySpell(pOwner, FIREBOLT, 5, POWER_DEMONIC_FURY);
-                        charges--;
-
-                        if (pOwner->HasAura(122351) && pOwner->getLevel() >= 69)
-                            if (roll_chance_i(8))
-                                pOwner->CastSpell(pOwner, 122355, true);
-                    }
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_wild_impAI(creature);
-        }
-};
-
-/*######
-## npc_stone_bulwark_totem
-######*/
-
-#define STONE_BULWARK_TOTEM_ABSORB      114889
-
-class npc_stone_bulwark_totem : public CreatureScript
-{
-    public:
-        npc_stone_bulwark_totem() : CreatureScript("npc_stone_bulwark_totem") { }
-
-    struct npc_stone_bulwark_totemAI : public ScriptedAI
-    {
-        npc_stone_bulwark_totemAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->CastSpell(creature, STONE_BULWARK_TOTEM_ABSORB, true);
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!me->HasAura(STONE_BULWARK_TOTEM_ABSORB))
-                me->CastSpell(me, STONE_BULWARK_TOTEM_ABSORB, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_stone_bulwark_totemAI(creature);
-    }
-};
-
-/*######
-## npc_earthgrab_totem
-######*/
-
-#define EARTHGRAB       116943
-
-class npc_earthgrab_totem : public CreatureScript
-{
-    public:
-        npc_earthgrab_totem() : CreatureScript("npc_earthgrab_totem") { }
-
-    struct npc_earthgrab_totemAI : public ScriptedAI
-    {
-        npc_earthgrab_totemAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->CastSpell(creature, EARTHGRAB, true);
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!me->HasAura(EARTHGRAB))
-                me->CastSpell(me, EARTHGRAB, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_earthgrab_totemAI(creature);
-    }
-};
-
-/*######
-## npc_windwalk_totem
-######*/
-
-#define WINDWALK     114896
-
-class npc_windwalk_totem : public CreatureScript
-{
-    public:
-        npc_windwalk_totem() : CreatureScript("npc_windwalk_totem") { }
-
-    struct npc_windwalk_totemAI : public ScriptedAI
-    {
-        npc_windwalk_totemAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->CastSpell(creature, WINDWALK, true);
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!me->HasAura(WINDWALK))
-                me->CastSpell(me, WINDWALK, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_windwalk_totemAI(creature);
-    }
-};
-
-/*######
-## npc_healing_tide_totem
-######*/
-
-#define HEALING_TIDE     114941
-
-class npc_healing_tide_totem : public CreatureScript
-{
-    public:
-        npc_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") { }
-
-    struct npc_healing_tide_totemAI : public ScriptedAI
-    {
-        npc_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->CastSpell(creature, HEALING_TIDE, true);
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-            if (!me->HasAura(HEALING_TIDE))
-                me->CastSpell(me, HEALING_TIDE, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_healing_tide_totemAI(creature);
-    }
-};
-
 /*######
 ## npc_ring_of_frost
 ######*/
@@ -4519,7 +4189,7 @@ enum PastSelfSpells
 struct auraData
 {
     auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
-        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount) 
+        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount)
     {
         memset(m_EffectAmounts, 0, sizeof(m_EffectAmounts));
     }
@@ -4668,16 +4338,14 @@ class npc_past_self : public CreatureScript
 
 enum TranscendenceSpiritSpells
 {
-    SPELL_INITIALIZE_IMAGES = 102284,
-    SPELL_CLONE_CASTER      = 102288,
-    SPELL_VISUAL_SPIRIT     = 119053,
     SPELL_MEDITATE          = 124416,
     SPELL_ROOT_FOR_EVER     = 31366,
+    SPELL_VISUAL_SPIRIT     = 119053,
 };
 
 enum transcendenceActions
 {
-    ACTION_TELEPORT
+    ACTION_TELEPORT = 1
 };
 
 class npc_transcendence_spirit : public CreatureScript
@@ -5436,20 +5104,12 @@ void AddSC_npcs_special()
     new npc_generic_harpoon_cannon();
     new npc_choose_faction();
     //new npc_rate_xp_modifier();
-    new npc_capacitor_totem();
-    new npc_feral_spirit();
-    new npc_spirit_link_totem();
     new npc_demoralizing_banner();
     new npc_frozen_orb();
     new npc_guardian_of_ancient_kings();
     new npc_demonic_gateway_purple();
     new npc_demonic_gateway_green();
     new npc_dire_beast();
-    new npc_wild_imp();
-    new npc_stone_bulwark_totem();
-    new npc_earthgrab_totem();
-    new npc_windwalk_totem();
-    new npc_healing_tide_totem();
     new npc_ring_of_frost();
     new npc_wild_mushroom();
     new npc_fungal_growth();

@@ -412,7 +412,7 @@ public:
 
                     bool error = true;
                     std::string dump;
-                    if (PlayerDumpWriter().GetDump(perso_guid, account, dump))
+                    if (PlayerDumpWriter().GetDump(perso_guid, account, dump, false))
                     {
                         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
                         stmt->setString(0, dump);

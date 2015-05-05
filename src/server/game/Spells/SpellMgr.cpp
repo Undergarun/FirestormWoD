@@ -3164,7 +3164,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
-                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                    case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -3328,6 +3328,14 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
+                spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
+                break;
+            case 159407: ///< Combo Breaker: Chi Explosion
+                spellInfo->ProcCharges = 0;
+                spellInfo->ProcFlags = 0;
+                spellInfo->ProcChance = 0;
+                break;
             case 119975: ///< Conversion
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
                 break;
@@ -3348,7 +3356,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907: ///< Earthrending Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
-				break;
+                break;
             case 124694: ///< Way of the Grill
             case 125584: ///< Way of the Wok
             case 125586: ///< Way of the Pot
@@ -4823,6 +4831,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118291: ///< Greater Fire Elemental
             case 118323: ///< Greater Earth Elemental
+            case 157319: ///< Greater Storm Elemental
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
                 break;
             case 114942: ///< Healing Tide
@@ -5975,26 +5984,31 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                 break;
-            case 125050:///< Fetch (Glyph)
+            case 125050: ///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
-            case 77472:///< Healing Wave
+            case 77472: ///< Healing Wave
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 break;
-            case 145153:///< Dream of Cenarius (Heal from Wrath)
+            case 145153: ///< Dream of Cenarius (Heal from Wrath)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 30884:    ///< Nature's Guardian
+            case 30884: ///< Nature's Guardian
                 spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
                 break;
             case 55440: ///< Glyph of Healing Wave (Restoration)
                 spellInfo->ProcFlags = 0;
                 break;
-            case 171253:    ///< Garrison heartstone
+            case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+            case 104318: ///< Imp, Fel Firebolt
+            {
+                for (auto l_Iter : spellInfo->SpellPowers)
+                    ((SpellPowerEntry*)l_Iter)->Cost = 0;
+            }
             default:
                 break;
         }

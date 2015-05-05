@@ -104,7 +104,7 @@ void AnticheatMgr::StartHackDetection(Player* p_Player, MovementInfo p_MoveInfos
     if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         return;
 
-    if (AccountMgr::GetSecurity(p_Player->GetSession()->GetAccountId()) > AccountTypes::SEC_PLAYER)
+    if (p_Player->GetSession()->GetSecurity() > AccountTypes::SEC_PLAYER)
         return;
 
     uint32 key = p_Player->GetGUIDLow();
@@ -267,6 +267,9 @@ bool AnticheatMgr::MustCheckTempReports(uint8 type)
 
 void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
 {
+    if (p_Player->GetTransport() != nullptr)
+        return;
+
     uint32 l_Key = p_Player->GetGUIDLow();
 
     if (MustCheckTempReports(p_ReportType))
@@ -326,58 +329,39 @@ void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
         sWorld->BanAccount(BanMode::BAN_CHARACTER, p_Player->GetName(), "10m", "Too much anti-cheat report", "Anticheat");
 }
 
-void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* handler)
+void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* p_Handler)
 {
-    QueryResult resultDB = CharacterDatabase.Query("SELECT guid,average,total_reports FROM players_reports_status WHERE total_reports != 0 ORDER BY average ASC LIMIT 3;");
-    if (!resultDB)
+    std::list<AnticheatData> l_TopCheatersList;
+    for (auto l_CheatData : m_Players)
     {
-        handler->PSendSysMessage("No players found.");
+        uint32 l_TotalReports = l_CheatData.second.GetTotalReports();
+        if (l_TotalReports == 0)
+            continue;
+
+        l_TopCheatersList.push_back(l_CheatData.second);
+    }
+
+    l_TopCheatersList.sort([](AnticheatData const& p_CheatData1, AnticheatData const& p_CheatData2) -> bool
+    {
+        return p_CheatData1.GetTotalReports() > p_CheatData2.GetTotalReports();
+    });
+
+    if (l_TopCheatersList.empty())
         return;
-    }
-    else
+
+    p_Handler->SendSysMessage("=============================");
+    p_Handler->PSendSysMessage("Players with the more reports:");
+
+    uint32 l_Counter = 0;
+    for (auto l_CheatData : l_TopCheatersList)
     {
-        handler->SendSysMessage("=============================");
-        handler->PSendSysMessage("Players with the lowest averages:");
-        do
-        {
-            Field *fieldsDB = resultDB->Fetch();
 
-            uint32 guid = fieldsDB[0].GetUInt32();
-            float average = fieldsDB[1].GetFloat();
-            uint32 total_reports = fieldsDB[2].GetUInt32();
+        if (Player* l_Player = sObjectMgr->GetPlayerByLowGUID(GUID_LOPART(l_CheatData.GetLastMovementInfo().guid)))
+            p_Handler->PSendSysMessage("Player: %s Total Reports: %u Average: %f", l_Player->GetName(), l_CheatData.GetTotalReports(), l_CheatData.GetAverage());
 
-            if (Player* player = sObjectMgr->GetPlayerByLowGUID(guid))
-                handler->PSendSysMessage("Player: %s Average: %f Total Reports: %u",player->GetName(),average,total_reports);
-
-        }
-        while (resultDB->NextRow());
-    }
-
-    resultDB = CharacterDatabase.Query("SELECT guid,average,total_reports FROM players_reports_status WHERE total_reports != 0 ORDER BY total_reports DESC LIMIT 3;");
-
-    // this should never happen
-    if (!resultDB)
-    {
-        handler->PSendSysMessage("No players found.");
-        return;
-    }
-    else
-    {
-        handler->SendSysMessage("=============================");
-        handler->PSendSysMessage("Players with the more reports:");
-        do
-        {
-            Field *fieldsDB = resultDB->Fetch();
-
-            uint32 guid = fieldsDB[0].GetUInt32();
-            float average = fieldsDB[1].GetFloat();
-            uint32 total_reports = fieldsDB[2].GetUInt32();
-
-            if (Player* player = sObjectMgr->GetPlayerByLowGUID(guid))
-                handler->PSendSysMessage("Player: %s Total Reports: %u Average: %f",player->GetName(),total_reports,average);
-
-        }
-        while (resultDB->NextRow());
+        l_Counter++;
+        if (l_Counter == 3)
+            break;
     }
 }
 

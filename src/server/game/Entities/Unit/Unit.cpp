@@ -12239,6 +12239,14 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                     }
                 }
+                /// Custom crit
+                switch (spellProto->Id)
+                {
+                case 25912: ///< Holy Shock (damage)
+                case 25914: ///< Holy Shock (heal)
+                    crit_chance *= 2.0f;
+                    break;
+                }
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
@@ -12265,17 +12273,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             if (HasAura(117216))
                                 crit_chance *= 1.3f;
                             break;
-                        }
-                        break;
-                    }
-                    case SPELLFAMILY_PALADIN:
-                    {
-                        switch (spellProto->Id)
-                        {
-                            case 25912: // Holy Shock (damage)
-                            case 25914: // Holy Shock (heal)
-                                crit_chance *= 2.0f;
-                                break;
                         }
                         break;
                     }
@@ -13732,6 +13729,10 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
     // only alive units can be in combat
     if (!isAlive())
         return;
+
+    if (Creature* l_Creature = enemy->ToCreature())
+        if (l_Creature->GetEntry() == 900000)   /// Sovaks training dummy
+            PvP = true;
 
     if (PvP)
     {
@@ -15521,7 +15522,7 @@ float Unit::GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) co
     return m_auraModifiersGroup[unitMod][modifierType];
 }
 
-float Unit::GetTotalStatValue(Stats stat) const
+float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) const
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + stat);
 
@@ -15529,7 +15530,11 @@ float Unit::GetTotalStatValue(Stats stat) const
         return 0.0f;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE] + GetCreateStat(stat);
+    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
+
+    if (l_IncludeCreateStat)
+        value += GetCreateStat(stat);
+
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];

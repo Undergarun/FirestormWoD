@@ -3321,3 +3321,20 @@ void Map::LoadAllGrids(float p_MinX, float p_MaxX, float p_MinY, float p_MaxY, P
     }
     while (l_CurrX < p_MaxX);
 }
+
+CriteriaLegacyRaidType Map::GetLegacyRaidType() const
+{
+    switch (GetDifficultyID())
+    {
+        case Difficulty::Difficulty10N:
+            return CriteriaLegacyRaidType::Normal10;
+        case Difficulty::Difficulty25N:
+            return CriteriaLegacyRaidType::Normal25;
+        case Difficulty::Difficulty10HC:
+            return CriteriaLegacyRaidType::Normal10;
+        case Difficulty::Difficulty25HC:
+            return CriteriaLegacyRaidType::Heroic25;
+        default:
+            return CriteriaLegacyRaidType::None;
+    }
+}

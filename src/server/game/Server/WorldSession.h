@@ -33,6 +33,7 @@ class GameObject;
 class InstanceSave;
 class Item;
 class LoginQueryHolder;
+class LoginDBQueryHolder;
 class Object;
 class Player;
 class Quest;
@@ -495,7 +496,7 @@ class WorldSession
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
-        void HandlePlayerLogin(LoginQueryHolder * holder, PreparedQueryResult accountResult);
+        void HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginDBQueryHolder* l_LoginHolder);
         void HandleCharRaceOrFactionChange(WorldPacket& recvData);
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
@@ -1157,7 +1158,6 @@ class WorldSession
 
         PreparedQueryResultFuture m_CharEnumCallback;
         PreparedQueryResultFuture m_AddIgnoreCallback;
-        PreparedQueryResultFuture m_AccountSpellCallback;
 
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
         QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
@@ -1165,6 +1165,7 @@ class WorldSession
         QueryCallback<PreparedQueryResult, uint64> _sendStabledPetCallback;
         QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture m_CharacterLoginCallback;
+        QueryResultHolderFuture m_CharacterLoginDBCallback;
 
     private:
         // private trade methods
