@@ -3083,7 +3083,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_WARLOCK:
             switch (Id)
             {
-                case 111400: // Burning Rush
+                case 111400: ///< Burning Rush
                     return true;
                 default:
                     break;
@@ -3091,22 +3091,12 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {
-                case 64844: // Divine Hymn
-                case 64904: // Hymn of Hope
-                case 47585: // Dispersion
+                case 64844: ///< Divine Hymn
+                case 47585: ///< Dispersion
                     return true;
                 default:
                     break;
             }
-            break;
-        case SPELLFAMILY_HUNTER:
-            // Aspect of the Viper
-            if (Id == 34074)
-                return true;
-            break;
-        case SPELLFAMILY_SHAMAN:
-            if (Id == 30708)
-                return false;
             break;
         default:
             break;
