@@ -2159,9 +2159,10 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
                     l_Data << uint32(0);                                    ///< Enchantment ID
                     l_Data << uint32(abs(l_TabItem->GetSpellCharges()));    ///< Charges
                     l_Data << uint32(0);                                    ///< OnUse Enchantment ID
-                    l_Data << uint32(l_EnchantsCount);                      ///< Enchant count
+                    l_Data << uint32(0);                                    ///< Enchant count
                     l_Data << uint32(0);                                    ///< Flags
 
+                    /* Socket info only ????
                     for (uint32 l_EnchantmentSlot = 0; l_EnchantmentSlot < EnchantmentSlot::MAX_ENCHANTMENT_SLOT; ++l_EnchantmentSlot)
                     {
                         if (uint32 l_EnchantId = l_TabItem->GetEnchantmentId(EnchantmentSlot(l_EnchantmentSlot)))
@@ -2170,6 +2171,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
                             l_Data << uint32(l_EnchantId);                  ///< Socket Enchant ID
                         }
                     }
+                    */
 
                     l_Data.WriteBit(0);                                     ///< Is Locked
                     l_Data.FlushBits();
