@@ -250,7 +250,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             if (quest->GetSrcSpell() > 0)
                 m_Player->CastSpell(m_Player, quest->GetSrcSpell(), true);
 
-            /*if (quest->IsAutoComplete())
+            if (quest->IsAutoComplete())
             {
                 for (QuestObjective l_Objective : quest->QuestObjectives)
                 {
@@ -318,7 +318,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                 }
 
                 m_Player->CompleteQuest(quest->GetQuestId());
-            }*/
+            }
 
             return;
         }
@@ -436,11 +436,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
         /// some kind of WPE protection
         if (!m_Player->CanInteractWithQuestGiver(l_Object))
-            return;
-    }
-    else if (l_Quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT))
-    {
-        if (l_Guid != m_Player->GetGUID())
             return;
     }
 
