@@ -1334,8 +1334,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
         uint32 l_Timer2 = clock();
         if (!CanUpdateCriteria(l_AchievementCriteria, NULL, p_MiscValue1, p_MiscValue2, p_MiscValue3, p_Unit, p_ReferencePlayer))
             continue;
-        
-        gUpdateCriteriaAVGTimer2 = std::max(gUpdateCriteriaAVGTimer2.value(), (uint32)(clock() - l_Timer2));
+        if (gUpdateCriteriaAVGTimer2 == 0)
+            gUpdateCriteriaAVGTimer2 = clock() - l_Timer2;
+        else
+            gUpdateCriteriaAVGTimer2 = (gUpdateCriteriaAVGTimer2.value() + (clock() - l_Timer2)) / 2;
 
         // Requirements not found in the dbcs
         if (AchievementCriteriaDataSet const* l_Data = sAchievementMgr->GetCriteriaDataSet(l_AchievementCriteria))
@@ -1345,7 +1347,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             if (!l_Data->Meets(p_ReferencePlayer, p_Unit, p_MiscValue1))
                 continue;
 
-            gUpdateCriteriaAVGTimer3 = std::max(gUpdateCriteriaAVGTimer3.value(), (uint32)(clock() - l_Timer3));
+            if (gUpdateCriteriaAVGTimer3 == 0)
+                gUpdateCriteriaAVGTimer3 = clock() - l_Timer3;
+            else
+                gUpdateCriteriaAVGTimer3 = (gUpdateCriteriaAVGTimer3.value() + (clock() - l_Timer3)) / 2;
         }
 
         uint32 l_Timer4 = clock();
@@ -1666,7 +1671,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 break;                                   // Not implemented yet :(
         }
 
-        gUpdateCriteriaAVGTimer4 = std::max(gUpdateCriteriaAVGTimer4.value(), (uint32)(clock() - l_Timer4));
+        if (gUpdateCriteriaAVGTimer4 == 0)
+            gUpdateCriteriaAVGTimer4 = clock() - l_Timer4;
+        else
+            gUpdateCriteriaAVGTimer4 = (gUpdateCriteriaAVGTimer4.value() + (clock() - l_Timer4)) / 2;
 
         uint32 l_Timer5 = clock();
         AchievementCriteriaTreeList l_AchievementCriteriaTreeList = sAchievementMgr->GetAchievementCriteriaTreeList(l_AchievementCriteria);
@@ -1680,7 +1688,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             if (IsCompletedCriteriaForAchievement(l_AchievementCriteria, l_Achievement))
                 CompletedCriteriaFor(l_Achievement, p_ReferencePlayer);
 
-            gUpdateCriteriaAVGTimer6 = std::max(gUpdateCriteriaAVGTimer6.value(), (uint32)(clock() - l_Timer6));
+            if (gUpdateCriteriaAVGTimer6 == 0)
+                gUpdateCriteriaAVGTimer6 = clock() - l_Timer6;
+            else
+                gUpdateCriteriaAVGTimer6 = (gUpdateCriteriaAVGTimer6.value() + (clock() - l_Timer6)) / 2;
 
             // check again the completeness for SUMM and REQ COUNT achievements,
             // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
@@ -1690,7 +1701,10 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 if (IsCompletedAchievement(l_Achievement))
                     CompletedAchievement(l_Achievement, p_ReferencePlayer);
 
-                gUpdateCriteriaAVGTimer7 = std::max(gUpdateCriteriaAVGTimer7.value(), (uint32)(clock() - l_Timer7));
+                if (gUpdateCriteriaAVGTimer7 == 0)
+                    gUpdateCriteriaAVGTimer7 = clock() - l_Timer7;
+                else
+                    gUpdateCriteriaAVGTimer7 = (gUpdateCriteriaAVGTimer7.value() + (clock() - l_Timer7)) / 2;
             }
 
             if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
@@ -1701,15 +1715,23 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                     if (IsCompletedAchievement(*l_Itr))
                         CompletedAchievement(*l_Itr, p_ReferencePlayer);
                 }
-
-                gUpdateCriteriaAVGTimer8 = std::max(gUpdateCriteriaAVGTimer2.value(), (uint32)(clock() - l_Timer8));
+                if (gUpdateCriteriaAVGTimer8 == 0)
+                    gUpdateCriteriaAVGTimer8 = clock() - l_Timer8;
+                else
+                    gUpdateCriteriaAVGTimer8 = (gUpdateCriteriaAVGTimer8.value() + (clock() - l_Timer8)) / 2;
             }
         }
 
-        gUpdateCriteriaAVGTimer5 = std::max(gUpdateCriteriaAVGTimer5.value(), (uint32)(clock() - l_Timer5));
+        if (gUpdateCriteriaAVGTimer5 == 0)
+            gUpdateCriteriaAVGTimer5 = clock() - l_Timer5;
+        else
+            gUpdateCriteriaAVGTimer5 = (gUpdateCriteriaAVGTimer5.value() + (clock() - l_Timer5)) / 2;
     }
 
-    gUpdateCriteriaAVGTimer1 = std::max(gUpdateCriteriaAVGTimer1.value(), (uint32)(clock() - l_Timer1));
+    if (gUpdateCriteriaAVGTimer1 == 0)
+        gUpdateCriteriaAVGTimer1 = clock() - l_Timer1;
+    else
+        gUpdateCriteriaAVGTimer1 = (gUpdateCriteriaAVGTimer1.value() + (clock() - l_Timer1)) / 2;
 }
 
 template<class T>
