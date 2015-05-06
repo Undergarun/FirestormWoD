@@ -1619,8 +1619,9 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->UnlootedCount--;
                     AllowedLooterSet looters = item->GetAllowedLooters();
-                    Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
-                    l_Item->AddItemBonuses(item->itemBonuses);
+
+                    if (Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters))
+                        l_Item->AddItemBonuses(item->itemBonuses);
                 }
                 else
                 {
