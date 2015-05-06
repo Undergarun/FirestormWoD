@@ -67,7 +67,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
 #include "Guild.h"
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1162,24 +1162,24 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
-    {
-        auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
-        std::string l_SpeName = "";
-        if (l_Row != nullptr)
-            l_SpeName = l_Row->specializationName;
-
-        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::BattlegroundDealDamageWatcher>::Craft
-        (
-            GetGUIDLow(),
-            sWorld->GetRealmName(),
-            spellProto->Id,
-            damage,
-            getClass(),
-            getRace(),
-            l_SpeName
-        ));
-    }
+//     if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
+//     {
+//         auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
+//         std::string l_SpeName = "";
+//         if (l_Row != nullptr)
+//             l_SpeName = l_Row->specializationName;
+// 
+//         sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::BattlegroundDealDamageWatcher>::Craft
+//                           (
+//                           GetGUIDLow(),
+//                           sWorld->GetRealmName(),
+//                           spellProto->Id,
+//                           damage,
+//                           getClass(),
+//                           getRace(),
+//                           l_SpeName
+//                           ));
+//     }
 
     DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
     victim->SetDamageTaken(dmgTaken);
