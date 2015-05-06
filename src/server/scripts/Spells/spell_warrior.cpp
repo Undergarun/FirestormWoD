@@ -1865,8 +1865,6 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
     public:
         spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
 
-        bool m_EnhancedWhirlWind;
-
         class spell_warr_meat_cleaver_Aurascript : public AuraScript
         {
             PrepareAuraScript(spell_warr_meat_cleaver_Aurascript);

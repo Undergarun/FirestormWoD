@@ -3143,7 +3143,8 @@ enum SpellsRake
 {
     SPELL_DRU_RAKE_STUNT = 163505,
     SPELL_DRU_GLYPH_OF_SAVAGE_ROAR = 127540,
-    SPELL_DRU_IMPROVED_RAKE = 157276
+    SPELL_DRU_IMPROVED_RAKE = 157276,
+    SPELL_DRU_BLOODTALONS = 145152
 };
 
 /// Rake - 1822
@@ -3168,6 +3169,15 @@ class spell_dru_rake: public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
+
+                if (l_Target && l_Caster)
+                {
+                    if (AuraPtr l_BloodTalons = l_Caster->GetAura(SPELL_DRU_BLOODTALONS))
+                    {
+                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_BloodTalons->GetEffect(EFFECT_0)->GetAmount()));
+                        l_BloodTalons->DropCharge();
+                    }
+                }
 
                 if (l_Target && l_Caster && m_isStealthed)
                 {
