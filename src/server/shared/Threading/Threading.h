@@ -69,8 +69,7 @@ namespace ACE_Based
     class Thread
     {
         public:
-            Thread();
-            explicit Thread(Runnable* instance);
+            explicit Thread(Runnable* instance, const std::string & p_Name);
             ~Thread();
 
             bool start();
@@ -96,6 +95,7 @@ namespace ACE_Based
             ACE_thread_t m_iThreadId;
             ACE_hthread_t m_hThreadHandle;
             Runnable* m_task;
+            std::string m_Name;
 
             typedef ACE_TSS<Thread> ThreadStorage;
             //global object - container for Thread class representation of every thread
