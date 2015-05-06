@@ -66,7 +66,9 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
-    WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184
+    WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184,
+    WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
+    WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739
 };
 
 /// Ravager - 152277
@@ -544,11 +546,21 @@ class spell_warr_raging_blow: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_raging_blow_SpellScript);
 
+            enum eSpells
+            {
+                MeatCleaverTargetModifier = 85739
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr ragingBlow = caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (AuraPtr ragingBlow = l_Caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                         ragingBlow->ModStackAmount(-1);
+
+                    if (l_Caster->HasAura(eSpells::MeatCleaverTargetModifier))
+                        l_Caster->RemoveAura(eSpells::MeatCleaverTargetModifier);
+                }
             }
 
             void Register()
@@ -1454,6 +1466,23 @@ class spell_warr_whirlwind: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_whirlwind_SpellScript);
 
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(WARRIOR_ENHANCED_WHIRLWIND))
+                {
+                    l_Caster->CastSpell(l_Caster, WARROR_MEAT_CLEAVER_TARGET_MODIFIER, true);
+                    if (AuraPtr l_MeatCleaverAura = l_Caster->GetAura(WARROR_MEAT_CLEAVER_TARGET_MODIFIER))
+                    {
+                        uint8 l_StackAmount = (l_MeatCleaverAura->GetStackAmount() + 1) > 4 ? 4 : l_MeatCleaverAura->GetStackAmount() + 1;
+                        l_MeatCleaverAura->SetStackAmount(l_StackAmount);
+                        l_MeatCleaverAura->RefreshDuration();
+                        l_MeatCleaverAura->RefreshSpellMods();
+                    }
+                }
+            }
+
             void HandleOnHit()
             {
                 Player* l_Player = GetCaster()->ToPlayer();
@@ -1495,6 +1524,7 @@ class spell_warr_whirlwind: public SpellScriptLoader
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
                 OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warr_whirlwind_SpellScript::HandleOnCast);
             }
         };
 
@@ -1835,14 +1865,15 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
     public:
         spell_warr_meat_cleaver() : SpellScriptLoader("spell_warr_meat_cleaver") { }
 
+        bool m_EnhancedWhirlWind;
+
         class spell_warr_meat_cleaver_Aurascript : public AuraScript
         {
             PrepareAuraScript(spell_warr_meat_cleaver_Aurascript);
 
             enum eSpells
             {
-                Whirlwind = 1680,
-                MeatCleaverTargetModifier = 85739
+                Whirlwind = 1680
             };
 
             void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
@@ -1859,7 +1890,11 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::MeatCleaverTargetModifier, true);
+                /// It procs on cast with Enhanced Whirlwind
+                if (l_Caster->HasAura(WARRIOR_ENHANCED_WHIRLWIND))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, WARROR_MEAT_CLEAVER_TARGET_MODIFIER, true);
             }
 
             void Register()

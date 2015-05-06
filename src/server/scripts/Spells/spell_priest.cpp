@@ -2308,7 +2308,8 @@ class spell_pri_guardian_spirit: public SpellScriptLoader
         }
 };
 
-// Penance - 47540
+/// Last Update 6.1.2
+/// Penance - 47540
 class spell_pri_penance: public SpellScriptLoader
 {
     public:
@@ -2350,6 +2351,10 @@ class spell_pri_penance: public SpellScriptLoader
                             return;
 
                         uint8 l_Rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+
+                        bool l_IsFriendly = l_Player->IsFriendlyTo(l_UnitTarget);
+                        /// Item - Priest WoD PvP Discipline 2P Bonus
+                        SpellInfo const* l_PvpBonusSpellEffect = l_IsFriendly ? sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ALLY) : sSpellMgr->GetSpellInfo(PRIEST_WOD_PVP_DISCIPLINE_2P_BONUS_EFFECT_ENEMY);
 
                         if (l_Player->IsFriendlyTo(l_UnitTarget))
                             l_Player->CastSpell(l_UnitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_HEAL, l_Rank), false, 0);
@@ -2405,7 +2410,6 @@ class spell_pri_penance_effect : public SpellScriptLoader
                 PriestWoDPvPDiscipline2PBonus   = 171124,
                 BonusHeal                       = 171130,
                 BonusDamage                     = 171131
-
             };
 
             void HandleOnHit()

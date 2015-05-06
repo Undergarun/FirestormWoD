@@ -9663,16 +9663,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
-        case 180721:///< Item - Mage WoD PvP Frost 2P Bonus
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 120)
-                return false;
-
-            break;
-        }
         case 144865:// Item - Druid T16 Feral 2P bonus
             if (procSpell->Id != 16864 && procSpell->Id != 135700)
                 return false;
@@ -15547,12 +15537,14 @@ float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) c
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
 
-    if (l_IncludeCreateStat)
-        value += GetCreateStat(stat);
+    value += GetCreateStat(stat);
 
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
+
+    if (!l_IncludeCreateStat)
+        value -= GetCreateStat(stat);
 
     return value;
 }
