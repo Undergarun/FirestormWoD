@@ -2098,6 +2098,14 @@ class spell_mage_novas_talent : public SpellScriptLoader
 
                 if (GetExplTargetUnit() != nullptr)
                     m_MainTarget = GetExplTargetUnit()->GetGUID();
+
+                /// Ice Nova, Blast Wave, Supernova, now has a 3-second cooldown.
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 3 * IN_MILLISECONDS);
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
