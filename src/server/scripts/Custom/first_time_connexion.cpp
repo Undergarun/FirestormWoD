@@ -1,6 +1,6 @@
 #include <ScriptPCH.h>
 #include <ScriptMgr.h>
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 class ReportingOnFirstTimeConnexion : public PlayerScript
 {
@@ -11,7 +11,7 @@ public:
     {
         if (p_Player && p_Player->GetTotalPlayedTime() == 0)
         {
-            sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::FirstTimeConnexion>::Craft(p_Player->GetSession()->GetAccountId(), p_Player->getRace(), p_Player->getClass()));
+            //sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::FirstTimeConnexion>::Craft(p_Player->GetSession()->GetAccountId(), p_Player->getRace(), p_Player->getClass()));
         }
     }
 };
