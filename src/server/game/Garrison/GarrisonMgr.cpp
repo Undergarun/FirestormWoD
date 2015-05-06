@@ -2755,7 +2755,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->BuildingType != BuildingType::Magasin)
+            if (l_Building->BuildingType != BuildingType::StoreHouse)
                 continue;
 
             l_MaxWorkOrder += l_Building->BonusAmount;

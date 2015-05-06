@@ -682,12 +682,12 @@ struct GarrMissionEntry
     uint32 Duration;                                                ///< 6
     uint32 OfferTime;                                               ///< 7
     uint32 LocPrefixID;                                             ///< 8
-    uint32 Unk3;                                                    ///< 9      @Todo this is the mission categorie see http://www.wowhead.com/missions=35
+    uint32 Category;                                                ///< 9      @Todo this is the mission categorie see http://www.wowhead.com/missions=35
     char*  Name;                                                    ///< 10
     char*  Description;                                             ///< 11
     char*  Location;                                                ///< 12
-    uint32 Unk5;                                                    ///< 13     subcategory1 
-    uint32 Unk6;                                                    ///< 14     subcategory2
+    uint32 SubCategory2;                                            ///< 13
+    uint32 SubCategory1;                                            ///< 14
     uint32 GarrisonCurrencyStartCost;                               ///< 15
     uint32 Flags;                                                   ///< 16
     uint32 RewardFollowerExperience;                                ///< 17
