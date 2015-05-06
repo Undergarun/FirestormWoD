@@ -1416,6 +1416,8 @@ void World::LoadConfigSettings(bool reload)
     // Lexics Cutter settings
     m_bool_configs[CONFIG_LEXICS_CUTTER_ENABLE] = ConfigMgr::GetBoolDefault("LexicsCutterEnable", true);
 
+    m_bool_configs[CONFIG_ACHIEVEMENT_DISABLE] = ConfigMgr::GetBoolDefault("Achievement.disable", false);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 

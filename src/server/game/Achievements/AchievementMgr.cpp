@@ -1296,6 +1296,9 @@ template<> bool IsGuild<Guild>() { return true; }
 template<class T>
 void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit const* p_Unit /*= NULL*/, Player* p_ReferencePlayer /*= NULL*/)
 {
+    if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
+        return;
+
     if (p_Type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
     {
         sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "UpdateAchievementCriteria: Unknown criteria type [%u]", p_Type);
