@@ -3364,9 +3364,9 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = l_Caster->ModifyPower(POWER_ENERGY, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
-                /// 25 energy = 100% more damage
-                AddPct(l_Damage, -(l_EnergyConsumed * 4));
+                int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > 25 ? 25 : l_Caster->GetPower(POWER_ENERGY);
+                l_Caster->SetPower(POWER_ENERGY, l_Caster->GetPower(POWER_ENERGY) - l_EnergyConsumed);
+                AddPct(l_Damage, l_EnergyConsumed * 4);
 
                 SetHitDamage(l_Damage);
 
@@ -3374,8 +3374,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
                     l_EnergyConsumed += 25; ///< Add the basic cost of Ferocious Bite to the extra cost;
-                    int l_HealPct = l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * (l_EnergyConsumed / 10);
-                    l_HealPct /= 10;
+                    int l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * floor(l_EnergyConsumed / 10) / 10);
                     l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
                 }
 
