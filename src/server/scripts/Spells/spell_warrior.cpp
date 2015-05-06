@@ -859,7 +859,7 @@ class spell_warr_bloodthirst: public SpellScriptLoader
 
                         const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
 
-                        if (l_SpellInfo != nullptr && l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        if (l_SpellInfo != nullptr && (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints) || (l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))))
                             l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                     }
                 }
