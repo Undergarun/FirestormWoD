@@ -13114,11 +13114,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         AddPct(DoneTotalMod, Mastery);
     }
 
-    // Sudden Death - 29725
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::OffAttack || spellProto))
-        if (roll_chance_i(10))
-            CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
-
     // 77219 - Mastery : Master Demonologist
     // Bonus damage for demon servants
     if (isPet())

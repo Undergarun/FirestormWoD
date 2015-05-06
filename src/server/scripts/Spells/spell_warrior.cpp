@@ -424,35 +424,6 @@ public:
     }
 };
 
-/// Sudden Death - 52437
-class spell_warr_sudden_death: public SpellScriptLoader
-{
-    public:
-        spell_warr_sudden_death() : SpellScriptLoader("spell_warr_sudden_death") { }
-
-        class spell_warr_sudden_death_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_sudden_death_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH))
-                        _player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_sudden_death_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_sudden_death_SpellScript();
-        }
-};
-
 /// Berzerker Rage - 18499
 class spell_warr_berzerker_rage: public SpellScriptLoader
 {
@@ -1901,7 +1872,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_dragon_roar();
     new spell_warr_staggering_shout();
     new spell_warr_second_wind();
-    new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_enrage();
     new spell_warr_mocking_banner();
