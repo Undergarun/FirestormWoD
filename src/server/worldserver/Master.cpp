@@ -50,7 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -581,8 +581,8 @@ int Master::Run()
     }
 
     ///- Initializing the Reporter.
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    //sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
 
     ///- Start the databases
     if (!_StartDB())

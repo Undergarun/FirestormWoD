@@ -131,6 +131,7 @@ class debug_commandscript: public CommandScript
                 { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
+                { "hfbench",        SEC_ADMINISTRATOR,  false, &HandleDebugHFBench,                "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2674,6 +2675,20 @@ class debug_commandscript: public CommandScript
                 p_Handler->PSendSysMessage("Condition %u is satisfied", l_ConditionID);
             else
                 p_Handler->PSendSysMessage("Condition %u failed => %s", l_ConditionID,  l_Result.second.c_str());
+
+            return true;
+        }
+
+        static bool HandleDebugHFBench(ChatHandler* p_Handler, char const* p_Args)
+        {
+            p_Handler->PSendSysMessage("Timer1 %u ms", gUpdateCriteriaAVGTimer1.value());
+            p_Handler->PSendSysMessage("Timer2 %u ms", gUpdateCriteriaAVGTimer2.value());
+            p_Handler->PSendSysMessage("Timer3 %u ms", gUpdateCriteriaAVGTimer3.value());
+            p_Handler->PSendSysMessage("Timer4 %u ms", gUpdateCriteriaAVGTimer4.value());
+            p_Handler->PSendSysMessage("Timer5 %u ms", gUpdateCriteriaAVGTimer5.value());
+            p_Handler->PSendSysMessage("Timer6 %u ms", gUpdateCriteriaAVGTimer6.value());
+            p_Handler->PSendSysMessage("Timer7 %u ms", gUpdateCriteriaAVGTimer7.value());
+            p_Handler->PSendSysMessage("Timer8 %u ms", gUpdateCriteriaAVGTimer8.value());
 
             return true;
         }

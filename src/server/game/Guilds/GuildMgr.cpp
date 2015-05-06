@@ -454,7 +454,6 @@ void GuildMgr::LoadGuilds()
     {
         uint32 l_OldMSTime = getMSTime();
         PreparedQueryResult l_Result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_CHALLENGES));
-        PreparedStatement* l_Stmt = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
 
         if (l_Result)
         {
@@ -465,19 +464,15 @@ void GuildMgr::LoadGuilds()
                 uint32 l_GuildId = l_Fields[0].GetInt32();
                 bool l_GuildFound = false;
 
-                for (auto l_Itr = GuildStore.begin(); l_Itr != GuildStore.end(); l_Itr++)
+                if (Guild* l_Guild = GetGuildById(l_GuildId))
                 {
-                    if (Guild* l_Guild = GetGuildById(l_GuildId))
-                    {
-                        l_Guild->LoadGuildChallengesFromDB(l_Fields);
-                        l_GuildFound = true;
-                        break;
-                    }
+                    l_Guild->LoadGuildChallengesFromDB(l_Fields);
+                    l_GuildFound = true;
                 }
 
                 if (!l_GuildFound)
                 {
-                    for (int8 l_Itr = 1; l_Itr < CHALLENGE_MAX; l_Itr++)
+                    for (uint8 l_Itr = 1; l_Itr < CHALLENGE_MAX; ++l_Itr)
                     {
                         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INIT_GUILD_CHALLENGES);
                         l_Statement->setInt32(0, l_GuildId);
@@ -486,7 +481,7 @@ void GuildMgr::LoadGuilds()
                     }
                 }
 
-                l_Count++;
+                ++l_Count;
 
             } while (l_Result->NextRow());
 

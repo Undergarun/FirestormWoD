@@ -44,8 +44,8 @@
 #include "AccountMgr.h"
 #include "DBCStores.h"
 #include "LFGMgr.h"
-
-#include <Reporting/Reporter.hpp>
+#include <time.h>
+//#include <Reporting/Reporter.hpp>
 
 class LoginQueryHolder : public SQLQueryHolder
 {

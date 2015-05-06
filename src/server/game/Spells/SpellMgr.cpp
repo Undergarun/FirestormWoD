@@ -5101,7 +5101,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109259: ///< Powershot
                 spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[2].BasePoints = 840;
+                spellInfo->Effects[2].BasePoints = 0;
                 break;
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;

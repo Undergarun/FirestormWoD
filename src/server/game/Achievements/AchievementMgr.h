@@ -593,6 +593,15 @@ struct CompletedAchievementData
 typedef ACE_Based::LockedMap<uint32, CriteriaProgress> CriteriaProgressMap;
 typedef ACE_Based::LockedMap<uint32, CompletedAchievementData> CompletedAchievementMap;
 
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer1;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer2;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer3;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer4;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer5;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer6;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer7;
+extern ACE_Atomic_Op<ACE_Thread_Mutex, uint32> gUpdateCriteriaAVGTimer8;
+
 template<class T>
 class AchievementMgr
 {
