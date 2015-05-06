@@ -34,11 +34,13 @@ typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 typedef std::vector<CriteriaTreeEntry const*>        AchievementCriteriaTreeList;
 typedef std::vector<ModifierTreeEntry const*>        ModifierTreeEntryList;
 
-typedef UNORDERED_MAP<uint32, AchievementEntryList>         AchievementListByReferencedId;
-typedef UNORDERED_MAP<uint32, AchievementCriteriaTreeList>  AchievementCriteriaTreeByCriteriaId;
-typedef UNORDERED_MAP<uint32, AchievementEntry const*>      AchievementEntryByCriteriaTree;
-typedef UNORDERED_MAP<uint32, ModifierTreeEntryList>        ModifierTreeEntryByTreeId;
-typedef UNORDERED_MAP<uint32, AchievementCriteriaTreeList>  SubCriteriaTreeListById;
+typedef UNORDERED_MAP<uint32, AchievementEntryList>  AchievementListByReferencedId;
+typedef std::vector<AchievementCriteriaTreeList>     AchievementCriteriaTreeByCriteriaId;
+typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTree;
+typedef std::vector<ModifierTreeEntryList>           ModifierTreeEntryByTreeId;
+typedef std::vector<AchievementCriteriaTreeList>     SubCriteriaTreeListById;
+typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTreeId;
+
 
 struct CriteriaProgress
 {
@@ -681,10 +683,9 @@ class AchievementGlobalMgr
             return itr != m_AchievementListByReferencedId.end() ? &itr->second : NULL;
         }
 
-        ModifierTreeEntryList const* GetModifierTreeByModifierId(uint32 id) const
+        ModifierTreeEntryList const& GetModifierTreeByModifierId(uint32 id) const
         {
-            ModifierTreeEntryByTreeId::const_iterator iter = m_ModifierTreeEntryByTreeId.find(id);
-            return iter != m_ModifierTreeEntryByTreeId.end() ? &iter->second : NULL;
+            return m_ModifierTreeEntryByTreeId[id];
         }
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
@@ -707,23 +708,24 @@ class AchievementGlobalMgr
 
         AchievementCriteriaTreeList const* GetSubCriteriaTreeById(uint32 p_ID) const
         {
-            SubCriteriaTreeListById::const_iterator l_Iter = m_SubCriteriaTreeListById.find(p_ID);
-            return l_Iter != m_SubCriteriaTreeListById.end() ? &l_Iter->second : NULL;
+            return &m_SubCriteriaTreeListById[p_ID];
         }
 
-        AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
+        AchievementEntry const* _GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
         {
             while (true)
             {
                 if (!p_Criteria->Parent || p_Criteria->Parent == p_Criteria->ID)
-                {
-                    AchievementEntryByCriteriaTree::const_iterator l_Iter = m_AchievementEntryByCriteriaTree.find(p_Criteria->ID);
-                    return l_Iter != m_AchievementEntryByCriteriaTree.end() ? l_Iter->second : NULL;
-                }
+                    return m_AchievementEntryByCriteriaTree[p_Criteria->ID];
 
                 p_Criteria = sCriteriaTreeStore.LookupEntry(p_Criteria->Parent);
             }
             return NULL;
+        }
+
+        AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
+        {
+            return m_AchievementEntryByCriteriaTreeId[p_Criteria->ID];
         }
 
         bool IsRealmCompleted(AchievementEntry const* achievement) const
@@ -780,6 +782,8 @@ class AchievementGlobalMgr
         typedef std::set<uint32> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
         SubCriteriaTreeListById m_SubCriteriaTreeListById;
+
+        AchievementEntryByCriteriaTreeId m_AchievementEntryByCriteriaTreeId;
 
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
