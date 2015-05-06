@@ -6180,6 +6180,107 @@ void ObjectMgr::LoadAccessRequirements()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u access requirement definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadLFRAccessRequirements()
+{
+    uint32 l_OldMSTime = 0;
+
+    /// Needed for reload case
+    m_LFRAccessRequirements.clear();
+
+    ///                                                    0            1         2       3      4      5         6          7              8               9         10           11
+    QueryResult l_Result = WorldDatabase.Query("SELECT dungeon_id, level_min, level_max, item, item2, quest_A, quest_H, achievement, leader_achievement, ilvl_min, ilvl_max, quest_failed_text FROM lfr_access_requirement");
+    if (!l_Result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 LFR access requirement definitions. DB table `lfr_access_requirement` is empty.");
+        return;
+    }
+
+    uint32 l_Count = 0;
+
+    do
+    {
+        LFRAccessRequirement l_LFRAccessReq;
+
+        Field* l_Fields                     = l_Result->Fetch();
+        uint32 l_Index                      = 0;
+        uint32 l_DungeonID                  = l_Fields[l_Index++].GetUInt32();
+
+        l_LFRAccessReq.LevelMin             = l_Fields[l_Index++].GetUInt8();
+        l_LFRAccessReq.LevelMax             = l_Fields[l_Index++].GetUInt8();
+        l_LFRAccessReq.Item                 = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.Item2                = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.QuestA               = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.QuestH               = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.Achievement          = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.LeaderAchievement    = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.ItemLevelMin         = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.ItemLevelMax         = l_Fields[l_Index++].GetUInt32();
+        l_LFRAccessReq.QuestFailedText      = l_Fields[l_Index++].GetString();
+
+        if (l_LFRAccessReq.Item)
+        {
+            ItemTemplate const* l_ItemTemplate = GetItemTemplate(l_LFRAccessReq.Item);
+            if (!l_ItemTemplate)
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Key item %u does not exist for dungeon ID %u, removing key requirement.", l_LFRAccessReq.Item, l_DungeonID);
+                l_LFRAccessReq.Item = 0;
+            }
+        }
+
+        if (l_LFRAccessReq.Item2)
+        {
+            ItemTemplate const* l_ItemTemplate = GetItemTemplate(l_LFRAccessReq.Item2);
+            if (!l_ItemTemplate)
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Second item %u does not exist for dungeon ID %u, removing key requirement.", l_LFRAccessReq.Item2, l_DungeonID);
+                l_LFRAccessReq.Item2 = 0;
+            }
+        }
+
+        if (l_LFRAccessReq.QuestA)
+        {
+            if (!GetQuestTemplate(l_LFRAccessReq.QuestA))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Required Alliance Quest %u not exist for dungeon ID %u, remove quest done requirement.", l_LFRAccessReq.QuestA, l_DungeonID);
+                l_LFRAccessReq.QuestA = 0;
+            }
+        }
+
+        if (l_LFRAccessReq.QuestH)
+        {
+            if (!GetQuestTemplate(l_LFRAccessReq.QuestH))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Required Horde Quest %u not exist for dungeon ID %u, remove quest done requirement.", l_LFRAccessReq.QuestH, l_DungeonID);
+                l_LFRAccessReq.QuestH = 0;
+            }
+        }
+
+        if (l_LFRAccessReq.Achievement)
+        {
+            if (!sAchievementStore.LookupEntry(l_LFRAccessReq.Achievement))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Required Achievement %u not exist for dungeon ID %u, remove quest done requirement.", l_LFRAccessReq.Achievement, l_DungeonID);
+                l_LFRAccessReq.Achievement = 0;
+            }
+        }
+
+        if (l_LFRAccessReq.LeaderAchievement)
+        {
+            if (!sAchievementMgr->GetAchievement(l_LFRAccessReq.LeaderAchievement))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Required Leader achievement %u not exist for dungeon ID %u, remove quest done requirement.", l_LFRAccessReq.LeaderAchievement, l_DungeonID);
+                l_LFRAccessReq.LeaderAchievement = 0;
+            }
+        }
+
+        m_LFRAccessRequirements[l_DungeonID] = l_LFRAccessReq;
+        ++l_Count;
+    }
+    while (l_Result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfr access requirement definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+}
+
 /*
  * Searches for the areatrigger which teleports players out of the given map with instance_template.parent field support
  */

@@ -1771,6 +1771,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Access Requirements...");
     sObjectMgr->LoadAccessRequirements();                        // must be after item template load
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFR Access Requirements...");
+    sObjectMgr->LoadLFRAccessRequirements();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Area Triggers...");
     sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
 

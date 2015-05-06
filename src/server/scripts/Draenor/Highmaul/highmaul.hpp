@@ -18,6 +18,7 @@
 #include "MoveSplineInit.h"
 #include "ScriptUtils.h"
 #include "GameObjectAI.h"
+#include "Group.h"
 
 #ifndef HIGHMAUL_HPP
 # define HIGHMAUL_HPP
