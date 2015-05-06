@@ -2290,6 +2290,11 @@ enum MoonfireSpells
     SPELL_DRUID_DREAM_OF_CENARIUS_RESTO  = 145153
 };
 
+enum SunfireSpells
+{
+    SPELL_DRUID_SUNFIRE_DAMAGE = 164815
+};
+
 namespace Sunfire
 {
     enum
@@ -2599,7 +2604,7 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
                 if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
                 {
-                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE))
+                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE_DAMAGE))
                         return;
                 }
 
