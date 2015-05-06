@@ -69,6 +69,7 @@ namespace ACE_Based
     class Thread
     {
         public:
+            Thread(const std::string & p_Name = "");
             explicit Thread(Runnable* instance, const std::string & p_Name);
             ~Thread();
 

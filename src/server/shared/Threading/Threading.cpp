@@ -97,12 +97,12 @@ int ThreadPriority::getPriority(Priority p) const
 
 #define THREADFLAG (THR_NEW_LWP | THR_SCHED_DEFAULT| THR_JOINABLE)
 
-Thread::Thread(): m_iThreadId(0), m_hThreadHandle(0), m_task(0)
+Thread::Thread(const std::string & p_Name) : m_iThreadId(0), m_hThreadHandle(0), m_task(0), m_Name(p_Name)
 {
 
 }
 
-Thread::Thread(Runnable* instance): m_iThreadId(0), m_hThreadHandle(0), m_task(instance)
+Thread::Thread(Runnable* instance, const std::string & p_Name) : m_iThreadId(0), m_hThreadHandle(0), m_task(instance), m_Name(p_Name)
 {
     // register reference to m_task to prevent it deeltion until destructor
     if (m_task)
@@ -130,7 +130,18 @@ bool Thread::start()
     if (m_task == 0 || m_iThreadId != 0)
         return false;
 
-    bool res = (ACE_Thread::spawn(&Thread::ThreadTask, (void*)m_task, THREADFLAG, &m_iThreadId, &m_hThreadHandle) == 0);
+    char * l_Name = (!m_Name.empty()) ? new char[m_Name.length() + 1] : nullptr;
+
+    if (l_Name)
+    {
+        std::copy(m_Name.begin(), m_Name.end(), l_Name); 
+        l_Name[m_Name.size()] = '\0';
+    }
+
+    bool res = (ACE_Thread::spawn(&Thread::ThreadTask, (void*)m_task, THREADFLAG, &m_iThreadId, &m_hThreadHandle, 0, 0, 0, 0, (char const**)&l_Name) == 0);
+
+    if (l_Name)
+        delete[] l_Name;
 
     if (res)
         m_task->incReference();
