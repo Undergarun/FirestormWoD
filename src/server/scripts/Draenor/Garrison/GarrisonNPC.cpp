@@ -268,7 +268,7 @@ namespace MS { namespace Garrison
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
             /// @Morgoporc Dont worry, this code will disappear
             p_Player->GetGarrison()->AddFollower(34);
-            p_Player->GetGarrison()->AddFollower(89);
+            p_Player->GetGarrison()->AddFollower(153);
             p_Player->GetGarrison()->AddFollower(92);
         }
 
