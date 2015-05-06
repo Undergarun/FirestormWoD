@@ -2137,9 +2137,22 @@ class spell_mage_blink : public SpellScriptLoader
     public:
         spell_mage_blink() : SpellScriptLoader("spell_mage_blink") { }
 
+        enum eSpells
+        {
+            GlyphOfRapidDisplacement = 163558
+        };
+
         class spell_mage_blink_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blink_SpellScript);
+
+            void HandleImmunity(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfRapidDisplacement))
+                    PreventHitAura();
+            }
 
             void HandleAfterHit()
             {
@@ -2150,6 +2163,8 @@ class spell_mage_blink : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
             }
         };
@@ -2341,6 +2356,58 @@ class spell_mage_glyph_of_the_unbound_elemental : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Arcane Power - 12042
+class spell_mage_arcane_power : public SpellScriptLoader
+{
+    public:
+        spell_mage_arcane_power() : SpellScriptLoader("spell_mage_arcane_power") { }
+
+        class spell_mage_arcane_power_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_arcane_power_AuraScript);
+
+            enum eSpells
+            {
+                WodPvpArcane4pBonusAura = 171351,
+                WodPvpArcane4pBonus = 171375
+            };
+
+            void OnApply(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WodPvpArcane4pBonusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::WodPvpArcane4pBonus, true);
+            }
+
+            void OnRemove(constAuraEffectPtr, AuraEffectHandleModes)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::WodPvpArcane4pBonus))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::WodPvpArcane4pBonus);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_power_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_power_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_arcane_power_AuraScript();
+        }
+};
+
 /// Flameglow - 140468
 class spell_mage_flameglow : public SpellScriptLoader
 {
@@ -2447,6 +2514,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_prysmatic_crystal_damage();
     new spell_mage_glyph_of_the_unbound_elemental();
     new spell_mage_WoDPvPFrost2PBonus();
+    new spell_mage_arcane_power();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();

@@ -200,7 +200,13 @@ class boss_brackenspore : public CreatureScript
                     me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
 
                     for (Creature* l_Creature : l_BFCs)
+                    {
+                        l_Creature->Respawn(true);
                         l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                        if (l_Creature->AI())
+                            l_Creature->AI()->Reset();
+                    }
                 }
             }
 
@@ -468,6 +474,14 @@ class boss_brackenspore : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
+                /// Update moves here, avoid some movements problems after Infesting Spores
+                if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()) && me->HasAura(eSpells::SpellInfestingSpores))
+                {
+                    Position l_Pos;
+                    me->getVictim()->GetPosition(&l_Pos);
+                    me->GetMotionMaster()->MovePoint(0, l_Pos);
+                }
+
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
@@ -522,7 +536,13 @@ class boss_brackenspore : public CreatureScript
                         break;
                 }
 
-                EnterEvadeIfOutOfCombatArea(p_Diff);
+                /// If boss is outside the beach, it should resets
+                if (me->GetDistance(g_BeachCenter.x, g_BeachCenter.y, g_BeachCenter.z) >= 100.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -1027,13 +1047,15 @@ class npc_highmaul_bfc9000 : public CreatureScript
             BFC9000         = 164175
         };
 
-        struct npc_highmaul_bfc9000AI : public MS::AI::CosmeticAI
+        struct npc_highmaul_bfc9000AI : public ScriptedAI
         {
-            npc_highmaul_bfc9000AI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_bfc9000AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             void Reset() override
             {
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 

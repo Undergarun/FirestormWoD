@@ -1204,7 +1204,6 @@ class ObjectMgr
         void LoadSpellInvalid();
         void LoadBattlePetTemplate();
 
-        void LoadItemExtendedCost();
         void LoadGuildChallengeRewardInfo();
 
         void LoadResearchSiteZones();

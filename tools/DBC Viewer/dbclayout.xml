@@ -1752,8 +1752,8 @@
     <field type="int" name="RequiredFactionId" />
     <field type="int" name="RequiredFactionStanding" />
     <field type="int" name="RequirementFlags" />
-    <field type="int" name="newField1 6.1" />
-    <field type="int" name="newField2 6.2" />
+    <field type="int" name="RequiredAchievement" />
+    <field type="int" name="OverrideBuyPrice" />
   </ItemExtendedCost>
   <Item-sparse build="0">
     <index>
@@ -2209,7 +2209,7 @@
     <field type="int" name="InventoryType" />
     <field type="int" name="Sheath" />
     <field type="int" name="DisplayId" />
-    <field type="int" name="field8" />
+    <field type="int" name="GroupSoundsID" />
   </Item>
   <SpellCategory build="0">
     <index>
@@ -2430,9 +2430,9 @@
     <field type="int" name="FollowerID" />
     <field type="int" name="EntryH" />
     <field type="int" name="EntryA" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
-    <field type="int" name="field5" />
+    <field type="int" name="classH" />
+    <field type="int" name="classA" />
+    <field type="int" name="quality" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
     <field type="int" name="field8" />
@@ -2441,13 +2441,13 @@
     <field type="int" name="ItemLevelWeapon" />
     <field type="int" name="ItemLevelArmor" />
     <field type="int" name="field13" />
-    <field type="int" name="Bias" />
+    <field type="int" name="field14" />
     <field type="string" name="field15" />
     <field type="string" name="field16" />
     <field type="int" name="field17" />
-    <field type="int" name="dfg" />
-    <field type="int" name="dfgdfg" />
     <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
   </GarrFollower>
   <GarrFollowerQuality build="0">
     <index>
@@ -2548,7 +2548,7 @@
     <field type="int" name="Duration" />
     <field type="int" name="OfferDuration" />
     <field type="int" name="LocPrefixID" />
-    <field type="int" name="field9" />
+    <field type="int" name="Category" />
     <field type="string" name="Name" />
     <field type="string" name="Description" />
     <field type="string" name="Location" />
@@ -2971,7 +2971,7 @@
     <field type="int" name="field1" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="string" name="field4" />
     <field type="int" name="field5" />
     <field type="int" name="field6" />
     <field type="int" name="field7" />
@@ -3344,28 +3344,28 @@
       <primary>ID</primary>
     </index>
     <field type="int" name="ID" />
-    <field type="int" name="entry" />
-    <field type="int" name="type" />
+    <field type="int" name="Entry" />
+    <field type="int" name="Type" />
     <field type="int" name="Value1" />
     <field type="int" name="Value2" />
-    <field type="int" name="field5" />
+    <field type="int" name="Index" />
   </ItemBonus>
   <ItemBonusTreeNode build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
-    <field type="int" name="field3" />
-    <field type="int" name="field4" />
+    <field type="int" name="ID" />
+    <field type="int" name="Category" />
+    <field type="int" name="Difficulty" />
+    <field type="int" name="LinkedCategory" />
+    <field type="int" name="ItemBonusEntry" />
   </ItemBonusTreeNode>
   <ItemCurrencyCost build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
+    <field type="int" name="ID" />
+    <field type="int" name="ItemID" />
   </ItemCurrencyCost>
   <ItemEffect build="0">
     <index>
@@ -3405,11 +3405,11 @@
   </ItemUpgrade>
   <ItemXBonusTree build="0">
     <index>
-      <primary>field0</primary>
+      <primary>ID</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="int" name="field1" />
-    <field type="int" name="field2" />
+    <field type="int" name="ID" />
+    <field type="int" name="ItemID" />
+    <field type="int" name="ItemBonusTreeCategory" />
   </ItemXBonusTree>
   <WorldSafeLocs build="0">
     <index>
@@ -4754,46 +4754,19 @@
     <field type="int" name="field5" />
     <field type="int" name="field6" />
   </SpellClassOptions>
-  <gtNpcTotalHpExp2 build="0">
+  <Mount build="19853">
     <index>
-      <primary>field0</primary>
+      <primary>Id</primary>
     </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNpcTotalHpExp2>
-  <gtNpcTotalHpExp1 build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNpcTotalHpExp1>
-  <gtNpcTotalHpExp5 build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNpcTotalHpExp5>
-  <gtNpcTotalHpExp3 build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNpcTotalHpExp3>
-  <gtNpcTotalHpExp4 build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNpcTotalHpExp4>
-  <gtNPCManaCostScaler build="0">
-    <index>
-      <primary>field0</primary>
-    </index>
-    <field type="int" name="field0" />
-    <field type="float" name="field1" />
-  </gtNPCManaCostScaler>
+    <field type="int" name="Id" />
+    <field type="int" name="Category" />
+    <field type="int" name="CreatureDisplayID" />
+    <field type="int" name="Flags" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="string" name="Icon" />
+    <field type="int" name="Unknow" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="PlayerConditionID" />
+  </Mount>
 </DBFilesClient>

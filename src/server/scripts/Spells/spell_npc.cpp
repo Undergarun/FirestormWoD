@@ -257,22 +257,35 @@ class spell_npc_sha_capacitor_totem : public CreatureScript
 
         struct spell_npc_sha_capacitor_totemAI : public ScriptedAI
         {
-            spell_npc_sha_capacitor_totemAI(Creature* creature) : ScriptedAI(creature) { }
-
-            uint32 CastTimer;
-
-            void UpdateAI(uint32 const diff)
+            enum eSpells
             {
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                StaticCharge = 118905
+            };
+
+            bool m_HasBeenCasted;
+
+            spell_npc_sha_capacitor_totemAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_HasBeenCasted = false;
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                me->CastSpell(me, 118905, false);
+                if (!me->HasAura(eSpells::StaticCharge) && !m_HasBeenCasted)
+                {
+                    me->CastSpell(me, eSpells::StaticCharge, false);
+                    m_HasBeenCasted = true;
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new spell_npc_sha_capacitor_totemAI(creature);
+            return new spell_npc_sha_capacitor_totemAI(p_Creature);
         }
 };
 
@@ -320,114 +333,6 @@ class spell_npc_sha_spirit_link_totem : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new spell_npc_sha_spirit_link_totemAI(creature);
-        }
-};
-
-#define STONE_BULWARK_TOTEM_ABSORB      114889
-
-class spell_npc_sha_stone_bulwark_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_stone_bulwark_totem() : CreatureScript("npc_stone_bulwark_totem") { }
-
-        struct spell_npc_sha_stone_bulwark_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_stone_bulwark_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, STONE_BULWARK_TOTEM_ABSORB, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(STONE_BULWARK_TOTEM_ABSORB))
-                    me->CastSpell(me, STONE_BULWARK_TOTEM_ABSORB, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_stone_bulwark_totemAI(creature);
-        }
-};
-
-#define EARTHGRAB       116943
-
-class spell_npc_sha_earthgrab_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_earthgrab_totem() : CreatureScript("npc_earthgrab_totem") { }
-
-        struct spell_npc_sha_earthgrab_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_earthgrab_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, EARTHGRAB, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(EARTHGRAB))
-                    me->CastSpell(me, EARTHGRAB, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_earthgrab_totemAI(creature);
-        }
-};
-
-#define WINDWALK     114896
-
-class spell_npc_sha_windwalk_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_windwalk_totem() : CreatureScript("npc_windwalk_totem") { }
-
-        struct spell_npc_sha_windwalk_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_windwalk_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, WINDWALK, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(WINDWALK))
-                    me->CastSpell(me, WINDWALK, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_windwalk_totemAI(creature);
-        }
-};
-
-#define HEALING_TIDE     114941
-
-class spell_npc_sha_healing_tide_totem : public CreatureScript
-{
-    public:
-        spell_npc_sha_healing_tide_totem() : CreatureScript("npc_healing_tide_totem") { }
-
-        struct spell_npc_sha_healing_tide_totemAI : public ScriptedAI
-        {
-            spell_npc_sha_healing_tide_totemAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->CastSpell(creature, HEALING_TIDE, true);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (!me->HasAura(HEALING_TIDE))
-                    me->CastSpell(me, HEALING_TIDE, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new spell_npc_sha_healing_tide_totemAI(creature);
         }
 };
 
@@ -515,6 +420,153 @@ class spell_npc_sha_storm_elemental : public CreatureScript
             return new spell_npc_sha_storm_elementalAI(p_Creature);
         }
 };
+
+class spell_npc_sha_fire_elemental : public CreatureScript
+{
+    public:
+        spell_npc_sha_fire_elemental() : CreatureScript("npc_fire_elemental") { }
+
+        struct spell_npc_sha_fire_elementalAI : public ScriptedAI
+        {
+            spell_npc_sha_fire_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+            enum fireEvents
+            {
+                EVENT_FIRE_NOVA     = 1,
+                EVENT_FIRE_BLAST    = 2,
+                EVENT_FIRE_SHIELD   = 3
+            };
+
+            enum fireSpells
+            {
+                SPELL_SHAMAN_FIRE_BLAST     = 57984,
+                SPELL_SHAMAN_FIRE_NOVA      = 12470,
+                SPELL_SHAMAN_FIRE_SHIELD    = 13376
+            };
+
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                events.ScheduleEvent(EVENT_FIRE_SHIELD, 0);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
+                    return;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_FIRE_NOVA:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_NOVA);
+                        events.ScheduleEvent(EVENT_FIRE_NOVA, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_BLAST:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_BLAST);
+                        events.ScheduleEvent(EVENT_FIRE_BLAST, urand(5000, 20000));
+                        break;
+                    case EVENT_FIRE_SHIELD:
+                        DoCastVictim(SPELL_SHAMAN_FIRE_SHIELD);
+                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 4000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI *GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_fire_elementalAI(p_Creature);
+        }
+};
+
+
+class spell_npc_sha_earth_elemental : public CreatureScript
+{
+    public:
+        spell_npc_sha_earth_elemental() : CreatureScript("npc_earth_elemental") { }
+
+        struct spell_npc_sha_earth_elementalAI : public ScriptedAI
+        {
+            spell_npc_sha_earth_elementalAI(Creature* p_Creature) : ScriptedAI(p_Creature) {}
+
+            enum eSpells
+            {
+                AngeredEarth = 36213
+            };
+
+            uint32 AngeredEarth_Timer;
+
+            void Reset()
+            {
+                AngeredEarth_Timer = 0;
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                {
+                    if (Unit* owner = me->GetOwner())
+                    {
+                        Unit* ownerTarget = NULL;
+                        if (Player* plr = owner->ToPlayer())
+                            ownerTarget = plr->GetSelectedUnit();
+                        else
+                            ownerTarget = owner->getVictim();
+
+                        if (ownerTarget)
+                            AttackStart(ownerTarget);
+                    }
+
+                    return;
+                }
+
+                if (AngeredEarth_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), eSpells::AngeredEarth);
+                    AngeredEarth_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+                }
+                else
+                    AngeredEarth_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_sha_earth_elementalAI(p_Creature);
+        }
+};
+
 
 class spell_npc_sha_feral_spirit : public CreatureScript
 {
@@ -722,11 +774,9 @@ void AddSC_npc_spell_scripts()
     /// Shaman NPC
     new spell_npc_sha_capacitor_totem();
     new spell_npc_sha_spirit_link_totem();
-    new spell_npc_sha_stone_bulwark_totem();
-    new spell_npc_sha_earthgrab_totem();
-    new spell_npc_sha_windwalk_totem();
-    new spell_npc_sha_healing_tide_totem();
     new spell_npc_sha_storm_elemental();
+    new spell_npc_sha_fire_elemental();
+    new spell_npc_sha_earth_elemental();
     new spell_npc_sha_feral_spirit();
 
     /// Warrior NPC

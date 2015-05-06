@@ -1380,6 +1380,7 @@ namespace MS { namespace Garrison
             l_MissionFollowers[l_FollowerIt]->Write(l_UpdatePart);
 
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
@@ -1589,7 +1590,7 @@ namespace MS { namespace Garrison
             {
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
 
-                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_OBTAIN_FOLLOWER)
+                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
                 {
                     l_IsContractItem = true;
                     m_Owner->CastSpell(m_Owner, l_SpellInfo, TRIGGERED_FULL_MASK);
@@ -1631,8 +1632,8 @@ namespace MS { namespace Garrison
             /// Write follower after modifications
             const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
             
-            l_Update << uint32(l_AddedXP); // Guessed
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
@@ -2272,6 +2273,7 @@ namespace MS { namespace Garrison
         m_Followers.push_back(l_Follower);
 
         WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
+        l_AddFollowerResult << uint32(PurchaseBuildingResults::Ok);
         l_Follower.Write(l_AddFollowerResult);
 
         m_Owner->SendDirectMessage(&l_AddFollowerResult);
@@ -2709,7 +2711,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->BuildingType == p_BuildingType)
+            if (l_BuildingEntry->BuildingType == p_BuildingType && (*l_It).Active == true)
                 return true;
         }
 
@@ -2753,7 +2755,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->BuildingType != BuildingType::Magasin)
+            if (l_Building->BuildingType != BuildingType::StoreHouse)
                 continue;
 
             l_MaxWorkOrder += l_Building->BonusAmount;
@@ -3614,7 +3616,7 @@ namespace MS { namespace Garrison
 
         }
 
-        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap)
+        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && HasBuildingType(BuildingType::Barracks))
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);

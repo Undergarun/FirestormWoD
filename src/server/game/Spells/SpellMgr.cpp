@@ -3164,7 +3164,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
-                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                    case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -3356,7 +3356,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907: ///< Earthrending Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
-				break;
+                break;
             case 124694: ///< Way of the Grill
             case 125584: ///< Way of the Wok
             case 125586: ///< Way of the Pot
@@ -4423,6 +4423,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
+            case 111397:
+                spellInfo->ProcFlags = 0;
+                break;
             case 12654: ///< Ignite
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
@@ -5100,7 +5103,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 109259: ///< Powershot
                 spellInfo->Effects[5].Effect = 0;
-                spellInfo->Effects[2].BasePoints = 840;
+                spellInfo->Effects[2].BasePoints = 0;
                 break;
             case 114695: ///< Pursuit of Justice
                 spellInfo->Effects[0].BasePoints = 0;

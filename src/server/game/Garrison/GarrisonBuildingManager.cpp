@@ -40,7 +40,8 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
 
     /// Learn allowed building blue prints
-    /// @p_Player     : Target player/// @p_Garrison   : Target garrison
+    /// @p_Player     : Target player
+    /// @p_Garrison   : Target garrison
     void BuildingManager::LearnAllowedBuildings(Player * p_Player, Manager * p_Garrison)
     {
         if (!p_Player || !p_Garrison)

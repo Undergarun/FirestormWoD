@@ -671,3 +671,54 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
 
     SendPacket(&l_Data);
 }
+
+void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
+{
+    uint32 l_Type = 0;
+    uint32 l_Count = 0;
+
+    p_RecvPacket >> l_Type;
+    l_Count = p_RecvPacket.ReadBits(13);
+
+    DB2StorageBase* l_DB2Store = sDB2PerHash[l_Type];
+
+    for (uint32 l_I = 0; l_I < l_Count; ++l_I)
+    {
+        uint64 l_GUID;
+        uint32 l_Entry;
+
+        p_RecvPacket.readPackGUID(l_GUID);
+        p_RecvPacket >> l_Entry;
+
+        /// Specific case, localized string not yet supported by the system
+        if (l_Type == DB2_REPLY_BROADCAST_TEXT)
+        {
+            SendBroadcastTextDb2Reply(l_Entry);
+        }
+        else if (l_DB2Store)
+        {
+            ByteBuffer l_ResponseData;
+            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
+            {
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                l_Data << uint32(l_Type);
+                l_Data << uint32(l_Entry);
+                l_Data << uint32(sObjectMgr->GetHotfixDate(l_Entry, l_Type));
+                l_Data << uint32(l_ResponseData.size());
+                l_Data.append(l_ResponseData);
+
+                SendPacket(&l_Data);
+            }
+            else
+            {
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                l_Data << uint32(l_Type);
+                l_Data << uint32(-int32(l_Entry));
+                l_Data << uint32(time(NULL));
+                l_Data << uint32(0);
+
+                SendPacket(&l_Data);
+            }
+        }
+    }
+}

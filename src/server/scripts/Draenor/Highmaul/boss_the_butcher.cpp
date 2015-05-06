@@ -197,6 +197,8 @@ class boss_the_butcher : public CreatureScript
                 me->RemoveAura(eSpells::Angry5PerTick);
                 me->RemoveAura(eSpells::Angry10PerTick);
 
+                me->SetSpeed(UnitMoveType::MOVE_SWIM, me->GetSpeed(UnitMoveType::MOVE_RUN) * 0.5f);
+
                 m_CleaveCooldown = 0;
 
                 m_AddCount = 0;
@@ -411,7 +413,7 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
-                        m_Events.DelayEvent(eEvents::EventMeatHook, 15 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.DelayEvent(eEvents::EventMeatHook, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:

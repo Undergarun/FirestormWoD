@@ -1790,10 +1790,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     {
         // Custom MoP Script - Blood Horror - 111397
         if (victim->HasAura(111397))
-        {
             victim->CastSpell(this, 137143, true);
-            victim->RemoveAura(111397);
-        }
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
