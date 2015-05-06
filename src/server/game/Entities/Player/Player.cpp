@@ -20354,6 +20354,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// 60            61              62              63                 64                        65                        66               67                 68                   69
     /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
 
+    uint32 l_StartTime = getMSTime();
+    std::vector<uint32> l_Times;
+
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
     if (!result)
     {
@@ -20397,6 +20400,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         return false;
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     // overwrite possible wrong/corrupted guid
     SetGuidValue(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
@@ -20434,6 +20439,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     if (money > MAX_MONEY_AMOUNT)
         money = MAX_MONEY_AMOUNT;
     SetMoney(money);
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     SetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID, fields[9].GetUInt32());
     SetUInt32Value(PLAYER_FIELD_REST_STATE, fields[10].GetUInt32());
@@ -20475,6 +20483,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // init saved position, and fix it later if problematic
     uint32 transGUID = uint32(fields[31].GetUInt32());
 
@@ -20488,6 +20499,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
 
@@ -20506,6 +20519,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -20649,6 +20664,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
                     instanceId = 0;
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
     Map* map = sMapMgr->CreateMap(mapId, this);
@@ -20684,6 +20702,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
             }
         }
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
@@ -20734,6 +20755,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     uint32 extraflags = fields[32].GetUInt16();
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     m_stableSlots = fields[33].GetUInt8();
     if (m_stableSlots > MAX_PET_STABLES)
     {
@@ -20777,11 +20801,17 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // reset stats before loading any modifiers
     InitStatsForLevel();
     InitGlyphsForLevel();
     InitTaxiNodesForLevel();
     InitRunes();
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // rest bonus can only be calculated after InitStatsForLevel()
     m_rest_bonus = fields[21].GetFloat();
@@ -20819,6 +20849,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     SetFreeTalentPoints(CalculateTalentsPoints());
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // sanity check
     if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
     {
@@ -20827,9 +20860,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     }
 
     _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGLYPHS));
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     _LoadGlyphAuras();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS));
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
@@ -20855,6 +20897,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         while (accountResult->NextRow());
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // VIP case
     if (GetSession()->IsPremium())
     {
@@ -20878,6 +20923,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     }
 
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS), time_diff);
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
@@ -20935,6 +20983,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
     _LoadQuestObjectiveStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_OBJECTIVE_STATUS));
@@ -20945,10 +20996,19 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadMonthlyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
     _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADRANDOMBG));
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // after spell and quest load
     InitTalentForLevel();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     InitSpellForLevel();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     learnDefaultSpells();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
@@ -20960,6 +21020,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     _LoadActions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
 
@@ -20979,10 +21042,16 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, GetPositionZ());
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
     _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
     _LoadDailyLootsCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS));
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -21018,6 +21087,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         SetUInt32Value(UNIT_FIELD_POWER + loadedPowers, 0);
 
     SetPower(POWER_ECLIPSE, 0);
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     // must be after loading spells and talents
     Tokenizer talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
@@ -21084,6 +21156,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // RaF stuff.
     m_grantableLevels = fields[63].GetUInt8();
 
@@ -21110,6 +21185,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         if (!ticket->IsClosed() && ticket->IsCompleted())
             ticket->SendResponse(GetSession());
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
     ReloadPetBattles();
@@ -21121,7 +21199,19 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     else
         delete l_Garrison;
 
+
+    l_Times.push_back(getMSTime() - l_StartTime);
     RewardCompletedAchievementsIfNeeded();
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+    if ((getMSTime() - l_StartTime) > 50)
+    {
+        sLog->outAshran("Player::LoadFromDB profiling =======");
+        for (int l_I = 0; l_I < l_Times.size(); l_I++)
+            sLog->outAshran("Index [%u] : %u ms", l_I, l_Times[l_I]);
+        sLog->outAshran("====================================");
+    }
+
     return true;
 }
 
