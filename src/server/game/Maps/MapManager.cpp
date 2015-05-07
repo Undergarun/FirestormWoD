@@ -287,6 +287,7 @@ void MapManager::Update(uint32 diff)
 
     auto l_AchivementCriteriaUpdateThread = std::thread([]() -> void
     {
+        ACE_Based::Thread::current()->setName("AchievementCriteriaUpdateThread");
         sAchievementMgr->ProcessAllCriteriaUpdateTask();
     });
 
