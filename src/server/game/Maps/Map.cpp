@@ -36,14 +36,8 @@
 #include "WildBattlePet.h"
 #include "OutdoorPvPMgr.h"
 
-union u_map_magic
-{
-    char asChar[4];
-    uint32 asUInt;
-};
-
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','3'} };
+u_map_magic MapVersionMagic = { {'v','1','.','5'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -96,7 +90,7 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
         map_fileheader header;
         if (fread(&header, sizeof(header), 1, pf) == 1)
         {
-            if (header.mapMagic != MapMagic.asUInt || header.versionMagic != MapVersionMagic.asUInt)
+            if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic.asUInt != MapVersionMagic.asUInt)
                 sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.", tmp);
             else
                 ret = true;
@@ -885,6 +879,7 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     else
     {
         go->Relocate(x, y, z, orientation);
+        go->UpdateModelPosition();
         go->UpdateObjectVisibility(false);
         RemoveGameObjectFromMoveList(go);
     }
@@ -1010,6 +1005,7 @@ void Map::MoveAllGameObjectsInMoveList()
         {
             // update pos
             go->Relocate(go->_newPosition);
+            go->UpdateModelPosition();
             go->UpdateObjectVisibility(false);
         }
         else
@@ -1361,7 +1357,7 @@ bool GridMap::loadData(char *filename)
         return false;
     }
 
-    if (header.mapMagic == MapMagic.asUInt && header.versionMagic == MapVersionMagic.asUInt)
+    if (header.mapMagic.asUInt == MapMagic.asUInt && header.versionMagic.asUInt == MapVersionMagic.asUInt)
     {
         // loadup area data
         if (header.areaMapOffset && !loadAreaData(in, header.areaMapOffset, header.areaMapSize))

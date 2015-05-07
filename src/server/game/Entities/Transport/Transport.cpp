@@ -32,7 +32,7 @@
 #include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
-    _transportInfo(NULL), _isMoving(true), _pendingStop(false)
+    _transportInfo(NULL), _isMoving(true), _pendingStop(false), _delayedAddModel(false)
 {
     m_updateFlag = UPDATEFLAG_HAS_SERVER_TIME | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_HAS_ROTATION;
 }
@@ -171,6 +171,15 @@ void Transport::Update(uint32 diff)
 
         sLog->outDebug(LOG_FILTER_TRANSPORTS, "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
     }
+
+    // Add model to map after we are fully done with moving maps
+    if (_delayedAddModel)
+    {
+        _delayedAddModel = false;
+        if (m_model)
+            GetMap()->InsertGameObjectModel(*m_model);
+    }
+
 
     // Set position
     _positionChangeTimer.Update(diff);
