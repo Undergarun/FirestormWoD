@@ -1965,7 +1965,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     case 115192:///< Remove Stealth on Subterfuge remove
                     {
-                        target->RemoveAura(115191);
+                        /// Don't remove stealth if we have Vanish
+                        if (!target->HasAura(131361))
+                            target->RemoveAura(115191);
                         break;
                     }
                 }
