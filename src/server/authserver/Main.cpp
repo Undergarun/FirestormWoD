@@ -24,7 +24,7 @@
 #include <openssl/crypto.h>
 #include <thread>
 
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -118,6 +118,8 @@ void RegisterBNet2WoWModules()
 // Launch the auth server
 extern int main(int argc, char **argv)
 {
+    ACE_Based::Thread::current()->setName("MainThread");
+
     // Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_REALM_CONFIG;
     int c = 1;
@@ -209,8 +211,8 @@ extern int main(int argc, char **argv)
     }
 
     ///- Initializing the Reporter.
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
-    sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    //sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
 
     // Initialise the signal handlers
     AuthServerSignalHandler SignalINT, SignalTERM;

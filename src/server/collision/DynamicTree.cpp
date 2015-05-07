@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
 #include "Timer.h"
 #include "GameObjectModel.h"
 #include "ModelInstance.h"
-#include "VMapDefinitions.h"
 
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
@@ -233,10 +232,6 @@ bool DynamicMapTree::getObjectHitPos(const uint32 phasemask, const G3D::Vector3&
 
 bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
 {
-    // Don't calculate hit position, if wrong src/dest points provided!
-    if (!VMAP::CheckPosition(x1,y1,z1) || !VMAP::CheckPosition(x2,y2,z2))
-        return false;
-
     G3D::Vector3 v1(x1, y1, z1), v2(x2, y2, z2);
 
     float maxDist = (v2 - v1).magnitude();
@@ -261,5 +256,5 @@ float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, 
     if (callback.didHit())
         return v.z - maxSearchDist;
     else
-        return -G3D::inf();
+        return -G3D::finf();
 }

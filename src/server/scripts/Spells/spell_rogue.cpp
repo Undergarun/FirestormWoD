@@ -85,7 +85,12 @@ enum RogueSpells
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
-    ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191
+    ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191,
+    ROGUE_SPELL_RECUPERATE                      = 73651,
+    ROGUE_GLYPH_OF_RECUPERATE                   = 56806,
+    ROGUE_SPELL_IMPROVED_RECUPERATE             = 61249,
+    ROGUE_SPELL_WOD_PVP_SUBTLETY_4P             = 170877,
+    ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT      = 170879
 };
 
 /// Anticipation - 114015
@@ -1351,7 +1356,11 @@ class spell_rog_venomous_wounds: public SpellScriptLoader
                         if (!l_Caster->HasPoisonTarget(l_Target->GetGUIDLow()))
                             return;
 
+                        if (l_Caster->ToPlayer()->GetSpecializationId(l_Caster->ToPlayer()->GetActiveSpec()) != SpecIndex::SPEC_ROGUE_ASSASSINATION)
+                            return;
+
                         l_Caster->CastSpell(l_Target, eSpells::VenomousWoundsDamage, true);
+                        l_Caster->EnergizeBySpell(l_Caster, eSpells::VenomousVimEnergize, 10, POWER_ENERGY);
                     }
                 }
             }
@@ -1660,32 +1669,48 @@ class spell_rog_shiv: public SpellScriptLoader
         }
 };
 
-/// Recuperate - 73651
-class spell_rog_recuperate: public SpellScriptLoader
+// Recuperate - 73651
+class spell_rog_recuperate : public SpellScriptLoader
 {
-    public:
-        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+public:
+    spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
 
-        class spell_rog_recuperate_AuraScript : public AuraScript
+    class spell_rog_recuperate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_recuperate_SpellScript);
+
+        void HandleOnHit()
         {
-            PrepareAuraScript(spell_rog_recuperate_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr /*auraEffect*/, int32& amount, bool& /*canBeRecalculated*/)
+            if (Player* _player = GetCaster()->ToPlayer())
             {
-                if (Unit* l_Caster = GetCaster())
-                    amount = l_Caster->CountPctFromMaxHealth(l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_RECUPERATE) ? 4 : 3);
-            }
+                if (AuraPtr recuperate = _player->GetAura(ROGUE_SPELL_RECUPERATE))
+                {
+                    int32 bp;
+                    bp = _player->CountPctFromMaxHealth(3);
 
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
+                    if (_player->HasAura(ROGUE_GLYPH_OF_RECUPERATE))
+                        bp += _player->CountPctFromMaxHealth(1);
 
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_rog_recuperate_AuraScript();
+                    if (_player->HasAura(ROGUE_SPELL_IMPROVED_RECUPERATE))
+                        bp += _player->CountPctFromMaxHealth(1);
+
+                    bp = _player->SpellHealingBonusDone(_player, GetSpellInfo(), bp, 0, HEAL);
+                    bp = _player->SpellHealingBonusTaken(_player, GetSpellInfo(), bp, HEAL);
+                    recuperate->GetEffect(0)->ChangeAmount(bp);
+                }
+            }
         }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_recuperate_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_recuperate_SpellScript();
+    }
 };
 
 /// Preparation - 14185
@@ -2290,6 +2315,39 @@ class PlayerScript_ruthlessness : public PlayerScript
         }
 };
 
+/// Feint - 1966
+class spell_rog_feint : public SpellScriptLoader
+{
+public:
+    spell_rog_feint() : SpellScriptLoader("spell_rog_feint") { }
+
+    class spell_rog_feint_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_feint_SpellScript);
+
+        void HandleOnHit()
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                if (l_Player->GetSpecializationId() == SPEC_ROGUE_SUBTLETY && l_Player->HasAura(ROGUE_SPELL_WOD_PVP_SUBTLETY_4P))
+                {
+                    l_Player->CastSpell(l_Player, ROGUE_SPELL_WOD_PVP_SUBTLETY_4P_EFFECT, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_rog_feint_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_feint_SpellScript();
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation();
@@ -2333,6 +2391,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shadowstep();
     new spell_rog_stealth();
     new spell_rog_internal_bleeding_damage();
+    new spell_rog_feint();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

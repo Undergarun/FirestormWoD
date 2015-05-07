@@ -160,6 +160,14 @@ void GameObject::AddToWorld()
             SendTransportToOutOfRangePlayers();
         }
 
+        if (m_model)
+        {
+            if (Transport* trans = ToTransport())
+                trans->SetDelayedAddModelToMap();
+            else
+                GetMap()->InsertGameObjectModel(*m_model);
+        }
+
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
     }
@@ -248,6 +256,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetName(goinfo->name);
 
     SetDisplayId(goinfo->displayId);
+    m_model = GameObjectModel::Create(*this);
 
     loot.SetSource(GetGUID());
 
@@ -2237,12 +2246,23 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
 
-    /// CRASH ALERT !!!!!
-    /// Enabled at 23/01/2015 can may server crash
     if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);
 
     m_model->enable(enable ? GetPhaseMask() : 0);
+}
+
+void GameObject::UpdateModelPosition()
+{
+    if (!m_model)
+        return;
+
+    if (GetMap()->ContainsGameObjectModel(*m_model))
+    {
+        GetMap()->RemoveGameObjectModel(*m_model);
+        m_model->Relocate(*this);
+        GetMap()->InsertGameObjectModel(*m_model);
+    }
 }
 
 void GameObject::UpdateModel()

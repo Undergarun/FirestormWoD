@@ -893,22 +893,25 @@ class npc_shang_xi_choose_faction : public CreatureScript
     public:
         npc_shang_xi_choose_faction() : CreatureScript("npc_shang_xi_choose_faction") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
-            if (creature->isQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
+            if (p_Creature->isQuestGiver())
+                p_Player->PrepareQuestMenu(p_Creature->GetGUID());
 
-            if (player->getRace() == RACE_PANDAREN_NEUTRAL)
+            if (p_Player->getRace() == RACE_PANDAREN_NEUTRAL)
             {
-                if (player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                if (p_Player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+                {
+                    p_Player->QuestObjectiveSatisfy(57741, 1);
+                    p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHOOSE_FACTION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                }
             }
-            else if (player->getRace() == RACE_PANDAREN_ALLI)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            else if (player->getRace() == RACE_PANDAREN_HORDE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            else if (p_Player->getRace() == RACE_PANDAREN_ALLI)
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_STORMIND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            else if (p_Player->getRace() == RACE_PANDAREN_HORDE)
+                p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TP_ORGRI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
-            player->PlayerTalkClass->SendGossipMenu(1, creature->GetGUID());
+            p_Player->PlayerTalkClass->SendGossipMenu(1, p_Creature->GetGUID());
             return true;
         }
 

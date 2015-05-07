@@ -67,7 +67,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
 #include "Guild.h"
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1162,24 +1162,24 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
-    {
-        auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
-        std::string l_SpeName = "";
-        if (l_Row != nullptr)
-            l_SpeName = l_Row->specializationName;
-
-        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::BattlegroundDealDamageWatcher>::Craft
-        (
-            GetGUIDLow(),
-            sWorld->GetRealmName(),
-            spellProto->Id,
-            damage,
-            getClass(),
-            getRace(),
-            l_SpeName
-        ));
-    }
+//     if (damage > 10000 && spellProto != nullptr && GetTypeId() == TYPEID_PLAYER && (ToPlayer()->InBattleground() || ToPlayer()->InArena()) && victim->GetTypeId() == TYPEID_PLAYER)
+//     {
+//         auto l_Row = sChrSpecializationsStore.LookupEntry(ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()));
+//         std::string l_SpeName = "";
+//         if (l_Row != nullptr)
+//             l_SpeName = l_Row->specializationName;
+// 
+//         sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::BattlegroundDealDamageWatcher>::Craft
+//                           (
+//                           GetGUIDLow(),
+//                           sWorld->GetRealmName(),
+//                           spellProto->Id,
+//                           damage,
+//                           getClass(),
+//                           getRace(),
+//                           l_SpeName
+//                           ));
+//     }
 
     DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
     victim->SetDamageTaken(dmgTaken);
@@ -1497,7 +1497,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
         damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     if (victim->GetTypeId() == TYPEID_PLAYER)
         damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
@@ -6799,7 +6799,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     }
                     else
                     {
-                        RemoveAura(48107);
+                        if (AuraPtr l_HeatingUp = this->GetAura(48107, this->GetGUID()))
+                            l_HeatingUp->SetDuration(500);
                         return false;
                     }
                 }
@@ -9626,6 +9627,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (!HasAura(48265))
+                return false;
+
+            break;
+        }
+        case 170877:///< Item Rogue WoD PvP Subtlety 4P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 1966)
                 return false;
 
             break;
@@ -13102,11 +13113,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         AddPct(DoneTotalMod, Mastery);
     }
-
-    // Sudden Death - 29725
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::OffAttack || spellProto))
-        if (roll_chance_i(10))
-            CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
 
     // 77219 - Mastery : Master Demonologist
     // Bonus damage for demon servants
@@ -16826,7 +16832,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         if (AuraPtr fingersOfFrost = GetAura(44544, GetGUID()))
             fingersOfFrost->ModStackAmount(-1);
         if (AuraPtr fingersVisual = GetAura(126084, GetGUID()))
-            fingersVisual->ModStackAmount(-1);
+            fingersVisual->Remove();
     }
 
     // Hack Fix Immolate - Critical strikes generate burning embers

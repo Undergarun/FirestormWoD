@@ -14,7 +14,6 @@ include_directories (
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/dep/StormLib/src
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
 )
 
 include_directories(${include_Dirs})

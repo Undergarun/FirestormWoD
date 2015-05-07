@@ -16,7 +16,7 @@
 
 #include <algorithm>
 
-#include <Reporting/Reporter.hpp>
+//#include <Reporting/Reporter.hpp>
 
 namespace BNet2 {
 
@@ -773,14 +773,14 @@ namespace BNet2 {
         if (!l_RealmRequested)
             return false;
 
-        sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::AuthChooseRealm>::Craft
-        (
-            m_AccountID,                    ///< AccountId
-            l_RealmRequested->name,         ///< Realm
-            l_PlateformName,                ///< ClientPlatform
-            m_Socket.getRemoteAddress(),    ///< IpToCountry
-            m_Locale                        ///< ClientLang
-        ));
+//         sReporter->Report(MS::Reporting::MakeReport<MS::Reporting::Opcodes::AuthChooseRealm>::Craft
+//         (
+//             m_AccountID,                    ///< AccountId
+//             l_RealmRequested->name,         ///< Realm
+//             l_PlateformName,                ///< ClientPlatform
+//             m_Socket.getRemoteAddress(),    ///< IpToCountry
+//             m_Locale                        ///< ClientLang
+//         ));
 
         /// User reporting
         /// Step Login (5)

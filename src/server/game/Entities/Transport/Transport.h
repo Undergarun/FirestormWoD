@@ -66,6 +66,7 @@ class Transport : public GameObject, public TransportBase
         void UnloadStaticPassengers();
 
         void EnableMovement(bool enabled);
+        void SetDelayedAddModelToMap() { _delayedAddModel = true; }
 
     private:
         void MoveToNextWaypoint();
@@ -93,6 +94,8 @@ class Transport : public GameObject, public TransportBase
 
         std::set<WorldObject*> _passengers;
         std::set<WorldObject*> _staticPassengers;
+
+        bool _delayedAddModel;
 };
 
 #endif

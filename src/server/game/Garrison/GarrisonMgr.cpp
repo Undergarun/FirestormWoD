@@ -209,7 +209,7 @@ namespace MS { namespace Garrison
                     l_Mission.StartTime         = l_Fields[4].GetUInt32();
                     l_Mission.State             = (MissionStates::Type)l_Fields[5].GetUInt32();
 
-                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress || l_Mission.State == MissionStates::CompleteSuccess)
+                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress)
                         m_Missions.push_back(l_Mission);
                     else
                     {
@@ -397,9 +397,9 @@ namespace MS { namespace Garrison
 
             if (l_CurrentAvailableMission > l_MaxMissionCount)
             {
-                m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+                m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [l_CurrentAvailableMission, l_MaxMissionCount](const GarrisonMission & p_Mission) -> bool
                 {
-                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0) && l_CurrentAvailableMission > l_MaxMissionCount)
                         return true;
 
                     return false;
@@ -3515,7 +3515,7 @@ namespace MS { namespace Garrison
         if ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval)
         {
             /// Random, no detail about how blizzard do
-            uint32 l_MaxMissionCount = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+            uint32 l_MaxMissionCount         = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
             uint32 l_CurrentAvailableMission = 0;
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -3544,9 +3544,9 @@ namespace MS { namespace Garrison
                     if (!l_Entry)
                         continue;
 
-                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_I](const GarrisonMission & p_Mission)
+                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
                     {
-                        return p_Mission.MissionID == l_I;
+                        return p_Mission.MissionID == l_Entry->MissionRecID;
                     });
 
                     if (l_Count)
@@ -3559,6 +3559,19 @@ namespace MS { namespace Garrison
                         continue;
 
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+                        continue;
+
+                    uint32 l_RewardCount = 0;
+                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+                    {
+                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+                        if (l_RewardEntry && l_RewardEntry->MissionID == l_Entry->MissionRecID)
+                            l_RewardCount++;
+                    }
+
+                    /// All missions should have a reward
+                    if (!l_RewardCount)
                         continue;
 
                     /// Max Level cap : 2

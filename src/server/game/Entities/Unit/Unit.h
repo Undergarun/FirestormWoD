@@ -2562,6 +2562,18 @@ class Unit : public WorldObject
         void setSimulacrumTarget(uint64 guid) { simulacrumTargetGUID = guid; }
         void removeSimulacrumTarget() { simulacrumTargetGUID = 0; }
 
+        // helper for Comet Storm
+        void SetAmountOfComets(uint32 amount) { m_AmountOfComets = amount; }
+        void SetCometStartCoordinateX(float X) { m_CometCoordinateX = X; }
+        void SetCometStartCoordinateY(float Y) { m_CometCoordinateY = Y; }
+        float GetCometStartCoordinateX() { return m_CometCoordinateX; }
+        float GetCometStartCoordinateY() { return m_CometCoordinateY; }
+        uint32 GetAmountOfComets() { return m_AmountOfComets; }
+
+        // helper for dispels cooldown
+        void SetDispelSuccessful(bool success) { m_IsDispelSuccessful = success; }
+        bool IsDispelSuccessful() { return m_IsDispelSuccessful; }
+
         // helpers for Icicles spells
         uint64 GetIciclesTarget() const { return iciclesTargetGUID; }
         void SetIciclesTarget(uint64 guid) { iciclesTargetGUID = guid; }
@@ -2736,6 +2748,10 @@ class Unit : public WorldObject
 
         uint64 simulacrumTargetGUID;
         uint64 iciclesTargetGUID;
+        uint32 m_AmountOfComets;
+        float m_CometCoordinateX;
+        float m_CometCoordinateY;
+        bool m_IsDispelSuccessful;
         bool psychicHorrorGainedPower;
 
         Diminishing m_Diminishing;

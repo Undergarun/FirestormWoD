@@ -109,10 +109,23 @@ class npc_world_invisible_trigger : public CreatureScript
                             if (l_Player->getLevel() < 90 || l_Player->isGameMaster())
                                 continue;
 
-                            if (l_Player->GetTeamId() == TEAM_ALLIANCE)
-                                l_Player->TeleportTo(1116, 2265.054f, 508.778f, 15.465f, l_Player->GetOrientation());
-                            else if (l_Player->GetTeamId() == TEAM_HORDE)
-                                l_Player->TeleportTo(1116, 5534.136f, 5017.660f, 12.676f, l_Player->GetOrientation());
+                            /// If Quest suit isn't done, tp to tanaan. If done, tp to faction respective Staging Area.
+                            if (l_Player->GetQuestStatus(34446) != QUEST_STATUS_REWARDED)
+                                l_Player->TeleportTo(1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                            else
+                            {
+                                switch (l_Player->GetTeamId())
+                                {
+                                    case TEAM_ALLIANCE:
+                                        l_Player->TeleportTo(1116, 3779.889f, -3888.14063f, 31.6778469f, 2.65f);
+                                        break;
+                                    case TEAM_HORDE:
+                                        l_Player->TeleportTo(1116, 5200.19f, -3910.11f, 1.30844f, 0.588f);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
                         }
                     }
                     else

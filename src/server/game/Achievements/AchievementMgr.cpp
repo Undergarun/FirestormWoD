@@ -42,6 +42,7 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Chat.h"
+#include "MapUpdater.h"
 
 namespace JadeCore
 {
@@ -1296,6 +1297,9 @@ template<> bool IsGuild<Guild>() { return true; }
 template<class T>
 void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit const* p_Unit /*= NULL*/, Player* p_ReferencePlayer /*= NULL*/)
 {
+    if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
+        return;
+
     if (p_Type >= ACHIEVEMENT_CRITERIA_TYPE_TOTAL)
     {
         sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "UpdateAchievementCriteria: Unknown criteria type [%u]", p_Type);
@@ -2982,11 +2986,11 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
     if (!l_Condition)
         return true;
 
-    ModifierTreeEntryList const* l_List = sAchievementMgr->GetModifierTreeByModifierId(l_Condition->ID);
-    if (!l_List)
+    ModifierTreeEntryList const& l_List = sAchievementMgr->GetModifierTreeByModifierId(l_Condition->ID);
+    if (l_List.empty())
         return true;
 
-    for (ModifierTreeEntryList::const_iterator l_Iter = l_List->begin(); l_Iter != l_List->end(); l_Iter++)
+    for (ModifierTreeEntryList::const_iterator l_Iter = l_List.begin(); l_Iter != l_List.end(); l_Iter++)
     {
         ModifierTreeEntry const* l_ModifierTree = (*l_Iter);
         uint32 l_ReqType = l_ModifierTree->Type;
@@ -3618,6 +3622,23 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         return;
     }
 
+    uint32 l_MaxParentID = 0;
+    for (uint32 l_EntryID = 0; l_EntryID < sCriteriaTreeStore.GetNumRows(); ++l_EntryID)
+    {
+        CriteriaTreeEntry const* l_CriteriaTree = sCriteriaTreeStore.LookupEntry(l_EntryID);
+        if (!l_CriteriaTree)
+            continue;
+
+        if (CriteriaTreeEntry const* l_Parent = sCriteriaTreeStore.LookupEntry(l_CriteriaTree->Parent))
+        {
+            if (l_Parent->ID > l_MaxParentID)
+                l_MaxParentID = l_Parent->ID;
+        }
+    }
+
+    m_SubCriteriaTreeListById.resize(l_MaxParentID + 1);
+    m_AchievementCriteriaTreeByCriteriaId.resize(sCriteriaStore.GetNumRows() + 1);
+
     for (uint32 l_EntryID = 0; l_EntryID < sCriteriaTreeStore.GetNumRows(); ++l_EntryID)
     {
         CriteriaTreeEntry const* l_CriteriaTree = sCriteriaTreeStore.LookupEntry(l_EntryID);
@@ -3633,6 +3654,19 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         m_AchievementCriteriaTreeByCriteriaId[l_CriteriaEntry->ID].push_back(l_CriteriaTree);
     }
+
+    uint32 l_MaxModifierTreeParent = 0;
+    for (uint32 l_EntryID = 0; l_EntryID < sModifierTreeStore.GetNumRows(); ++l_EntryID)
+    {
+        ModifierTreeEntry const* l_ModifierTree = sModifierTreeStore.LookupEntry(l_EntryID);
+        if (!l_ModifierTree)
+            continue;
+
+        if (l_ModifierTree->Parent > l_MaxModifierTreeParent)
+            l_MaxModifierTreeParent = l_ModifierTree->Parent;
+    }
+
+    m_ModifierTreeEntryByTreeId.resize(l_MaxModifierTreeParent + 1);
 
     for (uint32 l_EntryID = 0; l_EntryID < sModifierTreeStore.GetNumRows(); ++l_EntryID)
     {
@@ -3672,6 +3706,24 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         return;
     }
 
+    uint32 l_MaxCriteriaTree   = 0;
+    uint32 l_MaxSharesCriteria = 0;
+
+    for (uint32 l_EntryID = 0; l_EntryID < sAchievementStore.GetNumRows(); ++l_EntryID)
+    {
+        AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(l_EntryID);
+        if (!l_Achievement)
+            continue;
+
+        if (l_Achievement->CriteriaTree > l_MaxCriteriaTree)
+            l_MaxCriteriaTree = l_Achievement->CriteriaTree;
+
+        if (l_Achievement->SharesCriteria > l_MaxSharesCriteria)
+            l_MaxSharesCriteria = l_Achievement->SharesCriteria;
+    }
+
+    m_AchievementEntryByCriteriaTree.resize(l_MaxCriteriaTree + 1, nullptr);
+
     uint32 l_Counter = 0;
 
     for (uint32 l_EntryID = 0; l_EntryID < sAchievementStore.GetNumRows(); ++l_EntryID)
@@ -3687,6 +3739,17 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
         m_AchievementListByReferencedId[l_Achievement->SharesCriteria].push_back(l_Achievement);
         ++l_Counter;
+    }
+
+    m_AchievementEntryByCriteriaTreeId.resize(sCriteriaTreeStore.GetNumRows() + 1, nullptr);
+
+    for (uint32 l_Entry = 0; l_Entry < sCriteriaTreeStore.GetNumRows(); l_Entry++)
+    {
+        CriteriaTreeEntry const* l_CriteriaTree = sCriteriaTreeStore.LookupEntry(l_Entry);
+        if (l_CriteriaTree == nullptr)
+            continue;
+
+        m_AchievementEntryByCriteriaTreeId[l_CriteriaTree->ID] = _GetAchievementEntryByCriteriaTree(l_CriteriaTree);
     }
 
     // Once Bitten, Twice Shy (10 player) - Icecrown Citadel
@@ -3967,4 +4030,36 @@ bool AchievementMgr<T>::RequiresScript(CriteriaEntry const* p_Criteria)
         default:
             return false;
     }
+}
+
+void AchievementGlobalMgr::PrepareCriteriaUpdateTaskThread()
+{
+    AchievementCriteriaUpdateTask l_Task;
+    while (m_AchievementCriteriaUpdateTaskStoreQueue.next(l_Task))
+        m_AchievementCriteriaUpdateTaskProcessQueue.push(l_Task);
+}
+
+void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
+{
+    while (!m_AchievementCriteriaUpdateTaskProcessQueue.empty())
+    {
+        AchievementCriteriaUpdateTask& l_Task = m_AchievementCriteriaUpdateTaskProcessQueue.front();
+        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
+        m_AchievementCriteriaUpdateTaskProcessQueue.pop();
+    }
+}
+
+
+AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
+: m_Updater(p_Updater)
+{
+
+}
+
+int AchievementCriteriaUpdateRequest::call()
+{
+    sAchievementMgr->ProcessAllCriteriaUpdateTask();
+
+    m_Updater->_update_finished();
+    return 0;
 }

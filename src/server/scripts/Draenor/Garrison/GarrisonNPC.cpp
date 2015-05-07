@@ -224,8 +224,6 @@ namespace MS { namespace Garrison
     {
         if (!p_Player->GetGarrison())
             p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Create me a garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        else
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Delete my garrison.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
 
@@ -270,15 +268,8 @@ namespace MS { namespace Garrison
             /// HACK until shadowmoon quest are done : add follower Qiana Moonshadow / Olin Umberhide
             /// @Morgoporc Dont worry, this code will disappear
             p_Player->GetGarrison()->AddFollower(34);
-            p_Player->GetGarrison()->AddFollower(89);
+            p_Player->GetGarrison()->AddFollower(153);
             p_Player->GetGarrison()->AddFollower(92);
-        }
-        else
-        {
-            if (p_Player->HasCurrency(Globals::CurrencyID, 200))
-                p_Player->ModifyCurrency(Globals::CurrencyID, -200);
-
-            p_Player->DeleteGarrison();
         }
 
         return true;
