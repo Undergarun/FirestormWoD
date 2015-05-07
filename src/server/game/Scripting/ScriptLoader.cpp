@@ -859,6 +859,14 @@ void AddSC_boss_kargath_bladefist();
 void AddSC_boss_the_butcher();
 void AddSC_boss_brackenspore();
 
+/// Auchindon
+void AddSC_instance_auchindon();
+void AddSC_AuchindounNEW();
+void AddSC_kaathar();
+void AddSC_Nyami();
+void AddSC_azzakel();
+void AddSC_teronogoer();
+
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
 void AddSC_BattlegroundDGScripts();
@@ -1728,7 +1736,8 @@ void AddDraenorScripts()
     AddSC_Garrison_H2();
     AddSC_Garrison_H3();
     AddSC_Garrison();
-    /* Instance Skyreach*/
+
+    /// Instance Skyreach
     AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
     AddSC_spell_instance_skyreach();
@@ -1736,7 +1745,8 @@ void AddDraenorScripts()
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
     AddSC_boss_HighSaveViryx();
-    /* Instance Bloodmaul Slag Mines */
+
+    /// Instance Bloodmaul Slag Mines
     AddSC_instance_Bloodmaul();
     AddSC_mob_Bloodmaul();
     AddSC_spell_Bloodmaul();
@@ -1745,7 +1755,8 @@ void AddDraenorScripts()
     AddSC_boss_forgemaster_gogduh();
     AddSC_boss_roltall();
     AddSC_boss_gugrokk();
-    /* Iron Docks*/
+
+    /// Iron Docks
     AddSC_iron_docks_cpp();
     AddSC_instance_iron_docks();
     AddSC_boss_nokgar();
@@ -1759,6 +1770,14 @@ void AddDraenorScripts()
     AddSC_boss_kargath_bladefist();
     AddSC_boss_the_butcher();
     AddSC_boss_brackenspore();
+
+    /// Auchindoun
+    AddSC_instance_auchindon();
+    AddSC_AuchindounNEW();
+    AddSC_kaathar();
+    AddSC_Nyami();
+    AddSC_azzakel();
+    AddSC_teronogoer();
 
     /// Battlegrounds strongbox
     AddSC_item_strongboxes();

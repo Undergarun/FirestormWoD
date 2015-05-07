@@ -47,6 +47,13 @@ set(scripts_STAT_SRCS
   Draenor/IronDocks/iron_docks.cpp
   Draenor/IronDocks/iron_docks.h
   Draenor/IronDocks/skulloc.cpp
+  Draenor/Auchindoun/auchindon.cpp
+  Draenor/Auchindoun/auchindon.h
+  Draenor/Auchindoun/boss_azakael.cpp
+  Draenor/Auchindoun/boss_kaathar.cpp
+  Draenor/Auchindoun/boss_nyami.cpp
+  Draenor/Auchindoun/boss_teronogor.cpp
+  Draenor/Auchindoun/instance_auchindon.cpp
 )
 
 message("  -> Prepared: Draenor")
