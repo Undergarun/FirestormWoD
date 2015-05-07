@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,6 +34,8 @@ using G3D::Vector3;
 using G3D::Ray;
 using G3D::AABox;
 
+#define SPAWN_CORNERS 1
+
 struct GameobjectModelData
 {
     GameobjectModelData(const std::string& name_, const AABox& box) :
@@ -43,7 +45,7 @@ struct GameobjectModelData
     std::string name;
 };
 
-typedef UNORDERED_MAP<uint32, GameobjectModelData> ModelList;
+typedef std::unordered_map<uint32, GameobjectModelData> ModelList;
 ModelList model_list;
 
 void LoadGameObjectModelList()
@@ -74,8 +76,14 @@ void LoadGameObjectModelList()
             || fread(&v1, sizeof(Vector3), 1, model_list_file) != 1
             || fread(&v2, sizeof(Vector3), 1, model_list_file) != 1)
         {
-            sLog->outError(LOG_FILTER_MAPS, "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
+            sLog->outDebug(LOG_FILTER_MAPS, "File '%s' seems to be corrupted!", VMAP::GAMEOBJECT_MODELS);
             break;
+        }
+
+        if (v1.isNaN() || v2.isNaN())
+        {
+            sLog->outDebug(LOG_FILTER_MAPS, "File '%s' Model '%s' has invalid v1%s v2%s values!", VMAP::GAMEOBJECT_MODELS, std::string(buff, name_length).c_str(), v1.toString().c_str(), v2.toString().c_str());
+            continue;
         }
 
         model_list.insert
@@ -85,7 +93,7 @@ void LoadGameObjectModelList()
     }
 
     fclose(model_list_file);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outDebug(LOG_FILTER_MAPS, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectModel::~GameObjectModel()
@@ -119,7 +127,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     //ID = 0;
     iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
     phasemask = go.GetPhaseMask();
-    iScale = go.GetUInt32Value(OBJECT_FIELD_SCALE);
+    iScale = go.GetFloatValue(OBJECT_FIELD_SCALE);
     iInvScale = 1.f / iScale;
 
     G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
@@ -130,20 +138,21 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 
-    this->iBound = rotated_bounds + iPos;
+    iBound = rotated_bounds + iPos;
 #ifdef SPAWN_CORNERS
     // test:
     for (int i = 0; i < 8; ++i)
     {
         Vector3 pos(iBound.corner(i));
-        if (Creature* c = const_cast<GameObject&>(go).SummonCreature(24440, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN))
-        {
-            c->setFaction(35);
-            c->SetObjectScale(0.1f);
-        }
+        Position l_PosSpawn;
+        l_PosSpawn.m_positionX = pos.x;
+        l_PosSpawn.m_positionY = pos.y;
+        l_PosSpawn.m_positionZ = pos.z;
+        go.SummonCreature((uint32)1, l_PosSpawn, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
     }
 #endif
 
+    owner = &go;
     return true;
 }
 
@@ -165,11 +174,11 @@ GameObjectModel* GameObjectModel::Create(const GameObject& go)
 
 bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
 {
-    if (!(phasemask & ph_mask) || !iModel)
+    if (!(phasemask & ph_mask) || !owner->isSpawned())
         return false;
 
     float time = ray.intersectionTime(iBound);
-    if (time == G3D::inf())
+    if (time == G3D::finf())
         return false;
 
     // child bounds are defined in object space:
@@ -183,4 +192,48 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
         MaxDist = distance;
     }
     return hit;
+}
+
+bool GameObjectModel::Relocate(const GameObject& go)
+{
+    if (!iModel)
+        return false;
+
+    ModelList::const_iterator it = model_list.find(go.GetDisplayId());
+    if (it == model_list.end())
+        return false;
+
+    G3D::AABox mdl_box(it->second.bound);
+    // ignore models with no bounds
+    if (mdl_box == G3D::AABox::zero())
+    {
+        sLog->outError(LOG_FILTER_MAPS, "GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
+        return false;
+    }
+
+    iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
+
+    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
+    iInvRot = iRotation.inverse();
+    // transform bounding box:
+    mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
+    AABox rotated_bounds;
+    for (int i = 0; i < 8; ++i)
+        rotated_bounds.merge(iRotation * mdl_box.corner(i));
+
+    iBound = rotated_bounds + iPos;
+#ifdef SPAWN_CORNERS
+    // test:
+    for (int i = 0; i < 8; ++i)
+    {
+        Vector3 pos(iBound.corner(i));
+        Position l_PosSpawn;
+        l_PosSpawn.m_positionX = pos.x;
+        l_PosSpawn.m_positionY = pos.y;
+        l_PosSpawn.m_positionZ = pos.z;
+        go.SummonCreature((uint32)1, l_PosSpawn, (TempSummonType)TEMPSUMMON_MANUAL_DESPAWN);
+    }
+#endif
+
+    return true;
 }
