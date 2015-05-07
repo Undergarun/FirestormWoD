@@ -609,7 +609,7 @@ int Master::Run()
     #endif /* _WIN32 */
 
     ///- Launch WorldRunnable thread
-    ACE_Based::Thread world_thread(new WorldRunnable);
+    ACE_Based::Thread world_thread(new WorldRunnable, "WorldRunnable");
     world_thread.setPriority(ACE_Based::Highest);
 
     ACE_Based::Thread* cliThread = NULL;
@@ -621,14 +621,14 @@ int Master::Run()
 #endif
     {
         ///- Launch CliRunnable thread
-        cliThread = new ACE_Based::Thread(new CliRunnable);
+        cliThread = new ACE_Based::Thread(new CliRunnable, "CliRunnable");
     }
 
-    ACE_Based::Thread rar_thread(new RARunnable);
-    ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable);
-    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
-    ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable);
-    //ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable);
+    ACE_Based::Thread rar_thread(new RARunnable, "RARunnable");
+    ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable, "GmLogToDBRunnable");
+    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable, "GmChatLogToDBRunnable");
+    ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable, "ArenaLogToDBRunnable");
+    //ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable, "CharactersTransfertRunnable");
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
@@ -678,7 +678,7 @@ int Master::Run()
     {
         TCSoapRunnable* runnable = new TCSoapRunnable();
         runnable->setListenArguments(ConfigMgr::GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(ConfigMgr::GetIntDefault("SOAP.Port", 7878)));
-        soap_thread = new ACE_Based::Thread(runnable);
+        soap_thread = new ACE_Based::Thread(runnable, "SoapRunnable");
     }
 
     ///- Start up freeze catcher thread
@@ -686,7 +686,7 @@ int Master::Run()
     {
         FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay * 1000);
-        ACE_Based::Thread freeze_thread(fdr);
+        ACE_Based::Thread freeze_thread(fdr, "FreezeDetector");
         freeze_thread.setPriority(ACE_Based::Highest);
     }
 

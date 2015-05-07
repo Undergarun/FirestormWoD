@@ -1,36 +1,16 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
- * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-
 #ifndef DBCFILE_H
 #define DBCFILE_H
 #include <cassert>
 #include <string>
-#include "StormLib.h"
 
 class DBCFile
 {
     public:
-        DBCFile(HANDLE file);
+        DBCFile(std::string p_FileName);
         ~DBCFile();
 
         // Open database. It must be openened before it can be used.
-        bool open();
+        virtual bool open();
 
         // Database exceptions
         class Exception
@@ -60,7 +40,7 @@ class DBCFile
                     return *reinterpret_cast<float*>(offset + field * 4);
                 }
 
-                unsigned int getUInt(size_t field) const
+                unsigned int GetUInt(size_t field) const
                 {
                     assert(field < file._fieldCount);
                     return *reinterpret_cast<unsigned int*>(offset + field * 4);
@@ -72,10 +52,10 @@ class DBCFile
                     return *reinterpret_cast<int*>(offset + field * 4);
                 }
 
-                char const* getString(size_t field) const
+                char const* GetString(size_t field) const
                 {
                     assert(field < file._fieldCount);
-                    size_t stringOffset = getUInt(field);
+                    size_t stringOffset = GetUInt(field);
                     assert(stringOffset < file._stringSize);
                     return reinterpret_cast<char*>(file._stringTable + stringOffset);
                 }
@@ -87,6 +67,8 @@ class DBCFile
 
                 friend class DBCFile;
                 friend class DBCFile::Iterator;
+
+				Record& operator=(Record const& right);
         };
         /** Iterator that iterates over records
         */
@@ -119,27 +101,29 @@ class DBCFile
 
             private:
                 Record record;
+
+				Iterator& operator=(Iterator const& right);
         };
 
         // Get record by id
-        Record getRecord(size_t id);
+        Record GetRecord(size_t id);
         /// Get begin iterator over records
         Iterator begin();
         /// Get begin iterator over records
         Iterator end();
         /// Trivial
-        size_t getRecordCount() const { return _recordCount; }
+        size_t GetRecordCount() const { return _recordCount; }
         size_t getFieldCount() const { return _fieldCount; }
-        size_t getMaxId();
+        size_t GetMaxId();
 
-    private:
-        HANDLE _file;
+    protected:
         size_t _recordSize;
         size_t _recordCount;
         size_t _fieldCount;
         size_t _stringSize;
         unsigned char* _data;
         unsigned char* _stringTable;
+        std::string m_FileName;
 };
 
 #endif

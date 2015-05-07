@@ -114,10 +114,106 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_IMMUNATE            = 91264,
     SPELL_MAGE_LIVING_BOMB                       = 44457,
     SPELL_MAGE_CHILLED                           = 12486,
+    SPELL_SHAMAN_HEX                             = 51514,
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS             = 165977,
     SPELL_MAGE_WOD_PVP_FIRE_2P_BONUS_EFFECT      = 165979,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS             = 171169,
     SPELL_MAGE_WOD_PVP_FIRE_4P_BONUS_EFFECT      = 171170
+};
+
+/// Item - Mage WoD PvP Frost 2P Bonus - 180723
+class spell_areatrigger_mage_wod_frost_2p_bonus : public AreaTriggerEntityScript
+{
+public:
+    spell_areatrigger_mage_wod_frost_2p_bonus()
+        : AreaTriggerEntityScript("at_mage_wod_frost_2p_bonus")
+    {
+    }
+
+    enum eSpells
+    {
+        SlickIce = 180724
+    };
+
+    AreaTriggerEntityScript* GetAI() const
+    {
+        return new spell_areatrigger_mage_wod_frost_2p_bonus();
+    }
+
+    void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 20.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+        {
+            if (itr->GetDistance(p_AreaTrigger) <= 6.0f)
+                l_Caster->CastSpell(itr, eSpells::SlickIce, true);
+            else
+                itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
+        }
+    }
+
+    void OnRemove(AreaTrigger* p_AreaTrigger, uint32 /*p_Time*/)
+    {
+        std::list<Unit*> targetList;
+        float l_Radius = 10.0f;
+        Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+        JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+        JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> searcher(p_AreaTrigger, targetList, u_check);
+        p_AreaTrigger->VisitNearbyObject(l_Radius, searcher);
+
+        for (auto itr : targetList)
+        {
+            if (itr->HasAura(eSpells::SlickIce, l_Caster->GetGUID()))
+                itr->RemoveAura(eSpells::SlickIce, l_Caster->GetGUID());
+        }
+    }
+};
+
+/// Arcane Orb - 153626
+class spell_areatrigger_arcane_orb : public AreaTriggerEntityScript
+{
+    public:
+        spell_areatrigger_arcane_orb() : AreaTriggerEntityScript("spell_areatrigger_arcane_orb") { }
+
+        enum eArcaneOrbSpell
+        {
+            ArcaneOrbDamage = 153640
+        };
+
+        void OnCreate(AreaTrigger* p_AreaTrigger)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                l_Caster->CastSpell(l_Caster, SPELL_MAGE_ARCANE_CHARGE, true);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 2.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                    l_Caster->CastSpell(l_Unit, eArcaneOrbSpell::ArcaneOrbDamage, true);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_areatrigger_arcane_orb();
+        }
 };
 
 /// Arcane Charge - 36032
@@ -2518,6 +2614,11 @@ class PlayerScript_rapid_teleportation : public PlayerScript
 
 void AddSC_mage_spell_scripts()
 {
+    /// AreaTriggers
+    new spell_areatrigger_mage_wod_frost_2p_bonus();
+    new spell_areatrigger_arcane_orb();
+
+    /// Spells
     new spell_mage_arcane_charge();
     new spell_mage_meteor();
     new spell_mage_comet_storm();

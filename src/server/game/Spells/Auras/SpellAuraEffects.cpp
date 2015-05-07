@@ -2923,7 +2923,7 @@ void AuraEffect::HandleAuraCloneCaster(AuraApplication const* aurApp, uint8 mode
 
         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, l_MainHand);
         target->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + 1, l_OffHand);
-        //target->SetObjectScale(caster->GetFloatValue(OBJECT_FIELD_SCALE)); // we need retail info about how scaling is handled (aura maybe?)
+
     }
     else
     {

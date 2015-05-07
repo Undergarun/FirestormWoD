@@ -1110,7 +1110,9 @@ void WorldSession::HandleAcceptWarGameInvite(WorldPacket& p_Packet)
     {
         uint32 l_BlacklistMap[2] = { 0, 0 };
 
-        auto l_GroupQueueInfo = l_Scheduler.AddGroup(m_Player, p_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, l_ArenaType, false, 0, 0, false);
+        Player* l_Leader = sObjectAccessor->FindPlayer(p_Group->GetLeaderGUID());
+
+        auto l_GroupQueueInfo = l_Scheduler.AddGroup(l_Leader, p_Group, l_BGQueueTypeID, l_BlacklistMap, l_BracketEntry, l_ArenaType, false, 0, 0, false);
         uint32 l_AvgTime      = l_InviationMgr.GetAverageQueueWaitTime(l_GroupQueueInfo, l_BracketEntry->m_Id);
 
         for (GroupReference * l_It = p_Group->GetFirstMember(); l_It != NULL; l_It = l_It->next())

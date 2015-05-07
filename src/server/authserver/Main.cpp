@@ -118,6 +118,8 @@ void RegisterBNet2WoWModules()
 // Launch the auth server
 extern int main(int argc, char **argv)
 {
+    ACE_Based::Thread::current()->setName("MainThread");
+
     // Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_REALM_CONFIG;
     int c = 1;
