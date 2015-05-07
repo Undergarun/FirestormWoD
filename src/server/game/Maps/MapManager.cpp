@@ -33,6 +33,7 @@
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
+#include <thread>
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
@@ -281,6 +282,15 @@ void MapManager::Update(uint32 diff)
     if (!i_timer.Passed())
         return;
 
+    /// - Start Achievement criteria update processing thread
+    sAchievementMgr->PrepareCriteriaUpdateTaskThread();
+
+    auto l_AchivementCriteriaUpdateThread = std::thread([]() -> void
+    {
+        sAchievementMgr->ProcessAllCriteriaUpdateTask();
+    });
+
+    /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();
     for (; iter != i_maps.end(); ++iter)
     {
@@ -289,8 +299,11 @@ void MapManager::Update(uint32 diff)
         else
             iter->second->Update(uint32(i_timer.GetCurrent()));
     }
+
     if (m_updater.activated())
         m_updater.wait();
+
+    l_AchivementCriteriaUpdateThread.join();
 
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));

@@ -964,7 +964,7 @@ bool AuthSocket::_HandleXferResume()
     socket().recv((char*)&start, sizeof(start));
     fseek(pPatch, long(start), 0);
 
-    ACE_Based::Thread u(new PatcherRunnable(this));
+    ACE_Based::Thread u(new PatcherRunnable(this), "PatcherRunnable");
     return true;
 }
 
@@ -996,7 +996,7 @@ bool AuthSocket::_HandleXferAccept()
     socket().recv_skip(1);                                         // clear input buffer
     fseek(pPatch, 0, 0);
 
-    ACE_Based::Thread u(new PatcherRunnable(this));
+    ACE_Based::Thread u(new PatcherRunnable(this), "PatcherRunnable");
     return true;
 }
 
