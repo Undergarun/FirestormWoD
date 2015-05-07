@@ -51,7 +51,7 @@ ModelList model_list;
 void LoadGameObjectModelList()
 {
 #ifndef NO_CORE_FUNCS
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 #endif
 
     FILE* model_list_file = fopen((sWorld->GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
@@ -93,7 +93,7 @@ void LoadGameObjectModelList()
     }
 
     fclose(model_list_file);
-    sLog->outDebug(LOG_FILTER_MAPS, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outDebug(LOG_FILTER_MAPS, ">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetClockDiffToNow(oldMSTime));
 }
 
 GameObjectModel::~GameObjectModel()

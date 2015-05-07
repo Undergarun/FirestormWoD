@@ -31,7 +31,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Cleaning character database...");
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // check flags which clean ups are necessary
     QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry = 20004");
@@ -59,7 +59,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     sWorld->SetCleaningFlags(flags);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Cleaned character database in %u ms", GetClockDiffToNow(oldMSTime));
 
 }
 

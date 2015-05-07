@@ -51,7 +51,7 @@ SkillExtraItemMap SkillExtraItemStore;
 // loads the extra item creation info from DB
 void LoadSkillExtraItemTable()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     SkillExtraItemStore.clear();                            // need for reload
 
@@ -110,7 +110,7 @@ void LoadSkillExtraItemTable()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell specialization definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 

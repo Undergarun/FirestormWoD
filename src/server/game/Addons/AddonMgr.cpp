@@ -38,7 +38,7 @@ namespace
 
 void LoadFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
     if (!result)
@@ -63,7 +63,7 @@ void LoadFromDB()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u known addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u known addons in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 

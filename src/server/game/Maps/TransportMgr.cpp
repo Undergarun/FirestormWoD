@@ -47,7 +47,7 @@ void TransportMgr::Unload()
 
 void TransportMgr::LoadTransportTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
 
@@ -87,7 +87,7 @@ void TransportMgr::LoadTransportTemplates()
         ++count;
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u transport templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u transport templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
@@ -390,7 +390,7 @@ void TransportMgr::SpawnContinentTransports()
     if (_transportTemplates.empty())
         return;
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT guid, entry FROM transports");
 
@@ -411,7 +411,7 @@ void TransportMgr::SpawnContinentTransports()
         } while (result->NextRow());
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Spawned %u continent transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Spawned %u continent transports in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void TransportMgr::CreateInstanceTransports(Map* map)

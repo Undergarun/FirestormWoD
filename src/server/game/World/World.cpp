@@ -1451,7 +1451,7 @@ extern void LoadGameObjectModelList();
 void World::SetInitialWorldSettings()
 {
     ///- Server startup begin
-    uint32 startupBegin = getMSTime();
+    uint32 startupBegin = GetClock();
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
@@ -1552,7 +1552,7 @@ void World::SetInitialWorldSettings()
     sInstanceSaveMgr->LoadInstances();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
     sObjectMgr->LoadItemLocales();
@@ -1563,7 +1563,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPointOfInterestLocales();
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetClockDiffToNow(oldMSTime));
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
@@ -2158,7 +2158,7 @@ void World::SetInitialWorldSettings()
 
     PlayerDump::LoadColumnsName();
 
-    uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
+    uint32 startupDuration = GetClockDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
     sLog->EnableDBAppenders();
@@ -2237,7 +2237,7 @@ void World::RecordTimeDiff(const char *text, ...)
 
 void World::LoadAutobroadcasts()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     m_Autobroadcasts.clear();
 
@@ -2264,7 +2264,7 @@ void World::LoadAutobroadcasts()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcasts definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 
@@ -3696,7 +3696,7 @@ void World::UpdateAreaDependentAuras()
 
 void World::LoadWorldStates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
 
@@ -3717,8 +3717,7 @@ void World::LoadWorldStates()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 // Setting a worldstate will save it to DB

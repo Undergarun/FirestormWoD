@@ -99,7 +99,7 @@ BlackMarketMgr::~BlackMarketMgr()
 
 void BlackMarketMgr::LoadTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_BLACKMARKET_TEMPLATE);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -131,12 +131,12 @@ void BlackMarketMgr::LoadTemplates()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BlackMarket templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BlackMarket templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::LoadAuctions()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BLACKMARKET_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -170,7 +170,7 @@ void BlackMarketMgr::LoadAuctions()
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BlackMarket Auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BlackMarket Auctions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::Update()

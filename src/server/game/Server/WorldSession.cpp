@@ -299,7 +299,7 @@ struct OpcodeInfo
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
-    uint32 sessionDiff = getMSTime();
+    uint32 sessionDiff = GetClock();
     uint32 nbPacket = 0;
     std::map<uint32, OpcodeInfo> pktHandle; // opcodeId / OpcodeInfo
 
@@ -380,7 +380,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             _recvQueue.next(packet, updater))
     {
         const OpcodeHandler* opHandle = g_OpcodeTable[WOW_CLIENT_TO_SERVER][packet->GetOpcode()];
-        uint32 pktTime = getMSTime();
+        uint32 pktTime = GetClock();
 
         try
         {
@@ -479,12 +479,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
         std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(packet->GetOpcode());
         if (itr == pktHandle.end())
-            pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, getMSTime() - pktTime)));
+            pktHandle.insert(std::make_pair(packet->GetOpcode(), OpcodeInfo(1, GetClockDiffToNow(pktTime))));
         else
         {
             OpcodeInfo& data = (*itr).second;
             data.nbPkt += 1;
-            data.totalTime += getMSTime() - pktTime;
+            data.totalTime += GetClockDiffToNow(pktTime);
         }
 
 
@@ -528,7 +528,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             return false;                                       //Will remove this session from the world session map
     }
 
-    sessionDiff = getMSTime() - sessionDiff;
+    sessionDiff = GetClockDiffToNow(sessionDiff);
     if (sessionDiff > 100)
     {
         std::map<uint32, OpcodeInfo>::iterator itr = pktHandle.find(CMSG_ADD_FRIEND);
@@ -1293,8 +1293,8 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
-    uint32 l_StartTime = getMSTime();
-    std::vector<uint32> l_Times;
+    uint32 l_StartTime = GetClock();
+    std::vector<std::pair<uint8, uint32>> l_Times;
 
     PreparedQueryResult result;
 
@@ -1344,7 +1344,7 @@ void WorldSession::ProcessQueryCallbacks()
         }
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(0, GetClockDiffToNow(l_Times.back().second)));
 
     //! HandleCharEnumOpcode
     if (m_CharEnumCallback.ready())
@@ -1354,7 +1354,7 @@ void WorldSession::ProcessQueryCallbacks()
         m_CharEnumCallback.cancel();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(1, GetClockDiffToNow(l_Times.back().second)));
 
     if (_charCreateCallback.IsReady())
     {
@@ -1363,7 +1363,7 @@ void WorldSession::ProcessQueryCallbacks()
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(2, GetClockDiffToNow(l_Times.back().second)));
 
     //! HandlePlayerLoginOpcode
     if (m_CharacterLoginCallback.ready() && m_CharacterLoginDBCallback.ready())
@@ -1377,8 +1377,7 @@ void WorldSession::ProcessQueryCallbacks()
         m_CharacterLoginDBCallback.cancel();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(std::make_pair<uint8, uint32>(3, GetClockDiffToNow(l_Times.back().second)));
 
     //! HandleAddFriendOpcode
     if (_addFriendCallback.IsReady())
@@ -1389,7 +1388,7 @@ void WorldSession::ProcessQueryCallbacks()
         _addFriendCallback.FreeResult();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(4, GetClockDiffToNow(l_Times.back().second)));
 
     //- HandleCharRenameOpcode
     if (_charRenameCallback.IsReady())
@@ -1400,7 +1399,7 @@ void WorldSession::ProcessQueryCallbacks()
         _charRenameCallback.FreeResult();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(5, GetClockDiffToNow(l_Times.back().second)));
 
     //- HandleCharAddIgnoreOpcode
     if (m_AddIgnoreCallback.ready())
@@ -1410,7 +1409,7 @@ void WorldSession::ProcessQueryCallbacks()
         m_AddIgnoreCallback.cancel();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(6, GetClockDiffToNow(l_Times.back().second)));
 
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
@@ -1421,7 +1420,7 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(std::make_pair<uint8, uint32>(7, GetClockDiffToNow(l_Times.back().second)));
 
     //- HandleStableSwapPet
     if (_setPetSlotCallback.IsReady())
@@ -1432,18 +1431,30 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.FreeResult();
     }
 
-    uint32 l_EndTime = getMSTime() - l_StartTime;
+    l_Times.push_back(std::make_pair<uint8, uint32>(7, GetClockDiffToNow(l_Times.back().second)));
+
+    uint32 l_EndTime = GetClockDiffToNow(l_StartTime);
 
     if (l_EndTime > 80)
     {
         sLog->outAshran("ProcessQueryCallbacks take more than 80 ms to execute for account [%u]", GetAccountId());
 
-        uint32 l_Idx = 0;
+        static char * l_Names[] = {
+            { "Vote"                        },
+            { "HandleCharEnumOpcode"        },
+            { "charCreateCallback"          },
+            { "HandlePlayerLoginOpcode"     },
+            { "HandleAddFriendOpcode"       },
+            { "HandleCharRenameOpcode"      },
+            { "HandleCharAddIgnoreOpcode"   },
+            { "SendStabledPet"              },
+            { "HandleStableSwapPet"         }
+        };
+
+        uint32 l_CharCount = sizeof(l_Names) / sizeof(l_Names[0]);
+
         for (auto l_DiffTime : l_Times)
-        {
-            sLog->outAshran("[%u] -----> (%u ms)", l_Idx, l_DiffTime);
-            l_Idx++;
-        }
+            sLog->outAshran("[%s] -----> (%u ms)", l_DiffTime.first > l_CharCount ? std::to_string(l_DiffTime.first).c_str() : l_Names[l_DiffTime.first], l_DiffTime.second);
     }
 }
 

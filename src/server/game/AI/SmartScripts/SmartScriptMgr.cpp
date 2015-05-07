@@ -33,7 +33,7 @@
 
 void SmartWaypointMgr::LoadFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     for (UNORDERED_MAP<uint32, WPPath*>::iterator itr = waypoint_map.begin(); itr != waypoint_map.end(); ++itr)
     {
@@ -88,7 +88,7 @@ void SmartWaypointMgr::LoadFromDB()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetClockDiffToNow(oldMSTime));
 
 }
 
@@ -107,7 +107,7 @@ SmartWaypointMgr::~SmartWaypointMgr()
 
 void SmartAIMgr::LoadSmartAIFromDB()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
@@ -234,7 +234,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u SmartAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u SmartAI scripts in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 

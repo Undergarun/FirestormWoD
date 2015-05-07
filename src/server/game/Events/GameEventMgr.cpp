@@ -206,7 +206,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 void GameEventMgr::LoadFromDB()
 {
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
                                                 //       1           2                           3                         4          5       6        7            8
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, description, world_event FROM game_event");
         if (!result)
@@ -262,13 +262,13 @@ void GameEventMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game events in %u ms", count, GetClockDiffToNow(oldMSTime));
 
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Saves Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                       0       1        2
         QueryResult result = CharacterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save");
@@ -308,14 +308,14 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event saves in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
 
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Prerequisite Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                   0             1
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
@@ -359,14 +359,14 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event prerequisites in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game event prerequisites in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
 
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Creature Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                       1                2
         QueryResult result = WorldDatabase.Query("SELECT creature.guid, game_event_creature.eventEntry FROM creature"
@@ -402,14 +402,14 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
 
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event GO Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                      0                1
         QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, game_event_gameobject.eventEntry FROM gameobject"
@@ -445,13 +445,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobjects in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobjects in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Model/Equipment Change Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                       0           1                       2                                 3                                     4
         QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
@@ -502,13 +502,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u model/equipment changes in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u model/equipment changes in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Quest Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                               0     1      2
         QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
@@ -541,13 +541,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event GO Quest Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                               0     1      2
         QueryResult result = WorldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
@@ -580,13 +580,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Quest Condition Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                 0       1         2             3
         QueryResult result = WorldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
@@ -621,13 +621,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest event conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest event conditions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Condition Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                  0          1            2             3                      4
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
@@ -661,13 +661,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Condition Save Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                      0           1         2
         QueryResult result = CharacterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
@@ -707,13 +707,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u condition saves in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u condition saves in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event NPCflag Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                0       1        2
         QueryResult result = WorldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
@@ -745,13 +745,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npcflags in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npcflags in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Seasonal Quest Relations...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                  0          1
         QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
@@ -787,13 +787,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests additions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Vendor Additions Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                    0        1    2       3         4          5          6
         QueryResult result = WorldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type FROM game_event_npc_vendor ORDER BY guid, slot ASC");
@@ -850,13 +850,13 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u vendor additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u vendor additions in game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Pool Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                               0                         1
         QueryResult result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template"
@@ -897,7 +897,7 @@ void GameEventMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pools for game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pools for game events in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 }

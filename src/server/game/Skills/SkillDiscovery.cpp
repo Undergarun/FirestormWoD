@@ -46,7 +46,7 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     SkillDiscoveryStore.clear();                            // need for reload
 
@@ -163,7 +163,7 @@ void LoadSkillDiscoveryTable()
             sLog->outError(LOG_FILTER_SQL, "Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table", spell_id);
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u skill discovery definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u skill discovery definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 

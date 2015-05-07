@@ -303,7 +303,7 @@ void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, Str
 
 void ObjectMgr::LoadCreatureLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _creatureLocaleStore.clear();                              // need for reload case
 
@@ -330,12 +330,12 @@ void ObjectMgr::LoadCreatureLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu creature locale strings in %u ms", (unsigned long)_creatureLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu creature locale strings in %u ms", (unsigned long)_creatureLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGossipMenuItemsLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
@@ -368,12 +368,12 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gossip_menu_option locale strings in %u ms", (unsigned long)_gossipMenuItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gossip_menu_option locale strings in %u ms", (unsigned long)_gossipMenuItemsLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPointOfInterestLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _pointOfInterestLocaleStore.clear();                              // need for reload case
 
@@ -395,12 +395,12 @@ void ObjectMgr::LoadPointOfInterestLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu points_of_interest locale strings in %u ms", (unsigned long)_pointOfInterestLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu points_of_interest locale strings in %u ms", (unsigned long)_pointOfInterestLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0           1          2           3          4       5
     QueryResult result = WorldDatabase.Query("SELECT entry, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, "
@@ -531,12 +531,12 @@ void ObjectMgr::LoadCreatureTemplates()
     //for (CreatureTemplateContainer::const_iterator itr = _creatureTemplateStore.begin(); itr != _creatureTemplateStore.end(); ++itr)
     //    CheckCreatureTemplate(&itr->second);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplatesDifficulties()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     //                                                  0           1          2
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, CONVERT(difficulty, UNSIGNED), difficulty_entry FROM creature_template_difficulty");
@@ -577,7 +577,7 @@ void ObjectMgr::LoadCreatureTemplatesDifficulties()
 
 void ObjectMgr::LoadCreatureTemplateAddons()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     ///                                                0       1       2      3       4       5      6       7
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, path_id, mount, bytes1, bytes2, emote, auras, animkit FROM creature_template_addon");
@@ -631,7 +631,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature template addons in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature template addons in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
@@ -947,7 +947,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 
 void ObjectMgr::LoadCreatureAddons()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     ///                                                0      1       2      3       4       5      6       7
     QueryResult l_Result = WorldDatabase.Query("SELECT guid, path_id, mount, bytes1, bytes2, emote, auras, animkit FROM creature_addon");
@@ -1005,7 +1005,7 @@ void ObjectMgr::LoadCreatureAddons()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature addons in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature addons in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 CreatureAddon const* ObjectMgr::GetCreatureAddon(uint32 lowguid)
@@ -1054,7 +1054,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 p_Entry, int8& p_ID)
 
 void ObjectMgr::LoadEquipmentTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0     1       2           3           4
     QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
@@ -1127,7 +1127,7 @@ void ObjectMgr::LoadEquipmentTemplates()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u equipment templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u equipment templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId)
@@ -1210,7 +1210,7 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* display
 
 void ObjectMgr::LoadCreatureModelInfo()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT modelid, bounding_radius, combat_reach, gender, modelid_other_gender FROM creature_model_info");
 
@@ -1260,12 +1260,12 @@ void ObjectMgr::LoadCreatureModelInfo()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature model based info in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature model based info in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadLinkedRespawn()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _linkedRespawnStore.clear();
     //                                                 0        1          2
@@ -1445,7 +1445,7 @@ void ObjectMgr::LoadLinkedRespawn()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(_linkedRespawnStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(_linkedRespawnStore.size()), GetClockDiffToNow(oldMSTime));
 }
 
 bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
@@ -1492,7 +1492,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
 
 void ObjectMgr::LoadTempSummons()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                               0           1             2        3      4           5           6           7            8           9
     QueryResult result = WorldDatabase.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
@@ -1573,12 +1573,12 @@ void ObjectMgr::LoadTempSummons()
 
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u temp summons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u temp summons in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatures()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
@@ -1733,7 +1733,7 @@ void ObjectMgr::LoadCreatures()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
@@ -1912,7 +1912,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
 
 void ObjectMgr::LoadGameobjects()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     uint32 count = 0;
 
@@ -2061,7 +2061,7 @@ void ObjectMgr::LoadGameobjects()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gameobjects in %u ms", (unsigned long)_gameObjectDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gameobjects in %u ms", (unsigned long)_gameObjectDataStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
@@ -2204,7 +2204,7 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
 
 void ObjectMgr::LoadItemLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _itemLocaleStore.clear();                                 // need for reload case
 
@@ -2230,12 +2230,12 @@ void ObjectMgr::LoadItemLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadRealmCompletedChallenges()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     uint32 l_Count = 0;
 
     QueryResult l_Result = CharacterDatabase.Query("SELECT map_id, attempt_id, completion_time, completion_date, medal_earned, group_members, group_1_guid, group_1_spec, group_2_guid, group_2_spec, "
@@ -2304,12 +2304,12 @@ void ObjectMgr::LoadRealmCompletedChallenges()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u realm completed challenges in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u realm completed challenges in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadChallengeRewards()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     uint32 l_Count = 0;
 
     QueryResult l_Result = WorldDatabase.Query("SELECT map_id, none_money, bronze_money, silver_money, gold_money FROM challenge_mode_rewards");
@@ -2336,12 +2336,12 @@ void ObjectMgr::LoadChallengeRewards()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u challenge mode rewards in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u challenge mode rewards in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadMapChallengeModeHotfixes()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     uint32 l_Count = 0;
 
     QueryResult l_Result = WorldDatabase.Query("SELECT id, map_id, field2, field3, field4, bronze_time, silver_time, gold_time, field8, field9 FROM map_challenge_mode_hotfixes");
@@ -2374,7 +2374,7 @@ void ObjectMgr::LoadMapChallengeModeHotfixes()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map challenge mode hotfixes in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map challenge mode hotfixes in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2)
@@ -2607,7 +2607,7 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 
 void ObjectMgr::LoadItemTemplates()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     uint32 sparseCount = 0;
     uint32 dbCount = 0;
 
@@ -2935,7 +2935,7 @@ void ObjectMgr::LoadItemTemplates()
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
         sLog->outError(LOG_FILTER_SQL, "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item templates from Item-sparse.db2 and %u from database in %u ms", sparseCount, dbCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item templates from Item-sparse.db2 and %u from database in %u ms", sparseCount, dbCount, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemTemplateCorrections()
@@ -2969,7 +2969,7 @@ void ObjectMgr::LoadItemTemplateCorrections()
 
 void ObjectMgr::LoadItemTemplateAddon()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance FROM item_template_addon");
@@ -3002,12 +3002,12 @@ void ObjectMgr::LoadItemTemplateAddon()
         }
         while (result->NextRow());
     }
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item addon templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item addon templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemScriptNames()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     uint32 count = 0;
 
     QueryResult result = WorldDatabase.Query("SELECT Id, ScriptName FROM item_script_names");
@@ -3029,13 +3029,13 @@ void ObjectMgr::LoadItemScriptNames()
         while (result->NextRow());
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item script names in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemSpecs()
 {
     uint32 l_Count = 0;
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
     /// - The process must be done with the character level, so we can't do it at loading ...          ///
@@ -3091,13 +3091,13 @@ void ObjectMgr::LoadItemSpecs()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadItemSpecsOverride()
 {
     uint32 l_Count = 0;
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     for (uint32 l_Idx = 0; l_Idx < sItemSpecOverrideStore.GetNumRows(); l_Idx++)
     {
@@ -3113,7 +3113,7 @@ void ObjectMgr::LoadItemSpecsOverride()
         l_Count++;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs override in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs override in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
@@ -3126,7 +3126,7 @@ ItemTemplate const* ObjectMgr::GetItemTemplate(uint32 entry)
 
 void ObjectMgr::LoadVehicleTemplateAccessories()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _vehicleTemplateAccessoryStore.clear();                           // needed for reload case
 
@@ -3177,12 +3177,12 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Template Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Template Accessories in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadVehicleAccessories()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _vehicleAccessoryStore.clear();                           // needed for reload case
 
@@ -3193,7 +3193,7 @@ void ObjectMgr::LoadVehicleAccessories()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Vehicle Accessories in %u ms", GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Vehicle Accessories in %u ms", GetClockDiffToNow(oldMSTime));
         return;
     }
 
@@ -3220,12 +3220,12 @@ void ObjectMgr::LoadVehicleAccessories()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Vehicle Accessories in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadAreaTriggerMoveTemplates()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_AreaTriggerMoveTemplate.clear();                           // needed for reload case
 
@@ -3235,7 +3235,7 @@ void ObjectMgr::LoadAreaTriggerMoveTemplates()
     QueryResult l_Result = WorldDatabase.Query("SELECT `move_curve_id`, `path_size`, `duration` FROM `areatrigger_move_template`");
     if (!l_Result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Template in %u ms", GetClockDiffToNow(l_OldMSTime));
         return;
     }
 
@@ -3254,12 +3254,12 @@ void ObjectMgr::LoadAreaTriggerMoveTemplates()
         ++l_Count;
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Template in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Template in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadAreaTriggerMoveSplines()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_AreaTriggerMoveSplines.clear();                           // needed for reload case
 
@@ -3269,7 +3269,7 @@ void ObjectMgr::LoadAreaTriggerMoveSplines()
     QueryResult l_Result = WorldDatabase.Query("SELECT `move_curve_id`, `path_id`, `path_x`, `path_y`, `path_z` FROM `areatrigger_move_splines`");
     if (!l_Result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Splines in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger Move Splines in %u ms", GetClockDiffToNow(l_OldMSTime));
         return;
     }
 
@@ -3290,12 +3290,12 @@ void ObjectMgr::LoadAreaTriggerMoveSplines()
         ++l_Count;
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Splines in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger Move Splines in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadAreaTriggerTemplates()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_AreaTriggerTemplates.clear();                                // needed for reload case
     m_AreaTriggerTemplatesSpell.clear();                           // needed for reload case
@@ -3308,7 +3308,7 @@ void ObjectMgr::LoadAreaTriggerTemplates()
                                                        "`facing_curve_id`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `ScriptName`, `creature_visual` FROM `areatrigger_template`");
     if (!l_Result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Areatrigger template in %u ms", GetClockDiffToNow(l_OldMSTime));
         return;
     }
 
@@ -3370,12 +3370,12 @@ void ObjectMgr::LoadAreaTriggerTemplates()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger templates in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Areatrigger templates in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadPetStatInfo()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     //                                                   0     1       2             3           4          5            6            7            8           9            10
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, speed, powerstatbase, armor_coef, apsp_coef, health_coef, damage_coef, attackspeed, powertype, createpower, secondarystat_coef FROM pet_stats");
@@ -3429,7 +3429,7 @@ void ObjectMgr::LoadPetStatInfo()
 
     m_PetInfoStore.insert(std::make_pair(0, std::move(l_DefaultPetStat)));
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet stats definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet stats definitions in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
@@ -3476,7 +3476,7 @@ void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
         //                                                0     1      2    3        4          5           6
         QueryResult result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
 
@@ -3557,14 +3557,14 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     // Load playercreate items
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Items Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
         //                                                0     1      2       3
         QueryResult result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
 
@@ -3627,14 +3627,14 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u custom player create items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u custom player create items in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     // Load playercreate spells
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Spell Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         std::string tableName = sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
         QueryResult result = WorldDatabase.PQuery("SELECT race, class, Spell FROM %s", tableName.c_str());
@@ -3683,14 +3683,14 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create spells in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     // Load playercreate actions
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Action Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                0     1      2       3       4
         QueryResult result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
@@ -3729,14 +3729,14 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create actions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create actions in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     // Loading levels data (class/race dependent)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Level Stats Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                 0     1      2      3    4    5    6    7
         QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
@@ -3849,13 +3849,13 @@ void ObjectMgr::LoadPlayerInfo()
             }
         }
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u level stats definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u level stats definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
     }
 
     // Loading xp per level data
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create XP Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         _playerXPperLevel.resize(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
         for (uint8 level = 0; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
@@ -3873,7 +3873,7 @@ void ObjectMgr::LoadPlayerInfo()
             _playerXPperLevel[l_LevelExperience->Index] = l_LevelExperience->Data;
         }
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for level definitions in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u xp for level definitions in %u ms", l_Count, GetClockDiffToNow(oldMSTime));
     }
 }
 
@@ -4024,7 +4024,7 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 */
 void ObjectMgr::LoadQuests()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // For reload case
     for (QuestMap::const_iterator itr=_questTemplates.begin(); itr != _questTemplates.end(); ++itr)
@@ -4629,12 +4629,12 @@ void ObjectMgr::LoadQuests()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _questLocaleStore.clear();                                 // Need for reload case
 
@@ -4681,12 +4681,12 @@ void ObjectMgr::LoadQuestLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest locale strings in %u ms", (unsigned long)_questLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Quest locale strings in %u ms", (unsigned long)_questLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     ScriptMapMap* scripts = GetScriptsMapByType(type);
     if (!scripts)
@@ -5000,7 +5000,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u script definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u script definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGameObjectScripts()
@@ -5136,7 +5136,7 @@ void ObjectMgr::LoadWaypointScripts()
 
 void ObjectMgr::LoadSpellScriptNames()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _spellScriptsStore.clear();                            // need for reload case
 
@@ -5191,12 +5191,12 @@ void ObjectMgr::LoadSpellScriptNames()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell script names in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::ValidateSpellScripts()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     if (_spellScriptsStore.empty())
     {
@@ -5247,12 +5247,12 @@ void ObjectMgr::ValidateSpellScripts()
         ++count;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated %u scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Validated %u scripts in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPageTexts()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0      1       2
     QueryResult result = WorldDatabase.Query("SELECT entry, text, next_page FROM page_text");
@@ -5288,7 +5288,7 @@ void ObjectMgr::LoadPageTexts()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u page texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u page texts in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 PageText const* ObjectMgr::GetPageText(uint32 pageEntry)
@@ -5302,7 +5302,7 @@ PageText const* ObjectMgr::GetPageText(uint32 pageEntry)
 
 void ObjectMgr::LoadPageTextLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _pageTextLocaleStore.clear();                             // need for reload case
 
@@ -5324,12 +5324,12 @@ void ObjectMgr::LoadPageTextLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu PageText locale strings in %u ms", (unsigned long)_pageTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu PageText locale strings in %u ms", (unsigned long)_pageTextLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadInstanceTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                0     1       2        4
     QueryResult result = WorldDatabase.Query("SELECT map, parent, script, allowMount FROM instance_template");
@@ -5365,7 +5365,7 @@ void ObjectMgr::LoadInstanceTemplate()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
@@ -5379,7 +5379,7 @@ InstanceTemplate const* ObjectMgr::GetInstanceTemplate(uint32 mapID)
 
 void ObjectMgr::LoadInstanceEncounters()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     uint32 l_Counter = 0;
 
     for (uint32 l_Index = 0; l_Index <= sDungeonEncounterStore.GetLastEntry(); ++l_Index)
@@ -5392,7 +5392,7 @@ void ObjectMgr::LoadInstanceEncounters()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", l_Counter, GetClockDiffToNow(l_OldMSTime));
 }
 
 GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
@@ -5405,7 +5405,7 @@ GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
 
 void ObjectMgr::LoadGossipText()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT * FROM npc_text");
 
@@ -5452,12 +5452,12 @@ void ObjectMgr::LoadGossipText()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npc texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npc texts in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadNpcTextLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _npcTextLocaleStore.clear();                              // need for reload case
 
@@ -5497,13 +5497,13 @@ void ObjectMgr::LoadNpcTextLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)_npcTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)_npcTextLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     time_t curTime = time(NULL);
     tm* lt = localtime(&curTime);
@@ -5626,12 +5626,12 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Processed %u expired mails: %u deleted and %u returned in %u ms", deletedCount + returnedCount, deletedCount, returnedCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Processed %u expired mails: %u deleted and %u returned in %u ms", deletedCount + returnedCount, deletedCount, returnedCount, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _questAreaTriggerStore.clear();                           // need for reload case
 
@@ -5684,12 +5684,12 @@ void ObjectMgr::LoadQuestAreaTriggers()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest trigger points in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _tavernAreaTriggerStore.clear();                          // need for reload case
 
@@ -5722,12 +5722,12 @@ void ObjectMgr::LoadTavernAreaTriggers()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u tavern triggers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u tavern triggers in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadAreaTriggerScripts()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _areaTriggerScriptStore.clear();                            // need for reload case
     QueryResult result = WorldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
@@ -5759,7 +5759,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u areatrigger scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u areatrigger scripts in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team)
@@ -5897,7 +5897,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
 
 void ObjectMgr::LoadGraveyardZones()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     GraveYardStore.clear();                                  // need for reload case
 
@@ -5954,7 +5954,7 @@ void ObjectMgr::LoadGraveyardZones()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u graveyard-zone links in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u graveyard-zone links in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team)
@@ -6192,7 +6192,7 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _areaTriggerStore.clear();                                  // need for reload case
 
@@ -6247,12 +6247,12 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u area trigger teleport definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u area trigger teleport definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadAccessRequirements()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _accessRequirementStore.clear();                                  // need for reload case
 
@@ -6350,7 +6350,7 @@ void ObjectMgr::LoadAccessRequirements()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u access requirement definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u access requirement definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 /*
@@ -6574,7 +6574,7 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 
 void ObjectMgr::LoadGameObjectLocales()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gameObjectLocaleStore.clear();                           // need for reload case
 
@@ -6602,7 +6602,7 @@ void ObjectMgr::LoadGameObjectLocales()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)_gameObjectLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)_gameObjectLocaleStore.size(), GetClockDiffToNow(oldMSTime));
 }
 
 inline void CheckGOLockId(GameObjectTemplate const* goInfo, uint32 dataN, uint32 N)
@@ -6666,7 +6666,7 @@ inline void CheckGOConsumable(GameObjectTemplate const* goInfo, uint32 dataN, ui
 
 void ObjectMgr::LoadGameObjectTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0      1      2        3       4             5          6      7       8     9        10         11          12
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, "
@@ -6850,12 +6850,12 @@ void ObjectMgr::LoadGameObjectTemplate()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object templates in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGarrisonPlotBuildingContent()
 {
-    uint32 l_StartTime = getMSTime();
+    uint32 l_StartTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT id, plot_type_or_building, faction_index, creature_or_gob, x, y, z, o FROM garrison_plot_content");
 
@@ -6886,7 +6886,7 @@ void ObjectMgr::LoadGarrisonPlotBuildingContent()
         ++l_Count;
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison plot building content in %u ms", l_Count, GetMSTimeDiffToNow(l_StartTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison plot building content in %u ms", l_Count, GetClockDiffToNow(l_StartTime));
 }
 void ObjectMgr::AddGarrisonPlotBuildingContent(GarrisonPlotBuildingContent & p_Data)
 {
@@ -6933,7 +6933,7 @@ std::vector<GarrisonPlotBuildingContent> ObjectMgr::GetGarrisonPlotBuildingConte
 
 void ObjectMgr::LoadExplorationBaseXP()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
 
@@ -6956,7 +6956,7 @@ void ObjectMgr::LoadExplorationBaseXP()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BaseXP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u BaseXP definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 uint32 ObjectMgr::GetBaseXP(uint8 level)
@@ -6973,7 +6973,7 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
 
 void ObjectMgr::LoadPetNames()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     //                                                0     1      2
     QueryResult result = WorldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
 
@@ -6999,12 +6999,12 @@ void ObjectMgr::LoadPetNames()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet name parts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pet name parts in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPetNumber()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
     if (result)
@@ -7013,7 +7013,7 @@ void ObjectMgr::LoadPetNumber()
         _hiPetNumber = fields[0].GetUInt32()+1;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value()-1, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded the max pet number: %d in %u ms", _hiPetNumber.value() - 1, GetClockDiffToNow(oldMSTime));
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
@@ -7049,7 +7049,7 @@ void ObjectMgr::LoadCorpses()
     //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
     if (!result)
@@ -7082,12 +7082,12 @@ void ObjectMgr::LoadCorpses()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u corpses in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadReputationRewardRate()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _repRewardRateStore.clear();                             // for reload case
 
@@ -7144,12 +7144,12 @@ void ObjectMgr::LoadReputationRewardRate()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reputation_reward_rate in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reputation_reward_rate in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCurrencyOnKill()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _curOnKillStore.clear();
 
@@ -7195,12 +7195,12 @@ void ObjectMgr::LoadCurrencyOnKill()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature currency definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature currency definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPersonnalCurrencyOnKill()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_PersonnalCurrOnKillStore.clear();
 
@@ -7238,12 +7238,12 @@ void ObjectMgr::LoadPersonnalCurrencyOnKill()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personnal creature currency definitions in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u personnal creature currency definitions in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadReputationOnKill()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // For reload case
     _repOnKillStore.clear();
@@ -7312,12 +7312,12 @@ void ObjectMgr::LoadReputationOnKill()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature award reputation definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature award reputation definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadReputationSpilloverTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _repSpilloverTemplateStore.clear();                      // for reload case
 
@@ -7431,12 +7431,12 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reputation_spillover_template in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reputation_spillover_template in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPointsOfInterest()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _pointsOfInterestStore.clear();                              // need for reload case
 
@@ -7478,12 +7478,12 @@ void ObjectMgr::LoadPointsOfInterest()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Points of Interest definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Points of Interest definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestPOI()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _questPOIStore.clear();                              // need for reload case
 
@@ -7554,12 +7554,12 @@ void ObjectMgr::LoadQuestPOI()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest POI definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _spellClickInfoStore.clear();
     //                                                0          1         2            3
@@ -7621,7 +7621,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spellclick definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::DeleteCreatureData(uint32 guid)
@@ -7660,7 +7660,7 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
 
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go)
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     map.clear();                                            // need for reload case
 
@@ -7700,7 +7700,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest relations from %s in %u ms", count, table.c_str(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quest relations from %s in %u ms", count, table.c_str(), GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGameobjectQuestStarters()
@@ -7765,7 +7765,7 @@ void ObjectMgr::LoadCreatureQuestEnders()
 
 void ObjectMgr::LoadReservedPlayersNames()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _reservedNamesStore.clear();                                // need for reload case
 
@@ -7799,7 +7799,7 @@ void ObjectMgr::LoadReservedPlayersNames()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reserved player names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u reserved player names in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 bool ObjectMgr::IsReservedName(const std::string& name) const
@@ -7951,7 +7951,7 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
 
 void ObjectMgr::LoadGameObjectForQuests()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gameObjectForQuestStore.clear();                         // need for reload case
 
@@ -8005,12 +8005,12 @@ void ObjectMgr::LoadGameObjectForQuests()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameObjects for quests in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameObjects for quests in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max_value)
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     int32 start_value = min_value;
     int32 end_value   = max_value;
@@ -8094,9 +8094,9 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
     while (result->NextRow());
 
     if (min_value == MIN_TRINITY_STRING_ID)
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Trinity strings from table %s in %u ms", count, table, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Trinity strings from table %s in %u ms", count, table, GetClockDiffToNow(oldMSTime));
     else
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u string templates from %s in %u ms", count, table, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u string templates from %s in %u ms", count, table, GetClockDiffToNow(oldMSTime));
 
     return true;
 }
@@ -8120,7 +8120,7 @@ const char *ObjectMgr::GetTrinityString(int32 entry, LocaleConstant locale_idx) 
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _fishingBaseForAreaStore.clear();                            // for reload case
 
@@ -8153,7 +8153,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u areas for fishing base skill level in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u areas for fishing base skill level in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 bool ObjectMgr::CheckDeclinedNames(std::wstring w_ownname, DeclinedName const& names)
@@ -8225,7 +8225,7 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
 
 void ObjectMgr::LoadGameTele()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gameTeleStore.clear();                                  // for reload case
 
@@ -8276,7 +8276,7 @@ void ObjectMgr::LoadGameTele()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameTeleports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GameTeleports in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
@@ -8365,7 +8365,7 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
 
 void ObjectMgr::LoadMailLevelRewards()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _mailLevelRewardStore.clear();                           // for reload case
 
@@ -8420,7 +8420,7 @@ void ObjectMgr::LoadMailLevelRewards()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u level dependent mail rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u level dependent mail rewards in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel)
@@ -8503,7 +8503,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
 void ObjectMgr::LoadTrainerSpell()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // For reload case
     _cacheTrainerSpellStore.clear();
@@ -8538,7 +8538,7 @@ void ObjectMgr::LoadTrainerSpell()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Trainers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Trainers in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors)
@@ -8586,7 +8586,7 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::se
 
 void ObjectMgr::LoadVendors()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // For reload case
     for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
@@ -8634,12 +8634,12 @@ void ObjectMgr::LoadVendors()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Vendors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Vendors in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGossipMenu()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gossipMenusStore.clear();
 
@@ -8675,12 +8675,12 @@ void ObjectMgr::LoadGossipMenu()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu entries in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGossipMenuItems()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _gossipMenuItemsStore.clear();
 
@@ -8738,7 +8738,7 @@ void ObjectMgr::LoadGossipMenuItems()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu_option entries in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/, uint32 p_PlayerConditionID /* = 0*/)
@@ -8884,7 +8884,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount
 
 void ObjectMgr::LoadScriptNames()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _scriptNamesStore.push_back("");
     QueryResult result = WorldDatabase.Query(
@@ -8931,7 +8931,7 @@ void ObjectMgr::LoadScriptNames()
     while (result->NextRow());
 
     std::sort(_scriptNamesStore.begin(), _scriptNamesStore.end());
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Script Names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %d Script Names in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 uint32 ObjectMgr::GetScriptId(const char *name)
@@ -9028,7 +9028,7 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basehp3, basehp4, basehp5, basemana, basearmor, attackpower, rangedattackpower, damage_base FROM creature_classlevelstats");
 
@@ -9089,12 +9089,12 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature base stats in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature base stats in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureGroupSizeStats()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT entry, difficulty, groupSize, health FROM creature_groupsizestats");
     if (!l_Result)
@@ -9138,12 +9138,12 @@ void ObjectMgr::LoadCreatureGroupSizeStats()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature group size stats in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature group size stats in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeAchievements()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
 
@@ -9174,12 +9174,12 @@ void ObjectMgr::LoadFactionChangeAchievements()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change achievement pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change achievement pairs in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeItems()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
 
@@ -9209,12 +9209,12 @@ void ObjectMgr::LoadFactionChangeItems()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change item pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change item pairs in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeSpells()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
 
@@ -9245,12 +9245,12 @@ void ObjectMgr::LoadFactionChangeSpells()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change spell pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change spell pairs in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeReputations()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
 
@@ -9280,12 +9280,12 @@ void ObjectMgr::LoadFactionChangeReputations()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change reputation pairs in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeTitles()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
 
@@ -9315,12 +9315,12 @@ void ObjectMgr::LoadFactionChangeTitles()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadHotfixData()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     QueryResult result = WorldDatabase.Query("SELECT entry, type, hotfixDate FROM hotfix_data");
 
@@ -9347,14 +9347,14 @@ void ObjectMgr::LoadHotfixData()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPhaseDefinitions()
 {
     _PhaseDefinitionStore.clear();
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0       1       2         3            4           5
     QueryResult result = WorldDatabase.Query("SELECT zoneId, entry, phasemask, phaseId, terrainswapmap, flags FROM `phase_definitions` ORDER BY `entry` ASC");
@@ -9393,14 +9393,14 @@ void ObjectMgr::LoadPhaseDefinitions()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phasing definitions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u phasing definitions in %u ms.", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadSpellPhaseInfo()
 {
     _SpellPhaseStore.clear();
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                               0       1            2
     QueryResult result = WorldDatabase.Query("SELECT id, phasemask, terrainswapmap FROM `spell_phase`");
@@ -9440,12 +9440,12 @@ void ObjectMgr::LoadSpellPhaseInfo()
         ++count;
     }
     while (result->NextRow());
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell dbc infos in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell dbc infos in %u ms.", count, GetClockDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadBattlePetTemplate()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     _battlePetTemplateStore.clear();
 
@@ -9470,7 +9470,7 @@ void ObjectMgr::LoadBattlePetTemplate()
         count += 1;
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlepet template in %u ms.", count, GetClockDiffToNow(oldMSTime));
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
@@ -9806,7 +9806,7 @@ void ObjectMgr::LoadItemExtendedCost()
 
 void ObjectMgr::LoadGuildChallengeRewardInfo()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     QueryResult result = WorldDatabase.Query("SELECT Type, Experience, Gold, Gold2, Count FROM guild_challenge_reward");
     if (!result)
     {
@@ -9842,7 +9842,7 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenge reward data in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild challenge reward data in %u ms.", count, GetClockDiffToNow(oldMSTime));
 }
 
 
@@ -9854,7 +9854,7 @@ void ObjectMgr::LoadCharacterTemplateData()
         return;
     }
 
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
     uint32 l_Count = 0;
 
@@ -9972,7 +9972,7 @@ void ObjectMgr::LoadCharacterTemplateData()
     }
 
     while (l_Result->NextRow());
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u character templates %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u character templates %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 CharacterTemplate const* ObjectMgr::GetCharacterTemplate(uint32 p_ID) const
@@ -9983,7 +9983,7 @@ CharacterTemplate const* ObjectMgr::GetCharacterTemplate(uint32 p_ID) const
 
 void ObjectMgr::LoadQuestObjectives()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `ID`,`QuestID`,`Type`,`Index`,`ObjectID`,`Amount`,`Flags`,`UnkFloat`,`Description`,`VisualEffects` FROM quest_template_objective ORDER BY QuestID ASC");
     if (!l_Result)
@@ -10201,12 +10201,12 @@ void ObjectMgr::LoadQuestObjectives()
         l_Count++;
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objectives in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objectives in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadQuestObjectiveLocales()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `ID`, `Locale`, `Description` FROM `locales_quest_template_objective` ORDER BY `id` ASC");
 
@@ -10240,12 +10240,12 @@ void ObjectMgr::LoadQuestObjectiveLocales()
         AddLocaleString(l_Description, (LocaleConstant)l_Locale, m_questObjectiveLocaleStore[l_ObjectiveID].Description);
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objective visual effects in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objective visual effects in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadQuestPackageItemHotfixs()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT `Id`, `PackageID`, `ItemId`, `Count`, `Type` FROM quest_package_item_hotfix");
     if (!l_Result)
@@ -10272,7 +10272,7 @@ void ObjectMgr::LoadQuestPackageItemHotfixs()
 
     } while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 void ObjectMgr::LoadFollowerQuests()
 {
@@ -10423,7 +10423,7 @@ CreatureGroupSizeStat const* ObjectMgr::GetCreatureGroupSizeStat(uint32 p_Entry,
 
 void ObjectMgr::LoadItemBonusGroup()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT id, bonus FROM item_bonus_group");
 
@@ -10451,12 +10451,12 @@ void ObjectMgr::LoadItemBonusGroup()
     } 
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadItemBonusGroupLinked()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT itemEntry, itemBonusGroup FROM item_bonus_group_linked");
 
@@ -10483,12 +10483,12 @@ void ObjectMgr::LoadItemBonusGroupLinked()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void ObjectMgr::LoadSpellInvalid()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
     m_SpellInvalid.clear();
 
     QueryResult l_Result = WorldDatabase.Query("SELECT spellid FROM spell_invalid");
@@ -10511,5 +10511,5 @@ void ObjectMgr::LoadSpellInvalid()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item bonus group linked in %u ms.", l_Count, GetClockDiffToNow(l_OldMSTime));
 }

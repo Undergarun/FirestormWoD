@@ -29,7 +29,7 @@ void SystemMgr::LoadScriptTexts()
     LoadTrinityStrings("script_texts", TEXT_SOURCE_RANGE, 1+(TEXT_SOURCE_RANGE*2));
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Script Texts additional data...");
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                 0      1      2      3
     QueryResult result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM script_texts");
@@ -82,7 +82,7 @@ void SystemMgr::LoadScriptTexts()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional Script Texts data in %u ms", uiCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional Script Texts data in %u ms", uiCount, GetClockDiffToNow(oldMSTime));
 }
 
 void SystemMgr::LoadScriptTextsCustom()
@@ -147,7 +147,7 @@ void SystemMgr::LoadScriptTextsCustom()
 
 void SystemMgr::LoadScriptWaypoints()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // Drop Existing Waypoint list
     m_mPointMoveMap.clear();
@@ -201,5 +201,5 @@ void SystemMgr::LoadScriptWaypoints()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Script Waypoint nodes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Script Waypoint nodes in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
