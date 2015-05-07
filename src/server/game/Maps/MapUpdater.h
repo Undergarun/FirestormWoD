@@ -15,9 +15,8 @@ class MapUpdater
         MapUpdater();
         virtual ~MapUpdater();
 
-        friend class MapUpdateRequest;
-
         int schedule_update(Map& map, ACE_UINT32 diff);
+        int schedule_specific(ACE_Method_Request* p_Request);
 
         int wait();
 
@@ -27,14 +26,14 @@ class MapUpdater
 
         bool activated();
 
+        void _update_finished();
+
     private:
 
         DelayExecutor m_executor;
         ACE_Thread_Mutex m_mutex;
         ACE_Condition_Thread_Mutex m_condition;
         size_t pending_requests;
-
-        void update_finished();
 };
 
 #endif //_MAP_UPDATER_H_INCLUDED

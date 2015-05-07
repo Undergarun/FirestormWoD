@@ -42,6 +42,7 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "Chat.h"
+#include "MapUpdater.h"
 
 namespace JadeCore
 {
@@ -4035,4 +4036,19 @@ void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
         l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
         m_AchievementCriteriaUpdateTaskProcessQueue.pop();
     }
+}
+
+
+AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
+: m_Updater(p_Updater)
+{
+
+}
+
+int AchievementCriteriaUpdateRequest::call()
+{
+    sAchievementMgr->ProcessAllCriteriaUpdateTask();
+
+    m_Updater->_update_finished();
+    return 0;
 }

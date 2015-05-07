@@ -285,11 +285,7 @@ void MapManager::Update(uint32 diff)
     /// - Start Achievement criteria update processing thread
     sAchievementMgr->PrepareCriteriaUpdateTaskThread();
 
-    auto l_AchivementCriteriaUpdateThread = std::thread([]() -> void
-    {
-        ACE_Based::Thread::current()->setName("AchievementCriteriaUpdateThread");
-        sAchievementMgr->ProcessAllCriteriaUpdateTask();
-    });
+    m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
 
     /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();
@@ -303,8 +299,6 @@ void MapManager::Update(uint32 diff)
 
     if (m_updater.activated())
         m_updater.wait();
-
-    l_AchivementCriteriaUpdateThread.join();
 
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
