@@ -404,60 +404,64 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty
     is_blocked        = 0;
     is_underthreshold = 0;
     is_counted        = 0;
+    PersonalLooter    = 0;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player) const
+bool LootItem::AllowedForPlayer(Player const* p_Player) const
 {
-    // DB conditions check
-    if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
+    if (!IsPersonalLootFor(p_Player))
         return false;
 
-    if (player->HasPendingBind())
+    // DB conditions check
+    if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(p_Player), conditions))
+        return false;
+
+    if (p_Player->HasPendingBind())
         return false;
 
     if (type == LOOT_ITEM_TYPE_ITEM)
     {
-        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
-        if (!pProto)
+        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(itemid);
+        if (!l_ItemTemplate)
             return false;
 
         // not show loot for players without profession or those who already know the recipe
-        if ((pProto->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
+        if ((l_ItemTemplate->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!p_Player->HasSkill(l_ItemTemplate->RequiredSkill) || p_Player->HasSpell(l_ItemTemplate->Spells[1].SpellId)))
             return false;
 
         // not show loot for not own team
-        if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && player->GetTeam() != HORDE)
+        if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && p_Player->GetTeam() != HORDE)
             return false;
 
-        if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && player->GetTeam() != ALLIANCE)
+        if ((l_ItemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && p_Player->GetTeam() != ALLIANCE)
             return false;
 
         if (currentLoot)
         {
             if (currentLoot->AllowedPlayers.IsEnabled())
             {
-                if (!currentLoot->AllowedPlayers.HasPlayerGuid(player->GetGUID()))
+                if (!currentLoot->AllowedPlayers.HasPlayerGuid(p_Player->GetGUID()))
                     return false;
             }
         }
 
         // check quest requirements
-        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+        if (!(l_ItemTemplate->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (l_ItemTemplate->StartQuest && p_Player->GetQuestStatus(l_ItemTemplate->StartQuest) != QUEST_STATUS_NONE)) && !p_Player->HasQuestForItem(itemid)))
             return false;
     }
     else if (type == LOOT_ITEM_TYPE_CURRENCY)
     {
-        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(itemid);
+        CurrencyTypesEntry const* l_Currency = sCurrencyTypesStore.LookupEntry(itemid);
         if (!itemid)
             return false;
 
-        if (!player->isGameMaster())
+        if (!p_Player->isGameMaster())
         {
-            if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+            if (l_Currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
                 return false;
 
-            if (currency->Category == CURRENCY_CATEGORY_ARCHAEOLOGY && !player->HasSkill(SKILL_ARCHAEOLOGY))
+            if (l_Currency->Category == CURRENCY_CATEGORY_ARCHAEOLOGY && !p_Player->HasSkill(SKILL_ARCHAEOLOGY))
                 return false;
         }
     }
@@ -468,6 +472,22 @@ bool LootItem::AllowedForPlayer(Player const* player) const
 void LootItem::AddAllowedLooter(const Player* player)
 {
     allowedGUIDs.insert(player->GetGUIDLow());
+}
+
+void LootItem::SetPersonalLooter(Player const* p_Player)
+{
+    PersonalLooter = p_Player->GetGUID();
+}
+
+bool LootItem::IsPersonalLootFor(Player const* p_Player) const
+{
+    /// No personal looter specified, anyone can loot
+    if (!PersonalLooter)
+        return true;
+    else if (PersonalLooter == p_Player->GetGUID())
+        return true;
+
+    return false;
 }
 
 //
@@ -731,7 +751,7 @@ void Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooti
 
 //===================================================
 
-void Loot::NotifyItemRemoved(uint8 lootIndex)
+void Loot::NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter /*= 0*/)
 {
     // notify all players that are looting this that the item was removed
     // convert the index to the slot the player sees
@@ -741,7 +761,12 @@ void Loot::NotifyItemRemoved(uint8 lootIndex)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootItemRemoved(lootIndex);
+        {
+            if (p_PersonalLooter && (*i) != p_PersonalLooter)
+                continue;
+
+            player->SendNotifyLootItemRemoved(lootIndex, m_IsAoELoot);
+        }
         else
             PlayersLooting.erase(i);
     }
@@ -788,7 +813,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                         break;
 
                 if (j < pql.size())
-                    player->SendNotifyLootItemRemoved(Items.size()+j);
+                    player->SendNotifyLootItemRemoved(Items.size() + j, m_IsAoELoot);
             }
         }
         else
@@ -990,7 +1015,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     Loot &l_Loot = lv.loot;
 
     ObjectGuid l_CreatureGuid   = lv._guid;
-    ObjectGuid l_LootGuid       = MAKE_NEW_GUID(GUID_LOPART(l_CreatureGuid), 0, HIGHGUID_LOOT);
+    uint64 l_LootGuid           = MAKE_NEW_GUID(GUID_LOPART(l_CreatureGuid), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_LootGuid, l_CreatureGuid);
 
@@ -1160,7 +1185,6 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
             return p_Data;
     }
 
-    bool l_IsAELooting    = false;
     bool l_AoeLootEnabled = sWorld->getBoolConfig(CONFIG_AOE_LOOT_ENABLED);
 
     /// Process radius loot
@@ -1179,7 +1203,8 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                 continue;
 
             Loot* l_LinkedLootAround = &l_CreatureAround->loot;
-            l_IsAELooting = true;
+            l_Loot.m_IsAoELoot = true;
+
             switch (l_LinkedLoot.permission)
             {
                 case GROUP_PERMISSION:
@@ -1511,7 +1536,10 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     }
 
     p_Data.appendPackGUID(l_CreatureGuid);
-    p_Data.appendPackGUID(l_LootGuid);
+
+    /// Send player GUID if not AoE loot
+    p_Data.appendPackGUID(l_Loot.m_IsAoELoot ? l_LootGuid : (lv.viewer != nullptr ? lv.viewer->GetGUID() : l_LootGuid));
+
     p_Data << uint8(17);                                ///< Failure reason
     p_Data << uint8(lv.loot.Type);
     p_Data << uint8((lv.viewer && lv.viewer->GetGroup()) ? lv.viewer->GetGroup()->GetLootMethod() : FREE_FOR_ALL);
@@ -1532,7 +1560,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
         l_IsPersonalLooting = true;
 
     p_Data.WriteBit(lv.permission != NONE_PERMISSION);  ///< Acquired
-    p_Data.WriteBit(l_IsAELooting);                     ///< AELooting
+    p_Data.WriteBit(l_Loot.m_IsAoELoot);                ///< AELooting
     p_Data.WriteBit(l_IsPersonalLooting);               ///< Personal looting
     p_Data.FlushBits();
 

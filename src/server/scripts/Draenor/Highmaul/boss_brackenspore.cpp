@@ -348,7 +348,10 @@ class boss_brackenspore : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
 
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossBrackenspore);
+                }
 
                 /// Spawn timer for Creeping Moss AreaTrigger
                 /// 5s for LFR, 2s for Normal mode, 1.85s for Heroic mode
@@ -384,7 +387,29 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RotDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FlamethrowerAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BurningInfusion);
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (IsLFR())
+                    {
+                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
+                        if (l_PlayerList.isEmpty())
+                            return;
+
+                        for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                        {
+                            if (Player* l_Player = l_Itr->getSource())
+                            {
+                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                            }
+                        }
+
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
 
                 ResetPlayersPower(me);
@@ -396,6 +421,14 @@ class boss_brackenspore : public CreatureScript
                     l_Creature->RemoveAura(eSpells::BFC9000);
 
                 me->RemoveAllAreasTrigger();
+            }
+
+            void EnterEvadeMode() override
+            {
+                CreatureAI::EnterEvadeMode();
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossBrackenspore, EncounterState::FAIL);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override

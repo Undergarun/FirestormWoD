@@ -154,8 +154,7 @@ typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint8, LfgGuidList> LfgGuidListMap;
 typedef std::set<Player*> PlayerSet;
 typedef std::list<Player*> LfgPlayerList;
-typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
-typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
+typedef std::map<uint32, LfgReward const*> LfgRewardMap;
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
 typedef std::map<uint64, uint8> LfgRolesMap;
@@ -354,8 +353,14 @@ class LFGMgr
         /////////////////////////////////////////////
         /// LFR
         /////////////////////////////////////////////
+        /// This function automatically send personal items to players
+        void AutomaticLootDistribution(Creature* p_Creature, Group* p_Group);
+        /// This function automatically add personal loots of players on the creature
         void AutomaticLootAssignation(Creature* p_Creature, Group* p_Group);
-        const ItemTemplate* GetDefaultAutomaticLootItem(Creature* p_Creature);
+        /// This function returns ItemTemplate corresponding to the default Mop LFR loot
+        ItemTemplate const* GetDefaultAutomaticLootItem(Creature* p_Creature);
+        /// This function returns ItemID corresponding to the WoD LFR runes
+        uint32 GetAugmentRuneID(Player const* p_Player) const;
 
     private:
 

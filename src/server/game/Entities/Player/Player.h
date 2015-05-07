@@ -1096,6 +1096,21 @@ struct AccessRequirement
     std::string questFailedText;
 };
 
+struct LFRAccessRequirement
+{
+    uint8       LevelMin;
+    uint8       LevelMax;
+    uint32      Item;
+    uint32      Item2;
+    uint32      QuestA;
+    uint32      QuestH;
+    uint32      Achievement;
+    uint32      LeaderAchievement;
+    uint32      ItemLevelMin;
+    uint32      ItemLevelMax;
+    std::string QuestFailedText;
+};
+
 enum CharDeleteMethod
 {
     CHAR_DELETE_REMOVE = 0,                      // Completely remove from the database
@@ -2818,7 +2833,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
         void SendLootRelease(uint64 p_LootGuid);
-        void SendNotifyLootItemRemoved(uint8 lootSlot);
+        void SendNotifyLootItemRemoved(uint8 lootSlot, bool p_IsAoELoot = false);
         void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/

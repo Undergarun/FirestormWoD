@@ -125,7 +125,16 @@ bool Group::Create(Player* leader)
     if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficultyID();
-        m_raidDifficulty = isLFGGroup() ? (leader->getLevel() == MAX_LEVEL ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
+
+        bool l_NewLFR = leader->getLevel() == MAX_LEVEL;
+        m_raidDifficulty = isLFGGroup() ? (l_NewLFR ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
+
+        if (l_NewLFR)
+        {
+            /// Loot options sniffed from new LFR type
+            m_lootMethod = LootMethod::FREE_FOR_ALL;
+            m_lootThreshold = ItemQualities::ITEM_QUALITY_POOR;
+        }
 
         m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
@@ -1619,8 +1628,9 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->UnlootedCount--;
                     AllowedLooterSet looters = item->GetAllowedLooters();
-                    Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
-                    l_Item->AddItemBonuses(item->itemBonuses);
+
+                    if (Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters))
+                        l_Item->AddItemBonuses(item->itemBonuses);
                 }
                 else
                 {

@@ -222,7 +222,7 @@ class boss_tortos : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 me->SummonGameObject(GOB_TORTOS_DEATH_COLLISION, 6038.69f, 4923.87f, -61.1953f, 1.513821f, 0, 0, 0, 1.f, 0);

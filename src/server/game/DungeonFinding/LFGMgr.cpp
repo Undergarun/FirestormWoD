@@ -125,66 +125,68 @@ void LFGMgr::_SaveToDB(uint64 guid, uint32 db_guid)
 /// Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 l_OldMSTime = getMSTime();
 
-    for (LfgRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
-        delete itr->second;
+    for (LfgRewardMap::iterator l_Iter = m_RewardMap.begin(); l_Iter != m_RewardMap.end(); ++l_Iter)
+        delete l_Iter->second;
+
     m_RewardMap.clear();
 
-    // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
-
-    if (!result)
+    /// ORDER BY is very important for GetRandomDungeonReward!
+    QueryResult l_Result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    if (!l_Result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
         return;
     }
 
-    uint32 count = 0;
+    uint32 l_Count = 0;
 
-    Field* fields = NULL;
+    Field* l_Fields = nullptr;
     do
     {
-        fields = result->Fetch();
-        uint32 dungeonId = fields[0].GetUInt32();
-        uint32 maxLevel = fields[1].GetUInt8();
-        uint32 firstQuestId = fields[2].GetUInt32();
-        uint32 firstMoneyVar = fields[3].GetUInt32();
-        uint32 firstXPVar = fields[4].GetUInt32();
-        uint32 otherQuestId = fields[5].GetUInt32();
-        uint32 otherMoneyVar = fields[6].GetUInt32();
-        uint32 otherXPVar = fields[7].GetUInt32();
+        uint32 l_Index = 0;
 
-        if (!sLFGDungeonStore.LookupEntry(dungeonId))
+        l_Fields                = l_Result->Fetch();
+        uint32 l_DungeonID      = l_Fields[l_Index++].GetUInt32();
+        uint32 l_MaxLevel       = l_Fields[l_Index++].GetUInt8();
+        uint32 l_FirstQuestID   = l_Fields[l_Index++].GetUInt32();
+        uint32 l_FirstMoney     = l_Fields[l_Index++].GetUInt32();
+        uint32 l_FirstXP        = l_Fields[l_Index++].GetUInt32();
+        uint32 l_OtherQuestID   = l_Fields[l_Index++].GetUInt32();
+        uint32 l_OtherMoney     = l_Fields[l_Index++].GetUInt32();
+        uint32 l_OtherXP        = l_Fields[l_Index++].GetUInt32();
+
+        if (!sLFGDungeonStore.LookupEntry(l_DungeonID))
         {
-            sLog->outError(LOG_FILTER_SQL, "Dungeon %u specified in table `lfg_dungeon_rewards` does not exist!", dungeonId);
+            sLog->outError(LOG_FILTER_SQL, "Dungeon %u specified in table `lfg_dungeon_rewards` does not exist!", l_DungeonID);
             continue;
         }
 
-        if (!maxLevel || maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (!l_MaxLevel || l_MaxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            sLog->outError(LOG_FILTER_SQL, "Level %u specified for dungeon %u in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
-            maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+            sLog->outError(LOG_FILTER_SQL, "Level %u specified for dungeon %u in table `lfg_dungeon_rewards` can never be reached!", l_MaxLevel, l_DungeonID);
+            l_MaxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
         }
 
-        if (firstQuestId && !sObjectMgr->GetQuestTemplate(firstQuestId))
+        if (l_FirstQuestID && !sObjectMgr->GetQuestTemplate(l_FirstQuestID))
         {
-            sLog->outError(LOG_FILTER_SQL, "First quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
-            firstQuestId = 0;
+            sLog->outError(LOG_FILTER_SQL, "First quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", l_FirstQuestID, l_DungeonID);
+            l_FirstQuestID = 0;
         }
 
-        if (otherQuestId && !sObjectMgr->GetQuestTemplate(otherQuestId))
+        if (l_OtherQuestID && !sObjectMgr->GetQuestTemplate(l_OtherQuestID))
         {
-            sLog->outError(LOG_FILTER_SQL, "Other quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
-            otherQuestId = 0;
+            sLog->outError(LOG_FILTER_SQL, "Other quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", l_OtherQuestID, l_DungeonID);
+            l_OtherQuestID = 0;
         }
 
-        m_RewardMap.insert(LfgRewardMap::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar)));
-        ++count;
+        m_RewardMap.insert(std::make_pair(l_DungeonID, new LfgReward(l_MaxLevel, l_FirstQuestID, l_FirstMoney, l_FirstXP, l_OtherQuestID, l_OtherMoney, l_OtherXP)));
+        ++l_Count;
     }
-    while (result->NextRow());
+    while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg dungeon rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg dungeon rewards in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void LFGMgr::LoadEntrancePositions()
@@ -533,142 +535,194 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
 
    @param[in]     player Player we need to initialize the lock status map
 */
-void LFGMgr::InitializeLockedDungeons(Player* player)
+void LFGMgr::InitializeLockedDungeons(Player* p_Player)
 {
-    uint64 guid = player->GetGUID();
-    uint8 level = player->getLevel();
-    uint8 expansion = player->GetSession()->Expansion();
-    LfgDungeonSet dungeons = GetDungeonsByRandom(0);
-    LfgLockMap lock;
+    uint64 l_Guid               = p_Player->GetGUID();
+    uint8 l_Level               = p_Player->getLevel();
+    uint8 l_Expansion           = p_Player->GetSession()->Expansion();
+    LfgDungeonSet l_Dungeons    = GetDungeonsByRandom(0);
+    LfgLockMap l_Lock;
 
-    for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
+    for (LfgDungeonSet::const_iterator l_Iter = l_Dungeons.begin(); l_Iter != l_Dungeons.end(); ++l_Iter)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
-        if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
+        LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
+        if (!l_Dungeon) ///< Should never happens - We provide a list from sLFGDungeonStore
             continue;
 
-        LfgLockStatus lockData;
-        lockData.lockstatus = LFG_LOCKSTATUS_OK;
+        LfgLockStatus l_LockData;
+        l_LockData.lockstatus = LFG_LOCKSTATUS_OK;
 
-        AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
+        AccessRequirement const* l_AccessReq        = sObjectMgr->GetAccessRequirement(l_Dungeon->map, Difficulty(l_Dungeon->difficulty));
+        LFRAccessRequirement const* l_LFRAccessReq  = sObjectMgr->GetLFRAccessRequirement(l_Dungeon->ID);
 
-        uint8 LevelMin = 0;
-        uint8 LevelMax = 0;
-        if (ar)
+        uint8 l_LevelMin = 0;
+        uint8 l_LevelMax = 0;
+
+        if (l_AccessReq != nullptr)
         {
-            if (ar->levelMin && level < ar->levelMin)
-                LevelMin = ar->levelMin;
-            if (ar->levelMax && level > ar->levelMax)
-                LevelMax = ar->levelMax;
+            if (l_AccessReq->levelMin && l_Level < l_AccessReq->levelMin)
+                l_LevelMin = l_AccessReq->levelMin;
+            if (l_AccessReq->levelMax && l_Level > l_AccessReq->levelMax)
+                l_LevelMax = l_AccessReq->levelMax;
         }
 
-        if (dungeon->expansion > expansion)
+        if (l_LFRAccessReq != nullptr)
         {
-            lockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-            lockData.SubReason1 = dungeon->expansion;
-            lockData.SubReason2 = expansion;
+            if (l_LFRAccessReq->LevelMin && l_Level < l_LFRAccessReq->LevelMin)
+                l_LevelMin = l_LFRAccessReq->LevelMin;
+            if (l_LFRAccessReq->LevelMax && l_Level > l_LFRAccessReq->LevelMax)
+                l_LevelMax = l_LFRAccessReq->LevelMax;
         }
-        else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
-            lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if (dungeon->difficulty > DifficultyNormal && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+
+        if (l_Dungeon->expansion > l_Expansion)
         {
-            //if (!player->GetGroup() || !player->GetGroup()->isLFGGroup() || GetDungeon(player->GetGroup()->GetGUID(), true) != dungeon->ID || GetState(player->GetGroup()->GetGUID()) != LFG_STATE_DUNGEON)
-            lockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
+            l_LockData.lockstatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
+            l_LockData.SubReason1 = l_Dungeon->expansion;
+            l_LockData.SubReason2 = l_Expansion;
         }
-        else if (dungeon->minlevel > level || LevelMin)
+        else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, l_Dungeon->map, p_Player))
+            l_LockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
+        else if (l_Dungeon->difficulty > DifficultyNormal && p_Player->GetBoundInstance(l_Dungeon->map, Difficulty(l_Dungeon->difficulty)))
+            l_LockData.lockstatus = LFG_LOCKSTATUS_RAID_LOCKED;
+        else if (l_Dungeon->minlevel > l_Level || l_LevelMin)
         {
-            lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-            lockData.SubReason1 = dungeon->minlevel;
-            lockData.SubReason2 = level;
+            l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+            l_LockData.SubReason1 = l_Dungeon->minlevel;
+            l_LockData.SubReason2 = l_Level;
         }
-        else if (dungeon->maxlevel < level || LevelMax)
+        else if (l_Dungeon->maxlevel < l_Level || l_LevelMax)
         {
-            lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
-            lockData.SubReason1 = dungeon->maxlevel;
-            lockData.SubReason2 = level;
+            l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+            l_LockData.SubReason1 = l_Dungeon->maxlevel;
+            l_LockData.SubReason2 = l_Level;
         }
-        else if (dungeon->flags & LFG_FLAG_SEASONAL)
+        else if (l_Dungeon->flags & LFG_FLAG_SEASONAL)
         {
-            if (HolidayIds holiday = sLFGMgr->GetDungeonSeason(dungeon->ID))
+            if (HolidayIds l_Holiday = sLFGMgr->GetDungeonSeason(l_Dungeon->ID))
             {
-                if (holiday == HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(holiday))
+                if (l_Holiday == HOLIDAY_WOTLK_LAUNCH || !IsHolidayActive(l_Holiday))
                 {
-                    lockData.lockstatus = LFG_LOCKSTATUS_NOT_IN_SEASON;
-                    lockData.SubReason1 = holiday;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_NOT_IN_SEASON;
+                    l_LockData.SubReason1 = l_Holiday;
                 }
             }
         }
-        else if (lockData.lockstatus == LFG_LOCKSTATUS_OK && ar)
+        else if (l_LockData.lockstatus == LFG_LOCKSTATUS_OK && l_AccessReq && l_LFRAccessReq == nullptr)
         {
-            if (ar->achievement && !player->GetAchievementMgr().HasAchieved(ar->achievement))
+            if (l_AccessReq->achievement && !p_Player->GetAchievementMgr().HasAchieved(l_AccessReq->achievement))
             {
-                lockData.lockstatus = LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED;
-                lockData.SubReason1 = ar->achievement;
+                l_LockData.lockstatus = LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED;
+                l_LockData.SubReason1 = l_AccessReq->achievement;
             }
-            else if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
+            else if (p_Player->GetTeam() == ALLIANCE && l_AccessReq->quest_A && !p_Player->GetQuestRewardStatus(l_AccessReq->quest_A))
             {
-                lockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                lockData.SubReason1 = ar->quest_A;
+                l_LockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                l_LockData.SubReason1 = l_AccessReq->quest_A;
             }
-            else if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
+            else if (p_Player->GetTeam() == HORDE && l_AccessReq->quest_H && !p_Player->GetQuestRewardStatus(l_AccessReq->quest_H))
             {
-                lockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                lockData.SubReason1 = ar->quest_H;
+                l_LockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                l_LockData.SubReason1 = l_AccessReq->quest_H;
             }
-            else if (ar->item)
+            else if (l_AccessReq->item)
             {
-                if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
+                if (!p_Player->HasItemCount(l_AccessReq->item) && (!l_AccessReq->item2 || !p_Player->HasItemCount(l_AccessReq->item2)))
                 {
-                    lockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
-                    lockData.SubReason1 = ar->item;
-                    lockData.SubReason2 = ar->item2;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                    l_LockData.SubReason1 = l_AccessReq->item;
+                    l_LockData.SubReason2 = l_AccessReq->item2;
                 }
             }
-            else if (ar->item2 && !player->HasItemCount(ar->item2))
+            else if (l_AccessReq->item2 && !p_Player->HasItemCount(l_AccessReq->item2))
             {
-                lockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
-                lockData.SubReason1 = ar->item2;
+                l_LockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                l_LockData.SubReason1 = l_AccessReq->item2;
             }
             else
             {
-                uint32 avgItemLevel = player->GetAverageItemLevelTotal();
-                if (ar->itemlevelMin && ar->itemlevelMin > avgItemLevel)
+                uint32 l_AvgItemLevel = p_Player->GetAverageItemLevelTotal();
+                if (l_AccessReq->itemlevelMin && l_AccessReq->itemlevelMin > l_AvgItemLevel)
                 {
-                    lockData.SubReason1 = ar->itemlevelMin;
-                    lockData.SubReason2 = avgItemLevel;
-                    lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                    l_LockData.SubReason1 = l_AccessReq->itemlevelMin;
+                    l_LockData.SubReason2 = l_AvgItemLevel;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
                 }
-                if (ar->itemlevelMax && ar->itemlevelMax < avgItemLevel)
+                if (l_AccessReq->itemlevelMax && l_AccessReq->itemlevelMax < l_AvgItemLevel)
                 {
-                    lockData.SubReason1 = ar->itemlevelMax;
-                    lockData.SubReason2 = avgItemLevel;
-                    lockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
+                    l_LockData.SubReason1 = l_AccessReq->itemlevelMax;
+                    l_LockData.SubReason2 = l_AvgItemLevel;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
                 }
             }
         }
-        /* TODO VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
-            locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-            locktype = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
-            locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
-            locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
-        */
-        if (dungeon->type != TYPEID_RANDOM_DUNGEON)
+        else if (l_LockData.lockstatus == LFG_LOCKSTATUS_OK && l_LFRAccessReq)
         {
-            if (dungeon->map > 0)
+            if (l_LFRAccessReq->Achievement && !p_Player->GetAchievementMgr().HasAchieved(l_LFRAccessReq->Achievement))
             {
-                LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
-                if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
+                l_LockData.lockstatus = LFG_LOCKSTATUS_ACHIEVEMENT_NOT_COMPLITED;
+                l_LockData.SubReason1 = l_LFRAccessReq->Achievement;
+            }
+            else if (p_Player->GetTeam() == ALLIANCE && l_LFRAccessReq->QuestA && !p_Player->GetQuestRewardStatus(l_LFRAccessReq->QuestA))
+            {
+                l_LockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                l_LockData.SubReason1 = l_LFRAccessReq->QuestA;
+            }
+            else if (p_Player->GetTeam() == HORDE && l_LFRAccessReq->QuestH && !p_Player->GetQuestRewardStatus(l_LFRAccessReq->QuestH))
+            {
+                l_LockData.lockstatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                l_LockData.SubReason1 = l_LFRAccessReq->QuestH;
+            }
+            else if (l_LFRAccessReq->Item)
+            {
+                if (!p_Player->HasItemCount(l_LFRAccessReq->Item) && (!l_LFRAccessReq->Item2 || !p_Player->HasItemCount(l_LFRAccessReq->Item2)))
                 {
-                    lockData.SubReason1 = ar ? ar->itemlevelMin : 999;
-                    lockData.SubReason2 = player->GetAverageItemLevelTotal();
-                    lockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                    l_LockData.SubReason1 = l_LFRAccessReq->Item;
+                    l_LockData.SubReason2 = l_LFRAccessReq->Item2;
+                }
+            }
+            else if (l_LFRAccessReq->Item2 && !p_Player->HasItemCount(l_LFRAccessReq->Item2))
+            {
+                l_LockData.lockstatus = LFG_LOCKSTATUS_MISSING_ITEM;
+                l_LockData.SubReason1 = l_LFRAccessReq->Item2;
+            }
+            else
+            {
+                uint32 l_AvgItemLevel = p_Player->GetAverageItemLevelTotal();
+                if (l_LFRAccessReq->ItemLevelMin && l_LFRAccessReq->ItemLevelMin > l_AvgItemLevel)
+                {
+                    l_LockData.SubReason1 = l_LFRAccessReq->ItemLevelMin;
+                    l_LockData.SubReason2 = l_AvgItemLevel;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                }
+                if (l_LFRAccessReq->ItemLevelMax && l_LFRAccessReq->ItemLevelMax < l_AvgItemLevel)
+                {
+                    l_LockData.SubReason1 = l_LFRAccessReq->ItemLevelMax;
+                    l_LockData.SubReason2 = l_AvgItemLevel;
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
                 }
             }
         }
-        if (lockData.lockstatus != LFG_LOCKSTATUS_OK)
-            lock[dungeon->Entry()] = lockData;
+
+        if (l_Dungeon->type != TYPEID_RANDOM_DUNGEON)
+        {
+            if (l_Dungeon->map > 0)
+            {
+                LfgEntrancePositionMap::const_iterator l_Itr = m_entrancePositions.find(l_Dungeon->ID);
+                if (l_Itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(l_Dungeon->map))
+                {
+                    l_LockData.SubReason1 = l_AccessReq ? l_AccessReq->itemlevelMin : 999;
+                    l_LockData.SubReason2 = p_Player->GetAverageItemLevelTotal();
+                    l_LockData.lockstatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                }
+            }
+        }
+
+        if (l_LockData.lockstatus != LFG_LOCKSTATUS_OK)
+            l_Lock[l_Dungeon->Entry()] = l_LockData;
     }
-    SetLockedDungeons(guid, lock);
+
+    SetLockedDungeons(l_Guid, l_Lock);
 }
 
 /**
@@ -1811,10 +1865,20 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 grp = new Group();
                 grp->Create(player);
 
-                if (dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
+                bool l_IsLFR = dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR;
+                bool l_IsNewLFR = dungeon->difficulty == Difficulty::DifficultyRaidLFR;
+                if (l_IsLFR)
                     grp->ConvertToRaid();
 
                 grp->ConvertToLFG();
+
+                if (l_IsNewLFR)
+                {
+                    /// Loot options sniffed from new LFR type
+                    grp->SetLootMethod(LootMethod::FREE_FOR_ALL);
+                    grp->SetLootThreshold(ItemQualities::ITEM_QUALITY_POOR);
+                }
+
                 uint64 gguid = grp->GetGUID();
                 SetState(gguid, LFG_STATE_PROPOSAL);
                 sGroupMgr->AddGroup(grp);
@@ -2376,78 +2440,72 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
    @param[in]     dungeonId Id of the dungeon finished
    @param[in]     player Player to reward
 */
-void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
+void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
 {
-    Group* group = player->GetGroup();
-    if (!group || !group->isLFGGroup())
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] is not in a group or not a LFGGroup. Ignoring", player->GetGUID());
-        return;
-    }
+    Group* l_Group = p_Player->GetGroup();
 
-    uint64 guid = player->GetGUID();
-    uint64 gguid = player->GetGroup()->GetGUID();
-    uint32 gDungeonId = GetDungeon(gguid);
-    if (gDungeonId != dungeonId)
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] Finished dungeon %u but group queued for %u. Ignoring", guid, dungeonId, gDungeonId);
-        return;
-    }
-
-    if (GetState(guid) == LFG_STATE_FINISHED_DUNGEON)
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] Already rewarded player. Ignoring", guid);
-        return;
-    }
-
-    // Mark dungeon as finished
-    SetState(gguid, LFG_STATE_FINISHED_DUNGEON);
-
-    // Clear player related lfg stuff
-    uint32 rDungeonId = (*GetSelectedDungeons(guid).begin());
-    ClearState(guid);
-    SetState(guid, LFG_STATE_FINISHED_DUNGEON);
-
-    // Give rewards only if its a random or seasonal  dungeon
-    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
-    if (!dungeon || (dungeon->type != TYPEID_RANDOM_DUNGEON && !(dungeon->flags & LFG_FLAG_SEASONAL)))
-    {
-        sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] dungeon %u is not random nor seasonal", guid, rDungeonId);
-        return;
-    }
-
-    // Update achievements
-    if (dungeon->difficulty == DifficultyRaidHeroic)
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
-
-    LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
-    if (!reward)
-    {
-        sLog->outError(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: dungeon %u have no lfg reward", rDungeonId);
-        return;
-    }
-
-    uint8 index = 0;
-    Quest const* qReward = sObjectMgr->GetQuestTemplate(reward->reward[index].questId);
-    if (!qReward)
+    /// Player not in group or not a LFG group, ignore it
+    if (!l_Group || !l_Group->isLFGGroup())
         return;
 
-    // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
-    if (player->CanRewardQuest(qReward, false))
-        player->RewardQuest(qReward, 0, NULL, false);
+    uint64 l_Guid = p_Player->GetGUID();
+    uint64 l_GroupGuid = p_Player->GetGroup()->GetGUID();
+    uint32 l_GroupDungeonID = GetDungeon(l_GroupGuid);
+
+    /// Player has finished dungeon but group queued for another one, ignore it
+    if (l_GroupDungeonID != p_DungeonID)
+        return;
+
+    /// Player already awarded, ignore it
+    if (GetState(l_Guid) == LfgState::LFG_STATE_FINISHED_DUNGEON)
+        return;
+
+    /// Mark dungeon as finished
+    SetState(l_GroupGuid, LfgState::LFG_STATE_FINISHED_DUNGEON);
+
+    /// Clear player related LFG stuff
+    uint32 l_RandDungeonID = (*GetSelectedDungeons(l_Guid).begin());
+    if (l_RandDungeonID == (*GetSelectedDungeons(l_Guid).end()))
+        l_RandDungeonID = p_DungeonID;
+
+    ClearState(l_Guid);
+    SetState(l_Guid, LfgState::LFG_STATE_FINISHED_DUNGEON);
+
+    /// Give rewards only for compatible dungeons
+    LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(l_RandDungeonID);
+    if (!l_Dungeon || (l_Dungeon->type != LfgType::TYPEID_RANDOM_DUNGEON && l_Dungeon->type != LfgType::TYPEID_DUNGEON && !(l_Dungeon->flags & LfgFlags::LFG_FLAG_SEASONAL)))
+        return;
+
+    /// Update achievements
+    if (l_Dungeon->difficulty == Difficulty::DifficultyRaidHeroic)
+        p_Player->UpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    /// This dungeon has no LFG reward registered, ignore it
+    LfgReward const* l_Rewards = GetRandomDungeonReward(l_RandDungeonID, p_Player->getLevel());
+    if (!l_Rewards)
+        return;
+
+    uint8 l_Index = 0;
+    Quest const* l_QuestReward = sObjectMgr->GetQuestTemplate(l_Rewards->reward[l_Index].questId);
+    if (!l_QuestReward)
+        return;
+
+    /// If we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
+    if (p_Player->CanRewardQuest(l_QuestReward, false))
+        p_Player->RewardQuest(l_QuestReward, 0, nullptr, false);
     else
     {
-        index = 1;
-        qReward = sObjectMgr->GetQuestTemplate(reward->reward[index].questId);
-        if (!qReward)
+        l_Index = 1;
+        l_QuestReward = sObjectMgr->GetQuestTemplate(l_Rewards->reward[l_Index].questId);
+        if (!l_QuestReward)
             return;
-        // we give reward without informing client (retail does this)
-        player->RewardQuest(qReward, 0, NULL, false);
+
+        /// We give reward without informing client (retail does this)
+        p_Player->RewardQuest(l_QuestReward, 0, nullptr, false);
     }
 
-    // Give rewards
-    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] done dungeon %u, %s previously done.", player->GetGUID(), GetDungeon(gguid), index > 0 ? " " : " not");
-    player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), GetDungeon(gguid, false), index, reward, qReward);
+    /// Give rewards
+    p_Player->GetSession()->SendLfgPlayerReward(l_Dungeon->Entry(), GetDungeon(l_GroupGuid, false), l_Index, l_Rewards, l_QuestReward);
 }
 
 // --------------------------------------------------------------------------//
@@ -2460,37 +2518,46 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
    @returns Set of dungeons that can be done.
 */
-const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool check)
+const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 p_RandDungeon, bool p_Check)
 {
-    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
-    uint32 groupType = dungeon ? dungeon->grouptype : 0;
+    LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry(p_RandDungeon);
+    uint32 l_GroupType = l_Dungeon ? l_Dungeon->grouptype : 0;
 
-    LfgDungeonSet& cachedDungeon = m_CachedDungeonMap[groupType];
-    for (LfgDungeonSet::const_iterator it = cachedDungeon.begin(); it != cachedDungeon.end();)
+    LfgDungeonSet& l_CachedDungeon = m_CachedDungeonMap[l_GroupType];
+    for (LfgDungeonSet::const_iterator l_Iter = l_CachedDungeon.begin(); l_Iter != l_CachedDungeon.end();)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
-        if (dungeon && dungeon->map > 0)
+        l_Dungeon = sLFGDungeonStore.LookupEntry(*l_Iter);
+        if (l_Dungeon && l_Dungeon->map > 0)
         {
-            LfgEntrancePositionMap::const_iterator itr = m_entrancePositions.find(dungeon->ID);
-            if (itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(dungeon->map))
+            LfgEntrancePositionMap::const_iterator l_Itr = m_entrancePositions.find(l_Dungeon->ID);
+            if (l_Itr == m_entrancePositions.end() && !sObjectMgr->GetMapEntranceTrigger(l_Dungeon->map))
             {
-                cachedDungeon.erase(it++);
+                l_CachedDungeon.erase(l_Iter++);
                 continue;
             }
 
-            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
+            if (AccessRequirement const* l_AccessReq = sObjectMgr->GetAccessRequirement(l_Dungeon->map, Difficulty(l_Dungeon->difficulty)))
             {
-                if (ar->levelMin > MAX_LEVEL || ar->levelMax > MAX_LEVEL)
+                if (l_AccessReq->levelMin > MAX_LEVEL || l_AccessReq->levelMax > MAX_LEVEL)
                 {
-                    cachedDungeon.erase(it++);
+                    l_CachedDungeon.erase(l_Iter++);
+                    continue;
+                }
+            }
+
+            if (LFRAccessRequirement const* l_LFRAccessReq = sObjectMgr->GetLFRAccessRequirement(l_Dungeon->ID))
+            {
+                if (l_LFRAccessReq->LevelMin > MAX_LEVEL || l_LFRAccessReq->LevelMax > MAX_LEVEL)
+                {
+                    l_CachedDungeon.erase(l_Iter++);
                     continue;
                 }
             }
         }
 
-        ++it;
+        ++l_Iter;
     }
-    return cachedDungeon;
+    return l_CachedDungeon;
 }
 
 /**
@@ -2500,19 +2567,14 @@ const LfgDungeonSet& LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, bool chec
    @param[in]     level Player level
    @returns Reward
 */
-LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 dungeon, uint8 level)
+LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 p_DungeonID, uint8 p_LEvel)
 {
-    LfgReward const* rew = NULL;
-    LfgRewardMapBounds bounds = m_RewardMap.equal_range(dungeon & 0x00FFFFFF);
-    for (LfgRewardMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
-    {
-        rew = itr->second;
-        // ordered properly at loading
-        if (itr->second->maxLevel >= level)
-            break;
-    }
+    LfgReward const* l_Reward = nullptr;
+    LfgRewardMap::const_iterator l_Itr = m_RewardMap.find(p_DungeonID & 0x00FFFFFF);
+    if (l_Itr != m_RewardMap.end())
+        l_Reward = l_Itr->second;
 
-    return rew;
+    return l_Reward;
 }
 
 /**
@@ -2734,15 +2796,15 @@ LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
     return LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS,  playerData.GetSelectedDungeons(), playerData.GetComment());
 }
 
-void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
+void LFGMgr::AutomaticLootDistribution(Creature* p_Creature, Group* p_Group)
 {
     float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
 
-    const LootTemplate* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
+    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
     if (l_LootTemplate == nullptr)
         return;
 
-    std::list<const ItemTemplate*> l_LootTable;
+    std::list<ItemTemplate const*> l_LootTable;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
 
     for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != NULL; l_GroupRef = l_GroupRef->next())
@@ -2752,9 +2814,9 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
             continue;
 
         uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
-        std::vector<uint32> l_Items;
+        std::list<uint32> l_Items;
 
-        for (const ItemTemplate* l_ItemTemplate : l_LootTable)
+        for (ItemTemplate const* l_ItemTemplate : l_LootTable)
         {
             for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
             {
@@ -2765,7 +2827,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
 
         if (!roll_chance_f(l_DropChance) || l_Items.empty())
         {
-            const ItemTemplate* l_DefaultRewardItem = GetDefaultAutomaticLootItem(p_Creature);
+            ItemTemplate const* l_DefaultRewardItem = GetDefaultAutomaticLootItem(p_Creature);
             if (!l_DefaultRewardItem)
                 continue;
 
@@ -2774,14 +2836,78 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
             continue;
         }
 
-        std::random_shuffle(l_Items.begin(), l_Items.end());
-        l_Member->AddItem(l_Items[0], 1);
-        l_Member->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+        JadeCore::RandomResizeList(l_Items, 1);
+
+        uint32 l_Item = l_Items.front();
+        l_Member->AddItem(l_Item, 1);
+        l_Member->SendDisplayToast(l_Item, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+    }
+}
+
+void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
+{
+    /// Clear creature loots
+    Loot* l_Loot = &p_Creature->loot;
+    l_Loot->clear();
+
+    float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
+
+    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
+    if (l_LootTemplate == nullptr)
+        return;
+
+    std::list<ItemTemplate const*> l_LootTable;
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+    for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != nullptr; l_GroupRef = l_GroupRef->next())
+    {
+        Player* l_Member = l_GroupRef->getSource();
+        if (l_Member == nullptr)
+            continue;
+
+        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
+        std::list<uint32> l_Items;
+
+        for (ItemTemplate const* l_ItemTemplate : l_LootTable)
+        {
+            for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
+            {
+                if (l_ItemSpecializationId == l_SpecializationId)
+                    l_Items.push_back(l_ItemTemplate->ItemId);
+            }
+        }
+
+        if (!roll_chance_f(l_DropChance) || l_Items.empty())
+            l_Items.clear();
+        else if (!l_Items.empty())
+            JadeCore::RandomResizeList(l_Items, 1);
+
+        if (uint32 l_RuneID = GetAugmentRuneID(l_Member))
+            l_Items.push_back(l_RuneID);
+
+        for (uint32 l_ItemID : l_Items)
+        {
+            LootStoreItem l_StoreItem = LootStoreItem(l_ItemID,                             ///< ItemID (or CurrencyID)
+                                                      LootItemType::LOOT_ITEM_TYPE_ITEM,    ///< LootType
+                                                      100.0f,                               ///< Chance or quest chance
+                                                      LootModes::LOOT_MODE_DEFAULT,         ///< LootMode
+                                                      LootModes::LOOT_MODE_DEFAULT,         ///< Group
+                                                      1,                                    ///< MinCount (or Ref)
+                                                      1,                                    ///< MaxCount
+                                                      std::vector<uint32>());               ///< ItemBonuses
+
+            LootItem l_LootItem = LootItem(l_StoreItem, l_Loot->ItemBonusDifficulty, l_Loot);
+            l_LootItem.SetPersonalLooter(l_Member);
+            l_Loot->Items.push_back(l_LootItem);
+            ++l_Loot->UnlootedCount;
+        }
+
+        l_Loot->AllowedPlayers.AddPlayerGuid(l_Member->GetGUID());
     }
 }
 
 /// Add default reward from LFR raid here
-const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
+ItemTemplate const* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
 {
     uint32 l_ItemId = 0;
     uint32 l_MapId  = p_Creature->GetMapId();
@@ -2825,4 +2951,26 @@ const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
     }
 
     return sObjectMgr->GetItemTemplate(l_ItemId);
+}
+
+/// Add default augment rune from LFR raid here
+uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
+{
+    uint8 l_RuneCount = 3;
+    uint32 l_AugmentRunes[3] = { 118630, 118631, 118632 };
+    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+    for (uint8 l_I = 0; l_I < l_RuneCount; ++l_I)
+    {
+        if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_AugmentRunes[l_I]))
+        {
+            for (SpecIndex l_ItemSpecializationId : l_Template->specs)
+            {
+                if (l_ItemSpecializationId == l_SpecID)
+                    return l_AugmentRunes[l_I];
+            }
+        }
+    }
+
+    return 0;
 }

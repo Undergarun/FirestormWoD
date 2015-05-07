@@ -845,7 +845,7 @@ class ObjectMgr
         typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptContainer;
 
         typedef UNORDERED_MAP<uint32, AccessRequirement> AccessRequirementContainer;
-
+        typedef UNORDERED_MAP<uint32, LFRAccessRequirement> LFRAccessRequirements;
         typedef UNORDERED_MAP<uint32, RepRewardRate > RepRewardRateContainer;
         typedef UNORDERED_MAP<uint32, ReputationOnKillEntry> RepOnKillContainer;
         typedef UNORDERED_MAP<uint32, RepSpilloverTemplate> RepSpilloverTemplateContainer;
@@ -962,6 +962,15 @@ class ObjectMgr
             if (itr != _accessRequirementStore.end())
                 return &itr->second;
             return NULL;
+        }
+
+        LFRAccessRequirement const* GetLFRAccessRequirement(uint32 p_DungeonID) const
+        {
+            LFRAccessRequirements::const_iterator l_Iter = m_LFRAccessRequirements.find(p_DungeonID);
+            if (l_Iter != m_LFRAccessRequirements.end())
+                return &l_Iter->second;
+
+            return nullptr;
         }
 
         AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
@@ -1163,6 +1172,7 @@ class ObjectMgr
 
         void LoadAreaTriggerTeleports();
         void LoadAccessRequirements();
+        void LoadLFRAccessRequirements();
         void LoadQuestAreaTriggers();
         void LoadAreaTriggerScripts();
         void LoadTavernAreaTriggers();
@@ -1717,6 +1727,7 @@ class ObjectMgr
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
+        LFRAccessRequirements m_LFRAccessRequirements;
         DungeonEncounterContainer _dungeonEncounterStore;
 
         RepRewardRateContainer _repRewardRateStore;

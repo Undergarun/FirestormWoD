@@ -309,11 +309,20 @@ class instance_highmaul : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
-                /*switch (p_BossID)
+                switch (p_BossID)
                 {
+                    case eHighmaulDatas::BossTheButcher:
+                    case eHighmaulDatas::BossBrackenspore:
+                    case eHighmaulDatas::BossTectus:
+                    case eHighmaulDatas::BossTwinOgron:
+                    case eHighmaulDatas::BossKoragh:
+                    case eHighmaulDatas::BossImperatorMargok:
+                        if (GetBossState(p_BossID - 1) != EncounterState::DONE)
+                            return false;
+                        break;
                     default:
                         break;
-                }*/
+                }
 
                 return true;
             }
@@ -328,6 +337,8 @@ class instance_highmaul : public InstanceMapScript
 
             void OnPlayerEnter(Player* p_Player) override
             {
+                InstanceScript::OnPlayerEnter(p_Player);
+
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
@@ -348,6 +359,8 @@ class instance_highmaul : public InstanceMapScript
 
             void OnPlayerExit(Player* p_Player) override
             {
+                InstanceScript::OnPlayerExit(p_Player);
+
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
                 p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
