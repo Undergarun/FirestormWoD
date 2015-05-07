@@ -4019,3 +4019,20 @@ bool AchievementMgr<T>::RequiresScript(CriteriaEntry const* p_Criteria)
             return false;
     }
 }
+
+void AchievementGlobalMgr::PrepareCriteriaUpdateTaskThread()
+{
+    AchievementCriteriaUpdateTask l_Task;
+    while (m_AchievementCriteriaUpdateTaskStoreQueue.next(l_Task))
+        m_AchievementCriteriaUpdateTaskProcessQueue.push(l_Task);
+}
+
+void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
+{
+    while (!m_AchievementCriteriaUpdateTaskProcessQueue.empty())
+    {
+        AchievementCriteriaUpdateTask& l_Task = m_AchievementCriteriaUpdateTaskProcessQueue.front();
+        l_Task.Task(l_Task.PlayerGUID, l_Task.UnitGUID);
+        m_AchievementCriteriaUpdateTaskProcessQueue.pop();
+    }
+}

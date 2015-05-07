@@ -653,6 +653,13 @@ class AchievementMgr
         bool m_NeedDBSync;
 };
 
+struct AchievementCriteriaUpdateTask
+{
+    uint64 PlayerGUID;
+    uint64 UnitGUID;
+    std::function<void(uint64, uint64)> Task;
+};
+
 class AchievementGlobalMgr
 {
         friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
@@ -765,6 +772,14 @@ class AchievementGlobalMgr
         AchievementEntry const* GetAchievement(uint32 achievementId) const;
         CriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
 
+        void PrepareCriteriaUpdateTaskThread();
+        void ProcessAllCriteriaUpdateTask();
+
+        void AddCriteriaUpdateTask(AchievementCriteriaUpdateTask const& p_Task)
+        {
+            m_AchievementCriteriaUpdateTaskStoreQueue.add(p_Task);
+        }
+
     private:
         AchievementCriteriaDataMap m_criteriaDataMap;
 
@@ -787,6 +802,9 @@ class AchievementGlobalMgr
 
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
+
+        ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex> m_AchievementCriteriaUpdateTaskStoreQueue;   ///< All criteria update task are first storing here
+        std::queue<AchievementCriteriaUpdateTask> m_AchievementCriteriaUpdateTaskProcessQueue;                               ///< Before thread process, all task stored will be move here
 };
 
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()

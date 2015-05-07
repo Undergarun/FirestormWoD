@@ -29661,20 +29661,37 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= NULL*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/)
 {
     if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
         return;
 
-    GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    AchievementCriteriaUpdateTask l_Task;
+    l_Task.PlayerGUID = GetGUID();
+    l_Task.UnitGUID   = p_Unit ? p_Unit->GetGUID() : 0;
+    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+    {
+        /// Task will be executed async
+        /// We need to ensure the player still exist
+        Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
+        if (l_Player == nullptr)
+            return;
 
-    // Update only individual achievement criteria here, otherwise we may get multiple updates
-    // from a single boss kill
-    if (sAchievementMgr->IsGroupCriteriaType(type))
-        return;
+        /// Same for the unit
+        Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
 
-    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+
+        // Update only individual achievement criteria here, otherwise we may get multiple updates
+        // from a single boss kill
+        if (sAchievementMgr->IsGroupCriteriaType(p_Type))
+            return;
+
+        if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+    };
+
+    sAchievementMgr->AddCriteriaUpdateTask(l_Task);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)
