@@ -34,7 +34,7 @@ using G3D::Vector3;
 using G3D::Ray;
 using G3D::AABox;
 
-#define SPAWN_CORNERS 1
+//#define SPAWN_CORNERS 1
 
 struct GameobjectModelData
 {
