@@ -2348,6 +2348,43 @@ public:
     }
 };
 
+/// Backstab - 53
+class spell_rog_backstab : public SpellScriptLoader
+{
+public:
+    spell_rog_backstab() : SpellScriptLoader("spell_rog_backstab") { }
+
+    class spell_rog_backstab_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_backstab_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->isInFront(l_Caster))
+                        return SPELL_FAILED_NOT_BEHIND;
+                }
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_rog_backstab_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_backstab_SpellScript();
+    }
+};
+
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation();
@@ -2392,6 +2429,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_stealth();
     new spell_rog_internal_bleeding_damage();
     new spell_rog_feint();
+    new spell_rog_backstab();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

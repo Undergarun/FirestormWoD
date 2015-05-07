@@ -86,3 +86,7 @@ INSERT INTO `spell_script_names` VALUES (774, 'spell_dru_dream_of_cenarius_feral
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dru_wod_pvp_2p_restoration';
 INSERT INTO `spell_script_names` VALUES (22812, 'spell_dru_wod_pvp_2p_restoration');
 INSERT INTO `spell_script_names` VALUES (102342, 'spell_dru_wod_pvp_2p_restoration');
+
+-- fix Backstab
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_backstab';
+INSERT INTO `spell_script_names` VALUES (53, 'spell_rog_backstab');
