@@ -1015,7 +1015,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
     Loot &l_Loot = lv.loot;
 
     ObjectGuid l_CreatureGuid   = lv._guid;
-    ObjectGuid l_LootGuid       = MAKE_NEW_GUID(GUID_LOPART(l_CreatureGuid), 0, HIGHGUID_LOOT);
+    uint64 l_LootGuid           = MAKE_NEW_GUID(GUID_LOPART(l_CreatureGuid), 0, HIGHGUID_LOOT);
 
     sObjectMgr->setLootViewGUID(l_LootGuid, l_CreatureGuid);
 
