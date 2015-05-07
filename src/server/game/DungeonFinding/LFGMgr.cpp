@@ -1865,10 +1865,20 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 grp = new Group();
                 grp->Create(player);
 
-                if (dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
+                bool l_IsLFR = dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR;
+                bool l_IsNewLFR = dungeon->difficulty == Difficulty::DifficultyRaidLFR;
+                if (l_IsLFR)
                     grp->ConvertToRaid();
 
                 grp->ConvertToLFG();
+
+                if (l_IsNewLFR)
+                {
+                    /// Loot options sniffed from new LFR type
+                    grp->SetLootMethod(LootMethod::FREE_FOR_ALL);
+                    grp->SetLootThreshold(ItemQualities::ITEM_QUALITY_POOR);
+                }
+
                 uint64 gguid = grp->GetGUID();
                 SetState(gguid, LFG_STATE_PROPOSAL);
                 sGroupMgr->AddGroup(grp);
@@ -2786,15 +2796,15 @@ LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
     return LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS,  playerData.GetSelectedDungeons(), playerData.GetComment());
 }
 
-void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
+void LFGMgr::AutomaticLootDistribution(Creature* p_Creature, Group* p_Group)
 {
     float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
 
-    const LootTemplate* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
+    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
     if (l_LootTemplate == nullptr)
         return;
 
-    std::list<const ItemTemplate*> l_LootTable;
+    std::list<ItemTemplate const*> l_LootTable;
     l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
 
     for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != NULL; l_GroupRef = l_GroupRef->next())
@@ -2804,9 +2814,9 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
             continue;
 
         uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
-        std::vector<uint32> l_Items;
+        std::list<uint32> l_Items;
 
-        for (const ItemTemplate* l_ItemTemplate : l_LootTable)
+        for (ItemTemplate const* l_ItemTemplate : l_LootTable)
         {
             for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
             {
@@ -2817,7 +2827,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
 
         if (!roll_chance_f(l_DropChance) || l_Items.empty())
         {
-            const ItemTemplate* l_DefaultRewardItem = GetDefaultAutomaticLootItem(p_Creature);
+            ItemTemplate const* l_DefaultRewardItem = GetDefaultAutomaticLootItem(p_Creature);
             if (!l_DefaultRewardItem)
                 continue;
 
@@ -2826,14 +2836,78 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
             continue;
         }
 
-        std::random_shuffle(l_Items.begin(), l_Items.end());
-        l_Member->AddItem(l_Items[0], 1);
-        l_Member->SendDisplayToast(l_Items[0], 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+        JadeCore::RandomResizeList(l_Items, 1);
+
+        uint32 l_Item = l_Items.front();
+        l_Member->AddItem(l_Item, 1);
+        l_Member->SendDisplayToast(l_Item, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+    }
+}
+
+void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
+{
+    /// Clear creature loots
+    Loot* l_Loot = &p_Creature->loot;
+    l_Loot->clear();
+
+    float l_DropChance = sWorld->getFloatConfig(CONFIG_LFR_DROP_CHANCE);
+
+    LootTemplate const* l_LootTemplate = LootTemplates_Creature.GetLootFor(p_Creature->GetCreatureTemplate()->lootid);
+    if (l_LootTemplate == nullptr)
+        return;
+
+    std::list<ItemTemplate const*> l_LootTable;
+    l_LootTemplate->FillAutoAssignationLoot(l_LootTable);
+
+    for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != nullptr; l_GroupRef = l_GroupRef->next())
+    {
+        Player* l_Member = l_GroupRef->getSource();
+        if (l_Member == nullptr)
+            continue;
+
+        uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
+        std::list<uint32> l_Items;
+
+        for (ItemTemplate const* l_ItemTemplate : l_LootTable)
+        {
+            for (SpecIndex l_ItemSpecializationId : l_ItemTemplate->specs)
+            {
+                if (l_ItemSpecializationId == l_SpecializationId)
+                    l_Items.push_back(l_ItemTemplate->ItemId);
+            }
+        }
+
+        if (!roll_chance_f(l_DropChance) || l_Items.empty())
+            l_Items.clear();
+        else if (!l_Items.empty())
+            JadeCore::RandomResizeList(l_Items, 1);
+
+        if (uint32 l_RuneID = GetAugmentRuneID(l_Member))
+            l_Items.push_back(l_RuneID);
+
+        for (uint32 l_ItemID : l_Items)
+        {
+            LootStoreItem l_StoreItem = LootStoreItem(l_ItemID,                             ///< ItemID (or CurrencyID)
+                                                      LootItemType::LOOT_ITEM_TYPE_ITEM,    ///< LootType
+                                                      100.0f,                               ///< Chance or quest chance
+                                                      LootModes::LOOT_MODE_DEFAULT,         ///< LootMode
+                                                      LootModes::LOOT_MODE_DEFAULT,         ///< Group
+                                                      1,                                    ///< MinCount (or Ref)
+                                                      1,                                    ///< MaxCount
+                                                      std::vector<uint32>());               ///< ItemBonuses
+
+            LootItem l_LootItem = LootItem(l_StoreItem, l_Loot->ItemBonusDifficulty, l_Loot);
+            l_LootItem.SetPersonalLooter(l_Member);
+            l_Loot->Items.push_back(l_LootItem);
+            ++l_Loot->UnlootedCount;
+        }
+
+        l_Loot->AllowedPlayers.AddPlayerGuid(l_Member->GetGUID());
     }
 }
 
 /// Add default reward from LFR raid here
-const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
+ItemTemplate const* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
 {
     uint32 l_ItemId = 0;
     uint32 l_MapId  = p_Creature->GetMapId();
@@ -2877,4 +2951,26 @@ const ItemTemplate* LFGMgr::GetDefaultAutomaticLootItem(Creature* p_Creature)
     }
 
     return sObjectMgr->GetItemTemplate(l_ItemId);
+}
+
+/// Add default augment rune from LFR raid here
+uint32 LFGMgr::GetAugmentRuneID(Player const* p_Player) const
+{
+    uint8 l_RuneCount = 3;
+    uint32 l_AugmentRunes[3] = { 118630, 118631, 118632 };
+    uint32 l_SpecID = p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+
+    for (uint8 l_I = 0; l_I < l_RuneCount; ++l_I)
+    {
+        if (ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(l_AugmentRunes[l_I]))
+        {
+            for (SpecIndex l_ItemSpecializationId : l_Template->specs)
+            {
+                if (l_ItemSpecializationId == l_SpecID)
+                    return l_AugmentRunes[l_I];
+            }
+        }
+    }
+
+    return 0;
 }

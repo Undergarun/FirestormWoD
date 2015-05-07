@@ -159,6 +159,11 @@ enum eChallengeMedals
     MaxMedalType
 };
 
+enum eInstanceSpells
+{
+    SpellDetermination = 139068
+};
+
 class InstanceScript : public ZoneScript
 {
     public:
@@ -245,8 +250,8 @@ class InstanceScript : public ZoneScript
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
         virtual bool SetBossState(uint32 id, EncounterState state);
-        EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
+        EncounterState GetBossState(uint32 id) const { return id < m_Bosses.size() ? m_Bosses[id].state : TO_BE_DECIDED; }
+        BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < m_Bosses.size() ? &m_Bosses[id].boundary : NULL; }
 
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
@@ -450,10 +455,11 @@ class InstanceScript : public ZoneScript
         std::string LoadBossState(char const* data);
         std::string GetBossSaveData();
     private:
-        std::vector<BossInfo> bosses;
+        std::vector<BossInfo> m_Bosses;
         std::vector<BossScenarios> m_BossesScenarios;
         DoorInfoMap doors;
         MinionInfoMap minions;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 m_EncounterTime;
 };
 #endif

@@ -462,7 +462,7 @@ class boss_ji_kun : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (GameObject* l_ExitDoor = m_Instance->instance->GetGameObject(m_Instance->GetData64(GOB_JI_KUN_EXIT_DOOR)))

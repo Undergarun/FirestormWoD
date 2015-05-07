@@ -308,7 +308,7 @@ class boss_megaera : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
             }
 

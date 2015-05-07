@@ -43,6 +43,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_BeginningTime = 0;
     m_ScenarioID = 0;
     m_ScenarioStep = 0;
+    m_EncounterTime = 0;
 }
 
 void InstanceScript::SaveToDB()
@@ -70,7 +71,7 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
 
 bool InstanceScript::IsEncounterInProgress() const
 {
-    for (std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
+    for (std::vector<BossInfo>::const_iterator itr = m_Bosses.begin(); itr != m_Bosses.end(); ++itr)
         if (itr->state == IN_PROGRESS)
             return true;
 
@@ -87,14 +88,15 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 void InstanceScript::OnPlayerExit(Player* p_Player)
 {
     UpdateCreatureGroupSizeStats();
+    p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
 {
     while (data->entry)
     {
-        if (data->bossId < bosses.size())
-            minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+        if (data->bossId < m_Bosses.size())
+            minions.insert(std::make_pair(data->entry, MinionInfo(&m_Bosses[data->bossId])));
 
         ++data;
     }
@@ -103,7 +105,7 @@ void InstanceScript::LoadMinionData(const MinionData* data)
 
 void InstanceScript::SetBossNumber(uint32 p_Number)
 {
-    bosses.resize(p_Number);
+    m_Bosses.resize(p_Number);
     m_BossesScenarios.resize(p_Number);
 }
 
@@ -111,8 +113,8 @@ void InstanceScript::LoadDoorData(const DoorData* data)
 {
     while (data->entry)
     {
-        if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
+        if (data->bossId < m_Bosses.size())
+            doors.insert(std::make_pair(data->entry, DoorInfo(&m_Bosses[data->bossId], data->type, BoundaryType(data->boundary))));
 
         ++data;
     }
@@ -123,7 +125,7 @@ void InstanceScript::LoadScenariosInfos(BossScenarios const* p_Scenarios, uint32
 {
     while (p_Scenarios->m_ScenarioID)
     {
-        if (p_Scenarios->m_BossID < bosses.size())
+        if (p_Scenarios->m_BossID < m_Bosses.size())
             m_BossesScenarios[p_Scenarios->m_BossID] = BossScenarios(p_Scenarios->m_BossID, p_Scenarios->m_ScenarioID);
 
         ++p_Scenarios;
@@ -266,53 +268,95 @@ void InstanceScript::AddMinion(Creature* minion, bool add)
         itr->second.bossInfo->minion.erase(minion);
 }
 
-bool InstanceScript::SetBossState(uint32 id, EncounterState state)
+bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
 {
-    if (id < bosses.size())
+    if (p_ID < m_Bosses.size())
     {
-        BossInfo* bossInfo = &bosses[id];
-        BossScenarios* l_BossScenario = &m_BossesScenarios[id];
+        BossInfo* l_BossInfos = &m_Bosses[p_ID];
+        BossScenarios* l_BossScenario = &m_BossesScenarios[p_ID];
 
-        if (bossInfo->state == TO_BE_DECIDED) // loading
+        if (l_BossInfos->state == EncounterState::TO_BE_DECIDED) // loading
         {
-            bossInfo->state = state;
+            l_BossInfos->state = p_State;
 
-            if (state == DONE)
+            if (p_State == EncounterState::DONE)
                 SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
 
             return false;
         }
         else
         {
-            if (bossInfo->state == state)
+            if (l_BossInfos->state == p_State)
                 return false;
 
-            if (state == DONE)
+            switch (p_State)
             {
-                for (MinionSet::iterator l_Iter = bossInfo->minion.begin(); l_Iter != bossInfo->minion.end(); ++l_Iter)
+                case EncounterState::DONE:
                 {
-                    if ((*l_Iter)->isWorldBoss() && (*l_Iter)->isAlive())
-                        return false;
-                }
+                    for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
+                    {
+                        if ((*l_Iter)->isWorldBoss() && (*l_Iter)->isAlive())
+                            return false;
+                    }
 
-                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                    SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                    /// This buff disappears immediately after killing the boss
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::SpellDetermination);
+
+                    /// End of challenge
+                    if (p_ID == (m_Bosses.size() - 1))
+                    {
+                        if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+                        {
+                            m_ChallengeStarted = false;
+
+                            SendChallengeNewPlayerRecord();
+                            SendChallengeModeComplete(RewardChallengers());
+                            SendChallengeStopElapsedTimer(1);
+
+                            SaveChallengeDatasIfNeeded();
+
+                            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
+                        }
+
+                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                    }
+
+                    m_EncounterTime = 0;
+                    break;
+                }
+                case EncounterState::IN_PROGRESS:
+                    m_EncounterTime = time(nullptr);
+                    break;
+                case EncounterState::FAIL:
+                {
+                    /// Now you have to fight for at least 3mins to get a stack.
+                    /// It was nerfed due to people intentionally reseting the boss to gain max stack to kill the boss faster.
+                    if (instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
+                        DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
+                    break;
+                }
+                default:
+                    break;
             }
 
-            bossInfo->state = state;
+            l_BossInfos->state = p_State;
             SaveToDB();
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
-                UpdateDoorState(*i);
+        for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
+        {
+            for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
+                UpdateDoorState(*l_Iter);
+        }
 
-        for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-            UpdateMinionState(*i, state);
+        for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
+            UpdateMinionState(*l_Iter, p_State);
 
         /// ADD GUILD REWARDS
         {
-            InstanceMap::PlayerList const &l_PlayersMap = instance->GetPlayers();
-
+            InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
             for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
             {
                 if (Player* l_Player = l_Itr->getSource())
@@ -334,31 +378,12 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             }
         }
 
-        /// End of challenge
-        if (id == (bosses.size() - 1) && state == DONE)
-        {
-            if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
-            {
-                m_ChallengeStarted = false;
-
-                SendChallengeNewPlayerRecord();
-                SendChallengeModeComplete(RewardChallengers());
-                SendChallengeStopElapsedTimer(1);
-
-                SaveChallengeDatasIfNeeded();
-
-                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
-            }
-
-            SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
-        }
-
         /// Send encounters for Bosses
         if (instance->IsRaid())
         {
-            if (state == EncounterState::IN_PROGRESS)
+            if (p_State == EncounterState::IN_PROGRESS)
                 SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_START);
-            else if (state == EncounterState::DONE || state == EncounterState::FAIL)
+            else if (p_State == EncounterState::DONE || p_State == EncounterState::FAIL)
                 SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END);
         }
 
@@ -375,7 +400,7 @@ std::string InstanceScript::LoadBossState(const char * data)
     std::istringstream loadStream(data);
     uint32 buff;
     uint32 bossId = 0;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
+    for (std::vector<BossInfo>::iterator i = m_Bosses.begin(); i != m_Bosses.end(); ++i, ++bossId)
     {
         loadStream >> buff;
         if (buff < TO_BE_DECIDED)
@@ -387,7 +412,7 @@ std::string InstanceScript::LoadBossState(const char * data)
 std::string InstanceScript::GetBossSaveData()
 {
     std::ostringstream saveStream;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
+    for (std::vector<BossInfo>::iterator i = m_Bosses.begin(); i != m_Bosses.end(); ++i)
         saveStream << (uint32)i->state << ' ';
     return saveStream.str();
 }
@@ -748,9 +773,9 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
 
 void InstanceScript::UpdateCriteriasAfterLoading()
 {
-    for (uint8 l_I = 0; l_I < bosses.size(); ++l_I)
+    for (uint8 l_I = 0; l_I < m_Bosses.size(); ++l_I)
     {
-        BossInfo* bossInfo = &bosses[l_I];
+        BossInfo* bossInfo = &m_Bosses[l_I];
         BossScenarios* l_BossScenario = &m_BossesScenarios[l_I];
 
         if (bossInfo->state == DONE)

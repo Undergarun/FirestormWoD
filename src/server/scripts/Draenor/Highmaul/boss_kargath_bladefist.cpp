@@ -399,6 +399,13 @@ class boss_kargath_bladefist : public CreatureScript
                     }
 
                     me->SummonGameObject(eHighmaulGameobjects::InstancePortal2, g_NewInstancePortalPos, 0.0f, 0.0f, 0.0f, 1.0f, -1);
+
+                    if (IsLFR())
+                    {
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 
@@ -476,6 +483,9 @@ class boss_kargath_bladefist : public CreatureScript
                 }
 
                 CreatureAI::EnterEvadeMode();
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossKargathBladefist, EncounterState::FAIL);
             }
 
             void JustReachedHome() override

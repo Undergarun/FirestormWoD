@@ -314,21 +314,20 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootOpcode(WorldPacket& p_RecvData)
 {
-    uint64 l_UnitGuid;
+    uint64 l_UnitGuid = 0;
+    p_RecvData.readPackGUID(l_UnitGuid);
 
-    recvData.readPackGUID(l_UnitGuid);
-
-    // Check possible cheat
+    /// Check possible cheat
     if (!m_Player->isAlive())
         return;
 
-    GetPlayer()->SendLoot(l_UnitGuid, LOOT_CORPSE);
+    m_Player->SendLoot(l_UnitGuid, LOOT_CORPSE);
 
-    // interrupt cast
-    if (GetPlayer()->IsNonMeleeSpellCasted(false))
-        GetPlayer()->InterruptNonMeleeSpells(false);
+    /// Interrupt cast
+    if (m_Player->IsNonMeleeSpellCasted(false))
+        m_Player->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& p_RecvPacket)

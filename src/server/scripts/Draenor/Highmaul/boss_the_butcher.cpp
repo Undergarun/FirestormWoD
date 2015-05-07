@@ -222,6 +222,9 @@ class boss_the_butcher : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossTheButcher);
+
                 _EnterCombat();
 
                 me->CastSpell(me, eSpells::Angry5PerTick, true);
@@ -269,6 +272,9 @@ class boss_the_butcher : public CreatureScript
                 CreatureAI::EnterEvadeMode();
 
                 Talk(eTalks::Wipe);
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossTheButcher, EncounterState::FAIL);
             }
 
             void RegeneratePower(Powers p_Power, int32& p_Value) override
@@ -286,6 +292,13 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+
+                    if (IsLFR())
+                    {
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 
