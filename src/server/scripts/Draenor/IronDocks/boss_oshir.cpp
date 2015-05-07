@@ -446,7 +446,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<Creature*> wolfs;
+        std::list<uint64> wolfs;
         bool released;
         InstanceScript* instance;
 
@@ -462,7 +462,7 @@ public:
                 wolf->setFaction(35);
                 wolf->SetReactState(REACT_PASSIVE);
 
-                wolfs.push_back(wolf);
+                wolfs.push_back(wolf->GetGUID());
             }
         }
         void DoAction(int32 const action)
@@ -499,9 +499,13 @@ public:
                         {
                             for (auto itr : wolfs)
                             {
-                                itr->setFaction(16);
-                                itr->SetReactState(REACT_AGGRESSIVE);
-                                itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                Creature* l_Wolf = me->GetCreature(*me, itr);
+                                if (l_Wolf)
+                                {
+                                    l_Wolf->setFaction(16);
+                                    l_Wolf->SetReactState(REACT_AGGRESSIVE);
+                                    l_Wolf->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                }
                             }
                         }
                     }
