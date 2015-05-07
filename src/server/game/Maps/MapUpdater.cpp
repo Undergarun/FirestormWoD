@@ -56,7 +56,7 @@ class MapUpdateRequest : public ACE_Method_Request
             signal(SIGSEGV, &MS::SignalHandler::OnSignalReceive);
 
             m_map.Update (m_diff);
-            m_updater.update_finished();
+            m_updater._update_finished();
             return 0;
         }
 };
@@ -109,13 +109,28 @@ int MapUpdater::schedule_update(Map& map, ACE_UINT32 diff)
 
     return 0;
 }
+int MapUpdater::schedule_specific(ACE_Method_Request* p_Request)
+{
+    TRINITY_GUARD(ACE_Thread_Mutex, m_mutex);
+
+    ++pending_requests;
+    if (m_executor.execute(p_Request) == -1)
+    {
+        ACE_DEBUG((LM_ERROR, ACE_TEXT("(%t) \n"), ACE_TEXT("Failed to schedule specific Update")));
+
+        --pending_requests;
+        return -1;
+    }
+
+    return 0;
+}
 
 bool MapUpdater::activated()
 {
     return m_executor.activated();
 }
 
-void MapUpdater::update_finished()
+void MapUpdater::_update_finished()
 {
     TRINITY_GUARD(ACE_Thread_Mutex, m_mutex);
 

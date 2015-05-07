@@ -24,7 +24,7 @@
 #include <ace/TSS_T.h>
 #include <ace/INET_Addr.h>
 
-typedef ACE_TSS<SFMTRand> SFMTRandTSS;
+typedef ACE_TSS<CRandomSFMT> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
 void init_sfmt()
@@ -39,7 +39,7 @@ int32 irand(int32 min, int32 max)
 
 uint32 urand(uint32 min, uint32 max)
 {
-    return sfmtRand->URandom(min, max);
+    return uint32(sfmtRand->IRandom((uint32)min, (uint32)max));
 }
 
 float frand(float min, float max)

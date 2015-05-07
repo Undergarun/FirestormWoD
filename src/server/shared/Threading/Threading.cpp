@@ -230,7 +230,7 @@ void Thread::setPriority(Priority type)
     //remove this ASSERT in case you don't want to know is thread priority change was successful or not
     ASSERT (_ok == 0);
 }
-void Thread::setName(char * p_Name)
+void Thread::setName(char* p_Name)
 {
 #ifdef _MSC_VER
     typedef struct tagTHREADNAME_INFO
@@ -241,18 +241,18 @@ void Thread::setName(char * p_Name)
         DWORD dwFlags; // reserved for future use, must be zero
     } THREADNAME_INFO;
 
-    auto _SetName = [](char * p_Name)
+    auto _SetName = [](char* p_Name)
     {
-        THREADNAME_INFO info;
+        THREADNAME_INFO l_Info;
         {
-            info.dwType = 0x1000;
-            info.szName = p_Name;
-            info.dwThreadID = GetCurrentThreadId();
-            info.dwFlags = 0;
+            l_Info.dwType = 0x1000;
+            l_Info.szName = p_Name;
+            l_Info.dwThreadID = GetCurrentThreadId();
+            l_Info.dwFlags = 0;
         }
         __try
         {
-            RaiseException(0x406D1388, 0, sizeof(info) / sizeof(DWORD), (ULONG_PTR*)&info);
+            RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*)&l_Info);
         }
         __except (EXCEPTION_CONTINUE_EXECUTION)
         {
