@@ -8222,7 +8222,18 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
     l_Statement->setUInt32(2, l_HeirloomEntry->ID);
     LoginDatabase.Execute(l_Statement);
 
-    l_Player->RemoveItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    uint64 l_Guid   = l_Player->GetGUID();
+    uint8 l_BagSlot = m_CastItem->GetBagSlot();
+    uint8 l_Slot    = m_CastItem->GetSlot();
+
+    sMapMgr->AddCriticalOperation([l_Guid, l_BagSlot, l_Slot]() -> void
+    {
+        Player* l_Player = HashMapHolder<Player>::Find(l_Guid);
+        if (l_Player == nullptr)
+            return;
+
+        l_Player->DestroyItem(l_BagSlot, l_Slot, true);
+    });
 
     std::vector<uint32> const& l_Heirlooms = l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS);
     for (uint32 l_I = 0; l_I < l_Heirlooms.size(); ++l_I)
