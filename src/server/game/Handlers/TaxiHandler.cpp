@@ -67,8 +67,6 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
-
     uint64 l_UnitGuid;
 
     p_RecvPacket.readPackGUID(l_UnitGuid);
@@ -268,8 +266,6 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI");
-
     uint64 l_VendorGuid;
     std::vector<uint32> l_Nodes;
 
@@ -281,8 +277,6 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
     l_Nodes[0] = sObjectMgr->GetNearestTaxiNode(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY(), GetPlayer()->GetPositionZ(), GetPlayer()->GetMapId(), GetPlayer()->GetTeam());
     if (!l_Nodes[0])
         return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", l_Nodes[0], l_Nodes[1]);
 
     Creature * l_Npc = GetPlayer()->GetNPCIfCanInteractWith(l_VendorGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
 

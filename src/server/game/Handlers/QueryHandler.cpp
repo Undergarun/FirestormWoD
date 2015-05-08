@@ -308,8 +308,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleCorpseLocationFromClientQueryOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CORPSE_QUERY");
-
     Corpse* l_Corpse = GetPlayer()->GetCorpse();
 
     if (!l_Corpse)

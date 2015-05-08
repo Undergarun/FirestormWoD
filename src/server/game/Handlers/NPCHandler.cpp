@@ -348,8 +348,6 @@ void WorldSession::SendTrainerService(uint64 p_Guid, uint32 p_SpellID, uint32 p_
 
 void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
-
     uint64 guid;
 
     recvData.readPackGUID(guid);

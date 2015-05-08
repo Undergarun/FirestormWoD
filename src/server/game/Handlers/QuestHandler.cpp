@@ -84,8 +84,6 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
-
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!creature)
     {
@@ -337,8 +335,6 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_QuestId;
     l_RespondToGiver = p_RecvData.ReadBit();
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, RespondToGiver = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RespondToGiver);
-
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
     if (!object || (!object->hasQuest(l_QuestId) && !object->hasInvolvedQuest(l_QuestId)))
@@ -383,7 +379,6 @@ void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
 
     uint32 questId;
     recvData >> questId;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_QUERY quest = %u", questId);
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         m_Player->PlayerTalkClass->SendQuestQueryResponse(quest);
@@ -398,8 +393,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId >> l_RewardEntry;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RewardEntry);
 
     Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestId);
     if (!l_Quest)
@@ -530,8 +523,6 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
     recvData.readPackGUID(guid);
     recvData >> questId;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
-
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
     if (!object || !object->hasInvolvedQuest(questId))
         return;
@@ -554,8 +545,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
 {
     uint8 slot;
     recvData >> slot;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
 
     if (slot < MAX_QUEST_LOG_SIZE)
     {
@@ -587,8 +576,6 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
     uint32 questId;
     recvData >> questId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT questId = %u", questId);
 
     if (const Quest* quest = sObjectMgr->GetQuestTemplate(questId))
     {
@@ -630,8 +617,6 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     autoCompleteMode = recvData.ReadBit();
     recvData.FlushBits();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(l_QuestGiverGUID)), l_QuestID);
 
     if (autoCompleteMode == 0)
     {
@@ -689,8 +674,6 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 {
     uint32 questId;
     recvPacket >> questId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PUSHQUESTTOPARTY questId = %u", questId);
 
     if (m_Player->GetQuestStatus(questId) == QUEST_STATUS_NONE || m_Player->GetQuestStatus(questId) == QUEST_STATUS_REWARDED)
         return;
@@ -871,8 +854,6 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
 
 void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
-
     uint32 count = 0;
     for (auto itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
     {

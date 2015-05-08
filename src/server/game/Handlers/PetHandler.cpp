@@ -38,8 +38,6 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     uint64 guid;
     recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
-
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, guid);
 
     if (!pet)

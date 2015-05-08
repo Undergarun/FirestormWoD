@@ -647,8 +647,6 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleContactListOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SEND_CONTACT_LIST");
-
     uint32 l_Flags;
 
     p_RecvData >> l_Flags;
@@ -659,8 +657,6 @@ void WorldSession::HandleContactListOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleAddFriendOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_FRIEND");
-
     std::string l_FriendName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
     std::string l_FriendNote;
 
@@ -737,8 +733,6 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
 void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_FRIEND");
-
     uint64 l_Guid;
 
     uint32 l_VirtualRealmAddress;
@@ -753,8 +747,6 @@ void WorldSession::HandleDelFriendOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleAddIgnoreOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_IGNORE");
-
     std::string l_IgnoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
 
     uint32 l_IgnoreNameLen = p_RecvData.ReadBits(9);
@@ -810,8 +802,6 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 
 void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DEL_IGNORE");
-
     uint64 l_Guid;
 
     uint32 l_VirtualRealmAddress;
@@ -893,8 +883,6 @@ void WorldSession::HandleRequestGmTicket(WorldPacket& /*recvPakcet*/)
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RECLAIM_CORPSE");
-
     uint64 l_CorpseGUID = 0;
 
     p_Packet.readPackGUID(l_CorpseGUID);
@@ -1190,8 +1178,6 @@ int32 WorldSession::HandleEnableNagleAlgorithm()
 
 void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ACTION_BUTTON");
-
     uint64 l_PackedData = 0;
 
     uint8 l_Button = 0;
@@ -1215,14 +1201,11 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_CINEMATIC");
-
     m_Player->StopCinematic();
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_NEXT_CINEMATIC_CAMERA");
 }
 
 void WorldSession::HandleCompleteMovieOpcode(WorldPacket & p_Packet)
@@ -1278,8 +1261,6 @@ void WorldSession::HandleSceneCancelOpcode(WorldPacket & p_Packet)
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
-
     uint64 p_MoverGUID;
     uint32 p_Time;
 
@@ -1577,8 +1558,6 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     recvData >> Orientation;
     recvData >> PositionY;
     recvData >> PositionZ;                          // o (3.141593 = 180 degrees)
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_WORLD_TELEPORT");
 
     if (GetPlayer()->isInFlight())
     {
