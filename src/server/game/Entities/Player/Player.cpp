@@ -8606,7 +8606,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 p_State) const
 {
-    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 132));
+    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 8));
 
     if (p_State != 2)
     {
@@ -24172,7 +24172,7 @@ void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgT
     uint32 l_SenderNameLen = strlen(GetName());
     uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
-    p_Data->Initialize(SMSG_CHAT, 100);
+    p_Data->Initialize(SMSG_CHAT, 800);
     *p_Data << uint8(p_MsgType);
     *p_Data << uint8(p_LangID);
     p_Data->appendPackGUID(GetGUID());

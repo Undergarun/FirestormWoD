@@ -321,7 +321,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 
     /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
     /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
-    WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
+    WorldPacket l_Data(SMSG_UPDATE_OBJECT);
 
     // Player cannot see creatures from different map ;)
     uint16 l_MapID = p_Target->GetMapId();
@@ -2696,7 +2696,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     ObjectGuid receiverGuid = targetGuid;
     ObjectGuid guildGuid = 0;
 
-    data->Initialize(SMSG_CHAT, 200);
+    data->Initialize(SMSG_CHAT, 800);
     *data << uint8(msgtype);
     *data << uint8(language);
     data->appendPackGUID(senderGuid);

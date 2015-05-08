@@ -1051,7 +1051,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     l_Data << uint8(0x80);                                                  ///< Reason
     SendPacket(&l_Data);
 
-    l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 24);
     l_Data << pCurrChar->GetMapId();                                        ///< uint32
     l_Data << pCurrChar->GetPositionX();                                    ///< float
     l_Data << pCurrChar->GetPositionY();                                    ///< float

@@ -2822,13 +2822,13 @@ bool Creature::SetWalk(bool enable)
     ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
@@ -2849,13 +2849,13 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     ObjectGuid l_Guid = GetGUID();
     if (disable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
@@ -2881,13 +2881,13 @@ bool Creature::SetHover(bool enable)
     ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_HOVER, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_UNSET_HOVER, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }

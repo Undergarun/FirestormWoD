@@ -14432,63 +14432,63 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         {
             case MOVE_WALK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_TURN_RATE:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_PITCH_RATE:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
@@ -18856,7 +18856,7 @@ void Unit::SetRooted(bool apply)
         else
         {
             ObjectGuid guid = GetGUID();
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 16 + 2);
             data.appendPackGUID(guid);
             SendMessageToSet(&data, true);
             StopMoving();
@@ -18871,7 +18871,7 @@ void Unit::SetRooted(bool apply)
             else
             {
                 ObjectGuid guid = GetGUID();
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 16 + 2);
                 data.appendPackGUID(guid);
                 SendMessageToSet(&data, true);
             }
@@ -20955,7 +20955,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 16 + 2);
         ObjectGuid guid = GetGUID();
         data.appendPackGUID(guid);
         SendMessageToSet(&data, false);
@@ -21495,12 +21495,12 @@ void Unit::SendMovementHover(bool apply)
 
     if (apply)
     {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 16 + 2);
         AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
     else
     {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 16 + 2);
         RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -21547,9 +21547,9 @@ void Unit::SendMovementWaterWalking()
     WorldPacket l_Data;
 
     if (HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21563,9 +21563,9 @@ void Unit::SendMovementFeatherFall()
     WorldPacket l_Data;
 
     if (HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21579,9 +21579,9 @@ void Unit::SendMovementCanFlyChange()
     WorldPacket l_Data;
 
     if (CanFly())
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21596,13 +21596,13 @@ void Unit::SendCanTurnWhileFalling(bool p_Apply)
 
     if (p_Apply)
     {
-        l_Data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 16 + 2 + 4);
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(0);  // Movement counter
     }
     else
     {
-        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 16 + 2 + 4);
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(0);  // Movement counter
     }

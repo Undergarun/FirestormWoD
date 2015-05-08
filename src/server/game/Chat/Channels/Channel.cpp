@@ -872,7 +872,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
 {
     std::string l_UnkString = "";
 
-    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 1 + m_name.size() + 4);
+    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 3 + 1 + 4 + 8 + m_name.size() + l_UnkString.size());
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
     p_Data->WriteBits(l_UnkString.length(), 10);///< Channel Name
     p_Data->FlushBits();
