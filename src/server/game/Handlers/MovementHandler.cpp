@@ -35,7 +35,6 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -558,16 +557,12 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
-
     uint64 l_Guid;
     p_RecvPacket.readPackGUID(l_Guid);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
-
     uint64 old_mover_guid;
     recvData.readPackGUID(old_mover_guid);
 
@@ -588,8 +583,6 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*p_RecvData*/)
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
-
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
 

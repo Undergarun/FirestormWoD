@@ -3614,7 +3614,7 @@ template class AchievementMgr<Player>;
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     if (sCriteriaStore.GetNumRows() == 0)
     {
@@ -3693,12 +3693,12 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         ++l_CriteriaCount;
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement criteria in %u ms", l_CriteriaCount, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement criteria in %u ms", l_CriteriaCount, GetClockDiffToNow(l_OldMSTime));
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     if (sAchievementStore.GetNumRows() == 0)
     {
@@ -3722,7 +3722,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
             l_MaxSharesCriteria = l_Achievement->SharesCriteria;
     }
 
-    m_AchievementEntryByCriteriaTree.resize(l_MaxCriteriaTree + 1, nullptr);
+    m_AchievementEntryByCriteriaTree.resize(sCriteriaTreeStore.GetNumRows() + 1, nullptr);
 
     uint32 l_Counter = 0;
 
@@ -3756,12 +3756,12 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     if (AchievementEntry const* l_Achievement = sAchievementMgr->GetAchievement(4539))
         const_cast<AchievementEntry*>(l_Achievement)->InstanceId = 631;    // Correct map requirement (currently has Ulduar)
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement references in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement references in %u ms", l_Counter, GetClockDiffToNow(l_OldMSTime));
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_criteriaDataMap.clear();                              // Need for reload case
 
@@ -3815,12 +3815,12 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional achievement criteria data in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional achievement criteria data in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     QueryResult l_Result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
@@ -3851,12 +3851,12 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetClockDiffToNow(l_OldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewards()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_achievementRewards.clear();                           // Need for reload case
 
@@ -3960,12 +3960,12 @@ void AchievementGlobalMgr::LoadRewards()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement rewards in %u ms", l_Counter, GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement rewards in %u ms", l_Counter, GetClockDiffToNow(l_OldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     m_achievementRewardLocales.clear();                       // Need for reload case
 
@@ -4002,7 +4002,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu achievement reward locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu achievement reward locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetClockDiffToNow(l_OldMSTime));
 }
 
 AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 p_AchievementID) const

@@ -305,7 +305,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
 
 void LoadDBCStores(const std::string& dataPath)
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     std::string dbcPath = dataPath+"dbc/";
 
@@ -738,7 +738,7 @@ void LoadDBCStores(const std::string& dataPath)
         exit(1);
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetClockDiffToNow(oldMSTime));
 }
 
 const std::string* GetRandomCharacterName(uint8 race, uint8 gender)

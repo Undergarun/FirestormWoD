@@ -38,8 +38,6 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     uint64 guid;
     recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
-
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, guid);
 
     if (!pet)
@@ -787,8 +785,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     //////////////////////////////////////////////////////////////////////////
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, targetFlags %u", l_CastCount, l_SpellID, l_TargetFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!m_Player->GetGuardianPet() && !m_Player->GetCharm())

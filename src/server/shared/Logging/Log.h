@@ -88,6 +88,7 @@ class Log
         AppenderMap appenders;
         LoggerMap loggers;
         uint8 AppenderId;
+        LogLevel lowestLogLevel;
 
         std::string m_logsDir;
         std::string m_logsTimestamp;

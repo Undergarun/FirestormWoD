@@ -42,6 +42,16 @@ inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
     return getMSTimeDiff(oldMSTime, getMSTime());
 }
 
+inline uint32 GetClock()
+{
+    return clock();
+}
+
+inline uint32 GetClockDiffToNow(uint32 p_OldClock)
+{
+    return clock() - p_OldClock;
+}
+
 struct IntervalTimer
 {
     public:

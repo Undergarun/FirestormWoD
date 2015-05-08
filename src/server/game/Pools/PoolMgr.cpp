@@ -575,7 +575,7 @@ void PoolMgr::LoadFromDB()
 {
     // Pool templates
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
         if (!result)
@@ -599,14 +599,14 @@ void PoolMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u objects pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u objects pools in %u ms", count, GetClockDiffToNow(oldMSTime));
     }
 
     // Creatures
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creatures Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                 1       2         3
         QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
@@ -654,7 +654,7 @@ void PoolMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creatures in pools in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
@@ -662,7 +662,7 @@ void PoolMgr::LoadFromDB()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                 1        2         3
         QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
@@ -722,7 +722,7 @@ void PoolMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobject in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gameobject in pools in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
@@ -730,7 +730,7 @@ void PoolMgr::LoadFromDB()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Mother Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         //                                                  1        2            3
         QueryResult result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
@@ -806,13 +806,13 @@ void PoolMgr::LoadFromDB()
                 }
             }
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pools in mother pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u pools in mother pools in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Pooling Data...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -894,14 +894,14 @@ void PoolMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u quests in pools in %u ms", count, GetClockDiffToNow(oldMSTime));
         }
     }
 
     // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting objects pooling system...");
     {
-        uint32 oldMSTime = getMSTime();
+        uint32 oldMSTime = GetClock();
 
         QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
             " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
@@ -940,7 +940,7 @@ void PoolMgr::LoadFromDB()
             }
             while (result->NextRow());
 
-            sLog->outDebug(LOG_FILTER_POOLSYS, "Pool handling system initialized, %u pools spawned in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outDebug(LOG_FILTER_POOLSYS, "Pool handling system initialized, %u pools spawned in %u ms", count, GetClockDiffToNow(oldMSTime));
 
         }
     }

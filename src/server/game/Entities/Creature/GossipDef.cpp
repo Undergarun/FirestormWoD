@@ -375,7 +375,6 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     data.WriteString(Title);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 p_StatusFlags, uint64 p_QuestGiverGUID) const
@@ -536,8 +535,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) 
     data.WriteString(questTurnTargetName);
 
     _session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
@@ -719,7 +716,6 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data.WriteString(l_CompletedText);
 
     _session->SendPacket(&l_Data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", p_Quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* p_Quest, uint64 p_NpcGUID, bool p_EnableNext) const
@@ -945,5 +941,4 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data.WriteString(requestItemsText);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }

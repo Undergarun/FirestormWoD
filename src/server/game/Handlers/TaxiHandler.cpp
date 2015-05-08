@@ -54,8 +54,6 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     if (l_CurrentLocation == 0)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", l_CurrentLocation);
-
     WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 9);
 
     l_TaxiNodeStatusMsg.appendPackGUID(p_Guid);
@@ -63,14 +61,10 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     l_TaxiNodeStatusMsg.FlushBits();
 
     SendPacket(&l_TaxiNodeStatusMsg);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TAXIQUERYAVAILABLENODES");
-
     uint64 l_UnitGuid;
 
     p_RecvPacket.readPackGUID(l_UnitGuid);
@@ -110,8 +104,6 @@ void WorldSession::SendTaxiMenu(Creature* p_Unit)
     if (p_Unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", l_CurrentLocation);
-
     WorldPacket l_Data(SMSG_SHOW_TAXI_NODES, (4 + 8 + 4 + 8 * 4));
 
     l_Data.WriteBit(l_HasData);       // hasData
@@ -127,8 +119,6 @@ void WorldSession::SendTaxiMenu(Creature* p_Unit)
     GetPlayer()->m_taxi.AppendTaximaskTo(l_Data, GetPlayer()->isTaxiCheater());
 
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SHOW_TAXI_NODES");
 
     GetPlayer()->SetTaxiCheater(l_LastTaxiCheaterState);
 }
@@ -247,8 +237,6 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
             }
         }
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Taxi has to go from %u to %u", sourcenode, destinationnode);
-
         uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetPlayer()->GetTeam());
 
         uint32 path, cost;
@@ -272,8 +260,6 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI");
-
     uint64 l_VendorGuid;
     std::vector<uint32> l_Nodes;
 
@@ -285,8 +271,6 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& p_RecvPacket)
     l_Nodes[0] = sObjectMgr->GetNearestTaxiNode(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY(), GetPlayer()->GetPositionZ(), GetPlayer()->GetMapId(), GetPlayer()->GetTeam());
     if (!l_Nodes[0])
         return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ACTIVATETAXI from %d to %d", l_Nodes[0], l_Nodes[1]);
 
     Creature * l_Npc = GetPlayer()->GetNPCIfCanInteractWith(l_VendorGuid, UNIT_NPC_FLAG_FLIGHTMASTER);
 
@@ -311,6 +295,4 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply p_Reply)
     l_Data.WriteBits(p_Reply, 4);
     l_Data.FlushBits();
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ACTIVATE_TAXI_REPLY");
 }

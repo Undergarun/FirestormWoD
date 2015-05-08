@@ -301,8 +301,7 @@ void WorldSession::HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket&
 
 void WorldSession::HandleGuildPermissionsQueryOpcode(WorldPacket& /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS_QUERY)");
-if (Guild* l_Guild = _GetPlayerGuild(this))
+    if (Guild* l_Guild = _GetPlayerGuild(this))
         l_Guild->SendPermissions(this);
 }
 

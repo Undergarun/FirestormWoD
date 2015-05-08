@@ -263,7 +263,7 @@ ScriptMgr::~ScriptMgr()
 /// Initialize Script Mgr and bind all script
 void ScriptMgr::Initialize()
 {
-    uint32 l_OldMSTime = getMSTime();
+    uint32 l_OldMSTime = GetClock();
 
     LoadDatabase();
 
@@ -272,7 +272,7 @@ void ScriptMgr::Initialize()
     FillSpellSummary();
     AddScripts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetClockDiffToNow(l_OldMSTime));
 }
 
 /// Unload all script

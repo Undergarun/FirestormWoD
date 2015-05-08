@@ -2778,7 +2778,7 @@ void Aura::LoadScripts()
 
 bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_AREA_TARGET);
@@ -2789,7 +2789,7 @@ bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -2798,7 +2798,7 @@ bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
 
 void Aura::CallScriptDispel(DispelInfo* dispelInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
 
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -2809,14 +2809,14 @@ void Aura::CallScriptDispel(DispelInfo* dispelInfo)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_DISPEL);
@@ -2826,14 +2826,14 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 bool Aura::CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
 
     bool preventDefault = false;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
@@ -2850,7 +2850,7 @@ bool Aura::CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplicat
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -2859,7 +2859,7 @@ bool Aura::CallScriptEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplicat
 
 bool Aura::CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     bool preventDefault = false;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -2875,7 +2875,7 @@ bool Aura::CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplica
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -2884,7 +2884,7 @@ bool Aura::CallScriptEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplica
 
 void Aura::CallScriptAfterEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
@@ -2897,14 +2897,14 @@ void Aura::CallScriptAfterEffectApplyHandlers(constAuraEffectPtr aurEff, AuraApp
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptAfterEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
@@ -2917,14 +2917,14 @@ void Aura::CallScriptAfterEffectRemoveHandlers(constAuraEffectPtr aurEff, AuraAp
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 bool Aura::CallScriptEffectPeriodicHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     bool preventDefault = false;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -2940,7 +2940,7 @@ bool Aura::CallScriptEffectPeriodicHandlers(constAuraEffectPtr aurEff, AuraAppli
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -2949,7 +2949,7 @@ bool Aura::CallScriptEffectPeriodicHandlers(constAuraEffectPtr aurEff, AuraAppli
 
 void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_ON_UPDATE);
@@ -2959,14 +2959,14 @@ void Aura::CallScriptAuraUpdateHandlers(uint32 diff)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffectPtr aurEff)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE);
@@ -2979,14 +2979,14 @@ void Aura::CallScriptEffectUpdateHandlers(uint32 diff, AuraEffectPtr aurEff)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffectPtr aurEff)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC);
@@ -2999,14 +2999,14 @@ void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffectPtr aurEff)
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 & amount, bool & canBeRecalculated)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT);
@@ -3019,15 +3019,14 @@ void Aura::CallScriptEffectCalcAmountHandlers(constAuraEffectPtr aurEff, int32 &
         (*scritr)->_FinishScriptCall();
     }
 
-
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectCalcPeriodicHandlers(constAuraEffectPtr aurEff, bool & isPeriodic, int32 & amplitude)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC);
@@ -3040,14 +3039,14 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(constAuraEffectPtr aurEff, bool 
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectCalcSpellModHandlers(constAuraEffectPtr aurEff, SpellModifier* & spellMod)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD);
@@ -3060,14 +3059,14 @@ void Aura::CallScriptEffectCalcSpellModHandlers(constAuraEffectPtr aurEff, Spell
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool& defaultPrevented)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
@@ -3081,15 +3080,14 @@ void Aura::CallScriptEffectAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication 
         (*scritr)->_FinishScriptCall();
     }
 
-
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
 
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -3103,14 +3101,14 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffectPtr aurEff, AuraApplica
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & /*defaultPrevented*/)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_MANASHIELD, aurApp);
@@ -3123,14 +3121,14 @@ void Aura::CallScriptEffectManaShieldHandlers(AuraEffectPtr aurEff, AuraApplicat
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffectPtr aurEff, AuraApplication const* aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD, aurApp);
@@ -3143,8 +3141,7 @@ void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffectPtr aurEff, AuraApp
         (*scritr)->_FinishScriptCall();
     }
 
-
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
@@ -3163,7 +3160,7 @@ void Aura::SetScriptGuid(uint32 type, uint64 data)
 
 bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_PROC, aurApp);
@@ -3174,7 +3171,7 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
     return true;
@@ -3182,7 +3179,7 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
 
 bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     bool prepare = true;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -3196,7 +3193,7 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -3205,7 +3202,7 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
 
 void Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PROC, aurApp);
@@ -3215,14 +3212,14 @@ void Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_PROC, aurApp);
@@ -3232,14 +3229,14 @@ void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventI
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 bool Aura::CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     bool preventDefault = false;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -3255,7 +3252,7 @@ bool Aura::CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplicati
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 
@@ -3264,7 +3261,7 @@ bool Aura::CallScriptEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplicati
 
 void Aura::CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC, aurApp);
@@ -3277,14 +3274,14 @@ void Aura::CallScriptAfterEffectProcHandlers(constAuraEffectPtr aurEff, AuraAppl
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 }
 
 bool Aura::CallScriptCanRrefreshProcHandlers()
 {
-    uint32 scriptExecuteTime = getMSTime();
+    uint32 scriptExecuteTime = GetClock();
     bool l_CanRefresh = true;
     for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -3299,7 +3296,7 @@ bool Aura::CallScriptCanRrefreshProcHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = getMSTime() - scriptExecuteTime;
+    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
     if (scriptExecuteTime > 10)
         sLog->outAshran("AuraScript CanRefreshDuration [%u] take more than 10 ms to execute (%u ms)", GetId(), scriptExecuteTime);
 

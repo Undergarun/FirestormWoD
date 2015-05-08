@@ -586,12 +586,12 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-                uint32 diffAI = getMSTime();
+                uint32 diffAI = GetClock();
 
                 i_AI->UpdateAI(diff);
 
-                if ((getMSTime() - diffAI) > 10)
-                    sLog->outAshran("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
+                if (GetClockDiffToNow(diffAI) > 10)
+                    sLog->outAshran("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), GetClockDiffToNow(diffAI));
 
                 m_AI_locked = false;
             }
@@ -2201,8 +2201,6 @@ void Creature::SendAIReaction(AiReaction p_ReactionType)
     l_Data << uint32(p_ReactionType);
 
     ((WorldObject*)this)->SendMessageToSet(&l_Data, true);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_AI_REACTION, type %u.", p_ReactionType);
 }
 
 void Creature::CallAssistance()
@@ -2824,13 +2822,13 @@ bool Creature::SetWalk(bool enable)
     ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_WALK_MODE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_RUN_MODE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
@@ -2851,13 +2849,13 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly/*=false*/)
     ObjectGuid l_Guid = GetGUID();
     if (disable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_DISABLE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
@@ -2883,13 +2881,13 @@ bool Creature::SetHover(bool enable)
     ObjectGuid l_Guid = GetGUID();
     if (enable)
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_HOVER, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_SET_HOVER, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }
     else
     {
-        WorldPacket l_Data(SMSG_SPLINE_MOVE_UNSET_HOVER, 9);
+        WorldPacket l_Data(SMSG_SPLINE_MOVE_UNSET_HOVER, 16 + 2);
         l_Data.appendPackGUID(l_Guid);
         SendMessageToSet(&l_Data, false);
     }

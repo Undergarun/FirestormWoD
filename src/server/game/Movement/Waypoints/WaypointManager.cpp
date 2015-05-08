@@ -41,7 +41,7 @@ WaypointMgr::~WaypointMgr()
 
 void WaypointMgr::Load()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     //                                                0    1         2           3          4            5           6        7      8           9
     QueryResult result = WorldDatabase.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_flag, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
@@ -86,7 +86,7 @@ void WaypointMgr::Load()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u waypoints in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 

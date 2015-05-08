@@ -80,7 +80,7 @@ Weather* AddWeather(uint32 zone_id)
 
 void LoadWeatherData()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     uint32 count = 0;
 
@@ -142,8 +142,7 @@ void LoadWeatherData()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u weather definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
 }
 
 void SendFineWeatherUpdateToPlayer(Player * p_Player)

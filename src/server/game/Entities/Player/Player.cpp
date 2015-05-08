@@ -2265,7 +2265,7 @@ void Player::Update(uint32 p_time)
 
     if (m_knockBackTimer)
     {
-        if ( m_knockBackTimer + 2000 < getMSTime())
+        if (m_knockBackTimer + 2000 < getMSTime())
             m_knockBackTimer = 0;
     }
 
@@ -8600,7 +8600,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
 
 void Player::SendActionButtons(uint32 p_State) const
 {
-    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 132));
+    WorldPacket l_Data(SMSG_UPDATE_ACTION_BUTTONS, 1 + (MAX_ACTION_BUTTONS * 8));
 
     if (p_State != 2)
     {
@@ -9462,7 +9462,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 
 void Player::SendCurrencies()
 {
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
+    WorldPacket l_Data(SMSG_INIT_CURRENCY, 4 + (_currencyStorage.size() * (4 + 4 + 1 + 4 + 4 + 4));
 
     l_Data << uint32(_currencyStorage.size());
 
@@ -16812,7 +16812,6 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 {
     if (msg != EQUIP_ERR_OK)
     {
-        //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_INVENTORY_CHANGE_FAILURE (%u)", msg);
         WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE);
 
         data << uint8(msg);
@@ -16848,8 +16847,6 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
 
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
-
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
     ObjectGuid guid = creature ? creature->GetGUID() : 0;
 
@@ -16862,8 +16859,6 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
 
 void Player::SendSellError(SellResult msg, Creature* creature, uint64 guid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_ITEM");
-
     ObjectGuid itemGuid = guid;
     ObjectGuid npcGuid = creature ? creature->GetGUID() : 0;
     WorldPacket data(SMSG_SELL_ITEM);
@@ -17533,7 +17528,7 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
     if (!p_Item)
         return;
 
-    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
     l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
     l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot
@@ -18940,7 +18935,6 @@ bool Player::SatisfyQuestLog(bool msg)
     {
         WorldPacket data(SMSG_QUEST_LOG_FULL, 0);
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTLOG_FULL");
     }
     return false;
 }
@@ -20003,14 +19997,12 @@ void Player::SendQuestComplete(Quest const* quest)
         WorldPacket data(SMSG_QUEST_UPDATE_COMPLETE, 4);
         data << uint32(quest->GetQuestId());
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
     }
 }
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
 {
     uint32 questId = quest->GetQuestId();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
     sGameEventMgr->HandleQuestComplete(questId);
 
     uint32 xp;
@@ -20060,7 +20052,6 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason)
         data << uint32(questId);
         data << uint32(reason);                             // Failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_FAILED");
     }
 }
 
@@ -20071,7 +20062,6 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
         WorldPacket data(SMSG_QUEST_UPDATE_FAILED_TIMER, 4);
         data << uint32(quest_id);
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_FAILEDTIMER");
     }
 }
 
@@ -20082,7 +20072,6 @@ void Player::SendCanTakeQuestResponse(uint32 msg) const
     data.WriteBits(0, 9);       ///< Reason text
     data.FlushBits();
     GetSession()->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
 
 void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
@@ -20103,8 +20092,6 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
         data.FlushBits();
         data.WriteString(strTitle);
         pReceiver->GetSession()->SendPacket(&data);
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
     }
 }
 
@@ -20118,15 +20105,12 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
         data << uint8(msg);
 
         GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_PUSH_RESULT");
     }
 }
 
 void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective & p_Objective, uint64 p_ObjGUID, uint16 p_OldCount, uint16 p_AddCount)
 {
     ASSERT(p_OldCount + p_AddCount < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
 
     uint16 log_slot = FindQuestSlot(p_Quest->GetQuestId());
 
@@ -20185,8 +20169,6 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 void Player::SendQuestUpdateAddPlayer(Quest const* p_Quest, const QuestObjective & p_Objective, uint16 p_OldCount, uint16 p_AddCount)
 {
     ASSERT(p_OldCount + p_AddCount < 65536 && "player count store in 16 bits");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_PVP_KILL");
 
     WorldPacket data(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, (2*4) + 1);
     data << uint32(p_Quest->GetQuestId());
@@ -20372,7 +20354,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     /// 60            61              62              63                 64                        65                        66               67                 68                   69
     /// actionBars,   currentpetslot, petslotused,    grantableLevels,   resetspecialization_cost, resetspecialization_time, playerFlagsEx,   RaidDifficulty,    LegacyRaidDifficuly, lastbattlepet
 
-    uint32 l_StartTime = getMSTime();
+    uint32 l_StartTime = GetClock();
     std::vector<uint32> l_Times;
 
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADFROM);
@@ -20418,7 +20400,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         return false;
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // overwrite possible wrong/corrupted guid
     SetGuidValue(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
@@ -20458,8 +20440,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         money = MAX_MONEY_AMOUNT;
     SetMoney(money);
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     SetUInt32Value(PLAYER_FIELD_HAIR_COLOR_ID, fields[9].GetUInt32());
     SetUInt32Value(PLAYER_FIELD_REST_STATE, fields[10].GetUInt32());
@@ -20501,8 +20482,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // init saved position, and fix it later if problematic
     uint32 transGUID = uint32(fields[31].GetUInt32());
@@ -20517,8 +20497,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
 
     std::string taxi_nodes = fields[38].GetString();
-    l_Times.push_back(getMSTime() - l_StartTime);
 
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
 
@@ -20537,8 +20517,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadInstanceTimeRestrictions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINSTANCELOCKTIMES));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
     _LoadCUFProfiles(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES));
-    l_Times.push_back(getMSTime() - l_StartTime);
 
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     GetSession()->SetPlayer(this);
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
@@ -20682,8 +20662,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
                     instanceId = 0;
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
@@ -20721,8 +20700,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
@@ -20773,8 +20751,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     uint32 extraflags = fields[32].GetUInt16();
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     m_stableSlots = fields[33].GetUInt8();
     if (m_stableSlots > MAX_PET_STABLES)
@@ -20819,8 +20796,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, 0);
     SetUInt32Value(PLAYER_FIELD_DUEL_TEAM, 0);
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // reset stats before loading any modifiers
     InitStatsForLevel();
@@ -20828,8 +20804,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     InitTaxiNodesForLevel();
     InitRunes();
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // rest bonus can only be calculated after InitStatsForLevel()
     m_rest_bonus = fields[21].GetFloat();
@@ -20867,8 +20842,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     SetFreeTalentPoints(CalculateTalentsPoints());
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // sanity check
     if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
@@ -20878,18 +20852,16 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     }
 
     _LoadGlyphs(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGLYPHS));
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     _LoadGlyphAuras();
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     _LoadSpells(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_CHAR_LOADSPELLS));
-
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // Load of account spell, we must load it like that because it's stored in realmd database
     // With actual implementation, we can use QueryHolder only with single database
@@ -20915,8 +20887,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         while (accountResult->NextRow());
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // VIP case
     if (GetSession()->IsPremium())
@@ -20942,7 +20913,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     _LoadAuras(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADAURAS_EFFECTS), time_diff);
 
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
@@ -21001,8 +20972,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
@@ -21014,19 +20984,17 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadMonthlyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS));
     _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADRANDOMBG));
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // after spell and quest load
     InitTalentForLevel();
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     InitSpellForLevel();
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     learnDefaultSpells();
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
@@ -21039,8 +21007,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     _LoadActions(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
 
@@ -21060,16 +21027,14 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, GetPositionZ());
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     _LoadSpellCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
     _LoadChargesCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CHARGES_COOLDOWNS));
     _LoadCompletedChallenges(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_COMPLETED_CHALLENGES));
     _LoadDailyLootsCooldowns(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS));
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
@@ -21106,8 +21071,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     SetPower(POWER_ECLIPSE, 0);
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // must be after loading spells and talents
     Tokenizer talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
@@ -21174,8 +21138,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         }
     }
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // RaF stuff.
     m_grantableLevels = fields[63].GetUInt8();
@@ -21203,8 +21166,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         if (!ticket->IsClosed() && ticket->IsCompleted())
             ticket->SendResponse(GetSession());
 
-    l_Times.push_back(getMSTime() - l_StartTime);
-
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
     // Set realmID
     SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, g_RealmID);
@@ -21217,12 +21179,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     else
         delete l_Garrison;
 
-
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
     RewardCompletedAchievementsIfNeeded();
-    l_Times.push_back(getMSTime() - l_StartTime);
+    l_Times.push_back(GetClockDiffToNow(l_StartTime));
 
-    if ((getMSTime() - l_StartTime) > 50)
+    if (GetClockDiffToNow(l_StartTime) > 50)
     {
         sLog->outAshran("Player::LoadFromDB profiling =======");
         for (int l_I = 0; l_I < l_Times.size(); l_I++)
@@ -24229,7 +24190,7 @@ void Player::BuildPlayerChat(WorldPacket* p_Data, Player* p_Target, uint8 p_MsgT
     uint32 l_SenderNameLen = strlen(GetName());
     uint64 l_GuildGuid = const_cast<Player*>(this)->GetGuild() ? const_cast<Player*>(this)->GetGuild()->GetGUID() : 0;
 
-    p_Data->Initialize(SMSG_CHAT, 100);
+    p_Data->Initialize(SMSG_CHAT, 800);
     *p_Data << uint8(p_MsgType);
     *p_Data << uint8(p_LangID);
     p_Data->appendPackGUID(GetGUID());
@@ -26669,13 +26630,13 @@ bool Player::IsVisibleGloballyFor(Player* u) const
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target, std::set<Unit*>& /*v*/)
+inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, T* target, std::set<Unit*>& /*v*/)
 {
     s64.insert(target->GetGUID());
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target, std::set<Unit*>& /*v*/)
+inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, GameObject* target, std::set<Unit*>& /*v*/)
 {
     // But exclude stoppable elevators from this hack - they would be teleporting from one end to another
     // if affected transports move so far horizontally that it causes them to run out of visibility range then you are out of luck
@@ -26685,14 +26646,14 @@ inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target,
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, Creature* target, std::set<Unit*>& v)
+inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Creature* target, std::set<Unit*>& v)
 {
     s64.insert(target->GetGUID());
     v.insert(target);
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, Player* target, std::set<Unit*>& v)
+inline void UpdateVisibilityOf_helper(GuidUnorderedSet& s64, Player* target, std::set<Unit*>& v)
 {
     s64.insert(target->GetGUID());
     v.insert(target);
@@ -26758,7 +26719,7 @@ void Player::UpdateTriggerVisibility()
 
     UpdateData udata(GetMapId());
     WorldPacket packet;
-    for (ClientGUIDs::iterator itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
         if (IS_CREATURE_GUID(*itr))
         {
@@ -27788,7 +27749,7 @@ void Player::UpdateForQuestWorldObjects()
 
     UpdateData udata(GetMapId());
     WorldPacket packet;
-    for (ClientGUIDs::iterator itr=m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    for (auto itr=m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
         if (IS_GAMEOBJECT_GUID(*itr))
         {

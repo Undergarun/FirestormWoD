@@ -22,8 +22,13 @@
 #include "Common.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include <mutex>
+#include <map>
 
 struct z_stream_s;
+
+extern std::mutex gPacketProfilerMutex;
+extern std::map<uint32, uint32> gPacketProfilerData;
 
 class WorldPacket : public ByteBuffer
 {
@@ -46,7 +51,10 @@ class WorldPacket : public ByteBuffer
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
+            m_BaseSize = newres;
         }
+
+        void OnSend();
 
         Opcodes GetOpcode() const { return m_opcode; }
         void SetOpcode(Opcodes opcode) { m_opcode = opcode; }

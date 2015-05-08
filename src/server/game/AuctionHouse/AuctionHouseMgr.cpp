@@ -256,7 +256,7 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQ
 
 void AuctionHouseMgr::LoadAuctionItems()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     // need to clear in case we are reloading
     if (!mAitems.empty())
@@ -306,13 +306,13 @@ void AuctionHouseMgr::LoadAuctionItems()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u auction items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u auction items in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 
 void AuctionHouseMgr::LoadAuctions()
 {
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -346,7 +346,7 @@ void AuctionHouseMgr::LoadAuctions()
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u auctions in %u ms", count, GetClockDiffToNow(oldMSTime));
 
 }
 
@@ -742,7 +742,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     // DO NOT USE after auctions are already loaded since this deletes from the DB
     //  and assumes the auctions HAVE NOT been loaded into a list or AuctionEntryMap yet
 
-    uint32 oldMSTime = getMSTime();
+    uint32 oldMSTime = GetClock();
     uint32 expirecount = 0;
     time_t curTime = sWorld->GetGameTime();
 
@@ -802,7 +802,7 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
     }
     while (expAuctions->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Deleted %u expired auctions in %u ms", expirecount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Deleted %u expired auctions in %u ms", expirecount, GetClockDiffToNow(oldMSTime));
 
 
 }
