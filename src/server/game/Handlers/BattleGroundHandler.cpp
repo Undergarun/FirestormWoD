@@ -272,8 +272,6 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::PvpLogData(&data, bg);
     SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_PVP_LOG_DATA Message");
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)

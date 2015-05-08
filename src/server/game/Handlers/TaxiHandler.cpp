@@ -63,8 +63,6 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     l_TaxiNodeStatusMsg.FlushBits();
 
     SendPacket(&l_TaxiNodeStatusMsg);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket& p_RecvPacket)
@@ -127,8 +125,6 @@ void WorldSession::SendTaxiMenu(Creature* p_Unit)
     GetPlayer()->m_taxi.AppendTaximaskTo(l_Data, GetPlayer()->isTaxiCheater());
 
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SHOW_TAXI_NODES");
 
     GetPlayer()->SetTaxiCheater(l_LastTaxiCheaterState);
 }
@@ -311,6 +307,4 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply p_Reply)
     l_Data.WriteBits(p_Reply, 4);
     l_Data.FlushBits();
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ACTIVATE_TAXI_REPLY");
 }

@@ -2201,8 +2201,6 @@ void Creature::SendAIReaction(AiReaction p_ReactionType)
     l_Data << uint32(p_ReactionType);
 
     ((WorldObject*)this)->SendMessageToSet(&l_Data, true);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_AI_REACTION, type %u.", p_ReactionType);
 }
 
 void Creature::CallAssistance()

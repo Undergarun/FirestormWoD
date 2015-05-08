@@ -206,7 +206,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         }
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
     else
     {
@@ -217,7 +216,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         data.FlushBits();
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
 }
 
@@ -306,8 +304,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     l_Response.append(l_GobData);
 
     SendPacket(&l_Response);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
 }
 
 void WorldSession::HandleCorpseLocationFromClientQueryOpcode(WorldPacket& /*recvData*/)
@@ -427,8 +423,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
     l_Data.append(l_Buffer);
 
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
 #define DEFAULT_GREETINGS_GOSSIP      68

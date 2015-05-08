@@ -2063,8 +2063,6 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
     l_Data << float(0.f);                                                                       ///< Guild XP multiplier
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3493,8 +3491,6 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
     l_Member->ChangeRank(p_RankID);
 
     _LogEvent((p_RankID < l_Member->GetRankId()) ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, GUID_LOPART(p_OfficierGUID), GUID_LOPART(p_OtherGUID), p_RankID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_RANKS_UPDATE");
 }
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)
