@@ -1065,7 +1065,7 @@ void WorldSession::SendAddonsInfo()
     uint32 l_AllowedAddonCount  = m_addonsList.size();
     uint32 l_BannedAddonCount   = 0;
 
-    WorldPacket l_Data(SMSG_ADDON_INFO, 4000);
+    WorldPacket l_Data(SMSG_ADDON_INFO, 15 * 1024);
 
     l_Data << uint32(l_AllowedAddonCount);                                  ///< Allowed addon count
     l_Data << uint32(l_BannedAddonCount);                                   ///< Banned addon count

@@ -1220,7 +1220,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 12 * 1024);
 
     l_Data << uint32(m_accountsNumber);
     l_Data << uint32(secsToTimeBitFields(m_createdDate));

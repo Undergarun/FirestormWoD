@@ -55,7 +55,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
 
     if (!uncompress(const_cast<uint8*>(AddOnPacked.contents()), &AddonRealSize, const_cast<uint8*>((*Source).contents() + CurrentPosition), (*Source).size() - CurrentPosition)!= Z_OK)
     {
-        Target->Initialize(SMSG_ADDON_INFO);
+        Target->Initialize(SMSG_ADDON_INFO, 15 * 1024);
 
         uint32 addonsCount;
         AddOnPacked >> addonsCount;                         // addons count?
