@@ -4920,7 +4920,7 @@ void Player::SendKnownSpells()
 {
     uint32 l_SpellCount = 0;
 
-    WorldPacket l_Data(SMSG_SEND_KNOWN_SPELLS);
+    WorldPacket l_Data(SMSG_SEND_KNOWN_SPELLS, 25 * 1024);
 
     l_Data.WriteBit(1);
     l_Data.FlushBits();

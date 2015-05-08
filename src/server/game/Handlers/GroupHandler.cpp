@@ -952,7 +952,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 l_PlayerStatus |= MEMBER_STATUS_DND;
         }
 
-        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 200);
+        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 500);
 
         p_Data->WriteBit(false);                    ///< ForEnemy
         p_Data->FlushBits();
