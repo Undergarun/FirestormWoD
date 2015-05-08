@@ -51,6 +51,7 @@
 #include <vector>
 #include <mutex>
 #include <ace/Stack_Trace.h>
+#include <unordered_set>
 
 struct Mail;
 struct ItemExtendedCostEntry;
@@ -70,6 +71,7 @@ class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 typedef std::set<uint32> DailyLootsCooldowns;
+typedef std::unordered_set<uint64> GuidUnorderedSet;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -3104,8 +3106,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         // currently visible objects at player client
-        typedef std::set<uint64> ClientGUIDs;
-        ClientGUIDs m_clientGUIDs;
+        GuidUnorderedSet m_clientGUIDs;
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
 
