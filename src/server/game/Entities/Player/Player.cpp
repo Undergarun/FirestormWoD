@@ -9468,7 +9468,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 
 void Player::SendCurrencies()
 {
-    WorldPacket l_Data(SMSG_INIT_CURRENCY);
+    WorldPacket l_Data(SMSG_INIT_CURRENCY, 4 + (_currencyStorage.size() * (4 + 4 + 1 + 4 + 4 + 4));
 
     l_Data << uint32(_currencyStorage.size());
 
@@ -17515,7 +17515,7 @@ void Player::SendNewItem(Item* p_Item, uint32 p_Quantity, bool p_Received, bool 
     if (!p_Item)
         return;
 
-    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT);
+    WorldPacket l_Data(Opcodes::SMSG_ITEM_PUSH_RESULT, 16 + 2 + 1 + 4 + 100 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 16 + 2 + 1);
 
     l_Data.appendPackGUID(GetGUID());                       ///< Player GUID
     l_Data << uint8(p_Item->GetBagSlot());                  ///< Slot

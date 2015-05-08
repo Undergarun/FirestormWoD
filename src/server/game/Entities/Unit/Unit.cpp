@@ -1962,7 +1962,7 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
     {
         case EmoteTypes::OneStep:
         {
-            WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
+            WorldPacket l_Data(SMSG_EMOTE, 4 + 2 + 16);
             l_Data.appendPackGUID(GetGUID());
             l_Data << uint32(p_EmoteId);
             SendMessageToSet(&l_Data, true);
@@ -2696,7 +2696,7 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACK_START, 8 + 8);
+    WorldPacket data(SMSG_ATTACK_START, 2 * (16 + 2));
 
     uint64 attackerGuid = GetGUID();
     uint64 victimGuid = victim->GetGUID();
@@ -2709,7 +2709,7 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACK_STOP);
+    WorldPacket data(SMSG_ATTACK_STOP, (2 * (16 + 2)) + 1);
 
     uint64 victimGUID = victim ? victim->GetGUID() : 0;
     uint64 attackerGUID = GetGUID();
@@ -5807,10 +5807,9 @@ void Unit::SendSpellDamageImmune(Unit* p_Target, uint32 p_SpellID)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     uint32 count = 1;
-    size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
 
-    ByteBuffer l_Buffer;
+    ByteBuffer l_Buffer(1000);
     l_Buffer << uint32(damageInfo->HitInfo);
     l_Buffer.append(damageInfo->attacker->GetPackGUID());
     l_Buffer.append(damageInfo->target->GetPackGUID());
@@ -5871,7 +5870,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
         l_Buffer << float(0);
 
 
-    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
+    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, l_Buffer.size() + 4 + 1);
     data.WriteBit(false);
     data.FlushBits();
     data << uint32(l_Buffer.size());
