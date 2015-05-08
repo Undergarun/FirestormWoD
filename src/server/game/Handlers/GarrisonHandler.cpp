@@ -54,7 +54,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
         SendPacket(&l_Data);
     }
 
-    WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
+    WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 5 * 1024);
 
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteID);          ///< Site ID
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID

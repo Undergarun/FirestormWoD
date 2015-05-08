@@ -9500,8 +9500,7 @@ void Player::SendCurrencies()
 
 void Player::SendPvpRewards()
 {
-    WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
-
+    WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, (5 * (4 + 4)) + (2 * (4 + 4)) + 1);
     l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, false);                         ///< Count of gived all conquest points in week
     l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, false);                        ///< Max Conquest points cap
 
@@ -9526,6 +9525,7 @@ void Player::SendPvpRewards()
     l_Packet << (uint32)0;  ///< QuantityCount
 
     l_Packet.WriteBit(false);   ///< unk
+    l_Packet.FlushBits();
 
     GetSession()->SendPacket(&l_Packet);
 }

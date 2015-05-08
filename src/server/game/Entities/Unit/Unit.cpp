@@ -18767,7 +18767,7 @@ void Unit::SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfContro
 
 void Unit::SendMoveRoot(uint32 value)
 {
-    WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
+    WorldPacket data(SMSG_MOVE_ROOT, 16 + 2 + 4);
 
     data.appendPackGUID(GetGUID());
     data << uint32(value);
@@ -18777,7 +18777,7 @@ void Unit::SendMoveRoot(uint32 value)
 
 void Unit::SendMoveUnroot(uint32 value)
 {
-    WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
+    WorldPacket data(SMSG_MOVE_UNROOT, 16 + 2 + 4);
 
     data.appendPackGUID(GetGUID());
     data << uint32(value);

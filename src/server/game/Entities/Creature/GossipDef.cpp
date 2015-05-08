@@ -169,7 +169,7 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 {
-    WorldPacket l_Data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
+    WorldPacket l_Data(SMSG_GOSSIP_MESSAGE, 2 * 1024);
 
     l_Data.appendPackGUID(objectGUID);
 

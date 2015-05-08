@@ -1345,7 +1345,7 @@ void Guild::HandleQuery(WorldSession* session)
 
 void Guild::HandleGuildRanks(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_RANKS; 2 * 1024);
+    WorldPacket l_Data(SMSG_GUILD_RANKS, 2 * 1024);
 
     l_Data << uint32(_GetRanksSize());
 
