@@ -874,7 +874,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
 
     uint32 count = 0;
-    for (Player::ClientGUIDs::const_iterator itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
+    for (auto itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
     {
         if (IS_CRE_OR_VEH_OR_PET_GUID(*itr))
         {
