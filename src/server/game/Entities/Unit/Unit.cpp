@@ -5712,7 +5712,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
             break;
     }
 
-    WorldPacket l_Data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
+    WorldPacket l_Data(SMSG_SPELL_PERIODIC_AURA_LOG, 100);
     l_Data.appendPackGUID(GetGUID());                           ///< Target GUID
     l_Data.appendPackGUID(l_Aura->GetCasterGUID());             ///< Caster GUID
     l_Data << uint32(l_Aura->GetId());                          ///< Spell ID
@@ -5743,7 +5743,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
 /// @p_MissInfo : Miss type
 void Unit::SendSpellMiss(Unit* p_Target, uint32 p_SpellID, SpellMissInfo p_MissInfo)
 {
-    WorldPacket l_Data(SMSG_SPELL_MISS_LOG, (4 + 8 + 1 + 4 + 8 + 1));
+    WorldPacket l_Data(SMSG_SPELL_MISS_LOG, 4 + 16 + 2 + 1 + 16 + 2 + 1 + 1);
     l_Data << uint32(p_SpellID);                                    ///< SpellID
     l_Data.appendPackGUID(GetGUID());                               ///< Caster
     l_Data << uint32(1);                                            ///< EntriesCount

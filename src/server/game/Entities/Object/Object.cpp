@@ -2749,7 +2749,7 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
 
 void WorldObject::SendObjectDeSpawnAnim(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 8);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 16 + 2);
     l_Data.appendPackGUID(p_Guid);
     SendMessageToSet(&l_Data, true);
 }

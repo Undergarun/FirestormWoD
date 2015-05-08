@@ -226,7 +226,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     recvData >> l_GobEntry;
     recvData.readPackGUID(l_GobGUID);
 
-    ByteBuffer l_GobData;
+    ByteBuffer l_GobData(2 * 1024);
 
     if (const GameObjectTemplate* l_GobInfo = sObjectMgr->GetGameObjectTemplate(l_GobEntry))
     {
@@ -284,7 +284,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         l_GobData << uint32(l_GobInfo->unkInt32);                       // 4.x, unknown
     }
 
-    WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE);
+    WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 + 1 + 4 + l_GobData.size());
 
     l_Response << uint32(l_GobEntry);
 

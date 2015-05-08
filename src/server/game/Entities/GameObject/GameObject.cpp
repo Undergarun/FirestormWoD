@@ -1948,10 +1948,11 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
 
 void GameObject::SendCustomAnim(uint32 p_Anim)
 {
-    WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 8+4);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_CUSTOM_ANIM, 16 + 2 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_Anim);
     l_Data.WriteBit(p_Anim == 0);
+    l_Data.FlushBits();
     SendMessageToSet(&l_Data, true);
 }
 

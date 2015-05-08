@@ -773,7 +773,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
     VendorItemData const* vendorItems = l_Vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    ByteBuffer l_ItemDataBuffer;
+    ByteBuffer l_ItemDataBuffer(10 * 1024);
 
     const float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Vendor);
     uint32 l_Muid = 0;
@@ -941,7 +941,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
         // else error
     }
 
-    WorldPacket l_Response(SMSG_LIST_INVENTORY);
+    WorldPacket l_Response(SMSG_LIST_INVENTORY, 1 + 4 + l_ItemDataBuffer.size());
     l_Response.appendPackGUID(p_VendorGUID);
 
     if (l_ItemCount)

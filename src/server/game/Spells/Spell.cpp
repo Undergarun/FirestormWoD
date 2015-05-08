@@ -4522,7 +4522,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, uint8 c
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket l_Data(SMSG_CAST_FAILED, 1+4+4);
+    WorldPacket l_Data(SMSG_CAST_FAILED, 4 + 4 + 4 + 4 + 1);
     l_Data << uint32(p_SpellInfo->Id);                                  /// spellId
     l_Data << uint32(result);                                           /// problem
 
@@ -4968,7 +4968,7 @@ void Spell::SendSpellGo()
     bool l_HasUnk1 = m_spellInfo->Id == 178236;
 
     // Forge the packet !
-    WorldPacket l_Data(SMSG_SPELL_GO);
+    WorldPacket l_Data(SMSG_SPELL_GO, 1024);
     l_Data.appendPackGUID(l_CasterGuid1);
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);

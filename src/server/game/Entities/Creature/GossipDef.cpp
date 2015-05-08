@@ -265,7 +265,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
         if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(poiId))
             ObjectMgr::GetLocaleString(localeData->IconName, locale, iconText);
 
-    WorldPacket data(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
+    WorldPacket data(SMSG_GOSSIP_POI, 3 + 4 + 4 + 4 + 4 + iconText.size());
     data.WriteBits(poi->flags, 14);
     data.WriteBits(iconText.length(), 6);
     data.FlushBits();

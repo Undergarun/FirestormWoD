@@ -516,7 +516,7 @@ void WorldSession::SendLfgQueueStatus(uint32 p_Dungeon, int32 p_WaitTime, int32 
     if (!l_Info)
         return;
 
-    WorldPacket l_Data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
+    WorldPacket l_Data(SMSG_LFG_QUEUE_STATUS, 50);
     l_Data.appendPackGUID(GetPlayer()->GetGUID());          ///< Requester Guid
     l_Data << uint32(0);                                    ///< Id
     l_Data << uint32(2);                                    ///< Type

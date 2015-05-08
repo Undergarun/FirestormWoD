@@ -2940,7 +2940,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+                WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4);
 
                 l_Data << uint32(mapid);                                    ///< uint32
                 l_Data << float(m_teleport_dest.GetPositionX());            ///< float
@@ -3037,7 +3037,7 @@ void Player::SwitchToPhasedMap(uint32 p_MapID)
 
     if (!GetSession()->PlayerLogout())
     {
-        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
+        WorldPacket l_Data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4);
 
         l_Data << uint32(p_MapID);                                  ///< uint32
         l_Data << float(m_teleport_dest.GetPositionX());            ///< float
@@ -5228,7 +5228,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 }
                 else
                 {
-                    WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
+                    WorldPacket data(SMSG_UNLEARNED_SPELLS, 4 + 4);
                     data << uint32(1);  // Count spells, always one by one
                     data << uint32(spellId);
                     GetSession()->SendPacket(&data);
@@ -23932,7 +23932,7 @@ void Player::SendDungeonDifficulty()
 
 void Player::SendRaidDifficulty(bool p_Legacy, int32 forcedDifficulty)
 {
-    WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4);
+    WorldPacket data(SMSG_SET_RAID_DIFFICULTY, 4 + 1);
     data << uint32(forcedDifficulty == -1 ? (p_Legacy ? GetLegacyRaidDifficultyID () : GetRaidDifficultyID()) : forcedDifficulty);
     data << uint8(p_Legacy);
     GetSession()->SendPacket(&data);
@@ -27444,7 +27444,7 @@ void Player::SendAurasForTarget(Unit* p_Target)
         ++l_AuraCount;
     }
 
-    WorldPacket l_Data(SMSG_AURA_UPDATE);
+    WorldPacket l_Data(SMSG_AURA_UPDATE, 2 * 1024);
     l_Data.WriteBit(true);                          ///< Update All
     l_Data.FlushBits();
     l_Data.appendPackGUID(p_Target->GetGUID());     ///< Unit GUID
