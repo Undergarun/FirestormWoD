@@ -9468,7 +9468,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
 
 void Player::SendCurrencies()
 {
-    WorldPacket l_Data(SMSG_INIT_CURRENCY, 4 + (_currencyStorage.size() * (4 + 4 + 1 + 4 + 4 + 4));
+    WorldPacket l_Data(SMSG_INIT_CURRENCY, 4 + (_currencyStorage.size() * (4 + 4 + 1 + 4 + 4 + 4)));
 
     l_Data << uint32(_currencyStorage.size());
 
