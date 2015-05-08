@@ -3715,7 +3715,7 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
             l_MaxSharesCriteria = l_Achievement->SharesCriteria;
     }
 
-    m_AchievementEntryByCriteriaTree.resize(l_MaxCriteriaTree + 1, nullptr);
+    m_AchievementEntryByCriteriaTree.resize(sCriteriaTreeStore.GetNumRows() + 1, nullptr);
 
     uint32 l_Counter = 0;
 
