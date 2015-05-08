@@ -858,13 +858,13 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     recvPacket >> slotId;
     recvPacket.readPackGUID(totemGuid);
 
-    if (slotId >= MAX_TOTEM_SLOT)
+    if ((SUMMON_SLOT_TOTEM + slotId) >= MAX_TOTEM_SLOT)
         return;
 
-    if (!m_Player->m_SummonSlot[slotId])
+    if (!m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId])
         return;
 
-    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[slotId]);
+    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId]);
     if (totem && totem->isTotem())
         totem->ToTotem()->UnSummon();
 }
