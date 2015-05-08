@@ -284,16 +284,18 @@ class ByteBuffer
         ByteBuffer() : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
         {
             _storage.reserve(DEFAULT_SIZE);
+            m_BaseSize = DEFAULT_SIZE;
         }
 
         ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
         {
             _storage.reserve(reserve);
+            m_BaseSize = DEFAULT_SIZE;
         }
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), _storage(buf._storage)
+            _wbitpos(buf._wbitpos), _rbitpos(8), _curbitval(buf._curbitval), _storage(buf._storage), m_BaseSize(buf.m_BaseSize)
         {
         }
 
@@ -774,6 +776,7 @@ class ByteBuffer
 
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);
+
             memcpy(&_storage[_wpos], src, cnt);
             _wpos += cnt;
         }
@@ -876,6 +879,7 @@ class ByteBuffer
     protected:
         size_t _rpos, _wpos, _wbitpos, _rbitpos;
         uint8 _curbitval;
+        uint32 m_BaseSize;
         std::vector<uint8> _storage;
 };
 

@@ -209,6 +209,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     if (!m_Socket)
         return;
 
+    const_cast<WorldPacket*>(packet)->OnSend();
+
     if (packet->GetOpcode() == NULL_OPCODE && !forced)
     {
         sLog->outError(LOG_FILTER_OPCODES, "Prevented sending of NULL_OPCODE to %s", GetPlayerName(false).c_str());
@@ -1336,7 +1338,7 @@ void WorldSession::ProcessQueryCallbacks()
         }
     }
 
-    l_Times.push_back(std::make_pair<uint8, uint32>(0, GetClockDiffToNow(l_Times.back().second)));
+    l_Times.push_back(std::make_pair<uint8, uint32>(0, GetClockDiffToNow(l_StartTime)));
 
     //! HandleCharEnumOpcode
     if (m_CharEnumCallback.ready())
