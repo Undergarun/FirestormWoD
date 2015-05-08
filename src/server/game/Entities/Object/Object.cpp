@@ -271,7 +271,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (ToUnit() && ToUnit()->getVictim())
         flags |= UPDATEFLAG_HAS_COMBAT_VICTIM;
 
-    ByteBuffer buf(500);
+    ByteBuffer buf(10 * 1024);
     buf << uint8(updateType);
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
@@ -297,7 +297,7 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(5 * 1024);
 
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
