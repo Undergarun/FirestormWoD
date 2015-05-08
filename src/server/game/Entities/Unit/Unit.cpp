@@ -3871,6 +3871,19 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
         }
     }
 
+    /// Hack fix for Vanish with Subterfuge, should apply stealth from vanish just when Subterfuge disappear
+    if (aura->GetSpellInfo()->Id == 131361)
+    {
+        if (aura->GetEffect(EFFECT_1))
+        {
+            if (aura->GetEffect(EFFECT_1)->GetAmount() == 1)
+            {
+                caster->ToPlayer()->RemoveSpellCooldown(115191, true);
+                caster->CastSpell(caster, 115191, true);
+            }
+        }
+    }
+
     aurApp->_Remove();
     aura->_UnapplyForTarget(this, caster, aurApp);
 
@@ -4272,10 +4285,6 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-
-        /// Subterfuge can't be removed except manually
-        if (aura->GetSpellInfo()->Id == 115191)
-            continue;
 
         if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
@@ -16978,8 +16987,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            useCharges = false;
-            if ((isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 

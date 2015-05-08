@@ -5038,11 +5038,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(115191); ///< Add Stealth (talent) to override spell list of Stealth
                 break;
             case 115191: ///< Subterfuge
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
-                spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
-                spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT;
                 break;
             case 115192: ///< Subterfuge
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;

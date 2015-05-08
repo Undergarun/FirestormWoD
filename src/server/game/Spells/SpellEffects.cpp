@@ -1172,42 +1172,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
-            case 131361:///< Vanish
-            {
-                unitTarget->RemoveMovementImpairingAuras();
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                /// If this spell is given to an NPC, it must handle the rest using its own AI
-                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
-                if (unitTarget->getLevel() == 100)
-                {
-                    /// Assasination
-                    if (unitTarget->HasAura(170883))
-                        unitTarget->CastSpell(unitTarget, 170882, true);
-                    /// Combat
-                    else if (unitTarget->HasAura(182303))
-                        unitTarget->CastSpell(unitTarget, 182304, true);
-                }
-
-                /// See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
-                    return;
-
-                /// Reset cooldown on stealth if needed
-                if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
-                if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
-
-                if (!unitTarget->HasAura(108208))
-                    unitTarget->CastSpell(unitTarget, 1784, true);
-                else
-                    unitTarget->CastSpell(unitTarget, 115191, true);
-                return;
-            }
             // Demonic Empowerment -- succubus
             case 54437:
             {

@@ -90,3 +90,13 @@ INSERT INTO `spell_script_names` VALUES (102342, 'spell_dru_wod_pvp_2p_restorati
 -- fix Backstab
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_backstab';
 INSERT INTO `spell_script_names` VALUES (53, 'spell_rog_backstab');
+
+-- fix Subterfuge
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_stealth';
+INSERT INTO `spell_script_names` VALUES (1784, 'spell_rog_stealth');
+INSERT INTO `spell_script_names` VALUES (115191, 'spell_rog_stealth');
+INSERT INTO `spell_script_names` VALUES (115192, 'spell_rog_stealth');
+
+-- fix Vanish
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_vanish';
+INSERT INTO `spell_script_names` VALUES (131361, 'spell_rog_vanish');

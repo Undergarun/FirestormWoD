@@ -4066,7 +4066,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 
