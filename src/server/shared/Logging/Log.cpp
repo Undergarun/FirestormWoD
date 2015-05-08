@@ -218,6 +218,9 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
+    if (level < lowestLogLevel)
+        lowestLogLevel = level;
+
     logger.Create(name, LogFilterType(type), level);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Type %u, mask %u\n", name, LogFilterType(type), level); // DEBUG - RemoveMe
 
@@ -347,6 +350,10 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
 
 bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 {
+    // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
+    if (level < lowestLogLevel)
+        return false;
+
     LoggerMap::const_iterator it = loggers.begin();
     while (it != loggers.end() && it->second.getType() != type)
         ++it;
@@ -509,6 +516,8 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
+
+    lowestLogLevel = LOG_LEVEL_FATAL;
     AppenderId = 0;
     worker = new LogWorker();
     m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
