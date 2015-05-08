@@ -2512,6 +2512,104 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
         }
 };
 
+enum CloudburstTotemSpells
+{
+    SPELL_CLOUDBURST    = 157503,
+};
+
+/// Cloudburst Totem - 157504
+class spell_sha_cloudburst_totem: public SpellScriptLoader
+{
+    public:
+        spell_sha_cloudburst_totem() : SpellScriptLoader("spell_sha_cloudburst_totem") { }
+
+        class spell_sha_cloudburst_totem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_cloudburst_totem_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                HealInfo* l_HealInfo = p_EventInfo.GetHealInfo();
+
+                if (!l_HealInfo)
+                    return;
+
+                GetEffect(p_AurEff->GetEffIndex())->SetAmount(p_AurEff->GetAmount() + l_HealInfo->GetHeal());
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            {
+                if (Unit* l_Owner = GetOwner()->ToUnit())
+                {
+                    if (int32 l_Amount = p_AurEff->GetAmount())
+                    {
+                        l_Owner->CastCustomSpell(l_Owner, SPELL_CLOUDBURST, &l_Amount, nullptr, nullptr, true);
+                        GetEffect(p_AurEff->GetEffIndex())->SetAmount(0);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_cloudburst_totem_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectRemove += AuraEffectRemoveFn(spell_sha_cloudburst_totem_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_cloudburst_totem_AuraScript();
+        }
+};
+
+/// Clodburst - 157503
+class spell_sha_cloudburst: public SpellScriptLoader
+{
+    public:
+        spell_sha_cloudburst() : SpellScriptLoader("spell_sha_cloudburst") { }
+
+        class spell_sha_cloudburst_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_cloudburst_SpellScript);
+
+            bool Load()
+            {
+                l_TargetCount = 0;
+                return true;
+            }
+
+            void HandleHeal(SpellEffIndex p_EffIndex)
+            {
+                if (l_TargetCount)
+                    SetHitHeal(CalculatePct(GetHitHeal() / l_TargetCount, GetSpellInfo()->Effects[p_EffIndex].BasePoints));
+            }
+
+            void CountTargets(std::list<WorldObject*>& p_Targets)
+            {
+                for (auto l_Target : p_Targets)
+                    ++l_TargetCount;
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_cloudburst_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_cloudburst_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+
+            uint8 l_TargetCount;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_cloudburst_SpellScript;
+        }
+};
+
+/*
+
+*/
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_unleashed_fury();
@@ -2562,4 +2660,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_healing_wave();
     new spell_sha_riptide();
     new spell_sha_maelstrom_weapon();
+    new spell_sha_cloudburst_totem();
+    new spell_sha_cloudburst();
 }
