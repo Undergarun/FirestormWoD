@@ -987,9 +987,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
 
     //////////////////////////////////////////////////////////////////////////
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd Player Logon Message");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %u) logging in", GUID_LOPART(l_PlayerGuid));
-
     if (!CharCanLogin(GUID_LOPART(l_PlayerGuid)))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(l_PlayerGuid));

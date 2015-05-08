@@ -431,8 +431,6 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(l_GameObjectGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(l_GameObjectGUID));
-
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -446,8 +444,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     uint64 l_GameObjectGUID;
 
     recvPacket.readPackGUID(l_GameObjectGUID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(l_GameObjectGUID));
 
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
