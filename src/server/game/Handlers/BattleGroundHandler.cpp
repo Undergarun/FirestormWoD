@@ -544,8 +544,6 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
-
     uint8 l_TeamSizeIndex;                                        ///< 2v2, 3v3 or 5v5
 
     p_Packet >> l_TeamSizeIndex;

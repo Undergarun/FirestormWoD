@@ -35,7 +35,6 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 

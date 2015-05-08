@@ -786,8 +786,6 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     //////////////////////////////////////////////////////////////////////////
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, targetFlags %u", l_CastCount, l_SpellID, l_TargetFlags);
-
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!m_Player->GetGuardianPet() && !m_Player->GetCharm())
         return;

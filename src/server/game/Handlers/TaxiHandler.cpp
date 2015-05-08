@@ -54,8 +54,6 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     if (l_CurrentLocation == 0)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: current location %u ", l_CurrentLocation);
-
     WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 9);
 
     l_TaxiNodeStatusMsg.appendPackGUID(p_Guid);
@@ -105,8 +103,6 @@ void WorldSession::SendTaxiMenu(Creature* p_Unit)
 
     if (p_Unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", l_CurrentLocation);
 
     WorldPacket l_Data(SMSG_SHOW_TAXI_NODES, (4 + 8 + 4 + 8 * 4));
 
@@ -240,8 +236,6 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& p_RecvPacket)
                 m_Player->GetSession()->SendPacket(&data);
             }
         }
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Taxi has to go from %u to %u", sourcenode, destinationnode);
 
         uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetPlayer()->GetTeam());
 

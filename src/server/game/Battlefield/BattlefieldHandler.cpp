@@ -242,8 +242,6 @@ void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
-
     /// @Todo: perfome research in this case
     WorldPacket data(SMSG_PVP_OPTIONS_ENABLED, 1);
     data.WriteBit(1);

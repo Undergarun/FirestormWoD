@@ -24,19 +24,16 @@
 
 void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_VOICE_SESSION_ENABLE");
     p_Packet.rfinish();
 }
 
 void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CHANNEL_VOICE_ON");
     p_Packet.rfinish();
 }
 
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");
     p_Packet.rfinish();
 }
 

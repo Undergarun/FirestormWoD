@@ -139,7 +139,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
                 ObjectMgr::GetLocaleString(creatureLocale->l_FemaleName, locale, l_FemaleName);
             }
         }
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
 
         uint8 itemCount = 0;
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
@@ -209,7 +208,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", entry);
         WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4);
         data << uint32(entry | 0x80000000);
         data.WriteBit(0);                               ///< Has no valid data
@@ -227,8 +225,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
     recvData >> l_GobEntry;
     recvData.readPackGUID(l_GobGUID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY Entry: %u. ", l_GobEntry);
 
     ByteBuffer l_GobData;
 
@@ -286,10 +282,6 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
         }
 
         l_GobData << uint32(l_GobInfo->unkInt32);                       // 4.x, unknown
-    }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)", GUID_LOPART(l_GobGUID), l_GobEntry);
     }
 
     WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE);
@@ -388,8 +380,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
 
     p_Packet >> l_TextID;
     p_Packet.readPackGUID(l_Guid);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", l_TextID);
 
     GetPlayer()->SetSelection(l_Guid);
 
@@ -544,8 +534,6 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleCorpseTransportQueryOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
-
     uint64 l_TransportGUID = 0;
 
     p_Packet.readPackGUID(l_TransportGUID);

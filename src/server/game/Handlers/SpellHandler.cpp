@@ -237,8 +237,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", l_PackSlot, l_Slot, l_CastCount, l_SpellID, pItem->GetEntry(), l_Misc, (uint32)p_RecvPacket.size());
-
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
     {
@@ -320,8 +318,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)p_Packet.size());
-
     /// ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -875,8 +871,6 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 
 void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
-
     if (m_Player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
@@ -915,7 +909,6 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
 
     recvData.readPackGUID(guid);

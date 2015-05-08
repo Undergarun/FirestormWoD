@@ -394,8 +394,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
     uint64 l_Healer;
 
     p_Packet.readPackGUID(l_Healer);
@@ -703,8 +701,6 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, 
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
-
     uint64 npcGUID, itemGUID;
     bool guildBank;                                        // new in 2.3.2, bool that means from guild bank money
 
