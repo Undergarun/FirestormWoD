@@ -63,20 +63,28 @@ struct ScriptAction
     ScriptInfo const* script;                               // pointer to static script data
 };
 
+union u_map_magic
+{
+    char asChar[4];
+    uint32 asUInt;
+};
+
 // ******************************************
 // Map file format defines
 // ******************************************
 struct map_fileheader
 {
-    uint32 mapMagic;
-    uint32 versionMagic;
-    uint32 buildMagic;
+    u_map_magic mapMagic;
+    u_map_magic versionMagic;
+    u_map_magic buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
     uint32 heightMapOffset;
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
