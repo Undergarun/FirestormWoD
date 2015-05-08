@@ -251,7 +251,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket & p_Packet)
 
         bool l_HasGUID = true;
 
-        WorldPacket l_Data(SMSG_LFG_PLAYER_INFO, 3000);
+        WorldPacket l_Data(SMSG_LFG_PLAYER_INFO, 15 * 1024);
 
         l_Data << uint32(l_DungeonCount);                           ///< Dungeon Count
 

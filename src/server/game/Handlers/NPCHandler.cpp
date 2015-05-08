@@ -150,7 +150,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         return;
     }
 
-    ByteBuffer l_TrainerList;
+    ByteBuffer l_TrainerList(10 * 1024);
 
     // reputation discount
     float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Unit);
@@ -232,7 +232,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         ++l_TrainerSpellCount;
     }
 
-    WorldPacket l_Data(SMSG_TRAINER_LIST);
+    WorldPacket l_Data(SMSG_TRAINER_LIST, 16 + 2 + 4 + 4 + 4 + l_TrainerList.size() + 1 + p_Title.size());
 
     l_Data.appendPackGUID(p_NpcGUID);
 

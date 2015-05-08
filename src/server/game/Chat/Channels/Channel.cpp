@@ -832,7 +832,7 @@ void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type, uint64 p_Se
 {
     Player * l_SenderPlayer = sObjectAccessor->FindPlayer(p_SenderGUID);
 
-    data->Initialize(SMSG_CHANNEL_NOTIFY, 1+m_name.size()+1);
+    data->Initialize(SMSG_CHANNEL_NOTIFY, 3 + 16 + 2 + 16 + 2 + 4 + 16 + 2 + 4 + 4 + 4 + 4 + m_name.size() + p_SenderName.size());
     data->WriteBits(notify_type, 6);
     data->WriteBits(m_name.length(), 7);
     data->WriteBits(p_SenderName.length(), 6);
