@@ -290,7 +290,7 @@ class ByteBuffer
         ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _wbitpos(8), _rbitpos(8), _curbitval(0)
         {
             _storage.reserve(reserve);
-            m_BaseSize = DEFAULT_SIZE;
+            m_BaseSize = reserve;
         }
 
         // copy constructor
