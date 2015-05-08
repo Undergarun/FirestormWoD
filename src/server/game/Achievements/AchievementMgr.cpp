@@ -1203,7 +1203,7 @@ void AchievementMgr<T>::SendCriteriaUpdate(CriteriaEntry const* /*entry*/, Crite
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, CriteriaProgress const* p_Progress, uint32 p_TimeElapsed, bool p_TimedCompleted, bool p_UpdateAccount) const
 {
-    WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
+    WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4 + 4);
 
     l_Data << uint32(p_Entry->ID);
     l_Data << uint64(p_Progress->counter);
@@ -1223,7 +1223,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cr
 
     if (p_UpdateAccount)
     {
-        WorldPacket l_Packet(SMSG_ACCOUNT_CRITERIA_UPDATE);
+        WorldPacket l_Packet(SMSG_ACCOUNT_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4);
         l_Packet << uint32(p_Entry->ID);
         l_Packet << uint64(p_Progress->counter);
         l_Packet.appendPackGUID(GetOwner()->GetGUID());
@@ -2361,7 +2361,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {
-    WorldPacket l_Data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
+    WorldPacket l_Data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4 + 16 + 2 + 4 + 4) + 4);
     l_Data << uint32(m_completedAchievements.size());
 
     for (CompletedAchievementMap::const_iterator l_It = m_completedAchievements.begin(); l_It != m_completedAchievements.end(); ++l_It)

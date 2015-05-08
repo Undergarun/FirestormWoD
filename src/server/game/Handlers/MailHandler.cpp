@@ -751,7 +751,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
 // TODO Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
-    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8);
+    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 400);
 
     if (m_Player->unReadMails > 0)
     {

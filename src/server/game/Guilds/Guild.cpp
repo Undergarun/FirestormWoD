@@ -1345,7 +1345,7 @@ void Guild::HandleQuery(WorldSession* session)
 
 void Guild::HandleGuildRanks(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_RANKS);
+    WorldPacket l_Data(SMSG_GUILD_RANKS; 2 * 1024);
 
     l_Data << uint32(_GetRanksSize());
 
@@ -2216,7 +2216,7 @@ void Guild::SendPermissions(WorldSession* p_Session) const
 
 void Guild::SendMoneyInfo(WorldSession * p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
+    WorldPacket l_Data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 8);
     l_Data << uint64(_GetMemberRemainingMoney(p_Session->GetPlayer()->GetGUID()));
     p_Session->SendPacket(&l_Data);
 }

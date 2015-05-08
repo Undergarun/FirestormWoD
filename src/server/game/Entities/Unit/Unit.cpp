@@ -17434,7 +17434,7 @@ void Unit::SendPetAIReaction(uint64 p_Guid)
     if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket l_Data(SMSG_AI_REACTION, 12);
+    WorldPacket l_Data(SMSG_AI_REACTION, 16 + 2 + 4);
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(AI_REACTION_HOSTILE);
 
@@ -21119,14 +21119,14 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* p_HostileReference)
 
 void Unit::SendClearThreatListOpcode()
 {
-    WorldPacket l_Data(SMSG_THREAT_CLEAR, 8);
+    WorldPacket l_Data(SMSG_THREAT_CLEAR, 16 + 2);
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
 }
 
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* p_HostileReference)
 {
-    WorldPacket l_Data(SMSG_THREAT_REMOVE, 8 + 8);
+    WorldPacket l_Data(SMSG_THREAT_REMOVE, 16 + 2 + 16 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
     SendMessageToSet(&l_Data, false);

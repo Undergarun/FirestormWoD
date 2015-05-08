@@ -2196,7 +2196,7 @@ Player* Creature::SelectNearestPlayerNotGM(float distance) const
 
 void Creature::SendAIReaction(AiReaction p_ReactionType)
 {
-    WorldPacket l_Data(SMSG_AI_REACTION, 12);
+    WorldPacket l_Data(SMSG_AI_REACTION, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_ReactionType);
 

@@ -1041,7 +1041,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
             if (db_time <= curTime)
                 continue;
 
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
             data << uint8(1);
             data << uint32(1);
@@ -1845,7 +1845,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
             data << uint8(1);
             data << uint32(1);

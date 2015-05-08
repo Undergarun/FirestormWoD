@@ -908,8 +908,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
 
 void WorldSession::SendAccountDataTimes(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
-
+    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 16 + 2 + 4 + (NUM_ACCOUNT_DATA_TYPES * 4));
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(time(NULL));                                           ///< Server time
 
@@ -1150,7 +1149,7 @@ void WorldSession::SendFeatureSystemStatus()
     uint32 l_TokenPollTimeSeconds = 300;
     uint32 l_TokenRedeemIndex = 0;
 
-    WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 50);
+    WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 100);
 
     l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
     l_Data << uint32(l_SORMaxPerDay);                               ///< Max SOR Per day

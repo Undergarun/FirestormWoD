@@ -168,7 +168,7 @@ namespace Movement
 
         Movement::Location  l_Position = l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first());
 
-        WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
+        WorldPacket l_Data(SMSG_MONSTER_MOVE, 300);
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(l_Position.x);                                                              ///< Spline current position X
         l_Data << float(l_Position.y);                                                              ///< Spline current position Y
@@ -291,7 +291,7 @@ namespace Movement
         uint8   l_FinalFacingMode   = MonsterMoveStop;
         int8    l_TransportSeat     = m_Unit.GetTransSeat();
 
-        WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
+        WorldPacket l_Data(SMSG_MONSTER_MOVE, 300);
 
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X

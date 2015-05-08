@@ -7605,7 +7605,7 @@ void Player::TeleportToClosestGrave(float p_X, float p_Y, float p_Z, float p_O, 
 
 void Player::SendCemeteryList(bool p_OnMap)
 {
-    ByteBuffer l_Buffer(16);
+    ByteBuffer l_Buffer(50);
     uint32 l_Counter = 0;
 
     uint32 l_ZoneID = GetZoneId();
@@ -7617,8 +7617,9 @@ void Player::SendCemeteryList(bool p_OnMap)
         l_Buffer << uint32(l_Iter->second.safeLocId);
     }
 
-    WorldPacket l_Packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, l_Buffer.wpos()+4);
+    WorldPacket l_Packet(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, l_Buffer.size() + 4 + 1);
     l_Packet.WriteBit(p_OnMap);
+    l_Packet.FlushBits();
     l_Packet << uint32(l_Counter);
     if (l_Counter)
         l_Packet.append(l_Buffer);
@@ -12100,7 +12101,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
-    ByteBuffer l_Buffer;
+    ByteBuffer l_Buffer(10 * 1024);
     l_Buffer << uint32(0x8d8) << uint32(0x0);                   // 1
     l_Buffer << uint32(0x8d7) << uint32(0x0);                   // 2
     l_Buffer << uint32(0x8d6) << uint32(0x0);                   // 3
@@ -12891,7 +12892,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
     }
 
-    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (NumberOfFields * 8)));
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 4 + l_Buffer.size());
     data << uint32(mapid);                                  // mapid
     data << uint32(zoneid);                                 // zone id
     data << uint32(areaid);                                 // area id, new 2.1.0
@@ -15402,7 +15403,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
                     GetGlobalCooldownMgr().AddGlobalCooldown(spellProto, m_weaponChangeTimer);
 
-                    WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+                    WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                     data.appendPackGUID(GetGUID());
                     data << uint8(1);
                     data << uint32(1);
@@ -25351,7 +25352,7 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (idSchoolMask & (1 << i))
             prohibited[i] = prohibited_struct(unTimeMs);
 
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+    WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
     ByteBuffer dataBuffer;
     ObjectGuid playerGuid = GetGUID();
 
@@ -26219,7 +26220,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bo
 
     if (p_send)
     {
-        WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+        WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
         data.appendPackGUID(GetGUID());
         data << uint8(1);
         data << uint32(1);
@@ -26232,7 +26233,7 @@ void Player::AddSpellCooldown(uint32 spellid, uint32 itemid, uint64 end_time, bo
 
 void Player::SendCategoryCooldown(uint32 p_CategoryID, int32 p_CoolDown)
 {
-    WorldPacket l_Packet(SMSG_CATEGORY_COOLDOWN, 12);
+    WorldPacket l_Packet(SMSG_CATEGORY_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
     l_Packet << uint32(1);
     l_Packet << uint32(p_CategoryID);
     l_Packet << uint32(p_CoolDown);
@@ -26972,7 +26973,7 @@ void Player::SendCooldownAtLogin()
 
     for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
     {
-        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
         bool l_HasCooldown = l_Iter->second.end > l_CurTime;
 
         SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
@@ -31268,7 +31269,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
     CreatureDisplayInfoEntry const* l_MountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID));
     if (!l_MountDisplayInfo)
     {
-        WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
+        WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 16 + 2 + 4 + 4 + 4 + 4 + 1);
         l_Data.appendPackGUID(GetGUID());                   ///< MoverGUID
         l_Data << uint32(sWorld->GetGameTime());            ///< SequenceIndex
         l_Data << float(p_Height);                          ///< Height
@@ -31279,7 +31280,7 @@ void Player::SendMovementSetCollisionHeight(float p_Height)
         return;
     }
 
-    WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 2 + 8 + 4 + 4);
+    WorldPacket l_Data(SMSG_MOVE_SET_COLLISION_HEIGHT, 16 + 2 + 4 + 4 + 4 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(sWorld->GetGameTime());
     l_Data << float(p_Height);
@@ -31854,8 +31855,8 @@ void Player::SendRefreshSpellMods()
         l_FlatModifierTypeCount = 0;
         l_MaskIndex = 0;
 
-        ByteBuffer l_SubFlatBuffer;
-        ByteBuffer l_SubPctBuffer;
+        ByteBuffer l_SubFlatBuffer(1024);
+        ByteBuffer l_SubPctBuffer(1024);
 
         for (int l_EffectIndex = 0; l_EffectIndex < 128; ++l_EffectIndex)
         {
@@ -31913,7 +31914,7 @@ void Player::SendRefreshSpellMods()
 
     if (l_PctModifiersCount)
     {
-        WorldPacket l_Packet(SMSG_SET_PCT_SPELL_MODIFIER);
+        WorldPacket l_Packet(SMSG_SET_PCT_SPELL_MODIFIER, 4 + l_PctBuffer.size());
         l_Packet << uint32(l_PctModifiersCount);
         l_Packet.append(l_PctBuffer);
         SendDirectMessage(&l_Packet);
@@ -31921,7 +31922,7 @@ void Player::SendRefreshSpellMods()
 
     if (l_FlatModifiersCount)
     {
-        WorldPacket l_Packet(SMSG_SET_FLAT_SPELL_MODIFIER);
+        WorldPacket l_Packet(SMSG_SET_FLAT_SPELL_MODIFIER, 4 + l_FlatBuffer.size());
         l_Packet << uint32(l_FlatModifiersCount);
         l_Packet.append(l_FlatBuffer);
         SendDirectMessage(&l_Packet);

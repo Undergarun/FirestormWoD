@@ -572,7 +572,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
     for (uint32 i = 0; i < l_Count; ++i)
         l_QuestList.push_back(p_Packet.read<uint32>());
 
-    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*l_Count);
+    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 10 * 1024);
     l_Data << uint32(l_Count); // count
     l_Data << uint32(l_Count);
 
