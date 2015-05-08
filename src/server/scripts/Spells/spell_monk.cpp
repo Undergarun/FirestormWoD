@@ -3321,6 +3321,9 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
+                        if (target->GetTypeId() == TYPEID_UNIT && (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss()))
+                            return SPELL_FAILED_BAD_TARGETS;
+
                         if (caster->HasAura(124490))
                         {
                             if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth()))

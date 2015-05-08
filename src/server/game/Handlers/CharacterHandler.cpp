@@ -388,7 +388,8 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
     else
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ENUM);
 
-    stmt->setUInt32(0, GetAccountId());
+    stmt->setUInt8(0, PetSlot::PET_SLOT_ACTUAL_PET_SLOT);
+    stmt->setUInt32(1, GetAccountId());
 
     m_CharEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
