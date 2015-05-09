@@ -3654,6 +3654,10 @@ bool SpellInfo::IsIgnoringCombat() const
     if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
         return true;
 
+    /// Polymorph spells shouldn't give combat
+    if (Mechanic == MECHANIC_POLYMORPH)
+        return true;
+
     switch (Id)
     {
         /// Meteor
