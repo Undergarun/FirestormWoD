@@ -956,7 +956,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
 void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
+    WorldPacket l_Data(SMSG_LOOT_START_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data << uint32(p_MapID);                              ///< mapid
 
@@ -990,7 +990,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     if (!p_Player || !p_Player->GetSession())
         return;
 
-    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
+    WorldPacket l_Data(SMSG_LOOT_START_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data << uint32(p_MapID);                              ///< mapid
 
@@ -1013,7 +1013,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
 
 void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
+    WorldPacket l_Data(SMSG_LOOT_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data.appendPackGUID(targetGuid);
 
@@ -1077,7 +1077,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
 
 void Group::SendLootAllPassed(Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
+    WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type

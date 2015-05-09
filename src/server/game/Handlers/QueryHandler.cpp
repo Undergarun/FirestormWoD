@@ -498,7 +498,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
     {
         PageText const* l_PageText = sObjectMgr->GetPageText(l_PageTextID);
 
-        WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
+        WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 2 * 1024);
         l_Data << uint32(l_PageTextID);                             ///< Page Text ID
         l_Data.WriteBit(l_PageText != NULL);                        ///< Allow
         l_Data.FlushBits();

@@ -2069,7 +2069,7 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
 // Send data to client
 void Guild::SendEventLog(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS);
+    WorldPacket l_Data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 2 * 1024);
     m_eventLog->WritePacket(l_Data);
     p_Session->SendPacket(&l_Data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");

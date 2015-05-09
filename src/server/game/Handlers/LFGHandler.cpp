@@ -187,7 +187,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
             l_LockMap[l_CurrentGroupPlayer->GetGUID()] = sLFGMgr->GetLockedDungeons(l_CurrentGroupPlayer->GetGUID());
         }
 
-        WorldPacket l_Data(Opcodes::SMSG_LFG_PARTY_INFO, 15 * 1024);
+        WorldPacket l_Data(Opcodes::SMSG_LFG_PARTY_INFO, 25 * 1024);
 
         l_Data << uint32(l_LockMap.size());
 
@@ -425,7 +425,7 @@ void WorldSession::SendLfgRoleCheckUpdate(const LfgRoleCheck * p_RoleCheck)
 
     uint64 l_BGqueueID = 0;
 
-    WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + l_JoinSlots.size() * 4 + 1 + p_RoleCheck->roles.size() * (8 + 1 + 4 + 1));
+    WorldPacket l_Data(SMSG_LFG_ROLE_CHECK_UPDATE, 200);
 
     l_Data << uint8(GetPlayer()->GetGroup() ? GetPlayer()->GetGroup()->GetPartyIndex() : 0);///< Party index
     l_Data << uint8(p_RoleCheck->state);                                                    ///< Role check status
@@ -656,7 +656,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 p_ProposalID, const LfgProposal 
         l_Silent        = GetPlayer()->GetGroup() == l_Group && l_IsContinue;
     }
 
-    WorldPacket l_Data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + p_Proposal->players.size() * (4 + 1 + 1 + 1 + 1 +1));
+    WorldPacket l_Data(SMSG_LFG_PROPOSAL_UPDATE, 300);
 
     if (!l_IsContinue)                                       // Only show proposal dungeon if it's continue
     {

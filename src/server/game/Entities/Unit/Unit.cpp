@@ -13572,7 +13572,7 @@ void Unit::Dismount()
         // Remove vehicle from player
         RemoveVehicleKit(true);
 
-        WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 8 + 4);
+        WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
         l_Data << uint32(0);
@@ -21080,7 +21080,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_THREAT_UPDATE);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE, 500);
         l_Data.appendPackGUID(GetGUID());
         l_Data << l_Count;
 

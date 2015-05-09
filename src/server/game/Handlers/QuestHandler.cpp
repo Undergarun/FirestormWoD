@@ -933,7 +933,7 @@ void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
         l_Quests.push_back(l_Quest);
     }
 
-    WorldPacket l_Data(SMSG_QUEST_COMPLETION_NPCRESPONSE);
+    WorldPacket l_Data(SMSG_QUEST_COMPLETION_NPCRESPONSE, 1024);
     l_Data << uint32(l_Quests.size());                          ///< Quest size
 
     for (const Quest* l_QuestItr : l_Quests)

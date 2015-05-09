@@ -540,7 +540,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
     uint64 l_StableMaster = p_Guid;
     uint32 l_PetsCount    = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
 
-    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 200);
+    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 1024);
     l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
     l_Data << uint32(l_PetsCount);                      ///< Pets count 
 

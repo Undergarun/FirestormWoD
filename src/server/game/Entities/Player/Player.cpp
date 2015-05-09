@@ -20069,7 +20069,7 @@ void Player::SendQuestTimerFailed(uint32 quest_id)
 
 void Player::SendCanTakeQuestResponse(uint32 msg) const
 {
-    WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4);
+    WorldPacket data(SMSG_QUEST_GIVER_INVALID_QUEST, 4 + 2);
     data << uint32(msg);
     data.WriteBits(0, 9);       ///< Reason text
     data.FlushBits();
@@ -29957,7 +29957,7 @@ void Player::SendEquipmentSetList()
 {
     uint32 l_EquipmentSetCount = 0;
 
-    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST);
+    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 1024);
 
     for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {
@@ -32324,7 +32324,7 @@ void Player::SendToyBox()
 {
     uint32 l_ToyCount = m_PlayerToys.size();
 
-    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE);
+    WorldPacket l_Data(SMSG_ACCOUNT_TOYS_UPDATE, 2 * 1024);
     l_Data.WriteBit(true);      // IsFullUpdate
 
     l_Data << uint32(l_ToyCount);
