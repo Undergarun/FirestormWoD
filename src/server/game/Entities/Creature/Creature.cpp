@@ -586,12 +586,12 @@ void Creature::Update(uint32 diff)
             {
                 // do not allow the AI to be changed during update
                 m_AI_locked = true;
-                uint32 diffAI = GetClock();
+                uint32 diffAI = getMSTime();
 
                 i_AI->UpdateAI(diff);
 
-                if (GetClockDiffToNow(diffAI) > 10)
-                    sLog->outAshran("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), GetClockDiffToNow(diffAI));
+                if ((getMSTime() - diffAI) > 10)
+                    sLog->outAshran("CreatureScript [%u] take more than 10 ms to execute (%u ms)", GetEntry(), (getMSTime() - diffAI));
 
                 m_AI_locked = false;
             }

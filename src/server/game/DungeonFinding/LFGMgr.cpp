@@ -125,7 +125,7 @@ void LFGMgr::_SaveToDB(uint64 guid, uint32 db_guid)
 /// Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
-    uint32 l_OldMSTime = GetClock();
+    uint32 l_OldMSTime = getMSTime();
 
     for (LfgRewardMap::iterator l_Iter = m_RewardMap.begin(); l_Iter != m_RewardMap.end(); ++l_Iter)
         delete l_Iter->second;
@@ -186,12 +186,12 @@ void LFGMgr::LoadRewards()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg dungeon rewards in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg dungeon rewards in %u ms", count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void LFGMgr::LoadEntrancePositions()
 {
-    uint32 oldMSTime = GetClock();
+    uint32 oldMSTime = getMSTime();
     m_entrancePositions.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_entrances");
@@ -218,7 +218,7 @@ void LFGMgr::LoadEntrancePositions()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg entrance positions in %u ms", count, GetClockDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u lfg entrance positions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void LFGMgr::Update(uint32 diff)

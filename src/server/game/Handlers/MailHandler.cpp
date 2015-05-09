@@ -40,7 +40,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
 
     uint64 itemGUIDs[MAX_MAIL_ITEMS];
 
-    uint32 l_OldMSTime = GetClock();
+    uint32 l_OldMSTime = getMSTime();
 
     p_Packet.readPackGUID(l_Mailbox);
 
@@ -288,7 +288,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
     m_Player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Time diff on mail send %u ms", GetClockDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Time diff on mail send %u ms", GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 // Called when mail is read
