@@ -740,7 +740,7 @@ ConditionList ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 
 
 void ConditionMgr::LoadConditions(bool isReload)
 {
-    uint32 oldMSTime = GetClock();
+    uint32 oldMSTime = getMSTime();
 
     Clean();
 
@@ -1001,7 +1001,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in %u ms", count, GetClockDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 

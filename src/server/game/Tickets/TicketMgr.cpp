@@ -243,7 +243,7 @@ void TicketMgr::ResetTickets()
 
 void TicketMgr::LoadTickets()
 {
-    uint32 l_OldMSTime = GetClock();
+    uint32 l_OldMSTime = getMSTime();
 
     for (GmTicketList::const_iterator l_Iter = m_TicketList.begin(); l_Iter != m_TicketList.end(); ++l_Iter)
         delete l_Iter->second;
@@ -285,7 +285,7 @@ void TicketMgr::LoadTickets()
     }
     while (l_Result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GM tickets in %u ms", l_Count, GetClockDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u GM tickets in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void TicketMgr::LoadSurveys()
@@ -293,11 +293,11 @@ void TicketMgr::LoadSurveys()
     // we don't actually load anything into memory here as there's no reason to
     m_LastSurveyId = 0;
 
-    uint32 l_OldMSTime = GetClock();
+    uint32 l_OldMSTime = getMSTime();
     if (QueryResult l_Result = CharacterDatabase.Query("SELECT MAX(surveyId) FROM gm_surveys"))
         m_LastSurveyId = (*l_Result)[0].GetUInt32();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded GM Survey count from database in %u ms", GetClockDiffToNow(l_OldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded GM Survey count from database in %u ms", GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void TicketMgr::AddTicket(GmTicket* p_Ticket)

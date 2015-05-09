@@ -250,7 +250,7 @@ bool InstanceSave::UnloadIfEmpty()
 
 void InstanceSaveManager::LoadInstances()
 {
-    uint32 oldMSTime = GetClock();
+    uint32 oldMSTime = getMSTime();
 
     // Delete expired instances (Instance related spawns are removed in the following cleanup queries)
     CharacterDatabase.DirectExecute("DELETE i FROM instance i LEFT JOIN instance_reset ir ON mapid = map AND i.difficulty = ir.difficulty "
@@ -279,7 +279,7 @@ void InstanceSaveManager::LoadInstances()
     // Load reset times and clean expired instances
     sInstanceSaveMgr->LoadResetTimes();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded instances in %u ms", GetClockDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
 }
 

@@ -46,7 +46,7 @@ static EnchantmentStore RandomSuffixItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
-    uint32 oldMSTime = GetClock();
+    uint32 oldMSTime = getMSTime();
 
     RandomPropertyItemEnch.clear();                                 // for reload case
     RandomSuffixItemEnch.clear();
@@ -79,7 +79,7 @@ void LoadRandomEnchantmentsTable()
         }
         while (result->NextRow());
 
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Item Enchantment definitions in %u ms", count, GetClockDiffToNow(oldMSTime));
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");

@@ -8432,7 +8432,7 @@ void Spell::LoadScripts()
 
 void Spell::CallScriptBeforeCastHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_CAST);
@@ -8443,14 +8443,14 @@ void Spell::CallScriptBeforeCastHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptOnCastHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_CAST);
@@ -8461,14 +8461,14 @@ void Spell::CallScriptOnCastHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptAfterCastHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_CAST);
@@ -8479,14 +8479,14 @@ void Spell::CallScriptAfterCastHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 bool Spell::CallScriptCheckInterruptHandlers()
 {
-    uint32 l_ScriptExecuteTime = GetClock();
+    uint32 l_ScriptExecuteTime = getMSTime();
     bool l_CanInterrupt = false;
 
     for (std::list<SpellScript*>::iterator l_Scritr = m_loadedScripts.begin(); l_Scritr != m_loadedScripts.end(); ++l_Scritr)
@@ -8503,7 +8503,7 @@ bool Spell::CallScriptCheckInterruptHandlers()
         (*l_Scritr)->_FinishScriptCall();
     }
 
-    l_ScriptExecuteTime = GetClockDiffToNow(l_ScriptExecuteTime);
+    l_ScriptExecuteTime = getMSTime() - l_ScriptExecuteTime;
     if (l_ScriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, l_ScriptExecuteTime);
     return l_CanInterrupt;
@@ -8511,7 +8511,7 @@ bool Spell::CallScriptCheckInterruptHandlers()
 
 void Spell::CallScriptOnPrepareHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
 
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -8523,8 +8523,7 @@ void Spell::CallScriptOnPrepareHandlers()
 
         (*scritr)->_FinishScriptCall();
     }
-
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
@@ -8532,7 +8531,7 @@ void Spell::CallScriptOnPrepareHandlers()
 
 SpellCastResult Spell::CallScriptCheckCastHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     SpellCastResult retVal = SPELL_CAST_OK;
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -8548,7 +8547,7 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
     return retVal;
@@ -8556,19 +8555,19 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
 
 void Spell::PrepareScriptHitHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
 
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
         (*scritr)->_InitHit();
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode)
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
 
     // execute script effect handler hooks and check if effects was prevented
     bool preventDefault = false;
@@ -8614,7 +8613,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMo
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 
@@ -8623,7 +8622,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMo
 
 void Spell::CallScriptBeforeHitHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_HIT);
@@ -8633,15 +8632,14 @@ void Spell::CallScriptBeforeHitHandlers()
 
         (*scritr)->_FinishScriptCall();
     }
-
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptOnHitHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_HIT);
@@ -8652,14 +8650,14 @@ void Spell::CallScriptOnHitHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptAfterHitHandlers()
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_HIT);
@@ -8670,14 +8668,14 @@ void Spell::CallScriptAfterHitHandlers()
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex)
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_AREA_TARGET_SELECT);
@@ -8689,14 +8687,14 @@ void Spell::CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& ta
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
 
 void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex)
 {
-    uint32 scriptExecuteTime = GetClock();
+    uint32 scriptExecuteTime = getMSTime();
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_OBJECT_TARGET_SELECT);
@@ -8708,7 +8706,7 @@ void Spell::CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffI
         (*scritr)->_FinishScriptCall();
     }
 
-    scriptExecuteTime = GetClockDiffToNow(scriptExecuteTime);
+    scriptExecuteTime = getMSTime() - scriptExecuteTime;
     if (scriptExecuteTime > 10)
         sLog->outAshran("SpellScript [%u] take more than 10 ms to execute (%u ms)", m_spellInfo->Id, scriptExecuteTime);
 }
