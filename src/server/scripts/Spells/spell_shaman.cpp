@@ -2517,6 +2517,7 @@ enum CloudburstTotemSpells
     SPELL_CLOUDBURST    = 157503,
 };
 
+/// Last updated : 6.1.2 19802
 /// Cloudburst Totem - 157504
 class spell_sha_cloudburst_totem: public SpellScriptLoader
 {
@@ -2536,7 +2537,8 @@ class spell_sha_cloudburst_totem: public SpellScriptLoader
                 if (!l_HealInfo)
                     return;
 
-                GetEffect(p_AurEff->GetEffIndex())->SetAmount(p_AurEff->GetAmount() + l_HealInfo->GetHeal());
+                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_CLOUDBURST))
+                    GetEffect(p_AurEff->GetEffIndex())->SetAmount(p_AurEff->GetAmount() + CalculatePct(l_HealInfo->GetHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
             }
 
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
@@ -2564,6 +2566,7 @@ class spell_sha_cloudburst_totem: public SpellScriptLoader
         }
 };
 
+/// Last updated : 6.1.2 19802
 /// Clodburst - 157503
 class spell_sha_cloudburst: public SpellScriptLoader
 {
@@ -2583,7 +2586,7 @@ class spell_sha_cloudburst: public SpellScriptLoader
             void HandleHeal(SpellEffIndex p_EffIndex)
             {
                 if (l_TargetCount)
-                    SetHitHeal(CalculatePct(GetHitHeal() / l_TargetCount, GetSpellInfo()->Effects[p_EffIndex].BasePoints));
+                    SetHitHeal(GetHitHeal() / l_TargetCount);
             }
 
             void CountTargets(std::list<WorldObject*>& p_Targets)
@@ -2607,9 +2610,6 @@ class spell_sha_cloudburst: public SpellScriptLoader
         }
 };
 
-/*
-
-*/
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_unleashed_fury();
