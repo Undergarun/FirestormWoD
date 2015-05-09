@@ -178,6 +178,7 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    alreadyAskedForRoll;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
@@ -360,10 +361,9 @@ struct Loot
     uint32 Gold;
     uint32 ItemBonusDifficulty;                             ///< Used to find item bonus to apply in dungeon / raid
     uint8 UnlootedCount;
-    bool  alreadyAskedForRoll;
     bool  m_IsAoELoot;
 
-    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0), RoundRobinPlayer(0) {}
+    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0), RoundRobinPlayer(0) {}
     ~Loot() { clear(); }
 
     void SetSource(uint64 p_Source) { source = p_Source; }

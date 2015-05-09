@@ -399,12 +399,13 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty
         Item::GenerateItemBonus(itemid, p_ItemBonusDifficulty, itemBonuses);
     }
 
-    count             = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
-    is_looted         = 0;
-    is_blocked        = 0;
-    is_underthreshold = 0;
-    is_counted        = 0;
-    PersonalLooter    = 0;
+    count               = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
+    is_looted           = 0;
+    is_blocked          = 0;
+    is_underthreshold   = 0;
+    is_counted          = 0;
+    PersonalLooter      = 0;
+    alreadyAskedForRoll = false;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot

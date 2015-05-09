@@ -563,7 +563,7 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
         l_Loot = &l_GameObject->loot;
     }
 
-    if (!l_Loot || l_Loot->alreadyAskedForRoll)
+    if (!l_Loot)
         return;
 
     if (l_LootListID >= l_Loot->Items.size() + l_Loot->QuestItems.size())
@@ -573,7 +573,10 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
     }
 
     LootItem& l_Item = l_LootListID >= l_Loot->Items.size() ? l_Loot->QuestItems[l_LootListID - l_Loot->Items.size()] : l_Loot->Items[l_LootListID];
-    l_Loot->alreadyAskedForRoll = true;
+    if (l_Item.alreadyAskedForRoll)
+        return;
+
+    l_Item.alreadyAskedForRoll = true;
 
     m_Player->GetGroup()->DoRollForAllMembers(l_ObjectGUID, l_LootListID, m_Player->GetMapId(), l_Loot, l_Item, m_Player);
 }

@@ -29172,6 +29172,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, uint8 linkedLootSlot)
         return;
     }
 
+    if (item->alreadyAskedForRoll)
+    {
+        SendEquipError(EQUIP_ERR_LOOT_GONE, NULL, NULL);
+        return;
+    }
+
     // questitems use the blocked field for other purposes
     if (!qitem && item->is_blocked)
     {
