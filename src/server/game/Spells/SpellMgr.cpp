@@ -5146,8 +5146,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
-                spellInfo->Effects[2].BasePoints = 0;
+                break;
+            case 182287:/// Glyph of Ignite (effect)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); ///< 5s
                 break;
             case 73651: ///< Recuperate
                 spellInfo->Effects[1].Effect = 0;

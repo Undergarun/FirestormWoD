@@ -1154,7 +1154,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             switch (GetId())
             {
-                case 12654: ///< Ignite
+                case 182287: ///< Ignite
                 {
                     /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
                     if (caster->HasAura(61205))

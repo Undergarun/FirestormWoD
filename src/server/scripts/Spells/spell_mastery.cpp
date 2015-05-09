@@ -865,6 +865,12 @@ class spell_mastery_ignite: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_ignite_SpellScript);
 
+            enum eSpell
+            {
+                GlyphOfIgnite = 61205,
+                GlyphOfIgniteEffect = 182287
+            };
+
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -893,6 +899,10 @@ class spell_mastery_ignite: public SpellScriptLoader
                                                 l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
+
+                                    /// Glyph of Ignite
+                                    if (l_Caster->HasAura(eSpell::GlyphOfIgnite))
+                                        l_Caster->CastSpell(l_Target, eSpell::GlyphOfIgniteEffect, true);
                                 }
                             }
                         }

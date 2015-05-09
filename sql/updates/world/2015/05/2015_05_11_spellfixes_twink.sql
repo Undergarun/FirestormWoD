@@ -100,3 +100,10 @@ INSERT INTO `spell_script_names` VALUES (115192, 'spell_rog_stealth');
 -- fix Vanish
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_rog_vanish';
 INSERT INTO `spell_script_names` VALUES (131361, 'spell_rog_vanish');
+
+-- fix Sudden Death
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_sudden_death';
+
+-- fix Glyph of Ignite
+DELETE FROM `spell_linked_spell` WHERE `comment` LIKE '%Glyph of Ignite%';
+INSERT INTO `spell_linked_spell` VALUES (-182287, -12654, 0, 'Glyph of Ignite - remove ignite with speed decrease effect');
