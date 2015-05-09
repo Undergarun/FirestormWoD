@@ -941,7 +941,7 @@ void WorldSession::SendListInventory(uint64 p_VendorGUID)
         // else error
     }
 
-    WorldPacket l_Response(SMSG_LIST_INVENTORY, 1 + 4 + l_ItemDataBuffer.size());
+    WorldPacket l_Response(SMSG_LIST_INVENTORY, 16 + 2 + 1 + 4 + l_ItemDataBuffer.size());
     l_Response.appendPackGUID(p_VendorGUID);
 
     if (l_ItemCount)

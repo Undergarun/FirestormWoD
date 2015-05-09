@@ -870,8 +870,8 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
         }
     }
 
-    ByteBuffer buff;
-    WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE);
+    ByteBuffer buff(1024);
+    WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 1024);
     data << uint32(count);
 
     for (auto itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)

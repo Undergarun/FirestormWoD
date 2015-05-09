@@ -36,7 +36,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
     uint64 l_Guid = m_Player->GetGUID();
     uint32 l_Now = time(NULL);
 
-    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR);
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR, 2 * 1024);
     l_Data << uint32(l_Now);
     l_Data << uint32(secsToTimeBitFields(l_Now));
     l_Data << uint32(1135753200);
