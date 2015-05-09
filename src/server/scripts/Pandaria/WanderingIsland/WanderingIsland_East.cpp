@@ -81,12 +81,12 @@ class vehicle_balance_pole : public VehicleScript
                 passenger->ExitVehicle();
         }
 
-        /*void OnRemovePassenger(Vehicle* veh, Unit* passenger)
+        void OnRemovePassenger(Vehicle* veh, Unit* passenger)
         {
             if (veh->GetBase()->GetPositionZ() == 116.521004f) // Hack
                 if (passenger->IsOnVehicle()) // Maybe the player
                     passenger->AddAura(102938, passenger);
-        }*/
+        }
 };
 
 class mob_tushui_monk : public CreatureScript
@@ -801,7 +801,7 @@ class playerScript_AutoAcceptQuest: public PlayerScript
 void AddSC_WanderingIsland_East()
 {
     new AreaTrigger_at_bassin_curse();
-//    new vehicle_balance_pole();
+    new vehicle_balance_pole();
     new mob_tushui_monk();
     new spell_rock_jump();
     new mob_shu_water_spirit();
