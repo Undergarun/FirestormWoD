@@ -20021,7 +20021,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_COMPLETE, 38);
     data << uint32(questId);
     data << uint32(xp);
     data << uint32(quest->GetRewardSkillId());             ///< Bonus skill id
