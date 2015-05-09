@@ -7920,6 +7920,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     return false;
                 }
+                case 157007:///< Beacon of Insight
+                {
+                    if (!victim)
+                        return false;
+
+                    if (AuraPtr l_BeaconOfInsight = triggeredByAura->GetBase())
+                    {
+                        l_BeaconOfInsight->Remove();
+                        return true;
+                    }
+
+                    break;
+                }
                 case 28789: // Holy Power (Redemption Armor set)
                 {
                     if (!victim)
