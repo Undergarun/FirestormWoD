@@ -9652,6 +9652,16 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
+        case 165395:///< Necrosis
+        {
+            if (!procSpell)
+                return false;
+
+            if (!(procEx & PROC_EX_INTERNAL_MULTISTRIKE))
+                return false;
+
+            break;
+        }
         case 165698:///< Item - Druid WoD PvP Feral 4P Bonus
         {
             if (!procSpell)
