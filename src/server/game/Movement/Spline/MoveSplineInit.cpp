@@ -253,7 +253,10 @@ namespace Movement
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
             l_Data << l_MoveSpline.facing.angle;                                                    ///< Facing angle
         else if (l_FinalFacingMode == MonsterMoveFacingTarget)
+        {
+            l_Data << float(l_MoveSpline.facing.angle);                                             ///< Face direction
             l_Data.appendPackGUID(l_MoveSpline.facing.target);                                      ///< Facing target
+        }
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)
             l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;///< Facing position
 
