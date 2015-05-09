@@ -5843,7 +5843,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // remove from spell book if not replaced by lesser rank
     if (!prev_activate)
     {
-        WorldPacket data(SMSG_UNLEARNED_SPELLS, 4);
+        WorldPacket data(SMSG_UNLEARNED_SPELLS, 4 + 4);
         data << uint32(1);  // Count spells, always one by one
         data << uint32(spell_id);
         GetSession()->SendPacket(&data);
@@ -5959,7 +5959,7 @@ void Player::RemoveAllSpellCooldown()
 {
     if (!m_spellCooldowns.empty())
     {
-        WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4);
+        WorldPacket l_Data(SMSG_CLEAR_COOLDOWNS, 4 + (m_spellCooldowns.size() * 4));
         l_Data << uint32(GetSpellCooldownMap().size());
 
         for (SpellCooldowns::const_iterator itr = GetSpellCooldownMap().begin(); itr != GetSpellCooldownMap().end(); ++itr)
@@ -12038,7 +12038,7 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
     /// Need know merged fishing/corpse loot type for achievements
     l_Loot->Type = p_LootType;
 
-    WorldPacket l_Data(SMSG_LOOT_RESPONSE);
+    WorldPacket l_Data(SMSG_LOOT_RESPONSE, 4 * 1024);
     l_Data << LootView(*l_Loot, this, p_LootType, p_Guid, l_Permission);
     SendDirectMessage(&l_Data);
 
@@ -12087,6 +12087,7 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     data << Field;
     data << Value;
     data.WriteBit(0);
+    data.FlushBits();
     GetSession()->SendPacket(&data);
 }
 
@@ -25554,7 +25555,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
-        WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
+        WorldPacket data(SMSG_BUY_ITEM, 16 + 2 + 4 + 4 + 4);
 
         ObjectGuid vendorGuid = pVendor->GetGUID();
 

@@ -145,7 +145,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
             if (creatureInfo->questItems[i])
                 itemCount++;                                           ///< itemId[6], quest drop
 
-        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 1 * 1024);
 
         data << uint32(entry);                                         ///< Creature entry
         data.WriteBit(1);                                              ///< Has valid data
@@ -208,7 +208,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
     }
     else
     {
-        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4 + 1);
         data << uint32(entry | 0x80000000);
         data.WriteBit(0);                               ///< Has no valid data
         data.FlushBits();

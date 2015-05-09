@@ -930,7 +930,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetSimulacrumTarget())
         creator = creator->GetSimulacrumTarget();
 
-    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 68);
+    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
 
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {

@@ -593,7 +593,7 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
     {
         std::vector<GuildReward> const& l_Rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket l_Data(SMSG_GUILD_REWARDS_LIST);
+        WorldPacket l_Data(SMSG_GUILD_REWARDS_LIST, 5 * 1024);
 
         l_Data << uint32(time(NULL));
         l_Data << uint32(l_Rewards.size());

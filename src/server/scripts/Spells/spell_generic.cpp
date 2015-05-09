@@ -1485,8 +1485,7 @@ class spell_gen_spirit_healer_res: public SpellScriptLoader
 
                 if (Unit * l_Target = GetHitUnit())
                 {
-                    WorldPacket l_Data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                    
+                    WorldPacket l_Data(SMSG_SPIRIT_HEALER_CONFIRM, 16 + 2);
                     l_Data.appendPackGUID(l_Target->GetGUID());
 
                     l_OriginalCaster->GetSession()->SendPacket(&l_Data);

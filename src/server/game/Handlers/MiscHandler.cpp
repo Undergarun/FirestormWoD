@@ -293,8 +293,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
     uint32 l_GMLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
     uint8 l_MemberCount = 0;
 
-    WorldPacket l_Data(SMSG_WHO, 2 * 1024);
-    ByteBuffer l_Buffer(2 * 1024);
+    WorldPacket l_Data(SMSG_WHO, 5 * 1024);
+    ByteBuffer l_Buffer(5 * 1024);
 
     TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType const& l_PlayersMap = sObjectAccessor->GetPlayers();

@@ -13514,14 +13514,14 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             {
                 GetVehicleKit()->Reset();
 
-                WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
                 l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
                 l_Data << uint32(0);                ///< SequenceIndex
                 l_Data << uint32(VehicleId);        ///< VehicleRecID
                 ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // Send others that we now have a vehicle
-                l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 16 + 2 + 4);
                 l_Data.appendPackGUID(GetGUID());
                 l_Data << uint32(VehicleId);
                 SendMessageToSet(&l_Data, true);
@@ -19433,7 +19433,7 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
 
 void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration)
 {
-    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 16 + 2 + 4 + 4 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
@@ -19443,7 +19443,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
 
 void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
 {
-    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT);
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << int32(p_SpellVisualKitID);
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
@@ -19466,7 +19466,7 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
         l_Pos.m_positionZ = 0.f;
     }
 
-    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 16 + 2 + 16 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
     l_Data << float(l_Pos.m_positionX);
@@ -21101,7 +21101,7 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* p_HostileReference)
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_HIGHEST_THREAT_UPDATE);
+        WorldPacket l_Data(SMSG_HIGHEST_THREAT_UPDATE, 1 * 1024);
         l_Data.appendPackGUID(GetGUID());
         l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
         l_Data << l_Count;
@@ -21958,13 +21958,13 @@ void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_T
 {
     if (p_Engage)
     {
-        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 2 + 1);
         p_Data->append(GetPackGUID());
         *p_Data << uint8(p_TargetFramePriority);
     }
     else
     {
-        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8 + 1);
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16 + 2);
         p_Data->append(GetPackGUID());
     }
 }

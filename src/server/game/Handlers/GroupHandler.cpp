@@ -397,7 +397,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
         /// Report
         std::string l_Name = GetPlayer()->GetName();
 
-        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length());
+        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length() + 1);
         l_Data.WriteBits(l_Name.length(), 6);
         l_Data.FlushBits();
 

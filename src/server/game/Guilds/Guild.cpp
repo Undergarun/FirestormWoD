@@ -1220,7 +1220,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER, 12 * 1024);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 25 * 1024);
 
     l_Data << uint32(m_accountsNumber);
     l_Data << uint32(secsToTimeBitFields(m_createdDate));
@@ -1307,7 +1307,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
 
 void Guild::HandleQuery(WorldSession* session)
 {
-    WorldPacket l_Data(SMSG_QUERY_GUILD_INFO_RESPONSE);
+    WorldPacket l_Data(SMSG_QUERY_GUILD_INFO_RESPONSE, 500);
 
     l_Data.appendPackGUID(GetGUID());
     l_Data.WriteBit(1);                 ///< hasData
@@ -2081,7 +2081,7 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
     if (p_TabID < GetPurchasedTabsSize() || p_TabID == GUILD_BANK_MAX_TABS)
     {
         const LogHolder * l_Log = m_bankEventLog[p_TabID];
-        WorldPacket l_Data(SMSG_GUILD_BANK_LOG_QUERY_RESULT);
+        WorldPacket l_Data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, 5 * 1024);
 
         l_Data << uint32(p_TabID);
         l_Log->WritePacket(l_Data);

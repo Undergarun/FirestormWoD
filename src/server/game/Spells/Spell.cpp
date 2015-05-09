@@ -4968,7 +4968,7 @@ void Spell::SendSpellGo()
     bool l_HasUnk1 = m_spellInfo->Id == 178236;
 
     // Forge the packet !
-    WorldPacket l_Data(SMSG_SPELL_GO, 1024);
+    WorldPacket l_Data(SMSG_SPELL_GO, 8 * 1024);
     l_Data.appendPackGUID(l_CasterGuid1);
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
@@ -5326,7 +5326,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
+    WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 16 + 2 + 4);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(p_Time);
 

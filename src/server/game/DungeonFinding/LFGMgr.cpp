@@ -2393,7 +2393,7 @@ void LFGMgr::SendUpdateStatus(Player* p_Player, const LfgUpdateData& p_UpdateDat
             break;
     }
 
-    WorldPacket l_Data(SMSG_LFG_UPDATE_STATUS, 48);
+    WorldPacket l_Data(SMSG_LFG_UPDATE_STATUS, 1 * 1024);
     l_Data.appendPackGUID(p_Player->GetGUID());             ///< Requester GUID
     l_Data << uint32(0);                                    ///< QueueId
     l_Data << uint32(2);                                    ///< Flags

@@ -1045,7 +1045,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
 
 void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
+    WorldPacket l_Data(SMSG_LOOT_ROLL_WON, 200);
 
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 

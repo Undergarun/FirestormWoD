@@ -54,7 +54,7 @@ void WorldSession::SendTaxiStatus(uint64 p_Guid)
     if (l_CurrentLocation == 0)
         return;
 
-    WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 9);
+    WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
     l_TaxiNodeStatusMsg.appendPackGUID(p_Guid);
     l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 1 : 0, 2);
@@ -104,7 +104,7 @@ void WorldSession::SendTaxiMenu(Creature* p_Unit)
     if (p_Unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
 
-    WorldPacket l_Data(SMSG_SHOW_TAXI_NODES, (4 + 8 + 4 + 8 * 4));
+    WorldPacket l_Data(SMSG_SHOW_TAXI_NODES, 1 * 1024);
 
     l_Data.WriteBit(l_HasData);       // hasData
     l_Data.FlushBits();
@@ -151,7 +151,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature * p_Unit)
         WorldPacket l_NewTaxiPathMsg(SMSG_NEW_TAXI_PATH, 0);
         SendPacket(&l_NewTaxiPathMsg);
 
-        WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 9);
+        WorldPacket l_TaxiNodeStatusMsg(SMSG_TAXI_NODE_STATUS, 16 + 2 + 1);
 
         l_TaxiNodeStatusMsg.appendPackGUID(p_Unit->GetGUID());
         l_TaxiNodeStatusMsg.WriteBits(GetPlayer()->m_taxi.IsTaximaskNodeKnown(l_CurrentLocation) ? 1 : 0, 2);

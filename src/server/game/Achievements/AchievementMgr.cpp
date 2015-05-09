@@ -2326,7 +2326,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
     size_t l_CriteriaCount = l_ProgressMap->size();
     size_t l_AchievementCount = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
-    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 15 * 1024);
+    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 22 * 1024);
 
     data << uint32(l_AchievementCount);
     data << uint32(l_CriteriaCount);
