@@ -83,7 +83,10 @@ namespace Movement
         /// There is a big chance that current position is unknown if current state is not finalized, need compute it
         /// this also allows calculate spline position and update map position in much greater intervals
         /// Don't compute for transport movement if the unit is in a motion between two transports
-        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == (m_Unit.GetTransGUID() != 0))
+        /// If the movement to enter on the vehicle isn't finish and we are exit a vehicle, transport guid will be null but we will still have transport position in unit.movespline
+        /// So we have to check if current movespline is a entervehicle too
+        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == (m_Unit.GetTransGUID() != 0)
+            && !(l_MoveSpline.splineflags.transportEnter && args.flags.transportExit))
             l_RealPosition = l_MoveSpline.ComputePosition();
 
         /// Should i do the things that user should do? - no.
