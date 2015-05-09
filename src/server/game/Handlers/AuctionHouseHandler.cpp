@@ -680,9 +680,9 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // Count place holder
-    l_Data << uint32(300);                                  // Desired Delay
     size_t l_TotalCountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // TotalCount place holder
+    l_Data << uint32(300);                                  // Desired Delay
 
     uint32 l_Count = 0;
     uint32 l_TotalCount = 0;
@@ -701,6 +701,11 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 
     l_Data.put<uint32>(l_CountPos, l_Count);
     l_Data.put<uint32>(l_TotalCountPos, l_TotalCount);
+
+    l_Data.FlushBits();
+    l_Data.WriteBit(l_Usable);  ///< OnlyUsable
+    l_Data.FlushBits();
+
     SendPacket(&l_Data);
 }
 
