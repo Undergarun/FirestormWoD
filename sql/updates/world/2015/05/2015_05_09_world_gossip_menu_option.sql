@@ -1,4 +1,4 @@
-UPDATE `creature_template` SET `faction` = '474' , `BuildVerified` = '19034' WHERE `entry` = '47337'; 
+UPDATE `creature_template` SET `faction` = '474' WHERE `entry` = '47337'; 
 
 update `creature_template` set `npcflag` = 4194433 where gossip_menu_id = 9821;
 
