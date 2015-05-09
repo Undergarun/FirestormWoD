@@ -430,7 +430,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) 
     else
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
 
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_DETAILS);
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_DETAILS, 2 * 1024);
 
     data.appendPackGUID(guid);
     data.appendPackGUID(guid2);
@@ -568,7 +568,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
 
     bool l_HideItemReward = p_Quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD) || p_Quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
-    WorldPacket l_Data(SMSG_QUERY_QUEST_INFO_RESPONSE, 1500);
+    WorldPacket l_Data(SMSG_QUERY_QUEST_INFO_RESPONSE, 3 * 1024);
     l_Data << uint32(p_Quest->GetQuestId());
     l_Data.WriteBit(1);                                                                         ///< has data
     l_Data.FlushBits();
@@ -763,7 +763,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* p_Quest, uint64 p_NpcGUI
     else
         l_QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
 
-    WorldPacket l_Data(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 50);     // guess size
+    WorldPacket l_Data(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 2 * 1024);
 
     l_Data.appendPackGUID(p_NpcGUID);
     l_Data << uint32(GUID_ENPART(p_NpcGUID));
@@ -913,7 +913,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
 
     ObjectGuid guid = npcGUID;
 
-    WorldPacket data(SMSG_QUEST_GIVER_REQUEST_ITEMS, 50);    // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_REQUEST_ITEMS, 200);
     data.appendPackGUID(guid);
     data << uint32(GUID_ENPART(guid));
     data << uint32(quest->GetQuestId());

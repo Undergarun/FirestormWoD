@@ -63,7 +63,7 @@ void Totem::InitStats(uint32 duration)
         && m_Properties->Slot >= SUMMON_SLOT_TOTEM
         && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
+        WorldPacket data(SMSG_TOTEM_CREATED, 4 + 16 + 2 + 4 + 4);
         data << uint8(m_Properties->Slot - 1);
         data.appendPackGUID(GetGUID());
         data << uint32(duration);

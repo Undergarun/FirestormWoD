@@ -651,7 +651,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
 
             bool l_HasJamCliPartyLFGInfo = isLFGGroup();
 
-            l_Data.Initialize(SMSG_PARTY_UPDATE);
+            l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetPartyType());
@@ -895,7 +895,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
             bool l_HasJamCliPartyLFGInfo = isLFGGroup();
 
-            l_Data.Initialize(SMSG_PARTY_UPDATE);
+            l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetPartyType());
@@ -1829,8 +1829,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         l_I++;
     }
 
-    WorldPacket l_Data(SMSG_PARTY_UPDATE);
-
+    WorldPacket l_Data(SMSG_PARTY_UPDATE, 1 * 1024);
     l_Data << uint8(GetPartyFlags());
     l_Data << uint8(GetPartyIndex());
     l_Data << uint8(GetPartyType());

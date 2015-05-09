@@ -419,7 +419,7 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
 {
     ByteBuffer l_ReplyContent;
 
-    WorldPacket data(SMSG_DB_REPLY);
+    WorldPacket data(SMSG_DB_REPLY, 2 * 1024);
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
     data << uint32(p_Entry);
     data << uint32(sObjectMgr->GetHotfixDate(p_Entry, DB2_REPLY_BROADCAST_TEXT));
@@ -677,7 +677,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         }
         else if (l_DB2Store)
         {
-            ByteBuffer l_ResponseData;
+            ByteBuffer l_ResponseData(2 * 1024);
             if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
             {
                 WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());

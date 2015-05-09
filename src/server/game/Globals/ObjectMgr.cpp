@@ -10111,7 +10111,7 @@ void ObjectMgr::LoadQuestObjectiveLocales()
 
         if (!QuestObjectiveExists(l_ObjectiveID))
         {
-            sLog->outError(LOG_FILTER_SQL, "Quest Objective locale has invalid Quest Objective %u! Skipping.", l_Locale, l_ObjectiveID);
+            sLog->outError(LOG_FILTER_SQL, "Quest Objective locale Id %u has invalid Quest Objective %u! Skipping.", l_Locale, l_ObjectiveID);
             continue;
         }
 

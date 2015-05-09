@@ -180,7 +180,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             std::list<uint32> l_LfgSlots;
 
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+            WorldPacket data(SMSG_PARTY_INVITE, 200);
             data.WriteBit(l_CanAccept);
             data.WriteBit(l_MightCRZYou);
             data.WriteBit(l_IsXRealm);
@@ -282,7 +282,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     std::list<uint32> l_LfgSlots;
 
     // tell the player that they were invited but it failed as they were already in a group
-    WorldPacket l_Data(SMSG_PARTY_INVITE, 45);
+    WorldPacket l_Data(SMSG_PARTY_INVITE, 200);
     l_Data.WriteBit(l_CanAccept);
     l_Data.WriteBit(l_MightCRZYou);
     l_Data.WriteBit(l_IsXRealm);

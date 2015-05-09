@@ -1164,7 +1164,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         if (!extendedCost)
             continue;
 
-        WorldPacket l_Data(SMSG_DB_REPLY, 44);
+        WorldPacket l_Data(SMSG_DB_REPLY, 1024);
         l_Data << uint32(sItemExtendedCostStore.GetHash());
 
         ByteBuffer l_ResponseData;

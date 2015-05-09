@@ -260,7 +260,7 @@ void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
 
 void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
 {
-    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, 29);
+    WorldPacket l_Data(SMSG_RATED_BATTLEFIELD_INFO, MAX_PVP_SLOT * (4+4+4+4+4+4+4+4));
 
     for (int i = 0; i < MAX_PVP_SLOT; i++)
     {

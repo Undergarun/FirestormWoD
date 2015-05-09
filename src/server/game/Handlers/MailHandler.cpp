@@ -564,7 +564,7 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT);
+    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 2 * 1024);
     ByteBuffer l_MailsBuffer;
 
     time_t cur_time = time(NULL);

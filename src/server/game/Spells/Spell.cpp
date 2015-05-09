@@ -5390,7 +5390,7 @@ void Spell::SendResurrectRequest(Player* p_Target)
     // for player resurrections the name is looked up by guid
     char const* l_RessurectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(p_Target->GetSession()->GetSessionDbLocaleIndex());
 
-    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, (8+4+strlen(l_RessurectorName)+1+1+1+4));
+    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, 16 + 2 + 4 + 4 + 4 + 1 + strlen(l_RessurectorName) + 1);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);
     l_Data << uint32(0);

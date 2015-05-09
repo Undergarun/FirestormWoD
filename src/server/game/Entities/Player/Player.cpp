@@ -2899,7 +2899,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                 // send transfer packets
                 bool l_TransferSpellID = false;
 
-                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
+                WorldPacket data(SMSG_TRANSFER_PENDING, 50);
 
                 data << uint32(mapid);
                 data.WriteBit(m_transport != NULL);
@@ -4415,7 +4415,7 @@ void Player::GiveLevel(uint8 level)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, basehp, basemana);
 
     // send levelup info to client
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS_PER_CLASS*4+MAX_STATS*4));
+    WorldPacket data(SMSG_LEVELUP_INFO, 100);
 
     data << uint32(level);
     data << uint32(int32(basehp) - int32(GetCreateHealth()));
@@ -9500,7 +9500,7 @@ void Player::SendCurrencies()
 
 void Player::SendPvpRewards()
 {
-    WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, (5 * (4 + 4)) + (2 * (4 + 4)) + 1);
+    WorldPacket l_Packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 65);
     l_Packet << (uint32)GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, false);                         ///< Count of gived all conquest points in week
     l_Packet << (uint32)GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, false);                        ///< Max Conquest points cap
 
@@ -20021,7 +20021,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
 
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_COMPLETE, 38);
     data << uint32(questId);
     data << uint32(xp);
     data << uint32(quest->GetRewardSkillId());             ///< Bonus skill id
@@ -25353,8 +25353,8 @@ void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (idSchoolMask & (1 << i))
             prohibited[i] = prohibited_struct(unTimeMs);
 
-    WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
-    ByteBuffer dataBuffer;
+    WorldPacket data(SMSG_SPELL_COOLDOWN, 1 * 1024);
+    ByteBuffer dataBuffer(1 * 1024);
     ObjectGuid playerGuid = GetGUID();
 
     uint32 counter = 0;
@@ -27126,7 +27126,7 @@ void Player::SendInitialPacketsAfterAddToMap()
         }
     }
 
-    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
+    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE, 2 * 1024);
     l_Data.WriteBit(true);                      ///< Is full update
     l_Data.FlushBits();
     l_Data << uint32(l_MountSpells.size());
@@ -30470,7 +30470,7 @@ void Player::MountSetFavorite(uint32 p_SpellID, bool p_IsFavorite)
     m_spells[p_SpellID]->IsMountFavorite = p_IsFavorite;
     m_spells[p_SpellID]->state = PLAYERSPELL_CHANGED;
 
-    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE);
+    WorldPacket l_Data(SMSG_ACCOUNT_MOUNT_UPDATE, 1 + 4 + 4 + 4 + 1);
     l_Data.WriteBit(false); ///< Is full update
     l_Data.FlushBits();
     l_Data << uint32(1);    ///< One update
