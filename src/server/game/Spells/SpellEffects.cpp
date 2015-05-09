@@ -385,7 +385,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*p_EffIndex*/)
     if (m_caster == unitTarget)
         finish();
 
-    WorldPacket l_Data(Opcodes::SMSG_SPELL_INSTAKILL_LOG, 16 + 2 + 16 + 2 + 4;
+    WorldPacket l_Data(Opcodes::SMSG_SPELL_INSTAKILL_LOG, 16 + 2 + 16 + 2 + 4);
     l_Data.appendPackGUID(unitTarget->GetGUID());
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);
