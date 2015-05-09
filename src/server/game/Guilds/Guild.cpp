@@ -2103,14 +2103,14 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
 
     if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
-	    if (BankTab const* l_BankTab = GetBankTab(p_TabID))
-	    {
+        if (BankTab const* l_BankTab = GetBankTab(p_TabID))
+        {
             for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
                 if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID))
                     ++l_ItemCount;
             }
-	    }
+        }
     }
 
     l_Data << uint64(m_bankMoney);                                                              ///< Money
@@ -2813,8 +2813,8 @@ void Guild::DeleteMember(uint64 p_Guid, bool p_IsDisbanding, bool p_IsKicked, bo
 
         for (uint32 l_I = 0; l_I < sGuildPerkSpellsStore.GetNumRows(); ++l_I)
         {
-	        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(l_I))
-	            l_Player->removeSpell(entry->SpellId, false, false);
+            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(l_I))
+                l_Player->removeSpell(entry->SpellId, false, false);
         }
     }
 
