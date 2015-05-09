@@ -1400,18 +1400,19 @@ class spell_warr_execute: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
-                int32 l_MaxConsumed = GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+                int32 l_MaxConsumed = (GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints) * l_Caster->GetPowerCoeff(POWER_RAGE);
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
                 int32 l_RageConsumed = 0;
                 
-                if ((l_Caster->GetPower(POWER_RAGE) / l_Caster->GetPowerCoeff(POWER_RAGE)) > l_MaxConsumed)
+                if (l_Caster->GetPower(POWER_RAGE) > l_MaxConsumed)
                     l_RageConsumed = l_MaxConsumed;
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
                 if (!l_Caster->HasAura(52437)) ///< Sudden Death : consume no extra Rage
-                    l_Caster->ModifyPower(POWER_RAGE, -(l_RageConsumed / 2) * l_Caster->GetPowerCoeff(POWER_RAGE));
+                    l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+
                 l_Damage += CalculatePct(l_Damage, l_RageConsumed * (405.0f / l_MaxConsumed));
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
