@@ -521,7 +521,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE) == 0 ? 2.0f : GetWeaponDamageRange(attType, MAXDAMAGE);
 
     bool dualWield = mainItem && l_OffHandItem && !l_NoLongerDualWields;
-    float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+    ///float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+    float dualWieldModifier = 1.0f; ///< I don't know about reducing for 19%. We have checked it on PTR, and damage is the same with dual wield - like without it.
     if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
         dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
