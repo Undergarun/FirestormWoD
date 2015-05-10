@@ -2277,7 +2277,7 @@ void AuraEffect::HandleModStealth(const AuraApplication * p_AuraApplication, uin
     {
         l_Target->m_stealth.AddValue(l_Type, -GetAmount());
 
-        if (!l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !l_Target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
+        if (!l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
         {
             l_Target->m_stealth.DelFlag(l_Type);
             l_Target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
