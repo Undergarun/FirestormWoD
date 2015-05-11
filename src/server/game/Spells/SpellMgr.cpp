@@ -5167,6 +5167,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[5].Effect = 0;
                 spellInfo->Effects[6].Effect = 0;
                 break;
+            case 52610: ///< Savage Roar
+                spellInfo->Effects[2].BasePoints = 40;
+                break;
+            case 29725: ///< Sudden Death
+                spellInfo->ProcFlags = PROC_FLAG_DONE_MELEE_AUTO_ATTACK;
+                break;
+            case 8676:  ///< Ambush
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                spellInfo->Effects[1].BonusMultiplier = 0;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)

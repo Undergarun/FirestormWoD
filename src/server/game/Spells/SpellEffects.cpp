@@ -4036,7 +4036,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                             if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                                totalDamagePercentMod *= 1.447f;
+                                totalDamagePercentMod *= 1.4f; ///< Last Update 6.1.2 19802
                     break;
                 }
                 case 16511: // Hemorrhage
