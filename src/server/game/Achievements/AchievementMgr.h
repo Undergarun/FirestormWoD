@@ -735,14 +735,24 @@ class AchievementGlobalMgr
             return m_AchievementEntryByCriteriaTreeId[p_Criteria->ID];
         }
 
-        bool IsRealmCompleted(AchievementEntry const* achievement) const
+        bool IsRealmCompleted(AchievementEntry const* achievement, uint32 instanceId) const
         {
-            return m_allCompletedAchievements.find(achievement->ID) != m_allCompletedAchievements.end();
+            AllCompletedAchievements::const_iterator itr = m_allCompletedAchievements.find(achievement->ID);
+            if (itr == m_allCompletedAchievements.end())
+                return false;
+
+            if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
+                return itr->second != instanceId;
+
+            return true;
         }
 
-        void SetRealmCompleted(AchievementEntry const* achievement)
+        void SetRealmCompleted(AchievementEntry const* achievement, uint32 instanceId)
         {
-            m_allCompletedAchievements.insert(achievement->ID);
+            if (IsRealmCompleted(achievement, instanceId))
+                return;
+
+            m_allCompletedAchievements[achievement->ID] = instanceId;
         }
 
         bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
@@ -794,7 +804,7 @@ class AchievementGlobalMgr
         AchievementCriteriaTreeByCriteriaId m_AchievementCriteriaTreeByCriteriaId;
         AchievementEntryByCriteriaTree m_AchievementEntryByCriteriaTree;
         ModifierTreeEntryByTreeId m_ModifierTreeEntryByTreeId;
-        typedef std::set<uint32> AllCompletedAchievements;
+        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
         SubCriteriaTreeListById m_SubCriteriaTreeListById;
 
