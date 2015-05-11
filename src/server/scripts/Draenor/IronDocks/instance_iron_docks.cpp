@@ -349,6 +349,8 @@ public:
                 break;
                 */
             }
+
+            return true;
         }
         bool IsWipe()
         {
