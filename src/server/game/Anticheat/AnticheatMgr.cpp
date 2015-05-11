@@ -326,7 +326,12 @@ void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
     m_Players[l_Key].AddReportToHistory();
 
     if (m_Players[l_Key].GetReportCountInLastSecs(sWorld->getIntConfig(CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE)) > sWorld->getIntConfig(CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN))
-        sWorld->BanAccount(BanMode::BAN_CHARACTER, p_Player->GetName(), "10m", "Too much anti-cheat report", "Anticheat");
+    {
+        p_Player->GetSession()->KickPlayer();
+
+        std::string l_Msg = "Player " << p_Player->GetName() << " was kicked by the anti cheat";
+        ChatHandler(p_Player).SendGlobalGMSysMessage(l_Msg.c_str());
+    }
 }
 
 void AnticheatMgr::AnticheatGlobalCommand(ChatHandler* p_Handler)

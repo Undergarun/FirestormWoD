@@ -1373,8 +1373,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
     m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
     m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
-    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsBeforeBan", 200);
-    m_int_configs[CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE] = ConfigMgr::GetIntDefault("Anticheat.BanCheckTimeRange", 120);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsBeforeBan", 10);
+    m_int_configs[CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE] = ConfigMgr::GetIntDefault("Anticheat.BanCheckTimeRange", 60);
 
     // Announce server for a ban
     m_bool_configs[CONFIG_ANNOUNCE_BAN] = ConfigMgr::GetBoolDefault("AnnounceBan", false);
