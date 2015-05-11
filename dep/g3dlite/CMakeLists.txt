@@ -72,3 +72,5 @@ target_link_libraries(g3dlib
   ${ZLIB_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )
+
+set_property(TARGET g3dlib PROPERTY FOLDER "dep")
