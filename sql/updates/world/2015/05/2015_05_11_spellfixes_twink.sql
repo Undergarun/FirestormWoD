@@ -107,3 +107,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_warr_sudden_death';
 -- fix Glyph of Ignite
 DELETE FROM `spell_linked_spell` WHERE `comment` LIKE '%Glyph of Ignite%';
 INSERT INTO `spell_linked_spell` VALUES (-182287, -12654, 0, 'Glyph of Ignite - remove ignite with speed decrease effect');
+
+-- fix Improved Rake
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dru_rake_triggered';
+INSERT INTO `spell_script_names` VALUES (155722, 'spell_dru_rake_triggered');

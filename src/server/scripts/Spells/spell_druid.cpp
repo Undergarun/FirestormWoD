@@ -3179,12 +3179,23 @@ class spell_dru_rake: public SpellScriptLoader
                     }
                 }
 
+                if (l_Target && l_Caster)
+                {
+                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                    {
+                        if (m_isStealthed)
+                        {
+                            SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
+                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
+                        }
+                        else
+                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
+                    }
+                }
+
                 if (l_Target && l_Caster && m_isStealthed)
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
-
-                    if (constAuraEffectPtr l_ImprovedRake = l_Caster->GetAuraEffect(SPELL_DRU_IMPROVED_RAKE, EFFECT_0))
-                        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetAmount()));
 
                     if (constAuraEffectPtr l_GlyphOfSavageRoar = l_Caster->GetAuraEffect(SPELL_DRU_GLYPH_OF_SAVAGE_ROAR, EFFECT_0))
                     {
@@ -3211,6 +3222,48 @@ class spell_dru_rake: public SpellScriptLoader
         {
             return new spell_dru_rake_SpellScript();
         }
+};
+
+/// last update : 6.1.2 19802
+/// Rake (triggered) - 155722
+class spell_dru_rake_triggered : public SpellScriptLoader
+{
+public:
+    spell_dru_rake_triggered() : SpellScriptLoader("spell_dru_rake_triggered") { }
+
+    class spell_dru_rake_triggered_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_rake_triggered_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+            
+            if (l_Caster)
+            {
+                if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                {
+                    if (l_ImprovedRake->GetEffect(1)->GetAmount() == 1)
+                    {
+                        int32 l_Amount = p_Amount;
+                        l_Amount = (l_Amount + CalculatePct(l_Amount, l_ImprovedRake->GetEffect(0)->GetAmount()));
+                        p_Amount = l_Amount;
+                        l_ImprovedRake->GetEffect(1)->SetAmount(0);
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rake_triggered_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_rake_triggered_AuraScript();
+    }
 };
 
 enum SpellsBarkskin
@@ -3951,6 +4004,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_swift_flight_passive();
     new spell_dru_glyph_of_the_stag();
     new spell_dru_rake();
+    new spell_dru_rake_triggered();
     new spell_dru_shred();
     new spell_dru_ferocious_bite();
     new spell_dru_frenzied_regeneration();
