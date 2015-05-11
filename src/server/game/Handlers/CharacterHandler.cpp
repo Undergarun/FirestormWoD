@@ -1370,10 +1370,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
 
     /// Remove title due to exploit with first achievement
-    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(456), true);
-    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(1400), true);
-    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(1402), true);
-    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(3259), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(139), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(120), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(122), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(159), true);
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
