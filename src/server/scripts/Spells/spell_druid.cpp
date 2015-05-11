@@ -2681,6 +2681,8 @@ class spell_dru_savage_roar: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_savage_roar_SpellScript);
 
+            int32 m_ComboPoint = 0;
+
             SpellCastResult CheckCast()
             {
                 Unit* l_Caster = GetCaster();
@@ -2690,9 +2692,27 @@ class spell_dru_savage_roar: public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleOnPrepare()
+            {
+                Unit* l_Caster = GetCaster();
+
+                m_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
+            }
+
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(GetSpellInfo()->Id))
+                    l_Aura->SetDuration(GetSpellInfo()->GetDuration() + (m_ComboPoint * 6 * IN_MILLISECONDS));
+            }
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar_SpellScript::CheckCast);
+                OnPrepare += SpellOnPrepareFn(spell_dru_savage_roar_SpellScript::HandleOnPrepare);
+                AfterHit += SpellHitFn(spell_dru_savage_roar_SpellScript::HandleAfterHit);
             }
         };
 
