@@ -1,26 +1,6 @@
-/*
- * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
- * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
- 
 #include "mpqfile.h"
 #include <deque>
 #include <cstdio>
-#include "StormLib.h"
 
 MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) :
     eof(false),
@@ -29,7 +9,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) 
     size(0)
 {
     HANDLE file;
-    if (!SFileOpenFileEx(mpq, filename, SFILE_OPEN_PATCHED_FILE, &file))
+    if (!CascOpenFile(mpq, filename, CASC_LOCALE_ALL, 0, &file))
     {
         if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
             fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
@@ -38,12 +18,12 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) 
     }
 
     DWORD hi = 0;
-    size = SFileGetFileSize(file, &hi);
+    size = CascGetFileSize(file, &hi);
 
     if (hi)
     {
         fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, uint32(hi));
-        SFileCloseFile(file);
+        CascCloseFile(file);
         eof = true;
         return;
     }
@@ -51,22 +31,22 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) 
     if (size <= 1)
     {
         fprintf(stderr, "Can't open %s, size = %u!\n", filename, uint32(size));
-        SFileCloseFile(file);
+        CascCloseFile(file);
         eof = true;
         return;
     }
 
     DWORD read = 0;
     buffer = new char[size];
-    if (!SFileReadFile(file, buffer, size, &read) || size != read)
+    if (!CascReadFile(file, buffer, size, &read) || size != read)
     {
         fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, uint32(size), uint32(read));
-        SFileCloseFile(file);
+        CascCloseFile(file);
         eof = true;
         return;
     }
 
-    SFileCloseFile(file);
+    CascCloseFile(file);
 }
 
 size_t MPQFile::read(void* dest, size_t bytes)

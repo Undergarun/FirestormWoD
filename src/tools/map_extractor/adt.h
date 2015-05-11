@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2014 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 3 of the License, or (at your
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -46,28 +45,26 @@ enum LiquidType
 //
 // Adt file height map chunk
 //
-class adt_MCVT
+struct adt_MCVT
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
-public:
     float height_map[(ADT_CELL_SIZE+1)*(ADT_CELL_SIZE+1)+ADT_CELL_SIZE*ADT_CELL_SIZE];
 };
 
 //
 // Adt file liquid map chunk (old)
 //
-class adt_MCLQ
+struct adt_MCLQ
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
-public:
     float height1;
     float height2;
     struct liquid_data{
@@ -88,14 +85,13 @@ public:
 //
 // Adt file cell chunk
 //
-class McnkADT
+struct adt_MCNK
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
-public:
     uint32 flags;
     uint32 ix;
     uint32 iy;
@@ -108,7 +104,7 @@ public:
             uint32 offsMCVT;        // height map
             uint32 offsMCNR;        // Normal vectors for each vertex
         } offsets;
-        uint64 HighResHoles;        // TODO: maybe use this?
+        uint8 HighResHoles[8];
     } union_5_3_0;
     uint32 offsMCLY;        // Texture layer definitions
     uint32 offsMCRF;        // A list of indices into the parent file's MDDF chunk
@@ -140,7 +136,8 @@ public:
 #define ADT_LIQUID_HEADER_FULL_LIGHT   0x01
 #define ADT_LIQUID_HEADER_NO_HIGHT     0x02
 
-struct adt_liquid_header{
+struct adt_liquid_header
+{
     uint16 liquidType;             // Index from LiquidType.dbc
     uint16 formatFlags;
     float  heightLevel1;
@@ -156,9 +153,8 @@ struct adt_liquid_header{
 //
 // Adt file liquid data chunk (new)
 //
-class adt_MH2O
+struct adt_MH2O
 {
-public:
     union{
         uint32 fcc;
         char   fcc_txt[4];
