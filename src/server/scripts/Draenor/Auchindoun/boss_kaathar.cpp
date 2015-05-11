@@ -472,6 +472,7 @@ public:
                                 for (auto itr : dispeonsor)
                                 {
                                     itr->SetRespawnDelay(1000000);
+                                    itr->SetCurrentEquipmentId(1);                             
                                 }
                                 break;
                             }

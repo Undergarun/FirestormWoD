@@ -425,6 +425,7 @@ public:
             {
                 itr->SetReactState(REACT_PASSIVE);
                 itr->SetRespawnDelay(1000000);
+                itr->SetCurrentEquipmentId(1);
             }
         }
         std::list<Creature*> dispensor;
@@ -607,7 +608,6 @@ public:
                 }
             }
         }
-        return false;
     }
 private:
     Creature* storm;
@@ -1496,7 +1496,6 @@ public:
         {
             SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             spell->Effects[0].TriggerSpell = 157791;
-            return true;
         }
         void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {

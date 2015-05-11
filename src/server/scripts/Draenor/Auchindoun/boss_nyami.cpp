@@ -368,6 +368,7 @@ public:
 
                     me->SetReactState(REACT_PASSIVE);
                     me->CastSpell((*it), SPELL_DISPERSION_VISUAL_NYAMI);
+                    me->SetSpeed(MOVE_RUN, 20.0f, true);
                     me->GetMotionMaster()->MovePoint(0, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ());
 
                     events.ScheduleEvent(EVENT_TORN_SPIRITS_DUMMY, 3000);
@@ -375,6 +376,7 @@ public:
                     break;
                 }
                 case EVENT_TORN_SPIRITS_DUMMY:
+                    me->SetSpeed(MOVE_RUN, 1.5f, true);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->CastSpell(me, SPELL_TORN_SPRITS_DUMMY);
                     break;
