@@ -564,7 +564,7 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT);
+    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 2 * 1024);
     ByteBuffer l_MailsBuffer;
 
     time_t cur_time = time(NULL);
@@ -751,7 +751,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
 // TODO Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
-    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8);
+    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 400);
 
     if (m_Player->unReadMails > 0)
     {

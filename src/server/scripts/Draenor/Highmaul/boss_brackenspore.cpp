@@ -200,7 +200,13 @@ class boss_brackenspore : public CreatureScript
                     me->GetCreatureListWithEntryInGrid(l_BFCs, eHighmaulCreatures::BFC9000, 100.0f);
 
                     for (Creature* l_Creature : l_BFCs)
+                    {
+                        l_Creature->Respawn(true);
                         l_Creature->CastSpell(l_Creature, eSpells::BFC9000, true);
+
+                        if (l_Creature->AI())
+                            l_Creature->AI()->Reset();
+                    }
                 }
             }
 
@@ -342,7 +348,10 @@ class boss_brackenspore : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
 
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossBrackenspore);
+                }
 
                 /// Spawn timer for Creeping Moss AreaTrigger
                 /// 5s for LFR, 2s for Normal mode, 1.85s for Heroic mode
@@ -378,7 +387,29 @@ class boss_brackenspore : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::RotDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::FlamethrowerAura);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BurningInfusion);
+
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    if (IsLFR())
+                    {
+                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
+                        if (l_PlayerList.isEmpty())
+                            return;
+
+                        for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                        {
+                            if (Player* l_Player = l_Itr->getSource())
+                            {
+                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                            }
+                        }
+
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
 
                 ResetPlayersPower(me);
@@ -390,6 +421,14 @@ class boss_brackenspore : public CreatureScript
                     l_Creature->RemoveAura(eSpells::BFC9000);
 
                 me->RemoveAllAreasTrigger();
+            }
+
+            void EnterEvadeMode() override
+            {
+                CreatureAI::EnterEvadeMode();
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossBrackenspore, EncounterState::FAIL);
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -468,6 +507,14 @@ class boss_brackenspore : public CreatureScript
 
                 m_Events.Update(p_Diff);
 
+                /// Update moves here, avoid some movements problems after Infesting Spores
+                if (me->getVictim() && !me->IsWithinMeleeRange(me->getVictim()) && me->HasAura(eSpells::SpellInfestingSpores))
+                {
+                    Position l_Pos;
+                    me->getVictim()->GetPosition(&l_Pos);
+                    me->GetMotionMaster()->MovePoint(0, l_Pos);
+                }
+
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
@@ -522,7 +569,13 @@ class boss_brackenspore : public CreatureScript
                         break;
                 }
 
-                EnterEvadeIfOutOfCombatArea(p_Diff);
+                /// If boss is outside the beach, it should resets
+                if (me->GetDistance(g_BeachCenter.x, g_BeachCenter.y, g_BeachCenter.z) >= 100.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 DoMeleeAttackIfReady();
             }
 
@@ -1027,13 +1080,15 @@ class npc_highmaul_bfc9000 : public CreatureScript
             BFC9000         = 164175
         };
 
-        struct npc_highmaul_bfc9000AI : public MS::AI::CosmeticAI
+        struct npc_highmaul_bfc9000AI : public ScriptedAI
         {
-            npc_highmaul_bfc9000AI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_bfc9000AI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             void Reset() override
             {
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_NPC);
+                me->SetFlag(EUnitFields::UNIT_FIELD_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_SPELLCLICK);
+
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 

@@ -345,7 +345,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult p_Result)
         l_CharacterCount = uint32(p_Result->GetRowCount());
     }
 
-    WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT);
+    WorldPacket l_Data(SMSG_ENUM_CHARACTERS_RESULT, 5 * 1024);
 
     l_Data.WriteBit(l_CanCreateCharacter);          ///< Allow char creation
     l_Data.WriteBit(0);                             ///< unk
@@ -988,9 +988,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& p_RecvData)
 
     //////////////////////////////////////////////////////////////////////////
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd Player Logon Message");
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Character (Guid: %u) logging in", GUID_LOPART(l_PlayerGuid));
-
     if (!CharCanLogin(GUID_LOPART(l_PlayerGuid)))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(l_PlayerGuid));
@@ -1031,7 +1028,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
-    uint32 time = getMSTime();
+    uint32 time0 = getMSTime();
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), l_CharacterHolder, l_LoginHolder))
@@ -1045,7 +1042,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         return;
     }
 
-    uint32 time1 = getMSTime() - time;
+    uint32 time1 = getMSTime() - time0;
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
@@ -1055,7 +1052,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     l_Data << uint8(0x80);                                                  ///< Reason
     SendPacket(&l_Data);
 
-    l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 20);
+    l_Data.Initialize(SMSG_LOGIN_VERIFY_WORLD, 24);
     l_Data << pCurrChar->GetMapId();                                        ///< uint32
     l_Data << pCurrChar->GetPositionX();                                    ///< float
     l_Data << pCurrChar->GetPositionY();                                    ///< float
@@ -1110,13 +1107,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
         SendPacket(&l_Data);
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_MOTD)");
-
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent server info");
     }
 
     SendTimeZoneInformations();
@@ -1171,41 +1164,25 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         if (!extendedCost)
             continue;
 
-        //WorldPacket data(SMSG_DB_REPLY);
-        //ByteBuffer buff;
-        //
-        //buff << uint32(extendedCost->ID);
-        //buff << uint32(0); // reqhonorpoints
-        //buff << uint32(0); // reqarenapoints
-        //buff << uint32(extendedCost->RequiredArenaSlot);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-        //    buff << uint32(extendedCost->RequiredItem[i]);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; i++)
-        //    buff << uint32(extendedCost->RequiredItemCount[i]);
-        //
-        //buff << uint32(extendedCost->RequiredPersonalArenaRating);
-        //buff << uint32(0); // ItemPurchaseGroup
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(extendedCost->RequiredCurrency[i]);
-        //
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(extendedCost->RequiredCurrencyCount[i]);
-        //
-        //// Unk
-        //for (uint32 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; i++)
-        //    buff << uint32(0);
-        //
-        //data << uint32(buff.size());
-        //data.append(buff);
-        //
-        //data << uint32(DB2_REPLY_ITEM_EXTENDED_COST);
-        //data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, DB2_REPLY_ITEM_EXTENDED_COST));
-        //data << uint32(extendedCost->ID);
+        WorldPacket l_Data(SMSG_DB_REPLY, 1024);
+        l_Data << uint32(sItemExtendedCostStore.GetHash());
 
-        //SendPacket(&data);
+        ByteBuffer l_ResponseData;
+        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData))
+        {
+            l_Data << uint32(extendedCost->ID);
+            l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
+            l_Data << uint32(l_ResponseData.size());
+            l_Data.append(l_ResponseData);
+        }
+        else
+        {
+            l_Data << uint32(-1);
+            l_Data << uint32(time(NULL));
+            l_Data << uint32(0);
+        }
+
+        SendPacket(&l_Data);
     }
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
@@ -1385,7 +1362,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
 
     uint32 time9 = getMSTime() - time8;
 
-    uint32 totalTime = getMSTime() - time;
+    uint32 totalTime = getMSTime() - time0;
     //if (totalTime > 50)
     //    sLog->outAshran("HandlePlayerLogin |****---> time1 : %u | time 2 : %u | time 3 : %u | time 4 : %u | time 5: %u | time 6 : %u | time 7 : %u | time 8 : %u | time 9 : %u | totaltime : %u", time1, time2, time3, time4, time5, time6, time7, time8, time9, totalTime);
 
@@ -1475,7 +1452,6 @@ void WorldSession::HandleTutorial(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_WATCHED_FACTION");
     uint32 fact;
     recvData >> fact;
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
@@ -1483,7 +1459,6 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_INACTIVE");
     uint32 replistid;
     bool inactive;
 
@@ -1495,21 +1470,17 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleShowAccountAchievement(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOW_ACCOUNT_ACHIEVEMENT for %s", m_Player->GetName());
-
     bool showing = recvData.ReadBit();
 }
 
 void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_HELM for %s", m_Player->GetName());
     recvData.read_skip<uint8>(); // unknown, bool?
     m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
 void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SHOWING_CLOAK for %s", m_Player->GetName());
     recvData.read_skip<uint8>(); // unknown, bool?
     m_Player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }

@@ -1025,10 +1025,10 @@ void Battleground::EndBattleground(uint32 p_Winner)
         // Reward winner team
         if (l_Team == p_Winner)
         {
-            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())) && !IsWargame())
+            if ((IsRandom() || MS::Battlegrounds::BattlegroundMgr::IsBGWeekend(GetTypeID())))
             {
-                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, false);
-                if (!l_Player->GetRandomWinner())
+                UpdatePlayerScore(l_Player, NULL, SCORE_BONUS_HONOR, winner_bonus, !IsWargame());
+                if (!l_Player->GetRandomWinner() && !IsWargame())
                 {
                     // 100cp awarded for the first rated battleground won each day
                     l_Player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA_BG, BG_REWARD_WINNER_CONQUEST_FIRST);

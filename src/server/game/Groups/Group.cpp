@@ -125,7 +125,16 @@ bool Group::Create(Player* leader)
     if (!isBGGroup() && !isBFGroup())
     {
         m_dungeonDifficulty = leader->GetDungeonDifficultyID();
-        m_raidDifficulty = isLFGGroup() ? (leader->getLevel() == MAX_LEVEL ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
+
+        bool l_NewLFR = leader->getLevel() == MAX_LEVEL;
+        m_raidDifficulty = isLFGGroup() ? (l_NewLFR ? Difficulty::DifficultyRaidLFR : Difficulty::DifficultyRaidTool) : leader->GetLegacyRaidDifficultyID();
+
+        if (l_NewLFR)
+        {
+            /// Loot options sniffed from new LFR type
+            m_lootMethod = LootMethod::FREE_FOR_ALL;
+            m_lootThreshold = ItemQualities::ITEM_QUALITY_POOR;
+        }
 
         m_dbStoreId = sGroupMgr->GenerateNewGroupDbStoreId();
 
@@ -642,7 +651,7 @@ bool Group::RemoveMember(uint64 p_Guid, const RemoveMethod & p_Method /*= GROUP_
 
             bool l_HasJamCliPartyLFGInfo = isLFGGroup();
 
-            l_Data.Initialize(SMSG_PARTY_UPDATE);
+            l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetPartyType());
@@ -886,7 +895,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
             bool l_HasJamCliPartyLFGInfo = isLFGGroup();
 
-            l_Data.Initialize(SMSG_PARTY_UPDATE);
+            l_Data.Initialize(SMSG_PARTY_UPDATE, 200);
             l_Data << uint8(GetPartyFlags());
             l_Data << uint8(GetPartyIndex());
             l_Data << uint8(GetPartyType());
@@ -947,7 +956,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
 void Group::SendLootStartRoll(uint32 p_CountDown, uint32 p_MapID, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
+    WorldPacket l_Data(SMSG_LOOT_START_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data << uint32(p_MapID);                              ///< mapid
 
@@ -981,7 +990,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     if (!p_Player || !p_Player->GetSession())
         return;
 
-    WorldPacket l_Data(SMSG_LOOT_START_ROLL, (8 + 4 + 4 + 4 + 4 + 4 + 4 + 1));
+    WorldPacket l_Data(SMSG_LOOT_START_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data << uint32(p_MapID);                              ///< mapid
 
@@ -1004,7 +1013,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
 
 void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ROLL, (8+4+8+4+4+4+1+1+1));
+    WorldPacket l_Data(SMSG_LOOT_ROLL, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
     l_Data.appendPackGUID(targetGuid);
 
@@ -1036,7 +1045,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
 
 void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_RollNumber, uint8 rollType, Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ROLL_WON, (8 + 4 + 4 + 4 + 4 + 8 + 1 + 1));
+    WorldPacket l_Data(SMSG_LOOT_ROLL_WON, 200);
 
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 
@@ -1068,7 +1077,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
 
 void Group::SendLootAllPassed(Roll const& p_Roll)
 {
-    WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, (8+4+4+4+4));
+    WorldPacket l_Data(SMSG_LOOT_ALL_PASSED, 200);
     l_Data.appendPackGUID(p_Roll.lootedGUID);
 
     l_Data.WriteBits(LOOT_ITEM_TYPE_ITEM, 2);               ///< Type
@@ -1619,8 +1628,9 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->UnlootedCount--;
                     AllowedLooterSet looters = item->GetAllowedLooters();
-                    Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
-                    l_Item->AddItemBonuses(item->itemBonuses);
+
+                    if (Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters))
+                        l_Item->AddItemBonuses(item->itemBonuses);
                 }
                 else
                 {
@@ -1819,8 +1829,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         l_I++;
     }
 
-    WorldPacket l_Data(SMSG_PARTY_UPDATE);
-
+    WorldPacket l_Data(SMSG_PARTY_UPDATE, 1 * 1024);
     l_Data << uint8(GetPartyFlags());
     l_Data << uint8(GetPartyIndex());
     l_Data << uint8(GetPartyType());

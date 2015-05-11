@@ -131,6 +131,7 @@ namespace MS { namespace Garrison
         if (!l_ThisGobPlotInstanceID)
             return false;
 
+        std::map<uint32, bool> l_ToastStatus;
         for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
         {
             if (l_WorkOrders[l_I].PlotInstanceID != l_ThisGobPlotInstanceID)
@@ -156,7 +157,12 @@ namespace MS { namespace Garrison
             if (l_Message == EQUIP_ERR_OK)
             {
                 p_Player->StoreNewItem(l_Destination, l_RewardItemID, true, Item::GenerateItemRandomPropertyId(l_RewardItemID));
-                p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+
+                if (l_ToastStatus[l_RewardItemID] == false)
+                {
+                    p_Player->SendDisplayToast(l_RewardItemID, 1, DISPLAY_TOAST_METHOD_LOOT, TOAST_TYPE_NEW_ITEM, false, false);
+                    l_ToastStatus[l_RewardItemID] = true;
+                }
 
                 l_Garrison->DeleteWorkOrder(l_WorkOrders[l_I].DatabaseID);
             }

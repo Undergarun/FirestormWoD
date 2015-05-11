@@ -209,7 +209,7 @@ namespace MS { namespace Garrison
                     l_Mission.StartTime         = l_Fields[4].GetUInt32();
                     l_Mission.State             = (MissionStates::Type)l_Fields[5].GetUInt32();
 
-                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress || l_Mission.State == MissionStates::CompleteSuccess)
+                    if ((l_Mission.OfferTime + l_Mission.OfferMaxDuration) > time(0) || l_Mission.State == MissionStates::InProgress)
                         m_Missions.push_back(l_Mission);
                     else
                     {
@@ -397,9 +397,9 @@ namespace MS { namespace Garrison
 
             if (l_CurrentAvailableMission > l_MaxMissionCount)
             {
-                m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [](const GarrisonMission & p_Mission) -> bool
+                m_Missions.erase(std::remove_if(m_Missions.begin(), m_Missions.end(), [l_CurrentAvailableMission, l_MaxMissionCount](const GarrisonMission & p_Mission) -> bool
                 {
-                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0))
+                    if (p_Mission.State == MissionStates::Available && (p_Mission.OfferTime + p_Mission.OfferMaxDuration) > time(0) && l_CurrentAvailableMission > l_MaxMissionCount)
                         return true;
 
                     return false;
@@ -1380,6 +1380,7 @@ namespace MS { namespace Garrison
             l_MissionFollowers[l_FollowerIt]->Write(l_UpdatePart);
 
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
@@ -1589,7 +1590,7 @@ namespace MS { namespace Garrison
             {
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ItemTemplate->Spells[0].SpellId);
 
-                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_OBTAIN_FOLLOWER)
+                if (l_SpellInfo && l_SpellInfo->Effects[0].Effect == SPELL_EFFECT_ADD_GARRISON_FOLLOWER)
                 {
                     l_IsContractItem = true;
                     m_Owner->CastSpell(m_Owner, l_SpellInfo, TRIGGERED_FULL_MASK);
@@ -1631,8 +1632,8 @@ namespace MS { namespace Garrison
             /// Write follower after modifications
             const_cast<GarrisonFollower*>(p_Follower)->Write(l_UpdatePart);
             
-            l_Update << uint32(l_AddedXP); // Guessed
             l_Update << uint32(l_AddedXP);
+            l_Update << uint32(0);              ///< Seems like a reason case
             l_Update.append(l_UpdatePart);
 
             m_Owner->SendDirectMessage(&l_Update);
@@ -2272,6 +2273,7 @@ namespace MS { namespace Garrison
         m_Followers.push_back(l_Follower);
 
         WorldPacket l_AddFollowerResult(SMSG_GARRISON_ADD_FOLLOWER_RESULT, 64);
+        l_AddFollowerResult << uint32(PurchaseBuildingResults::Ok);
         l_Follower.Write(l_AddFollowerResult);
 
         m_Owner->SendDirectMessage(&l_AddFollowerResult);
@@ -2709,7 +2711,7 @@ namespace MS { namespace Garrison
             if (!l_BuildingEntry)
                 continue;
 
-            if (l_BuildingEntry->BuildingType == p_BuildingType)
+            if (l_BuildingEntry->BuildingType == p_BuildingType && (*l_It).Active == true)
                 return true;
         }
 
@@ -2753,7 +2755,7 @@ namespace MS { namespace Garrison
             if (!l_Building)
                 continue;
 
-            if (l_Building->BuildingType != BuildingType::Magasin)
+            if (l_Building->BuildingType != BuildingType::StoreHouse)
                 continue;
 
             l_MaxWorkOrder += l_Building->BonusAmount;
@@ -3513,7 +3515,7 @@ namespace MS { namespace Garrison
         if ((time(0) - m_MissionDistributionLastUpdate) > Globals::MissionDistributionInterval)
         {
             /// Random, no detail about how blizzard do
-            uint32 l_MaxMissionCount = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
+            uint32 l_MaxMissionCount         = ceil(m_Followers.size() * GARRISON_MISSION_DISTRIB_FOLLOWER_COEFF);
             uint32 l_CurrentAvailableMission = 0;
 
             std::for_each(m_Missions.begin(), m_Missions.end(), [&l_CurrentAvailableMission](const GarrisonMission & p_Mission) -> void
@@ -3542,9 +3544,9 @@ namespace MS { namespace Garrison
                     if (!l_Entry)
                         continue;
 
-                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_I](const GarrisonMission & p_Mission)
+                    uint32 l_Count = std::count_if(m_Missions.begin(), m_Missions.end(), [l_Entry](const GarrisonMission & p_Mission)
                     {
-                        return p_Mission.MissionID == l_I;
+                        return p_Mission.MissionID == l_Entry->MissionRecID;
                     });
 
                     if (l_Count)
@@ -3557,6 +3559,19 @@ namespace MS { namespace Garrison
                         continue;
 
                     if (l_Entry->RequiredFollowersCount > Globals::MaxFollowerPerMission)
+                        continue;
+
+                    uint32 l_RewardCount = 0;
+                    for (uint32 l_RewardIT = 0; l_RewardIT < sGarrMissionRewardStore.GetNumRows(); ++l_RewardIT)
+                    {
+                        GarrMissionRewardEntry const* l_RewardEntry = sGarrMissionRewardStore.LookupEntry(l_RewardIT);
+
+                        if (l_RewardEntry && l_RewardEntry->MissionID == l_Entry->MissionRecID)
+                            l_RewardCount++;
+                    }
+
+                    /// All missions should have a reward
+                    if (!l_RewardCount)
                         continue;
 
                     /// Max Level cap : 2
@@ -3614,7 +3629,7 @@ namespace MS { namespace Garrison
 
         }
 
-        if (m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap)
+        if ((m_Owner->IsInGarrison() || m_Owner->GetMapId() == Globals::BaseMap) && HasBuildingType(BuildingType::Barracks))
         {
             if (!m_Owner->HasAura(l_AbilityOverrideSpellID))
                 m_Owner->AddAura(l_AbilityOverrideSpellID, m_Owner);

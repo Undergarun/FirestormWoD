@@ -169,6 +169,7 @@ struct LootItem
     std::vector<uint32> itemBonuses;
     AllowedLooterSet allowedGUIDs;
     uint32   count;
+    uint64  PersonalLooter;
     bool    currency          : 1;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -177,6 +178,7 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    alreadyAskedForRoll;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
@@ -187,6 +189,9 @@ struct LootItem
 
     void AddAllowedLooter(Player const* player);
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
+
+    void SetPersonalLooter(Player const* p_Player);
+    bool IsPersonalLootFor(Player const* p_Player) const;
 };
 
 struct QuestItem
@@ -356,9 +361,9 @@ struct Loot
     uint32 Gold;
     uint32 ItemBonusDifficulty;                             ///< Used to find item bonus to apply in dungeon / raid
     uint8 UnlootedCount;
-    bool  alreadyAskedForRoll;
+    bool  m_IsAoELoot;
 
-    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0), RoundRobinPlayer(0) {}
+    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0), RoundRobinPlayer(0) {}
     ~Loot() { clear(); }
 
     void SetSource(uint64 p_Source) { source = p_Source; }
@@ -396,6 +401,7 @@ struct Loot
         RoundRobinPlayer = 0;
         AdditionalLinkedGold = 0;
         i_LootValidatorRefManager.clearReferences();
+        m_IsAoELoot = false;
     }
 
     void addLinkedLoot(uint32 slot, uint64 linkedCreature, uint32 linkedSlot, PermissionTypes perm)
@@ -425,7 +431,7 @@ struct Loot
     bool empty() const { return Items.empty() && Gold == 0; }
     bool isLooted() const { return Gold == 0 && UnlootedCount == 0; }
 
-    void NotifyItemRemoved(uint8 lootIndex);
+    void NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter = 0);
     void NotifyQuestItemRemoved(uint8 questIndex);
     void NotifyMoneyRemoved(uint64);
     void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
@@ -435,6 +441,10 @@ struct Loot
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
     void FillCurrencyLoot(Player* player);
+    void FillFFALoot(Player* player);
+    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    void FillQuestLoot(Player* player);
+    void FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
@@ -448,11 +458,6 @@ struct Loot
     InstanceLooters AllowedPlayers;
 
     private:
-        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        void FillFFALoot(Player* player);
-        void FillQuestLoot(Player* player);
-        void FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
-
         std::set<uint64> PlayersLooting;
         QuestItemMap PlayerCurrencies;
         QuestItemMap PlayerQuestItems;

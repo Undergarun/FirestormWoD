@@ -877,27 +877,27 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    dbstring = ConfigMgr::GetStringDefault("MonitoringDatabaseInfo", "");
+    dbstring = ConfigMgr::GetStringDefault("HotfixDatabaseInfo", "");
     if (dbstring.empty())
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database not specified in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
         return false;
     }
 
-    async_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.WorkerThreads", 1));
+    async_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.WorkerThreads", 1));
     if (async_threads < 1 || async_threads > 32)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database: invalid number of worker threads specified. "
-            "Please pick a value between 1 and 32.");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database: invalid number of worker threads specified. "
+                       "Please pick a value between 1 and 32.");
         return false;
     }
 
-    synch_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.SynchThreads", 1));
+    synch_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.SynchThreads", 1));
 
-    ///- Initialize the monitoring database
-    if (!MonitoringDatabase.Open(dbstring, async_threads, synch_threads))
+    ///- Initialize the hotfix database
+    if (!HotfixDatabase.Open(dbstring, async_threads, synch_threads))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to monitoring database %s", dbstring.c_str());
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Hotfix database %s", dbstring.c_str());
         return false;
     }
 
@@ -932,7 +932,6 @@ void Master::_StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
-    MonitoringDatabase.Close();
 
     MySQL::Library_End();
 }

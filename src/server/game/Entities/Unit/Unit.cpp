@@ -1790,10 +1790,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     {
         // Custom MoP Script - Blood Horror - 111397
         if (victim->HasAura(111397))
-        {
             victim->CastSpell(this, 137143, true);
-            victim->RemoveAura(111397);
-        }
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
@@ -1962,7 +1959,7 @@ void Unit::HandleEmoteCommand(uint32 p_EmoteId)
     {
         case EmoteTypes::OneStep:
         {
-            WorldPacket l_Data(SMSG_EMOTE, 4 + 8);
+            WorldPacket l_Data(SMSG_EMOTE, 4 + 2 + 16);
             l_Data.appendPackGUID(GetGUID());
             l_Data << uint32(p_EmoteId);
             SendMessageToSet(&l_Data, true);
@@ -2696,7 +2693,7 @@ float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACK_START, 8 + 8);
+    WorldPacket data(SMSG_ATTACK_START, 2 * (16 + 2));
 
     uint64 attackerGuid = GetGUID();
     uint64 victimGuid = victim->GetGUID();
@@ -2709,7 +2706,7 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACK_STOP);
+    WorldPacket data(SMSG_ATTACK_STOP, (2 * (16 + 2)) + 1);
 
     uint64 victimGUID = victim ? victim->GetGUID() : 0;
     uint64 attackerGUID = GetGUID();
@@ -5715,7 +5712,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
             break;
     }
 
-    WorldPacket l_Data(SMSG_SPELL_PERIODIC_AURA_LOG, 30);
+    WorldPacket l_Data(SMSG_SPELL_PERIODIC_AURA_LOG, 100);
     l_Data.appendPackGUID(GetGUID());                           ///< Target GUID
     l_Data.appendPackGUID(l_Aura->GetCasterGUID());             ///< Caster GUID
     l_Data << uint32(l_Aura->GetId());                          ///< Spell ID
@@ -5746,7 +5743,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* p_Info)
 /// @p_MissInfo : Miss type
 void Unit::SendSpellMiss(Unit* p_Target, uint32 p_SpellID, SpellMissInfo p_MissInfo)
 {
-    WorldPacket l_Data(SMSG_SPELL_MISS_LOG, (4 + 8 + 1 + 4 + 8 + 1));
+    WorldPacket l_Data(SMSG_SPELL_MISS_LOG, 4 + 16 + 2 + 1 + 16 + 2 + 1 + 1);
     l_Data << uint32(p_SpellID);                                    ///< SpellID
     l_Data.appendPackGUID(GetGUID());                               ///< Caster
     l_Data << uint32(1);                                            ///< EntriesCount
@@ -5807,10 +5804,9 @@ void Unit::SendSpellDamageImmune(Unit* p_Target, uint32 p_SpellID)
 void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     uint32 count = 1;
-    size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
 
-    ByteBuffer l_Buffer;
+    ByteBuffer l_Buffer(1000);
     l_Buffer << uint32(damageInfo->HitInfo);
     l_Buffer.append(damageInfo->attacker->GetPackGUID());
     l_Buffer.append(damageInfo->target->GetPackGUID());
@@ -5871,7 +5867,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
         l_Buffer << float(0);
 
 
-    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
+    WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, l_Buffer.size() + 4 + 1);
     data.WriteBit(false);
     data.FlushBits();
     data << uint32(l_Buffer.size());
@@ -12250,6 +12246,14 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             break;
                     }
                 }
+                /// Custom crit
+                switch (spellProto->Id)
+                {
+                case 25912: ///< Holy Shock (damage)
+                case 25914: ///< Holy Shock (heal)
+                    crit_chance *= 2.0f;
+                    break;
+                }
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
@@ -12276,17 +12280,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                             if (HasAura(117216))
                                 crit_chance *= 1.3f;
                             break;
-                        }
-                        break;
-                    }
-                    case SPELLFAMILY_PALADIN:
-                    {
-                        switch (spellProto->Id)
-                        {
-                            case 25912: // Holy Shock (damage)
-                            case 25914: // Holy Shock (heal)
-                                crit_chance *= 2.0f;
-                                break;
                         }
                         break;
                     }
@@ -13120,11 +13113,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         AddPct(DoneTotalMod, Mastery);
     }
 
-    // Sudden Death - 29725
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS && HasAura(29725) && (attType == WeaponAttackType::BaseAttack || attType == WeaponAttackType::OffAttack || spellProto))
-        if (roll_chance_i(10))
-            CastSpell(this, 52437, true); // Reset Cooldown of Colossus Smash
-
     // 77219 - Mastery : Master Demonologist
     // Bonus damage for demon servants
     if (isPet())
@@ -13526,14 +13514,14 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             {
                 GetVehicleKit()->Reset();
 
-                WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
                 l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
                 l_Data << uint32(0);                ///< SequenceIndex
                 l_Data << uint32(VehicleId);        ///< VehicleRecID
                 ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // Send others that we now have a vehicle
-                l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, GetPackGUID().size() + 4);
+                l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 16 + 2 + 4);
                 l_Data.appendPackGUID(GetGUID());
                 l_Data << uint32(VehicleId);
                 SendMessageToSet(&l_Data, true);
@@ -13584,7 +13572,7 @@ void Unit::Dismount()
         // Remove vehicle from player
         RemoveVehicleKit(true);
 
-        WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 8 + 4);
+        WorldPacket l_Data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16 + 2 + 4 + 4);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
         l_Data << uint32(0);
@@ -14432,63 +14420,63 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         {
             case MOVE_WALK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WALK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_RUN_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_SWIM_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_TURN_RATE:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_TURN_RATE, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_FLIGHT_BACK:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
             }
             case MOVE_PITCH_RATE:
             {
-                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 1 + 8 + 4);
+                l_Data.Initialize(SMSG_SPLINE_MOVE_SET_PITCH_RATE, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
                 break;
@@ -17446,7 +17434,7 @@ void Unit::SendPetAIReaction(uint64 p_Guid)
     if (!l_Owner || l_Owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket l_Data(SMSG_AI_REACTION, 12);
+    WorldPacket l_Data(SMSG_AI_REACTION, 16 + 2 + 4);
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(AI_REACTION_HOSTILE);
 
@@ -18779,7 +18767,7 @@ void Unit::SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfContro
 
 void Unit::SendMoveRoot(uint32 value)
 {
-    WorldPacket data(SMSG_MOVE_ROOT, 1 + 8 + 4);
+    WorldPacket data(SMSG_MOVE_ROOT, 16 + 2 + 4);
 
     data.appendPackGUID(GetGUID());
     data << uint32(value);
@@ -18789,7 +18777,7 @@ void Unit::SendMoveRoot(uint32 value)
 
 void Unit::SendMoveUnroot(uint32 value)
 {
-    WorldPacket data(SMSG_MOVE_UNROOT, 1 + 8 + 4);
+    WorldPacket data(SMSG_MOVE_UNROOT, 16 + 2 + 4);
 
     data.appendPackGUID(GetGUID());
     data << uint32(value);
@@ -18856,7 +18844,7 @@ void Unit::SetRooted(bool apply)
         else
         {
             ObjectGuid guid = GetGUID();
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 16 + 2);
             data.appendPackGUID(guid);
             SendMessageToSet(&data, true);
             StopMoving();
@@ -18871,7 +18859,7 @@ void Unit::SetRooted(bool apply)
             else
             {
                 ObjectGuid guid = GetGUID();
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 16 + 2);
                 data.appendPackGUID(guid);
                 SendMessageToSet(&data, true);
             }
@@ -19445,7 +19433,7 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
 
 void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration)
 {
-    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL_KIT, 16 + 2 + 4 + 4 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
@@ -19455,7 +19443,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
 
 void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
 {
-    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT);
+    WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << int32(p_SpellVisualKitID);
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
@@ -19478,7 +19466,7 @@ void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool 
         l_Pos.m_positionZ = 0.f;
     }
 
-    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 4 + 4 + 4 + 8);
+    WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 16 + 2 + 16 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
     l_Data << float(l_Pos.m_positionX);
@@ -20955,7 +20943,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 16 + 2);
         ObjectGuid guid = GetGUID();
         data.appendPackGUID(guid);
         SendMessageToSet(&data, false);
@@ -21092,7 +21080,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_THREAT_UPDATE);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE, 500);
         l_Data.appendPackGUID(GetGUID());
         l_Data << l_Count;
 
@@ -21113,7 +21101,7 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* p_HostileReference)
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_HIGHEST_THREAT_UPDATE);
+        WorldPacket l_Data(SMSG_HIGHEST_THREAT_UPDATE, 1 * 1024);
         l_Data.appendPackGUID(GetGUID());
         l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
         l_Data << l_Count;
@@ -21131,14 +21119,14 @@ void Unit::SendChangeCurrentVictimOpcode(HostileReference* p_HostileReference)
 
 void Unit::SendClearThreatListOpcode()
 {
-    WorldPacket l_Data(SMSG_THREAT_CLEAR, 8);
+    WorldPacket l_Data(SMSG_THREAT_CLEAR, 16 + 2);
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
 }
 
 void Unit::SendRemoveFromThreatListOpcode(HostileReference* p_HostileReference)
 {
-    WorldPacket l_Data(SMSG_THREAT_REMOVE, 8 + 8);
+    WorldPacket l_Data(SMSG_THREAT_REMOVE, 16 + 2 + 16 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_HostileReference->getUnitGuid());
     SendMessageToSet(&l_Data, false);
@@ -21495,12 +21483,12 @@ void Unit::SendMovementHover(bool apply)
 
     if (apply)
     {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_HOVER, 16 + 2);
         AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
     else
     {
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_HOVER, 16 + 2);
         RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
@@ -21547,9 +21535,9 @@ void Unit::SendMovementWaterWalking()
     WorldPacket l_Data;
 
     if (HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_WATER_WALK, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_LAND_WALK, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21563,9 +21551,9 @@ void Unit::SendMovementFeatherFall()
     WorldPacket l_Data;
 
     if (HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW))
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FEATHER_FALL, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_NORMAL_FALL, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21579,9 +21567,9 @@ void Unit::SendMovementCanFlyChange()
     WorldPacket l_Data;
 
     if (CanFly())
-        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_SET_FLYING, 16 + 2);
     else
-        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 8);
+        l_Data.Initialize(SMSG_SPLINE_MOVE_UNSET_FLYING, 16 + 2);
 
     l_Data.appendPackGUID(GetGUID());
     SendMessageToSet(&l_Data, false);
@@ -21596,13 +21584,13 @@ void Unit::SendCanTurnWhileFalling(bool p_Apply)
 
     if (p_Apply)
     {
-        l_Data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.Initialize(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, 16 + 2 + 4);
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(0);  // Movement counter
     }
     else
     {
-        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 1 + 8 + 4);
+        l_Data.Initialize(SMSG_MOVE_UNSET_CAN_TURN_WHILE_FALLING, 16 + 2 + 4);
         l_Data.appendPackGUID(GetGUID());
         l_Data << uint32(0);  // Movement counter
     }
@@ -21970,13 +21958,13 @@ void Unit::BuildEncounterFrameData(WorldPacket* p_Data, bool p_Engage, uint8 p_T
 {
     if (p_Engage)
     {
-        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 8 + 1);
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 2 + 1);
         p_Data->append(GetPackGUID());
         *p_Data << uint8(p_TargetFramePriority);
     }
     else
     {
-        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 8 + 1);
+        p_Data->Initialize(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16 + 2);
         p_Data->append(GetPackGUID());
     }
 }

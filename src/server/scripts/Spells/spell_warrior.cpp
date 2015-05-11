@@ -424,35 +424,6 @@ public:
     }
 };
 
-/// Sudden Death - 52437
-class spell_warr_sudden_death: public SpellScriptLoader
-{
-    public:
-        spell_warr_sudden_death() : SpellScriptLoader("spell_warr_sudden_death") { }
-
-        class spell_warr_sudden_death_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_sudden_death_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH))
-                        _player->RemoveSpellCooldown(WARRIOR_SPELL_COLOSSUS_SMASH, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_sudden_death_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_sudden_death_SpellScript();
-        }
-};
-
 /// Berzerker Rage - 18499
 class spell_warr_berzerker_rage: public SpellScriptLoader
 {
@@ -888,7 +859,7 @@ class spell_warr_bloodthirst: public SpellScriptLoader
 
                         const SpellInfo *l_SpellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODSURGE);
 
-                        if (l_SpellInfo != nullptr && l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))
+                        if (l_SpellInfo != nullptr && (roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints) || (l_Caster->HasAura(WARRIOR_SPELL_BLOODSURGE) && roll_chance_i(l_SpellInfo->Effects[EFFECT_0].BasePoints))))
                             l_Caster->CastSpell(l_Caster, WARRIOR_SPELL_BLOODSURGE_PROC, true);
                     }
                 }
@@ -1419,16 +1390,30 @@ class spell_warr_execute: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_execute_SpellScript);
 
+            void HandleEnergize(SpellEffIndex p_EffIndex)
+            {
+                PreventHitDefaultEffect(p_EffIndex);
+            }
+
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
-                uint32 l_MaxConsumed = GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+                int32 l_MaxConsumed = (GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints) * l_Caster->GetPowerCoeff(POWER_RAGE);
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
-                int32 l_RageConsumed = GetCaster()->ModifyPower(POWER_RAGE, -(l_MaxConsumed * l_Caster->GetPowerCoeff(POWER_RAGE))) / l_Caster->GetPowerCoeff(POWER_RAGE);
-                l_Damage += CalculatePct(l_Damage, -l_RageConsumed * (405.f / l_MaxConsumed));
+                int32 l_RageConsumed = 0;
+                
+                if (l_Caster->GetPower(POWER_RAGE) > l_MaxConsumed)
+                    l_RageConsumed = l_MaxConsumed;
+                else
+                    l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
+
+                if (!l_Caster->HasAura(52437)) ///< Sudden Death : consume no extra Rage
+                    l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
+
+                l_Damage += CalculatePct(l_Damage, l_RageConsumed * (405.0f / l_MaxConsumed));
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
@@ -1442,6 +1427,7 @@ class spell_warr_execute: public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleEnergize, EFFECT_2, SPELL_EFFECT_ENERGIZE);
                 OnHit += SpellHitFn(spell_warr_execute_SpellScript::HandleOnHit);
             }
         };
@@ -1901,7 +1887,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_dragon_roar();
     new spell_warr_staggering_shout();
     new spell_warr_second_wind();
-    new spell_warr_sudden_death();
     new spell_warr_berzerker_rage();
     new spell_warr_enrage();
     new spell_warr_mocking_banner();

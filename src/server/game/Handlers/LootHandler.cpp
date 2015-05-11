@@ -314,21 +314,20 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootOpcode(WorldPacket& p_RecvData)
 {
-    uint64 l_UnitGuid;
+    uint64 l_UnitGuid = 0;
+    p_RecvData.readPackGUID(l_UnitGuid);
 
-    recvData.readPackGUID(l_UnitGuid);
-
-    // Check possible cheat
+    /// Check possible cheat
     if (!m_Player->isAlive())
         return;
 
-    GetPlayer()->SendLoot(l_UnitGuid, LOOT_CORPSE);
+    m_Player->SendLoot(l_UnitGuid, LOOT_CORPSE);
 
-    // interrupt cast
-    if (GetPlayer()->IsNonMeleeSpellCasted(false))
-        GetPlayer()->InterruptNonMeleeSpells(false);
+    /// Interrupt cast
+    if (m_Player->IsNonMeleeSpellCasted(false))
+        m_Player->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& p_RecvPacket)
@@ -564,7 +563,7 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
         l_Loot = &l_GameObject->loot;
     }
 
-    if (!l_Loot || l_Loot->alreadyAskedForRoll)
+    if (!l_Loot)
         return;
 
     if (l_LootListID >= l_Loot->Items.size() + l_Loot->QuestItems.size())
@@ -574,7 +573,10 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
     }
 
     LootItem& l_Item = l_LootListID >= l_Loot->Items.size() ? l_Loot->QuestItems[l_LootListID - l_Loot->Items.size()] : l_Loot->Items[l_LootListID];
-    l_Loot->alreadyAskedForRoll = true;
+    if (l_Item.alreadyAskedForRoll)
+        return;
+
+    l_Item.alreadyAskedForRoll = true;
 
     m_Player->GetGroup()->DoRollForAllMembers(l_ObjectGUID, l_LootListID, m_Player->GetMapId(), l_Loot, l_Item, m_Player);
 }

@@ -45,8 +45,6 @@ class WorldSocket;
 class SystemMgr;
 class LexicsCutter;
 
-extern uint32 gOnlineGameMaster;
-
 // ServerMessages.dbc
 enum ServerMessageType
 {
@@ -95,8 +93,6 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFERT,
-    WUPDATE_MONITORING_STATS,
-    WUPDATE_MONITORING_HEARTBEAT,
     WUPDATE_COUNT
 };
 

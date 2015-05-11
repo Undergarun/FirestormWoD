@@ -131,6 +131,7 @@ class debug_commandscript: public CommandScript
                 { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
+                { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2677,6 +2678,23 @@ class debug_commandscript: public CommandScript
 
             return true;
         }
+
+        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* p_Args)
+        {
+            gPacketProfilerMutex.lock();
+            p_Handler->PSendSysMessage("----------------");
+
+            for (auto l_Pair : gPacketProfilerData)
+            {
+                p_Handler->PSendSysMessage("%s => %u", GetOpcodeNameForLogging((Opcodes)l_Pair.first, WOW_SERVER_TO_CLIENT).c_str(), l_Pair.second);
+            }
+
+            p_Handler->PSendSysMessage("----------------");
+            gPacketProfilerMutex.unlock();
+            return true;
+        }
+
+        
 };
 
 void AddSC_debug_commandscript()

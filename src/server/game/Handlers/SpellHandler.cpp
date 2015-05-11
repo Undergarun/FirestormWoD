@@ -237,8 +237,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", l_PackSlot, l_Slot, l_CastCount, l_SpellID, pItem->GetEntry(), l_Misc, (uint32)p_RecvPacket.size());
-
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
     {
@@ -320,8 +318,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)p_Packet.size());
-
     /// ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -431,8 +427,6 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(l_GameObjectGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(l_GameObjectGUID));
-
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -446,8 +440,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     uint64 l_GameObjectGUID;
 
     recvPacket.readPackGUID(l_GameObjectGUID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(l_GameObjectGUID));
 
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
@@ -866,21 +858,19 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     recvPacket >> slotId;
     recvPacket.readPackGUID(totemGuid);
 
-    if (slotId >= MAX_TOTEM_SLOT)
+    if ((SUMMON_SLOT_TOTEM + slotId) >= MAX_TOTEM_SLOT)
         return;
 
-    if (!m_Player->m_SummonSlot[slotId])
+    if (!m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId])
         return;
 
-    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[slotId]);
+    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId]);
     if (totem && totem->isTotem())
         totem->ToTotem()->UnSummon();
 }
 
 void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
-
     if (m_Player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
@@ -919,7 +909,6 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
 
     recvData.readPackGUID(guid);
@@ -941,7 +930,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetSimulacrumTarget())
         creator = creator->GetSimulacrumTarget();
 
-    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 68);
+    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
 
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {

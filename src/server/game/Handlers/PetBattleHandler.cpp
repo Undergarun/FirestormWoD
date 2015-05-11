@@ -36,7 +36,7 @@ void WorldSession::SendPetBattleJournal()
     uint32                          l_UnlockedSlotCount = m_Player->GetUnlockedPetBattleSlot();
     BattlePet::Ptr                * l_PetSlots          = m_Player->GetBattlePetCombatTeam();
 
-    WorldPacket l_Packet(SMSG_BATTLE_PET_JOURNAL, 1000);
+    WorldPacket l_Packet(SMSG_BATTLE_PET_JOURNAL, 15 * 1024);
 
     l_Packet << uint16(0);                                                                                  ///< 
     l_Packet << uint32(3);                                                                                  ///< Slots count

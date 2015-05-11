@@ -309,11 +309,20 @@ class instance_highmaul : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
-                /*switch (p_BossID)
+                switch (p_BossID)
                 {
+                    case eHighmaulDatas::BossTheButcher:
+                    case eHighmaulDatas::BossBrackenspore:
+                    case eHighmaulDatas::BossTectus:
+                    case eHighmaulDatas::BossTwinOgron:
+                    case eHighmaulDatas::BossKoragh:
+                    case eHighmaulDatas::BossImperatorMargok:
+                        if (GetBossState(p_BossID - 1) != EncounterState::DONE)
+                            return false;
+                        break;
                     default:
                         break;
-                }*/
+                }
 
                 return true;
             }
@@ -328,9 +337,11 @@ class instance_highmaul : public InstanceMapScript
 
             void OnPlayerEnter(Player* p_Player) override
             {
+                InstanceScript::OnPlayerEnter(p_Player);
+
                 if (GetBossState(eHighmaulDatas::BossKargathBladefist) == EncounterState::DONE)
                 {
-                    p_Player->SetPhaseMask(2, true);
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
                     if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
@@ -340,7 +351,7 @@ class instance_highmaul : public InstanceMapScript
                 }
                 else
                 {
-                    p_Player->SetPhaseMask(1, true);
+                    p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
                     p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                     p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
                 }
@@ -348,8 +359,11 @@ class instance_highmaul : public InstanceMapScript
 
             void OnPlayerExit(Player* p_Player) override
             {
+                InstanceScript::OnPlayerExit(p_Player);
+
                 p_Player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 p_Player->RemoveAura(eHighmaulSpells::ChogallNight);
+                p_Player->SetPhaseMask(eHighmaulDatas::PhaseNone, true);
             }
 
             void SendUpdateWorldState(uint32 p_Field, uint32 p_Value)

@@ -42,7 +42,6 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_HELLO Message from (GUID: %u TypeId:%u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
 
     Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
     if (!unit)
@@ -108,8 +107,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
     }
 
     BattlegroundTypeId l_BGTypeID = BattlegroundTypeId(l_BGTypeID_);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEMASTER_JOIN Message from (GUID: %u TypeId:%u)", GUID_LOPART(l_QueueID), GuidHigh2TypeId(GUID_HIPART(l_QueueID)));
 
     // can do this, since it's battleground, not arena
     MS::Battlegrounds::BattlegroundType::Type l_BGQueueTypeID = MS::Battlegrounds::GetTypeFromId(l_BGTypeID, 0);
@@ -259,8 +256,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd MSG_PVP_LOG_DATA Message");
-
     Battleground* bg = m_Player->GetBattleground();
     if (!bg)
         return;
@@ -272,14 +267,10 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPacket& /*recvData*/)
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::PvpLogData(&data, bg);
     SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent MSG_PVP_LOG_DATA Message");
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_LIST Message");
-
     uint32 l_ListID = 0;
     p_Packet >> l_ListID;                               ///< ID from DBC
 
@@ -299,8 +290,6 @@ void WorldSession::HandleBattlefieldListOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_BATTLEFIELD_PORT Message");
-
     uint64 l_RequesterGuid = 0;
     uint32 l_QueueSlotID = 0;                           ///< guessed
     uint32 l_Time = 0;
@@ -470,8 +459,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
-
     if (m_Player->InArena())
         if (m_Player->GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
             return;
@@ -481,9 +468,6 @@ void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 {
-    /// Empty opcode
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_BATTLEFIELD_STATUS Message");
-
     WorldPacket l_Data;
 
     Battleground * l_BG = nullptr;
@@ -560,8 +544,6 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
-
     uint8 l_TeamSizeIndex;                                        ///< 2v2, 3v3 or 5v5
 
     p_Packet >> l_TeamSizeIndex;

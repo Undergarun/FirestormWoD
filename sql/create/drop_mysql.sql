@@ -9,12 +9,12 @@ REVOKE GRANT OPTION ON `characters` . * FROM 'msstudio'@'localhost';
 REVOKE ALL PRIVILEGES ON `auth` . * FROM 'msstudio'@'localhost';
 REVOKE GRANT OPTION ON `auth` . * FROM 'msstudio'@'localhost';
 
-REVOKE ALL PRIVILEGES ON `monitoring` . * FROM 'msstudio'@'localhost';
-REVOKE GRANT OPTION ON `monitoring` . * FROM 'msstudio'@'localhost';
+REVOKE ALL PRIVILEGES ON `hotfix` . * FROM 'msstudio'@'localhost';
+REVOKE GRANT OPTION ON `hotfix` . * FROM 'msstudio'@'localhost';
 
 DROP USER 'msstudio'@'localhost';
 
 DROP DATABASE IF EXISTS `world`;
 DROP DATABASE IF EXISTS `characters`;
 DROP DATABASE IF EXISTS `auth`;
-DROP DATABASE IF EXISTS `monitoring`;
+DROP DATABASE IF EXISTS `hotfix`;

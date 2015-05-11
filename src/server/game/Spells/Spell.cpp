@@ -3218,7 +3218,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131369);
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
-                if (m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
+                if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
                     return SPELL_MISS_RESIST;
         }
         else if (m_caster->IsFriendlyTo(unit))
@@ -3245,7 +3245,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     else if (!m_spellInfo->IsPositive())
     {
         if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
-            if (m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
+            if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
                 return SPELL_MISS_RESIST;
     }
 
@@ -4522,7 +4522,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* p_SpellInfo, uint8 c
     if (result == SPELL_CAST_OK)
         return;
 
-    WorldPacket l_Data(SMSG_CAST_FAILED, 1+4+4);
+    WorldPacket l_Data(SMSG_CAST_FAILED, 4 + 4 + 4 + 4 + 1);
     l_Data << uint32(p_SpellInfo->Id);                                  /// spellId
     l_Data << uint32(result);                                           /// problem
 
@@ -4968,7 +4968,7 @@ void Spell::SendSpellGo()
     bool l_HasUnk1 = m_spellInfo->Id == 178236;
 
     // Forge the packet !
-    WorldPacket l_Data(SMSG_SPELL_GO);
+    WorldPacket l_Data(SMSG_SPELL_GO, 8 * 1024);
     l_Data.appendPackGUID(l_CasterGuid1);
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
@@ -5301,7 +5301,7 @@ void Spell::ExecuteLogEffectResurrect(uint8 effIndex, Unit* target)
 
 void Spell::SendInterrupted(uint8 p_Result)
 {
-    WorldPacket l_Data(SMSG_SPELL_FAILURE, (8+4+1));
+    WorldPacket l_Data(SMSG_SPELL_FAILURE, 16 + 2 + 1 + 4 + 2);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
@@ -5309,7 +5309,7 @@ void Spell::SendInterrupted(uint8 p_Result)
 
     m_caster->SendMessageToSet(&l_Data, true);
 
-    l_Data.Initialize(SMSG_SPELL_FAILED_OTHER, (8 + 4));
+    l_Data.Initialize(SMSG_SPELL_FAILED_OTHER, 16 + 2 + 1 + 4 + 1);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
@@ -5326,7 +5326,7 @@ void Spell::SendChannelUpdate(uint32 p_Time)
         m_caster->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, 0);
     }
 
-    WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
+    WorldPacket l_Data(SMSG_SPELL_CHANNEL_UPDATE, 16 + 2 + 4);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(p_Time);
 
@@ -5390,7 +5390,7 @@ void Spell::SendResurrectRequest(Player* p_Target)
     // for player resurrections the name is looked up by guid
     char const* l_RessurectorName = m_caster->GetTypeId() == TYPEID_PLAYER ? "" : m_caster->GetNameForLocaleIdx(p_Target->GetSession()->GetSessionDbLocaleIndex());
 
-    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, (8+4+strlen(l_RessurectorName)+1+1+1+4));
+    WorldPacket l_Data(SMSG_RESURRECT_REQUEST, 16 + 2 + 4 + 4 + 4 + 1 + strlen(l_RessurectorName) + 1);
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);
     l_Data << uint32(0);

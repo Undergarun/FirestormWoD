@@ -173,7 +173,7 @@ void ReputationMgr::SendState(FactionState const* faction)
         if (itr->second.needSend)
             ++count;
 
-    WorldPacket l_Data(SMSG_SET_FACTION_STANDING, 17);
+    WorldPacket l_Data(SMSG_SET_FACTION_STANDING, 200);
     l_Data << float(0);               ///< ReferAFriendBonus
     l_Data << float(0);               ///< BonusFromAchievementSystem
     l_Data << uint32(count);
@@ -199,7 +199,7 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    WorldPacket l_Data(SMSG_INITIALIZE_FACTIONS, 256 * 3);
+    WorldPacket l_Data(SMSG_INITIALIZE_FACTIONS, 2 * 1024);
 
     RepListID l_A = 0;
 

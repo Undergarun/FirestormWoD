@@ -455,7 +455,7 @@ namespace MS
 
             static void UpdateWorldState(WorldPacket* p_Data, uint32 field, uint32 value)
             {
-                p_Data->Initialize(SMSG_UPDATE_WORLD_STATE, 4 + 4);
+                p_Data->Initialize(SMSG_UPDATE_WORLD_STATE, 4 + 4 + 1);
                 *p_Data << uint32(field);
                 *p_Data << uint32(value);
                 p_Data->WriteBit(0);
@@ -464,13 +464,13 @@ namespace MS
 
             static void PlayerLeftBattleground(WorldPacket* p_Data, uint64 p_Guid)
             {
-                p_Data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 8);
+                p_Data->Initialize(SMSG_BATTLEGROUND_PLAYER_LEFT, 16 + 2);
                 p_Data->appendPackGUID(p_Guid);
             }
 
             static void PlayerJoinedBattleground(WorldPacket* p_Data, uint64 p_Guid)
             {
-                p_Data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
+                p_Data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 16 + 2);
                 p_Data->appendPackGUID(p_Guid);
             }
 

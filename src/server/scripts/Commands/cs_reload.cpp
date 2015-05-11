@@ -66,6 +66,8 @@ public:
         {
             { "auctions",                     SEC_ADMINISTRATOR, true,  &HandleReloadAuctionsCommand,                   "", NULL },
             { "access_requirement",           SEC_ADMINISTRATOR, true,  &HandleReloadAccessRequirementCommand,          "", NULL },
+            { "lfr_access_requirement",       SEC_ADMINISTRATOR, true,  &HandleReloadLFRAccessRequirementCommand,       "", NULL },
+            { "lfg_entrances",                SEC_ADMINISTRATOR, true,  &HandleReloadLFGEntrancesCommand,               "", NULL },
             { "achievement_criteria_data",    SEC_ADMINISTRATOR, true,  &HandleReloadAchievementCriteriaDataCommand,    "", NULL },
             { "achievement_reward",           SEC_ADMINISTRATOR, true,  &HandleReloadAchievementRewardCommand,          "", NULL },
             { "all",                          SEC_ADMINISTRATOR, true,  NULL,                          "", reloadAllCommandTable },
@@ -351,6 +353,22 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Access Requirement definitions...");
         sObjectMgr->LoadAccessRequirements();
         handler->SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLFRAccessRequirementCommand(ChatHandler* p_Handler, const char* /*args*/)
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading LFR Access Requirement definitions...");
+        sObjectMgr->LoadLFRAccessRequirements();
+        p_Handler->SendGlobalGMSysMessage("DB table `lfr_access_requirement` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLFGEntrancesCommand(ChatHandler* p_Handler, const char* /*args*/)
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading LFG Entrances definitions...");
+        sLFGMgr->LoadEntrancePositions();
+        p_Handler->SendGlobalGMSysMessage("DB table `lfg_entrances` reloaded.");
         return true;
     }
 

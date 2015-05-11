@@ -1203,7 +1203,7 @@ void AchievementMgr<T>::SendCriteriaUpdate(CriteriaEntry const* /*entry*/, Crite
 template<>
 void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, CriteriaProgress const* p_Progress, uint32 p_TimeElapsed, bool p_TimedCompleted, bool p_UpdateAccount) const
 {
-    WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 4 + 4 + 4 + 8 + 4);
+    WorldPacket l_Data(SMSG_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4 + 4);
 
     l_Data << uint32(p_Entry->ID);
     l_Data << uint64(p_Progress->counter);
@@ -1223,7 +1223,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cr
 
     if (p_UpdateAccount)
     {
-        WorldPacket l_Packet(SMSG_ACCOUNT_CRITERIA_UPDATE);
+        WorldPacket l_Packet(SMSG_ACCOUNT_CRITERIA_UPDATE, 4 + 8 + 16 + 2 + 4 + 4 + 4);
         l_Packet << uint32(p_Entry->ID);
         l_Packet << uint64(p_Progress->counter);
         l_Packet.appendPackGUID(GetOwner()->GetGUID());
@@ -1379,6 +1379,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON:
             case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON:
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS:
+            case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
                 SetCriteriaProgress(l_AchievementCriteria, 1, p_ReferencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -1829,6 +1830,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS:
+        case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
             return l_Progress->counter >= l_CriteriaTree->Amount;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2324,7 +2326,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
     size_t l_CriteriaCount = l_ProgressMap->size();
     size_t l_AchievementCount = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
-    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA);
+    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 22 * 1024);
 
     data << uint32(l_AchievementCount);
     data << uint32(l_CriteriaCount);
@@ -2359,7 +2361,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {
-    WorldPacket l_Data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4) + 3);
+    WorldPacket l_Data(SMSG_ALL_GUILD_ACHIEVEMENTS, m_completedAchievements.size() * (4 + 4 + 16 + 2 + 4 + 4) + 4);
     l_Data << uint32(m_completedAchievements.size());
 
     for (CompletedAchievementMap::const_iterator l_It = m_completedAchievements.begin(); l_It != m_completedAchievements.end(); ++l_It)
@@ -2392,7 +2394,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
     size_t l_CriteriaCount = l_ProgressMap->size();
     size_t l_AchievementCount = std::count_if(m_completedAchievements.begin(), m_completedAchievements.end(), l_IsVisible);
 
-    WorldPacket l_Data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS);
+    WorldPacket l_Data(SMSG_RESPOND_INSPECT_ACHIEVEMENTS, 15 * 1024);
     l_Data.appendPackGUID(l_Guid);
 
     l_Data << uint32(l_AchievementCount);
@@ -2968,6 +2970,9 @@ bool AchievementMgr<T>::RequirementsSatisfied(CriteriaEntry const* p_Criteria, u
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             return false;
+        case ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER:
+            if (!p_MiscValue1 || p_MiscValue1 != p_Criteria->DefeatEncounter.EncounterID)
+                return false;
         default:
             break;
     }
@@ -3065,10 +3070,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
-            case CRITERIA_CONDITION_MAP_DIFFICULTY:                     // 20
-                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetDifficultyID()) != (l_ReqValue + 1))
+            case CRITERIA_CONDITION_LEGACY_RAID_TYPE:                     // 20
+            {
+                if (!p_ReferencePlayer || uint32(p_ReferencePlayer->GetMap()->GetLegacyRaidType()) != (l_ReqValue))
                     return false;
                 break;
+            }
             case CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP:          // 21
                 if (!p_Unit || !p_ReferencePlayer || p_Unit->getLevel() + 5 <= p_ReferencePlayer->getLevel())
                     return false;
@@ -3254,7 +3261,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
-            case CRITERIA_CONDITION_RAID_DIFFICULTY:                    // 68
+            case CRITERIA_CONDITION_DIFFICULTY:                    // 68
                 if (!p_ReferencePlayer || p_ReferencePlayer->GetMap()->GetDifficultyID() != Difficulty(l_ReqValue))
                     return false;
                 break;
@@ -3936,11 +3943,15 @@ void AchievementGlobalMgr::LoadRewards()
 
         if (l_Reward.itemId)
         {
-            if (!sObjectMgr->GetItemTemplate(l_Reward.itemId))
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Reward.itemId);
+
+            if (l_ItemTemplate == nullptr)
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `achievement_reward` (Entry: %u) has invalid item id %u, reward mail will not contain item.", l_Entry, l_Reward.itemId);
                 l_Reward.itemId = 0;
             }
+
+            const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
         }
 
         m_achievementRewards[l_Entry] = l_Reward;

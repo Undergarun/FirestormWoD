@@ -269,7 +269,7 @@ class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
 
                         l_Caster->m_CreatureSpellCooldowns.erase(l_SpellID);
 
-                        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 12);
+                        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
                         l_Data.appendPackGUID(l_Caster->GetGUID());
                         l_Data << uint8(1);
                         l_Data << uint32(1);

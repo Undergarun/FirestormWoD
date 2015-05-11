@@ -261,36 +261,38 @@ namespace MS { namespace Garrison
         GARRISON_FOLLOWER_FLAG_INACTIVE     = 0x4
     };
 
+    /// 6.1.2 19865 - SceneScript.db2 "Garrison - Building Activation Init"
     namespace BuildingType
     {
         enum Type
         {
+            Unk                 = 0,    ///< Unused 1
             Mine                = 1,
-            Garden              = 2,
+            Farm                = 2,
             Barn                = 3,
             LumberMill          = 4,
-            Tavern              = 5,
+            Inn                 = 5,
             TradingPost         = 6,
-            Menagerie           = 7,
+            PetMenagerie        = 7,
             Barracks            = 8,
-            Orchard             = 9,
-            WarFactory          = 10,
+            Orchard             = 9,    ///< Unused 2
+            Armory              = 10,
             Stable              = 11,
-            Unk12               = 12,
-            MagusOffice         = 13,
-            SortingOffice       = 14,
-            Magasin             = 15,
-            AlchemyLab          = 16,
-            Forge               = 17,
-            EnchantingCabinet   = 18,
-            EngineeringPole     = 19,
-            ScribeStudy         = 20,
-            ShopGems            = 21,
-            Tannery             = 22,
-            TailoringWorkshop   = 23,
-            FishingHut          = 24,
-            SanctumGladiator    = 25,
-            GnomeWorkshop       = 26
+            Academy             = 12,
+            MageTower           = 13,
+            SalvageYard         = 14,
+            StoreHouse          = 15,
+            Alchemy             = 16,
+            Blacksmith          = 17,
+            Enchanting          = 18,
+            Engineering         = 19,
+            Inscription         = 20,
+            Jewelcrafting       = 21,
+            Leatherworking      = 22,
+            Tailoring           = 23,
+            Fishing             = 24,
+            SparringArena       = 25,
+            Workshop            = 26
         };
     }
 

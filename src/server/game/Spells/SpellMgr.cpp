@@ -406,7 +406,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         default:
             break;
     }
-    
+
     return DIMINISHING_NONE;
 }
 
@@ -2314,7 +2314,7 @@ bool IsCCSpell(SpellInfo const* p_SpellProto)
 {
     if (p_SpellProto->SpellFamilyName == SPELLFAMILY_HUNTER ||
         p_SpellProto->SpellFamilyName == SPELLFAMILY_GENERIC)
-        return false; 
+        return false;
 
     for (uint8 l_EffectIndex = 0; l_EffectIndex < MAX_SPELL_EFFECTS; l_EffectIndex++)
     {
@@ -3164,7 +3164,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
                 switch (spellInfo->Effects[j].Effect)
                 {
-                    case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
+                    case SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL:
                         spellInfo->Effects[j].TargetA = TARGET_UNIT_CASTER;
                         spellInfo->Effects[j].TargetB = TARGET_UNIT_CASTER;
 
@@ -3362,7 +3362,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 165907: ///< Earthrending Slam
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CONE_ENEMY_54;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CONE_ENEMY_54;
-				break;
+                break;
             case 124694: ///< Way of the Grill
             case 125584: ///< Way of the Wok
             case 125586: ///< Way of the Pot
@@ -4424,6 +4424,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
                 break;
+            case 111397: ///< Blood Horror
+                spellInfo->ProcFlags = 0;
+                break;
             case 114635:///< Ember Tap
             case 31803: ///< Censure
             case 77489: ///< Echo of Light
@@ -4832,6 +4835,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 118291: ///< Greater Fire Elemental
             case 118323: ///< Greater Earth Elemental
+            case 157319: ///< Greater Storm Elemental
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_SUMMON_PET;
                 break;
             case 114942: ///< Healing Tide
@@ -4856,7 +4860,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 47753: ///< Divine Aegis
-            case 86273: ///< Illuminated Healing 
+            case 86273: ///< Illuminated Healing
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 109186: ///< Surge of light
@@ -6006,26 +6010,31 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_4].Effect = SPELL_EFFECT_APPLY_AREA_AURA_FRIEND;
                 spellInfo->Effects[EFFECT_4].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
                 break;
-            case 125050:///< Fetch (Glyph)
+            case 125050: ///< Fetch (Glyph)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
-            case 77472:///< Healing Wave
+            case 77472: ///< Healing Wave
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 break;
-            case 145153:///< Dream of Cenarius (Heal from Wrath)
+            case 145153: ///< Dream of Cenarius (Heal from Wrath)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
                 spellInfo->Effects[0].TargetB = 0;
                 break;
-            case 30884:    ///< Nature's Guardian
+            case 30884: ///< Nature's Guardian
                 spellInfo->ProcFlags |= PROC_FLAG_TAKEN_DAMAGE;
                 break;
             case 55440: ///< Glyph of Healing Wave (Restoration)
                 spellInfo->ProcFlags = 0;
                 break;
-            case 171253:    ///< Garrison heartstone
+            case 171253: ///< Garrison heartstone
                 spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
+            case 104318: ///< Imp, Fel Firebolt
+            {
+                for (auto l_Iter : spellInfo->SpellPowers)
+                    ((SpellPowerEntry*)l_Iter)->Cost = 0;
+            }
             default:
                 break;
         }

@@ -214,7 +214,7 @@ class boss_kargath_bladefist : public CreatureScript
             ChainHurlJumpAndKnock   = 160061,
             Chain                   = 159531,
             Obscured                = 160131,
-            ChainHurlStunAura       = 159995,
+            ChainHurlStunAura       = 159947,
 
             SpellBerserker          = 26662,
 
@@ -263,6 +263,7 @@ class boss_kargath_bladefist : public CreatureScript
             Vehicle* m_Vehicle;
 
             uint64 m_BerserkerRushTarget;
+            uint64 m_ChainHurlGuid;
 
             bool m_ChainHurl;
             bool m_NearDeath;
@@ -280,6 +281,8 @@ class boss_kargath_bladefist : public CreatureScript
                 me->SetDisplayId(eDatas::MorphWithWeapon);
 
                 m_BerserkerRushTarget = 0;
+                m_ChainHurlGuid = 0;
+
                 m_ChainHurl = false;
                 m_NearDeath = false;
 
@@ -396,6 +399,13 @@ class boss_kargath_bladefist : public CreatureScript
                     }
 
                     me->SummonGameObject(eHighmaulGameobjects::InstancePortal2, g_NewInstancePortalPos, 0.0f, 0.0f, 0.0f, 1.0f, -1);
+
+                    if (IsLFR())
+                    {
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 
@@ -466,7 +476,16 @@ class boss_kargath_bladefist : public CreatureScript
             {
                 me->SetControlled(false, UnitState::UNIT_STATE_ROOT);
 
+                if (Unit* l_ChainHurl = Unit::GetUnit(*me, m_ChainHurlGuid))
+                {
+                    if (Vehicle* l_Vehicle = l_ChainHurl->GetVehicleKit())
+                        l_Vehicle->RemoveAllPassengers();
+                }
+
                 CreatureAI::EnterEvadeMode();
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossKargathBladefist, EncounterState::FAIL);
             }
 
             void JustReachedHome() override
@@ -684,11 +703,14 @@ class boss_kargath_bladefist : public CreatureScript
                         Position l_Pos;
                         me->GetPosition(&l_Pos);
 
-                        if (Creature* l_ChainHurl = me->SummonCreature(eCreatures::ChainHurlVehicle, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15000))
+                        if (Creature* l_ChainHurl = me->SummonCreature(eCreatures::ChainHurlVehicle, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 18000))
+                        {
+                            m_ChainHurlGuid = l_ChainHurl->GetGUID();
                             l_ChainHurl->EnterVehicle(me, 1, true);
+                        }
 
-                        m_Events.DelayEvent(eEvents::EventImpale, 15000);
-                        m_Events.DelayEvent(eEvents::EventBerserkerRush, 15000);
+                        m_Events.DelayEvent(eEvents::EventImpale, 18000);
+                        m_Events.DelayEvent(eEvents::EventBerserkerRush, 18000);
                         break;
                     }
                     case eEvents::EventBerserker:
@@ -2389,9 +2411,8 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                         l_Passenger->CastSpell(g_ArenaStandsPos, eSpells::ChainHurlJumpDest, true);
                 });
 
-                me->CastSpell(p_Passenger, eSpells::Obscured, true);
-
                 p_Passenger->RemoveAura(eSpells::Chain);
+                p_Passenger->AddAura(eSpells::Obscured, p_Passenger);
 
                 m_Rotate = false;
                 m_Angle = 0.0f;
@@ -2872,6 +2893,9 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
                         return true;
 
+                    if (p_Player->HasAura(eDatas::SpellObscured))
+                        return true;
+
                     if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
                     {
                         if (l_OpenWounds->GetStackAmount() > l_OpenWoundsStacks)
@@ -2887,6 +2911,9 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 l_TanksList.remove_if([this, l_OpenWoundsStacks](Player* p_Player) -> bool
                 {
                     if (p_Player->GetRoleForGroup() != Roles::ROLE_TANK)
+                        return true;
+
+                    if (p_Player->HasAura(eDatas::SpellObscured))
                         return true;
 
                     if (AuraPtr l_OpenWounds = p_Player->GetAura(eDatas::OpenWounds))
@@ -2909,6 +2936,9 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                     if (p_Player->GetRoleForGroup() != Roles::ROLE_HEALER)
                         return true;
 
+                    if (p_Player->HasAura(eDatas::SpellObscured))
+                        return true;
+
                     return false;
                 });
 
@@ -2920,6 +2950,9 @@ class spell_highmaul_chain_hurl : public SpellScriptLoader
                 l_DamagersList.remove_if([this](Player* p_Player) -> bool
                 {
                     if (p_Player->GetRoleForGroup() != Roles::ROLE_DAMAGE)
+                        return true;
+
+                    if (p_Player->HasAura(eDatas::SpellObscured))
                         return true;
 
                     return false;
@@ -3087,8 +3120,27 @@ class spell_highmaul_obscured : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_obscured_AuraScript);
 
-            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            uint32 m_UpdateTimer;
+
+            bool Load() override
             {
+                m_UpdateTimer = 8000;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff, AuraEffectPtr p_AurEff)
+            {
+                if (m_UpdateTimer)
+                {
+                    if (m_UpdateTimer > p_Diff)
+                    {
+                        m_UpdateTimer -= p_Diff;
+                        return;
+                    }
+                    else
+                        m_UpdateTimer = 0;
+                }
+
                 if (Unit* l_Target = GetUnitOwner())
                 {
                     /// Target is not in Arena's stands anymore
@@ -3097,7 +3149,7 @@ class spell_highmaul_obscured : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectUpdate += AuraEffectUpdateFn(spell_highmaul_obscured_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_INTERFERE_TARGETTING);
             }
@@ -3310,6 +3362,11 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
     public:
         spell_highmaul_blade_dance() : SpellScriptLoader("spell_highmaul_blade_dance") { }
 
+        enum eSpell
+        {
+            Obscured = 160131
+        };
+
         class spell_highmaul_blade_dance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_highmaul_blade_dance_SpellScript);
@@ -3331,6 +3388,9 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
                 l_PlayerList.remove_if([this](Player* p_Player) -> bool
                 {
                     if (p_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                        return true;
+
+                    if (p_Player->HasAura(eSpell::Obscured))
                         return true;
 
                     return false;
@@ -3368,6 +3428,44 @@ class spell_highmaul_blade_dance : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_blade_dance_SpellScript();
+        }
+};
+
+/// Berserker Rush - 163180
+/// Mauling Brew - 159410
+/// Iron Bomb - 159386
+class spell_highmaul_correct_searchers : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_correct_searchers() : SpellScriptLoader("spell_highmaul_correct_searchers") { }
+
+        enum eSpells
+        {
+            Obscured = 160131,
+            IronBomb = 159386
+        };
+
+        class spell_highmaul_correct_searchers_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_correct_searchers_SpellScript);
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Obscured));
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_correct_searchers_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+
+                if (m_scriptSpellId == eSpells::IronBomb)
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_correct_searchers_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_highmaul_correct_searchers_SpellScript();
         }
 };
 
@@ -3535,6 +3633,7 @@ void AddSC_boss_kargath_bladefist()
     new spell_highmaul_heckle();
     new spell_highmaul_berserker_rush_periodic();
     new spell_highmaul_blade_dance();
+    new spell_highmaul_correct_searchers();
 
     /// AreaTriggers
     new areatrigger_highmaul_molten_bomb();

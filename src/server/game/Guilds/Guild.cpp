@@ -1220,7 +1220,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 25 * 1024);
 
     l_Data << uint32(m_accountsNumber);
     l_Data << uint32(secsToTimeBitFields(m_createdDate));
@@ -1307,7 +1307,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
 
 void Guild::HandleQuery(WorldSession* session)
 {
-    WorldPacket l_Data(SMSG_QUERY_GUILD_INFO_RESPONSE);
+    WorldPacket l_Data(SMSG_QUERY_GUILD_INFO_RESPONSE, 500);
 
     l_Data.appendPackGUID(GetGUID());
     l_Data.WriteBit(1);                 ///< hasData
@@ -1345,7 +1345,7 @@ void Guild::HandleQuery(WorldSession* session)
 
 void Guild::HandleGuildRanks(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_RANKS);
+    WorldPacket l_Data(SMSG_GUILD_RANKS, 2 * 1024);
 
     l_Data << uint32(_GetRanksSize());
 
@@ -2063,15 +2063,13 @@ void Guild::HandleGuildPartyRequest(WorldSession * p_Session)
     l_Data << float(0.f);                                                                       ///< Guild XP multiplier
 
     p_Session->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE_RESPONSE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Send data to client
 void Guild::SendEventLog(WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS);
+    WorldPacket l_Data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 2 * 1024);
     m_eventLog->WritePacket(l_Data);
     p_Session->SendPacket(&l_Data);
     sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");
@@ -2083,7 +2081,7 @@ void Guild::SendBankLog(WorldSession * p_Session, uint8 p_TabID) const
     if (p_TabID < GetPurchasedTabsSize() || p_TabID == GUILD_BANK_MAX_TABS)
     {
         const LogHolder * l_Log = m_bankEventLog[p_TabID];
-        WorldPacket l_Data(SMSG_GUILD_BANK_LOG_QUERY_RESULT);
+        WorldPacket l_Data(SMSG_GUILD_BANK_LOG_QUERY_RESULT, 5 * 1024);
 
         l_Data << uint32(p_TabID);
         l_Log->WritePacket(l_Data);
@@ -2105,14 +2103,14 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
 
     if (p_WithContent && _MemberHasTabRights(p_Session->GetPlayer()->GetGUID(), p_TabID, GuildBankRights::GUILD_BANK_RIGHT_VIEW_TAB))
     {
-	    if (BankTab const* l_BankTab = GetBankTab(p_TabID))
-	    {
+        if (BankTab const* l_BankTab = GetBankTab(p_TabID))
+        {
             for (uint8 l_SlotID = 0; l_SlotID < GuildMisc::GUILD_BANK_MAX_SLOTS; ++l_SlotID)
             {
                 if (Item * l_TabItem = l_BankTab->GetItem(l_SlotID))
                     ++l_ItemCount;
             }
-	    }
+        }
     }
 
     l_Data << uint64(m_bankMoney);                                                              ///< Money
@@ -2218,7 +2216,7 @@ void Guild::SendPermissions(WorldSession* p_Session) const
 
 void Guild::SendMoneyInfo(WorldSession * p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
+    WorldPacket l_Data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 8);
     l_Data << uint64(_GetMemberRemainingMoney(p_Session->GetPlayer()->GetGUID()));
     p_Session->SendPacket(&l_Data);
 }
@@ -2815,8 +2813,8 @@ void Guild::DeleteMember(uint64 p_Guid, bool p_IsDisbanding, bool p_IsKicked, bo
 
         for (uint32 l_I = 0; l_I < sGuildPerkSpellsStore.GetNumRows(); ++l_I)
         {
-	        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(l_I))
-	            l_Player->removeSpell(entry->SpellId, false, false);
+            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(l_I))
+                l_Player->removeSpell(entry->SpellId, false, false);
         }
     }
 
@@ -3493,8 +3491,6 @@ void Guild::SendGuildRanksUpdate(uint64 p_OfficierGUID, uint64 p_OtherGUID, uint
     l_Member->ChangeRank(p_RankID);
 
     _LogEvent((p_RankID < l_Member->GetRankId()) ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, GUID_LOPART(p_OfficierGUID), GUID_LOPART(p_OtherGUID), p_RankID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_RANKS_UPDATE");
 }
 
 void Guild::CompleteGuildChallenge(int32 p_ChallengeType)

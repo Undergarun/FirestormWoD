@@ -832,7 +832,7 @@ void Channel::MakeNotifyPacket(WorldPacket* data, uint8 notify_type, uint64 p_Se
 {
     Player * l_SenderPlayer = sObjectAccessor->FindPlayer(p_SenderGUID);
 
-    data->Initialize(SMSG_CHANNEL_NOTIFY, 1+m_name.size()+1);
+    data->Initialize(SMSG_CHANNEL_NOTIFY, 3 + 16 + 2 + 16 + 2 + 4 + 16 + 2 + 4 + 4 + 4 + 4 + m_name.size() + p_SenderName.size());
     data->WriteBits(notify_type, 6);
     data->WriteBits(m_name.length(), 7);
     data->WriteBits(p_SenderName.length(), 6);
@@ -872,7 +872,7 @@ void Channel::MakeYouJoined(WorldPacket* p_Data)
 {
     std::string l_UnkString = "";
 
-    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 1 + m_name.size() + 4);
+    p_Data->Initialize(SMSG_CHANNEL_NOTIFY_JOINED, 3 + 1 + 4 + 8 + m_name.size() + l_UnkString.size());
     p_Data->WriteBits(GetName().length(), 7);   ///< Channel Name
     p_Data->WriteBits(l_UnkString.length(), 10);///< Channel Name
     p_Data->FlushBits();

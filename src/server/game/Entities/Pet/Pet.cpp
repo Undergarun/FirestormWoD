@@ -925,10 +925,6 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     for (uint8 l_I = SPELL_SCHOOL_HOLY; l_I < MAX_SPELL_SCHOOL; ++l_I)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + l_I), BASE_VALUE, float(l_CreatureTemplate->resistance[l_I]));
 
-    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetFullHealth();
-
     Powers l_PetPower    = l_PetStat->m_Power;
     uint32 l_CreatePower = 0;
 
@@ -958,6 +954,10 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
         SetUInt32Value(UNIT_FIELD_PET_NEXT_LEVEL_EXPERIENCE, uint32(sObjectMgr->GetXPForLevel(p_PetLevel) * PET_XP_FACTOR));
 
     UpdateAllStats();
+
+    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetFullHealth();
 
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
@@ -1041,7 +1041,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
             if (db_time <= curTime)
                 continue;
 
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
             data << uint8(1);
             data << uint32(1);
@@ -1457,7 +1457,7 @@ bool Pet::learnSpell(uint32 p_SpellID)
 
     if (!m_loading)
     {
-        WorldPacket l_Data(SMSG_PET_LEARNED_SPELLS, 4);
+        WorldPacket l_Data(SMSG_PET_LEARNED_SPELLS, 4 + 4);
         l_Data << uint32(1);            ///< Count
         l_Data << uint32(p_SpellID);    ///< SpellID
         m_owner->GetSession()->SendPacket(&l_Data);
@@ -1516,7 +1516,7 @@ bool Pet::unlearnSpell(uint32 p_SpellID, bool p_LearnPrev, bool p_ClearAb)
     {
         if (!m_loading)
         {
-            WorldPacket l_Data(SMSG_PET_UNLEARNED_SPELLS, 4);
+            WorldPacket l_Data(SMSG_PET_UNLEARNED_SPELLS, 4 + 4);
             l_Data << uint32(1);            ///< count
             l_Data << uint32(p_SpellID);    ///< SpellID
             m_owner->GetSession()->SendPacket(&l_Data);
@@ -1845,7 +1845,7 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
             data << uint8(1);
             data << uint32(1);

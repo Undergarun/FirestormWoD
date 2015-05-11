@@ -48,7 +48,7 @@ void WorldSession::HandleBlackMarketHello(WorldPacket& p_RecvData)
 
 void WorldSession::SendBlackMarketHello(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_BLACK_MARKET_OPEN_RESULT, 9);
+    WorldPacket l_Data(SMSG_BLACK_MARKET_OPEN_RESULT, 16 + 2 + 1);
     l_Data.appendPackGUID(p_Guid);
     l_Data.WriteBit(true);  ///< Open
     SendPacket(&l_Data);
@@ -71,7 +71,7 @@ void WorldSession::HandleBlackMarketRequestItems(WorldPacket& p_RecvData)
 
 void WorldSession::SendBlackMarketRequestItemsResult()
 {
-    WorldPacket l_Data(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT, 9);
+    WorldPacket l_Data(SMSG_BLACK_MARKET_REQUEST_ITEMS_RESULT, 2 * 1024);
     sBlackMarketMgr->BuildBlackMarketAuctionsPacket(l_Data, m_Player->GetGUIDLow());
     SendPacket(&l_Data);
 }
@@ -142,7 +142,7 @@ void WorldSession::HandleBlackMarketBid(WorldPacket& p_RecvData)
 
 void WorldSession::SendBlackMarketBidResult(uint32 p_ItemEntry, uint32 p_AuctionID)
 {
-    WorldPacket l_Data(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT, 12);
+    WorldPacket l_Data(SMSG_BLACK_MARKET_BID_ON_ITEM_RESULT, 100);
     l_Data << uint32(p_AuctionID);
 
     Item::BuildDynamicItemDatas(l_Data, p_ItemEntry);

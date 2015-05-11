@@ -139,14 +139,13 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
                 ObjectMgr::GetLocaleString(creatureLocale->l_FemaleName, locale, l_FemaleName);
             }
         }
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", creatureInfo->Name.c_str(), entry);
 
         uint8 itemCount = 0;
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
             if (creatureInfo->questItems[i])
                 itemCount++;                                           ///< itemId[6], quest drop
 
-        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 1 * 1024);
 
         data << uint32(entry);                                         ///< Creature entry
         data.WriteBit(1);                                              ///< Has valid data
@@ -206,18 +205,15 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         }
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", entry);
-        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4);
+        WorldPacket data(SMSG_QUERY_CREATURE_RESPONSE, 4 + 1);
         data << uint32(entry | 0x80000000);
         data.WriteBit(0);                               ///< Has no valid data
         data.FlushBits();
 
         SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
 }
 
@@ -230,9 +226,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     recvData >> l_GobEntry;
     recvData.readPackGUID(l_GobGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY Entry: %u. ", l_GobEntry);
-
-    ByteBuffer l_GobData;
+    ByteBuffer l_GobData(2 * 1024);
 
     if (const GameObjectTemplate* l_GobInfo = sObjectMgr->GetGameObjectTemplate(l_GobEntry))
     {
@@ -289,12 +283,8 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
 
         l_GobData << uint32(l_GobInfo->unkInt32);                       // 4.x, unknown
     }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (GUID: %u, ENTRY: %u)", GUID_LOPART(l_GobGUID), l_GobEntry);
-    }
 
-    WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE);
+    WorldPacket l_Response(SMSG_GAMEOBJECT_QUERY_RESPONSE, 4 + 1 + 4 + l_GobData.size());
 
     l_Response << uint32(l_GobEntry);
 
@@ -306,14 +296,10 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
     l_Response.append(l_GobData);
 
     SendPacket(&l_Response);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
 }
 
 void WorldSession::HandleCorpseLocationFromClientQueryOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CORPSE_QUERY");
-
     Corpse* l_Corpse = GetPlayer()->GetCorpse();
 
     if (!l_Corpse)
@@ -395,8 +381,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
     p_Packet >> l_TextID;
     p_Packet.readPackGUID(l_Guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_NPC_TEXT_QUERY ID '%u'", l_TextID);
-
     GetPlayer()->SetSelection(l_Guid);
 
     GossipText const* pGossip = sObjectMgr->GetGossipText(l_TextID);
@@ -427,8 +411,6 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& p_Packet)
     l_Data.append(l_Buffer);
 
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_NPC_TEXT_UPDATE");
 }
 
 #define DEFAULT_GREETINGS_GOSSIP      68
@@ -437,7 +419,7 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
 {
     ByteBuffer l_ReplyContent;
 
-    WorldPacket data(SMSG_DB_REPLY);
+    WorldPacket data(SMSG_DB_REPLY, 2 * 1024);
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
     data << uint32(p_Entry);
     data << uint32(sObjectMgr->GetHotfixDate(p_Entry, DB2_REPLY_BROADCAST_TEXT));
@@ -516,7 +498,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
     {
         PageText const* l_PageText = sObjectMgr->GetPageText(l_PageTextID);
 
-        WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 50);
+        WorldPacket l_Data(SMSG_PAGE_TEXT_QUERY_RESPONSE, 2 * 1024);
         l_Data << uint32(l_PageTextID);                             ///< Page Text ID
         l_Data.WriteBit(l_PageText != NULL);                        ///< Allow
         l_Data.FlushBits();
@@ -552,8 +534,6 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleCorpseTransportQueryOpcode(WorldPacket & p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_QUERY_CORPSE_TRANSPORT");
-
     uint64 l_TransportGUID = 0;
 
     p_Packet.readPackGUID(l_TransportGUID);
@@ -592,7 +572,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
     for (uint32 i = 0; i < l_Count; ++i)
         l_QuestList.push_back(p_Packet.read<uint32>());
 
-    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 4+(4+4)*l_Count);
+    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 10 * 1024);
     l_Data << uint32(l_Count); // count
     l_Data << uint32(l_Count);
 
@@ -670,4 +650,55 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
     }
 
     SendPacket(&l_Data);
+}
+
+void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
+{
+    uint32 l_Type = 0;
+    uint32 l_Count = 0;
+
+    p_RecvPacket >> l_Type;
+    l_Count = p_RecvPacket.ReadBits(13);
+
+    DB2StorageBase* l_DB2Store = sDB2PerHash[l_Type];
+
+    for (uint32 l_I = 0; l_I < l_Count; ++l_I)
+    {
+        uint64 l_GUID;
+        uint32 l_Entry;
+
+        p_RecvPacket.readPackGUID(l_GUID);
+        p_RecvPacket >> l_Entry;
+
+        /// Specific case, localized string not yet supported by the system
+        if (l_Type == DB2_REPLY_BROADCAST_TEXT)
+        {
+            SendBroadcastTextDb2Reply(l_Entry);
+        }
+        else if (l_DB2Store)
+        {
+            ByteBuffer l_ResponseData(2 * 1024);
+            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
+            {
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                l_Data << uint32(l_Type);
+                l_Data << uint32(l_Entry);
+                l_Data << uint32(sObjectMgr->GetHotfixDate(l_Entry, l_Type));
+                l_Data << uint32(l_ResponseData.size());
+                l_Data.append(l_ResponseData);
+
+                SendPacket(&l_Data);
+            }
+            else
+            {
+                WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                l_Data << uint32(l_Type);
+                l_Data << uint32(-int32(l_Entry));
+                l_Data << uint32(time(NULL));
+                l_Data << uint32(0);
+
+                SendPacket(&l_Data);
+            }
+        }
+    }
 }

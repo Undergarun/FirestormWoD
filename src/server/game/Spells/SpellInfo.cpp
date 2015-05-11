@@ -958,7 +958,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 212 SPELL_EFFECT_212
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 213 SPELL_EFFECT_DEATH_GRIP
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 214 SPELL_EFFECT_214
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_UNLOCK_PREVIOUS_ABILITY
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 216 SPELL_EFFECT_216
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 217 SPELL_EFFECT_217
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 218 SPELL_EFFECT_218
@@ -3087,7 +3087,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_WARLOCK:
             switch (Id)
             {
-                case 111400: // Burning Rush
+                case 111400: ///< Burning Rush
                     return true;
                 default:
                     break;
@@ -3095,22 +3095,12 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {
-                case 64844: // Divine Hymn
-                case 64904: // Hymn of Hope
-                case 47585: // Dispersion
+                case 64844: ///< Divine Hymn
+                case 47585: ///< Dispersion
                     return true;
                 default:
                     break;
             }
-            break;
-        case SPELLFAMILY_HUNTER:
-            // Aspect of the Viper
-            if (Id == 34074)
-                return true;
-            break;
-        case SPELLFAMILY_SHAMAN:
-            if (Id == 30708)
-                return false;
             break;
         default:
             break;

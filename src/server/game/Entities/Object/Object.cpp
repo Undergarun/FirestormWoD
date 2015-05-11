@@ -271,7 +271,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (ToUnit() && ToUnit()->getVictim())
         flags |= UPDATEFLAG_HAS_COMBAT_VICTIM;
 
-    ByteBuffer buf(500);
+    ByteBuffer buf(10 * 1024);
     buf << uint8(updateType);
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
@@ -297,7 +297,7 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(5 * 1024);
 
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
@@ -321,7 +321,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 
     /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
     /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
-    WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
+    WorldPacket l_Data(SMSG_UPDATE_OBJECT);
 
     // Player cannot see creatures from different map ;)
     uint16 l_MapID = p_Target->GetMapId();
@@ -2696,7 +2696,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     ObjectGuid receiverGuid = targetGuid;
     ObjectGuid guildGuid = 0;
 
-    data->Initialize(SMSG_CHAT, 200);
+    data->Initialize(SMSG_CHAT, 800);
     *data << uint8(msgtype);
     *data << uint8(language);
     data->appendPackGUID(senderGuid);
@@ -2749,7 +2749,7 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
 
 void WorldObject::SendObjectDeSpawnAnim(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 8);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 16 + 2);
     l_Data.appendPackGUID(p_Guid);
     SendMessageToSet(&l_Data, true);
 }

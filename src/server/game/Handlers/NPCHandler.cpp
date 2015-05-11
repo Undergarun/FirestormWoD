@@ -150,7 +150,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         return;
     }
 
-    ByteBuffer l_TrainerList;
+    ByteBuffer l_TrainerList(10 * 1024);
 
     // reputation discount
     float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Unit);
@@ -232,7 +232,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         ++l_TrainerSpellCount;
     }
 
-    WorldPacket l_Data(SMSG_TRAINER_LIST);
+    WorldPacket l_Data(SMSG_TRAINER_LIST, 16 + 2 + 4 + 4 + 4 + l_TrainerList.size() + 1 + p_Title.size());
 
     l_Data.appendPackGUID(p_NpcGUID);
 
@@ -348,8 +348,6 @@ void WorldSession::SendTrainerService(uint64 p_Guid, uint32 p_SpellID, uint32 p_
 
 void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
-
     uint64 guid;
 
     recvData.readPackGUID(guid);
@@ -396,8 +394,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
     uint64 l_Healer;
 
     p_Packet.readPackGUID(l_Healer);
@@ -544,7 +540,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
     uint64 l_StableMaster = p_Guid;
     uint32 l_PetsCount    = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
 
-    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 200);
+    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 1024);
     l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
     l_Data << uint32(l_PetsCount);                      ///< Pets count 
 
@@ -705,8 +701,6 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, 
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
-
     uint64 npcGUID, itemGUID;
     bool guildBank;                                        // new in 2.3.2, bool that means from guild bank money
 

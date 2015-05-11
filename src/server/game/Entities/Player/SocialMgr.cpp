@@ -155,7 +155,7 @@ void PlayerSocial::SendSocialList(Player * p_Player)
     if (!p_Player)
         return;
 
-    WorldPacket l_Data(SMSG_CONTACT_LIST, (4 + 4 + m_playerSocialMap.size() * 25));
+    WorldPacket l_Data(SMSG_CONTACT_LIST, 4 + 1 + (m_playerSocialMap.size() * (16 + 2 + 16 + 2 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 2 + 100)));
     l_Data << uint32(7);                                                            ///< 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
     l_Data.WriteBits(m_playerSocialMap.size(), 8);                                  ///< Friends count
     l_Data.FlushBits();
@@ -181,8 +181,6 @@ void PlayerSocial::SendSocialList(Player * p_Player)
     }
 
     p_Player->GetSession()->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
 }
 
 bool PlayerSocial::HasFriend(uint32 friend_guid)

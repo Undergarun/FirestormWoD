@@ -729,7 +729,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     ObjectGuid targetGuid = target_guid;
 
-    data->Initialize(SMSG_CHAT, 100);                   // guess size
+    data->Initialize(SMSG_CHAT, 800);                   // guess size
     *data << uint8(type);
     *data << uint8(language);
     data->appendPackGUID(speakerGuid);

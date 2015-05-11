@@ -263,7 +263,7 @@ void BlackMarketMgr::CreateAuctions(uint32 number, SQLTransaction& trans)
 void BlackMarketMgr::BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 p_GuidLow)
 {
     uint32 l_ItemCount = 0;
-    ByteBuffer l_Datas;
+    ByteBuffer l_Datas(2 * 1024);
 
     for (BMAuctionEntryMap::const_iterator l_Iter = GetAuctionsBegin(); l_Iter != GetAuctionsEnd(); ++l_Iter)
     {
@@ -341,7 +341,7 @@ void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_Ne
 
     if (l_Bidder)
     {
-        WorldPacket l_Data(SMSG_BLACK_MARKET_OUTBID, 12);
+        WorldPacket l_Data(SMSG_BLACK_MARKET_OUTBID, 200);
         l_Data << int32(0); ///< MarketID
 
         Item::BuildDynamicItemDatas(l_Data, l_ItemTemplate->ItemId);

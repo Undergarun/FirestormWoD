@@ -66,8 +66,6 @@ void WorldSession::SendPartyResult(PartyCommand p_Command, const std::string& p_
 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE");
-
     time_t l_Now = time(NULL);
     if (l_Now - m_TimeLastGroupInviteCommand < 5)
         return;
@@ -182,7 +180,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             std::list<uint32> l_LfgSlots;
 
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+            WorldPacket data(SMSG_PARTY_INVITE, 200);
             data.WriteBit(l_CanAccept);
             data.WriteBit(l_MightCRZYou);
             data.WriteBit(l_IsXRealm);
@@ -284,7 +282,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     std::list<uint32> l_LfgSlots;
 
     // tell the player that they were invited but it failed as they were already in a group
-    WorldPacket l_Data(SMSG_PARTY_INVITE, 45);
+    WorldPacket l_Data(SMSG_PARTY_INVITE, 200);
     l_Data.WriteBit(l_CanAccept);
     l_Data.WriteBit(l_MightCRZYou);
     l_Data.WriteBit(l_IsXRealm);
@@ -318,8 +316,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE_RESPONSE");
-
     uint32 l_RolesDesired;
     uint8  l_PartyIndex;
     bool   l_Accept;
@@ -401,7 +397,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
         /// Report
         std::string l_Name = GetPlayer()->GetName();
 
-        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length());
+        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length() + 1);
         l_Data.WriteBits(l_Name.length(), 6);
         l_Data.FlushBits();
 
@@ -413,8 +409,6 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePartyUninviteOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_UNINVITE");
-
     std::string l_Reason;
     uint8       l_PartyIndex;
     size_t      l_ReasonSize;
@@ -460,8 +454,6 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_PARTY_LEADER");
-
     uint64 l_Target;
     uint8  l_PartyIndex;
 
@@ -491,8 +483,6 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleSetRoleOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ROLE");
-
     uint64 l_ChangedUnit;
     uint32 l_Role;
     uint8  l_PartyIndex;
@@ -561,8 +551,6 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LEAVE_GROUP");
-
     uint8 l_PartyIndex = p_RecvData.read<uint8>();
 
     Group* l_Group = GetPlayer()->GetGroup();
@@ -586,8 +574,6 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LOOT_METHOD");
-
     uint8 lootMethod;
     ObjectGuid lootMaster;
     uint32 lootThreshold;
@@ -657,8 +643,6 @@ void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MINIMAP_PING");
-
     if (!GetPlayer()->GetGroup())
         return;
 
@@ -680,8 +664,6 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRandomRollOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RANDOM_ROLL");
-
     int32 l_Min;
     int32 l_Max;
     uint8 l_PartyIndex;
@@ -714,8 +696,6 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_RAID_TARGET");
-
     Group* l_Group = GetPlayer()->GetGroup();
     if (!l_Group)
         return;
@@ -736,8 +716,6 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONVERT_RAID");
-
     Group* l_Group = GetPlayer()->GetGroup();
 
     if (!l_Group)
@@ -765,8 +743,6 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");
-
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -804,8 +780,6 @@ void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
     uint64 guid1;
     uint64 guid2;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
-
     recvData >> unk1;
     recvData.readPackGUID(guid2);
     recvData.readPackGUID(guid1);
@@ -831,8 +805,6 @@ void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket & p_Packet)
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSISTANT_LEADER");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -853,8 +825,6 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
 
 void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSIGNMENT");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -890,8 +860,6 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DO_READY_CHECK");
-
     uint8 l_PartyIndex;
     p_RecvData >> l_PartyIndex;
 
@@ -920,8 +888,6 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_READY_CHECK_RESPONSE");
-
     uint8 l_PartyIndex;
     bool l_IsIsReady;
 
@@ -986,7 +952,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 l_PlayerStatus |= MEMBER_STATUS_DND;
         }
 
-        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 200);
+        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 500);
 
         p_Data->WriteBit(false);                    ///< ForEnemy
         p_Data->FlushBits();
@@ -1360,8 +1326,6 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
-
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
 
@@ -1403,8 +1367,6 @@ void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
-
     bool l_OptOutOfLoot = p_RecvData.ReadBit();
 
     // ignore if player not loaded
@@ -1421,8 +1383,6 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRolePollBegin(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ROLE_POLL_BEGIN");
-
     uint8 l_PartyIndex = 0;
 
     p_RecvData >> l_PartyIndex;
@@ -1441,8 +1401,6 @@ void WorldSession::HandleRolePollBegin(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_REQUEST_JOIN_UPDATES");
-
     uint8 unk = 0;
     recvData >> unk;
 

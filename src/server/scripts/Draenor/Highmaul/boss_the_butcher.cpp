@@ -197,6 +197,8 @@ class boss_the_butcher : public CreatureScript
                 me->RemoveAura(eSpells::Angry5PerTick);
                 me->RemoveAura(eSpells::Angry10PerTick);
 
+                me->SetSpeed(UnitMoveType::MOVE_SWIM, me->GetSpeed(UnitMoveType::MOVE_RUN) * 0.5f);
+
                 m_CleaveCooldown = 0;
 
                 m_AddCount = 0;
@@ -220,6 +222,9 @@ class boss_the_butcher : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (m_Instance != nullptr)
+                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossTheButcher);
+
                 _EnterCombat();
 
                 me->CastSpell(me, eSpells::Angry5PerTick, true);
@@ -267,6 +272,9 @@ class boss_the_butcher : public CreatureScript
                 CreatureAI::EnterEvadeMode();
 
                 Talk(eTalks::Wipe);
+
+                if (m_Instance != nullptr)
+                    m_Instance->SetBossState(eHighmaulDatas::BossTheButcher, EncounterState::FAIL);
             }
 
             void RegeneratePower(Powers p_Power, int32& p_Value) override
@@ -284,6 +292,13 @@ class boss_the_butcher : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheCleaverDot);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::TheTenderizer);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellGushingWounds);
+
+                    if (IsLFR())
+                    {
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 
@@ -411,7 +426,7 @@ class boss_the_butcher : public CreatureScript
                         me->CastSpell(me, eSpells::BoundingCleaveKnock, true);
                         /// Charge on players after 8s
                         me->CastSpell(me, eSpells::BoundingCleaveDummy, false);
-                        m_Events.DelayEvent(eEvents::EventMeatHook, 15 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.DelayEvent(eEvents::EventMeatHook, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventMeatHook:

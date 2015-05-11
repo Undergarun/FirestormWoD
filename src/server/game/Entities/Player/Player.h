@@ -51,6 +51,7 @@
 #include <vector>
 #include <mutex>
 #include <ace/Stack_Trace.h>
+#include <unordered_set>
 
 struct Mail;
 struct ItemExtendedCostEntry;
@@ -70,6 +71,7 @@ class SceneObject;
 
 typedef std::deque<Mail*> PlayerMails;
 typedef std::set<uint32> DailyLootsCooldowns;
+typedef std::unordered_set<uint64> GuidUnorderedSet;
 
 #define PLAYER_MAX_SKILLS           128
 #define DEFAULT_MAX_PRIMARY_TRADE_SKILL 2
@@ -1094,6 +1096,21 @@ struct AccessRequirement
     uint32 itemlevelMin;
     uint32 itemlevelMax;
     std::string questFailedText;
+};
+
+struct LFRAccessRequirement
+{
+    uint8       LevelMin;
+    uint8       LevelMax;
+    uint32      Item;
+    uint32      Item2;
+    uint32      QuestA;
+    uint32      QuestH;
+    uint32      Achievement;
+    uint32      LeaderAchievement;
+    uint32      ItemLevelMin;
+    uint32      ItemLevelMax;
+    std::string QuestFailedText;
 };
 
 enum CharDeleteMethod
@@ -2239,6 +2256,8 @@ class Player : public Unit, public GridObject<Player>
         Stats GetPrimaryStat() const;
         bool IsActiveSpecTankSpec() const;
 
+        uint32 GetDefaultSpecId() const;
+
         bool ResetTalents(bool p_NoCost = false);
         void RemoveTalent(TalentEntry const* p_TalentInfos);
         uint32 GetNextResetTalentsCost() const;
@@ -2816,7 +2835,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SendLoot(uint64 guid, LootType loot_type, bool fetchLoot = false);
         void SendLootRelease(uint64 p_LootGuid);
-        void SendNotifyLootItemRemoved(uint8 lootSlot);
+        void SendNotifyLootItemRemoved(uint8 lootSlot, bool p_IsAoELoot = false);
         void SendNotifyLootMoneyRemoved();
 
         /*********************************************************/
@@ -3104,8 +3123,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         // currently visible objects at player client
-        typedef std::set<uint64> ClientGUIDs;
-        ClientGUIDs m_clientGUIDs;
+        GuidUnorderedSet m_clientGUIDs;
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
 
