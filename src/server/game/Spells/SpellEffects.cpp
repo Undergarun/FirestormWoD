@@ -1911,13 +1911,18 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             }
         }
         // 77226 - Mastery : Deep Healing
-        if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN)
+        if (caster && (caster->GetOwner() && caster->GetOwner()->GetTypeId() == TYPEID_PLAYER && caster->GetOwner()->getClass() == CLASS_SHAMAN) || (caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN))
         {
-            if (caster->HasAura(77226))
+            Unit* l_Owner = caster;
+
+            if (caster->GetOwner())
+                l_Owner = caster->GetOwner();
+
+            if (l_Owner->HasAura(77226))
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
+                    float Mastery = l_Owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
                     float healthpct = unitTarget->GetHealthPct();
 
                     float bonus = 0;
