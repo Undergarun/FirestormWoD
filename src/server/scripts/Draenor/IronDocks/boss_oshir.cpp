@@ -394,7 +394,7 @@ class boss_oshir : public CreatureScript
                                     if (m_WolfDestinations.empty())
                                         return;
 
-                                    std::list<Creature*>::const_iterator l_Iterator = m_WolfDestinations.begin();
+                                    std::list<Creature*>::iterator l_Iterator = m_WolfDestinations.begin();
                                     std::advance(l_Iterator, urand(0, m_WolfDestinations.size() - 1));
 
                                     me->GetMotionMaster()->MoveJump((*l_Iterator)->GetPositionX(), (*l_Iterator)->GetPositionY(), (*l_Iterator)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
@@ -412,7 +412,7 @@ class boss_oshir : public CreatureScript
                                     if (m_RylakDestinations.empty())
                                         return;
 
-                                    std::list<Creature*>::const_iterator l_Iterator = m_RylakDestinations.begin();
+                                    std::list<Creature*>::iterator l_Iterator = m_RylakDestinations.begin();
                                     std::advance(l_Iterator, urand(0, m_RylakDestinations.size() - 1));
 
                                     me->GetMotionMaster()->MoveJump((*l_Iterator)->GetPositionX(), (*l_Iterator)->GetPositionY(), (*l_Iterator)->GetPositionZ(), 25.0f, 10.0f, 10.0f);

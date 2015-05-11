@@ -363,7 +363,6 @@ public:
                 {
                     vigiliant->CastSpell(vigiliant, SPELL_GUARD);
                  
-
                     vigiliant->SetCurrentEquipmentId(77819);
 
                     vigiliant->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
@@ -608,6 +607,7 @@ public:
                 }
             }
         }
+        return false;
     }
 private:
     Creature* storm;
@@ -1496,6 +1496,7 @@ public:
         {
             SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             spell->Effects[0].TriggerSpell = 157791;
+            return true;
         }
         void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {
@@ -1605,7 +1606,7 @@ public:
     {
     }
 
-    int diff = 9000;
+    uint32 diff = 9000;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         if (diff <= p_Time)
