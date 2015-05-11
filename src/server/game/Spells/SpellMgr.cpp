@@ -5202,7 +5202,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
-            case 85804:  ///< Selfless Healer
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)
