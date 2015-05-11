@@ -329,7 +329,7 @@ void AnticheatMgr::BuildReport(Player* p_Player, uint8 p_ReportType)
     {
         p_Player->GetSession()->KickPlayer();
 
-        std::string l_Msg = "Player " << p_Player->GetName() << " was kicked by the anti cheat";
+        std::string l_Msg = "Player " + std::string(p_Player->GetName()) + " was kicked by the anti cheat";
         ChatHandler(p_Player).SendGlobalGMSysMessage(l_Msg.c_str());
     }
 }
