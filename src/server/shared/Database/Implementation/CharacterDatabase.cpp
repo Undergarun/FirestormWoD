@@ -269,7 +269,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_LOAD_GUILD_NEWS, "SELECT id, eventType, playerGuid, data, flags, date FROM guild_news_log WHERE guild = ? ORDER BY id ASC", CONNECTION_SYNCH);
     PREPARE_STATEMENT(CHAR_SAVE_GUILD_NEWS, "INSERT INTO guild_news_log (guild, id, eventType, playerGuid, data, flags, date) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_LOAD_GUILD_CHALLENGES, "SELECT GuildId, ChallengeType, ChallengeCount FROM guild_challenges", CONNECTION_SYNCH);
-    PREPARE_STATEMENT(CHAR_INIT_GUILD_CHALLENGES, "INSERT INTO guild_challenges VALUES (?, ?, 0)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INIT_GUILD_CHALLENGES, "INSERT INTO guild_challenges VALUES (?, ?, 0) ON DUPLICATE KEY UPDATE GuildId=GuildId", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_COMPLETE_GUILD_CHALLENGE, "UPDATE guild_challenges SET ChallengeCount = ? WHERE GuildId = ? AND ChallengeType = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_REMOVE_GUILD_CHALLENGES, "DELETE FROM guild_challenges WHERE GuildId = ?", CONNECTION_ASYNC);
 
