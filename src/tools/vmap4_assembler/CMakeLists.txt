@@ -17,6 +17,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
   ${ZLIB_INCLUDE_DIR}
+  ${ACE_INCLUDE_DIR}
 )
 
 add_executable(vmap4assembler VMapAssembler.cpp)
@@ -25,6 +26,7 @@ add_dependencies(vmap4assembler casc)
 target_link_libraries(vmap4assembler
   collision
   g3dlib
+  ${ACE_LIBRARY}
   ${ZLIB_LIBRARIES}
 )
 
