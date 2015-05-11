@@ -76,15 +76,11 @@ public:
                             Zoggosh->m_Events.AddEvent(new bombard_event(Zoggosh, 9), Zoggosh->m_Events.CalculateTime(2000));
                             break;
                         case 9:
-                            if (Skulloc->GetVehicleKit() && Skulloc->GetVehicleKit()->GetPassenger(0))
+                            if (Creature* turret = Skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
                             {
-                                if (Creature* turret = Skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
-                                {
-                                    turret->CastSpell(turret, 168537);
-                                    turret->m_Events.AddEvent(new bombard_event(turret, 9), turret->m_Events.CalculateTime(7000));
-                                }
+                                turret->CastSpell(turret, 168537);
+                                turret->m_Events.AddEvent(new bombard_event(turret, 9), turret->m_Events.CalculateTime(7000));
                             }
-
                             break;
                         }
                     }
@@ -222,6 +218,23 @@ public:
                 break;
             }
         }
+        void OnGameObjectCreate(GameObject* go)
+        {
+            switch (go->GetEntry())
+            {
+            default:
+                break;
+            }
+        }
+        void OnGameObjectRemove(GameObject* go)
+        {
+            switch (go->GetEntry())
+            {
+ 
+            default:
+                break;
+            }
+        }
         void SetData(uint32 type, uint32 data)
         {
             switch (type)
@@ -248,6 +261,29 @@ public:
                     break;
                 }   
             }
+        }
+        void Update(uint32 diff)
+        {
+            Events.Update(diff);
+
+            while (uint32 eventId = Events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                default:
+                    break;
+                }
+            }
+        }
+        uint32 GetData(uint32 type)
+        {
+            switch (type)
+            {
+            default:
+                break;
+            }
+
+            return 0;
         }
         uint64 GetData64(uint32 type)
         {
@@ -303,7 +339,16 @@ public:
             if (!InstanceScript::SetBossState(type, state))
                 return false;
 
-            return true;
+            switch (type)
+            {
+                /*
+            case DATA_GRIMRAIL_MAKOGG:
+                if (state == DONE)
+                    if (Creature* Skullock = instance->GetCreature(Pinstance->GetData64(DATA_SKULLOC)))
+                        Skullock->m_Events.AddEvent(new aftergrimrail_event(Skullock, 0), Skullock->m_Events.CalculateTime(8000));
+                break;
+                */
+            }
         }
         bool IsWipe()
         {

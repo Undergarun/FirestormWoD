@@ -271,7 +271,7 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
 
                     events.ScheduleEvent(EVENT_CHAIN_DRAG, chaindraginterval);
@@ -323,7 +323,7 @@ public:
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
         { }
 
-        uint32 visual;
+        int visual;
         void Reset()
         {
             visual = 5000;
@@ -378,7 +378,7 @@ public:
                     break;
                     */
                 case EVENT_LEG_SHOT:
-                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
                         me->CastSpell(random, SPELL_LEG_SHOT);
 
                     events.ScheduleEvent(EVENT_LEG_SHOT, legshotinterval);
@@ -535,7 +535,7 @@ public:
     {
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 visual;
+        int visual;
         void Reset()
         {
             visual = 6000;
@@ -610,7 +610,7 @@ public:
     {
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
 
-        uint32 visual;
+        int visual;
 
         void Reset()
         {
@@ -775,7 +775,7 @@ public:
         diff = 500;
     }
 
-    uint32 diff;
+    int diff;
     std::list<uint64> m_Targets;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -828,7 +828,7 @@ public:
         diff = 500;
     }
 
-    uint32 diff;
+    int diff;
     std::list<uint64> m_Targets;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -880,7 +880,7 @@ public:
     {
     }
 
-    uint32 diff = 500;
+    int diff = 500;
     std::list<uint64> m_Targets;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -932,7 +932,7 @@ public:
     iron_docks_area_trigger_barbed_arrow() : AreaTriggerEntityScript("iron_docks_area_trigger_barbed_arrow")
     {
     }
-    uint32 diff = 500;
+    int diff = 500;
     std::list<uint64> m_Targets;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
@@ -1087,11 +1087,6 @@ class iron_docks_siege_master_olugar : public CreatureScript
 public:
     iron_docks_siege_master_olugar() : CreatureScript("iron_docks_siege_master_olugar") { }
 
-    enum eTalk
-    {
-        RandomText
-    };
-
     struct mob_iron_docksAI : public ScriptedAI
     {
         mob_iron_docksAI(Creature* creature) : ScriptedAI(creature) { }
@@ -1115,11 +1110,13 @@ public:
             {
                 if (rp <= diff)
                 {
-                    Talk(eTalk::RandomText);
+                    me->MonsterSay("Stop showin' off.", LANG_UNIVERSAL, me->GetGUID());
+
                     rp = 16000;
                 }
                 else
                     rp -= diff;
+
             }
 
             if (!UpdateVictim())
@@ -1256,13 +1253,13 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHARGING_SLASH:
-                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
                         me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
 
                     events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
                     {
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
                         random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);
@@ -1531,27 +1528,29 @@ public:
                 if (deckhands)
                 {
                     deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    m_DeckhandList.push_back(deckhands->GetGUID());
+                    deckhandslist.push_back(deckhands->GetGUID());
                 }
             }
         }
-
-        std::list<uint64> m_DeckhandList;
+        int visual;
+        std::list<uint64> deckhandslist;
 
         void Reset()
         {
-            me->SetSpeed(MOVE_RUN, 0.5f, true);
+            visual = 6000;
+            me->SetSpeed(MOVE_RUN, 0.5, true);
 
-            for (uint64 l_Guid : m_DeckhandList)
-            {
-                if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
+            if (!deckhandslist.empty())
+                for (auto l_Guid : deckhandslist)
                 {
-                    if (!l_DeckHand->isAlive())
-                        continue;
+                    if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
+                    {
+                        if (!l_DeckHand->isAlive())
+                            continue;
 
-                    l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                    }
                 }
-            }
         }
         void EnterCombat(Unit* who)
         {
@@ -1568,19 +1567,19 @@ public:
         {
             if (!UpdateVictim())
             {
-                for (uint64 l_Guid : m_DeckhandList)
-                {
-                    if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
+                if (!deckhandslist.empty())
+                    for (auto l_Guid : deckhandslist)
                     {
-                        if (l_DeckHand->isMoving())
-                            continue;
-
-                        l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        if (Creature* l_DeckHand = Creature::GetCreature(*me, l_Guid))
+                        {
+                            if (!l_DeckHand->isMoving())
+                                l_DeckHand->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        }
                     }
-                }
-
-                return;
             }
+
+            if (!UpdateVictim())
+                return;
 
             events.Update(diff);
 
@@ -1863,7 +1862,7 @@ public:
 private:
     Creature* storm;
     Unit* obj;
-    Unit* obj2;
+    Unit* obj2; 
     int modifier;
     int Event;
 };
@@ -1895,7 +1894,7 @@ public:
 
             // START VISUAL EVENT
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                instance->SetData(DATA_SECOND_EVENT, uint32(true));
+                instance->SetData(DATA_SECOND_EVENT, uint32(true));   
 
             GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1925,7 +1924,7 @@ public:
 
         int32 timerperexplosion;
         bool canKill;
-
+      
         void Reset()
         {
             timerperexplosion = 0;
@@ -1946,7 +1945,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FORCE_MOVEMENT);
 
                 me->GetAI()->DoAction(ACTION_QUIET_DEATH);
-
+                     
                 break;
             }
         }

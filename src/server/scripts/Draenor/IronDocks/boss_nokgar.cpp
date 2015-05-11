@@ -83,6 +83,7 @@ enum Events
 enum Actions
 {
     ACTION_FIRE_ARROWS = 999,
+    ACTION_DISMOUNT_HEROIC = 1000,
 };
 enum Vehicles
 {
@@ -165,14 +166,15 @@ public:
 
         Vehicle* vehicle;
         InstanceScript* pinstance = me->GetInstanceScript();
-        uint32 diffforshreddingstrike;
+        int32 diffforshreddingstrike;
         void Reset() override
         {
             _Reset();
             events.Reset();
             ASSERT(vehicle);  
 
-            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+
+            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);        
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
             me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN | UNIT_FLAG2_FEIGN_DEATH);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
@@ -220,16 +222,25 @@ public:
                 me->CastSpell(me, 103750); // feign death
                 me->CastSpell(me, 166925); // cosmetic feign death
 
+                
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                 me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-
+     
                 me->GetVehicleKit()->RemoveAllPassengers();
-
+                
                 if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
                     nokgar->AI()->Talk(SAY_SPELL04);
+            }
+            if (me->GetMap()->IsHeroic())
+            {
+                if (me->GetHealthPct() <= 50) // heroic
+                {
+                    if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
+                        nokgar->AI()->DoAction(ACTION_DISMOUNT_HEROIC);
+                }
             }
         }
         void JustDied(Unit* /*killer*/) override
@@ -359,10 +370,10 @@ public:
             _Reset();
             events.Reset();
             summons.DespawnAll();
-           // MountWolf(); 
+            // MountWolf(); 
             SummonArchers();
 
-            me->SetReactState(REACT_AGGRESSIVE);     
+            me->SetReactState(REACT_AGGRESSIVE);
             phase = 0; // mounted
             me->CastSpell(me, SPELL_WARSONG_FLAG);
             dismountheroic = false;
@@ -372,21 +383,21 @@ public:
             if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
             {
                 //me->EnterVehicle(wolf, 0, true);
-               // wolf->Respawn(true);
-               // wolf->GetAI()->Reset();
-               // wolf->getThreatManager().resetAllAggro();
-               //wolf->GetVehicleKit()->AddPassenger(me, 0);  
-               //me->_EnterVehicle(wolf->GetVehicleKit(), 0);
-               // me->AddUnitState(UNIT_STATE_ONVEHICLE);
+                // wolf->Respawn(true);
+                // wolf->GetAI()->Reset();
+                // wolf->getThreatManager().resetAllAggro();
+                //wolf->GetVehicleKit()->AddPassenger(me, 0);  
+                //me->_EnterVehicle(wolf->GetVehicleKit(), 0);
+                // me->AddUnitState(UNIT_STATE_ONVEHICLE);
             }
         }
         void SummonArchers()
         {
             for (int i = 0; i <= 5; i++)
             {
-               Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
-              // if (flameslinger && flameslinger->IsInWorld())
-               //flameslinger->SetReactState(REACT_PASSIVE);
+                Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
+                // if (flameslinger && flameslinger->IsInWorld())
+                //flameslinger->SetReactState(REACT_PASSIVE);
             }
         }
         void LaunchArchers()
@@ -416,7 +427,7 @@ public:
             }
             if (me->HasAura(SPELL_RECKLESS_PROVOCATION))
                 if (!p_SpellInfo)
-                me->AddAura(SPELL_INITMIDATED, attacker);
+                    me->AddAura(SPELL_INITMIDATED, attacker);
         }
         void EnterCombat(Unit* who) override
         {
@@ -449,7 +460,7 @@ public:
                 wolf->DespawnOrUnsummon(2000);
             }
 
-            me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));      
+            me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));
         }
         void JustReachedHome() override
         {
@@ -462,6 +473,17 @@ public:
                 me->SummonCreature(CREATURE_WOLF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
             }
         }
+        void DoAction(int32 const action)
+        {
+            switch (action)
+            {
+                case ACTION_DISMOUNT_HEROIC:
+                {
+                    events.ScheduleEvent(EVENT_DISMOUNT, 1000);
+                    break;
+                }
+            }
+        }          
         void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
@@ -491,7 +513,7 @@ public:
                     case EVENT_RECKLESS_PROVOCATION:
                     {
                         Talk(SAY_SPELL03);
-                        me->MonsterTextEmote(recklessprovocationmsg, me->GetGUID());
+                        me->MonsterTextEmote(recklessprovocationmsg, me->GetGUID(), true);
                         me->CastSpell(me, SPELL_RECKLESS_PROVOCATION);
                         events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, urand(15000, 20000));
                     }

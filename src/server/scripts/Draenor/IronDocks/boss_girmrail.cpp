@@ -50,7 +50,7 @@ enum Spells
     SPELL_ABRUPT_RESTORATION = 163705,
     SPELL_TAINTED_BLOOD = 163740,
     // Noxx
-    SPELL_GUT_SHOT = 163334,
+    SPELL_GUT_SHOT = 167115,
     SPELL_OGRE_TRAP_THROWING_VISUAL = 163307,
     SPELL_OGRE_TRAP_OPEN_TEETH = 177391,
     SPELL_OGRE_TRAP_CLOSED_TEETH = 177396,
@@ -235,7 +235,7 @@ public:
                     train->SetSpeed(MOVE_WALK, 20.0f, true);
                     train->GetMotionMaster()->MovePoint(0, trainmove.GetPositionX(), trainmove.GetPositionY(), trainmove.GetPositionZ());
 
-                    events.ScheduleEvent(EVENT_PROCEED_1, 15000);
+                    events.ScheduleEvent(EVENT_PROCEED_1, 12000);
                     break;
                 case EVENT_PROCEED_1:
                     noxxe = train->SummonCreature(NPC_NOX, train->GetPositionX(), train->GetPositionY(), train->GetPositionZ(), train->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -320,7 +320,7 @@ class boss_grimrail_makogg : public CreatureScript
                         else
                         {
                             me->SetLootRecipient(NULL);
-                        }
+                        }                        
                     }
                 } 
             }
@@ -332,13 +332,10 @@ class boss_grimrail_makogg : public CreatureScript
                     Talk(SAY_INTRO_MAKOGG);
 
                     if (Creature* skulloc = pinstance->instance->GetCreature(pinstance->GetData64(DATA_SKULLOC)))
-                    {
-                        if (skulloc->GetVehicleKit() && skulloc->GetVehicleKit()->GetPassenger(0))
+                        if (Creature* turret = skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
                         {
-                            if (Creature* turret = skulloc->GetVehicleKit()->GetPassenger(0)->ToCreature())
-                                turret->m_Events.KillAllEvents(true); ///< Stops bombardment
+                            turret->m_Events.KillAllEvents(true); // stops bombardment
                         }
-                    }
 
                     me->m_Events.AddEvent(new beforegrimrail_event(me, 0), me->m_Events.CalculateTime(8000));
                 }
@@ -377,10 +374,11 @@ class boss_grimrail_makogg : public CreatureScript
                             events.ScheduleEvent(EVENT_FLAMING_SLASH, flamingslashinterval);
                             break;
                         case EVENT_LAVA_SWEEP:
-                            Talk(SAY_SPELL01_MAKOGG);
-                            for (uint8 i = 0; i <= urand(2, 3); i++)
+                            Talk(SAY_SPELL01_MAKOGG);        
+                            for (int i = 0; i <= urand(2, 3); i++)
+                            {
                                 me->SummonCreature(TRIGGER_LAVA_SWEEP, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 8000);
-
+                            }
                             events.ScheduleEvent(EVENT_LAVA_SWEEP, lavasweepinterval);
                             break;
                     }
@@ -408,7 +406,7 @@ public:
             me->setFaction(16);
         }
 
-        uint32 interval;
+        int interval;
         void Reset()
         {
             me->AddAura(SPELL_LAVA_SWEEP_VISUAL, me);
@@ -1032,6 +1030,11 @@ public:
     {
         return new spell_iron_docks();
     }
+};
+class aura_sanguine_removal : public SpellScriptLoader
+{
+public:
+    aura_sanguine_removal() : SpellScriptLoader("aura_sanguine_removal") { }
 
     class iron_docks_auras : public AuraScript
     {
@@ -1050,7 +1053,7 @@ public:
         }
 
         void Register()
-        {
+        {      
             AfterEffectRemove += AuraEffectRemoveFn(iron_docks_auras::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -1079,5 +1082,6 @@ void AddSC_boss_grimrail()
     new iron_docks_flame_wave_restriction();
     new spell_flaming_slash_damage_target_change();
     new spell_sanguine_sphere();
+    new aura_sanguine_removal();
     new spell_tainted_blood_damage_target_change();
 }
