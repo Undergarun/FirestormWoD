@@ -1369,6 +1369,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     // Fix chat with transfert / rename
     sWorld->AddCharacterNameData(pCurrChar->GetGUIDLow(), pCurrChar->GetName(), pCurrChar->getGender(), pCurrChar->getRace(), pCurrChar->getClass(), pCurrChar->getLevel());
 
+    /// Remove title due to exploit with first achievement
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(456), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(1400), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(1402), true);
+    pCurrChar->SetTitle(sCharTitlesStore.LookupEntry(3259), true);
+
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
     pCurrChar->HandleStoreItemCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM));
