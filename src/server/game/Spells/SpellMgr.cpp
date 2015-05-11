@@ -152,7 +152,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x8000000)
                 return DIMINISHING_INCAPACITATE;
             // Blood Horror -- 137143, no flags (17986)
-            if (spellproto->SpellIconID == 6447 && spellproto->SpellVisual[0] == 26758)
+            if (spellproto->SpellIconID == 5819 && spellproto->SpellVisual[0] == 30694)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699

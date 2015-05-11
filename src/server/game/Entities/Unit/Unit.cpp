@@ -1788,9 +1788,13 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // only for normal weapon damage
     if (damageInfo->attackType == WeaponAttackType::BaseAttack || damageInfo->attackType == WeaponAttackType::OffAttack)
     {
-        // Custom MoP Script - Blood Horror - 111397
+        /// last update : 6.1.2 19802
+        /// Blood Horror - 111397
         if (victim->HasAura(111397))
+        {
             victim->CastSpell(this, 137143, true);
+            RemoveAurasDueToSpell(111397);
+        }
 
         // Custom MoP Script - Zen Meditation - 115176
         if (AuraPtr zenMeditation = victim->GetAura(115176, victim->GetGUID()))
