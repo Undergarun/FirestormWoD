@@ -122,6 +122,7 @@ World::World()
     m_NextCurrencyReset = 0;
     m_NextDailyLootReset = 0;
     m_NextGuildChallengesReset = 0;
+    m_NextBossLootedReset = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -2098,6 +2099,12 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily loot reset time...");
     InitDailyLootResetTime();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly guild challenges reset time...");
+    InitGuildChallengesResetTime();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly boss looted reset time...");
+    InitBossLootedResetTime();
+
     ///InitServerAutoRestartTime();
 
     LoadCharacterNameData();
@@ -2338,6 +2345,9 @@ void World::Update(uint32 diff)
 
     if (m_gameTime >= m_NextGuildChallengesReset)
         ResetGuildChallenges();
+
+    if (m_gameTime >= m_NextBossLootedReset)
+        ResetBossLooted();
 
     //if (m_gameTime > m_NextServerRestart)
         //AutoRestartServer();
@@ -3385,10 +3395,11 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
+        nextResetDay = nextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
-    m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
+    m_NextCurrencyReset = nextResetDay;
 }
 
 void World::InitDailyLootResetTime()
@@ -3398,17 +3409,49 @@ void World::InitDailyLootResetTime()
     {
         uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
         l_NextResetDay = l_CurrentDay + 1;
+        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
+    m_NextDailyLootReset = l_NextResetDay;
 }
 
 void World::InitGuildChallengesResetTime()
 {
-    time_t l_Wstime = uint64(sWorld->getWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME));
-    time_t l_CurrTime = time(NULL);
-    m_NextGuildChallengesReset = l_Wstime < l_CurrTime ? l_CurrTime : time_t(l_Wstime);
+    uint32 l_NextResetDay = sWorld->getWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME);
+    if (!l_NextResetDay)
+    {
+        uint32 l_BaseDay = 16022; ///< Wednesday, November 13rd
+        uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
+        l_NextResetDay = l_BaseDay;
+
+        while (l_NextResetDay < l_CurrentDay)
+            l_NextResetDay += 7;
+
+        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        sWorld->setWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME, l_NextResetDay);
+    }
+
+    m_NextGuildChallengesReset = l_NextResetDay;
+}
+
+void World::InitBossLootedResetTime()
+{
+    uint32 l_NextResetDay = sWorld->getWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME);
+    if (!l_NextResetDay)
+    {
+        uint32 l_BaseDay = 16022; ///< Wednesday, November 13rd
+        uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
+        l_NextResetDay = l_BaseDay;
+
+        while (l_NextResetDay < l_CurrentDay)
+            l_NextResetDay += 7;
+
+        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        sWorld->setWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME, l_NextResetDay);
+    }
+
+    m_NextBossLootedReset = l_NextResetDay;
 }
 
 /*void World::InitServerAutoRestartTime()
@@ -3493,8 +3536,21 @@ void World::ResetDailyLoots()
 void World::ResetGuildChallenges()
 {
     CharacterDatabase.Execute("UPDATE `guild_challenges` SET ChallengeCount = 0");
-    sWorld->setWorldState(WS_WEEKLY_QUEST_RESET_TIME, getWorldState(WS_WEEKLY_QUEST_RESET_TIME) + 7);
+    sWorld->setWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME, getWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME) + 7);
     m_NextGuildChallengesReset = time_t(m_NextGuildChallengesReset + DAY * 7);
+}
+
+void World::ResetBossLooted()
+{
+    CharacterDatabase.Execute("DELETE FROM `characters_boss_looted`");
+    sWorld->setWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME, getWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME) + 7);
+    m_NextBossLootedReset = time_t(m_NextBossLootedReset + DAY * 7);
+
+    for (SessionMap::const_iterator l_Iter = m_sessions.begin(); l_Iter != m_sessions.end(); ++l_Iter)
+    {
+        if (l_Iter->second->GetPlayer())
+            l_Iter->second->GetPlayer()->ResetBossLooted();
+    }
 }
 
 void World::LoadDBAllowedSecurityLevel()

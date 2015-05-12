@@ -558,6 +558,7 @@ enum WorldStates
     WS_AUTO_SERVER_RESTART_TIME           = 20005,                     ///< Next server restart time
     WS_DAILY_LOOT_RESET_TIME              = 20006,                     ///< Next daily loot reset time
     WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME = 20007,                     ///< Next weekly guild challenges reset time
+    WS_WEEKLY_BOSS_LOOTED_RESET_TIME      = 20008                      ///< Next weekly boss looted reset time
 };
 
 // DB scripting commands
@@ -918,6 +919,7 @@ class World
         void ResetCurrencyWeekCap();
         void ResetDailyLoots();
         void ResetGuildChallenges();
+        void ResetBossLooted();
 
         std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
@@ -942,6 +944,7 @@ class World
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
         void InitGuildChallengesResetTime();
+        void InitBossLootedResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
@@ -1017,6 +1020,7 @@ class World
         time_t m_NextCurrencyReset;
         time_t m_NextDailyLootReset;
         time_t m_NextGuildChallengesReset;
+        time_t m_NextBossLootedReset;
         time_t m_NextServerRestart;
 
         //Player Queue

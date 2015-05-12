@@ -1014,6 +1014,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD                = 56,
     PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
+    PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1467,6 +1468,8 @@ struct PlayerToy
 };
 
 typedef std::map<uint32, PlayerToy> PlayerToys;
+
+using BossLooted = std::set<uint64>;
 
 struct ChargesData
 {
@@ -3577,6 +3580,11 @@ class Player : public Unit, public GridObject<Player>
 
         void ApplyWargameItemModifications();
 
+        bool BossAlreadyLooted(Creature* p_Creature) const;
+        void AddBossLooted(Creature* p_Creature);
+        void ResetBossLooted() { m_BossLooted.clear(); }
+        BossLooted const GetBossLooted() const { return m_BossLooted; }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3594,6 +3602,10 @@ class Player : public Unit, public GridObject<Player>
         PreparedQueryResultFuture _petBattleJournalCallback;
 
         PlayerToys m_PlayerToys;
+
+        BossLooted m_BossLooted;
+
+        void _LoadBossLooted(PreparedQueryResult p_Result);
 
     private:
         // Gamemaster whisper whitelist

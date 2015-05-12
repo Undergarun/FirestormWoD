@@ -4458,6 +4458,15 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
     {
         uint8 aurasCount = 0;
         constAuraPtr aura = iter->second->GetBase();
+
+        /// Hackfix for Kargath Bladefist, Impale cannot be dispelled
+        /// Maybe need to add a hook here
+        if (aura->GetId() == 159113)
+        {
+            ++iter;
+            continue;
+        }
+
         if (!except || aura->GetId() != except)
         {
             if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanic_mask)

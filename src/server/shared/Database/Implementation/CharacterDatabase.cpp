@@ -723,4 +723,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_SEL_DAILY_LOOT_COOLDOWNS, "SELECT `entry` FROM `character_daily_loot_cooldown` WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_DAILY_LOOT_COOLDOWNS, "INSERT INTO `character_daily_loot_cooldown` (`guid`, `entry`) VALUE (?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_SEL_BOSS_LOOTED, "SELECT `boss_entry`, `boss_model_id` FROM `characters_boss_looted` WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_BOSS_LOOTED, "INSERT INTO `characters_boss_looted` (`guid`, `boss_entry`, `boss_model_id`) VALUE (?, ?, ?)", CONNECTION_ASYNC);
 }

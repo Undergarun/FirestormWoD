@@ -20512,6 +20512,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     _LoadHeirloomCollection(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_HEIRLOOM_COLLECTION));
     _LoadToyBox(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_TOYS));
+    _LoadBossLooted(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOSS_LOOTED));
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -29158,7 +29159,7 @@ bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
 {
     Loot loot;
-    loot.FillLoot (loot_id, store, this, true);
+    loot.FillLoot (loot_id, store, this, true, true);
 
     uint32 max_slot = loot.GetMaxSlotInLootFor(this);
     for (uint32 i = 0; i < max_slot; ++i)
@@ -32385,6 +32386,61 @@ void Player::SetFavoriteToy(bool p_Apply, uint32 p_ItemID)
         l_PlayerToy->m_IsFavorite = p_Apply;
 }
 //////////////////////////////////////////////////////////////////////////
+
+void Player::_LoadBossLooted(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    m_BossLooted.clear();
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        uint32 l_BossEntry = l_Fields[0].GetUInt32();
+        uint32 l_DisplayID = l_Fields[1].GetUInt32();
+
+        uint64 l_Value = l_BossEntry | ((uint64)l_DisplayID << 32);
+
+        if (m_BossLooted.find(l_Value) != m_BossLooted.end())
+            continue;
+
+        m_BossLooted.insert(l_Value);
+    }
+    while (p_Result->NextRow());
+}
+
+bool Player::BossAlreadyLooted(Creature* p_Creature) const
+{
+    if (p_Creature == nullptr)
+        return false;
+
+    uint64 l_Value = p_Creature->GetEntry() | ((uint64)p_Creature->GetNativeDisplayId() << 32);
+
+    if (m_BossLooted.find(l_Value) == m_BossLooted.end())
+        return false;
+
+    return true;
+}
+
+void Player::AddBossLooted(Creature* p_Creature)
+{
+    if (p_Creature == nullptr)
+        return;
+
+    uint64 l_Value = p_Creature->GetEntry() | ((uint64)p_Creature->GetNativeDisplayId() << 32);
+
+    if (m_BossLooted.find(l_Value) != m_BossLooted.end())
+        return;
+
+    m_BossLooted.insert(l_Value);
+
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_BOSS_LOOTED);
+    l_Statement->setUInt32(0, GetGUIDLow());
+    l_Statement->setUInt32(1, p_Creature->GetEntry());
+    l_Statement->setUInt32(2, p_Creature->GetNativeDisplayId());
+    CharacterDatabase.Execute(l_Statement);
+}
 
 bool Player::HasUnlockedReagentBank()
 {

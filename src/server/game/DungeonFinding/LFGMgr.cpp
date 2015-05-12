@@ -2862,7 +2862,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
     for (GroupReference* l_GroupRef = p_Group->GetFirstMember(); l_GroupRef != nullptr; l_GroupRef = l_GroupRef->next())
     {
         Player* l_Member = l_GroupRef->getSource();
-        if (l_Member == nullptr)
+        if (l_Member == nullptr || l_Member->BossAlreadyLooted(p_Creature))
             continue;
 
         uint32 l_SpecializationId = l_Member->GetLootSpecId() ? l_Member->GetLootSpecId() : l_Member->GetSpecializationId(l_Member->GetActiveSpec());
@@ -2903,6 +2903,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
         }
 
         l_Loot->AllowedPlayers.AddPlayerGuid(l_Member->GetGUID());
+        l_Member->AddBossLooted(p_Creature);
     }
 }
 
