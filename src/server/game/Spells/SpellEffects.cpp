@@ -3324,6 +3324,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
                 int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
                 m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
             }
+            /// last update : 6.1.2 19802
             if (m_caster->HasAura(171381)) ///< Shaman WoD PvP Restoration 2P Bonus
                 m_caster->CastSpell(unitTarget, 171382, true);
             break;
