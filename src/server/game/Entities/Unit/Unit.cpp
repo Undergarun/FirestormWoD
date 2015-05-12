@@ -753,6 +753,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 blackOxStatue->SetScriptData(0, damage);
         }
     }
+
+    /// Mindbender
+    if (GetEntry() == 62982 || GetEntry() == 67236)
+    {
+        /// Caster receives 0.75% mana when the Mindbender attacks
+        if (GetOwner())
+            GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
+    }
+
     // Leeching Poison - 112961 each attack heal the player for 10% of the damage
     if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
     {
