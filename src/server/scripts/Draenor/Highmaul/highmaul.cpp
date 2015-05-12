@@ -12,6 +12,9 @@
 Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 
+/// Gharg Teleport position
+Position const g_GhargTeleportPos = { 3483.23f, 7598.67f, 10.65f, 0.888926f };
+
 /// Mar'gok (Cosmetic) teleport position
 Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
 
@@ -75,7 +78,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
 
                 /// Teleport player
                 if (m_Instance->GetData(eHighmaulDatas::ElevatorActivated))
-                    p_Player->NearTeleportTo(eHighmaulLocs::ArenaCenter);
+                    p_Player->NearTeleportTo(g_GhargTeleportPos);
                 else
                 {
                     me->GetMotionMaster()->MovePoint(eMove::MoveSecondPos, g_GhargSecondPos);

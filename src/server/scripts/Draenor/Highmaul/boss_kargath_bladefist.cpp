@@ -630,6 +630,14 @@ class boss_kargath_bladefist : public CreatureScript
                 {
                     if (Player* l_Target = Player::GetPlayer(*me, m_BerserkerRushTarget))
                     {
+                        if (!l_Target->isAlive())
+                        {
+                            m_BerserkerRushTarget = 0;
+                            me->RemoveAura(eSpells::BerserkerRushDamageTick);
+                            me->InterruptNonMeleeSpells(true, eSpells::SpellBerserkerRush);
+                            return;
+                        }
+
                         Position l_Pos;
                         l_Target->GetPosition(&l_Pos);
                         me->GetMotionMaster()->MovePoint(0, l_Pos);
@@ -1490,7 +1498,8 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
         {
             SpellMaul       = 161218,
             OnTheHunt       = 162497,
-            SpellInflamed   = 163130
+            SpellInflamed   = 163130,
+            InThePitAura    = 161423
         };
 
         enum eActions
@@ -1643,7 +1652,10 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                         if (!l_Player->isAlive())
                             continue;
 
+                        me->AddAura(eSpells::InThePitAura, l_Player);
                         me->CastSpell(l_Player, eSpells::SpellMaul, false);
+                        l_Player->RemoveAura(eSpells::InThePitAura);
+                        break;
                     }
 
                     m_Events.ScheduleEvent(eEvent::CheckPlayer, 500);
@@ -3537,7 +3549,8 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (l_Caster->GetDistance(l_Unit) <= 7.0f)
+                    /// Don't add DoT on targets in vehicle (Chain Hurl or Impale)
+                    if (l_Caster->GetDistance(l_Unit) <= 7.0f && !l_Unit->IsOnVehicle())
                         l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
                     else
                         l_Unit->RemoveAura(eSpells::FlameJet);
