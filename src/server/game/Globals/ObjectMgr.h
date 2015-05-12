@@ -838,8 +838,6 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
 
-        typedef std::vector<uint32> QuestPackageItemHotfixs;
-
         typedef UNORDERED_MAP<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
         typedef UNORDERED_MAP<uint32, uint32> AreaTriggerScriptContainer;
@@ -1058,8 +1056,6 @@ class ObjectMgr
         void LoadQuests();
         void LoadQuestObjectives();
         void LoadQuestObjectiveLocales();
-
-        void LoadQuestPackageItemHotfixs();
 
         void LoadQuestRelations()
         {
@@ -1713,7 +1709,6 @@ class ObjectMgr
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
-        QuestPackageItemHotfixs m_QuestPackageItemHotfixs;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
