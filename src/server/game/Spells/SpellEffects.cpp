@@ -944,27 +944,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     break;
                 }
-                case 47541: // Death Coil
-                {
-                    if (m_caster->IsFriendlyTo(unitTarget))
-                    {
-                        // Glyph of Death Coil
-                        if (m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                            m_caster->CastSpell(unitTarget, 115635, true); // Death Barrier
-                        else
-                        {
-                            int32 bp = (damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f) * 3.5f;
-                            m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
-                        }
-                    }
-                    else
-                    {
-                        int32 bp = damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
-                        m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
-                    }
-
-                    return;
-                }
                 default:
                     break;
             }
@@ -1932,13 +1911,18 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             }
         }
         // 77226 - Mastery : Deep Healing
-        if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN)
+        if (caster && (caster->GetOwner() && caster->GetOwner()->GetTypeId() == TYPEID_PLAYER && caster->GetOwner()->getClass() == CLASS_SHAMAN) || (caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN))
         {
-            if (caster->HasAura(77226))
+            Unit* l_Owner = caster;
+
+            if (caster->GetOwner())
+                l_Owner = caster->GetOwner();
+
+            if (l_Owner->HasAura(77226))
             {
                 if (addhealth)
                 {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
+                    float Mastery = l_Owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
                     float healthpct = unitTarget->GetHealthPct();
 
                     float bonus = 0;

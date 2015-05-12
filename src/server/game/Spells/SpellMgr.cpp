@@ -152,7 +152,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x8000000)
                 return DIMINISHING_INCAPACITATE;
             // Blood Horror -- 137143, no flags (17986)
-            if (spellproto->SpellIconID == 6447 && spellproto->SpellVisual[0] == 26758)
+            if (spellproto->SpellIconID == 5819 && spellproto->SpellVisual[0] == 30694)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
@@ -5202,7 +5202,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
-            case 85804:  ///< Selfless Healer
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)

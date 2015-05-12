@@ -2483,6 +2483,47 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Selfless Healer - 85804
+class spell_pal_selfless_healer_proc : public SpellScriptLoader
+{
+    public:
+        spell_pal_selfless_healer_proc() : SpellScriptLoader("spell_pal_selfless_healer_proc") { }
+
+        class spell_pal_selfless_healer_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_selfless_healer_proc_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != PALADIN_SPELL_JUDGMENT)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetDamage())
+                    return;
+
+                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SELFLESS_HEALER_STACK, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_selfless_healer_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_selfless_healer_proc_AuraScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2561,6 +2602,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_righteous_defense();
     new spell_pal_seal_of_justice();
     new spell_pal_sanctified_wrath();
+    new spell_pal_selfless_healer_proc();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();

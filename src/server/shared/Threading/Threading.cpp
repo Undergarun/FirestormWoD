@@ -260,8 +260,10 @@ void Thread::setName(char* p_Name)
     };
 
     _SetName(p_Name);
-#else
+#elif PLATFORM == PLATEFORM_UNIX
     pthread_setname_np(pthread_self(), p_Name);
+#elif PLATFORM == PLATFORM_APPLE
+    pthread_setname_np(p_Name);
 #endif // _DEBUG
 
 }

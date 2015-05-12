@@ -2367,6 +2367,7 @@ class spell_dk_glyph_of_deaths_embrace : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Death Coil - 47541
 class spell_dk_death_coil : public SpellScriptLoader
 {
@@ -2376,6 +2377,41 @@ class spell_dk_death_coil : public SpellScriptLoader
         class spell_dk_death_coil_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dk_death_coil_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofDeathCoil    = 63333,
+                Lichborne            = 49039,
+                DeathBarrier        = 115635,
+                DeathCoilAlly       = 47633,
+                DeathCoilEnemy      = 47632
+            };
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->IsFriendlyTo(l_Target))
+                {
+                    /// Glyph of Death Coil
+                    if (l_Caster->HasAura(eSpells::GlyphofDeathCoil) && l_Target->GetCreatureType() != CREATURE_TYPE_UNDEAD && !l_Target->HasAura(eSpells::Lichborne))
+                        l_Caster->CastSpell(l_Target, eSpells::DeathBarrier, true); ///< Death Barrier
+                    else
+                    {
+                        int32 l_Healing = (l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f) * 5.0f;
+                        l_Caster->CastCustomSpell(l_Target, eSpells::DeathCoilAlly, &l_Healing, NULL, NULL, true);
+                    }
+                }
+                else
+                {
+                    int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.80f;
+                    l_Caster->CastCustomSpell(l_Target, eSpells::DeathCoilEnemy, &l_Damage, NULL, NULL, true);
+                }
+            }
 
             void HandleOnHit()
             {
@@ -2390,6 +2426,7 @@ class spell_dk_death_coil : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnHit += SpellHitFn(spell_dk_death_coil_SpellScript::HandleOnHit);
             }
         };
