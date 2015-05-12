@@ -27,7 +27,7 @@
 #include "InstanceScript.h"
 #include "InstanceSaveMgr.h"
 
-void WorldSession::HandleLfgJoinOpcode(WorldPacket & p_Packet)
+void WorldSession::HandleLfgJoinOpcode(WorldPacket& p_Packet)
 {
     LfgDungeonSet l_Slots;
 
@@ -85,15 +85,13 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket & p_Packet)
     sLFGMgr->Join(GetPlayer(), uint8(l_Roles), l_Slots, l_Comment);
 }
 
-void WorldSession::HandleLfgLeaveOpcode(WorldPacket&  /*recvData*/)
+void WorldSession::HandleLfgLeaveOpcode(WorldPacket& /*p_Packet*/)
 {
-    Group * l_Group = GetPlayer()->GetGroup();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_LEAVE [" UI64FMTD "] in group: %u", GetPlayer()->GetGUID(), l_Group ? 1 : 0);
+    Group* l_Group = m_Player->GetGroup();
 
     /// Check cheating - only leader can leave the queue
-    if (!l_Group || l_Group->GetLeaderGUID() == GetPlayer()->GetGUID())
-        sLFGMgr->Leave(GetPlayer(), l_Group);
+    if (!l_Group || l_Group->GetLeaderGUID() == m_Player->GetGUID())
+        sLFGMgr->Leave(m_Player, l_Group);
 }
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& p_Packet)

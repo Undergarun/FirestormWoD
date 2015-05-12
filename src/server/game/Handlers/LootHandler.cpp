@@ -248,7 +248,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             if (!l_IsRaid)
                 l_GoldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
 
-            loot->NotifyMoneyRemoved(l_GoldPerPlayer);
+            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
                 (*i)->ModifyMoney(l_GoldPerPlayer);
@@ -302,7 +303,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
             }
 
-            loot->NotifyMoneyRemoved(loot->Gold);
+            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             data << uint32(loot->Gold);
             data.WriteBit(1);   // "You loot..."

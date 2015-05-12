@@ -1084,7 +1084,6 @@ enum Opcodes
     CMSG_LOOT_MONEY                             = 0x050A, ///< 6.1.2 19783
     CMSG_LOOT_ITEM                              = 0x1BAC, ///< 6.1.2 19783
     CMSG_LOOT_RELEASE                           = 0x1A25, ///< 6.1.2 19783
-    CMSG_LOOT_CURRENCY                          = 0x0000,
     CMSG_LOOT_ROLL                              = 0x1F23, ///< 6.1.2 19783
     CMSG_MASTER_LOOT_ITEM                       = 0x06D9, ///< 6.1.2 19783
     CMSG_DO_MASTER_LOOT_ROLL                    = 0x0409, ///< 6.1.2 19783
