@@ -455,8 +455,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
             if (!l_Group)
             {
-                l_Group = GetPlayer()->GetGroup();
-                if (!l_Group || l_Group->isBGGroup() || !l_Group->isRaidGroup())
+                l_Group = m_Player->GetGroup();
+
+                if (!l_Group || (!l_Group->isRaidGroup() && !l_Group->isBGGroup()))
                     return;
             }
 

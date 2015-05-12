@@ -1453,6 +1453,7 @@ enum Opcodes
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO         = 0x0A40, ///< 6.1.2 19783
     CMSG_START_WAR_GAME                         = 0x12BF, ///< 6.1.2 19783
     CMSG_ACCEPT_WARGAME_INVITE                  = 0x0E3F, ///< 6.1.2 19783
+    CMSG_REPORT_PVP_AFK                         = 0x0F0C, ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild
@@ -1731,7 +1732,6 @@ enum Opcodes
     CMSG_RANDOMIZE_CHAR_NAME                            = 0x0000,
     CMSG_REALM_SPLIT                                    = 0x0000,
     CMSG_REDIRECTION_AUTH_PROOF                         = 0x0000,
-    CMSG_REPORT_PVP_AFK                                 = 0x0000,
     CMSG_REQUEST_BATTLEPET_JOURNAL                      = 0x0000,
     CMSG_REQUEST_CATEGORY_COOLDOWNS                     = 0x0000,
     CMSG_REQUEST_GM_TICKET                              = 0x0000,
