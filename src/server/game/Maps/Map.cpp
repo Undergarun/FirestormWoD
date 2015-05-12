@@ -2911,6 +2911,12 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
     if (!IsRaidOrHeroicDungeon())
         return;
 
+    /// Players now don't have an ID in LFR mode
+    /// They can kill bosses any times they want
+    /// But they can loot them only once per week
+    if (IsLFR())
+        return;
+
     InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!l_Save)
     {
