@@ -2308,7 +2308,7 @@ class spell_mage_blink : public SpellScriptLoader
 
         enum eSpells
         {
-            GlyphOfRapidDisplacement = 163558
+            GlyphOfRapidDisplacement = 146659
         };
 
         class spell_mage_blink_SpellScript : public SpellScript
@@ -2326,8 +2326,10 @@ class spell_mage_blink : public SpellScriptLoader
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+                }
             }
 
             void Register()
