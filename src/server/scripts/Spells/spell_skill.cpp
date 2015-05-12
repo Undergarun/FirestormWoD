@@ -23,17 +23,18 @@ namespace MS { namespace Skill
             GrilledSaberfish = 161002,
 
             /// Inscription
-            ResearchWarbinderInk    = 167950,
-            ResearchMoonglowInk     = 165564,
-            ResearchMidnightInk     = 165304,
-            ResearchLionInk         = 165456,
-            ResearchJadefireInk     = 165460,
-            ResearchCelestialInk    = 165461,
-            ResearchShimmeringInk   = 165463,
-            ResearchEtherealInk     = 165464,
-            ResearchInkOfTheSea     = 165465,
-            ResearchBlackfallowInk  = 165466,
-            ResearchInkOfDreams     = 165467
+            ResearchWarbinderInk     = 167950,
+            ResearchWarbinderInkItem = 167948,
+            ResearchMoonglowInk      = 165564,
+            ResearchMidnightInk      = 165304,
+            ResearchLionInk          = 165456,
+            ResearchJadefireInk      = 165460,
+            ResearchCelestialInk     = 165461,
+            ResearchShimmeringInk    = 165463,
+            ResearchEtherealInk      = 165464,
+            ResearchInkOfTheSea      = 165465,
+            ResearchBlackfallowInk   = 165466,
+            ResearchInkOfDreams      = 165467
         };
     }
 
@@ -179,23 +180,26 @@ namespace MS { namespace Skill
                     uint32 l_SpellID = GetSpellInfo()->Id;
                     uint32 l_CurrentSkillValue = l_Player->GetSkillValue(SKILL_INSCRIPTION);
 
-                    for (uint32 l_I = 0; l_I < sSkillLineAbilityStore.GetNumRows(); ++l_I)
+                    if (l_SpellID != SpellIDs::ResearchWarbinderInkItem)
                     {
-                        SkillLineAbilityEntry const* l_Entry = sSkillLineAbilityStore.LookupEntry(l_I);
+                        for (uint32 l_I = 0; l_I < sSkillLineAbilityStore.GetNumRows(); ++l_I)
+                        {
+                            SkillLineAbilityEntry const* l_Entry = sSkillLineAbilityStore.LookupEntry(l_I);
 
-                        if (!l_Entry || l_Entry->skillId != SKILL_INSCRIPTION || l_Entry->spellId != l_SpellID)
-                            continue;
+                            if (!l_Entry || l_Entry->skillId != SKILL_INSCRIPTION || l_Entry->spellId != l_SpellID)
+                                continue;
 
-                        if (l_CurrentSkillValue < l_Entry->req_skill_value || l_CurrentSkillValue > l_Entry->max_value)
-                            continue;
+                            if (l_CurrentSkillValue < l_Entry->req_skill_value || l_CurrentSkillValue > l_Entry->max_value)
+                                continue;
 
-                        uint32 l_NumSkillUp = l_Entry->skill_gain;
+                            uint32 l_NumSkillUp = l_Entry->skill_gain;
 
-                        if (l_CurrentSkillValue >= l_Entry->min_value)
-                            l_NumSkillUp = 1;
+                            if (l_CurrentSkillValue >= l_Entry->min_value)
+                                l_NumSkillUp = 1;
 
-                        l_Player->UpdateSkill(SKILL_INSCRIPTION, l_NumSkillUp);
-                        break;
+                            l_Player->UpdateSkill(SKILL_INSCRIPTION, l_NumSkillUp);
+                            break;
+                        }
                     }
 
                     std::vector<uint32> l_RewardSpells;
@@ -203,6 +207,7 @@ namespace MS { namespace Skill
                     switch (l_SpellID)
                     {
                         case SpellIDs::ResearchWarbinderInk:
+                        case SpellIDs::ResearchWarbinderInkItem:
                             /// http://www.wowhead.com/spell=167950/research-warbinders-ink#teaches-spell
                             l_RewardSpells = {
                                 162805, 162840, 162813, 162818, 162877, 162841,
