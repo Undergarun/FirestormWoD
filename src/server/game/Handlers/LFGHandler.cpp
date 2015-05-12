@@ -25,6 +25,7 @@
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
+#include "InstanceSaveMgr.h"
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket & p_Packet)
 {
@@ -218,8 +219,8 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
         /// Get Random dungeons that can be done at a certain level and expansion
         LfgDungeonSet l_RandomDungeons;
 
-        uint8 l_Level = GetPlayer()->getLevel();
-        uint8 l_Expansion = GetPlayer()->GetSession()->Expansion();
+        uint8 l_Level = m_Player->getLevel();
+        uint8 l_Expansion = m_Player->GetSession()->Expansion();
 
         for (uint32 l_I = 0; l_I < sLFGDungeonStore.GetNumRows(); ++l_I)
         {
@@ -243,37 +244,38 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
         }
 
         /// Get player locked Dungeons
-        LfgLockMap l_Lock = sLFGMgr->GetLockedDungeons(GetPlayer()->GetGUID());
+        LfgLockMap l_Lock = sLFGMgr->GetLockedDungeons(m_Player->GetGUID());
 
         uint32 l_DungeonCount = uint32(l_RandomDungeons.size());
-        uint32 l_LockCount = uint32(l_Lock.size());
+        uint32 l_BlackListCount = uint32(l_Lock.size());
 
         bool l_HasGUID = true;
 
-        WorldPacket l_Data(SMSG_LFG_PLAYER_INFO, 15 * 1024);
+        WorldPacket l_Data(Opcodes::SMSG_LFG_PLAYER_INFO, 15 * 1024);
 
-        l_Data << uint32(l_DungeonCount);                           ///< Dungeon Count
+        l_Data << uint32(l_DungeonCount);
 
-        l_Data.WriteBit(true);                                      ///< Has GUID
+        l_Data.WriteBit(l_HasGUID);
         l_Data.FlushBits();
-        l_Data << uint32(l_LockCount);                              ///< Lock Count
+        l_Data << uint32(l_BlackListCount);
 
         if (l_HasGUID)
-            l_Data.appendPackGUID(GetPlayer()->GetGUID());          ///< Player Guid
+            l_Data.appendPackGUID(m_Player->GetGUID());
 
         for (LfgLockMap::const_iterator l_It = l_Lock.begin(); l_It != l_Lock.end(); ++l_It)
         {
             LfgLockStatus l_LockData = l_It->second;
-            l_Data << uint32(l_It->first);                          ///< Slot
-            l_Data << uint32(l_LockData.lockstatus);                ///< Reason
-            l_Data << uint32(l_LockData.SubReason1);                ///< Sub Reason 1
-            l_Data << uint32(l_LockData.SubReason2);                ///< Sub Reason 2
+            l_Data << uint32(l_It->first);
+            l_Data << uint32(l_LockData.lockstatus);
+            l_Data << uint32(l_LockData.SubReason1);
+            l_Data << uint32(l_LockData.SubReason2);
         }
 
         for (LfgDungeonSet::const_iterator l_It = l_RandomDungeons.begin(); l_It != l_RandomDungeons.end(); ++l_It)
         {
             LfgReward const* l_Reward = sLFGMgr->GetRandomDungeonReward(*l_It, l_Level);
             Quest const* l_Quest = nullptr;
+            LFGDungeonEntry const* l_Dungeon = sLFGDungeonStore.LookupEntry((*l_It) & 0x00FFFFFF);
 
             bool l_IsDone = false;
             if (l_Reward)
@@ -282,10 +284,27 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
 
                 if (l_Quest)
                 {
-                    l_IsDone = !GetPlayer()->CanRewardQuest(l_Quest, false);
+                    l_IsDone = !m_Player->CanRewardQuest(l_Quest, false);
 
                     if (l_IsDone)
                         l_Quest = sObjectMgr->GetQuestTemplate(l_Reward->reward[1].questId);
+                }
+            }
+
+            uint32 l_CompletedEncouterMask = 0;
+            DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(l_Dungeon ? l_Dungeon->map : 0, Difficulty(l_Dungeon ? l_Dungeon->difficulty : 0));
+            if (l_Encounters && l_Encounters->size())
+            {
+                for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
+                {
+                    for (uint64 l_Value : m_Player->GetBossLooted())
+                    {
+                        uint32 l_Entry = l_Value & 0xFFFFFFFF;
+                        uint32 l_DisplayID = l_Value >> 32;
+
+                        if (l_Entry == (*l_Iter)->creditEntry || l_DisplayID == (*l_Iter)->dbcEntry->CreatureDisplayID)
+                            l_CompletedEncouterMask |= 1 << (*l_Iter)->dbcEntry->Bit;
+                    }
                 }
             }
 
@@ -302,8 +321,10 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
             l_Data << uint32(0);                        ///< PurseQuantity
             l_Data << uint32(0);                        ///< PurseLimit
             l_Data << uint32(0);                        ///< Quantity
-            l_Data << uint32(0);                        ///< CompletedMask
-            l_Data << uint32(0);                        ///< ShortageRewardCount
+            l_Data << uint32(l_CompletedEncouterMask);
+
+            uint32 l_ShortageRewardCount = 0;
+            l_Data << uint32(l_ShortageRewardCount);
 
             /// Rewards
             {
@@ -311,7 +332,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
                 {
                     l_Data << uint32(0);                ///< Mask
                     l_Data << uint32(l_Quest->GetRewMoney());
-                    l_Data << uint32(l_Quest->XPValue(GetPlayer()));
+                    l_Data << uint32(l_Quest->XPValue(m_Player));
                     l_Data << uint32(l_Quest->GetRewItemsCount());
                     l_Data << uint32(l_Quest->GetRewCurrencyCount());
                     l_Data << uint32(0);                ///< BonusCurrencyCount
@@ -330,14 +351,10 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
                 {
                     if (l_Quest->GetRewItemsCount())
                     {
-                        ItemTemplate const* l_ItemTemplate = nullptr;
-
                         for (uint8 l_I = 0; l_I < QUEST_REWARDS_COUNT; ++l_I)
                         {
                             if (!l_Quest->RewardItemId[l_I])
                                 continue;
-
-                            l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Quest->RewardItemId[l_I]);
 
                             l_Data << uint32(l_Quest->RewardItemId[l_I]);
                             l_Data << uint32(l_Quest->RewardItemIdCount[l_I]);
@@ -351,18 +368,30 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
                             if (!l_Quest->RewardCurrencyId[l_I])
                                 continue;
 
-                            uint32 l_Precision = 1;
-
-                            if (CurrencyTypesEntry const* l_Entry = sCurrencyTypesStore.LookupEntry(l_Quest->RewardCurrencyId[l_I]))
-                                l_Precision = l_Entry->Flags & CurrencyFlags::CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
-
                             l_Data << uint32(l_Quest->RewardCurrencyId[l_I]);
-                            l_Data << uint32(l_Quest->RewardCurrencyCount[l_I] * l_Precision);
+                            l_Data << uint32(l_Quest->RewardCurrencyCount[l_I]);
                         }
                     }
                 }
 
-                l_Data.WriteBit(false);
+                bool l_UnkBit = false;
+                l_Data.WriteBit(l_UnkBit);              ///< Unk HasBit3 (only for raids?)
+
+                if (l_UnkBit)
+                    l_Data << uint32(0);                ///< Looks like a SpellID (E.G.: 177839)
+
+                for (uint32 l_I = 0; l_I < l_ShortageRewardCount; ++l_I)
+                {
+                    l_Data << uint32(0);                ///< Mask
+                    l_Data << uint32(0);                ///< RewardMoney
+                    l_Data << uint32(0);                ///< RewardXP
+                    l_Data << uint32(0);                ///< ItemCount
+                    l_Data << uint32(0);                ///< CurrencyCount
+                    l_Data << uint32(0);                ///< QuantityCount
+
+                    l_Data.WriteBit(false);             ///< UnkBit30
+                }
+
                 l_Data.FlushBits();
             }
 
