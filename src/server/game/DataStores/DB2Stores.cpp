@@ -230,7 +230,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2");
+    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2", "quest_package_item", "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Scene Script DB2

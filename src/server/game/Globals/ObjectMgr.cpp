@@ -10127,37 +10127,6 @@ void ObjectMgr::LoadQuestObjectiveLocales()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objective visual effects in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void ObjectMgr::LoadQuestPackageItemHotfixs()
-{
-    uint32 l_OldMSTime = getMSTime();
-
-    QueryResult l_Result = WorldDatabase.Query("SELECT `Id`, `PackageID`, `ItemId`, `Count`, `Type` FROM quest_package_item_hotfix");
-    if (!l_Result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Quest Package Item hotfix. DB table `quest_package_item_hotfix` is empty.");
-        return;
-    }
-
-    uint32 l_Count = 0;
-    do
-    {
-        Field * l_Fields = l_Result->Fetch();
-
-        QuestPackageItemEntry* l_QuestPackageItemHotfix = new QuestPackageItemEntry();
-        l_QuestPackageItemHotfix->ID        = l_Fields[0].GetUInt32();
-        l_QuestPackageItemHotfix->PackageID = l_Fields[1].GetUInt32();
-        l_QuestPackageItemHotfix->ItemId    = l_Fields[2].GetUInt32();
-        l_QuestPackageItemHotfix->Count     = l_Fields[3].GetUInt32();
-        l_QuestPackageItemHotfix->Type      = l_Fields[4].GetUInt8();
-
-        sQuestPackageItemStore.AddEntry(l_QuestPackageItemHotfix->ID, l_QuestPackageItemHotfix);
-
-        l_Count++;
-
-    } while (l_Result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
-}
 void ObjectMgr::LoadFollowerQuests()
 {
     const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();
