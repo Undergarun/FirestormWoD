@@ -1793,7 +1793,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         if (victim->HasAura(111397))
         {
             victim->CastSpell(this, 137143, true);
-            RemoveAurasDueToSpell(111397);
+            victim->RemoveAurasDueToSpell(111397);
         }
 
         // Custom MoP Script - Zen Meditation - 115176
