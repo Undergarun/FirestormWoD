@@ -568,7 +568,13 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             me->CastSpell(l_Target, eSpells::SpellDevouringLeap, true);
-                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Target]() -> void { me->CastSpell(l_Target, eSpells::SpellDevour, false); });
+
+                            uint64 l_Guid = l_Target->GetGUID();
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                            {
+                                if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                    me->CastSpell(l_Target, eSpells::SpellDevour, false);
+                            });
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 11000));
