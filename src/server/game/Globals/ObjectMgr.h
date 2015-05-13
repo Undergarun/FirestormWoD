@@ -815,7 +815,6 @@ typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, RealmCompletedChallenge> GroupsCompletedChallengesMap;
 typedef std::map<uint32, RealmCompletedChallenge> GuildsCompletedChallengesMap;
 typedef std::map<uint32, ChallengeReward> ChallengeRewardsMap;
-typedef std::map<uint32, MapChallengeModeHotfix> MapChallengeModeHotfixes;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 typedef std::vector<ResearchLootEntry> ResearchLootVector;
@@ -1218,7 +1217,6 @@ class ObjectMgr
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
-        void LoadMapChallengeModeHotfixes();
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
@@ -1247,14 +1245,6 @@ class ObjectMgr
                 return nullptr;
 
             return &m_ChallengeRewardsMap[p_MapID];
-        }
-
-        MapChallengeModeHotfix* GetMapChallengeModeHotfix(uint32 p_ID)
-        {
-            if (m_MapChallengeModeHotfixes.find(p_ID) == m_MapChallengeModeHotfixes.end())
-                return nullptr;
-
-            return &m_MapChallengeModeHotfixes[p_ID];
         }
 
         BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
@@ -1861,7 +1851,6 @@ class ObjectMgr
         GroupsCompletedChallengesMap m_GroupsCompletedChallenges;
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
-        MapChallengeModeHotfixes m_MapChallengeModeHotfixes;
         TaxiNodes _taxiNodes;
 };
 
