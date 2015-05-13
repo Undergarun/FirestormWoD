@@ -31,7 +31,7 @@
 InstanceScript::InstanceScript(Map* p_Map)
 {
     instance = p_Map;
-    completedEncounters = 0;
+    m_CompletedEncounters = 0;
     m_ChallengeStarted = false;
     m_ConditionCompleted = false;
     m_StartChallengeTime = 0;
@@ -1158,21 +1158,21 @@ bool InstanceScript::IsWipe()
 void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_CreditEntry, Unit* p_Source)
 {
     DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
-    if (!l_Encounters || l_Encounters->empty())
+    if (!l_Encounters || l_Encounters->empty() || p_Source == nullptr)
         return;
 
     int32 l_MaxIndex = -100000;
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == DifficultyNone)
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == Difficulty::DifficultyNone)
             l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 
     for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((p_Source && (*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
-            completedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
+            m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
 
             if ((*l_Iter)->dbcEntry->OrderIndex == l_MaxIndex)
             {
@@ -1185,29 +1185,64 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_C
                     if (Player* l_Player = l_Itr->getSource())
                     {
                         uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
-                        if (!p_Source || l_Player->IsAtGroupRewardDistance(p_Source))
+                        if (l_Player->IsAtGroupRewardDistance(p_Source))
                             sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
                     }
                 }
             }
 
-            WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
-            l_Data << int32((*l_Iter)->dbcEntry->ID);
-            l_Data << int32(instance->GetDifficultyID());
-            l_Data << int32(instance->GetPlayers().getSize());
-            l_Data.WriteBit(true);
-            l_Data.FlushBits();
-            instance->SendToPlayers(&l_Data);
+            SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
+            SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source->ToUnit());
 
-            l_Data.Initialize(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
+            WorldPacket l_Data(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
             l_Data << int32((*l_Iter)->dbcEntry->ID);
             instance->SendToPlayers(&l_Data);
 
-            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
-
+            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
             return;
         }
     }
+}
+
+void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
+{
+    if (!p_EncounterID)
+        return;
+
+    WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
+    l_Data << uint32(p_EncounterID);
+    l_Data << uint32(instance->GetDifficultyID());
+    l_Data << uint32(instance->GetPlayers().getSize());
+    instance->SendToPlayers(&l_Data);
+}
+
+void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
+{
+    if (!p_EncounterID)
+        return;
+
+    WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
+    l_Data << uint32(p_EncounterID);
+    l_Data << uint32(instance->GetDifficultyID());
+    l_Data << uint32(instance->GetPlayers().getSize());
+    l_Data.WriteBit(p_Success);
+    l_Data.FlushBits();
+    instance->SendToPlayers(&l_Data);
+}
+
+uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
+{
+    DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
+    if (!l_Encounters || l_Encounters->empty() || p_Boss == nullptr)
+        return 0;
+
+    for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
+    {
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Boss->GetNativeDisplayId()) || ((*l_Iter)->creditEntry == p_Boss->GetEntry()))
+            return (*l_Iter)->dbcEntry->ID;
+    }
+
+    return 0;
 }
 
 void InstanceScript::UpdatePhasing()

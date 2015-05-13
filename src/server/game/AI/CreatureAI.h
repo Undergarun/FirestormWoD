@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "UnitAI.h"
 #include "Common.h"
+#include "InstanceScript.h"
 
 class WorldObject;
 class Unit;
