@@ -86,6 +86,7 @@ void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
+void AddSC_hotfix_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -973,6 +974,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
+    AddSC_hotfix_commandscript();
 }
 
 void AddWorldScripts()
