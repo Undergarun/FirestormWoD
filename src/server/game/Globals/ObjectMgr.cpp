@@ -9212,6 +9212,29 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 {
     uint32 oldMSTime = getMSTime();
 
+    auto l_ProcessHotifx = [this](HotfixInfo p_Info, bool p_Reloaded) -> void
+    {
+        if (p_Reloaded)
+        {
+            auto l_It = std::find_if(_hotfixData.begin(), _hotfixData.end(), [p_Info](HotfixInfo const& p_Elem) -> bool
+            {
+                return p_Elem.Type == p_Info.Type && p_Elem.Entry == p_Info.Entry;
+            });
+
+            if (l_It == _hotfixData.end())
+                _hotfixData.push_back(p_Info);
+
+            WorldPacket l_Notify(SMSG_HOTFIX_NOTIFY, 100);
+            l_Notify << uint32(p_Info.Type);
+            l_Notify << uint32(p_Info.Entry);
+            l_Notify << uint32(p_Info.Timestamp);
+
+            sWorld->SendGlobalMessage(&l_Notify);
+        }
+        else
+            _hotfixData.push_back(p_Info);
+    };
+
     QueryResult result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
 
     if (!result)
@@ -9222,8 +9245,11 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 
     uint32 l_Count = 0;
 
-    _hotfixData.clear();
-    _hotfixData.reserve(result->GetRowCount());
+    if (!p_Reload)
+    {
+        _hotfixData.clear();
+        _hotfixData.reserve(result->GetRowCount());
+    }
 
     do
     {
@@ -9234,31 +9260,77 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
         l_Infos.Type        = l_Fields[1].GetUInt32();
         l_Infos.Timestamp   = l_Fields[2].GetUInt32();
 
-        if (p_Reload)
-        {
-            auto l_It = std::find_if(_hotfixData.begin(), _hotfixData.end(), [l_Infos](HotfixInfo const& p_Elem) -> bool
-            {
-                return p_Elem.Type == l_Infos.Type && p_Elem.Entry == l_Infos.Entry;
-            });
-
-            if (l_It == _hotfixData.end())
-            {
-                _hotfixData.push_back(l_Infos);
-
-                WorldPacket l_Notify(SMSG_HOTFIX_NOTIFY, 100);
-                l_Notify << uint32(l_Infos.Type);
-                l_Notify << uint32(l_Infos.Entry);
-                l_Notify << uint32(l_Infos.Timestamp);
-
-                sWorld->SendGlobalMessage(&l_Notify);
-            }
-        }
-        else
-            _hotfixData.push_back(l_Infos);
+        l_ProcessHotifx(l_Infos, p_Reload);
 
         ++l_Count;
     }
     while (result->NextRow());
+
+    result = HotfixDatabase.Query("SELECT ID FROM _custom_items");
+
+    if (result)
+    {
+        do
+        {
+            Field* l_Fields = result->Fetch();
+            uint32 l_ItemID = l_Fields[0].GetUInt32();
+
+            if (sItemStore.LookupEntry(l_ItemID))
+            {
+                HotfixInfo l_Infos;
+                l_Infos.Type         = sItemStore.GetHash();
+                l_Infos.Timestamp    = time(nullptr);
+                l_Infos.Entry        = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            if (sItemSparseStore.LookupEntry(l_ItemID))
+            {
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemSparseStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sItemEffectStore.GetNumRows(); ++l_I)
+            {
+                ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I);
+
+                if (!l_Entry || l_Entry->ItemID != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemEffectStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sItemModifiedAppearanceStore.GetNumRows(); ++l_I)
+            {
+                ItemModifiedAppearanceEntry const* l_Entry = sItemModifiedAppearanceStore.LookupEntry(l_I);
+
+                if (!l_Entry || l_Entry->ItemID != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemModifiedAppearanceStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
+                l_ProcessHotifx(l_Infos, p_Reload);
+
+                if (sItemAppearanceStore.LookupEntry(l_Entry->AppearanceID))
+                {
+                    l_Infos.Type        = sItemAppearanceStore.GetHash();
+                    l_Infos.Timestamp   = time(nullptr);
+                    l_Infos.Entry       = l_Entry->AppearanceID;
+                    l_ProcessHotifx(l_Infos, p_Reload);
+                }
+            }
+            ++l_Count;
+        } while (result->NextRow());
+    }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
 }
