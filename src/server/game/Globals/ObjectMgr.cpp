@@ -9337,7 +9337,7 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 
 void ObjectMgr::LoadHotfixTableHashs()
 {
-    QueryResult l_Result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
+    QueryResult l_Result = HotfixDatabase.Query("SELECT ID, Name FROM _hashs");
 
     if (!l_Result)
         return;

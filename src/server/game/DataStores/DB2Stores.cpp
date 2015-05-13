@@ -170,7 +170,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         l_SQLFormat = std::string(strlen(storage.GetFormat()), FT_SQL_PRESENT);
         l_SQLFormat.append(1, FT_SQL_SUP);
 
-        sql = new SqlDb2(&customTableName, &l_SQLFormat, &customIndexName, storage.GetFormat());
+        sql = new SqlDb2(customTableName, l_SQLFormat, customIndexName, storage.GetFormat());
     }
 
     if (!storage.Load(db2_filename.c_str(), sql))

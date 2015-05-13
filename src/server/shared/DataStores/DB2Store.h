@@ -30,17 +30,17 @@
 
 struct SqlDb2
 {
-    const std::string * m_FormatString;
-    const std::string * m_IndexName;
+    std::string m_FormatString;
+    std::string m_IndexName;
     std::string m_SQLTableName;
     int32 m_IndexPosition;
     int32 m_SQLIndexPosition;
 
-    SqlDb2(const std::string * p_FileName, const std::string * p_Format, const std::string * p_IndexName, const char * p_DB2Fmt)
+    SqlDb2(const std::string p_FileName, const std::string p_Format, const std::string p_IndexName, const char * p_DB2Fmt)
         : m_FormatString(p_Format), m_IndexName(p_IndexName), m_SQLIndexPosition(0)
     {
         /// Convert dbc file name to sql table name
-        m_SQLTableName = *p_FileName;
+        m_SQLTableName = p_FileName;
         for (uint32 l_I = 0; l_I < m_SQLTableName.size(); ++l_I)
         {
             if (isalpha(m_SQLTableName[l_I]))
@@ -54,10 +54,10 @@ struct SqlDb2
         if (m_IndexPosition >= 0)
         {
             uint32 uindexPos = uint32(m_IndexPosition);
-            for (uint32 l_X = 0; l_X < m_FormatString->size(); ++l_X)
+            for (uint32 l_X = 0; l_X < m_FormatString.size(); ++l_X)
             {
                 // Count only fields present in sql
-                if ((*m_FormatString)[l_X] == FT_SQL_PRESENT)
+                if (m_FormatString[l_X] == FT_SQL_PRESENT)
                 {
                     if (l_X == uindexPos)
                         break;
@@ -263,7 +263,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 std::string l_SQLQueryStr = "SELECT * FROM " + p_SQL->m_SQLTableName;
 
                 if (p_SQL->m_IndexPosition >= 0)
-                    l_SQLQueryStr += " ORDER BY " + *p_SQL->m_IndexName + " DESC";
+                    l_SQLQueryStr += " ORDER BY " + p_SQL->m_IndexName + " DESC";
                 l_SQLQueryStr += ';';
 
                 l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
@@ -308,13 +308,13 @@ template<class T> class DB2Storage : public DB2StorageBase
                         uint32 l_SQLColumnNumber    = 0;
                         uint32 l_WritePosition      = 0;
 
-                        for (; l_ColumnNumber < p_SQL->m_FormatString->size(); ++l_ColumnNumber)
+                        for (; l_ColumnNumber < p_SQL->m_FormatString.size(); ++l_ColumnNumber)
                         {
-                            if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
+                            if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
                             {
                                 break;
                             }
-                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
+                            else if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
                             {
                                 switch (m_Format[l_ColumnNumber])
                                 {
@@ -338,7 +338,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                                         break;
                                 }
                             }
-                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
+                            else if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
                             {
                                 bool l_IsValidSqlColumn = true;
                                 switch (m_Format[l_ColumnNumber])
@@ -372,7 +372,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                                     default:
                                         l_IsValidSqlColumn = false;
                                 }
-                                if (l_IsValidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString->size() - 1)))
+                                if (l_IsValidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString.size() - 1)))
                                     l_SQLColumnNumber++;
                             }
                             else
@@ -408,7 +408,7 @@ template<class T> class DB2Storage : public DB2StorageBase
             std::string l_SQLQueryStr = "SELECT * FROM " + m_SQL->m_SQLTableName;
 
             if (m_SQL->m_IndexPosition >= 0)
-                l_SQLQueryStr += " ORDER BY " + *m_SQL->m_IndexName + " DESC";
+                l_SQLQueryStr += " ORDER BY " + m_SQL->m_IndexName + " DESC";
             l_SQLQueryStr += ';';
 
             QueryResult l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
@@ -447,13 +447,13 @@ template<class T> class DB2Storage : public DB2StorageBase
                     uint32 l_SQLColumnNumber = 0;
                     uint32 l_WritePosition = 0;
 
-                    for (; l_ColumnNumber < m_SQL->m_FormatString->size(); ++l_ColumnNumber)
+                    for (; l_ColumnNumber < m_SQL->m_FormatString.size(); ++l_ColumnNumber)
                     {
-                        if ((*m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
+                        if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
                         {
                             break;
                         }
-                        else if ((*m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
+                        else if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
                         {
                             switch (m_Format[l_ColumnNumber])
                             {
@@ -477,7 +477,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                                     break;
                             }
                         }
-                        else if ((*m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
+                        else if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
                         {
                             bool l_IsValidSqlColumn = true;
                             switch (m_Format[l_ColumnNumber])
@@ -511,7 +511,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                                 default:
                                     l_IsValidSqlColumn = false;
                             }
-                            if (l_IsValidSqlColumn && (l_ColumnNumber != (m_SQL->m_FormatString->size() - 1)))
+                            if (l_IsValidSqlColumn && (l_ColumnNumber != (m_SQL->m_FormatString.size() - 1)))
                                 l_SQLColumnNumber++;
                         }
                         else
