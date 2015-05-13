@@ -39,6 +39,7 @@ if(SCRIPTS)
   include(Pandaria/CMakeLists.txt)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
+  include(Fun/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )
