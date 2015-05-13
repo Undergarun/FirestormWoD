@@ -1635,6 +1635,10 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
             AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
             AddPct(currentValue, AbsorbMod2);
+
+            if (l_Caster->IsSpellCrit(unitTarget, m_spellInfo, m_spellInfo->GetSchoolMask()))
+                currentValue = l_Caster->SpellCriticalHealingBonus(m_spellInfo, currentValue, unitTarget);
+
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
     }
