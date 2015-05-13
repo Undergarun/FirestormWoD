@@ -3979,8 +3979,47 @@ public:
     }
 };
 
+/// Pulverize - 80313
+class spell_dru_pulverize : public SpellScriptLoader
+{
+    public:
+        spell_dru_pulverize() : SpellScriptLoader("spell_dru_pulverize") { }
+
+        class spell_dru_pulverize_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_pulverize_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraPtr l_Lacerete = l_Target->GetAura(33745, l_Caster->GetGUID()))
+                {
+                    l_Lacerete->ModStackAmount(-3);
+                }
+
+                l_Caster->CastSpell(l_Caster, 158792, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_pulverize_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_pulverize_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_pulverize();
     new spell_dru_lifebloom_final_heal();
     new spell_dru_entangling_energy();
     new spell_dru_ursa_major();
