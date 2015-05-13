@@ -3390,11 +3390,10 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
-        nextResetDay = nextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
-    m_NextCurrencyReset = nextResetDay;
+    m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitDailyLootResetTime()
@@ -3404,11 +3403,10 @@ void World::InitDailyLootResetTime()
     {
         uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
         l_NextResetDay = l_CurrentDay + 1;
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextDailyLootReset = l_NextResetDay;
+    m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitGuildChallengesResetTime()
@@ -3423,11 +3421,11 @@ void World::InitGuildChallengesResetTime()
         while (l_NextResetDay < l_CurrentDay)
             l_NextResetDay += 7;
 
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        l_NextResetDay = l_NextResetDay;
         sWorld->setWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextGuildChallengesReset = l_NextResetDay;
+    m_NextGuildChallengesReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitBossLootedResetTime()
@@ -3442,11 +3440,11 @@ void World::InitBossLootedResetTime()
         while (l_NextResetDay < l_CurrentDay)
             l_NextResetDay += 7;
 
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        l_NextResetDay = l_NextResetDay;
         sWorld->setWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextBossLootedReset = l_NextResetDay;
+    m_NextBossLootedReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 /*void World::InitServerAutoRestartTime()
