@@ -1,1 +1,1 @@
-ALTER TABLE `quest_template_objective`     ADD COLUMN `BuildVerified` SMALLINT(6) DEFAULT '1' NOT NULL AFTER `VisualEffects`;
+-- ALTER TABLE `quest_template_objective`     ADD COLUMN `BuildVerified` SMALLINT(6) DEFAULT '1' NOT NULL AFTER `VisualEffects`;
