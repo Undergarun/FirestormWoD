@@ -785,7 +785,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersWillBeKick[p_Player->GetTeamId()].erase(p_Player->GetGUID());
-        m_players[p_Player->GetTeamId()].insert(p_Player);
+        m_players[p_Player->GetTeamId()].erase(p_Player);
     }
 
     SendRemoveWorldStates(p_Player);
