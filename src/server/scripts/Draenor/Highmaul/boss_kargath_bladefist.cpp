@@ -1653,7 +1653,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                             continue;
 
                         me->AddAura(eSpells::InThePitAura, l_Player);
-                        me->CastSpell(l_Player, eSpells::SpellMaul, false);
+                        me->CastSpell(l_Player, eSpells::SpellMaul, true);
                         l_Player->RemoveAura(eSpells::InThePitAura);
                         break;
                     }
