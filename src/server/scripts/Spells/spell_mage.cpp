@@ -2307,6 +2307,16 @@ class spell_mage_blink : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_blink_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfRapidDisplacement) && l_Caster->HasAuraType(SPELL_AURA_MOD_STUN))
+                    return SPELL_FAILED_STUNNED;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleImmunity(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Caster = GetCaster();
@@ -2326,6 +2336,7 @@ class spell_mage_blink : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_mage_blink_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);
