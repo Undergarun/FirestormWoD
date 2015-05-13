@@ -227,42 +227,42 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2", "quest_package_item", "ID");
+    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2",            "quest_package_item",           "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Scene Script DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2");
-    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2");
+    LoadDB2(bad_db2_files, sSceneScriptStore,               db2Path, "SceneScript.db2"                                                      );
+    LoadDB2(bad_db2_files, sSceneScriptPackageStore,        db2Path, "SceneScriptPackage.db2"                                               );
 
     //////////////////////////////////////////////////////////////////////////
     /// Taxi DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sTaxiNodesStore,                 db2Path, "TaxiNodes.db2");
-    LoadDB2(bad_db2_files, sTaxiPathStore,                  db2Path, "TaxiPath.db2");
-    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2");
+    LoadDB2(bad_db2_files, sTaxiNodesStore,                 db2Path, "TaxiNodes.db2"                                                        );
+    LoadDB2(bad_db2_files, sTaxiPathStore,                  db2Path, "TaxiPath.db2"                                                         );
+    LoadDB2(bad_db2_files, sTaxiPathNodeStore,              db2Path, "TaxiPathNode.db2"                                                     );
 
     //////////////////////////////////////////////////////////////////////////
     /// Item DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2",                    "item",                     "ID");
-    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2",        "item_currency_cost",       "ID");
-    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2",             "item_sparse",              "ID");
-    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2",              "item_effect",              "ID");
-    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2",  "item_modified_appearance", "ID");
-    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",          "item_appearance",          "ID");
-    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2",        "item_extended_cost",       "ID");
-    LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2");
-    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2");
-    LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2");
-    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2");
+    LoadDB2(bad_db2_files, sItemStore,                      db2Path, "Item.db2",                        "item",                         "ID");
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore,          db2Path, "ItemCurrencyCost.db2",            "item_currency_cost",           "ID");
+    LoadDB2(bad_db2_files, sItemSparseStore,                db2Path, "Item-sparse.db2",                 "item_sparse",                  "ID");
+    LoadDB2(bad_db2_files, sItemEffectStore,                db2Path, "ItemEffect.db2",                  "item_effect",                  "ID");
+    LoadDB2(bad_db2_files, sItemModifiedAppearanceStore,    db2Path, "ItemModifiedAppearance.db2",      "item_modified_appearance",     "ID");
+    LoadDB2(bad_db2_files, sItemAppearanceStore,            db2Path, "ItemAppearance.db2",              "item_appearance",              "ID");
+    LoadDB2(bad_db2_files, sItemExtendedCostStore,          db2Path, "ItemExtendedCost.db2",            "item_extended_cost",           "ID");
+    LoadDB2(bad_db2_files, sHeirloomStore,                  db2Path, "Heirloom.db2"                                                         );
+    LoadDB2(bad_db2_files, sPvpItemStore,                   db2Path, "PvpItem.db2"                                                          );
+    LoadDB2(bad_db2_files, sItemUpgradeStore,               db2Path, "ItemUpgrade.db2"                                                      );
+    LoadDB2(bad_db2_files, sRulesetItemUpgradeStore,        db2Path, "RulesetItemUpgrade.db2"                                               );
 
     //////////////////////////////////////////////////////////////////////////
     /// Item Bonus DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2",               "item_bonus",               "ID");
-    LoadDB2(bad_db2_files, sItemBonusTreeNodeStore,         db2Path, "ItemBonusTreeNode.db2",       "item_bonus_tree_node",     "ID");
-    LoadDB2(bad_db2_files, sItemXBonusTreeStore,            db2Path, "ItemXBonusTree.db2",          "item_x_bonus_tree",        "ID");
+    LoadDB2(bad_db2_files, sItemBonusStore,                 db2Path, "ItemBonus.db2",                   "item_bonus",                   "ID");
+    LoadDB2(bad_db2_files, sItemBonusTreeNodeStore,         db2Path, "ItemBonusTreeNode.db2",           "item_bonus_tree_node",         "ID");
+    LoadDB2(bad_db2_files, sItemXBonusTreeStore,            db2Path, "ItemXBonusTree.db2",              "item_x_bonus_tree",            "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell DB2
@@ -281,28 +281,28 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Garrison DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sGarrSiteLevelStore,             db2Path, "GarrSiteLevel.db2");
-    LoadDB2(bad_db2_files, sGarrSiteLevelPlotInstStore,     db2Path, "GarrSiteLevelPlotInst.db2");
-    LoadDB2(bad_db2_files, sGarrPlotInstanceStore,          db2Path, "GarrPlotInstance.db2");
-    LoadDB2(bad_db2_files, sGarrPlotStore,                  db2Path, "GarrPlot.db2");
-    LoadDB2(bad_db2_files, sGarrPlotUICategoryStore,        db2Path, "GarrPlotUICategory.db2");
-    LoadDB2(bad_db2_files, sGarrMissionStore,               db2Path, "GarrMission.db2");
-    LoadDB2(bad_db2_files, sGarrMissionRewardStore,         db2Path, "GarrMissionReward.db2");
-    LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2");
-    LoadDB2(bad_db2_files, sGarrBuildingStore,              db2Path, "GarrBuilding.db2");
-    LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2");
-    LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2");
-    LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2");
-    LoadDB2(bad_db2_files, sGarrAbilityEffectStore,         db2Path, "GarrAbilityEffect.db2");
-    LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2");
-    LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2");
-    LoadDB2(bad_db2_files, sGarrMechanicTypeStore,          db2Path, "GarrMechanicType.db2");
-    LoadDB2(bad_db2_files, sGarrMechanicStore,              db2Path, "GarrMechanic.db2");
-    LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2");
-    LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2");
-    LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2");
-    LoadDB2(bad_db2_files, sCharShipmentStore,              db2Path, "CharShipment.db2");
-    LoadDB2(bad_db2_files, sCharShipmentContainerStore,     db2Path, "CharShipmentContainer.db2");
+    LoadDB2(bad_db2_files, sGarrSiteLevelStore,             db2Path, "GarrSiteLevel.db2"                                                    );
+    LoadDB2(bad_db2_files, sGarrSiteLevelPlotInstStore,     db2Path, "GarrSiteLevelPlotInst.db2"                                            );
+    LoadDB2(bad_db2_files, sGarrPlotInstanceStore,          db2Path, "GarrPlotInstance.db2"                                                 );
+    LoadDB2(bad_db2_files, sGarrPlotStore,                  db2Path, "GarrPlot.db2"                                                         );
+    LoadDB2(bad_db2_files, sGarrPlotUICategoryStore,        db2Path, "GarrPlotUICategory.db2"                                               );
+    LoadDB2(bad_db2_files, sGarrMissionStore,               db2Path, "GarrMission.db2"                                                      );
+    LoadDB2(bad_db2_files, sGarrMissionRewardStore,         db2Path, "GarrMissionReward.db2"                                                );
+    LoadDB2(bad_db2_files, sGarrMissionXEncouterStore,      db2Path, "GarrMissionXEncounter.db2"                                            );
+    LoadDB2(bad_db2_files, sGarrBuildingStore,              db2Path, "GarrBuilding.db2"                                                     );
+    LoadDB2(bad_db2_files, sGarrPlotBuildingStore,          db2Path, "GarrPlotBuilding.db2"                                                 );
+    LoadDB2(bad_db2_files, sGarrFollowerStore,              db2Path, "GarrFollower.db2"                                                     );
+    LoadDB2(bad_db2_files, sGarrAbilityStore,               db2Path, "GarrAbility.db2"                                                      );
+    LoadDB2(bad_db2_files, sGarrAbilityEffectStore,         db2Path, "GarrAbilityEffect.db2"                                                );
+    LoadDB2(bad_db2_files, sGarrFollowerXAbilityStore,      db2Path, "GarrFollowerXAbility.db2"                                             );
+    LoadDB2(bad_db2_files, sGarrBuildingPlotInstStore,      db2Path, "GarrBuildingPlotInst.db2"                                             );
+    LoadDB2(bad_db2_files, sGarrMechanicTypeStore,          db2Path, "GarrMechanicType.db2"                                                 );
+    LoadDB2(bad_db2_files, sGarrMechanicStore,              db2Path, "GarrMechanic.db2"                                                     );
+    LoadDB2(bad_db2_files, sGarrEncouterXMechanicStore,     db2Path, "GarrEncounterXMechanic.db2"                                           );
+    LoadDB2(bad_db2_files, sGarrFollowerLevelXPStore,       db2Path, "GarrFollowerLevelXP.db2"                                              );
+    LoadDB2(bad_db2_files, sGarrSpecializationStore,        db2Path, "GarrSpecialization.db2"                                               );
+    LoadDB2(bad_db2_files, sCharShipmentStore,              db2Path, "CharShipment.db2"                                                     );
+    LoadDB2(bad_db2_files, sCharShipmentContainerStore,     db2Path, "CharShipmentContainer.db2"                                            );
 
     //////////////////////////////////////////////////////////////////////////
     /// Battle pet DB2
