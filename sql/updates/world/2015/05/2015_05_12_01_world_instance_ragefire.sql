@@ -1,11 +1,5 @@
-/* 
-
-Ragefirechasm
-
-Only spawn / template this dungeons havent been scripted.
-
-*/
-
+-- Ragefirechasm
+-- areatrigger
 DELETE FROM areatrigger_template where spell_id = 103985;
 INSERT INTO areatrigger_template (`spell_id`, `eff_index`, `entry`, `scale_x`, `scale_y`, `flags`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`) VALUES(103985, 0, 7377, 10, 10, 16388, 0, 0, 0, 0, 0, 0, 0, 0) ON DUPLICATE KEY UPDATE `spell_id` = VALUES(`spell_id`), `eff_index` = VALUES(`eff_index`), `entry` = VALUES(`entry`), `scale_x` = VALUES(`scale_x`), `scale_y` = VALUES(`scale_y`), `flags` = VALUES(`flags`), `data0` = VALUES(`data0`), `data1` = VALUES(`data1`), `data2` = VALUES(`data2`), `data3` = VALUES(`data3`), `data4` = VALUES(`data4`), `data5` = VALUES(`data5`), `data6` = VALUES(`data6`), `data7` = VALUES(`data7`);
 
