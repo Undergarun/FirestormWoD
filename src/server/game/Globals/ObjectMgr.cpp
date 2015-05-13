@@ -2339,44 +2339,6 @@ void ObjectMgr::LoadChallengeRewards()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u challenge mode rewards in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void ObjectMgr::LoadMapChallengeModeHotfixes()
-{
-    uint32 l_OldMSTime = getMSTime();
-    uint32 l_Count = 0;
-
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, map_id, field2, field3, field4, bronze_time, silver_time, gold_time, field8, field9 FROM map_challenge_mode_hotfixes");
-    if (!l_Result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 map challenge mode hotfixes. DB table `map_challenge_mode_hotfixes` is empty.");
-        return;
-    }
-
-    do
-    {
-        uint32 l_Index = 0;
-        Field* l_Fields = l_Result->Fetch();
-        uint32 l_ID = l_Fields[l_Index++].GetUInt32();
-
-        MapChallengeModeHotfix& l_HotFix = m_MapChallengeModeHotfixes[l_ID];
-
-        l_HotFix.m_ID = l_ID;
-        l_HotFix.m_MapID = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field2 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field3 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field4 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_BronzeTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_SilverTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_GoldTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field8 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field9 = l_Fields[l_Index++].GetUInt32();
-
-        ++l_Count;
-    }
-    while (l_Result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map challenge mode hotfixes in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
-}
-
 void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2)
 {
     *minDamage = *maxDamage = *dps = 0.0f;
@@ -10127,37 +10089,6 @@ void ObjectMgr::LoadQuestObjectiveLocales()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Objective visual effects in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
-void ObjectMgr::LoadQuestPackageItemHotfixs()
-{
-    uint32 l_OldMSTime = getMSTime();
-
-    QueryResult l_Result = WorldDatabase.Query("SELECT `Id`, `PackageID`, `ItemId`, `Count`, `Type` FROM quest_package_item_hotfix");
-    if (!l_Result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Quest Package Item hotfix. DB table `quest_package_item_hotfix` is empty.");
-        return;
-    }
-
-    uint32 l_Count = 0;
-    do
-    {
-        Field * l_Fields = l_Result->Fetch();
-
-        QuestPackageItemEntry* l_QuestPackageItemHotfix = new QuestPackageItemEntry();
-        l_QuestPackageItemHotfix->ID        = l_Fields[0].GetUInt32();
-        l_QuestPackageItemHotfix->PackageID = l_Fields[1].GetUInt32();
-        l_QuestPackageItemHotfix->ItemId    = l_Fields[2].GetUInt32();
-        l_QuestPackageItemHotfix->Count     = l_Fields[3].GetUInt32();
-        l_QuestPackageItemHotfix->Type      = l_Fields[4].GetUInt8();
-
-        sQuestPackageItemStore.AddEntry(l_QuestPackageItemHotfix->ID, l_QuestPackageItemHotfix);
-
-        l_Count++;
-
-    } while (l_Result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u Quest Package Item hotfixs in %u ms.", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
-}
 void ObjectMgr::LoadFollowerQuests()
 {
     const ObjectMgr::QuestMap & l_QuestTemplates = GetQuestTemplates();

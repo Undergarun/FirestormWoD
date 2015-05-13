@@ -12054,14 +12054,17 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 }
 
-void Player::SendNotifyLootMoneyRemoved()
+void Player::SendNotifyLootMoneyRemoved(bool p_IsAoE)
 {
     WorldPacket l_Data(SMSG_COIN_REMOVED);
-    ObjectGuid guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
+    ObjectGuid l_Guid = MAKE_NEW_GUID(GUID_LOPART(GetLootGUID()), 0, HIGHGUID_LOOT);
 
-    sObjectMgr->setLootViewGUID(guid, GetLootGUID());
+    sObjectMgr->setLootViewGUID(l_Guid, GetLootGUID());
 
-    l_Data.appendPackGUID(guid);
+    if (p_IsAoE)
+        l_Data.appendPackGUID(l_Guid);
+    else
+        l_Data.appendPackGUID(GetGUID());
 
     GetSession()->SendPacket(&l_Data);
 }

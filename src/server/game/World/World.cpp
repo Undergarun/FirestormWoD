@@ -1724,9 +1724,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
     sObjectMgr->LoadQuestObjectiveLocales();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Package Item hotfixs ...");
-    sObjectMgr->LoadQuestPackageItemHotfixs();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
@@ -2148,9 +2145,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
     sObjectMgr->LoadChallengeRewards();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
-    sObjectMgr->LoadMapChallengeModeHotfixes();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();

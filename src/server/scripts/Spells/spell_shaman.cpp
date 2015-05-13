@@ -2442,7 +2442,6 @@ class spell_sha_riptide : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                     SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
-
             }
 
             void HandleAfterHit()

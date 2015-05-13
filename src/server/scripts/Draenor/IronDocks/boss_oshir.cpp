@@ -31,7 +31,7 @@ enum Spells
 
     // misv
     SPELL_BLOODY_CORPSE_EXPLOSION = 73163,
-
+    SPELL_STRENGTH_OF_THE_PACK = 171114,
     // rylak
     SPELL_ACIDIC_AREA_TRIGGERS = 178155,
     SPELL_ACIDIC_CAST = 178154,
@@ -250,78 +250,82 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
-
 class boss_oshir : public CreatureScript
 {
-    public:
-        boss_oshir() : CreatureScript("boss_oshir") { }
+public:
+    boss_oshir() : CreatureScript("boss_oshir") { }
 
-        struct boss_oshirAI : public BossAI
+    struct boss_oshirAI : public BossAI
+    {
+        boss_oshirAI(Creature* creature) : BossAI(creature, DATA_OSHIR)
         {
-            boss_oshirAI(Creature* p_Creature) : BossAI(p_Creature, DATA_OSHIR)
+            intro = false;
+           // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(35);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
+        }
+
+        bool intro;
+        std::list<Creature*> wolf_dests;
+        std::list<Creature*> rylak_dests;
+        int32 hppact;
+        void Reset() override
+        {
+            _Reset();
+            if (!wolf_dests.empty())
+            wolf_dests.clear();
+            if (!rylak_dests.empty())
+            rylak_dests.clear();
+
+            hppact = me->GetHealthPct() * 0.95;
+            DespawnCreaturesInArea(CREATURE_WOLF, me);
+            DespawnCreaturesInArea(CREATURE_RYLAK, me);
+
+            me->GetCreatureListWithEntryInGrid(wolf_dests, TRIGGER_WOLF_DEST, 300.0f);
+            me->GetCreatureListWithEntryInGrid(rylak_dests, TRIGGER_RYLAK_DEST, 300.0f);
+
+            if (wolf_dests.empty())
+                return;
+
+            if (rylak_dests.empty())
+                return;
+
+            for (auto itr : wolf_dests)
             {
-                m_Intro = false;
-               // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->setFaction(35);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_6);
+                itr->GetAI()->Reset();
+            }
+            for (auto itr : rylak_dests)
+            {
+                itr->GetAI()->Reset();
             }
 
-            bool m_Intro;
-            std::list<Creature*> m_WolfDestinations;
-            std::list<Creature*> m_RylakDestinations;
-            int32 m_HpAct;
+            me->SetSpeed(MOVE_FLIGHT, 10.0f, true);
+        }
+        void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
+        {
+            std::list<Creature*> creatures;
+            GetCreatureListWithEntryInGrid(creatures, object, entry, 300.0f);
+            if (creatures.empty())
+                return;
 
-            void Reset() override
+            for (std::list<Creature*>::iterator iter = creatures.begin(); iter != creatures.end(); ++iter)
+                (*iter)->DespawnOrUnsummon();
+        }
+        void EnterCombat(Unit* /*who*/) override
+        {
+            _EnterCombat();
+
+            events.ScheduleEvent(EVENT_FEEDING_FRENZY, feedingfrenzyinterval);
+            events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
+            events.ScheduleEvent(EVENT_PRIMAL_ASSAULT, primalassaultinterval);
+        }
+        void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo) override
+        {
+            if (hppact)
             {
-                _Reset();
-                m_WolfDestinations.clear();
-                m_RylakDestinations.clear();
-
-                m_HpAct = me->GetHealthPct() * 0.95;
-                DespawnCreaturesInArea(CREATURE_WOLF, me);
-                DespawnCreaturesInArea(CREATURE_RYLAK, me);
-
-                me->GetCreatureListWithEntryInGrid(m_WolfDestinations, TRIGGER_WOLF_DEST, 300.0f);
-                me->GetCreatureListWithEntryInGrid(m_RylakDestinations, TRIGGER_RYLAK_DEST, 300.0f);
-
-                for (auto l_Rylak : m_WolfDestinations)
-                {
-                    l_Rylak->GetAI()->Reset();
-                }
-
-                for (auto l_Rylak : m_RylakDestinations)
-                {
-                    l_Rylak->GetAI()->Reset();
-                }
-
-                me->SetSpeed(MOVE_FLIGHT, 10.0f, true);
-            }
-
-            void DespawnCreaturesInArea(uint32 p_Entry, WorldObject* p_Object)
-            {
-                std::list<Creature*> l_Creatures;
-                GetCreatureListWithEntryInGrid(l_Creatures, p_Object, p_Entry, 300.0f);
-                if (l_Creatures.empty())
-                    return;
-
-                for (std::list<Creature*>::iterator l_Itr = l_Creatures.begin(); l_Itr != l_Creatures.end(); ++l_Itr)
-                    (*l_Itr)->DespawnOrUnsummon();
-            }
-
-            void EnterCombat(Unit* /*p_Who*/) override
-            {
-                _EnterCombat();
-
-                events.ScheduleEvent(EVENT_FEEDING_FRENZY, feedingfrenzyinterval);
-                events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
-                events.ScheduleEvent(EVENT_PRIMAL_ASSAULT, primalassaultinterval);
-            }
-
-            void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, SpellInfo const* p_SpellInfo) override
-            {
-                if (me->HealthBelowPctDamaged(m_HpAct, p_Damage))
+                if (me->HealthBelowPctDamaged(hppact, damage))
                 {
                     me->CastStop();
                     me->RemoveAllAuras();
@@ -329,118 +333,115 @@ class boss_oshir : public CreatureScript
                     me->RemoveAura(162424);
                 }
             }
+        }
+        void JustDied(Unit* /*killer*/) override
+        {
+            _JustDied();
 
-            void JustDied(Unit* /*p_Killer*/) override
+            DespawnCreaturesInArea(CREATURE_WOLF, me);
+            DespawnCreaturesInArea(CREATURE_RYLAK, me);
+        }
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (who && who->IsInWorld() && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 50.0f) && !intro)
             {
-                _JustDied();
-
-                DespawnCreaturesInArea(CREATURE_WOLF, me);
-                DespawnCreaturesInArea(CREATURE_RYLAK, me);
+                intro = true;
+                me->m_Events.AddEvent(new cosmeticaloshir_event(me, 0), me->m_Events.CalculateTime(2000));
             }
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
 
-            void MoveInLineOfSight(Unit* p_Who)
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(162424)) // time to feed
+                return;
+
+            if (uint32 eventId = events.ExecuteEvent())
             {
-                if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 50.0f) && !m_Intro)
+                switch (eventId)
                 {
-                    m_Intro = true;
-                    me->m_Events.AddEvent(new cosmeticaloshir_event(me, 0), me->m_Events.CalculateTime(2000));
-                }
-            }
+                case EVENT_FEEDING_FRENZY_CANCEL:
+                    me->RemoveAura(SPELL_FEEDING_FRENZY);
+                    break;
+                case EVENT_FEEDING_FRENZY:
+                    me->RemoveAura(SPELL_FEEDING_FRENZY);
 
-            void UpdateAI(uint32 const p_Diff) override
-            {
-                if (!UpdateVictim())
-                    return;
+                    hppact = me->GetHealthPct() * 0.95;
 
-                events.Update(p_Diff);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        me->CastSpell(target, SPELL_FEEDING_FRENZY);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasAura(162424)) // time to feed
-                    return;
-
-                if (uint32 l_EventId = events.ExecuteEvent())
-                {
-                    switch (l_EventId)
+                    events.ScheduleEvent(EVENT_FEEDING_FRENZY, feedingfrenzyinterval);
+                    events.ScheduleEvent(EVENT_FEEDING_FRENZY_CANCEL, 20000);
+                    break;
+                case EVENT_PRIMAL_ASSAULT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                     {
-                        case EVENT_FEEDING_FRENZY_CANCEL:
-                            me->RemoveAura(SPELL_FEEDING_FRENZY);
-                            break;
-                        case EVENT_FEEDING_FRENZY:
-                            me->RemoveAura(SPELL_FEEDING_FRENZY);
-
-                            m_HpAct = me->GetHealthPct() * 0.95;
-
-                            if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                                me->CastSpell(l_Target, SPELL_FEEDING_FRENZY);
-
-                            events.ScheduleEvent(EVENT_FEEDING_FRENZY, feedingfrenzyinterval);
-                            events.ScheduleEvent(EVENT_FEEDING_FRENZY_CANCEL, 20000);
-                            break;
-                        case EVENT_PRIMAL_ASSAULT:
-                            if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                            {
-                                me->CastSpell(l_Target, SPELL_BREAKOUT);
-                                me->CastSpell(l_Target, SPELL_PRIMAL_ASSAULT);
-                            }
-                            events.ScheduleEvent(EVENT_PRIMAL_ASSAULT, primalassaultinterval);
-                            break;
-                        case EVENT_BREAKOUT:
+                        me->CastSpell(target, SPELL_BREAKOUT);
+                        me->CastSpell(target, SPELL_PRIMAL_ASSAULT);
+                    }
+                    events.ScheduleEvent(EVENT_PRIMAL_ASSAULT, primalassaultinterval);
+                    break;
+                case EVENT_BREAKOUT:
+                {
+                    me->RemoveAura(SPELL_FEEDING_AURA);
+                    switch (urand(0, 1))
+                    {
+                        case 0: // wolfs
                         {
+                            if (wolf_dests.empty())
+                                return;
 
-                            me->RemoveAura(SPELL_FEEDING_AURA);
-                            switch (urand(0, 1))
+                            std::list<Creature*>::const_iterator it = wolf_dests.begin();
+                            std::advance(it, urand(0, wolf_dests.size() - 1));
+
+                            me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
+                            //me->CastSpell((*it), SPELL_BREAKOUT, true);
+
+                            if ((*it)->GetAI())
                             {
-                                case 0: // wolfs
-                                {
-                                    if (m_WolfDestinations.empty())
-                                        return;
-
-                                    std::list<Creature*>::iterator l_Iterator = m_WolfDestinations.begin();
-                                    std::advance(l_Iterator, urand(0, m_WolfDestinations.size() - 1));
-
-                                    me->GetMotionMaster()->MoveJump((*l_Iterator)->GetPositionX(), (*l_Iterator)->GetPositionY(), (*l_Iterator)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                                    //me->CastSpell((*it), SPELL_BREAKOUT, true);
-
-                                    if ((*l_Iterator)->GetAI())
-                                    {
-                                        (*l_Iterator)->GetAI()->DoAction(ACTION_RELEASE);
-                                        m_WolfDestinations.erase(l_Iterator);
-                                    }
-                                    break;
-                                }
-                                case 1: // rylaks
-                                {
-                                    if (m_RylakDestinations.empty())
-                                        return;
-
-                                    std::list<Creature*>::iterator l_Iterator = m_RylakDestinations.begin();
-                                    std::advance(l_Iterator, urand(0, m_RylakDestinations.size() - 1));
-
-                                    me->GetMotionMaster()->MoveJump((*l_Iterator)->GetPositionX(), (*l_Iterator)->GetPositionY(), (*l_Iterator)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                                    //me->CastSpell((*it), SPELL_BREAKOUT, true);
-
-                                    if ((*l_Iterator)->GetAI())
-                                    {
-                                        (*l_Iterator)->GetAI()->DoAction(ACTION_RELEASE);
-                                        m_RylakDestinations.erase(l_Iterator);
-                                    }
-                                    break;
-                                }          
+                                (*it)->GetAI()->DoAction(ACTION_RELEASE);
+                                wolf_dests.erase(it);
                             }
-                            events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
                             break;
                         }
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-    };
+                        case 1: // rylaks
+                        {
+                            if (rylak_dests.empty())
+                                return;
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+                            std::list<Creature*>::const_iterator it = rylak_dests.begin();
+                            std::advance(it, urand(0, rylak_dests.size() - 1));
+
+                            me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
+                            //me->CastSpell((*it), SPELL_BREAKOUT, true);
+
+                            if ((*it)->GetAI())
+                            {
+                                (*it)->GetAI()->DoAction(ACTION_RELEASE);
+                                rylak_dests.erase(it);
+                            }
+                            break;
+                        }          
+                    }
+                    events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
+                    break;
+                }
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    private:
+
+    };
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_oshirAI(p_Creature);
+        return new boss_oshirAI(creature);
     }
 };
-
 class iron_docks_mob_wolf_dest : public CreatureScript
 {
 public:
@@ -452,7 +453,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<uint64> wolfs;
+        std::list<Creature*> wolfs;
         bool released;
         InstanceScript* instance;
 
@@ -468,7 +469,7 @@ public:
                 wolf->setFaction(35);
                 wolf->SetReactState(REACT_PASSIVE);
 
-                wolfs.push_back(wolf->GetGUID());
+                wolfs.push_back(wolf);
             }
         }
         void DoAction(int32 const action)
@@ -501,16 +502,21 @@ public:
                 case EVENT_RELEASE:
                     if (Creature* oshir = instance->instance->GetCreature(instance->GetData64(DATA_OSHIR)))
                     {
-                        if (!wolfs.empty())
+                        if (oshir->isInCombat() && oshir->getVictim())
                         {
-                            for (auto itr : wolfs)
+                            if (!wolfs.empty())
                             {
-                                Creature* l_Wolf = me->GetCreature(*me, itr);
-                                if (l_Wolf)
+                                for (auto itr : wolfs)
                                 {
-                                    l_Wolf->setFaction(16);
-                                    l_Wolf->SetReactState(REACT_AGGRESSIVE);
-                                    l_Wolf->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                    if (itr && itr->IsInWorld() && itr->isAlive())
+                                    {
+                                      
+                                        itr->setFaction(16);
+                                        itr->SetReactState(REACT_AGGRESSIVE);
+                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                        itr->AddThreat(oshir->getVictim(), 200.0f);
+                                        itr->Attack(oshir->getVictim(), true);
+                                    }
                                 }
                             }
                         }
@@ -538,7 +544,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<uint64> rylaks;
+        std::list<Creature*> rylaks;
         bool released;
         InstanceScript* instance;
 
@@ -548,12 +554,11 @@ public:
             summons.DespawnAll();
             rylaks.clear();
 
-            if (Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
-            {
-                rylak->setFaction(35);
-                rylak->SetReactState(REACT_PASSIVE);
-                rylaks.push_back(rylak->GetGUID());
-            }
+            Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+            rylak->setFaction(35);
+            rylak->SetReactState(REACT_PASSIVE);
+
+            rylaks.push_back(rylak);
         }
         void DoAction(int32 const action)
         {
@@ -585,15 +590,20 @@ public:
                 case EVENT_RELEASE:
                     if (Creature* oshir = instance->instance->GetCreature(instance->GetData64(DATA_OSHIR)))
                     {
-                        if (!rylaks.empty())
+                        if (oshir->isInCombat() && oshir->getVictim())
                         {
-                            for (auto l_Guid : rylaks)
+                            if (!rylaks.empty())
                             {
-                                if (Creature* l_Rylak = Creature::GetCreature(*me, l_Guid))
+                                for (auto itr : rylaks)
                                 {
-                                    l_Rylak->setFaction(16);
-                                    l_Rylak->SetReactState(REACT_AGGRESSIVE);
-                                    l_Rylak->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                    if (itr && itr->IsInWorld() && itr->isAlive())
+                                    {
+                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                        itr->AddThreat(oshir->getVictim(), 200.0f);
+                                        itr->Attack(oshir->getVictim(), true);
+                                        itr->setFaction(16);
+                                        itr->SetReactState(REACT_AGGRESSIVE);
+                                    }
                                 }
                             }
                         }
@@ -649,6 +659,66 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
+
+class iron_docks_mob_wolf : public CreatureScript
+{
+public:
+    iron_docks_mob_wolf() : CreatureScript("iron_docks_mob_wolf") { }
+
+    struct mob_iron_docksAI : public ScriptedAI
+    {
+        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = me->GetInstanceScript();
+        }
+        uint32 interval;
+        InstanceScript* instance;
+
+        void Reset()
+        {
+            interval = 1500;
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (interval <= diff)
+            {
+                me->CastSpell(me, SPELL_STRENGTH_OF_THE_PACK);
+
+                std::list<Creature*> list_creatures;
+
+                me->GetCreatureListWithEntryInGrid(list_creatures, me->GetEntry(), 200.0f);
+
+                if (list_creatures.empty())
+                    return;
+
+                for (auto itr : list_creatures)
+                {
+                    if (itr && itr->IsInWorld() && itr->isAlive() && itr->getFaction() == 16)
+                    {
+                        if (AuraPtr aura = me->GetAura(SPELL_STRENGTH_OF_THE_PACK))
+                        {
+                            aura->SetStackAmount(list_creatures.size());
+                        }
+                    }
+                }
+
+                interval = 1500;
+            }
+            else
+                interval -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_iron_docksAI(creature);
+    }
+};
 class spell_acid_spew : public SpellScriptLoader
 {
 public:
@@ -660,10 +730,14 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (!GetCaster())
+            if (!GetCaster() || !GetHitUnit())
                 return;
 
             std::list<Player*> pl_list;
+
+            if (pl_list.empty())
+                return;
+
             GetCaster()->GetPlayerListInGrid(pl_list, 50.0f);
 
             for (auto itr : pl_list)
@@ -691,6 +765,7 @@ void AddSC_boss_oshir()
     new spell_acid_spew();
     // adds
     new iron_docks_mob_rylak();
+    new iron_docks_mob_wolf();
     // triggers
     new iron_docks_mob_rylak_dest();
     new iron_docks_mob_wolf_dest();

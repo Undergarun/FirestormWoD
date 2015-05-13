@@ -213,7 +213,7 @@ void LoadDB2Stores(const std::string& dataPath)
     /// Misc DB2
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sSoundEntriesStore,              db2Path, "SoundEntries.db2");
-    LoadDB2(bad_db2_files, sCurrencyTypesStore,             db2Path, "CurrencyTypes.db2");
+    LoadDB2(bad_db2_files, sCurrencyTypesStore,             db2Path, "CurrencyTypes.db2", "currency_types", "ID");
     LoadDB2(bad_db2_files, sPathNodeStore,                  db2Path, "PathNode.db2");
     LoadDB2(bad_db2_files, sLocationStore,                  db2Path, "Location.db2");
     LoadDB2(bad_db2_files, sAreaPOIStore,                   db2Path, "AreaPOI.db2");
@@ -221,7 +221,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGroupFinderActivityStore,       db2Path, "GroupFinderActivity.db2");
     LoadDB2(bad_db2_files, sGroupFinderCategoryStore,       db2Path, "GroupFinderCategory.db2");
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2");
-    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2");
+    LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2", "map_challenge_mode", "ID");
     LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2");
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2");
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2");
@@ -230,7 +230,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
     //////////////////////////////////////////////////////////////////////////
-    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2");
+    LoadDB2(bad_db2_files, sQuestPackageItemStore,          db2Path, "QuestPackageItem.db2", "quest_package_item", "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Scene Script DB2

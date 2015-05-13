@@ -2221,14 +2221,6 @@ class spell_mage_novas_talent : public SpellScriptLoader
 
                 if (GetExplTargetUnit() != nullptr)
                     m_MainTarget = GetExplTargetUnit()->GetGUID();
-
-                /// Ice Nova, Blast Wave, Supernova, now has a 3-second cooldown.
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 3 * IN_MILLISECONDS);
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -2308,7 +2300,7 @@ class spell_mage_blink : public SpellScriptLoader
 
         enum eSpells
         {
-            GlyphOfRapidDisplacement = 163558
+            GlyphOfRapidDisplacement = 146659
         };
 
         class spell_mage_blink_SpellScript : public SpellScript
@@ -2326,8 +2318,10 @@ class spell_mage_blink : public SpellScriptLoader
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+                }
             }
 
             void Register()
