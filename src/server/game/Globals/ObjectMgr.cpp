@@ -9208,36 +9208,58 @@ void ObjectMgr::LoadFactionChangeTitles()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadHotfixData()
+void ObjectMgr::LoadHotfixData(bool p_Reload)
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, hotfixDate FROM hotfix_data");
+    QueryResult result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `hotfix_data` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `_hotfixs` is empty.");
         return;
     }
 
-    uint32 count = 0;
+    uint32 l_Count = 0;
 
     _hotfixData.reserve(result->GetRowCount());
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = result->Fetch();
 
-        HotfixInfo info;
-        info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt32();
-        _hotfixData.push_back(info);
-        ++count;
+        HotfixInfo l_Infos;
+        l_Infos.Entry       = l_Fields[0].GetUInt32();
+        l_Infos.Type        = l_Fields[1].GetUInt32();
+        l_Infos.Timestamp   = l_Fields[2].GetUInt32();
+
+        if (p_Reload)
+        {
+            auto l_It = std::find_if(_hotfixData.begin(), _hotfixData.end(), [l_Infos](HotfixInfo const& p_Elem) -> bool
+            {
+                return p_Elem.Type == l_Infos.Type && p_Elem.Entry == l_Infos.Entry;
+            });
+
+            if (l_It == _hotfixData.end())
+            {
+                _hotfixData.push_back(l_Infos);
+
+                WorldPacket l_Notify(SMSG_HOTFIX_NOTIFY, 100);
+                l_Notify << uint32(l_Infos.Type);
+                l_Notify << uint32(l_Infos.Entry);
+                l_Notify << uint32(l_Infos.Timestamp);
+
+                sWorld->SendGlobalMessage(&l_Notify);
+            }
+        }
+        else
+            _hotfixData.push_back(l_Infos);
+
+        ++l_Count;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPhaseDefinitions()

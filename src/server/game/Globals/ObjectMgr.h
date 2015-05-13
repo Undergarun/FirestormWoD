@@ -1516,7 +1516,7 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
 
-        void LoadHotfixData();
+        void LoadHotfixData(bool p_Reload = false);
         HotfixData const& GetHotfixData() const { return _hotfixData; }
         time_t GetHotfixDate(uint32 entry, uint32 type) const
         {
