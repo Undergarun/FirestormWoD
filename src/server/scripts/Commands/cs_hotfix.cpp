@@ -59,7 +59,8 @@ class hotfix_commandscript : public CommandScript
             if (!l_Arg1Str)
                 return false;
 
-            std::string l_TableName = l_Arg1Str;
+            std::string l_TableName     = l_Arg1Str;
+            std::string l_OriginalName  = "";
             std::transform(l_TableName.begin(), l_TableName.end(), l_TableName.begin(), ::tolower);
 
             DB2StorageBase * l_Store = nullptr;
@@ -71,7 +72,8 @@ class hotfix_commandscript : public CommandScript
 
                 if (l_PairName == l_TableName)
                 {
-                    l_Store = sDB2PerHash[l_Pair.second];
+                    l_OriginalName  = l_Pair.first;
+                    l_Store         = sDB2PerHash[l_Pair.second];
                     break;
                 }
             }
@@ -89,8 +91,11 @@ class hotfix_commandscript : public CommandScript
                 return false;
             }
 
+            p_Handler->PSendSysMessage("Store '%s' reloaded", l_OriginalName.c_str());
+
             if (l_TableName == "item" || l_TableName == "itemsparse" || l_TableName == "itemeffect" || l_TableName == "itemappearance" || l_TableName == "itemmodifiedappearance")
             {
+                p_Handler->PSendSysMessage("Rebuilding core item_templates");
                 sObjectMgr->LoadItemTemplates();
                 sObjectMgr->LoadItemTemplateAddon();
                 sObjectMgr->LoadItemTemplateCorrections();
