@@ -24,7 +24,7 @@ void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
 void AddSC_user_reporting();
 void AddSC_warning_update_client();
-//void AddSC_DuelReset();
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -908,7 +908,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    //AddSC_DuelReset();
+    AddSC_DuelReset();
 #endif
 }
 
