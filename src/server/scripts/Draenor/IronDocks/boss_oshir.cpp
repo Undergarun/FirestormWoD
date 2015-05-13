@@ -62,7 +62,7 @@ enum Creatures
     CREATURE_WOLF = 89012,
     CREATURE_RYLAK = 89011,
     CREATURE_GUARD = 83390,
-    
+
     // dests
     TRIGGER_WOLF_DEST = 89022,
     TRIGGER_RYLAK_DEST = 89021,
@@ -70,12 +70,12 @@ enum Creatures
 
 Position newhomeposition = {6945.15f, -1098.29f, 4.603f, 4.579627f};
 Position npcspawning = {6924.00f, -1090.61f, 4.604f, 0.102262f};
-Position npcmovement[3] = 
+Position npcmovement[3] =
 {
     {6972.43f, -1094.44f, 4.962f, 0.903368f},
     {6969.16f, -1089.79f, 4.60f, 0.881810f},
     {6964.44f, -1085.31f, 4.603f, 0.102262f},
-}; 
+};
 
 #define breakoutinterval 20000
 #define feedingfrenzyinterval urand(50000, 60000)
@@ -164,7 +164,7 @@ public:
                             {
 
                                 Oshir->GetMotionMaster()->MoveJump(guard->GetPositionX(), guard->GetPositionY(), guard->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                                   
+
                                 //Oshir->CastSpell(guard, SPELL_BREAKOUT);
                                 guard->CastSpell(guard, SPELL_BLOODY_CORPSE_EXPLOSION);
                                 Oshir->Kill(guard);
@@ -395,7 +395,7 @@ public:
                             if (wolf_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = wolf_dests.begin();
+                            std::list<Creature*>::iterator it = wolf_dests.begin();
                             std::advance(it, urand(0, wolf_dests.size() - 1));
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
@@ -413,7 +413,7 @@ public:
                             if (rylak_dests.empty())
                                 return;
 
-                            std::list<Creature*>::const_iterator it = rylak_dests.begin();
+                            std::list<Creature*>::iterator it = rylak_dests.begin();
                             std::advance(it, urand(0, rylak_dests.size() - 1));
 
                             me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
@@ -425,7 +425,7 @@ public:
                                 rylak_dests.erase(it);
                             }
                             break;
-                        }          
+                        }
                     }
                     events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
                     break;
@@ -510,7 +510,7 @@ public:
                                 {
                                     if (itr && itr->IsInWorld() && itr->isAlive())
                                     {
-                                      
+
                                         itr->setFaction(16);
                                         itr->SetReactState(REACT_AGGRESSIVE);
                                         itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
