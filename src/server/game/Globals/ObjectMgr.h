@@ -1517,6 +1517,9 @@ class ObjectMgr
         void LoadFactionChangeTitles();
 
         void LoadHotfixData(bool p_Reload = false);
+        void LoadHotfixTableHashs();
+        std::map<std::string, uint32> HotfixTableID;
+
         HotfixData const& GetHotfixData() const { return _hotfixData; }
         time_t GetHotfixDate(uint32 entry, uint32 type) const
         {

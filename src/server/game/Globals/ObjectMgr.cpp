@@ -9222,6 +9222,7 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
 
     uint32 l_Count = 0;
 
+    _hotfixData.clear();
     _hotfixData.reserve(result->GetRowCount());
 
     do
@@ -9260,6 +9261,23 @@ void ObjectMgr::LoadHotfixData(bool p_Reload)
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadHotfixTableHashs()
+{
+    QueryResult l_Result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
+
+    if (!l_Result)
+        return;
+
+    HotfixTableID.clear();
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        HotfixTableID[l_Fields[1].GetString()] = l_Fields[0].GetUInt32();
+    } while (l_Result->NextRow());
 }
 
 void ObjectMgr::LoadPhaseDefinitions()
