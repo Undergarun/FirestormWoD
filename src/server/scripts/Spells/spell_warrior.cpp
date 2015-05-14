@@ -1422,7 +1422,9 @@ class spell_warr_execute: public SpellScriptLoader
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                if (!l_Caster->HasAura(52437)) ///< Sudden Death : consume no extra Rage
+                if (AuraPtr l_Aura = l_Caster->GetAura(52437)) ///< Sudden Death : consume no extra Rage
+                    l_Aura->Remove();
+                else
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
                 l_Damage += CalculatePct(l_Damage, l_RageConsumed * (405.0f / l_MaxConsumed));
