@@ -289,7 +289,7 @@ class OutdoorPvP : public ZoneScript
         // the map of the objectives belonging to this outdoorpvp
         OPvPCapturePointMap m_capturePoints;
 
-        PlayerSet m_players[2];
+        GuidSet m_Players[MS::Battlegrounds::TeamsCount::Value];
 
         uint32 m_TypeId;
 

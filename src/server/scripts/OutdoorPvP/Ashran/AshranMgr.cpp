@@ -785,7 +785,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersWillBeKick[p_Player->GetTeamId()].erase(p_Player->GetGUID());
-        m_players[p_Player->GetTeamId()].erase(p_Player);
+        m_Players[p_Player->GetTeamId()].erase(p_Player->GetGUID());
     }
 
     SendRemoveWorldStates(p_Player);
@@ -1369,7 +1369,7 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
     {
         m_PlayersInWar[p_Player->GetTeamId()].insert(p_Player->GetGUID());
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
-        m_players[p_Player->GetTeamId()].insert(p_Player);
+        m_Players[p_Player->GetTeamId()].insert(p_Player->GetGUID());
 
         p_Player->GetSession()->SendBfEntered(m_Guid);
     }
