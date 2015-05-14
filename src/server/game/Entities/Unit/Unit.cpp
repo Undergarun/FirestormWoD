@@ -19572,8 +19572,6 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
     if (!target)
         return;
-
-    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
