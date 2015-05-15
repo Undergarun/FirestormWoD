@@ -2256,7 +2256,7 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
 
     // special case: fake item replaced by generate using spell_loot_template
     if (m_spellInfo->IsLootCrafting())
-    {    
+    {
         if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
         {
             if (!player->HasItemCount(item_id))
@@ -2989,6 +2989,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->isTotem())
                         return;
 
+                    /// Glyph of Totemic Vigor
+                    if (AuraEffectPtr l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))
+                        damage += m_caster->CountPctFromMaxHealth(l_GlyphOfTotemicVigor->GetAmount());
+
                     if (damage)                                            // if not spell info, DB values used
                     {
                         summon->SetMaxHealth(damage);
@@ -3282,7 +3286,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         l_DispellData.WriteBit(!!l_Rolled);                     ///< IsRolled
         l_DispellData.WriteBit(!!l_Needed);                     ///< IsNeeded
         l_DispellData.FlushBits();
-       
+
         if (l_Rolled)
             l_DispellData << uint32(l_Rolled);                  ///< Rolled
 
@@ -4270,7 +4274,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
 
                     /// Item - Druid WoD PvP Feral 2P Bonus
                     if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
-                    { 
+                    {
                         if (Player* l_Player = m_originalCaster->ToPlayer())
                         {
                             /// Interrupting a spell with Skull Bash resets the cooldown of Tiger's Fury.
@@ -4972,12 +4976,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         {
                             m_caster->CastCustomSpell(totem, 55277, &basepoints0, NULL, NULL, true);
                         }
-                    }
-                    // Glyph of Stoneclaw Totem
-                    if (AuraEffectPtr aur = unitTarget->GetAuraEffect(63298, 0))
-                    {
-                        basepoints0 *= aur->GetAmount();
-                        m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, NULL, NULL, true);
                     }
                     break;
                 }
