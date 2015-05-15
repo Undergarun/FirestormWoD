@@ -46,7 +46,7 @@ namespace MS { namespace Garrison
 
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
-            if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name).empty() && std::string(l_ContainerEntry->Description).empty()))
+            if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name->Get(sWorld->GetDefaultDbcLocale())).empty() && std::string(l_ContainerEntry->Description->Get(sWorld->GetDefaultDbcLocale())).empty()))
                 continue;
 
             l_ShipmentPerBuildingType[l_ContainerEntry->BuildingType].emplace(l_Entry->ID);
@@ -78,7 +78,7 @@ namespace MS { namespace Garrison
 
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
-            if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name).empty() && std::string(l_ContainerEntry->Description).empty()))
+            if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name->Get(sWorld->GetDefaultDbcLocale())).empty() && std::string(l_ContainerEntry->Description->Get(sWorld->GetDefaultDbcLocale())).empty()))
                 continue;
 
             /// Some conflict can appear if queue contains more than 1 ID Range

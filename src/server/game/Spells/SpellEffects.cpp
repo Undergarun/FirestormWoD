@@ -1635,6 +1635,10 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
             AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
             AddPct(currentValue, AbsorbMod2);
+
+            if (l_Caster->IsSpellCrit(unitTarget, m_spellInfo, m_spellInfo->GetSchoolMask()))
+                currentValue = l_Caster->SpellCriticalHealingBonus(m_spellInfo, currentValue, unitTarget);
+
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
     }
@@ -1910,28 +1914,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 }
             }
         }
-        // 77226 - Mastery : Deep Healing
-        if (caster && (caster->GetOwner() && caster->GetOwner()->GetTypeId() == TYPEID_PLAYER && caster->GetOwner()->getClass() == CLASS_SHAMAN) || (caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN))
-        {
-            Unit* l_Owner = caster;
-
-            if (caster->GetOwner())
-                l_Owner = caster->GetOwner();
-
-            if (l_Owner->HasAura(77226))
-            {
-                if (addhealth)
-                {
-                    float Mastery = l_Owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
-                    float healthpct = unitTarget->GetHealthPct();
-
-                    float bonus = 0;
-                    bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
-
-                    addhealth *= 1 + bonus;
-                }
-            }
-        }
 
         // 77485 - Mastery : Echo of Light
         if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
@@ -1942,6 +1924,21 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
 
             m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
+        }
+
+        /// Unleashed Fury - Earthliving
+        if (caster && caster->HasAura(118473))
+        {
+            bool singleTarget = false;
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && m_spellInfo->Effects[i].TargetB.GetTarget() == 0)
+                singleTarget = true;
+
+            if (singleTarget)
+            {
+                addhealth += CalculatePct(damage, 50.0f);
+                caster->RemoveAurasDueToSpell(118473);
+            }
         }
 
         // Chakra : Serenity - 81208
@@ -3337,6 +3334,9 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
                 int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
                 m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
             }
+            /// last update : 6.1.2 19802
+            if (m_caster->HasAura(171381)) ///< Shaman WoD PvP Restoration 2P Bonus
+                m_caster->CastSpell(unitTarget, 171382, true);
             break;
         }
         default:

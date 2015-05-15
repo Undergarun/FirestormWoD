@@ -197,6 +197,34 @@ LocaleConstant GetLocaleByName(const std::string& name);
 
 typedef std::vector<std::string> StringVector;
 
+#pragma pack(push, 1)
+
+static char const* g_EmptyStr = "";
+
+struct LocalizedString
+{
+    char const* Str[TOTAL_LOCALES];
+
+    LocalizedString()
+    {
+        for (uint32 l_I = 0; l_I < TOTAL_LOCALES; l_I++)
+            Str[l_I] = "";
+    }
+
+    inline char const* Get(uint32 p_Locale) const
+    {
+        if ((Str[p_Locale] == nullptr || strlen(Str[p_Locale]) == 0) && Str[LOCALE_enUS] != nullptr)
+            return Str[LOCALE_enUS];
+
+        if (Str[p_Locale] == nullptr)
+            return g_EmptyStr;
+
+        return Str[p_Locale];
+    }
+};
+
+#pragma pack(pop)
+
 enum GM_COMMAND_TAB
 {
     GM,

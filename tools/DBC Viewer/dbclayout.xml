@@ -4769,4 +4769,12 @@
     <field type="int" name="SpellID" />
     <field type="int" name="PlayerConditionID" />
   </Mount>
+  <SpellEffectGroupSize build="0">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="float" name="field2" />
+  </SpellEffectGroupSize>
 </DBFilesClient>

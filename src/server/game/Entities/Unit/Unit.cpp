@@ -753,6 +753,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 blackOxStatue->SetScriptData(0, damage);
         }
     }
+
+    /// Mindbender
+    if (GetEntry() == 62982 || GetEntry() == 67236)
+    {
+        /// Caster receives 0.75% mana when the Mindbender attacks
+        if (GetOwner())
+            GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
+    }
+
     // Leeching Poison - 112961 each attack heal the player for 10% of the damage
     if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
     {
@@ -12620,21 +12629,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         }
     }
 
-    // Unleashed Fury - Earthliving
-    if (HasAura(118473))
-    {
-        bool singleTarget = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
-            singleTarget = true;
-
-        if (singleTarget)
-        {
-            DoneTotal += CalculatePct(healamount, 50.0f);
-            RemoveAurasDueToSpell(118473);
-        }
-    }
-
     // Apply Power PvP healing bonus
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -12647,6 +12641,21 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
         DoneTotal += CalculatePct(healamount, Mastery);
+    }
+
+    // 77226 - Mastery : Deep Healing
+    if ((GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER && GetOwner()->HasAura(77226)) || (GetTypeId() == TYPEID_PLAYER && HasAura(77226)))
+    {
+            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+            
+            if (GetOwner())
+                Mastery = GetOwner()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+
+            float healthpct = victim->GetHealthPct();
+
+            float bonus = 0;
+            bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
+            DoneTotal += CalculatePct(healamount, bonus);
     }
 
     /// Apply Versatility healing bonus done
@@ -19563,8 +19572,6 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
     if (!target)
         return;
-
-    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step

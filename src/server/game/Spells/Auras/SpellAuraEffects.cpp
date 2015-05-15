@@ -516,7 +516,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
     &AuraEffect::HandleAuraIncreaseDualWieldDamage,               //458 SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
-    &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
+    &AuraEffect::HandleNoImmediateEffect,                         //460 SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING
@@ -1273,6 +1273,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         amount += (int32)DoneActualBenefit;
     }
 
+    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
+
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         /// Apply Versatility absorb bonus
@@ -1280,7 +1282,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
 
-    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
 
     return amount;
@@ -8487,22 +8488,6 @@ void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_M
 
     l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
     l_Player->UpdateArmor();
-}
-
-void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
-{
-    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    Unit* l_Target = p_AurApp->GetTarget();
-
-    if (l_Target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Actually this aura is only use when we go to a Duel
-    // Enter in Arena reset the same way cooldowns that enter in duel
-    if (p_Apply)
-        l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

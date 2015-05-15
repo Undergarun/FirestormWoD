@@ -267,7 +267,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             {
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(), 0, "", 0, "",
                                 "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount());
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount());
             }
 
             l_AHEntry->itemGUIDLow = l_Item->GetGUIDLow();
@@ -282,7 +282,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             l_AHEntry->deposit = l_Deposit;
             l_AHEntry->auctionHouseEntry = l_AuctionHouse;
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetGUIDLow(), l_AHEntry->auctioneer, l_Item->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetGUIDLow(), l_AHEntry->auctioneer, l_Item->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
             sAuctionMgr->AddAItem(l_Item);
             l_AuctionHouseObj->AddAuction(l_AHEntry);
 
@@ -314,7 +314,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             {
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(), 0, "", 0, "",
                                 "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount());
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount());
             }
 
             l_AHEntry->itemGUIDLow = l_NewItem->GetGUIDLow();
@@ -329,7 +329,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             l_AHEntry->deposit = l_Deposit;
             l_AHEntry->auctionHouseEntry = l_AuctionHouse;
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_NewItem->GetTemplate()->Name1.c_str(), l_NewItem->GetEntry(), l_NewItem->GetGUIDLow(), l_AHEntry->auctioneer, l_NewItem->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_NewItem->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_NewItem->GetEntry(), l_NewItem->GetGUIDLow(), l_AHEntry->auctioneer, l_NewItem->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
             sAuctionMgr->AddAItem(l_NewItem);
             l_AuctionHouseObj->AddAuction(l_AHEntry);
 

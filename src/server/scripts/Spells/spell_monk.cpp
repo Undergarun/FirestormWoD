@@ -1150,6 +1150,12 @@ class spell_monk_guard: public SpellScriptLoader
         {
             PrepareAuraScript(spell_monk_guard_AuraScript);
 
+            enum eSpells
+            {
+                WoDPvPBrewmaster4PBonusAura = 115295,
+                WoDPvPBrewmaster4PBonus     = 171431
+            };
+
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1160,6 +1166,9 @@ class spell_monk_guard: public SpellScriptLoader
                     p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+
+                if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPBrewmaster4PBonus, true);
             }
 
             void Register()
@@ -1171,6 +1180,55 @@ class spell_monk_guard: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_guard_AuraScript();
+        }
+};
+
+/// WoD PvP Brewmaster 4P Bonus - 171431
+class spell_monk_WoDPvPBrewmaster4PBonus : public SpellScriptLoader
+{
+    public:
+        spell_monk_WoDPvPBrewmaster4PBonus() : SpellScriptLoader("spell_monk_WoDPvPBrewmaster4PBonus") { }
+
+        class spell_monk_WoDPvPBrewmaster4PBonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_WoDPvPBrewmaster4PBonus_SpellScript);
+
+            enum eSpells
+            {
+                Guard = 115295
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
+                    p_Targets.resize(1);
+                }
+            }
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Target->CastSpell(l_Target, eSpells::Guard, true);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_WoDPvPBrewmaster4PBonus_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_WoDPvPBrewmaster4PBonus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_WoDPvPBrewmaster4PBonus_SpellScript();
         }
 };
 
@@ -4996,6 +5054,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_WoDPvPBrewmaster2PBonus();
     new spell_monk_zen_sphere_tick();
     new spell_monk_zen_sphere_detonate_heal();
+    new spell_monk_WoDPvPBrewmaster4PBonus();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

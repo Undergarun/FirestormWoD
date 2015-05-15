@@ -2881,9 +2881,9 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (p_EventInfo.GetSpellInfo())
+                if (p_EventInfo.GetDamageInfo()->GetSpellInfo() != nullptr)
                 {
-                    if (p_EventInfo.GetSpellInfo()->IsPositive())
+                    if (p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->IsHealingSpell())
                         return;
                 }
 

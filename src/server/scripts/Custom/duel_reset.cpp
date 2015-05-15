@@ -285,7 +285,27 @@ class duel_reset: public PlayerScript
         }
 };
 
+class duel_reset_aura_script: public PlayerScript
+{
+    public:
+        duel_reset_aura_script() : PlayerScript("duel_reset_aura_script") {}
+
+        void OnDuelStart(Player* p_Player1, Player* p_Player2)
+        {
+            if (!p_Player1 || !p_Player2)
+                return;
+
+            if (p_Player1->HasAuraType(SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL))
+                p_Player1->RemoveArenaSpellCooldowns(true);
+
+            if (p_Player2->HasAuraType(SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL))
+                p_Player2->RemoveArenaSpellCooldowns(true);
+        }
+};
+
+
 void AddSC_DuelReset()
 {
-    new duel_reset();
+    //new duel_reset();
+    new duel_reset_aura_script();
 }

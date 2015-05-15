@@ -2202,37 +2202,6 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
     return 0;
 }
 
-void ObjectMgr::LoadItemLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _itemLocaleStore.clear();                                 // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, description_loc1, name_loc2, description_loc2, name_loc3, description_loc3, name_loc4, description_loc4, name_loc5, description_loc5, name_loc6, description_loc6, name_loc7, description_loc7, name_loc8, description_loc8, name_loc9, description_loc9, name_loc10, description_loc10 FROM locales_item");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        ItemLocale& data = _itemLocaleStore[entry];
-
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.Description);
-        }
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadRealmCompletedChallenges()
 {
     uint32 l_OldMSTime = getMSTime();
@@ -2337,44 +2306,6 @@ void ObjectMgr::LoadChallengeRewards()
     while (l_Result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u challenge mode rewards in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
-}
-
-void ObjectMgr::LoadMapChallengeModeHotfixes()
-{
-    uint32 l_OldMSTime = getMSTime();
-    uint32 l_Count = 0;
-
-    QueryResult l_Result = WorldDatabase.Query("SELECT id, map_id, field2, field3, field4, bronze_time, silver_time, gold_time, field8, field9 FROM map_challenge_mode_hotfixes");
-    if (!l_Result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 map challenge mode hotfixes. DB table `map_challenge_mode_hotfixes` is empty.");
-        return;
-    }
-
-    do
-    {
-        uint32 l_Index = 0;
-        Field* l_Fields = l_Result->Fetch();
-        uint32 l_ID = l_Fields[l_Index++].GetUInt32();
-
-        MapChallengeModeHotfix& l_HotFix = m_MapChallengeModeHotfixes[l_ID];
-
-        l_HotFix.m_ID = l_ID;
-        l_HotFix.m_MapID = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field2 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field3 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field4 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_BronzeTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_SilverTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_GoldTime = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field8 = l_Fields[l_Index++].GetUInt32();
-        l_HotFix.m_Field9 = l_Fields[l_Index++].GetUInt32();
-
-        ++l_Count;
-    }
-    while (l_Result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u map challenge mode hotfixes in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 
 void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2)
@@ -9260,36 +9191,148 @@ void ObjectMgr::LoadFactionChangeTitles()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadHotfixData()
+void ObjectMgr::LoadHotfixData(bool p_Reload)
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, hotfixDate FROM hotfix_data");
+    auto l_ProcessHotifx = [this](HotfixInfo p_Info, bool p_Reloaded) -> void
+    {
+        if (p_Reloaded)
+        {
+            auto l_It = std::find_if(_hotfixData.begin(), _hotfixData.end(), [p_Info](HotfixInfo const& p_Elem) -> bool
+            {
+                return p_Elem.Type == p_Info.Type && p_Elem.Entry == p_Info.Entry;
+            });
+
+            if (l_It == _hotfixData.end())
+                _hotfixData.push_back(p_Info);
+
+            WorldPacket l_Notify(SMSG_HOTFIX_NOTIFY, 100);
+            l_Notify << uint32(p_Info.Type);
+            l_Notify << uint32(p_Info.Entry);
+            l_Notify << uint32(p_Info.Timestamp);
+
+            sWorld->SendGlobalMessage(&l_Notify);
+        }
+        else
+            _hotfixData.push_back(p_Info);
+    };
+
+    QueryResult result = HotfixDatabase.Query("SELECT Entry, Hash, Date FROM _hotfixs");
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `hotfix_data` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `_hotfixs` is empty.");
         return;
     }
 
-    uint32 count = 0;
+    uint32 l_Count = 0;
 
-    _hotfixData.reserve(result->GetRowCount());
+    if (!p_Reload)
+    {
+        _hotfixData.clear();
+        _hotfixData.reserve(result->GetRowCount());
+    }
 
     do
     {
-        Field* fields = result->Fetch();
+        Field* l_Fields = result->Fetch();
 
-        HotfixInfo info;
-        info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt32();
-        _hotfixData.push_back(info);
-        ++count;
+        HotfixInfo l_Infos;
+        l_Infos.Entry       = l_Fields[0].GetUInt32();
+        l_Infos.Type        = l_Fields[1].GetUInt32();
+        l_Infos.Timestamp   = l_Fields[2].GetUInt32();
+
+        l_ProcessHotifx(l_Infos, p_Reload);
+
+        ++l_Count;
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    result = HotfixDatabase.Query("SELECT ID FROM _custom_items");
+
+    if (result)
+    {
+        do
+        {
+            Field* l_Fields = result->Fetch();
+            uint32 l_ItemID = l_Fields[0].GetUInt32();
+
+            if (sItemStore.LookupEntry(l_ItemID))
+            {
+                HotfixInfo l_Infos;
+                l_Infos.Type         = sItemStore.GetHash();
+                l_Infos.Timestamp    = time(nullptr);
+                l_Infos.Entry        = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            if (sItemSparseStore.LookupEntry(l_ItemID))
+            {
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemSparseStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_ItemID;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sItemEffectStore.GetNumRows(); ++l_I)
+            {
+                ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(l_I);
+
+                if (!l_Entry || l_Entry->ItemID != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemEffectStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
+                l_ProcessHotifx(l_Infos, p_Reload);
+            }
+
+            for (uint32 l_I = 0; l_I < sItemModifiedAppearanceStore.GetNumRows(); ++l_I)
+            {
+                ItemModifiedAppearanceEntry const* l_Entry = sItemModifiedAppearanceStore.LookupEntry(l_I);
+
+                if (!l_Entry || l_Entry->ItemID != l_ItemID)
+                    continue;
+
+                HotfixInfo l_Infos;
+                l_Infos.Type        = sItemModifiedAppearanceStore.GetHash();
+                l_Infos.Timestamp   = time(nullptr);
+                l_Infos.Entry       = l_I;
+                l_ProcessHotifx(l_Infos, p_Reload);
+
+                if (sItemAppearanceStore.LookupEntry(l_Entry->AppearanceID))
+                {
+                    l_Infos.Type        = sItemAppearanceStore.GetHash();
+                    l_Infos.Timestamp   = time(nullptr);
+                    l_Infos.Entry       = l_Entry->AppearanceID;
+                    l_ProcessHotifx(l_Infos, p_Reload);
+                }
+            }
+            ++l_Count;
+        } while (result->NextRow());
+    }
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", l_Count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadHotfixTableHashs()
+{
+    QueryResult l_Result = HotfixDatabase.Query("SELECT ID, Name FROM _hashs");
+
+    if (!l_Result)
+        return;
+
+    HotfixTableID.clear();
+
+    do
+    {
+        Field* l_Fields = l_Result->Fetch();
+
+        HotfixTableID[l_Fields[1].GetString()] = l_Fields[0].GetUInt32();
+    } while (l_Result->NextRow());
 }
 
 void ObjectMgr::LoadPhaseDefinitions()
@@ -10236,8 +10279,7 @@ void ObjectMgr::LoadTaxiData()
             nodePos.m_positionZ = nodeEntry->z;
             nodePos.m_orientation = 0.f;
 
-            std::string l_Name = nodeEntry->name;
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, l_Name, entry->price);
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
             node->AddConnectedNode(entry->to);
 
             _taxiNodes[entry->from] = node;
@@ -10268,8 +10310,7 @@ void ObjectMgr::LoadTaxiData()
         nodePos.m_positionZ = nodeEntry->z;
         nodePos.m_orientation = 0.f;
 
-        std::string l_Name = nodeEntry->name;
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, l_Name, entry->price);
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
 
         _taxiNodes[entry->to] = node;
     }

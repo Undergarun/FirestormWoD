@@ -111,6 +111,7 @@ const Position dummyPos[38] =
     {-70.941f, -835.523f, 40.6859f}
 };
 
+/// 47626
 class boss_admiral_ripsnarl : public CreatureScript
 {
     public:
@@ -160,7 +161,7 @@ class boss_admiral_ripsnarl : public CreatureScript
                     events.ScheduleEvent(EVENT_GO_FOR_THE_THROAT, urand(5000, 10000));
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_RIPSNARL_ACHIEVEMENT);
-                instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, ACHIEVEMENT_CRITERIA_CONDITION_UNK3, 28179);
+                instance->DoResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, ACHIEVEMENT_CRITERIA_CONDITION_UNK13, 28179);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_ADMIRAL, IN_PROGRESS);
             }
@@ -260,8 +261,7 @@ class boss_admiral_ripsnarl : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
-        private:
+    private:
 
             uint8 stage;
 
@@ -288,7 +288,7 @@ class boss_admiral_ripsnarl : public CreatureScript
         };
 };
 
-// 47626
+/// 47714
 class npc_admiral_ripsnarl_vapor : public CreatureScript
 {
     public:
@@ -372,7 +372,7 @@ class npc_admiral_ripsnarl_vapor : public CreatureScript
         };
 };
 
-class spell_admiral_ripsnarl_coalesce: public SpellScriptLoader
+class spell_admiral_ripsnarl_coalesce : public SpellScriptLoader
 {
     public:
         spell_admiral_ripsnarl_coalesce() : SpellScriptLoader("spell_admiral_ripsnarl_coalesce") { }

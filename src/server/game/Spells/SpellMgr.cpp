@@ -3753,8 +3753,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 165376: ///< Enlightenment
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
-            case 156989: ///< Liadrin's Righteousness
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_MELEE_HASTE;
+                break;
             case 139834: ///< Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;

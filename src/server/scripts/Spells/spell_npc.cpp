@@ -748,6 +748,160 @@ class spell_npc_warl_wild_imp : public CreatureScript
         }
 };
 
+enum eGatewaySpells
+{
+    PortalVisual = 113900,
+    GatewayInteract = 113902,
+    CooldownMarker = 113942
+};
+
+enum eGatewayNpc
+{
+    GreenGate = 59262,
+    PurpleGate = 59271
+};
+
+/// npc_demonic_gateway_purple - 59271
+class spell_npc_warl_demonic_gateway_purple : public CreatureScript
+{
+    public:
+        spell_npc_warl_demonic_gateway_purple() : CreatureScript("npc_demonic_gateway_purple") { }
+
+        struct spell_npc_warl_demonic_gateway_purpleAI : public ScriptedAI
+        {
+            spell_npc_warl_demonic_gateway_purpleAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->CastSpell(me, eGatewaySpells::PortalVisual, true);
+
+                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, eGatewaySpells::GatewayInteract);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void OnSpellClick(Unit* p_Clicker)
+            {
+                if (p_Clicker->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                // Demonic Gateway cooldown marker
+                if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
+                    return;
+
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner || !l_Owner->ToPlayer())
+                    return;
+
+                if (Group* l_Group = p_Clicker->ToPlayer()->GetGroup())
+                {
+                    if (l_Owner->ToPlayer()->GetGroup() != l_Group)
+                        return;
+                }
+                else if (l_Owner != p_Clicker)
+                    return;
+
+                std::list<Creature*> l_GreenGates;
+                me->GetCreatureListWithEntryInGrid(l_GreenGates, eGatewayNpc::GreenGate, 75.0f);
+
+                if (l_GreenGates.empty())
+                    return;
+
+                l_GreenGates.sort(JadeCore::DistanceCompareOrderPred(me));
+                for (auto itr : l_GreenGates)
+                {
+                    p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
+
+                    // Init dest coordinates
+                    float x, y, z;
+                    itr->GetPosition(x, y, z);
+
+                    float speedXY;
+                    float speedZ = 5;
+
+                    speedXY = p_Clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                    p_Clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                    break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warl_demonic_gateway_purpleAI(p_Creature);
+        }
+};
+
+/// npc_demonic_gateway_green - 59262
+class spell_npc_warl_demonic_gateway_green : public CreatureScript
+{
+    public:
+        spell_npc_warl_demonic_gateway_green() : CreatureScript("npc_demonic_gateway_green") { }
+
+        struct spell_npc_warl_demonic_gateway_greenAI : public ScriptedAI
+        {
+            spell_npc_warl_demonic_gateway_greenAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->CastSpell(me, eGatewaySpells::PortalVisual, true);
+
+                me->SetFlag(UNIT_FIELD_INTERACT_SPELL_ID, eGatewaySpells::GatewayInteract);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            }
+
+            void OnSpellClick(Unit* p_Clicker)
+            {
+                if (p_Clicker->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (p_Clicker->HasAura(eGatewaySpells::CooldownMarker))
+                    return;
+
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner || !l_Owner->ToPlayer())
+                    return;
+
+                if (Group* l_Group = p_Clicker->ToPlayer()->GetGroup())
+                {
+                    if (l_Owner->ToPlayer()->GetGroup() != l_Group)
+                        return;
+                }
+                else if (l_Owner != p_Clicker)
+                    return;
+
+                std::list<Creature*> l_PurpleGates;
+                me->GetCreatureListWithEntryInGrid(l_PurpleGates, eGatewayNpc::PurpleGate, 75.0f);
+
+                if (l_PurpleGates.empty())
+                    return;
+
+                l_PurpleGates.sort(JadeCore::DistanceCompareOrderPred(me));
+                for (auto itr : l_PurpleGates)
+                {
+                    p_Clicker->CastSpell(p_Clicker, eGatewaySpells::CooldownMarker, true);
+
+                    // Init dest coordinates
+                    float x, y, z;
+                    itr->GetPosition(x, y, z);
+
+                    float speedXY;
+                    float speedZ = 5;
+
+                    speedXY = p_Clicker->GetExactDist2d(x, y) * 10.0f / speedZ;
+                    p_Clicker->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                    break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warl_demonic_gateway_greenAI(p_Creature);
+        }
+};
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -769,4 +923,6 @@ void AddSC_npc_spell_scripts()
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();
+    new spell_npc_warl_demonic_gateway_purple();
+    new spell_npc_warl_demonic_gateway_green();
 }
