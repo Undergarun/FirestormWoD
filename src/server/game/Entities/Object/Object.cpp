@@ -3102,10 +3102,6 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     // Only slot 100, as it's not hunter pet.
     SetMinion(pet, true, PET_SLOT_OTHER_PET, stampeded);
 
-    /// Primal Elementalist - don't need to save pet to database, so mark it like stampeded
-    if (entry == 61029 || entry == 61056 || entry == 77942)
-        pet->m_Stampeded = true;
-
     switch (petType)
     {
         case SUMMON_PET:
