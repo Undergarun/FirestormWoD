@@ -177,5 +177,6 @@ const char WorldSafeLocsEntryfmt[]            = "niffffx";
 const char GtBattlePetTypeDamageModfmt[]      = "xf";
 const char GtBattlePetXPfmt[]                 = "xf";
 const char SpellProcsPerMinuteEntryfmt[]      = "nfx";
+const char WorldStateExpressionEntry[]        = "ns";
 
 #endif
