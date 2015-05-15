@@ -18418,20 +18418,50 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
                 l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
 
-            uint32 mingold = l_KilledCreature->GetCreatureTemplate()->mingold;
-            uint32 maxgold = l_KilledCreature->GetCreatureTemplate()->maxgold;
+            uint32 l_MinGold = l_KilledCreature->GetCreatureTemplate()->mingold;
+            uint32 l_MaxGold = l_KilledCreature->GetCreatureTemplate()->maxgold;
 
-            if (l_KilledCreature->GetMap()->IsRaid())
+            if (Map* l_Map = l_KilledCreature->GetMap())
             {
-                uint32 maxplayers = l_KilledCreature->GetMap()->GetEntry()->MaxPlayers;
-                if (maxplayers < 1)
-                    maxplayers = 1;
+                if (l_Map->IsRaid())
+                {
+                    /// Resize item count depending on player count
+                    if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
+                    {
+                        /// Assuming we have one loot per 5 players
+                        uint8 l_Count = std::min((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
-                mingold /= maxplayers;
-                maxgold /= maxplayers;
+                        if (l_Loot->Items.size() > l_Count)
+                        {
+                            std::random_device l_RandomDevice;
+                            std::mt19937 l_RandomGenerator(l_RandomDevice());
+                            std::shuffle(l_Loot->Items.begin(), l_Loot->Items.end(), l_RandomGenerator);
+
+                            std::vector<LootItem> l_RealLoots;
+                            for (LootItem l_LootItem : l_Loot->Items)
+                            {
+                                if (!l_Count)
+                                    break;
+
+                                --l_Count;
+                                l_RealLoots.push_back(l_LootItem);
+                            }
+
+                            l_Loot->Items.clear();
+                            l_Loot->Items = l_RealLoots;
+                        }
+                    }
+
+                    uint32 l_MaxPlayers = l_KilledCreature->GetMap()->GetEntry()->MaxPlayers;
+                    if (l_MaxPlayers < 1)
+                        l_MaxPlayers = 1;
+
+                    l_MinGold /= l_MaxPlayers;
+                    l_MaxGold /= l_MaxPlayers;
+                }
             }
 
-            l_Loot->generateMoneyLoot(mingold, maxgold);
+            l_Loot->generateMoneyLoot(l_MinGold, l_MaxGold);
         }
 
         l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
