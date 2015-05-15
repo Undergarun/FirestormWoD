@@ -5119,7 +5119,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     unitTarget->CombatStop(false);
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131369)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131361)
     {
         m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT_2);
