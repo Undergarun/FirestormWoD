@@ -607,6 +607,8 @@ typedef std::map<uint32, std::set<uint32>> AvaiableDifficultySpell;
 typedef std::map<std::pair<uint32, uint32>, uint32> DataStoreMapPair;
 typedef std::map<std::string, DataStoreMapPair> DatastoreDifficultyKey;
 
+using ItemSourceSkills = std::map<uint32, std::vector<uint32>>;
+
 class SpellMgr
 {
     friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
@@ -726,6 +728,15 @@ class SpellMgr
             return l_Itr2->second;
         }
 
+        std::vector<uint32> const* GetItemSourceSkills(uint32 p_ItemEntry) const
+        {
+            auto l_Itr = m_ItemSourceSkills.find(p_ItemEntry);
+            if (l_Itr == m_ItemSourceSkills.end())
+                return nullptr;
+
+            return &l_Itr->second;
+        }
+
     // Modifiers
     public:
 
@@ -801,6 +812,7 @@ class SpellMgr
         ItemUpgradeDatas           mItemUpgradeDatas;
         AvaiableDifficultySpell    mAvaiableDifficultyBySpell;
         DatastoreDifficultyKey     mDatastoreSpellDifficultyKey;
+        ItemSourceSkills           m_ItemSourceSkills;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

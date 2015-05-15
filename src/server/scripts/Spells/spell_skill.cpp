@@ -34,7 +34,20 @@ namespace MS { namespace Skill
             ResearchEtherealInk      = 165464,
             ResearchInkOfTheSea      = 165465,
             ResearchBlackfallowInk   = 165466,
-            ResearchInkOfDreams      = 165467
+            ResearchInkOfDreams      = 165467,
+
+            /// Reset secondary properties
+            InscribedCrystal         = 166430,
+            DidiDelicateAssembly     = 168121,
+            HexweaveEmbroidery       = 168864,
+            TaladiteRecrystalizer    = 173016,
+            TruesteelGrinder         = 173347,
+            TruesteelReshaper        = 173353,
+            LeatherRefurbishingKit   = 173362,
+            TaladiteRecrystalizer2   = 178351,
+            TaladiteRecrystalizer3   = 178381,
+            TaladiteRecrystalizer4   = 178382,
+            TaladiteRecrystalizer5   = 178383
         };
     }
 
@@ -363,6 +376,144 @@ namespace MS { namespace Skill
             }
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Reset secondary properties spells
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_ResetSecondaryProperties : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_ResetSecondaryProperties()
+                : SpellScriptLoader("spell_Skill_ResetSecondaryProperties")
+            {
+            }
+
+            class spell_Skill_ResetSecondaryProperties_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_ResetSecondaryProperties_SpellScript);
+
+                bool HaveSameItemSourceSkill(Item* p_Item1, Item* p_Item2) const
+                {
+                    if (p_Item1 == nullptr
+                        || p_Item2 == nullptr)
+                        return false;
+
+                    auto l_SourceSkill1 = sSpellMgr->GetItemSourceSkills(p_Item1->GetEntry());
+                    auto l_SourceSkill2 = sSpellMgr->GetItemSourceSkills(p_Item2->GetEntry());
+
+                    if (l_SourceSkill1 == nullptr
+                        || l_SourceSkill1 == nullptr)
+                        return false;
+
+                    for (auto l_Skill1 : *l_SourceSkill1)
+                    {
+                        for (auto l_Skill2 : *l_SourceSkill2)
+                        {
+                            if (l_Skill1 == l_Skill2)
+                                return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                bool HaveRequireIlevel(Item* p_ItemTarget)
+                {
+                    uint32 l_RequireIlevel = 0;
+
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SpellIDs::InscribedCrystal:
+                        case SpellIDs::DidiDelicateAssembly:
+                        case SpellIDs::TruesteelGrinder:
+                            l_RequireIlevel = 630;
+                            break;
+                        case SpellIDs::HexweaveEmbroidery:
+                        case SpellIDs::TaladiteRecrystalizer:
+                        case SpellIDs::TaladiteRecrystalizer2:
+                        case SpellIDs::TaladiteRecrystalizer3:
+                        case SpellIDs::TaladiteRecrystalizer4:
+                        case SpellIDs::TaladiteRecrystalizer5:
+                        case SpellIDs::TruesteelReshaper:
+                        case SpellIDs::LeatherRefurbishingKit:
+                            l_RequireIlevel = 640;
+                            break;
+                        default:
+                            return false;
+                    }
+
+                    if ((p_ItemTarget->GetTemplate()->ItemLevel + p_ItemTarget->GetItemLevelBonusFromItemBonuses()) < l_RequireIlevel)
+                        return false;
+
+                    return true;
+                }
+
+                SpellCastResult CheckCast()
+                {
+                    if (GetCaster()->GetTypeId() != TypeID::TYPEID_PLAYER)
+                        return SpellCastResult::SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                    Item* l_ItemModifier = GetSpell()->m_CastItem;
+                    Item* l_ItemTarget   = GetSpell()->m_targets.GetItemTarget();
+
+                    if (!HaveSameItemSourceSkill(l_ItemModifier, l_ItemTarget))
+                        return SpellCastResult::SPELL_FAILED_CANT_REPLACE_ITEM_BONUS;
+
+                    if (!HaveRequireIlevel(l_ItemTarget))
+                        return SpellCastResult::SPELL_FAILED_CANT_REPLACE_ITEM_BONUS;
+
+                    return SpellCastResult::SPELL_CAST_OK;
+                }
+
+                void ResetSecondaryProperties()
+                {
+                    Item* l_ItemModifier = GetSpell()->m_CastItem;
+                    Item* l_ItemTarget   = GetSpell()->m_targets.GetItemTarget();
+
+                    if (l_ItemModifier == nullptr
+                        || l_ItemTarget == nullptr)
+                        return;
+
+
+                    /// Remove all old random bonus
+                    for (auto l_ItemBonusGroupID : l_ItemTarget->GetTemplate()->m_ItemBonusGroups)
+                    {
+                        auto l_ItemBonusGroup = sObjectMgr->GetItemBonusGroup(l_ItemBonusGroupID);
+                        if (l_ItemBonusGroup == nullptr)
+                            continue;
+
+                        for (auto l_Bonus : *l_ItemBonusGroup)
+                            l_ItemTarget->RemoveItemBonus(l_Bonus);
+                    }
+
+                    /// Apply new random bonus
+                    for (auto l_ItemBonusGroupID : l_ItemTarget->GetTemplate()->m_ItemBonusGroups)
+                    {
+                        auto l_ItemBonusGroup = sObjectMgr->GetItemBonusGroup(l_ItemBonusGroupID);
+                        if (l_ItemBonusGroup == nullptr)
+                            continue;
+
+                        l_ItemTarget->AddItemBonus(l_ItemBonusGroup->at(rand() % l_ItemBonusGroup->size()));
+                    }
+
+                    l_ItemTarget->SetState(ITEM_CHANGED, GetCaster()->ToPlayer());
+                }
+
+                void Register() override
+                {
+                    OnHit += SpellHitFn(spell_Skill_ResetSecondaryProperties_SpellScript::ResetSecondaryProperties);
+                    OnCheckCast += SpellCheckCastFn(spell_Skill_ResetSecondaryProperties_SpellScript::CheckCast);
+                }
+
+            };
+
+            /// Should return a fully valid SpellScript pointer.
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_ResetSecondaryProperties_SpellScript();
+            }
+
+    };
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -370,4 +521,5 @@ void AddSC_spell_skill()
 {
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
+    new MS::Skill::spell_Skill_ResetSecondaryProperties();
 }

@@ -3204,8 +3204,15 @@ void SpellMgr::LoadSpellCustomAttr()
                         break;
                     case SPELL_EFFECT_CREATE_ITEM:
                     case SPELL_EFFECT_CREATE_ITEM_2:
+                    {
                         mSpellCreateItemList.push_back(i);
+
+                        SkillLineAbilityMapBounds l_SpellBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
+                        for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_SpellBounds.first; l_SpellIdx != l_SpellBounds.second; ++l_SpellIdx)
+                            m_ItemSourceSkills[spellInfo->Effects[j].ItemType].push_back(l_SpellIdx->second->skillId);
+
                         break;
+                    }
                     case SPELL_EFFECT_ENCHANT_ITEM:
                     case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                     case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
