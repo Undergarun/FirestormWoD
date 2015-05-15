@@ -127,9 +127,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // Update position client-side to avoid undermap
     WorldPacket data(SMSG_MOVE_UPDATE);
     m_Player->m_movementInfo.time = getMSTime();
-    m_Player->m_movementInfo.pos.m_positionX = loc.m_positionX;
-    m_Player->m_movementInfo.pos.m_positionY = loc.m_positionY;
-    m_Player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
+    m_Player->m_movementInfo.pos.m_positionX = m_Player->m_positionX;
+    m_Player->m_movementInfo.pos.m_positionY = m_Player->m_positionY;
+    m_Player->m_movementInfo.pos.m_positionZ = m_Player->m_positionZ;
     WorldSession::WriteMovementInfo(data, &m_Player->m_movementInfo);
     m_Player->GetSession()->SendPacket(&data);
 
