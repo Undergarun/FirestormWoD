@@ -2642,6 +2642,14 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
+                /// Can't hit a target in stealth
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    return;
+
+                /// Can't hit a target in LoS
+                if (!l_Target->IsWithinLOSInMap(l_Caster))
+                    return;
+
                 /// Starfall can only hit targets with Moonfire or Sunfire by default
                 /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
                 if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
