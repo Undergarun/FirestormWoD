@@ -200,8 +200,7 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
                 break;
 
             default:
-                // printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
-                break;
+                printf("Send packet %s\n", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
         }
 #   endif
 
@@ -518,8 +517,8 @@ int WorldSocket::handle_input_header (void)
         header.size = ((value & ~(uint32)0x1FFF) >> 13);
 
 #       ifdef WIN32
-            // std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
-            // printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
+            std::string opcodeName = GetOpcodeNameForLogging((Opcodes)header.cmd, WOW_CLIENT_TO_SERVER);
+            printf("Receive opcode %s 0x%08.8X size : %u \n", opcodeName.c_str(), header.cmd, header.size);
 #       endif
 
         if (header.size > 10236)
