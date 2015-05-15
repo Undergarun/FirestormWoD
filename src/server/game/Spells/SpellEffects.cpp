@@ -6246,8 +6246,8 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    int32 mana = 0;
-    float manaCostPercentage = 0.00f;
+    int32 l_Mana = 0;
+    int32 l_RefundPercentage = 0;
     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
@@ -6260,15 +6260,36 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                manaCostPercentage = spellInfo->ManaCostPercentage;
-                mana += m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
+                if (!spellInfo->SpellPowers.empty())
+                {
+                    for (auto l_Iter : spellInfo->SpellPowers)
+                    {
+                        if (l_Iter->PowerType == POWER_MANA && l_Iter->CostBasePercentage)
+                        {
+                            int32 l_BaseMana = CalculatePct(m_caster->GetMaxPower(POWER_MANA), 25);
+                            l_Mana += CalculatePct(l_BaseMana, l_Iter->CostBasePercentage);
+                        }
+                    }
+                }
             }
             totem->ToTotem()->UnSummon();
         }
     }
-    ApplyPct(mana, damage);
-    if (mana)
-        m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
+
+    if (l_Mana)
+    {
+        /// Totemic Recall - Returns your totems to the earth, refunding 25% of their mana cost
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(39104);
+        l_RefundPercentage = l_SpellInfo->Effects[EFFECT_1].BasePoints;
+
+        /// Glyph of Totemic Recall
+        if (AuraEffectPtr l_GlyphOfTotemicRecall = m_caster->GetAuraEffect(55438, EFFECT_0))
+            l_RefundPercentage += l_GlyphOfTotemicRecall->GetAmount();
+
+
+        l_Mana = CalculatePct(l_Mana, l_RefundPercentage);
+        m_caster->CastCustomSpell(m_caster, l_SpellInfo->Id, &l_Mana, NULL, NULL, true);
+    }
 }
 
 void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
