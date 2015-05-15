@@ -2913,7 +2913,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                     if (l_SpellId)
                     {
-                        m_originalCaster->CastSpell(m_originalCaster, l_SpellId, true);
+                        m_originalCaster->GetOwner()->CastSpell(m_originalCaster->GetOwner(), l_SpellId, true);
                         return;
                     }
                 }

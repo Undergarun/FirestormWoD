@@ -11051,6 +11051,8 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                 RemoveAllMinionsByEntry(61029);
             else if (minion->GetEntry() == 15430 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
                 RemoveAllMinionsByEntry(61056);
+            else if (minion->GetEntry() == 77934 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+                RemoveAllMinionsByEntry(77942);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
