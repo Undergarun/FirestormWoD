@@ -149,7 +149,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                                     trader->GetSession()->GetAccountId(), "", trader->GetGUIDLow(), trader->GetName(),
                                     "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                                     m_Player->GetName(), m_Player->GetSession()->GetAccountId(),
-                                    myItems[i]->GetTemplate()->Name1.c_str(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
+                                    myItems[i]->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), myItems[i]->GetEntry(), myItems[i]->GetCount(),
                                     trader->GetName(), trader->GetSession()->GetAccountId());
                 }
 
@@ -174,7 +174,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                                     m_Player->GetSession()->GetAccountId(), "", m_Player->GetGUIDLow(), m_Player->GetName(),
                                     "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                                     trader->GetName(), trader->GetSession()->GetAccountId(),
-                                    hisItems[i]->GetTemplate()->Name1.c_str(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
+                                    hisItems[i]->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
                                     m_Player->GetName(), m_Player->GetSession()->GetAccountId());
                 }
 

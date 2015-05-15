@@ -12000,8 +12000,8 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
 
 #ifdef _MSC_VER
             char* l_Size[] = { "None", "Small", "Medium", "Big" };
-            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
-            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
             l_Fishs.push_back(l_LootItem);
             l_LootItem->needs_quest = true;
@@ -12031,7 +12031,7 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
                 {
 #ifdef _MSC_VER
                     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
-                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
                     l_LootItem->needs_quest = false;
                 }

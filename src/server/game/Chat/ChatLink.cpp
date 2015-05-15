@@ -165,13 +165,11 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *locale, char* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, char* suffixStrings) const
 {
     std::stringstream ss;
-    if (locale == NULL || index >= locale->Name.size())
-        ss << _item->Name1;
-    else
-        ss << locale->Name[index];
+    ss << _item->Name1->Get(index);
+
     if (suffixStrings)
         ss << ' ' << suffixStrings[index];
     return ss.str();
@@ -183,13 +181,12 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
 
     char* suffixStrings = _suffix ? _suffix->nameSuffix : (_property ? _property->nameSuffix : NULL);
 
-    bool res = (FormatName(LOCALE_enUS, NULL, suffixStrings) == buffer);
+    bool res = (FormatName(LOCALE_enUS, suffixStrings) == buffer);
     if (!res)
     {
-        ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
-            if (FormatName(index, il, suffixStrings) == buffer)
+            if (FormatName(index, suffixStrings) == buffer)
             {
                 res = true;
                 break;

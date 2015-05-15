@@ -173,7 +173,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         sql = new SqlDb2(customTableName, l_SQLFormat, customIndexName, storage.GetFormat());
     }
 
-    if (!storage.Load(db2_filename.c_str(), sql))
+    if (!storage.Load(db2_filename.c_str(), sql, sWorld->GetDefaultDbcLocale()))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))

@@ -2202,37 +2202,6 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
     return 0;
 }
 
-void ObjectMgr::LoadItemLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _itemLocaleStore.clear();                                 // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, description_loc1, name_loc2, description_loc2, name_loc3, description_loc3, name_loc4, description_loc4, name_loc5, description_loc5, name_loc6, description_loc6, name_loc7, description_loc7, name_loc8, description_loc8, name_loc9, description_loc9, name_loc10, description_loc10 FROM locales_item");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        ItemLocale& data = _itemLocaleStore[entry];
-
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.Description);
-        }
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadRealmCompletedChallenges()
 {
     uint32 l_OldMSTime = getMSTime();
@@ -10296,8 +10265,7 @@ void ObjectMgr::LoadTaxiData()
             nodePos.m_positionZ = nodeEntry->z;
             nodePos.m_orientation = 0.f;
 
-            std::string l_Name = nodeEntry->name;
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, l_Name, entry->price);
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
             node->AddConnectedNode(entry->to);
 
             _taxiNodes[entry->from] = node;
@@ -10328,8 +10296,7 @@ void ObjectMgr::LoadTaxiData()
         nodePos.m_positionZ = nodeEntry->z;
         nodePos.m_orientation = 0.f;
 
-        std::string l_Name = nodeEntry->name;
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, l_Name, entry->price);
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
 
         _taxiNodes[entry->to] = node;
     }
