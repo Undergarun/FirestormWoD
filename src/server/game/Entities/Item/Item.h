@@ -48,7 +48,7 @@ enum ItemBonusType
     ITEM_BONUS_DESCRIPTION          = 4,
     ITEM_BONUS_ITEM_SUFFIX          = 5,
     ITEM_BONUS_ADD_SOCKET           = 6,
-    ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
+    ITEM_BONUS_MODIFY_APPEARANCE    = 7,
     ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
     ITEM_BONUS_UNK2                 = 9,
     ITEM_BONUS_UNK3                 = 10,
@@ -480,6 +480,8 @@ class Item : public Object
         void RemoveAllItemBonuses();
         uint32 GetItemLevelBonusFromItemBonuses() const;
         std::vector<uint32> const& GetAllItemBonuses() const;
+
+        uint32 GetAppearanceModID() const;
 
     private:
         std::string m_text;
