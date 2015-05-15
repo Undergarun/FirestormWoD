@@ -295,7 +295,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER     Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    &Spell::EffectChangeItemBonus,                          //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.1.2
@@ -2158,6 +2158,8 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
+
+
         /*if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
         if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
         guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0, pProto->ItemId);*/
@@ -2168,6 +2170,10 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
             player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
             return;
         }
+
+        std::vector<uint32> l_ItemBonus;
+        Item::GenerateItemBonus(newitemid, ItemContext::TradeSkill, l_ItemBonus);
+        pItem->AddItemBonuses(l_ItemBonus);
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
@@ -8204,4 +8210,89 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
             break;
         }
     }
+}
+
+void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Item* l_ItemTarget = m_targets.GetItemTarget();
+    if (l_ItemTarget == nullptr)
+        return;
+
+    uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+
+    ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
+    ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
+
+    /// Search for item bonus tree ...
+    for (uint32 l_Entry = 0; l_Entry < sItemBonusTreeNodeStore.GetNumRows(); l_Entry++)
+    {
+        auto l_BonusTree = sItemBonusTreeNodeStore.LookupEntry(l_Entry);
+        if (l_BonusTree == nullptr)
+            continue;
+
+        if (l_BonusTree->Context != uint32(ItemContext::TradeSkill))
+            continue;
+
+        if (l_BonusTree->Category == l_OldItemBonusTreeCategory)
+            l_OldBonusTree = l_BonusTree;
+
+        if (l_BonusTree->Category == l_NewItemBonusTreeCategory)
+            l_NewBonusTree = l_BonusTree;
+    }
+
+    /// @TODO: Somes bonus are missing, even with hotfixes data ...
+    if (l_OldBonusTree == nullptr
+        || l_NewBonusTree == nullptr)
+        return;
+
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Check if the selected item have the old bonus, and with the right context
+    bool l_BonusFound = false;
+    for (auto l_Bonus : l_CurrentItemBonus)
+    {
+        if (l_Bonus == l_OldBonusTree->ItemBonusEntry)
+        {
+            l_BonusFound = true;
+            break;
+        }
+    }
+
+    /// Cheater ?
+    if (!l_BonusFound)
+        return;
+
+    /// Not sure if somes item can be changed without have specific bonus in ItemXBonusTree
+    auto l_BonusTrees = sItemBonusTreeByID.find(l_ItemTarget->GetEntry());
+    if (l_BonusTrees == sItemBonusTreeByID.end() ||  l_BonusTrees->second.empty())
+        return;
+
+    for (auto l_BonusTree : l_BonusTrees->second)
+    {
+        for (uint32 l_BonusTreeNodeID = 0; l_BonusTreeNodeID < sItemBonusTreeNodeStore.GetNumRows(); l_BonusTreeNodeID++)
+        {
+            auto l_ItemTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_BonusTreeNodeID);
+            if (!l_ItemTreeNode)
+                continue;
+
+            if (l_ItemTreeNode->Category != l_BonusTree->ItemBonusTreeCategory)
+                continue;
+
+            if (l_ItemTreeNode->Context != (uint32)ItemContext::TradeSkill)
+                continue;
+
+            /// Item selected can't be upgrade / change with that spell.
+            if (l_ItemTreeNode->ItemBonusEntry == l_NewBonusTree->ItemBonusEntry && l_ItemTreeNode != l_OldBonusTree)
+                return;
+        }
+    }
+
+    /// All is fine, now we can update item bonus
+    l_ItemTarget->RemoveItemBonus(l_OldBonusTree->ItemBonusEntry);
+    l_ItemTarget->AddItemBonus(l_NewBonusTree->ItemBonusEntry);
+    l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
 }

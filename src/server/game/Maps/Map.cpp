@@ -3340,3 +3340,28 @@ CriteriaLegacyRaidType Map::GetLegacyRaidType() const
             return CriteriaLegacyRaidType::None;
     }
 }
+
+ItemContext Map::GetLootItemContext() const
+{
+    auto l_MapDifficulty = GetMapDifficulty();
+    if (l_MapDifficulty && l_MapDifficulty->Context)
+        return ItemContext(l_MapDifficulty->Context);
+
+    switch (GetDifficultyID())
+    {
+        case Difficulty::DifficultyNormal:
+            return ItemContext::DungeonNormal;
+        case Difficulty::DifficultyHeroic:
+            return ItemContext::DungeonHeroic;
+        case Difficulty::DifficultyRaidNormal:
+            return ItemContext::RaidNormal;
+        case Difficulty::DifficultyRaidHeroic:
+            return ItemContext::RaidHeroic;
+        case Difficulty::DifficultyRaidLFR:
+            return ItemContext::RaidLfr;
+        case Difficulty::DifficultyRaidMythic:
+            return ItemContext::RaidMythic;
+        default:
+            return ItemContext::None;
+    }
+}

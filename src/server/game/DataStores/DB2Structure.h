@@ -147,7 +147,7 @@ struct ItemBonusTreeNodeEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 Category;                                                ///< 1
-    uint32 Difficulty;                                              ///< 2
+    uint32 Context;                                                 ///< 2
     uint32 LinkedCategory;                                          ///< 3
     uint32 ItemBonusEntry;                                          ///< 4
 };

@@ -2357,19 +2357,19 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 struct MapDifficulty
 {
     MapDifficulty()
-        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), Context(0)
     {
     }
 
     MapDifficulty(uint32 p_DifficultyID, uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
-        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), Context(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
     {
     }
 
     uint32 DifficultyID;
     uint32 ResetTime;
     uint32 MaxPlayers;
-    uint32 ItemBonusTreeDifficulty;
+    uint32 Context;
     bool   HasErrorMessage;
 };
 

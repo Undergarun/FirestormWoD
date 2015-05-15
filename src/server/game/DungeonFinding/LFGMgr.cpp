@@ -2896,7 +2896,7 @@ void LFGMgr::AutomaticLootAssignation(Creature* p_Creature, Group* p_Group)
                                                       1,                                    ///< MaxCount
                                                       std::vector<uint32>());               ///< ItemBonuses
 
-            LootItem l_LootItem = LootItem(l_StoreItem, l_Loot->ItemBonusDifficulty, l_Loot);
+            LootItem l_LootItem = LootItem(l_StoreItem, l_Loot->Context, l_Loot);
             l_LootItem.SetPersonalLooter(l_Member);
             l_Loot->Items.push_back(l_LootItem);
             ++l_Loot->UnlootedCount;

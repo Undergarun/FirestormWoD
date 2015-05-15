@@ -2730,6 +2730,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
+        itemTemplate.FlagsCu = 0;
 
         if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
             itemTemplate.PvPScalingLevel = pvpItem->ilvl;
@@ -2829,6 +2830,19 @@ void ObjectMgr::LoadItemTemplateAddon()
         }
         while (result->NextRow());
     }
+
+    for (uint32 l_Entry = 0; l_Entry < sItemSparseStore.GetNumRows(); l_Entry++)
+    {
+        auto l_Itr = _itemTemplateStore.find(l_Entry);
+        if (l_Itr == _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& l_ItemTemplate = l_Itr->second;
+
+        if (l_ItemTemplate.Quality == ItemQualities::ITEM_QUALITY_HEIRLOOM)
+            l_ItemTemplate.FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
+    }
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item addon templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 

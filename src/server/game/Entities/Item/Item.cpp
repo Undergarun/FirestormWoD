@@ -596,7 +596,7 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
-void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
+void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus)
 {
     auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
     if (l_ItemTemplate == nullptr)
@@ -618,7 +618,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
 
     /// Step one : search for generic bonus we can find in DB2 (90, 92, 94, 95, 97, heroic)
     auto& l_ItemBonusTree = sItemBonusTreeByID[p_ItemId];
-    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_ItemBonusDifficulty, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
+    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_Context, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
     {
         /// Lookup for the right bonus
         for (uint32 l_Index = 0; l_Index < sItemBonusTreeNodeStore.GetNumRows(); l_Index++)
@@ -630,7 +630,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
             if (l_ItemBonusTreeNode->Category != p_ItemXBonusTree->ItemBonusTreeCategory)
                 continue;
 
-            if (l_ItemBonusTreeNode->Difficulty != p_ItemBonusDifficulty)
+            if (l_ItemBonusTreeNode->Context != uint32(p_Context))
                 continue;
 
             auto l_BonusId = l_ItemBonusTreeNode->ItemBonusEntry;
@@ -662,7 +662,16 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step two : Roll for stats bonus (Avoidance, Leech & Speed)
     /// Atm, i can't find percentage chance to have stats but it's same pretty low (~ 10%)
     /// Item can have only on stat bonus, and it's only in dungeon/raid
-    if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
+    if (p_Context == ItemContext::RaidNormal
+        || p_Context == ItemContext::RaidHeroic
+        || p_Context == ItemContext::RaidLfr
+        || p_Context == ItemContext::RaidMythic
+        || p_Context == ItemContext::DungeonLevelUp1
+        || p_Context == ItemContext::DungeonLevelUp2
+        || p_Context == ItemContext::DungeonLevelUp3
+        || p_Context == ItemContext::DungeonLevelUp4
+        || p_Context == ItemContext::DungeonNormal
+        || p_Context == ItemContext::DungeonHeroic)             ///< Only in dungeon & raid
     {
         std::vector<uint32> l_StatsBonus =
         {
@@ -671,9 +680,10 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
             ItemBonus::Stats::Leech
         };
 
-        if (p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
-            p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
-            p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
+        if (p_Context == ItemContext::RaidNormal ||
+            p_Context == ItemContext::RaidMythic ||
+            p_Context == ItemContext::RaidHeroic ||
+            p_Context == ItemContext::RaidLfr)
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats))
@@ -691,10 +701,11 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    if (p_ItemBonusDifficulty == Difficulty::DifficultyHeroic ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
+    if (p_Context == ItemContext::DungeonHeroic ||
+        p_Context == ItemContext::RaidNormal ||
+        p_Context == ItemContext::RaidHeroic ||
+        p_Context == ItemContext::RaidMythic ||
+        p_Context == ItemContext::RaidLfr)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
