@@ -5183,6 +5183,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 spellInfo->Effects[1].BonusMultiplier = 0;
                 break;
+            case 132411:///< Singe Magic
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
