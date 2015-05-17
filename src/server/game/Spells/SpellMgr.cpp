@@ -5190,6 +5190,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].MiscValue = 25;
                 spellInfo->Effects[1].ValueMultiplier = 0;
                 break;
+            case 169157:///< Demonic Leap (jump)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(43);
+                spellInfo->Effects[0].MiscValue = 35;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
