@@ -13907,7 +13907,7 @@ void Unit::ClearInCombat()
         if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->isPet())
+        if (creature->isPet() && !creature->isHunterPet()) ///< fix a problem with hunter pets , that their speed is wrong
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
@@ -14488,6 +14488,10 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+
+    /// Walk speed can't be faster then run speed
+    if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
+        m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
     m_speed_rate[p_MovementType] = rate;
 
