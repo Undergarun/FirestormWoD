@@ -2348,6 +2348,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitted, &split_absorb);
 
+            // Need to remove all auras breakable by damage.
+            caster->RemoveAurasBreakableByDamage();
+
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
             CleanDamage cleanDamage = CleanDamage(splitted, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
@@ -4459,6 +4462,16 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
 void Unit::RemoveMovementImpairingAuras()
 {
     RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+}
+
+void Unit::RemoveAurasBreakableByDamage()
+{
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE);
+    RemoveAurasWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+
+    // Hack fix for Paralysis, don't want to spend time for debuging why it doesn't remove
+    if (HasAura(115078))
+        RemoveAura(115078);
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except, uint8 count)
