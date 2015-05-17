@@ -5186,6 +5186,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 132411:///< Singe Magic
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
                 break;
+            case 49376: ///< Wild Charge
+                spellInfo->Effects[1].MiscValue = 25;
+                spellInfo->Effects[1].ValueMultiplier = 0;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
