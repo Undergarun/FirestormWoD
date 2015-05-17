@@ -5196,6 +5196,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
                 spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
                 break;
+            case 49575: ///< Death Grip (effect)
+                spellInfo->Effects[0].ValueMultiplier = 0;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
