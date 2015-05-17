@@ -5499,6 +5499,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                 break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form
