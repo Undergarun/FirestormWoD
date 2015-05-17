@@ -1437,7 +1437,8 @@ class spell_warr_execute: public SpellScriptLoader
                     l_Damage += CalculatePct(l_Damage, l_MasteryValue);
                 }
 
-                SetHitDamage(l_Damage);
+                /// Please forgive me for I have sinned
+                SetHitDamage(l_Damage / 2);
             }
 
             void Register()
