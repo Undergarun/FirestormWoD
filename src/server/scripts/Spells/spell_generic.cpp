@@ -3791,6 +3791,35 @@ public:
     }
 };
 
+class spell_gen_dampening: public SpellScriptLoader
+{
+    public:
+        spell_gen_dampening() : SpellScriptLoader("spell_gen_dampening") { }
+
+        class spell_gen_dampening_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_dampening_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (AuraEffectPtr l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                    if (l_FirstEffect->GetAmount() < 100)
+                        l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
+            }
+
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_dampening_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_dampening_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3866,6 +3895,7 @@ void AddSC_generic_spell_scripts()
     new spell_vote_buff();
     new Resolve::spell_resolve_passive();
     new spell_gen_doom_bolt();
+    new spell_gen_dampening();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
