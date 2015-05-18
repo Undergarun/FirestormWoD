@@ -4699,6 +4699,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
+                spellInfo->Effects[0].MiscValue = 25;
+                spellInfo->Effects[0].ValueMultiplier = 0;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7); ///< radius 2.0 instead of 7.0
                 break;
             case 122706: ///< Noise Cancelling
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
