@@ -402,7 +402,7 @@ namespace MS { namespace Skill
                     auto l_SourceSkill2 = sSpellMgr->GetItemSourceSkills(p_Item2->GetEntry());
 
                     if (l_SourceSkill1 == nullptr
-                        || l_SourceSkill1 == nullptr)
+                        || l_SourceSkill2 == nullptr)
                         return false;
 
                     for (auto l_Skill1 : *l_SourceSkill1)
