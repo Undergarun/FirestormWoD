@@ -29,6 +29,7 @@
 #include <list>
 #include <vector>
 #include <utility>
+#include <WowTime.hpp>
 
 void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*p_RecvData*/)
 {
@@ -94,7 +95,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
         l_Data << uint32(g_RealmID);
         l_Data << uint32(l_GroupChallenge->m_AttemptID);
         l_Data << int32(l_GroupChallenge->m_CompletionTime);
-        l_Data << uint32(secsToTimeBitFields(l_GroupChallenge->m_CompletionDate));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_GroupChallenge->m_CompletionDate));
         l_Data << int32(l_GroupChallenge->m_MedalEarned);
 
         uint32 l_Members = l_GroupChallenge->m_MembersCount;
@@ -115,7 +116,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
         l_Data << uint32(g_RealmID);
         l_Data << uint32(l_GuildChallenge->m_AttemptID);
         l_Data << int32(l_GuildChallenge->m_CompletionTime);
-        l_Data << uint32(secsToTimeBitFields(l_GuildChallenge->m_CompletionDate));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_GuildChallenge->m_CompletionDate));
         l_Data << int32(l_GuildChallenge->m_MedalEarned);
 
         uint32 l_Members = l_GuildChallenge->m_MembersCount;
@@ -151,7 +152,7 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*p_RecvData*
             l_Data << int32(l_CompletedChallenge.m_BestTime);
             l_Data << int32(l_CompletedChallenge.m_LastTime);
             l_Data << int32(l_CompletedChallenge.m_BestMedal);
-            l_Data << uint32(secsToTimeBitFields(l_CompletedChallenge.m_BestMedalDate));
+            l_Data << uint32(MS::Utilities::WowTime::Encode(l_CompletedChallenge.m_BestMedalDate));
 
             uint32 l_SpecCount = 0;
             l_Data << uint32(l_SpecCount);

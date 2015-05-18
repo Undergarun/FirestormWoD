@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "LFGMgr.h"
 #include "Guild.h"
+#include "WowTime.hpp"
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
@@ -763,7 +764,7 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
     *p_Data << int32(p_CriteriaProgress.m_ID);
     *p_Data << uint64(p_CriteriaProgress.m_Quantity);
     p_Data->appendPackGUID(p_CriteriaProgress.m_Guid);
-    *p_Data << uint32(secsToTimeBitFields(p_CriteriaProgress.m_Date));
+    *p_Data << uint32(MS::Utilities::WowTime::Encode(p_CriteriaProgress.m_Date));
     *p_Data << int32(p_CriteriaProgress.m_TimeFromStart);
     *p_Data << int32(p_CriteriaProgress.m_TimeFromCreate);
 

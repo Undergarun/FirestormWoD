@@ -85,6 +85,7 @@
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 #include "Vignette.hpp"
+#include "WowTime.hpp"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -26936,8 +26937,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     l_Data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour    ServerTime
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour     GameTime
+    l_Data << uint32(MS::Utilities::WowTime::Encode(sWorld->GetGameTime())); // server hour    ServerTime
+    l_Data << uint32(MS::Utilities::WowTime::Encode(sWorld->GetGameTime())); // local hour     GameTime
     l_Data << float(0.01666667f);                                 // game speed     NewSpeed
     l_Data << uint32(1);                                          // added in 5.4.0 GameTimeHolidayOffset or ServerTimeHolidayOffset
     l_Data << uint32(1);                                          // added in 3.1.2 GameTimeHolidayOffset or ServerTimeHolidayOffset
@@ -26962,7 +26963,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data.Initialize(SMSG_INITIAL_SETUP, 2062);
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
-    l_Data << uint32(1135753200);                                 ///< Server Region ID
+    l_Data << uint32(sWorld->GetServerRegionID());                ///< Server Region ID
     l_Data << uint32(0);                                          ///< Raid origin
     GetSession()->SendPacket(&l_Data);
 
