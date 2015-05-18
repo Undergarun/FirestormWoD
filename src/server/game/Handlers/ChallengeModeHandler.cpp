@@ -156,7 +156,37 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*p_RecvData*
             uint32 l_SpecCount = 0;
             l_Data << uint32(l_SpecCount);
 
-            ///< BestSpecs - Useless part ?
+            /// BestSpecs - Useless part ?
+            {
+                for (uint32 l_J = 0; l_J < l_SpecCount; ++l_J)
+                    l_Data << uint16(0);    ///< SpecID
+            }
+        }
+    }
+
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendChallengeModeMapStatsUpdate(uint32 p_MapID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE, 6 * 4);
+
+    for (auto l_ChallengeData : m_Player->m_CompletedChallenges)
+    {
+        if (l_ChallengeData.first == p_MapID)
+        {
+            CompletedChallenge l_CompletedChallenge = l_ChallengeData.second;
+
+            l_Data << int32(l_ChallengeData.first);
+            l_Data << int32(l_CompletedChallenge.m_BestTime);
+            l_Data << int32(l_CompletedChallenge.m_LastTime);
+            l_Data << int32(l_CompletedChallenge.m_BestMedal);
+            l_Data << uint32(secsToTimeBitFields(l_CompletedChallenge.m_BestMedalDate));
+
+            uint32 l_SpecCount = 0;
+            l_Data << uint32(l_SpecCount);
+
+            /// BestSpecs - Useless part ?
             {
                 for (uint32 l_J = 0; l_J < l_SpecCount; ++l_J)
                     l_Data << uint16(0);    ///< SpecID

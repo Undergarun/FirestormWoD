@@ -871,7 +871,7 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         }
     }
 
-    ///< Should not happens
+    /// Should not happens
     if (l_ChallengeEntry == nullptr)
         return;
 
@@ -880,7 +880,7 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
     l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
     l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
 
-    ///< Downgrade Medal if needed
+    /// Downgrade Medal if needed
     switch (m_MedalType)
     {
         case eChallengeMedals::MedalTypeGold:
@@ -917,7 +917,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
             if (l_Player->HasChallengeCompleted(l_MapID))
             {
                 CompletedChallenge* l_Challenge = l_Player->GetCompletedChallenge(l_MapID);
-                ///< Should not happens
+                /// Should not happens
                 if (l_Challenge == nullptr)
                     continue;
 
@@ -944,7 +944,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
 
                 l_Challenge->m_LastTime = m_ChallengeTime;
 
-                ///< Send new record only for new best time
+                /// Send new record only for new best time
                 if (!l_NewBestTime)
                     continue;
             }
@@ -958,6 +958,15 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt8(4, m_MedalType);
                 l_Statement->setUInt32(5, time(NULL));
                 CharacterDatabase.Execute(l_Statement);
+
+                CompletedChallenge l_Challenge;
+                l_Challenge.m_BestMedal = m_MedalType;
+                l_Challenge.m_BestMedalDate = time(NULL);
+                l_Challenge.m_BestTime = m_ChallengeTime;
+                l_Challenge.m_LastTime = m_ChallengeTime;
+
+                l_Player->AddCompletedChallenge(l_MapID, l_Challenge);
+                l_Player->GetSession()->SendChallengeModeMapStatsUpdate(l_MapID);
             }
 
             WorldPacket l_Data(SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD, 12);
@@ -1009,10 +1018,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    ///< New best record for a classic group
+    /// New best record for a classic group
     if (l_GroupChallenge == nullptr)
         SaveNewGroupChallenge();
-    ///< Check if update is needed
+    /// Check if update is needed
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
@@ -1041,24 +1050,18 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
         }
     }
 
-    ///< New best record for the guild
-    if (l_GuildChallenge == nullptr)
+    /// New best record for the guild
+    if (l_GuildChallenge == nullptr && l_GuildGroup)
+        SaveNewGroupChallenge(l_GuildID);
+    /// Check if update is needed
+    else if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime && l_GuildGroup)
     {
-        if (l_GuildGroup)
-            SaveNewGroupChallenge(l_GuildID);
-    }
-    ///< Check if update is needed
-    else if (l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
-    {
-        if (l_GuildGroup)
-        {
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
-            l_Statement->setUInt32(0, l_MapID);
-            l_Statement->setUInt32(1, l_GuildID);
-            CharacterDatabase.Execute(l_Statement);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
+        l_Statement->setUInt32(0, l_MapID);
+        l_Statement->setUInt32(1, l_GuildID);
+        CharacterDatabase.Execute(l_Statement);
 
-            SaveNewGroupChallenge(l_GuildID);
-        }
+        SaveNewGroupChallenge(l_GuildID);
     }
 }
 
@@ -1078,23 +1081,30 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 
     Map::PlayerList const& l_PlayerList = instance->GetPlayers();
     uint32 l_Count = 0;
-    l_Index = p_GuildID ? 7 : 6;
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            ++l_Count;
+    }
+
+    l_Statement->setUInt8(l_Index++, l_Count);
+
     for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
         {
             l_Statement->setUInt32(l_Index++, l_Player->GetGUIDLow());
             l_Statement->setUInt32(l_Index++, l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
-            ++l_Count;
         }
     }
 
-    l_Statement->setUInt8(p_GuildID ? 6 : 5, l_Count);
-
-    for (uint8 l_I = 0; l_I < ((p_GuildID ? 6 : 5) - l_Count); ++l_I)
+    if (l_Count < 5)
     {
-        l_Statement->setUInt32(l_Index++, 0);
-        l_Statement->setUInt32(l_Index++, 0);
+        for (uint8 l_I = 0; l_I < (5 - l_Count); ++l_I)
+        {
+            l_Statement->setUInt32(l_Index++, 0);
+            l_Statement->setUInt32(l_Index++, 0);
+        }
     }
 
     CharacterDatabase.Execute(l_Statement);

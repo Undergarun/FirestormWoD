@@ -1147,6 +1147,8 @@ class WorldSession
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
 
+        void SendChallengeModeMapStatsUpdate(uint32 p_MapID);
+
         /// Auto sort bags.
         void HandleSortBags(WorldPacket& p_RecvData);
 

@@ -33103,6 +33103,15 @@ CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
 
     return &m_CompletedChallenges[p_MapID];
 }
+
+void Player::AddCompletedChallenge(uint32 p_MapID, CompletedChallenge p_Challenge)
+{
+    /// Already completed
+    if (m_CompletedChallenges.find(p_MapID) != m_CompletedChallenges.end())
+        return;
+
+    m_CompletedChallenges.insert(std::make_pair(p_MapID, p_Challenge));
+}
 //////////////////////////////////////////////////////////////////////////
 
 void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
