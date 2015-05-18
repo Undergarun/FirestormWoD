@@ -407,7 +407,7 @@ class WorldSession
         void SendAlreadySigned(uint64 p_PlayerGUID);
         void SendPetitionDeclined(uint64 p_PlayerGUID);
 
-        void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false);
+        void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false, bool p_Ennemy = false);
 
         void DoLootRelease(uint64 lguid);
 
