@@ -589,6 +589,9 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* l_Player = ObjectAccessor::FindPlayer(itr->first))
                 {
+                    /// Apply Dampening
+                    player->AddAura(110310, player);
+
                     // BG Status packet
                     WorldPacket status;
                     MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
@@ -1455,6 +1458,12 @@ void Battleground::AddPlayer(Player* player)
         team_packet.Initialize(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
         BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(player->GetBGTeam()));
         player->GetSession()->SendPacket(&team_packet);
+
+        if (isArena() && GetStatus() == STATUS_IN_PROGRESS)
+        {
+            /// Apply Dampening
+            player->AddAura(110310, player);
+        }
     }
     else
     {
@@ -1532,6 +1541,12 @@ void Battleground::EventPlayerLoggedIn(Player* player)
     {
         if (player->GetTeam() != player->GetBGTeam())
             player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
+    }
+
+    if (isArena() && GetStatus() == STATUS_IN_PROGRESS)
+    {
+        /// Apply Dampening
+        player->AddAura(110310, player);
     }
 
     uint64 guid = player->GetGUID();
