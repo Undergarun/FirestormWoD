@@ -754,21 +754,21 @@ struct GarrFollowerEntry
     uint32 Entry[2];                                                ///< 1 - 2
     uint32 Class[2];                                                ///< 3 - 4
     uint32 Quality;                                                 ///< 5
-    uint32 Unk4;                                                    ///< 6      H
-    uint32 Unk5;                                                    ///< 7      A
-    uint32 Unk6;                                                    ///< 8      H
-    uint32 Unk7;                                                    ///< 9      A
+    uint32 HordeGarrClassSecID;                                     ///< 6      GarrClassSpec.db2
+    uint32 AllianceGarrClassSecID;                                  ///< 7
+    uint32 HordeGarrFollItemSetID;                                  ///< 8
+    uint32 AllianceGarrFollItemSetID;                               ///< 9
     int32  Level;                                                   ///< 10
     int32  ItemLevelWeapon;                                         ///< 11
     int32  ItemLevelArmor;                                          ///< 12
     uint32 Unk8;                                                    ///< 13
-    uint32 Unk9;                                                    ///< 14
-    char * UnkString1;                                              ///< 15     Descr1 : zoneH (where you find this follower)
-    char * UnkString2;                                              ///< 16     Descr2 : zoneA (where you find this follower)
+    uint32 Flags;                                                   ///< 14
+    char * HordeSourceText;                                         ///< 15     Descr1 : zoneH (where you find this follower)
+    char * AllinaceSourceText;                                      ///< 16     Descr2 : zoneA (where you find this follower)
     int32  Unk10;                                                   ///< 17     H
     int32  Unk11;                                                   ///< 18     A
-    uint32 Unk12;                                                   ///< 19     H
-    uint32 Unk13;                                                   ///< 20     A
+    uint32 HordePortraitIconID;                                     ///< 19
+    uint32 AlliancePortraitIconID;                                  ///< 20
 };
 
 struct GarrAbilityEntry
@@ -778,7 +778,7 @@ struct GarrAbilityEntry
     char * Name;                                                    ///< 2
     char * Description;                                             ///< 3
     uint32 IconID;                                                  ///< 4
-    uint32 Unk3;                                                    ///< 5
+    uint32 OtherfactionGarrAbilityID;                               ///< 5
     uint32 Category;                                                ///< 6
 };
 

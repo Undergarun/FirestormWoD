@@ -2283,3 +2283,27 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
 
     return itemLevel;
 }
+
+uint32 Item::GetAppearanceModID() const
+{
+    uint32 l_Appearance = 0;
+
+    for (uint32 l_Bonus : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+    {
+        std::vector<ItemBonusEntry const*> const* l_Bonuses = GetItemBonusesByID(l_Bonus);
+        if (l_Bonuses == nullptr)
+            continue;
+
+        for (uint32 l_I = 0; l_I < l_Bonuses->size(); l_I++)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_Bonuses)[l_I];
+            if (!l_ItemSubBonus)
+                continue;
+
+            if (l_ItemSubBonus->Type == ITEM_BONUS_MODIFY_APPEARANCE && l_ItemSubBonus->Value[0] > l_Appearance)
+                l_Appearance = l_ItemSubBonus->Value[0];
+        }
+    }
+
+    return l_Appearance;
+}

@@ -1054,8 +1054,6 @@ class Battleground
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
 
-        void AddCrowdChoseYouEffect();
-
         // Triggers handle
         // must be implemented in BG subclass
         virtual void HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/) {}

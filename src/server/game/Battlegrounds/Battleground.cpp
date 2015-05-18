@@ -293,9 +293,6 @@ void Battleground::Update(uint32 diff)
             // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetElapsedTime() >= 15 * MINUTE * IN_MILLISECONDS)
-                    AddCrowdChoseYouEffect();
-
                 if (GetElapsedTime() >= 20 *  MINUTE * IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
@@ -2223,25 +2220,6 @@ uint32 Battleground::GetArenaMatchmakerRating(uint32 Team, uint8 slot)
     MMR /= count;
 
     return MMR;
-}
-
-void Battleground::AddCrowdChoseYouEffect()
-{
-    if (m_CrowdChosed)
-        return;
-
-    uint8 team = 0;
-
-    if (GetAlivePlayersCountByTeam(ALLIANCE) != GetAlivePlayersCountByTeam(HORDE))
-        team = GetAlivePlayersCountByTeam(ALLIANCE) > GetAlivePlayersCountByTeam(HORDE) ? ALLIANCE : HORDE;
-    else
-        team = m_teamDealMaxDamage;
-
-    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(team, itr, "AddCrowdChoseYouEffect"))
-            player->CastSpell(player, 144389, true);
-
-    m_CrowdChosed = true;
 }
 
 void Battleground::AwardTeams(uint32 p_Winner)

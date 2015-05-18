@@ -15588,8 +15588,8 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     if (pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 0, pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0, pItem->GetAppearanceModID());
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
     else
