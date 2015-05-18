@@ -5206,6 +5206,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 49575: ///< Death Grip (effect)
                 spellInfo->Effects[0].ValueMultiplier = 0;
                 break;
+            case 165201:///< Mind blast (reduce cooldown from haste)
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
+                spellInfo->Effects[1].MiscValue = 11;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
