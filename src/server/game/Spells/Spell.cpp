@@ -3682,6 +3682,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
 
+    // Unstable Afflication (30108) with Soulborn: Soul Swap (141931)
+    if (m_spellInfo && m_spellInfo->Id == 30108 && _triggeredCastFlags == TRIGGERED_FULL_MASK)
+        m_casttime = 0;
+
     // If spell not channeled and was stolen he have no cast time
     if (isStolen && !m_spellInfo->IsChanneled() && m_spellInfo->Id != 605)
         m_casttime = 0;

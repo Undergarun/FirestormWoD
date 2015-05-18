@@ -1627,13 +1627,13 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     // Soul Swap override spell
                     l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
                     l_Caster->RemoveSoulSwapDOT(l_Target);
                 }
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     l_Caster->ApplySoulSwapDOT(l_Target);
                     l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
