@@ -245,6 +245,8 @@ DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
 DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore(GtBattlePetXPfmt);
 DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
+DBCStorage <WorldStateEntry>              sWorldState(WorldStateEntryfmt);
+DBCStorage <WorldStateExpressionEntry>    sWorldStateExpression(WorldStateExpressionEntryfmt);
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -700,6 +702,8 @@ void LoadDBCStores(const std::string& dataPath)
     // Battle pets
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetXPStore,            dbcPath, "gtBattlePetXP.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore, dbcPath, "gtBattlePetTypeDamageMod.dbc");                                     // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldState,                    dbcPath, "WorldState.dbc");                                                   // 19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateExpression,          dbcPath, "WorldStateExpression.dbc");                                         // 19865
 
     for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); i++)
     {
@@ -1266,4 +1270,15 @@ uint32 GetQuestUniqueBitFlag(uint32 questId)
         return 0;
 
     return v2->UniqueBitFlag;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// Eval a worldstate expression
+bool WorldStateExpressionEntry::Eval(Player* p_Player)
+{
+    /// @todo .... :troll: magic will come here :D
+
+    return !!((rand() % 2) - 1);    ///< Russian way !
 }
