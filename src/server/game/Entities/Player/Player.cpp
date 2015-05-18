@@ -33196,13 +33196,16 @@ void Player::ResetDailyLoots()
 
 void Player::AddDailyLootCooldown(uint32 p_Entry)
 {
+    /// If not, already in database
     if (!m_DailyLootsCooldowns.count(p_Entry))
+    {
         m_DailyLootsCooldowns.insert(p_Entry);
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
-    l_Statement->setUInt32(0, GetGUIDLow());
-    l_Statement->setUInt32(1, p_Entry);
-    CharacterDatabase.Execute(l_Statement);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
+        l_Statement->setUInt32(0, GetGUIDLow());
+        l_Statement->setUInt32(1, p_Entry);
+        CharacterDatabase.Execute(l_Statement);
+    }
 }
 
 bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel)
