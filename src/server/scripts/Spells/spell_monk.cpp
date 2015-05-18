@@ -4818,7 +4818,7 @@ class spell_monk_chi_explosion_brewmaster: public SpellScriptLoader
                     uint32 l_Duration = (l_Chi * 2 + 2) * IN_MILLISECONDS;
 
                     if (AuraPtr l_Aura = l_Caster->AddAura(SPELL_MONK_SHUFFLE, l_Caster))
-                        l_Aura->SetDuration(l_Duration);
+                        l_Aura->SetDuration(l_Aura->GetDuration() + l_Duration);
                 }
 
                 l_Caster->ModifyPower(POWER_CHI, -3);
