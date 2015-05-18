@@ -974,14 +974,21 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            enum eData
             {
-                Player* l_Player = GetCaster()->ToPlayer();
+                CategoryID = 1536
+            };
 
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->RestoreCharge(1536);
+                l_Player->RestoreCharge(eData::CategoryID);
             }
 
             void Register()

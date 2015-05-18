@@ -132,6 +132,7 @@ class debug_commandscript: public CommandScript
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
+                { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -2694,7 +2695,82 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        
+        static bool HandleHotfixOverride(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            auto l_SendHotfixPacket = [&p_Handler](DB2StorageBase* p_Store, uint32 p_Entry) -> void
+            {
+                ByteBuffer l_ResponseData(2 * 1024);
+                if (p_Store->WriteRecord(p_Entry, l_ResponseData))
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(p_Entry);
+                    l_Data << uint32(sObjectMgr->GetHotfixDate(p_Entry, p_Store->GetHash()));
+                    l_Data << uint32(l_ResponseData.size());
+                    l_Data.append(l_ResponseData);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+                else
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(-int32(p_Entry));
+                    l_Data << uint32(time(NULL));
+                    l_Data << uint32(0);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+            };
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            std::string l_HotfixType = arg1;
+            uint32 l_HotfixEntry = atoi(arg2);
+            if (l_HotfixType == "item")
+            {
+                l_SendHotfixPacket(&sItemStore, l_HotfixEntry);
+                l_SendHotfixPacket(&sItemSparseStore, l_HotfixEntry);
+
+                for (uint32 i = 0; i < sItemEffectStore.GetNumRows(); ++i)
+                {
+                    ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+                    
+                    l_SendHotfixPacket(&sItemEffectStore, i);
+                }
+
+                std::vector<uint32> l_Appearances;
+                for (uint32 i = 0; i < sItemModifiedAppearanceStore.GetNumRows(); ++i)
+                {
+                    ItemModifiedAppearanceEntry const* l_Entry = sItemModifiedAppearanceStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemModifiedAppearanceStore, i);
+                    l_Appearances.push_back(i);
+                }
+
+                for (uint32 l_AppearanceID : l_Appearances)
+                {
+                    ItemAppearanceEntry const* l_Entry = sItemAppearanceStore.LookupEntry(l_AppearanceID);
+                    if (!l_Entry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemAppearanceStore, l_AppearanceID);
+                }
+
+            }
+
+            return true;
+        }
 };
 
 void AddSC_debug_commandscript()

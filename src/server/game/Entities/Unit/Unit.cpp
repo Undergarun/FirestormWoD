@@ -13784,23 +13784,26 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
     }
 }
 
-void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
+void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 {
-    // only alive units can be in combat
+    /// Only alive units can be in combat
     if (!isAlive())
         return;
 
-    if (Creature* l_Creature = enemy->ToCreature())
-        if (l_Creature->GetEntry() == 900000)   /// Sovaks training dummy
-            PvP = true;
-
-    if (PvP)
+    if (Creature* l_Creature = p_Enemy->ToCreature())
     {
-        if (Player* player = ToPlayer())
+        if (l_Creature->GetEntry() == 900000) ///< Sovaks training dummy
+            p_IsPVP = true;
+    }
+
+    if (p_IsPVP)
+    {
+        if (Player* l_Player = ToPlayer())
         {
-            player->SetPvPTimer(15000); // 5 + 10 secs
-            if (!player->IsInPvPCombat())
-                player->SetInPvPCombat(true);
+            l_Player->SetPvPTimer(15000); ///< 5 + 10 secs
+
+            if (!l_Player->IsInPvPCombat())
+                l_Player->SetInPvPCombat(true);
         }
 
         m_CombatTimer = 5000;
@@ -13809,38 +13812,52 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
     if (isInCombat() || HasUnitState(UNIT_STATE_EVADE))
         return;
 
-    if (Creature* creature = ToCreature())
-        if (IsAIEnabled && creature->AI()->IsPassived())
+    if (Creature* l_Creature = ToCreature())
+    {
+        if (IsAIEnabled && l_Creature->AI()->IsPassived())
             return;
+    }
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-    if (isControlled)
+
+    if (p_IsControlled)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
-    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        (*itr)->SetInCombatState(PvP, enemy, true);
+    for (Unit::ControlList::iterator l_Iter = m_Controlled.begin(); l_Iter != m_Controlled.end(); ++l_Iter)
+        (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
 
-    RemoveAura(121308); // Glyph of Disguise, only out of combat
+    RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
-    if (Creature* creature = ToCreature())
+    if (Creature* l_Creature = ToCreature())
     {
-        // Set home position at place of engaging combat for escorted creatures
-        if ((IsAIEnabled && creature->AI()->IsEscorted()) ||
+        /// Set home position at place of engaging combat for escorted creatures
+        if ((IsAIEnabled && l_Creature->AI()->IsEscorted()) ||
             (GetMotionMaster() && (GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE ||
             GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)))
-            creature->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            l_Creature->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
-        if (enemy)
+        if (p_Enemy)
         {
-            enemy->RemoveAura(121308); // Glyph of Disguise, only out of combat
+            p_Enemy->RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
             if (IsAIEnabled)
             {
-                creature->AI()->EnterCombat(enemy);
-                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // unit has engaged in combat, remove immunity so players can fight back
+                l_Creature->AI()->EnterCombat(p_Enemy);
+
+                if (l_Creature->isWorldBoss())
+                {
+                    if (InstanceScript* l_Instance = l_Creature->GetInstanceScript())
+                    {
+                        l_Instance->SendEncounterStart(l_Instance->GetEncounterIDForBoss(l_Creature));
+                        l_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_START, l_Creature->ToUnit());
+                    }
+                }
+
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); ///< Unit has engaged in combat, remove immunity so players can fight back
             }
-            if (creature->GetFormation())
-                creature->GetFormation()->MemberAttackStart(creature, enemy);
+
+            if (l_Creature->GetFormation())
+                l_Creature->GetFormation()->MemberAttackStart(l_Creature, p_Enemy);
         }
 
         if (isPet())
@@ -13850,13 +13867,11 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
             UpdateSpeed(MOVE_FLIGHT, true);
         }
 
-        if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
+        if (!(l_Creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
     }
-    else if (Player* player = ToPlayer())
-    {
-        sScriptMgr->OnPlayerEnterInCombat(player);
-    }
+    else if (Player* l_Player = ToPlayer())
+        sScriptMgr->OnPlayerEnterInCombat(l_Player);
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
         ToPlayer()->SwitchToWorgenForm();

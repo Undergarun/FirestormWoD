@@ -170,25 +170,36 @@ void CreatureAI::EnterEvadeMode()
     if (!_EnterEvadeMode())
         return;
 
-    if (!me->GetVehicle()) // otherwise me will be in evade mode forever
+    /// Otherwise me will be in evade mode forever
+    if (!me->GetVehicle())
     {
-        if (Unit* owner = me->GetCharmerOrOwner())
+        if (Unit* l_Owner = me->GetCharmerOrOwner())
         {
             me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            me->GetMotionMaster()->MoveFollow(l_Owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
         }
         else
         {
-            // Required to prevent attacking creatures that are evading and cause them to reenter combat
-            // Does not apply to MoveFollow
+            /// Required to prevent attacking creatures that are evading and cause them to reenter combat
+            /// Does not apply to MoveFollow
             me->AddUnitState(UNIT_STATE_EVADE);
             me->GetMotionMaster()->MoveTargetedHome();
         }
     }
 
+    if (me->isWorldBoss())
+    {
+        if (InstanceScript* l_Instance = me->GetInstanceScript())
+        {
+            l_Instance->SendEncounterEnd(l_Instance->GetEncounterIDForBoss(me), false);
+            l_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, me->ToUnit());
+        }
+    }
+
     Reset();
 
-    if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
+    /// Use the same sequence of addtoworld, aireset may remove all summons!
+    if (me->IsVehicle())
         me->GetVehicleKit()->Reset(true);
 
     me->SetLastDamagedTime(0);

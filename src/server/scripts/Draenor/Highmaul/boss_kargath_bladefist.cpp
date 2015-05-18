@@ -1637,7 +1637,11 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                     if (Player* l_Target = Player::GetPlayer(*me, m_ChaseTarget))
                     {
                         if (l_Target->IsWithinMeleeRange(me, 2.0f) && l_Target->isAlive())
+                        {
+                            me->AddAura(eSpells::InThePitAura, l_Target);
                             me->CastSpell(l_Target, eSpells::SpellMaul, true);
+                            l_Target->RemoveAura(eSpells::InThePitAura);
+                        }
 
                         Position l_Pos;
                         l_Target->GetPosition(&l_Pos);
@@ -1661,7 +1665,7 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                             continue;
 
                         me->AddAura(eSpells::InThePitAura, l_Player);
-                        me->CastSpell(l_Player, eSpells::SpellMaul, false);
+                        me->CastSpell(l_Player, eSpells::SpellMaul, true);
                         l_Player->RemoveAura(eSpells::InThePitAura);
                         break;
                     }

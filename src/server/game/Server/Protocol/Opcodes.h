@@ -398,7 +398,7 @@ enum Opcodes
         SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0619, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0B3D, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0735, ///< 6.1.2 19783
-        SMSG_INSTANCE_ENCOUNTER_START                           = 0x171A, ///< 6.1.2 19783
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x06B9, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x1219, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_END                             = 0x16B5, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x1717, ///< 6.1.2 19783
@@ -412,6 +412,7 @@ enum Opcodes
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
         SMSG_INSTANCE_GROUP_SIZE_CHANGED                        = 0x1C22, ///< 6.1.2 19783
         SMSG_ENCOUNTER_END                                      = 0x0862, ///< 6.1.2 19783
+        SMSG_ENCOUNTER_START                                    = 0x171A, ///< 6.1.2 19783
         SMSG_BOSS_KILL_CREDIT                                   = 0x0395, ///< 6.1.2 19783
 
         /// Scenarios

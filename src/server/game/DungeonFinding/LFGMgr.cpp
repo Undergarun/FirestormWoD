@@ -1940,38 +1940,9 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
             RemoveFromQueue(*it);
 
-        uint8 maxPlayersToTeleport = 5;
-        uint8 playersTeleported = 0;
-
-        switch (grp->GetLegacyRaidDifficultyID())
-        {
-            case Difficulty::Difficulty10N:
-            case Difficulty::Difficulty10HC:
-                maxPlayersToTeleport = 10;
-                break;
-            case Difficulty::DifficultyRaidTool:
-            case Difficulty::DifficultyRaidLFR:
-            case Difficulty::Difficulty25N:
-            case Difficulty::Difficulty25HC:
-                maxPlayersToTeleport = 25;
-                break;
-            case Difficulty::Difficulty40:
-                maxPlayersToTeleport = 40;
-                break;
-        }
-
-        if (dungeon->difficulty == Difficulty::DifficultyRaidTool || dungeon->difficulty == Difficulty::DifficultyRaidLFR)
-            maxPlayersToTeleport = 25;
-
         // Teleport players
-        for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
-        {
-            if (playersTeleported >= maxPlayersToTeleport)
-                break;
-
+        for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
             TeleportPlayer(*it, false);
-            playersTeleported++;
-        }
 
         // Update group info
         grp->SendUpdate();
@@ -2214,10 +2185,15 @@ void LFGMgr::UpdateBoot(Player* player, bool accept)
 */
 void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*/)
 {
-    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s", player->GetGUID(), out ? "out" : "in");
+    Group* grp = player->GetGroup();
+
+    if (grp)
+    {
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(GetDungeon(grp->GetGUID()));
+        sLog->outAshran("LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s to dungeon ID [%u]", player->GetGUID(), out ? "out" : "in", dungeon ? dungeon->ID : 0);
+    }
 
     LfgTeleportError error = LFG_TELEPORTERROR_OK;
-    Group* grp = player->GetGroup();
 
     if (!grp || !grp->isLFGGroup())                        // should never happen, but just in case...
         error = LFG_TELEPORTERROR_INVALID_LOCATION;
