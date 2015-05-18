@@ -2619,7 +2619,7 @@ public:
     }
 };
 
-/// Last Update 6.1.2
+/// Last Update 6.1.2 19802
 /// Clarity of will - 152118
 class spell_pri_clarity_of_will: public SpellScriptLoader
 {
@@ -2653,7 +2653,13 @@ public:
 
             if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
             {
-                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.0f);
+                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.3f);
+                /// Apply Mastery
+                float l_Mastery = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
+                l_Bp += CalculatePct(l_Bp, l_Mastery);
+                /// Apply versatility 
+                l_Bp += CalculatePct(l_Bp, l_Player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+
                 int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
 
                 if (l_Bp > l_MaxStackAmount)

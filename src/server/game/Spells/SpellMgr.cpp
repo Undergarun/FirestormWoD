@@ -6066,6 +6066,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->MaxAffectedTargets = 3;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
+            case 152118: ///< Clarity of Will
+                spellInfo->InterruptFlags = 0x0000000F;
+                break;
             case 115399: ///< Chi Brew
                 /// SPELL_ATTR4_CAN_CAST_WHILE_CASTING bypass charge check and players can usebug (the check is only doing client-side)
                 /// Maybe SPELL_ATTR4_CAN_CAST_WHILE_CASTING don't bypass charge ?
