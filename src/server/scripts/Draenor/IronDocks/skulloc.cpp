@@ -233,6 +233,9 @@ public:
         {
             _JustDied();
         }
+        void DoAction(int32 const action)
+        {
+        }
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())

@@ -70,10 +70,7 @@ bool Corpse::Create(uint32 guidlow, Map* map)
     Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
 
     loot.SetSource(GetGUID());
-
-    auto l_MapDifficulty = map->GetMapDifficulty();
-    if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
+    loot.Context = map->GetLootItemContext();
 
     return true;
 }
@@ -104,9 +101,7 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
 
     _gridCoord = JadeCore::ComputeGridCoord(GetPositionX(), GetPositionY());
 
-    auto l_MapDifficulty = GetMap()->GetMapDifficulty();
-    if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : GetMap()->GetDifficultyID();
+    loot.Context = GetMap()->GetLootItemContext();
 
     return true;
 }

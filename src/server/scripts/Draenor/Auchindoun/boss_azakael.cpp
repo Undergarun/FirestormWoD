@@ -89,7 +89,7 @@ public:
             counting = 0;
             summoned = false;
 
-            me->setFaction(16);
+            me->setFaction(35);
             me->SetReactState(REACT_PASSIVE);
 
             // Get Barrier Down
@@ -134,7 +134,7 @@ public:
             {
             case EVENT_SUMMON_AZZAKEL:
                 Azzakel = me->SummonCreature(BOSS_AZAAKEL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
-                me->SummonGameObject(GAMEOBJECT_DEMONIC_PORTAL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),0,0,0,0,0);
+                me->SummonGameObject(GAMEOBJECT_DEMONIC_PORTAL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),0,0,0,0, 6000000);
 
                 Azzakel->GetMotionMaster()->MoveJump(SpawningFlyCoords[1].GetPositionX(), SpawningFlyCoords[1].GetPositionY(), SpawningFlyCoords[1].GetPositionZ(), 30.0f, 25.0f);
                 events.ScheduleEvent(EVENT_SUMMON_AZZAKEL_2, 1000);
@@ -294,12 +294,6 @@ public:
         {
             Talk(AZZAKEL_DEATH);
             _JustDied();
-
-            if (GameObject* felbarrier = instance->instance->GetGameObject(instance->GetData64(DATA_FEL_BARRIER)))
-            {
-                felbarrier->SetLootState(GO_READY);
-                felbarrier->UseDoorOrButton();
-            }
 
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);;
             instance->SetBossState(DATA_AZZAKAEL, DONE);
@@ -481,9 +475,6 @@ public:
                     {
                         GetCaster()->GetMotionMaster()->MovePoint(0, GetTarget()->GetPositionX(), GetTarget()->GetPositionY(), 35.590f);
                     }
-
-                    //if (Player* nearestpl = GetCaster()->FindNearestPlayer(100.0f))
-                        //caster->Attack(nearestpl, true);
                 }
             }
         }

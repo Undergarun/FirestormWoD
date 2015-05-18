@@ -707,7 +707,7 @@ struct ItemTemplate
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
     int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
-    std::string Name1;
+    LocalizedString const* Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
     uint32 Flags;
@@ -740,7 +740,7 @@ struct ItemTemplate
     float  RangedModRange;
     _Spell Spells[MAX_ITEM_PROTO_SPELLS];
     uint32 Bonding;
-    std::string Description;
+    LocalizedString const* Description;
     uint32 PageText;
     uint32 LanguageID;
     uint32 PageMaterial;

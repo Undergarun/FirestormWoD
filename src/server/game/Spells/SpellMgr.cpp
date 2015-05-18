@@ -3204,8 +3204,15 @@ void SpellMgr::LoadSpellCustomAttr()
                         break;
                     case SPELL_EFFECT_CREATE_ITEM:
                     case SPELL_EFFECT_CREATE_ITEM_2:
+                    {
                         mSpellCreateItemList.push_back(i);
+
+                        SkillLineAbilityMapBounds l_SpellBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
+                        for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_SpellBounds.first; l_SpellIdx != l_SpellBounds.second; ++l_SpellIdx)
+                            m_ItemSourceSkills[spellInfo->Effects[j].ItemType].push_back(l_SpellIdx->second->skillId);
+
                         break;
+                    }
                     case SPELL_EFFECT_ENCHANT_ITEM:
                     case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                     case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
@@ -3753,8 +3760,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 165376: ///< Enlightenment
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_CRIT_PCT;
-            case 156989: ///< Liadrin's Righteousness
-                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_MELEE_HASTE;
+                break;
             case 139834: ///< Cinders (summon)
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_ENEMY;
                 break;
@@ -4106,7 +4112,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 155057:///< Magma Pool (DoT)
             case 166730:///< Burning Bridge (DoT)
             case 176037:///< Noxious Spit (DoT)
-            case 155158:///< Meteor Burn
             case 88611: ///< Smoke Bomb
             case 161635:///< Molten Bomb
             case 159311:///< Flame Jet
@@ -4859,9 +4864,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
-            case 47753: ///< Divine Aegis
-            case 86273: ///< Illuminated Healing
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
+            case 119611: ///< Renewing Mist 
+                spellInfo->Effects[0].BonusMultiplier = 0.109984f;
                 break;
             case 109186: ///< Surge of light
                 spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
@@ -5040,11 +5044,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(115191); ///< Add Stealth (talent) to override spell list of Stealth
                 break;
             case 115191: ///< Subterfuge
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_SHAPESHIFT;
                 spellInfo->AttributesEx |= SPELL_ATTR0_DISABLED_WHILE_ACTIVE;
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_AURA_SEND_AMOUNT;
-                spellInfo->ProcFlags = 0x800A22A8;   ///< 1784 ProcsFlags
-                spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TAKE_DAMAGE_AMOUNT;
                 break;
             case 115192: ///< Subterfuge
                 spellInfo->Attributes |= SPELL_ATTR0_DONT_AFFECT_SHEATH_STATE;
@@ -5151,25 +5152,62 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 12654: ///< Ignite
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
-                spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
-                spellInfo->Effects[2].BasePoints = 0;
+                break;
+            case 182287:/// Glyph of Ignite (effect)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); ///< 5s
                 break;
             case 73651: ///< Recuperate
                 spellInfo->Effects[1].Effect = 0;
+            case 153564:///< Meteor
+            case 153561:///< Meteor (launch spell)
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 155158:///< Meteor (periodic damage)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); // 2s
+                break;
+            case 106734:///< Guardian Overrides Passive
+                spellInfo->Effects[5].Effect = 0;
+                spellInfo->Effects[6].Effect = 0;
+                break;
+            case 52610: ///< Savage Roar
+                spellInfo->Effects[2].BasePoints = 40;
+                break;
+            case 29725: ///< Sudden Death
+                spellInfo->ProcFlags = PROC_FLAG_DONE_MELEE_AUTO_ATTACK;
+                break;
+            case 8676:  ///< Ambush
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                spellInfo->Effects[1].BonusMultiplier = 0;
+                break;
+            /// All spells - BonusMultiplier = 0
+            case 77758: ///< Thrash (bear)
+            case 106830:///< Thrash (cat)
+            case 22568: ///< Ferocious Bite
+            case 5221:  ///< Shred
+            case 22599: ///< Chromatic Mantle of the Dawn
+            case 47753: ///< Divine Aegis
+            case 86273: ///< Illuminated Healing 
+                spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             /// All spells - ProcFlags = 0
+            case 170848: ///< Item - Druid WoD PvP Feral 2P Bonus
+            case 170853: ///< Item - Druid WoD PvP Restoration 2P Bonus
+            case 165691: ///< Item - Monk WoD PvP Windwalker/Brewmaster 2P Bonus
             case 165639: ///< Item - Warrior WoD PvP Fury 2P Bonus
             case 165636: ///< Item - Warrior WoD PvP Arms 2P Bonus
             case 165641: ///< Item - Warrior WoD PvP Protection 2P Bonus
             case 165995: ///< Item - Rogue WoD PvP 2P Bonus
-            case 170877: ///< Item  Rogue WoD PvP Subtlety 4P Bonus
+            case 170877: ///< Item - Rogue WoD PvP Subtlety 4P Bonus
             case 182303: ///< Item - Rogue WoD PvP Combat 4P Bonus
             case 170883: ///< Item - Rogue WoD PvP Assassination 4P Bonus
             case 165886: ///< Item - Paladin WoD PvP Retribution 2P Bonus
             case 166005: ///< Item - Hunter WoD PvP 2P Bonus
             case 162452: ///< Shadowy Insight
             case 87160:  ///< Surge of Darkness
-            case 85804:  ///< Selfless Healer
             case 73685:  ///< Unleash Life (restoration)
             case 118864: ///< Combo Breaker (tiger palm)
             case 116768: ///< Combo Breaker (blackout kick)
@@ -5987,11 +6025,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 123011: ///< Terrorize Player (tsulong spell)
                 spellInfo->MaxAffectedTargets = 1;
-                break;
-            case 22568: ///< Ferocious Bite
-            case 5221:  ///< Shred
-            case 22599: ///< Chromatic Mantle of the Dawn
-                spellInfo->Effects[0].BonusMultiplier = 0.0f;
                 break;
             case 158221: ///< Hurricane Strike (damage)
                 spellInfo->SetDurationIndex(39); ///< 2 seconds

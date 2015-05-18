@@ -31,7 +31,7 @@ enum Spells
 
     // misv
     SPELL_BLOODY_CORPSE_EXPLOSION = 73163,
-
+    SPELL_STRENGTH_OF_THE_PACK = 171114,
     // rylak
     SPELL_ACIDIC_AREA_TRIGGERS = 178155,
     SPELL_ACIDIC_CAST = 178154,
@@ -62,7 +62,7 @@ enum Creatures
     CREATURE_WOLF = 89012,
     CREATURE_RYLAK = 89011,
     CREATURE_GUARD = 83390,
-    
+
     // dests
     TRIGGER_WOLF_DEST = 89022,
     TRIGGER_RYLAK_DEST = 89021,
@@ -70,12 +70,12 @@ enum Creatures
 
 Position newhomeposition = {6945.15f, -1098.29f, 4.603f, 4.579627f};
 Position npcspawning = {6924.00f, -1090.61f, 4.604f, 0.102262f};
-Position npcmovement[3] = 
+Position npcmovement[3] =
 {
     {6972.43f, -1094.44f, 4.962f, 0.903368f},
     {6969.16f, -1089.79f, 4.60f, 0.881810f},
     {6964.44f, -1085.31f, 4.603f, 0.102262f},
-}; 
+};
 
 #define breakoutinterval 20000
 #define feedingfrenzyinterval urand(50000, 60000)
@@ -164,7 +164,7 @@ public:
                             {
 
                                 Oshir->GetMotionMaster()->MoveJump(guard->GetPositionX(), guard->GetPositionY(), guard->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                                   
+
                                 //Oshir->CastSpell(guard, SPELL_BREAKOUT);
                                 guard->CastSpell(guard, SPELL_BLOODY_CORPSE_EXPLOSION);
                                 Oshir->Kill(guard);
@@ -274,7 +274,9 @@ public:
         void Reset() override
         {
             _Reset();
+            if (!wolf_dests.empty())
             wolf_dests.clear();
+            if (!rylak_dests.empty())
             rylak_dests.clear();
 
             hppact = me->GetHealthPct() * 0.95;
@@ -283,6 +285,12 @@ public:
 
             me->GetCreatureListWithEntryInGrid(wolf_dests, TRIGGER_WOLF_DEST, 300.0f);
             me->GetCreatureListWithEntryInGrid(rylak_dests, TRIGGER_RYLAK_DEST, 300.0f);
+
+            if (wolf_dests.empty())
+                return;
+
+            if (rylak_dests.empty())
+                return;
 
             for (auto itr : wolf_dests)
             {
@@ -379,7 +387,6 @@ public:
                     break;
                 case EVENT_BREAKOUT:
                 {
-
                     me->RemoveAura(SPELL_FEEDING_AURA);
                     switch (urand(0, 1))
                     {
@@ -418,7 +425,7 @@ public:
                                 rylak_dests.erase(it);
                             }
                             break;
-                        }          
+                        }
                     }
                     events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
                     break;
@@ -446,7 +453,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<uint64> wolfs;
+        std::list<Creature*> wolfs;
         bool released;
         InstanceScript* instance;
 
@@ -462,7 +469,7 @@ public:
                 wolf->setFaction(35);
                 wolf->SetReactState(REACT_PASSIVE);
 
-                wolfs.push_back(wolf->GetGUID());
+                wolfs.push_back(wolf);
             }
         }
         void DoAction(int32 const action)
@@ -495,16 +502,21 @@ public:
                 case EVENT_RELEASE:
                     if (Creature* oshir = instance->instance->GetCreature(instance->GetData64(DATA_OSHIR)))
                     {
-                        if (!wolfs.empty())
+                        if (oshir->isInCombat() && oshir->getVictim())
                         {
-                            for (auto itr : wolfs)
+                            if (!wolfs.empty())
                             {
-                                Creature* l_Wolf = me->GetCreature(*me, itr);
-                                if (l_Wolf)
+                                for (auto itr : wolfs)
                                 {
-                                    l_Wolf->setFaction(16);
-                                    l_Wolf->SetReactState(REACT_AGGRESSIVE);
-                                    l_Wolf->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                    if (itr && itr->IsInWorld() && itr->isAlive())
+                                    {
+
+                                        itr->setFaction(16);
+                                        itr->SetReactState(REACT_AGGRESSIVE);
+                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                        itr->AddThreat(oshir->getVictim(), 200.0f);
+                                        itr->Attack(oshir->getVictim(), true);
+                                    }
                                 }
                             }
                         }
@@ -532,7 +544,7 @@ public:
         {
             instance = me->GetInstanceScript();
         }
-        std::list<uint64> rylaks;
+        std::list<Creature*> rylaks;
         bool released;
         InstanceScript* instance;
 
@@ -542,12 +554,11 @@ public:
             summons.DespawnAll();
             rylaks.clear();
 
-            if (Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
-            {
-                rylak->setFaction(35);
-                rylak->SetReactState(REACT_PASSIVE);
-                rylaks.push_back(rylak->GetGUID());
-            }
+            Creature* rylak = me->SummonCreature(CREATURE_RYLAK, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+            rylak->setFaction(35);
+            rylak->SetReactState(REACT_PASSIVE);
+
+            rylaks.push_back(rylak);
         }
         void DoAction(int32 const action)
         {
@@ -579,15 +590,20 @@ public:
                 case EVENT_RELEASE:
                     if (Creature* oshir = instance->instance->GetCreature(instance->GetData64(DATA_OSHIR)))
                     {
-                        if (!rylaks.empty())
+                        if (oshir->isInCombat() && oshir->getVictim())
                         {
-                            for (uint64 l_Guid : rylaks)
+                            if (!rylaks.empty())
                             {
-                                if (Creature* l_Rylak = Creature::GetCreature(*me, l_Guid))
+                                for (auto itr : rylaks)
                                 {
-                                    l_Rylak->setFaction(16);
-                                    l_Rylak->SetReactState(REACT_AGGRESSIVE);
-                                    l_Rylak->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                    if (itr && itr->IsInWorld() && itr->isAlive())
+                                    {
+                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
+                                        itr->AddThreat(oshir->getVictim(), 200.0f);
+                                        itr->Attack(oshir->getVictim(), true);
+                                        itr->setFaction(16);
+                                        itr->SetReactState(REACT_AGGRESSIVE);
+                                    }
                                 }
                             }
                         }
@@ -643,6 +659,66 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
+
+class iron_docks_mob_wolf : public CreatureScript
+{
+public:
+    iron_docks_mob_wolf() : CreatureScript("iron_docks_mob_wolf") { }
+
+    struct mob_iron_docksAI : public ScriptedAI
+    {
+        mob_iron_docksAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = me->GetInstanceScript();
+        }
+        uint32 interval;
+        InstanceScript* instance;
+
+        void Reset()
+        {
+            interval = 1500;
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (interval <= diff)
+            {
+                me->CastSpell(me, SPELL_STRENGTH_OF_THE_PACK);
+
+                std::list<Creature*> list_creatures;
+
+                me->GetCreatureListWithEntryInGrid(list_creatures, me->GetEntry(), 200.0f);
+
+                if (list_creatures.empty())
+                    return;
+
+                for (auto itr : list_creatures)
+                {
+                    if (itr && itr->IsInWorld() && itr->isAlive() && itr->getFaction() == 16)
+                    {
+                        if (AuraPtr aura = me->GetAura(SPELL_STRENGTH_OF_THE_PACK))
+                        {
+                            aura->SetStackAmount(list_creatures.size());
+                        }
+                    }
+                }
+
+                interval = 1500;
+            }
+            else
+                interval -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_iron_docksAI(creature);
+    }
+};
 class spell_acid_spew : public SpellScriptLoader
 {
 public:
@@ -654,10 +730,14 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (!GetCaster())
+            if (!GetCaster() || !GetHitUnit())
                 return;
 
             std::list<Player*> pl_list;
+
+            if (pl_list.empty())
+                return;
+
             GetCaster()->GetPlayerListInGrid(pl_list, 50.0f);
 
             for (auto itr : pl_list)
@@ -685,6 +765,7 @@ void AddSC_boss_oshir()
     new spell_acid_spew();
     // adds
     new iron_docks_mob_rylak();
+    new iron_docks_mob_wolf();
     // triggers
     new iron_docks_mob_rylak_dest();
     new iron_docks_mob_wolf_dest();

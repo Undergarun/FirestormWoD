@@ -70,6 +70,7 @@ enum MageSpells
     SPELL_MAGE_FINGER_OF_FROST_VISUAL            = 44544,
     SPELL_MAGE_FINGER_OF_FROST_EFFECT            = 126084,
     SPELL_MAGE_GLYPH_OF_SLOW                     = 86209,
+    SPELL_MAGE_GREATED_INVISIBILITY              = 110960,
     SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE  = 113862,
     SPELL_MAGE_REMOVE_INVISIBILITY_REMOVED_TIMER = 122293,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
@@ -1127,8 +1128,16 @@ class spell_mage_blazing_speed: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->RemoveMovementImpairingAuras();
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    l_Player->RemoveMovementImpairingAuras();
+
+                    if (l_Player->HasAura(SPELL_MAGE_GREATED_INVISIBILITY))
+                    {
+                        l_Player->RemoveAura(SPELL_MAGE_GREATED_INVISIBILITY);
+                        l_Player->RemoveAura(SPELL_MAGE_GREATER_INVISIBILITY_LESS_DAMAGE);
+                    }
+                }
             }
 
             void Register()
@@ -1842,6 +1851,23 @@ class spell_mage_pyroblast: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_pyroblast_SpellScript);
 
+            bool m_InstantPyroblast;
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+                m_InstantPyroblast = false;
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(SPELL_MAGE_HEATING_UP))
+                {
+                    m_InstantPyroblast = true;
+                    l_Caster->RemoveAura(SPELL_MAGE_HEATING_UP);
+                }
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -1850,7 +1876,7 @@ class spell_mage_pyroblast: public SpellScriptLoader
                 if (l_Caster == nullptr || l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Aura = l_Caster->GetAura(SPELL_MAGE_HEATING_UP))
+                if (m_InstantPyroblast)
                 {
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), sSpellMgr->GetSpellInfo(SPELL_MAGE_HEATING_UP)->Effects[EFFECT_2].BasePoints));
 
@@ -1862,6 +1888,7 @@ class spell_mage_pyroblast: public SpellScriptLoader
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_mage_pyroblast_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_pyroblast_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -2194,14 +2221,6 @@ class spell_mage_novas_talent : public SpellScriptLoader
 
                 if (GetExplTargetUnit() != nullptr)
                     m_MainTarget = GetExplTargetUnit()->GetGUID();
-
-                /// Ice Nova, Blast Wave, Supernova, now has a 3-second cooldown.
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 3 * IN_MILLISECONDS);
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -2281,12 +2300,22 @@ class spell_mage_blink : public SpellScriptLoader
 
         enum eSpells
         {
-            GlyphOfRapidDisplacement = 163558
+            GlyphOfRapidDisplacement = 146659
         };
 
         class spell_mage_blink_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blink_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfRapidDisplacement) && l_Caster->HasAuraType(SPELL_AURA_MOD_STUN))
+                    return SPELL_FAILED_STUNNED;
+
+                return SPELL_CAST_OK;
+            }
 
             void HandleImmunity(SpellEffIndex p_EffIndex)
             {
@@ -2299,12 +2328,15 @@ class spell_mage_blink : public SpellScriptLoader
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+                }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_mage_blink_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);

@@ -229,6 +229,7 @@ extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
 extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
 
+
 void LoadDBCStores(const std::string& dataPath);
 
 uint32 GetQuestUniqueBitFlag(uint32 questId);

@@ -815,7 +815,6 @@ typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, RealmCompletedChallenge> GroupsCompletedChallengesMap;
 typedef std::map<uint32, RealmCompletedChallenge> GuildsCompletedChallengesMap;
 typedef std::map<uint32, ChallengeReward> ChallengeRewardsMap;
-typedef std::map<uint32, MapChallengeModeHotfix> MapChallengeModeHotfixes;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 typedef std::vector<ResearchLootEntry> ResearchLootVector;
@@ -837,8 +836,6 @@ class ObjectMgr
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
         typedef UNORDERED_MAP<uint32, Quest*> QuestMap;
-
-        typedef std::vector<uint32> QuestPackageItemHotfixs;
 
         typedef UNORDERED_MAP<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
@@ -1059,8 +1056,6 @@ class ObjectMgr
         void LoadQuestObjectives();
         void LoadQuestObjectiveLocales();
 
-        void LoadQuestPackageItemHotfixs();
-
         void LoadQuestRelations()
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GO Start Quest Data...");
@@ -1149,7 +1144,6 @@ class ObjectMgr
         void LoadItemTemplateCorrections();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
-        void LoadItemLocales();
         void LoadItemSpecs();
         void LoadItemSpecsOverride();
         void LoadItemBonusGroup();
@@ -1222,7 +1216,6 @@ class ObjectMgr
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
-        void LoadMapChallengeModeHotfixes();
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
@@ -1251,14 +1244,6 @@ class ObjectMgr
                 return nullptr;
 
             return &m_ChallengeRewardsMap[p_MapID];
-        }
-
-        MapChallengeModeHotfix* GetMapChallengeModeHotfix(uint32 p_ID)
-        {
-            if (m_MapChallengeModeHotfixes.find(p_ID) == m_MapChallengeModeHotfixes.end())
-                return nullptr;
-
-            return &m_MapChallengeModeHotfixes[p_ID];
         }
 
         BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
@@ -1364,12 +1349,6 @@ class ObjectMgr
         {
             GameObjectLocaleContainer::const_iterator itr = _gameObjectLocaleStore.find(entry);
             if (itr == _gameObjectLocaleStore.end()) return NULL;
-            return &itr->second;
-        }
-        ItemLocale const* GetItemLocale(uint32 entry) const
-        {
-            ItemLocaleContainer::const_iterator itr = _itemLocaleStore.find(entry);
-            if (itr == _itemLocaleStore.end()) return NULL;
             return &itr->second;
         }
         QuestLocale const* GetQuestLocale(uint32 entry) const
@@ -1530,7 +1509,10 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
 
-        void LoadHotfixData();
+        void LoadHotfixData(bool p_Reload = false);
+        void LoadHotfixTableHashs();
+        std::map<std::string, uint32> HotfixTableID;
+
         HotfixData const& GetHotfixData() const { return _hotfixData; }
         time_t GetHotfixDate(uint32 entry, uint32 type) const
         {
@@ -1713,7 +1695,6 @@ class ObjectMgr
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
-        QuestPackageItemHotfixs m_QuestPackageItemHotfixs;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
@@ -1833,7 +1814,6 @@ class ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
-        ItemLocaleContainer _itemLocaleStore;
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
@@ -1866,7 +1846,6 @@ class ObjectMgr
         GroupsCompletedChallengesMap m_GroupsCompletedChallenges;
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
-        MapChallengeModeHotfixes m_MapChallengeModeHotfixes;
         TaxiNodes _taxiNodes;
 };
 

@@ -5354,6 +5354,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         m_spells[spellId] = newspell;
 
+        /// WoD Custom Fix : Firebolt just for Fire specialization
+        if (spellId == 133 && GetSpecializationId() != SPEC_MAGE_FIRE)
+            newspell->disabled = true;
+
         // return false if spell disabled
         if (newspell->disabled)
             return false;
@@ -11996,8 +12000,8 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
 
 #ifdef _MSC_VER
             char* l_Size[] = { "None", "Small", "Medium", "Big" };
-            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
-            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
             l_Fishs.push_back(l_LootItem);
             l_LootItem->needs_quest = true;
@@ -12027,7 +12031,7 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
                 {
 #ifdef _MSC_VER
                     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
-                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
                     l_LootItem->needs_quest = false;
                 }
@@ -29158,7 +29162,7 @@ bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
 void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
 {
     Loot loot;
-    loot.FillLoot (loot_id, store, this, true);
+    loot.FillLoot (loot_id, store, this, true, true);
 
     uint32 max_slot = loot.GetMaxSlotInLootFor(this);
     for (uint32 i = 0; i < max_slot; ++i)

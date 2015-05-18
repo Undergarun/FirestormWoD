@@ -955,7 +955,7 @@ void OutdoorPvPAshran::FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64
                                               l_ArtifactCount,                                  ///< MaxCount
                                               std::vector<uint32>());                           ///< ItemBonuses
 
-    p_Loot.Items.push_back(LootItem(l_StoreItem, 0, &p_Loot));
+    p_Loot.Items.push_back(LootItem(l_StoreItem, ItemContext::None, &p_Loot));
     p_Loot.FillCurrencyLoot(p_Looter);
 }
 

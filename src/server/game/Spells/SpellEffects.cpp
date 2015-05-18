@@ -295,7 +295,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER     Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    &Spell::EffectChangeItemBonus,                          //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.1.2
@@ -944,27 +944,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     break;
                 }
-                case 47541: // Death Coil
-                {
-                    if (m_caster->IsFriendlyTo(unitTarget))
-                    {
-                        // Glyph of Death Coil
-                        if (m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                            m_caster->CastSpell(unitTarget, 115635, true); // Death Barrier
-                        else
-                        {
-                            int32 bp = (damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f) * 3.5f;
-                            m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
-                        }
-                    }
-                    else
-                    {
-                        int32 bp = damage + m_caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.514f;
-                        m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
-                    }
-
-                    return;
-                }
                 default:
                     break;
             }
@@ -1172,42 +1151,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
-            case 131361:///< Vanish
-            {
-                unitTarget->RemoveMovementImpairingAuras();
-                unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-
-                /// If this spell is given to an NPC, it must handle the rest using its own AI
-                if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
-                if (unitTarget->getLevel() == 100)
-                {
-                    /// Assasination
-                    if (unitTarget->HasAura(170883))
-                        unitTarget->CastSpell(unitTarget, 170882, true);
-                    /// Combat
-                    else if (unitTarget->HasAura(182303))
-                        unitTarget->CastSpell(unitTarget, 182304, true);
-                }
-
-                /// See if we already are stealthed. If so, we're done.
-                if (unitTarget->HasAura(1784) || unitTarget->HasAura(115191))
-                    return;
-
-                /// Reset cooldown on stealth if needed
-                if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(1784, true);
-                if (unitTarget->ToPlayer()->HasSpellCooldown(115191))
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(115191, true);
-
-                if (!unitTarget->HasAura(108208))
-                    unitTarget->CastSpell(unitTarget, 1784, true);
-                else
-                    unitTarget->CastSpell(unitTarget, 115191, true);
-                return;
-            }
             // Demonic Empowerment -- succubus
             case 54437:
             {
@@ -1692,6 +1635,10 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
             AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
             AddPct(currentValue, AbsorbMod2);
+
+            if (l_Caster->IsSpellCrit(unitTarget, m_spellInfo, m_spellInfo->GetSchoolMask()))
+                currentValue = l_Caster->SpellCriticalHealingBonus(m_spellInfo, currentValue, unitTarget);
+
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
     }
@@ -1949,7 +1896,8 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         // 77495 - Mastery : Harmony
         if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_DRUID)
         {
-            if (caster->HasAura(77495))
+            /// Can't proc from Ysera's Gift
+            if (m_spellInfo && m_spellInfo->Id != 145109 && caster->HasAura(77495))
             {
                 if (addhealth)
                 {
@@ -1966,23 +1914,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 }
             }
         }
-        // 77226 - Mastery : Deep Healing
-        if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->getClass() == CLASS_SHAMAN)
-        {
-            if (caster->HasAura(77226))
-            {
-                if (addhealth)
-                {
-                    float Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f / 100.0f;
-                    float healthpct = unitTarget->GetHealthPct();
-
-                    float bonus = 0;
-                    bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
-
-                    addhealth *= 1 + bonus;
-                }
-            }
-        }
 
         // 77485 - Mastery : Echo of Light
         if (caster && caster->getClass() == CLASS_PRIEST && caster->HasAura(77485) && caster->getLevel() >= 80 && addhealth)
@@ -1993,6 +1924,21 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             bp += unitTarget->GetRemainingPeriodicAmount(caster->GetGUID(), 77489, SPELL_AURA_PERIODIC_HEAL);
 
             m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
+        }
+
+        /// Unleashed Fury - Earthliving
+        if (caster && caster->HasAura(118473))
+        {
+            bool singleTarget = false;
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && m_spellInfo->Effects[i].TargetB.GetTarget() == 0)
+                singleTarget = true;
+
+            if (singleTarget)
+            {
+                addhealth += CalculatePct(damage, 50.0f);
+                caster->RemoveAurasDueToSpell(118473);
+            }
         }
 
         // Chakra : Serenity - 81208
@@ -2209,6 +2155,8 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
+
+
         /*if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
         if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
         guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0, pProto->ItemId);*/
@@ -2219,6 +2167,10 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
             player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
             return;
         }
+
+        std::vector<uint32> l_ItemBonus;
+        Item::GenerateItemBonus(newitemid, ItemContext::TradeSkill, l_ItemBonus);
+        pItem->AddItemBonuses(l_ItemBonus);
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
@@ -3382,6 +3334,9 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
                 int32 l_Bp = m_caster->CountPctFromMaxHealth(l_AurEff->GetAmount());
                 m_caster->CastCustomSpell(unitTarget, 86961, &l_Bp, nullptr, nullptr, true);
             }
+            /// last update : 6.1.2 19802
+            if (m_caster->HasAura(171381)) ///< Shaman WoD PvP Restoration 2P Bonus
+                m_caster->CastSpell(unitTarget, 171382, true);
             break;
         }
         default:
@@ -4071,7 +4026,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                             if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                                totalDamagePercentMod *= 1.447f;
+                                totalDamagePercentMod *= 1.4f; ///< Last Update 6.1.2 19802
                     break;
                 }
                 case 16511: // Hemorrhage
@@ -4312,6 +4267,17 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
                     if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
+
+                    /// Item - Druid WoD PvP Feral 2P Bonus
+                    if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
+                    { 
+                        if (Player* l_Player = m_originalCaster->ToPlayer())
+                        {
+                            /// Interrupting a spell with Skull Bash resets the cooldown of Tiger's Fury.
+                            if (l_Player->HasSpellCooldown(5217))
+                                l_Player->RemoveSpellCooldown(5217, true);
+                        }
+                    }
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
@@ -8244,4 +8210,89 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
             break;
         }
     }
+}
+
+void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Item* l_ItemTarget = m_targets.GetItemTarget();
+    if (l_ItemTarget == nullptr)
+        return;
+
+    uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+
+    ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
+    ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
+
+    /// Search for item bonus tree ...
+    for (uint32 l_Entry = 0; l_Entry < sItemBonusTreeNodeStore.GetNumRows(); l_Entry++)
+    {
+        auto l_BonusTree = sItemBonusTreeNodeStore.LookupEntry(l_Entry);
+        if (l_BonusTree == nullptr)
+            continue;
+
+        if (l_BonusTree->Context != uint32(ItemContext::TradeSkill))
+            continue;
+
+        if (l_BonusTree->Category == l_OldItemBonusTreeCategory)
+            l_OldBonusTree = l_BonusTree;
+
+        if (l_BonusTree->Category == l_NewItemBonusTreeCategory)
+            l_NewBonusTree = l_BonusTree;
+    }
+
+    /// @TODO: Somes bonus are missing, even with hotfixes data ...
+    if (l_OldBonusTree == nullptr
+        || l_NewBonusTree == nullptr)
+        return;
+
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Check if the selected item have the old bonus, and with the right context
+    bool l_BonusFound = false;
+    for (auto l_Bonus : l_CurrentItemBonus)
+    {
+        if (l_Bonus == l_OldBonusTree->ItemBonusEntry)
+        {
+            l_BonusFound = true;
+            break;
+        }
+    }
+
+    /// Cheater ?
+    if (!l_BonusFound)
+        return;
+
+    /// Not sure if somes item can be changed without have specific bonus in ItemXBonusTree
+    auto l_BonusTrees = sItemBonusTreeByID.find(l_ItemTarget->GetEntry());
+    if (l_BonusTrees == sItemBonusTreeByID.end() ||  l_BonusTrees->second.empty())
+        return;
+
+    for (auto l_BonusTree : l_BonusTrees->second)
+    {
+        for (uint32 l_BonusTreeNodeID = 0; l_BonusTreeNodeID < sItemBonusTreeNodeStore.GetNumRows(); l_BonusTreeNodeID++)
+        {
+            auto l_ItemTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_BonusTreeNodeID);
+            if (!l_ItemTreeNode)
+                continue;
+
+            if (l_ItemTreeNode->Category != l_BonusTree->ItemBonusTreeCategory)
+                continue;
+
+            if (l_ItemTreeNode->Context != (uint32)ItemContext::TradeSkill)
+                continue;
+
+            /// Item selected can't be upgrade / change with that spell.
+            if (l_ItemTreeNode->ItemBonusEntry == l_NewBonusTree->ItemBonusEntry && l_ItemTreeNode != l_OldBonusTree)
+                return;
+        }
+    }
+
+    /// All is fine, now we can update item bonus
+    l_ItemTarget->RemoveItemBonus(l_OldBonusTree->ItemBonusEntry);
+    l_ItemTarget->AddItemBonus(l_NewBonusTree->ItemBonusEntry);
+    l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
 }

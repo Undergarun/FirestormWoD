@@ -128,7 +128,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
             sLog->outCommand(bidder_accId, "", 0, bidder_name.c_str(), owner_accid, "", 0, owner_name.c_str(),
                 "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: " UI64FMTD ". Original owner %s (Account: %u)",
-              bidder_name.c_str(),bidder_accId,pItem->GetTemplate()->Name1.c_str(),pItem->GetEntry(),pItem->GetCount(),auction->bid,owner_name.c_str(),owner_accid);
+                bidder_name.c_str(), bidder_accId, pItem->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), pItem->GetEntry(), pItem->GetCount(), auction->bid, owner_name.c_str(), owner_accid);
         }
     }
 
@@ -557,14 +557,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         // No need to do any of this if no search term was entered
         if (!wsearchedname.empty())
         {
-            std::string name = proto->Name1;
+            std::string name = proto->Name1->Get(loc_idx);
             if (name.empty())
                 continue;
-
-            // local name
-            if (loc_idx >= 0)
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()

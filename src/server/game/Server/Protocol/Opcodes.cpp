@@ -114,7 +114,7 @@ void InitOpcodes()
         DEFINE_OPCODE_HANDLER(SMSG_NEW_WORLD,                                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_LOGIN_SET_TIME_SPEED,                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY_BLOB,                              STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
-        DEFINE_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY,                                   STATUS_UNHANDLED,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_WORLD_SERVER_INFO,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_INITIAL_SETUP,                                   STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_PONG,                                            STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
@@ -1490,6 +1490,7 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RATED_BATTLEFIELD_INFO,                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleRequestRatedBgStats            );
     DEFINE_OPCODE_HANDLER(CMSG_START_WAR_GAME,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleStartWarGame                   );
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_WARGAME_INVITE,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAcceptWarGameInvite            );
+    DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleReportPvPAFK                   );
 
     //////////////////////////////////////////////////////////////////////////
     /// Guild
@@ -1751,7 +1752,6 @@ void InitOpcodes()
     //DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRandomizeCharNameOpcode   );
     //DEFINE_OPCODE_HANDLER(CMSG_REALM_SPLIT,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRealmSplitOpcode          );
     //DEFINE_OPCODE_HANDLER(CMSG_REDIRECTION_AUTH_PROOF,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    //DEFINE_OPCODE_HANDLER(CMSG_REPORT_PVP_AFK,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleReportPvPAFK              );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_BATTLEPET_JOURNAL,               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestBattlePetJournal   );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCategoryCooldownOpcode    );
     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_GM_TICKET,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestGmTicket           );

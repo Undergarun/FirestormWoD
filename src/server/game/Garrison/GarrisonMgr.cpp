@@ -2440,6 +2440,9 @@ namespace MS { namespace Garrison
         {
             if (!m_Owner->HasCurrency(l_BuildingEntry->BuildCostCurrencyID, l_BuildingEntry->BuildCostCurrencyAmount))
                 return PurchaseBuildingResults::NotEnoughCurrency;
+
+            if (!m_Owner->HasEnoughMoney((uint64)l_BuildingEntry->MoneyCost * GOLD))
+                return PurchaseBuildingResults::NotEnoughGold;
         }
 
         return PurchaseBuildingResults::Ok;
@@ -2464,7 +2467,7 @@ namespace MS { namespace Garrison
             m_Owner->ModifyCurrency(l_BuildingEntry->BuildCostCurrencyID, -(int32)l_BuildingEntry->BuildCostCurrencyAmount);
 
         if (l_BuildingEntry->MoneyCost != 0 && !p_Triggered)
-            m_Owner->ModifyMoney(-(int32)l_BuildingEntry->MoneyCost);
+            m_Owner->ModifyMoney(-(int64)(l_BuildingEntry->MoneyCost * GOLD));
 
         if (!p_Triggered)
         {

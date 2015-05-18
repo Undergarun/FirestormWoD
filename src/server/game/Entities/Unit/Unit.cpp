@@ -753,6 +753,15 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 blackOxStatue->SetScriptData(0, damage);
         }
     }
+
+    /// Mindbender
+    if (GetEntry() == 62982 || GetEntry() == 67236)
+    {
+        /// Caster receives 0.75% mana when the Mindbender attacks
+        if (GetOwner())
+            GetOwner()->ModifyPower(POWER_MANA, CalculatePct(GetOwner()->GetPower(POWER_MANA), 0.75f));
+    }
+
     // Leeching Poison - 112961 each attack heal the player for 10% of the damage
     if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
     {
@@ -3370,7 +3379,9 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
         return;
 
     // break same type spell if it is not delayed
-    InterruptSpell(CSpellType, false);
+    if (Spell* l_CurrentSpell = GetCurrentSpell(CSpellType))
+        if (!(l_CurrentSpell->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS))
+            InterruptSpell(CSpellType, false);
 
     // special breakage effects:
     switch (CSpellType)
@@ -3875,6 +3886,19 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
         }
     }
 
+    /// Hack fix for Vanish with Subterfuge, should apply stealth from vanish just when Subterfuge disappear
+    if (aura->GetSpellInfo()->Id == 131361)
+    {
+        if (aura->GetEffect(EFFECT_1))
+        {
+            if (aura->GetEffect(EFFECT_1)->GetAmount() == 1)
+            {
+                caster->ToPlayer()->RemoveSpellCooldown(115191, true);
+                caster->CastSpell(caster, 115191, true);
+            }
+        }
+    }
+
     aurApp->_Remove();
     aura->_UnapplyForTarget(this, caster, aurApp);
 
@@ -4276,10 +4300,6 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, AuraPtr excep
         }
 
         ++iter;
-
-        /// Subterfuge can't be removed except manually
-        if (aura->GetSpellInfo()->Id == 115191)
-            continue;
 
         if (aura != exceptAura && (!casterGUID || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
@@ -7924,6 +7944,19 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     return false;
                 }
+                case 157007:///< Beacon of Insight
+                {
+                    if (!victim)
+                        return false;
+
+                    if (AuraPtr l_BeaconOfInsight = triggeredByAura->GetBase())
+                    {
+                        l_BeaconOfInsight->Remove();
+                        return true;
+                    }
+
+                    break;
+                }
                 case 28789: // Holy Power (Redemption Armor set)
                 {
                     if (!victim)
@@ -9643,6 +9676,29 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
 
             break;
         }
+        case 165395:///< Necrosis
+        {
+            if (!procSpell)
+                return false;
+
+            if (!(procEx & PROC_EX_INTERNAL_MULTISTRIKE))
+                return false;
+
+            break;
+        }
+        case 165698:///< Item - Druid WoD PvP Feral 4P Bonus
+        {
+            if (!procSpell)
+                return false;
+
+            if (procSpell->Id != 5221)
+                return false;
+
+            if (!(procEx & PROC_EX_CRITICAL_HIT))
+                return false;
+
+            break;
+        }
         case 170877:///< Item Rogue WoD PvP Subtlety 4P Bonus
         {
             if (!procSpell)
@@ -9659,16 +9715,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 return false;
 
             if (procSpell->Id != 3674)
-                return false;
-
-            break;
-        }
-        case 180721:///< Item - Mage WoD PvP Frost 2P Bonus
-        {
-            if (!procSpell)
-                return false;
-
-            if (procSpell->Id != 120)
                 return false;
 
             break;
@@ -12553,8 +12599,8 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     if (spellProto->Id == 48503 || spellProto->Id == 114911)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal
-    if (spellProto->Id == 33778)
+    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
         return healamount;
 
     // No bonus for Eminence (statue) and Eminence
@@ -12583,21 +12629,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
         }
     }
 
-    // Unleashed Fury - Earthliving
-    if (HasAura(118473))
-    {
-        bool singleTarget = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && spellProto->Effects[i].TargetB.GetTarget() == 0)
-            singleTarget = true;
-
-        if (singleTarget)
-        {
-            DoneTotal += CalculatePct(healamount, 50.0f);
-            RemoveAurasDueToSpell(118473);
-        }
-    }
-
     // Apply Power PvP healing bonus
     if (healamount > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
     {
@@ -12610,6 +12641,21 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     {
         float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
         DoneTotal += CalculatePct(healamount, Mastery);
+    }
+
+    // 77226 - Mastery : Deep Healing
+    if ((GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER && GetOwner()->HasAura(77226)) || (GetTypeId() == TYPEID_PLAYER && HasAura(77226)))
+    {
+            float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+            
+            if (GetOwner())
+                Mastery = GetOwner()->GetFloatValue(PLAYER_FIELD_MASTERY) * 3.0f;
+
+            float healthpct = victim->GetHealthPct();
+
+            float bonus = 0;
+            bonus = CalculatePct((1 + (100.0f - healthpct)), Mastery);
+            DoneTotal += CalculatePct(healamount, bonus);
     }
 
     /// Apply Versatility healing bonus done
@@ -12736,16 +12782,20 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 {
     float TakenTotalMod = 1.0f;
 
+    /// Dampeding, must be calculated off the raw amount
+    if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
+        healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
+
     // No bonus for Eminence (statue) and Eminence
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
 
-    // No bonus for Living Seed
-    if (spellProto->Id == 48503)
+    // No bonus for Living Seed and Spirint Bond (heal)
+    if (spellProto->Id == 48503 || spellProto->Id == 149254)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal
-    if (spellProto->Id == 33778)
+    // No bonus for Lifebloom : Final heal or Ysera's Gift or Leader of the Pack
+    if (spellProto->Id == 33778 || spellProto->Id == 145109 || spellProto->Id == 68285)
         return healamount;
 
     // No bonus for Devouring Plague heal
@@ -13095,11 +13145,6 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
         AddPct(DoneTotalMod, amount);
     }
-
-    // Sword of Light - 53503
-    // Increase damage dealt by two handed weapons by 25%
-    if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && attType == WeaponAttackType::BaseAttack)
-        AddPct(DoneTotalMod, 25);
 
     // Apply Power PvP damage bonus
     if (pdamage > 0 && GetTypeId() == TYPEID_PLAYER && (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->isPet() && victim->GetOwner() && victim->GetOwner()->ToPlayer())))
@@ -15562,12 +15607,14 @@ float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) c
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
 
-    if (l_IncludeCreateStat)
-        value += GetCreateStat(stat);
+    value += GetCreateStat(stat);
 
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
+
+    if (!l_IncludeCreateStat)
+        value -= GetCreateStat(stat);
 
     return value;
 }
@@ -17001,8 +17048,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            useCharges = false;
-            if ((isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
@@ -19575,8 +19621,6 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
     if (!target)
         return;
-
-    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step

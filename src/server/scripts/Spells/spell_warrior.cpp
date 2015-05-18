@@ -66,7 +66,9 @@ enum WarriorSpells
     WARRIOR_SPELL_SPELL_REFLECTION_ALLIANCE     = 147923,
     WARRIOR_SPELL_INTERVENE_TRIGGERED           = 34784,
     WARRIOR_SPELL_GAG_ORDER_SILENCE             = 18498,
-    WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184
+    WARRIOR_SPELL_DOUBLE_TIME_MARKER            = 124184,
+    WARRIOR_ENHANCED_WHIRLWIND                  = 157473,
+    WARROR_MEAT_CLEAVER_TARGET_MODIFIER         = 85739
 };
 
 /// Ravager - 152277
@@ -544,11 +546,21 @@ class spell_warr_raging_blow: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_raging_blow_SpellScript);
 
+            enum eSpells
+            {
+                MeatCleaverTargetModifier = 85739
+            };
+
             void HandleAfterCast()
             {
-                if (Unit* caster = GetCaster())
-                    if (AuraPtr ragingBlow = caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (AuraPtr ragingBlow = l_Caster->GetAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW))
                         ragingBlow->ModStackAmount(-1);
+
+                    if (l_Caster->HasAura(eSpells::MeatCleaverTargetModifier))
+                        l_Caster->RemoveAura(eSpells::MeatCleaverTargetModifier);
+                }
             }
 
             void Register()
@@ -1410,10 +1422,13 @@ class spell_warr_execute: public SpellScriptLoader
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                if (!l_Caster->HasAura(52437)) ///< Sudden Death : consume no extra Rage
+                if (AuraPtr l_Aura = l_Caster->GetAura(52437)) ///< Sudden Death : consume no extra Rage
+                    l_Aura->Remove();
+                else
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
-                l_Damage += CalculatePct(l_Damage, l_RageConsumed * (405.0f / l_MaxConsumed));
+                // Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
+                l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
@@ -1422,7 +1437,8 @@ class spell_warr_execute: public SpellScriptLoader
                     l_Damage += CalculatePct(l_Damage, l_MasteryValue);
                 }
 
-                SetHitDamage(l_Damage);
+                /// Please forgive me for I have sinned
+                SetHitDamage(l_Damage / 2);
             }
 
             void Register()
@@ -1453,6 +1469,23 @@ class spell_warr_whirlwind: public SpellScriptLoader
         class spell_warr_whirlwind_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_whirlwind_SpellScript);
+
+            void HandleOnCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(WARRIOR_ENHANCED_WHIRLWIND))
+                {
+                    l_Caster->CastSpell(l_Caster, WARROR_MEAT_CLEAVER_TARGET_MODIFIER, true);
+                    if (AuraPtr l_MeatCleaverAura = l_Caster->GetAura(WARROR_MEAT_CLEAVER_TARGET_MODIFIER))
+                    {
+                        uint8 l_StackAmount = (l_MeatCleaverAura->GetStackAmount() + 1) > 4 ? 4 : l_MeatCleaverAura->GetStackAmount() + 1;
+                        l_MeatCleaverAura->SetStackAmount(l_StackAmount);
+                        l_MeatCleaverAura->RefreshDuration();
+                        l_MeatCleaverAura->RefreshSpellMods();
+                    }
+                }
+            }
 
             void HandleOnHit()
             {
@@ -1495,6 +1528,7 @@ class spell_warr_whirlwind: public SpellScriptLoader
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleNormalizedWeaponDamage, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
                 OnEffectLaunch += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleWeaponPercentDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
                 OnHit += SpellHitFn(spell_warr_whirlwind_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_warr_whirlwind_SpellScript::HandleOnCast);
             }
         };
 
@@ -1841,8 +1875,7 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
 
             enum eSpells
             {
-                Whirlwind = 1680,
-                MeatCleaverTargetModifier = 85739
+                Whirlwind = 1680
             };
 
             void HandleOnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_ProcInfo)
@@ -1859,7 +1892,11 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                l_Caster->CastSpell(l_Caster, eSpells::MeatCleaverTargetModifier, true);
+                /// It procs on cast with Enhanced Whirlwind
+                if (l_Caster->HasAura(WARRIOR_ENHANCED_WHIRLWIND))
+                    return;
+
+                l_Caster->CastSpell(l_Caster, WARROR_MEAT_CLEAVER_TARGET_MODIFIER, true);
             }
 
             void Register()

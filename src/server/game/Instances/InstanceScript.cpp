@@ -876,19 +876,9 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         return;
 
     uint32 l_Times[eChallengeMedals::MedalTypeGold];
-    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->ID);
-    if (l_ChallengeHotfix != nullptr)
-    {
-        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeHotfix->m_BronzeTime;
-        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeHotfix->m_SilverTime;
-        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeHotfix->m_GoldTime;
-    }
-    else
-    {
-        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
-        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
-        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
-    }
+    l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
+    l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
+    l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
 
     ///< Downgrade Medal if needed
     switch (m_MedalType)

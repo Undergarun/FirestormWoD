@@ -3256,10 +3256,6 @@ class spell_hun_claw_bite : public SpellScriptLoader
                         if (l_Pet->IsDamageReducedByArmor(SPELL_SCHOOL_MASK_NORMAL, GetSpellInfo()))
                             l_Damage = l_Pet->CalcArmorReducedDamage(GetHitUnit(), l_Damage, GetSpellInfo(), BaseAttack);
 
-                        /// Critical damage
-                        if (GetSpell()->IsCritForTarget(GetHitUnit()))
-                            l_Damage *= 2;
-
                         SetHitDamage(l_Damage);
                     }
                 }

@@ -85,7 +85,6 @@ enum RogueSpells
     ROGUE_SPELL_COMBO_POINT_DELAYED             = 139569,
     ROGUE_SPELL_RUTHLESSNESS                    = 14161,
     ROGUE_SPELL_DEADLY_THROW_INTERRUPT          = 137576,
-    ROGUE_SPELL_STEALTH_SUBTERFUGE              = 115191,
     ROGUE_SPELL_RECUPERATE                      = 73651,
     ROGUE_GLYPH_OF_RECUPERATE                   = 56806,
     ROGUE_SPELL_IMPROVED_RECUPERATE             = 61249,
@@ -1877,7 +1876,7 @@ class spell_rog_shadowstep: public SpellScriptLoader
         }
 };
 
-/// Stealth - 1784 Subterfuge - 115191
+/// Stealth - 1784, Subterfuge - 115191 and Subterfuge effect - 115192
 class spell_rog_stealth: public SpellScriptLoader
 {
     public:
@@ -1885,6 +1884,9 @@ class spell_rog_stealth: public SpellScriptLoader
 
         enum eSpells
         {
+            Stealth = 1784,
+            StealthSubterfuge = 115191,
+            StealthSubterfugeEffect = 115192,
             StealthTriggered1 = 158188,
             StealthTriggered2 = 158185
         };
@@ -1897,16 +1899,22 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (GetSpellInfo()->Id != ROGUE_SPELL_STEALTH_SUBTERFUGE)
+                    if (GetSpellInfo()->Id != eSpells::StealthSubterfugeEffect)
+                    {
                         l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered1, true);
+                        l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered2, true);
 
-                    l_Caster->CastSpell(l_Caster, eSpells::StealthTriggered2, true);
+                        if (l_Caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
 
-                    if (l_Caster->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
-                        l_Caster->CastSpell(l_Caster, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
-
-                    if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
-                        l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+                        if (l_Caster->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
+                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+                    }
+                    else
+                    {
+                        if (l_Caster->HasAura(eSpells::StealthSubterfuge))
+                            l_Caster->RemoveAura(eSpells::StealthSubterfuge);
+                    }
                 }
             }
 
@@ -1914,20 +1922,36 @@ class spell_rog_stealth: public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    l_Caster->RemoveAura(eSpells::StealthTriggered1);
-                    l_Caster->RemoveAura(eSpells::StealthTriggered2);
+                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                    if (GetSpellInfo()->Id != eSpells::StealthSubterfuge || removeMode == AURA_REMOVE_BY_CANCEL)
+                    {
+                        l_Caster->RemoveAura(eSpells::StealthTriggered1);
 
-                    if (AuraPtr l_Nightstalker = l_Caster->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
-                        l_Nightstalker->SetDuration(200);   ///< We can't remove it now
+                        if (AuraPtr l_Nightstalker = l_Caster->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
+                            l_Nightstalker->SetDuration(200);   ///< We can't remove it now
 
-                    l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
+                        l_Caster->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
+                    }
+
+                    if (GetSpellInfo()->Id == eSpells::StealthSubterfuge)
+                    {
+                        if (!l_Caster->HasAura(eSpells::StealthSubterfugeEffect))
+                            l_Caster->CastSpell(l_Caster, eSpells::StealthSubterfugeEffect, true);
+                    }
+
+                    l_Caster->RemoveAurasDueToSpell(eSpells::StealthTriggered2);
+                    /*if (AuraPtr l_StealthEffect = l_Caster->GetAura(eSpells::StealthTriggered2))
+                    {
+                        l_StealthEffect->GetEffect(EFFECT_0)->SetAmount(0);
+                        l_StealthEffect->Remove();
+                    }*/
                 }
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -1936,6 +1960,88 @@ class spell_rog_stealth: public SpellScriptLoader
         return new spell_rog_stealth_AuraScript();
     }
 };
+
+/// Vanish - 1856
+/// Called by Vanish triggered spell - 131361
+class spell_rog_vanish : public SpellScriptLoader
+{
+public:
+    spell_rog_vanish() : SpellScriptLoader("spell_rog_vanish") { }
+
+    enum eSpells
+    {
+        WodPvpCombat4pBonus = 182303,
+        WodPvpCombat4pBonusTrigger = 182304,
+        WodPvpAssassination4pBonus = 170883,
+        WodPvpAssassination4pBonusTrigger = 170882,
+        Stealth = 1784,
+        Subterfuge = 108208,
+        StealthSubterfuge = 115191,
+        StealthSubterfugeEffect = 115192,
+    };
+
+    class spell_rog_vanish_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_vanish_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr p_AurEff, int32 & p_Amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (l_Caster->HasAura(eSpells::StealthSubterfugeEffect))
+                    p_Amount = 1;
+            }
+        }
+
+        void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                l_Player->RemoveMovementImpairingAuras();
+                l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
+                /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
+                if (l_Player->getLevel() == 100)
+                {
+                    /// Assasination
+                    if (l_Player->HasAura(eSpells::WodPvpAssassination4pBonus))
+                        l_Player->CastSpell(l_Player, eSpells::WodPvpAssassination4pBonusTrigger, true);
+                    /// Combat
+                    else if (l_Player->HasAura(eSpells::WodPvpCombat4pBonus))
+                        l_Player->CastSpell(l_Player, eSpells::WodPvpCombat4pBonusTrigger, true);
+                }
+
+                /// Don't need to apply Stealth if we already have it or if we're in Subterfuge
+                if (!l_Player->HasAura(eSpells::Stealth) && !l_Player->HasAura(eSpells::StealthSubterfuge) && !l_Player->HasAura(eSpells::StealthSubterfugeEffect))
+                {
+
+                    /// Reset cooldown on stealth if needed
+                    if (l_Player->HasSpellCooldown(eSpells::Stealth))
+                        l_Player->RemoveSpellCooldown(eSpells::Stealth, true);
+                    if (l_Player->HasSpellCooldown(eSpells::StealthSubterfuge))
+                        l_Player->RemoveSpellCooldown(eSpells::StealthSubterfuge, true);
+
+                    if (!l_Player->HasAura(eSpells::Subterfuge))
+                        l_Player->CastSpell(l_Player, eSpells::Stealth, true);
+                    else
+                        l_Player->CastSpell(l_Player, eSpells::StealthSubterfuge, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_vanish_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
+            OnEffectApply += AuraEffectApplyFn(spell_rog_vanish_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_vanish_AuraScript();
+    }
+};
+
 
 /// Burst of Speed - 108212
 class spell_rog_burst_of_speed: public SpellScriptLoader
@@ -2348,6 +2454,43 @@ public:
     }
 };
 
+/// Backstab - 53
+class spell_rog_backstab : public SpellScriptLoader
+{
+public:
+    spell_rog_backstab() : SpellScriptLoader("spell_rog_backstab") { }
+
+    class spell_rog_backstab_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rog_backstab_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Unit* l_Caster = GetCaster())
+            {
+                if (Unit* l_Target = GetExplTargetUnit())
+                {
+                    if (l_Target->isInFront(l_Caster))
+                        return SPELL_FAILED_NOT_BEHIND;
+                }
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_rog_backstab_SpellScript::CheckCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_rog_backstab_SpellScript();
+    }
+};
+
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_anticipation();
@@ -2390,8 +2533,10 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
     new spell_rog_stealth();
+    new spell_rog_vanish();
     new spell_rog_internal_bleeding_damage();
     new spell_rog_feint();
+    new spell_rog_backstab();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

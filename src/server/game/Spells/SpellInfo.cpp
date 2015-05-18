@@ -642,8 +642,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         }
     }
 
-    /// Don't need to change our value for Arcane Barrage triggered spell, it's already calculated
-    if (_spellInfo->Id == 50273)
+    /// Don't need to change our value for Arcane Barrage triggered spell and Mangle (bear), it's already calculated
+    if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
         l_Value = float(l_BasePoints);
 
     return int32(l_Value);
@@ -3654,6 +3654,10 @@ bool SpellInfo::IsIgnoringCombat() const
     if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
         return true;
 
+    /// Polymorph spells shouldn't give combat
+    if (Mechanic == MECHANIC_POLYMORPH)
+        return true;
+
     switch (Id)
     {
         /// Meteor
@@ -4066,7 +4070,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 

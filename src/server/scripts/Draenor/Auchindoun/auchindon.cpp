@@ -363,7 +363,6 @@ public:
                 {
                     vigiliant->CastSpell(vigiliant, SPELL_GUARD);
                  
-
                     vigiliant->SetCurrentEquipmentId(77819);
 
                     vigiliant->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
@@ -425,6 +424,7 @@ public:
             {
                 itr->SetReactState(REACT_PASSIVE);
                 itr->SetRespawnDelay(1000000);
+                itr->SetCurrentEquipmentId(1);
             }
         }
         std::list<Creature*> dispensor;
@@ -1606,7 +1606,7 @@ public:
     {
     }
 
-    int diff = 9000;
+    uint32 diff = 9000;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         if (diff <= p_Time)

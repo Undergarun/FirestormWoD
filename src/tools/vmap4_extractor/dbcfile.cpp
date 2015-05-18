@@ -1,20 +1,19 @@
 /*
- * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
- * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -22,20 +21,21 @@
 #include "dbcfile.h"
 
 DBCFile::DBCFile(HANDLE mpq, const char* filename) :
-    _mpq(mpq), _filename(filename), _file(NULL), _data(NULL), _stringTable(NULL)
+    _mpq(mpq), _filename(filename), _file(NULL), _recordSize(0), _recordCount(0),
+    _fieldCount(0), _stringSize(0), _data(NULL), _stringTable(NULL)
 {
 }
 
 bool DBCFile::open()
 {
-    if (!SFileOpenFileEx(_mpq, _filename, SFILE_OPEN_PATCHED_FILE, &_file))
+    if (!CascOpenFile(_mpq, _filename, CASC_LOCALE_NONE, 0, &_file))
         return false;
 
     char header[4];
     unsigned int na, nb, es, ss;
 
     DWORD readBytes = 0;
-    SFileReadFile(_file, header, 4, &readBytes, NULL);
+    CascReadFile(_file, header, 4, &readBytes);
     if (readBytes != 4)                                         // Number of records
         return false;
 
@@ -43,22 +43,22 @@ bool DBCFile::open()
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &na, 4, &readBytes, NULL);
+    CascReadFile(_file, &na, 4, &readBytes);
     if (readBytes != 4)                                         // Number of records
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &nb, 4, &readBytes, NULL);
+    CascReadFile(_file, &nb, 4, &readBytes);
     if (readBytes != 4)                                         // Number of fields
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &es, 4, &readBytes, NULL);
+    CascReadFile(_file, &es, 4, &readBytes);
     if (readBytes != 4)                                         // Size of a record
         return false;
 
     readBytes = 0;
-    SFileReadFile(_file, &ss, 4, &readBytes, NULL);
+    CascReadFile(_file, &ss, 4, &readBytes);
     if (readBytes != 4)                                         // String size
         return false;
 
@@ -74,7 +74,7 @@ bool DBCFile::open()
 
     size_t data_size = _recordSize * _recordCount + _stringSize;
     readBytes = 0;
-    SFileReadFile(_file, _data, data_size, &readBytes, NULL);
+    CascReadFile(_file, _data, data_size, &readBytes);
     if (readBytes != data_size)
         return false;
 
@@ -85,7 +85,7 @@ DBCFile::~DBCFile()
 {
     delete [] _data;
     if (_file != NULL)
-        SFileCloseFile(_file);
+        CascCloseFile(_file);
 }
 
 DBCFile::Record DBCFile::getRecord(size_t id)

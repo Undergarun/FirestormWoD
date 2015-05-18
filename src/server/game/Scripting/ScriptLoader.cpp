@@ -24,7 +24,7 @@ void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
 void AddSC_user_reporting();
 void AddSC_warning_update_client();
-//void AddSC_DuelReset();
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -86,6 +86,7 @@ void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
+void AddSC_hotfix_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -907,7 +908,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    //AddSC_DuelReset();
+    AddSC_DuelReset();
 #endif
 }
 
@@ -973,6 +974,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
+    AddSC_hotfix_commandscript();
 }
 
 void AddWorldScripts()

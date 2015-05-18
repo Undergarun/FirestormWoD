@@ -1602,12 +1602,15 @@ class spell_sha_flame_shock : public SpellScriptLoader
 
                 SpellInfo const* l_UnleashFlame = sSpellMgr->GetSpellInfo(SPELL_SHA_UNLEASH_FLAME_AURA);
 
-                if (!m_HasUnleashFlame || l_Target == nullptr || l_UnleashFlame == nullptr)
+                if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
-                    l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
+                if (m_HasUnleashFlame && l_UnleashFlame != nullptr)
+                {
+                    if (AuraPtr l_Aura = l_Target->GetAura(GetSpellInfo()->Id))
+                        l_Aura->GetEffect(EFFECT_1)->SetAmount(l_Aura->GetEffect(EFFECT_1)->GetAmount() + CalculatePct(l_Aura->GetEffect(EFFECT_1)->GetAmount(), l_UnleashFlame->Effects[EFFECT_1].BasePoints));
 
+                }
             }
 
             void Register()
@@ -1620,6 +1623,11 @@ class spell_sha_flame_shock : public SpellScriptLoader
         class spell_sha_flame_shock_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_sha_flame_shock_AuraScript);
+
+            enum eSpells
+            {
+                GlyphOfFlameShock = 55447
+            };
 
             void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
@@ -1636,9 +1644,26 @@ class spell_sha_flame_shock : public SpellScriptLoader
                 }
             }
 
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_GlyphOfFlameShock = sSpellMgr->GetSpellInfo(eSpells::GlyphOfFlameShock);
+
+                if (l_Caster->HasAura(eSpells::GlyphOfFlameShock))
+                {
+                    int32 l_Healing = CalculatePct(p_AurEff->GetAmount(), l_GlyphOfFlameShock->Effects[EFFECT_0].BasePoints);
+                    l_Caster->HealBySpell(l_Caster, GetSpellInfo(), l_Healing, false);
+                }
+            }
+
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_flame_shock_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_flame_shock_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
             }
         };
 
@@ -2424,7 +2449,6 @@ class spell_sha_riptide : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::UnleashLife))
                     SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_2].BasePoints));
-
             }
 
             void HandleAfterHit()

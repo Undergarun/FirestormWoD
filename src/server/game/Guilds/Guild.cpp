@@ -905,7 +905,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     if (!pFrom->IsBank() && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && !AccountMgr::IsPlayerAccount(m_pPlayer->GetSession()->GetSecurity()))       // TODO: move to scripts
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(), "", m_pPlayer->GetGUIDLow(), m_pPlayer->GetName(), 0, "", 0, "",
                         "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
-                        m_pPlayer->GetName(), m_pPlayer->GetSession()->GetAccountId(), pFrom->GetItem()->GetTemplate()->Name1.c_str(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(), m_pGuild->GetId());
+                        m_pPlayer->GetName(), m_pPlayer->GetSession()->GetAccountId(), pFrom->GetItem()->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(), m_pGuild->GetId());
 }
 
 Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const

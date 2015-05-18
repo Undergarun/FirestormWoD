@@ -1548,7 +1548,6 @@ void World::SetInitialWorldSettings()
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadItemLocales();
     sObjectMgr->LoadQuestLocales();
     sObjectMgr->LoadNpcTextLocales();
     sObjectMgr->LoadPageTextLocales();
@@ -1723,9 +1722,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Objective Locales...");
     sObjectMgr->LoadQuestObjectiveLocales();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Package Item hotfixs ...");
-    sObjectMgr->LoadQuestPackageItemHotfixs();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
@@ -2114,6 +2110,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
+    sObjectMgr->LoadHotfixTableHashs();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading guild challenge rewards...");
     sObjectMgr->LoadGuildChallengeRewardInfo();
@@ -2148,9 +2145,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
     sObjectMgr->LoadChallengeRewards();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
-    sObjectMgr->LoadMapChallengeModeHotfixes();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();
@@ -3504,8 +3498,7 @@ void World::ResetCurrencyWeekCap()
     CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
     CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
     CharacterDatabase.Execute("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekWins2` = 0");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`, `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())

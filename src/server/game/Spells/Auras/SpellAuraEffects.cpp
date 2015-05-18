@@ -516,7 +516,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
     &AuraEffect::HandleAuraIncreaseDualWieldDamage,               //458 SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE
     &AuraEffect::HandleNULL,                                      //459 SPELL_AURA_459
-    &AuraEffect::HandleAuraResetCooldowns,                        //460 SPELL_AURA_RESET_COOLDOWNS
+    &AuraEffect::HandleNoImmediateEffect,                         //460 SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL
     &AuraEffect::HandleNULL,                                      //461 SPELL_AURA_461
     &AuraEffect::HandleNULL,                                      //462 SPELL_AURA_462
     &AuraEffect::HandleAuraAddParryPCTOfCSFromGear,               //463 SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING
@@ -1154,7 +1154,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         {
             switch (GetId())
             {
-                case 12654: ///< Ignite
+                case 182287: ///< Ignite
                 {
                     /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
                     if (caster->HasAura(61205))
@@ -1273,6 +1273,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         amount += (int32)DoneActualBenefit;
     }
 
+    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
+
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         /// Apply Versatility absorb bonus
@@ -1280,7 +1282,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
 
-    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
 
     return amount;
@@ -2277,7 +2278,7 @@ void AuraEffect::HandleModStealth(const AuraApplication * p_AuraApplication, uin
     {
         l_Target->m_stealth.AddValue(l_Type, -GetAmount());
 
-        if (!l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH) && !l_Target->HasAura(115192)) // if last SPELL_AURA_MOD_STEALTH
+        if (!l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH)) // if last SPELL_AURA_MOD_STEALTH
         {
             l_Target->m_stealth.DelFlag(l_Type);
             l_Target->RemoveStandFlags(UNIT_STAND_FLAGS_CREEP);
@@ -3491,8 +3492,11 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         l_Target->RemoveFlagsAuras();
 
         // cast speed aura
-        if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-            l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
+        if (GetMiscValue() != 305)
+        {
+            if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
+                l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
+        }
     }
     else
     {
@@ -3510,6 +3514,67 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             // remove speed aura
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 l_Target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, l_Target->GetGUID());
+        }
+    }
+
+    /// Handle new WoD mount ...
+    if (GetMiscValue() == 305)
+    {
+        std::vector<int32> l_MountCapability
+        {
+            GetMiscValue(),
+            GetMiscValueB()
+        };
+
+        uint32 l_ZoneId;
+        uint32 l_AreaID;
+        l_Target->GetZoneAndAreaId(l_ZoneId, l_AreaID);
+
+        uint32 l_RidingSkill = 5000;
+        if (l_Target->GetTypeId() == TYPEID_PLAYER)
+            l_RidingSkill = l_Target->ToPlayer()->GetSkillValue(SKILL_RIDING);
+
+        for (auto l_ID : l_MountCapability)
+        {
+            MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(l_ID);
+            if (!l_MountCapability)
+                continue;
+
+            if (l_RidingSkill < l_MountCapability->RequiredRidingSkill)
+                continue;
+
+            if (l_Target->HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+            {
+                if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+                    continue;
+            }
+            else if (l_Target->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+            {
+                if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+                    continue;
+            }
+            else if (!(l_MountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
+            {
+                if (!(l_MountCapability->Flags & 0x2))
+                    continue;
+            }
+
+            if (l_MountCapability->RequiredMap != -1 && int32(l_Target->GetMapId()) != l_MountCapability->RequiredMap)
+                continue;
+
+            if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaID))
+                continue;
+
+            if (l_MountCapability->RequiredAura && !l_Target->HasAura(l_MountCapability->RequiredAura))
+                continue;
+
+            if (l_MountCapability->RequiredSpell && (l_Target->GetTypeId() != TYPEID_PLAYER || !l_Target->ToPlayer()->HasSpell(l_MountCapability->RequiredSpell)))
+                continue;
+
+            if (p_Apply)
+                l_Target->CastSpell(l_Target, l_MountCapability->SpeedModSpell, true);
+            else
+                l_Target->RemoveAurasDueToSpell(l_MountCapability->SpeedModSpell, l_Target->GetGUID());
         }
     }
 
@@ -7503,16 +7568,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
                 }
             }
         }
-
-        if (GetSpellInfo()->Id == 8050)
-        {
-            // Glyph of Flame Shock
-            if (caster->HasAura(55447))
-            {
-                int32 bp = CalculatePct(damage, 30);
-                caster->HealBySpell(caster, GetSpellInfo(), bp, false);
-            }
-        }
         if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
         {
             switch (GetId())
@@ -8497,22 +8552,6 @@ void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_M
 
     l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
     l_Player->UpdateArmor();
-}
-
-void AuraEffect::HandleAuraResetCooldowns(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
-{
-    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
-        return;
-
-    Unit* l_Target = p_AurApp->GetTarget();
-
-    if (l_Target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Actually this aura is only use when we go to a Duel
-    // Enter in Arena reset the same way cooldowns that enter in duel
-    if (p_Apply)
-        l_Target->ToPlayer()->RemoveArenaSpellCooldowns(true);
 }
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

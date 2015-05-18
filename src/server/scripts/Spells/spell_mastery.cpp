@@ -865,6 +865,12 @@ class spell_mastery_ignite: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_ignite_SpellScript);
 
+            enum eSpell
+            {
+                GlyphOfIgnite = 61205,
+                GlyphOfIgniteEffect = 182287
+            };
+
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -888,11 +894,22 @@ class spell_mastery_ignite: public SpellScriptLoader
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
                                     if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
-                                        if (uint32 l_Amplitude = l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude())
-                                            if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
-                                                l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
+                                    {
+                                        if (AuraEffectPtr l_Effect = l_PreviousIgnite->GetEffect(EFFECT_0))
+                                        {
+                                            if (uint32 l_Amplitude = l_Effect->GetAmplitude())
+                                            {
+                                                if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
+                                                    l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
+                                            }
+                                        }
+                                    }
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
+
+                                    /// Glyph of Ignite
+                                    if (l_Caster->HasAura(eSpell::GlyphOfIgnite))
+                                        l_Caster->CastSpell(l_Target, eSpell::GlyphOfIgniteEffect, true);
                                 }
                             }
                         }

@@ -2405,7 +2405,7 @@ class debug_commandscript: public CommandScript
 
            uint32 minDamage, maxDamage;
            proto->CalculateMinMaxDamageScaling(ilvl, minDamage, maxDamage);
-           handler->PSendSysMessage("%s(%i): %i", proto->Name1.c_str(), proto->ItemId, ilvl);
+           handler->PSendSysMessage("%s(%i): %i", proto->Name1->Get(handler->GetSessionDbcLocale()), proto->ItemId, ilvl);
            handler->PSendSysMessage("%i - %i", minDamage, maxDamage);
            handler->PSendSysMessage("Armor: %i", proto->CalculateArmorScaling(ilvl));
            for (int i = 0; i < 10; i++)
@@ -2580,7 +2580,7 @@ class debug_commandscript: public CommandScript
             for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
             {
                 ItemTemplate const* l_Template = &l_Iter->second;
-                if (l_Template->Name1.find(l_SearchString) != std::string::npos)
+                if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) != std::string::npos)
                 {
                     if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
                         continue;

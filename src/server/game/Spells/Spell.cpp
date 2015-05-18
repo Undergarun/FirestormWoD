@@ -2959,7 +2959,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             {
                 if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL && m_damage != 0)
                         l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
                 else if (l_Caster->HasAura(14161)) ///< Ruthlessness
@@ -3063,16 +3063,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     // Do damage and triggers
     else if (m_damage > 0)
     {
+        CallScriptOnHitHandlers();
+
         // Fill base damage struct (unitTarget - is real spell target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
+        damageInfo.damage = m_damage;
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType,  target->crit);
-
-        m_damage = damageInfo.damage;
-        CallScriptOnHitHandlers();
-        damageInfo.damage = m_damage;
-
         caster->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
 
         // Send log damage message to client
@@ -3172,8 +3170,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    // Hack fix for Cloak of Shadows (just Blood Plague can hit to Cloak of Shadows)
-    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879)
+    // Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -3616,7 +3614,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count)
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count && !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS)
+        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -5960,7 +5959,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         // Can cast triggered (by aura only?) spells while have this flag
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
             && !(player->HasAura(46924) && m_spellInfo->Id == 55694 || m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
-            || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499)) // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
+            || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499) && // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
+            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0) &&
+            !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
         if (player->HasSpellCooldown(m_spellInfo->Id) && !player->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
@@ -6952,11 +6953,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
     // Prevent spellcast interruption by another spellcast
-    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+    if (m_caster->HasUnitState(UNIT_STATE_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS))
         return SPELL_FAILED_SPELL_IN_PROGRESS;
 
     // Prevent using of ability if is already casting an ability that has aura type SPELL_AURA_ALLOW_ONLY_ABILITY
-    if (m_caster->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+    if (m_caster->HasAuraType(SPELL_AURA_ALLOW_ONLY_ABILITY) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS))
         return SPELL_FAILED_SPELL_IN_PROGRESS;
 
     // dead owner (pets still alive when owners ressed?)

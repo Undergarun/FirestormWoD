@@ -1,22 +1,21 @@
 /*
- * Copyright (C) 2005-2013 MaNGOS <http://www.getmangos.com/>
- * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "model.h"
 #include "dbcfile.h"
 #include "adtfile.h"
@@ -53,29 +52,22 @@ bool ExtractSingleModel(std::string& fname)
     return mdl.ConvertToVMAPModel(output.c_str());
 }
 
-extern HANDLE LocaleMpq;
+extern HANDLE CascStorage;
 
-void ExtractGameobjectModels(char* input_path)
+void ExtractGameobjectModels()
 {
-    HANDLE localeFile;
-    char localMPQ[512];
-
-    sprintf(localMPQ, "%smisc.MPQ", input_path);
-    if (FileExists(localMPQ)==false)
-    {   // Use misc.mpq
-        printf(localMPQ, "%s/Data/%s/locale-%s.MPQ", input_path);
-    }
-        
-    if (!SFileOpenArchive(localMPQ, 0, MPQ_OPEN_READ_ONLY, &localeFile))
-    {
-        exit(1);
-    }
-
     printf("Extracting GameObject models...");
-    DBCFile dbc(localeFile, "DBFilesClient\\GameObjectDisplayInfo.dbc");
+    DBCFile dbc(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.dbc");
     if(!dbc.open())
     {
         printf("Fatal error: Invalid GameObjectDisplayInfo.dbc file format!\n");
+        exit(1);
+    }
+
+    DBCFile fileData(CascStorage, "DBFilesClient\\FileData.dbc");
+    if (!fileData.open())
+    {
+        printf("Fatal error: Invalid FileData.dbc file format!\n");
         exit(1);
     }
 
@@ -83,11 +75,35 @@ void ExtractGameobjectModels(char* input_path)
     basepath += "/";
     std::string path;
 
-    FILE * model_list = fopen((basepath + "temp_gameobject_models").c_str(), "wb");
+    std::string modelListPath = basepath + "temp_gameobject_models";
+    FILE* model_list = fopen(modelListPath.c_str(), "wb");
+    if (!model_list)
+    {
+        printf("Fatal error: Could not open file %s\n", modelListPath.c_str());
+        return;
+    }
+
+    size_t maxFileId = fileData.getMaxId() + 1;
+    uint32* fileDataIndex = new uint32[maxFileId];
+    memset(fileDataIndex, 0, maxFileId * sizeof(uint32));
+    size_t files = fileData.getRecordCount();
+    for (uint32 i = 0; i < files; ++i)
+        fileDataIndex[fileData.getRecord(i).getUInt(0)] = i;
 
     for (DBCFile::Iterator it = dbc.begin(); it != dbc.end(); ++it)
     {
-        path = it->getString(1);
+        uint32 fileId = it->getUInt(1);
+        if (!fileId)
+            continue;
+
+        uint32 fileIndex = fileDataIndex[fileId];
+        if (!fileIndex)
+            continue;
+
+        std::string filename = fileData.getRecord(fileIndex).getString(1);
+        std::string filepath = fileData.getRecord(fileIndex).getString(2);
+
+        path = filepath + filename;
 
         if (path.length() < 4)
             continue;
@@ -107,7 +123,7 @@ void ExtractGameobjectModels(char* input_path)
             result = ExtractSingleWmo(path);
         else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
-        else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
+        else if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);
 
         if (result)
@@ -121,6 +137,8 @@ void ExtractGameobjectModels(char* input_path)
     }
 
     fclose(model_list);
+
+    delete[] fileDataIndex;
 
     printf("Done!\n");
 }

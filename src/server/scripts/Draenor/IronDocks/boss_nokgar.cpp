@@ -39,7 +39,7 @@ enum Yells
     TALK_ZOGGOSH_01 = 8, // Sir, they've breached the gates! Nok'gar is.. dead!! We should pick anchor and prepare to sail to Talador. Right now! (44047)
     TALK_ZOGGOSH_02 = 10, // But.. sir.. this is the last of the Grong that we have. Black hand will have our hides if we show up in the... (44048)
     TALK_ZOGGOSH_03 = 11, // Yes sir.. (44049)
-    
+
     TALK_KORAMAR_01 = 23, // Calm yourself.. Zoggosh. We'll do no such thing, if these weaklings are so eager to die then we should obliged! (43899)
 
     TALK_KORAMAR_0222 = 24, // Zoggosh.. do not question my authority. This isn't just any Groon, this is Skuloc son of Grool.. the blood of a champion course through his veins.. I'm not concerned with these whelps. (43900)  
@@ -82,6 +82,7 @@ enum Events
 };
 enum Actions
 {
+    ACTION_DISMOUNT_HEROIC = 1000,
     ACTION_FIRE_ARROWS = 999,
 };
 enum Vehicles
@@ -94,11 +95,11 @@ enum Triggers
 };
 Position archers[5] =
 {
-    {6882.93f, -694.61f, 55.554f, 3.14270f},
-    {6883.21f, -705.07f, 55.922f, 3.13948f},
-    {6883.21f, -688.00f, 56.686f, 3.16305f},
-    {6884.02f, -676.18f, 56.483f, 3.34997f},
-    {6884.07f, -662.27f, 56.541f, 3.09864f},
+    { 6882.93f, -694.61f, 55.554f, 3.14270f },
+    { 6883.21f, -705.07f, 55.922f, 3.13948f },
+    { 6883.21f, -688.00f, 56.686f, 3.16305f },
+    { 6884.02f, -676.18f, 56.483f, 3.34997f },
+    { 6884.07f, -662.27f, 56.541f, 3.09864f },
 };
 class Nokgar_Death_Event : public BasicEvent
 {
@@ -135,10 +136,10 @@ public:
                             Koramar->AI()->Talk(TALK_KORAMAR_0222);
                             break;
                         }
-                    }     
                     }
                 }
             }
+        }
         return true;
     }
 private:
@@ -165,12 +166,13 @@ public:
 
         Vehicle* vehicle;
         InstanceScript* pinstance = me->GetInstanceScript();
-        uint32 diffforshreddingstrike;
+        int32 diffforshreddingstrike;
         void Reset() override
         {
             _Reset();
             events.Reset();
-            ASSERT(vehicle);  
+            ASSERT(vehicle);
+
 
             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
@@ -178,7 +180,7 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
             DespawnCreaturesInArea(NPC_GROMKAR_FLAMESLINGER, me);
-            me->SetReactState(REACT_AGGRESSIVE); 
+            me->SetReactState(REACT_AGGRESSIVE);
             diffforshreddingstrike = 300;
         }
         void DespawnCreaturesInArea(uint32 entry, WorldObject* object)
@@ -220,6 +222,7 @@ public:
                 me->CastSpell(me, 103750); // feign death
                 me->CastSpell(me, 166925); // cosmetic feign death
 
+
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_FEIGN_DEATH);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                 me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
@@ -230,6 +233,11 @@ public:
 
                 if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
                     nokgar->AI()->Talk(SAY_SPELL04);
+            }
+            if (me->GetHealthPct() <= 50) // heroic
+            {
+                if (Creature* nokgar = pinstance->instance->GetCreature(pinstance->GetData64(DATA_NOKGAR)))
+                    nokgar->AI()->DoAction(ACTION_DISMOUNT_HEROIC);
             }
         }
         void JustDied(Unit* /*killer*/) override
@@ -259,10 +267,10 @@ public:
                 return;
 
             events.Update(diff);
-            
+
             // I think blizzard actually hacked it themselves aswell.
             if (me->HasAura(SPELL_SHREDDING_SWIPES_AURA_TO_REMOVE))
-            {       
+            {
                 if (diffforshreddingstrike <= diff)
                 {
                     std::list<Player*> PL_list;
@@ -314,7 +322,7 @@ public:
                     Position RandomLocationForTrigger;
                     me->GetRandomNearPosition(RandomLocationForTrigger, 20.0F);
 
-                   // me->SummonCreature(SHREDDING_SWIPES_TRIGGER, RandomLocationForTrigger, TEMPSUMMON_MANUAL_DESPAWN);
+                    // me->SummonCreature(SHREDDING_SWIPES_TRIGGER, RandomLocationForTrigger, TEMPSUMMON_MANUAL_DESPAWN);
                     events.ScheduleEvent(EVENT_SHREDDING_SWIPES, urand(8000, 30000));
                     events.ScheduleEvent(EVENT_SHREDDING_SWIPES_PART_2, 500);
                     break;
@@ -359,10 +367,10 @@ public:
             _Reset();
             events.Reset();
             summons.DespawnAll();
-           // MountWolf(); 
+            // MountWolf(); 
             SummonArchers();
 
-            me->SetReactState(REACT_AGGRESSIVE);     
+            me->SetReactState(REACT_AGGRESSIVE);
             phase = 0; // mounted
             me->CastSpell(me, SPELL_WARSONG_FLAG);
             dismountheroic = false;
@@ -372,21 +380,21 @@ public:
             if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
             {
                 //me->EnterVehicle(wolf, 0, true);
-               // wolf->Respawn(true);
-               // wolf->GetAI()->Reset();
-               // wolf->getThreatManager().resetAllAggro();
-               //wolf->GetVehicleKit()->AddPassenger(me, 0);  
-               //me->_EnterVehicle(wolf->GetVehicleKit(), 0);
-               // me->AddUnitState(UNIT_STATE_ONVEHICLE);
+                // wolf->Respawn(true);
+                // wolf->GetAI()->Reset();
+                // wolf->getThreatManager().resetAllAggro();
+                //wolf->GetVehicleKit()->AddPassenger(me, 0);  
+                //me->_EnterVehicle(wolf->GetVehicleKit(), 0);
+                // me->AddUnitState(UNIT_STATE_ONVEHICLE);
             }
         }
         void SummonArchers()
         {
             for (int i = 0; i <= 5; i++)
             {
-               Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
-              // if (flameslinger && flameslinger->IsInWorld())
-               //flameslinger->SetReactState(REACT_PASSIVE);
+                Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
+                // if (flameslinger && flameslinger->IsInWorld())
+                //flameslinger->SetReactState(REACT_PASSIVE);
             }
         }
         void LaunchArchers()
@@ -416,7 +424,7 @@ public:
             }
             if (me->HasAura(SPELL_RECKLESS_PROVOCATION))
                 if (!p_SpellInfo)
-                me->AddAura(SPELL_INITMIDATED, attacker);
+                    me->AddAura(SPELL_INITMIDATED, attacker);
         }
         void EnterCombat(Unit* who) override
         {
@@ -449,7 +457,7 @@ public:
                 wolf->DespawnOrUnsummon(2000);
             }
 
-            me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));      
+            me->m_Events.AddEvent(new Nokgar_Death_Event(me, 0), me->m_Events.CalculateTime(2000));
         }
         void JustReachedHome() override
         {
@@ -460,6 +468,17 @@ public:
                 me->DespawnOrUnsummon(1000);
 
                 me->SummonCreature(CREATURE_WOLF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+            }
+        }
+        void DoAction(int32 const action)
+        {
+            switch (action)
+            {
+                case ACTION_DISMOUNT_HEROIC:
+                {
+                    events.ScheduleEvent(EVENT_DISMOUNT, 1000);
+                    break;
+                }
             }
         }
         void UpdateAI(uint32 const diff) override
@@ -476,25 +495,25 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_DISMOUNT:
+                case EVENT_DISMOUNT:
+                {
+                    if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
                     {
-                        if (Creature* wolf = instance->instance->GetCreature(instance->GetData64(DATA_MOUNT_WOLF)))
-                        {
-                            wolf->GetVehicleKit()->RemoveAllPassengers(true);
-                        }
+                        wolf->GetVehicleKit()->RemoveAllPassengers(true);
+                    }
 
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        events.SetPhase(1); // non mounted           
-                        events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, 10000);
-                        break;
-                    }
-                    case EVENT_RECKLESS_PROVOCATION:
-                    {
-                        Talk(SAY_SPELL03);
-                        me->MonsterTextEmote(recklessprovocationmsg, me->GetGUID());
-                        me->CastSpell(me, SPELL_RECKLESS_PROVOCATION);
-                        events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, urand(15000, 20000));
-                    }
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    events.SetPhase(1); // non mounted           
+                    events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, 10000);
+                    break;
+                }
+                case EVENT_RECKLESS_PROVOCATION:
+                {
+                    Talk(SAY_SPELL03);
+                    me->MonsterTextEmote(recklessprovocationmsg, me->GetGUID());
+                    me->CastSpell(me, SPELL_RECKLESS_PROVOCATION);
+                    events.ScheduleEvent(EVENT_RECKLESS_PROVOCATION, urand(15000, 20000));
+                }
                 }
             }
             DoMeleeAttackIfReady();
@@ -519,7 +538,7 @@ public:
             me->SetDisableGravity(true);
             me->SetHover(true);
         }
-        
+
         bool signal;
         int32 dshot;
         int32 eshot;
@@ -542,7 +561,7 @@ public:
             case ACTION_FIRE_ARROWS:
                 //signal = true;
 
-               // events.ScheduleEvent(EVENT_FIRE_ARROWS_SIGNAL, 1000);
+                // events.ScheduleEvent(EVENT_FIRE_ARROWS_SIGNAL, 1000);
                 events.ScheduleEvent(EVENT_FIRE_ARROWS, 2000);
                 events.ScheduleEvent(EVENT_BARBED_ARROWS, 12000);
                 break;
@@ -558,9 +577,9 @@ public:
                 {
                 case EVENT_FIRE_ARROWS:
                     if (Player* target = me->FindNearestPlayer(200.0f, true))
-                   // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0F, true))
+                        // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0F, true))
                         me->CastSpell(target, SPELL_BURNING_ARROW_AREA_TRIGGER, true);
-                   // me->CastSpell(me, SPELL_BURNING_ARROW_DUMMY);                                 
+                    // me->CastSpell(me, SPELL_BURNING_ARROW_DUMMY);                                 
                     events.ScheduleEvent(EVENT_FIRE_ARROWS, 4000);
 
                     dshot++;

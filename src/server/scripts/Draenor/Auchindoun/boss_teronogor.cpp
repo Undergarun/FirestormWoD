@@ -276,7 +276,7 @@ public:
                     if (Creature* nearest = me->FindNearestCreature(CREATURE_DUREM, 100.0f, true))
                     {
                         me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
-                        me->SetReactState(REACT_PASSIVE);
+                      //  me->SetReactState(REACT_PASSIVE);
                         events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
 
@@ -292,9 +292,9 @@ public:
 
                     if (Creature* nearest = me->FindNearestCreature(CREATURE_JORAA, 100.0f, true))
                     {
-                        me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
-                        me->SetReactState(REACT_PASSIVE);
-                        events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
+                       // me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
+                       // me->SetReactState(REACT_PASSIVE);
+                      //  events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
 
                     me->CastSpell(me, SPELL_DESTRUCTION_TRANSFORM);
@@ -311,8 +311,8 @@ public:
                     if (Creature* nearest = me->FindNearestCreature(CREATURE_IRUUN, 100.0f, true))
                     {
                         me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
-                        me->SetReactState(REACT_PASSIVE);
-                        events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
+                       // me->SetReactState(REACT_PASSIVE);
+                       // events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
 
                     me->CastSpell(me, SPELL_DEMONOLOGY_TRANSFORM);
