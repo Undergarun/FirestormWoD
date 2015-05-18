@@ -1033,6 +1033,17 @@ class spell_dru_regrowth : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_regrowth_SpellScript);
 
+            void HandlePeriodic(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster && l_Caster->HasAura(eSpells::GlyphOfRegrowth))
+                    return;
+
+                GetSpell()->EffectApplyAura(effIndex);
+            }
+
             void HandleBeforeHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1056,6 +1067,7 @@ class spell_dru_regrowth : public SpellScriptLoader
             {
                 BeforeHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleBeforeHit);
                 AfterHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleAfterHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_regrowth_SpellScript::HandlePeriodic, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1067,9 +1079,6 @@ class spell_dru_regrowth : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(eSpells::GlyphOfRegrowth))
-                        PreventDefaultAction();
-
                     ///If soul of the forest is activated we increase the heal by 100%
                     if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                     {
