@@ -182,7 +182,7 @@ void WorldSession::SendChallengeModeMapStatsUpdate(uint32 p_MapID)
             l_Data << int32(l_CompletedChallenge.m_BestTime);
             l_Data << int32(l_CompletedChallenge.m_LastTime);
             l_Data << int32(l_CompletedChallenge.m_BestMedal);
-            l_Data << uint32(secsToTimeBitFields(l_CompletedChallenge.m_BestMedalDate));
+            l_Data << uint32(MS::Utilities::WowTime::Encode(l_CompletedChallenge.m_BestMedalDate));
 
             uint32 l_SpecCount = 0;
             l_Data << uint32(l_SpecCount);
