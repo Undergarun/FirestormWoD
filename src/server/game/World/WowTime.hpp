@@ -11,6 +11,33 @@
 
 namespace MS { namespace Utilities
 {
+    namespace Globals
+    {
+        namespace InSeconds
+        {
+            enum
+            {
+                Seconds = 1,
+                Minute  = 60 * InSeconds::Seconds,
+                Hour    = 60 * InSeconds::Minute,
+                Day     = 24 * InSeconds::Hour
+            };
+
+        }   ///< namespace InSeconds
+
+        namespace InMinutes
+        {
+            enum
+            {
+                Minute  = 1,
+                Hour    = 60 * InMinutes::Minute,
+                Day     = 24 * InMinutes::Hour
+            };
+
+        }   ///< namespace InMinutes
+
+    }   ///< namespace Globals
+
     /// WoWTime client class
     class WowTime
     {
@@ -73,22 +100,6 @@ namespace MS { namespace Utilities
             bool operator>(WowTime const& p_Other) const;
             /// Compare
             bool operator>=(WowTime const& p_Other) const;
-
-        public:
-            enum InSeconds
-            {
-                Seconds = 1,
-                Minute  = 60 * InSeconds::Seconds,
-                Hour    = 60 * InSeconds::Minute,
-                Day     = 24 * InSeconds::Hour
-            };
-
-            enum InMinutes
-            {
-                Minute  = 1,
-                Hour    = 60 * InMinutes::Minute,
-                Day     = 24 * InMinutes::Hour
-            };
 
         public:
             int32 Minute;

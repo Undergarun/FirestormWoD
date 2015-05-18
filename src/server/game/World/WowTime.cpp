@@ -121,10 +121,10 @@ namespace MS { namespace Utilities
                 l_TimeInfo.tm_hour  = this->Hour;
                 l_TimeInfo.tm_min   = this->Minute;
 
-                l_PosixTime = mktime(&l_TimeInfo) + (WowTime::InSeconds::Day * p_Count);
+                l_PosixTime = mktime(&l_TimeInfo) + (Globals::InSeconds::Day * p_Count);
             }
             else
-                l_PosixTime = mktime(&l_TimeInfo) + (WowTime::InSeconds::Day * p_Count) + WowTime::InSeconds::Hour;
+                l_PosixTime = mktime(&l_TimeInfo) + (Globals::InSeconds::Day * p_Count) + Globals::InSeconds::Hour;
 
             ACE_OS::localtime_r(&l_PosixTime, &l_TimeInfo);
 
@@ -142,13 +142,13 @@ namespace MS { namespace Utilities
     {
         int l_TotalMinutes = 0;
         if (this->Hour >= 0 && this->Minute >= 0)
-            l_TotalMinutes = (WowTime::InMinutes::Hour * this->Hour) + this->Minute;
+            l_TotalMinutes = (Globals::InMinutes::Hour * this->Hour) + this->Minute;
 
         signed int l_RemainMinutes = l_TotalMinutes + p_Count;
         if ((l_TotalMinutes + p_Count + 1439) >= 2879)
         {
-            int l_DayCount = l_RemainMinutes / WowTime::InMinutes::Day;
-            l_RemainMinutes %= WowTime::InMinutes::Day;
+            int l_DayCount = l_RemainMinutes / Globals::InMinutes::Day;
+            l_RemainMinutes %= Globals::InMinutes::Day;
 
             if (this->Year >= 0 && this->Month >= 0 && this->MonthDay >= 0)
             {
@@ -159,7 +159,7 @@ namespace MS { namespace Utilities
                 l_TimeInfo.tm_mday  = this->MonthDay + 1;
                 l_TimeInfo.tm_isdst = -1;
 
-                time_t l_Time = (WowTime::InSeconds::Day * l_DayCount) + mktime(&l_TimeInfo) + WowTime::InSeconds::Hour;
+                time_t l_Time = (Globals::InSeconds::Day * l_DayCount) + mktime(&l_TimeInfo) + Globals::InSeconds::Hour;
                 ACE_OS::localtime_r(&l_Time, &l_TimeInfo);
 
                 this->Year      = l_TimeInfo.tm_year - 100;
@@ -179,7 +179,7 @@ namespace MS { namespace Utilities
                 l_TimeInfo.tm_mday  = this->MonthDay + 1;
                 l_TimeInfo.tm_isdst = -1;
 
-                time_t l_Time = mktime(&l_TimeInfo) - (23 * WowTime::InSeconds::Hour);
+                time_t l_Time = mktime(&l_TimeInfo) - (23 * Globals::InSeconds::Hour);
                 ACE_OS::localtime_r(&l_Time, &l_TimeInfo);
 
                 this->Year      = l_TimeInfo.tm_year - 100;
@@ -188,38 +188,38 @@ namespace MS { namespace Utilities
                 this->WeekDay   = l_TimeInfo.tm_wday;
             }
 
-            l_RemainMinutes += WowTime::InMinutes::Day;
+            l_RemainMinutes += Globals::InMinutes::Day;
         }
     
-        this->Hour      = l_RemainMinutes / WowTime::InMinutes::Hour;
-        this->Minute    = l_RemainMinutes % WowTime::InMinutes::Hour;
+        this->Hour      = l_RemainMinutes / Globals::InMinutes::Hour;
+        this->Minute    = l_RemainMinutes % Globals::InMinutes::Hour;
     }
 
     /// Add holiday duration
     void WowTime::AddHolidayDuration(int32 p_Duration)
     {
-        if (p_Duration >= WowTime::InMinutes::Day)
-            AddDays(p_Duration / WowTime::InMinutes::Day, true);
+        if (p_Duration >= Globals::InMinutes::Day)
+            AddDays(p_Duration / Globals::InMinutes::Day, true);
 
-        AddMinutes(p_Duration % WowTime::InMinutes::Day);
+        AddMinutes(p_Duration % Globals::InMinutes::Day);
 
         int l_OldTotalMinutes = 0;
         if (this->Hour >= 0 && this->Minute >= 0)
-            l_OldTotalMinutes = (WowTime::InMinutes::Hour * this->Hour) + this->Minute;
+            l_OldTotalMinutes = (Globals::InMinutes::Hour * this->Hour) + this->Minute;
 
-        int64 l_Duration        = (p_Duration % WowTime::InMinutes::Day) + this->Minute + (WowTime::InMinutes::Hour * this->Hour);
-        int64 l_NewTotalMinute  = l_Duration - WowTime::InMinutes::Day * (((((-1240768329 * l_Duration) >> 32) + l_Duration) >> 31) + ((((-1240768329 * l_Duration) >> 32) + l_Duration) >> 10));
+        int64 l_Duration        = (p_Duration % Globals::InMinutes::Day) + this->Minute + (Globals::InMinutes::Hour * this->Hour);
+        int64 l_NewTotalMinute  = l_Duration - Globals::InMinutes::Day * (((((-1240768329 * l_Duration) >> 32) + l_Duration) >> 31) + ((((-1240768329 * l_Duration) >> 32) + l_Duration) >> 10));
 
         if (l_NewTotalMinute != l_OldTotalMinutes)
         {
-            signed int l_Unk = WowTime::InMinutes::Day;
+            signed int l_Unk = Globals::InMinutes::Day;
 
             if (this->Hour >= 0 && this->Minute >= 0)
-                l_Unk = (WowTime::InMinutes::Hour * this->Hour) + this->Minute + WowTime::InMinutes::Day;
+                l_Unk = (Globals::InMinutes::Hour * this->Hour) + this->Minute + Globals::InMinutes::Day;
 
-            if ((l_Unk - l_NewTotalMinute) % WowTime::InMinutes::Day == WowTime::InMinutes::Hour)
+            if ((l_Unk - l_NewTotalMinute) % Globals::InMinutes::Day == Globals::InMinutes::Hour)
             {
-                if (this->Hour < 0 || this->Minute < 0 || ((WowTime::InMinutes::Hour * this->Hour) + this->Minute) <= 59)
+                if (this->Hour < 0 || this->Minute < 0 || ((Globals::InMinutes::Hour * this->Hour) + this->Minute) <= 59)
                 {
                     if (this->Year >= 0 && this->Month >= 0 && this->MonthDay >= 0)
                     {
@@ -230,7 +230,7 @@ namespace MS { namespace Utilities
                         l_TimeInfo.tm_mday  = this->MonthDay + 1;
                         l_TimeInfo.tm_isdst = -1;
 
-                        time_t l_Time = mktime(&l_TimeInfo) - (23 * WowTime::InSeconds::Hour);
+                        time_t l_Time = mktime(&l_TimeInfo) - (23 * Globals::InSeconds::Hour);
                         ACE_OS::localtime_r(&l_Time, &l_TimeInfo);
 
                         this->Year      = l_TimeInfo.tm_year - 100;
@@ -240,12 +240,12 @@ namespace MS { namespace Utilities
                     }
                 }
 
-                this->Hour      = l_NewTotalMinute / WowTime::InMinutes::Hour;
-                this->Minute    = l_NewTotalMinute % WowTime::InMinutes::Hour;
+                this->Hour      = l_NewTotalMinute / Globals::InMinutes::Hour;
+                this->Minute    = l_NewTotalMinute % Globals::InMinutes::Hour;
             }
             else
             {
-                AddMinutes(WowTime::InMinutes::Hour);
+                AddMinutes(Globals::InMinutes::Hour);
             }
         }
     }
@@ -317,7 +317,7 @@ namespace MS { namespace Utilities
     /// Get hours + minutes in minutes
     time_t WowTime::GetHourAndMinutes()
     {
-        return (this->Hour * WowTime::InMinutes::Hour) + this->Minute;
+        return (this->Hour * Globals::InMinutes::Hour) + this->Minute;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -340,8 +340,8 @@ namespace MS { namespace Utilities
     /// Set hours + minutes
     void WowTime::SetHourAndMinutes(uint32 p_Minutes)
     {
-        this->Hour      = p_Minutes / WowTime::InMinutes::Hour;
-        this->Minute    = p_Minutes % WowTime::InMinutes::Hour;
+        this->Hour      = p_Minutes / Globals::InMinutes::Hour;
+        this->Minute    = p_Minutes % Globals::InMinutes::Hour;
     }
 
     /// Set hours + minutes
@@ -419,19 +419,19 @@ namespace MS { namespace Utilities
 
         auto l_DiffTimeFromRegionToUTC = []() -> time_t
         {
-            time_t l_CurrentTime = time(nullptr);
+            time_t l_LocalCurrentTime = time(nullptr);
 
-            struct tm *l_CurrentTimeInfo = gmtime(&l_CurrentTime);
-            l_CurrentTimeInfo->tm_isdst = -1;
+            struct tm *l_UTCTimeInfo = gmtime(&l_LocalCurrentTime);
+            l_UTCTimeInfo->tm_isdst = -1;
 
-            time_t l_UTCTime = mktime(l_CurrentTimeInfo) - l_CurrentTime;
+            return mktime(l_UTCTimeInfo) - l_LocalCurrentTime;
         };
 
         if (this->YearDay)
         {
             struct tm l_TimeInfo;
 
-            if (s_holidayOffsetSeconds || (s_holidayOffsetSeconds = (WowTime::InSeconds::Hour * this->YearDay) - l_DiffTimeFromRegionToUTC()))
+            if (s_holidayOffsetSeconds || (s_holidayOffsetSeconds = (Globals::InSeconds::Hour * this->YearDay) - l_DiffTimeFromRegionToUTC()))
             {
                 l_TimeInfo.tm_sec   = 0LL;
                 l_TimeInfo.tm_year  = p_Other.Year + 100;
