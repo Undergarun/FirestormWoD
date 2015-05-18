@@ -1437,7 +1437,6 @@ public:
         bool inCombat;
         bool isProtecting;
 
-
         void Reset()
         {
             events.Reset();
@@ -1454,7 +1453,7 @@ public:
             inCombat = false;
         }
 
-        void EnterCombat(Unit* attacker)
+        void EnterCombat(Unit* p_Attacker)
         {
             if (!inCombat)
             {
@@ -1463,48 +1462,55 @@ public:
                 if (isProtecting)
                     return;
 
-                // Retreiving list of ambercallers (maximum: 2 if all is alright)
-                std::list<Creature*> amberCallerList;
-                GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+                /// Retreiving list of ambercallers (maximum: 2 if all is alright)
+                std::list<Creature*> l_AmberCallerList;
+                GetCreatureListWithEntryInGrid(l_AmberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
 
-                if (amberCallerList.size())
+                if (l_AmberCallerList.size())
                 {
-                    std::list<Creature*>::iterator itr = amberCallerList.begin();
+                    std::list<Creature*>::iterator l_Iter = l_AmberCallerList.begin();
 
-                    // Trying to bind to the first amber caller
-                    Creature* amberCaller = *itr;
+                    /// Trying to bind to the first amber caller
+                    Creature* l_AmberCaller = *l_Iter;
 
-                    // Need to get the the other Kor'thik SwarmGuard
-                    std::list<Creature*> meList;
-                    GetCreatureListWithEntryInGrid(meList, me, me->GetEntry(), 50.0f);
-                    std::list<Creature*>::iterator meItr = meList.begin();
-                    Creature* otherSwarmGuard = *meItr;
+                    /// Need to get the the other Kor'thik SwarmGuard
+                    std::list<Creature*> l_MeList;
+                    GetCreatureListWithEntryInGrid(l_MeList, me, me->GetEntry(), 50.0f);
+                    std::list<Creature*>::iterator l_MeIter = l_MeList.begin();
+                    Creature* l_OtherMe = *l_MeIter;
 
-                    // Should not be me (that's why we get the list)!
-                    if (otherSwarmGuard == me)
-                        otherSwarmGuard = *(++meItr);
+                    /// Should not be me (that's why we get the list)!
+                    if (l_OtherMe == me)
+                        l_OtherMe = *(++l_MeIter);
 
-                    // Other SwarmGuard could be invalid (if dead, for instance)
-                    if (otherSwarmGuard)
+                    /// Other SwarmGuard could be invalid (if dead, for instance)
+                    if (l_OtherMe && l_OtherMe->IsAIEnabled)
                     {
-                        // Checking if the ambercaller we picked isn't already bind to the other SwarmGuard, and if so, picking the next amberCaller in the list
-                        uint64 alreadyProtected = CAST_AI(mob_korthik_swarmguard::mob_korthik_swarmguardAI, otherSwarmGuard->AI())->protectedAmberCallerGuid;
-                        if (amberCaller->GetGUID() == alreadyProtected)
+                        /// Checking if the ambercaller we picked isn't already bind to the other SwarmGuard, and if so, picking the next amberCaller in the list
+                        if (mob_korthik_swarmguardAI* l_AI = CAST_AI(mob_korthik_swarmguard::mob_korthik_swarmguardAI, l_OtherMe->AI()))
                         {
-                            amberCaller = *(++itr);
-                            uint64 amberGuid = amberCaller->GetGUID();
+                            uint64 l_AlreadyProtected = l_AI->protectedAmberCallerGuid;
+
+                            if (l_AmberCaller->GetGUID() == l_AlreadyProtected)
+                            {
+                                l_AmberCaller = *(++l_Iter);
+                                uint64 amberGuid = l_AmberCaller->GetGUID();
+                            }
                         }
                     }
 
-                    // amberCaller could be not valid
-                    if (amberCaller)
+                    /// amberCaller could be not valid
+                    if (l_AmberCaller)
                     {
-                        protectedAmberCallerGuid = amberCaller->GetGUID();
+                        protectedAmberCallerGuid = l_AmberCaller->GetGUID();
                         isProtecting = true;
-                        DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
-                        amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
+                        DoCast(l_AmberCaller, SPELL_SWARMGUARDS_AEGIS);
+
+                        if (l_AmberCaller->IsAIEnabled)
+                            l_AmberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
                     }
                 }
+
                 inCombat = true;
             }
         }
