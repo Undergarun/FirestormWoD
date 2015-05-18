@@ -12797,7 +12797,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 {
     float TakenTotalMod = 1.0f;
 
-    /// Dampeding, must be calculated off the raw amount
+    /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
         healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
 
