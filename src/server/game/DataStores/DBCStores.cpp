@@ -1811,13 +1811,13 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
     UNPACK_UINT8(l_Opperand);
 
 #ifdef _MSC_VER
-    p_Instructions.push_back("mov pA, ret");
+    p_Instructions.push_back("mov pC, ret");
 #endif
 
     if (!l_Opperand)
     {
 #ifdef _MSC_VER
-        p_Instructions.push_back("mov ret, pA");
+        p_Instructions.push_back("mov ret, pC");
 #endif
         return l_LeftValue;
     }
@@ -1825,32 +1825,32 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
     int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
 #ifdef _MSC_VER
-    p_Instructions.push_back("mov pB, ret");
+    p_Instructions.push_back("mov pD, ret");
 #endif
 
     switch (l_Opperand)
     {
         case WorldStateExpressionMathOpcode::Add:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA + pB]");
+            p_Instructions.push_back("mov ret, [pC + pD]");
 #endif
             return l_RightValue + l_LeftValue;
             break;
         case WorldStateExpressionMathOpcode::Substract:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA - pB]");
+            p_Instructions.push_back("mov ret, [pC - pD]");
 #endif
             return l_LeftValue - l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Multiply:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA * pB]");
+            p_Instructions.push_back("mov ret, [pC * pD]");
 #endif
             return l_LeftValue * l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Divide:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA / pB]");
+            p_Instructions.push_back("mov ret, [pC / pD]");
 #endif
             if (!l_RightValue)
                 return 0;
@@ -1859,7 +1859,7 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
             break;
         case WorldStateExpressionMathOpcode::Modulo:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA % pB]");
+            p_Instructions.push_back("mov ret, [pC % pD]");
 #endif
             if (!l_RightValue)
                 return 0;
