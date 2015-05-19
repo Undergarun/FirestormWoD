@@ -1465,7 +1465,7 @@ enum CatFormSpells
 };
 
 /// last update : 6.1.2 19802
-/// Cat Form - 768, Claws of Shirvallah - 171745
+/// Cat Form - 768, Cat Form (Claws of Shirvallah) - 171746
 class spell_dru_cat_form: public SpellScriptLoader
 {
     public:
