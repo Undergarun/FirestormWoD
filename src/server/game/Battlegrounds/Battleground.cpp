@@ -293,6 +293,8 @@ void Battleground::Update(uint32 diff)
             // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
+                ApplyDampeningIfNeeded();
+
                 if (GetElapsedTime() >= 20 *  MINUTE * IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
@@ -589,8 +591,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* l_Player = ObjectAccessor::FindPlayer(itr->first))
                 {
-                    ApplyDampeningIfNeeded();
-
                     // BG Status packet
                     WorldPacket status;
                     MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
@@ -2352,7 +2352,7 @@ void Battleground::ApplyDampeningIfNeeded()
         {
             for (BattlegroundPlayerMap::iterator l_Iter = m_Players.begin(); l_Iter != m_Players.end(); ++l_Iter)
             {
-                if (Player* l_Player = _GetPlayerForTeam(l_Team, l_Iter, "ApplyDampeningIfNeeded"))
+                if (Player* l_Player = _GetPlayerForTeam(l_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE, l_Iter, "ApplyDampeningIfNeeded"))
                 {
                     if (l_Player->GetRoleForGroup() == ROLE_HEALER)
                     {
