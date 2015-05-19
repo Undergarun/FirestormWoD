@@ -2233,11 +2233,12 @@ bool Item::HasItemBonus(uint32 p_ItemBonusId) const
 bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
         if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
-            SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
+            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i);
             return true;
         }
     }
