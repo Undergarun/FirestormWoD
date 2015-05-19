@@ -4038,6 +4038,46 @@ class spell_dru_pulverize : public SpellScriptLoader
         }
 };
 
+/// Last Update - 6.1.2 19802
+/// Empowered Moonkin - 157228
+/// Called by Wrath - 5176, Stellar Flare - 152221, Starfire - 2912, Starsurge - 78674
+class spell_dru_empowered_moonkin : public SpellScriptLoader
+{
+    public:
+        spell_dru_empowered_moonkin() : SpellScriptLoader("spell_dru_empowered_moonkin") { }
+
+        class spell_dru_empowered_moonkin_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_empowered_moonkin_SpellScript);
+
+            enum eSpells
+            {
+                EmpoweredMoonkin = 157228
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::EmpoweredMoonkin))
+                    l_Caster->RemoveAura(eSpells::EmpoweredMoonkin);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dru_empowered_moonkin_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_empowered_moonkin_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_pulverize();
@@ -4113,4 +4153,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom_heal_proc();
     new spell_dru_dream_of_cenarius_feral();
     new spell_dru_wod_pvp_2p_restoration();
+    new spell_dru_empowered_moonkin();
 }
