@@ -4196,8 +4196,9 @@ class spell_dru_pulverize : public SpellScriptLoader
 
             enum eSpells
             {
-                PulverizeAura = 158792,
-                Lacerate = 33745
+                Lacerate = 33745,
+                AllowPulverize = 158790,
+                PulverizeAura = 158792
             };
 
             SpellCastResult CheckCast()
@@ -4225,11 +4226,11 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
-                {
-                    l_Lacerete->ModStackAmount(-3);
-                    l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
-                }
+                if (AuraPtr l_Lacerate = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                    l_Lacerate->ModStackAmount(-3);
+
+                l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
+                l_Target->RemoveAura(eSpells::AllowPulverize);
             }
 
             void Register()
