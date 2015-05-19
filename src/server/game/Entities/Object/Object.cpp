@@ -1533,10 +1533,20 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     }
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 value)
+void Object::RemoveDynamicValue(uint16 index, uint32 offset)
 {
-    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-    /// TODO: Research if this is actually needed
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false) || offset < _dynamicValues[index].size());
+
+    _dynamicValues[index].erase(_dynamicValues[index].begin() + offset);
+
+    _dynamicChangesMask.SetBit(index);
+    _dynamicChangesArrayMask[index].SetBit(offset);
+
+    if (m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
 }
 
 void Object::ClearDynamicValue(uint16 index)
