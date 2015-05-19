@@ -28,13 +28,12 @@ enum Spells
     SPELL_BREAKOUT = 178124,
     SPELL_FEEDING_FRENZY = 162415,
     SPELL_PRIMAL_ASSAULT = 161256,
-
     // misv
     SPELL_BLOODY_CORPSE_EXPLOSION = 73163,
     SPELL_STRENGTH_OF_THE_PACK = 171114,
     // rylak
-    SPELL_ACIDIC_AREA_TRIGGERS = 178155,
-    SPELL_ACIDIC_CAST = 178154,
+    //SPELL_ACIDIC_AREA_TRIGGERS = 178155,
+    SPELL_ACIDIC_CAST = 171529,
 };
 enum Events
 {
@@ -62,20 +61,21 @@ enum Creatures
     CREATURE_WOLF = 89012,
     CREATURE_RYLAK = 89011,
     CREATURE_GUARD = 83390,
-
+    
     // dests
     TRIGGER_WOLF_DEST = 89022,
     TRIGGER_RYLAK_DEST = 89021,
+    TRIGGER_ACID_POOL = 214746,
 };
 
 Position newhomeposition = {6945.15f, -1098.29f, 4.603f, 4.579627f};
 Position npcspawning = {6924.00f, -1090.61f, 4.604f, 0.102262f};
-Position npcmovement[3] =
+Position npcmovement[3] = 
 {
     {6972.43f, -1094.44f, 4.962f, 0.903368f},
     {6969.16f, -1089.79f, 4.60f, 0.881810f},
     {6964.44f, -1085.31f, 4.603f, 0.102262f},
-};
+}; 
 
 #define breakoutinterval 20000
 #define feedingfrenzyinterval urand(50000, 60000)
@@ -164,7 +164,7 @@ public:
                             {
 
                                 Oshir->GetMotionMaster()->MoveJump(guard->GetPositionX(), guard->GetPositionY(), guard->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-
+                                   
                                 //Oshir->CastSpell(guard, SPELL_BREAKOUT);
                                 guard->CastSpell(guard, SPELL_BLOODY_CORPSE_EXPLOSION);
                                 Oshir->Kill(guard);
@@ -268,37 +268,35 @@ public:
         }
 
         bool intro;
-        std::list<Creature*> wolf_dests;
-        std::list<Creature*> rylak_dests;
+        std::list<uint64> wolf_dests;
+        std::list<uint64> rylak_dests;
         int32 hppact;
         void Reset() override
         {
             _Reset();
-            if (!wolf_dests.empty())
             wolf_dests.clear();
-            if (!rylak_dests.empty())
             rylak_dests.clear();
 
             hppact = me->GetHealthPct() * 0.95;
             DespawnCreaturesInArea(CREATURE_WOLF, me);
             DespawnCreaturesInArea(CREATURE_RYLAK, me);
 
-            me->GetCreatureListWithEntryInGrid(wolf_dests, TRIGGER_WOLF_DEST, 300.0f);
-            me->GetCreatureListWithEntryInGrid(rylak_dests, TRIGGER_RYLAK_DEST, 300.0f);
+            std::list<Creature*> wolfs;
+            std::list<Creature*> rylak;
 
-            if (wolf_dests.empty())
-                return;
+            me->GetCreatureListWithEntryInGrid(wolfs, TRIGGER_WOLF_DEST, 300.0f);
+            me->GetCreatureListWithEntryInGrid(rylak, TRIGGER_RYLAK_DEST, 300.0f);
 
-            if (rylak_dests.empty())
-                return;
-
-            for (auto itr : wolf_dests)
+            for (auto itr : wolfs)
             {
                 itr->GetAI()->Reset();
+                wolf_dests.push_back(itr->GetGUID());
             }
-            for (auto itr : rylak_dests)
+
+            for (auto itr : rylak)
             {
                 itr->GetAI()->Reset();
+                rylak_dests.push_back(itr->GetGUID());
             }
 
             me->SetSpeed(MOVE_FLIGHT, 10.0f, true);
@@ -395,37 +393,45 @@ public:
                             if (wolf_dests.empty())
                                 return;
 
-                            std::list<Creature*>::iterator it = wolf_dests.begin();
+                            std::list<uint64>::iterator it = wolf_dests.begin();
                             std::advance(it, urand(0, wolf_dests.size() - 1));
 
-                            me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                            //me->CastSpell((*it), SPELL_BREAKOUT, true);
-
-                            if ((*it)->GetAI())
+                            Creature* l_Wolf = Unit::GetCreature(*me, *it);
+                            if (l_Wolf)
                             {
-                                (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                wolf_dests.erase(it);
+                                me->GetMotionMaster()->MoveJump(l_Wolf->GetPositionX(), l_Wolf->GetPositionY(), l_Wolf->GetPositionZ(), 25.0f, 10.0f, 10.0f);
+                                //me->CastSpell((*it), SPELL_BREAKOUT, true);
+
+                                if (l_Wolf->GetAI())
+                                {
+                                    l_Wolf->GetAI()->DoAction(ACTION_RELEASE);
+                                    wolf_dests.erase(it);
+                                }
                             }
                             break;
                         }
                         case 1: // rylaks
                         {
-                            if (rylak_dests.empty())
+                            if (wolf_dests.empty())
                                 return;
 
-                            std::list<Creature*>::iterator it = rylak_dests.begin();
+                            std::list<uint64>::iterator it = rylak_dests.begin();
                             std::advance(it, urand(0, rylak_dests.size() - 1));
 
-                            me->GetMotionMaster()->MoveJump((*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), 25.0f, 10.0f, 10.0f);
-                            //me->CastSpell((*it), SPELL_BREAKOUT, true);
-
-                            if ((*it)->GetAI())
+                            Creature* l_Wolf = Unit::GetCreature(*me, *it);
+                            if (l_Wolf)
                             {
-                                (*it)->GetAI()->DoAction(ACTION_RELEASE);
-                                rylak_dests.erase(it);
+                                me->GetMotionMaster()->MoveJump(l_Wolf->GetPositionX(), l_Wolf->GetPositionY(), l_Wolf->GetPositionZ(), 25.0f, 10.0f, 10.0f);
+                                //me->CastSpell((*it), SPELL_BREAKOUT, true);
+
+                                if (l_Wolf->GetAI())
+                                {
+                                    l_Wolf->GetAI()->DoAction(ACTION_RELEASE);
+                                    rylak_dests.erase(it);
+                                }
                             }
                             break;
-                        }
+                        }          
                     }
                     events.ScheduleEvent(EVENT_BREAKOUT, breakoutinterval);
                     break;
@@ -510,12 +516,27 @@ public:
                                 {
                                     if (itr && itr->IsInWorld() && itr->isAlive())
                                     {
+                                        me->GetMotionMaster()->Clear();
+                                        // itr->Respawn(true);
+                                        itr->DespawnOrUnsummon(2000);
+                                        Creature* wolf = me->SummonCreature(itr->GetEntry(), itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), itr->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                                        // itr->Respawn(true);
+                                        // Reset();
 
-                                        itr->setFaction(16);
-                                        itr->SetReactState(REACT_AGGRESSIVE);
-                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
-                                        itr->AddThreat(oshir->getVictim(), 200.0f);
-                                        itr->Attack(oshir->getVictim(), true);
+                                        if (wolf)
+                                        {
+                                            wolf->SetSpeed(MOVE_RUN, 1.9, true);
+                                          //  wolf->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                                           // wolf->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG2_DISABLE_TURN);
+                                          //  wolf->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                                            wolf->setFaction(16);
+                                            wolf->SetReactState(REACT_AGGRESSIVE);
+
+                                            if (Player* nearest = me->FindNearestPlayer(100.0f, true))
+                                                wolf->GetMotionMaster()->MovePoint(0, nearest->GetPositionX(), nearest->GetPositionY(), nearest->GetPositionZ());
+                                          // wolf->AddThreat(oshir->getVictim(), 200.0f);
+                                           // wolf->Attack(oshir->getVictim(), true);
+                                        }
                                     }
                                 }
                             }
@@ -598,11 +619,26 @@ public:
                                 {
                                     if (itr && itr->IsInWorld() && itr->isAlive())
                                     {
-                                        itr->GetMotionMaster()->MovePoint(0, oshir->GetPositionX(), oshir->GetPositionY(), oshir->GetPositionZ());
-                                        itr->AddThreat(oshir->getVictim(), 200.0f);
-                                        itr->Attack(oshir->getVictim(), true);
-                                        itr->setFaction(16);
-                                        itr->SetReactState(REACT_AGGRESSIVE);
+                                        me->GetMotionMaster()->Clear();
+                                        itr->DespawnOrUnsummon(2000);
+                                        Creature* rykul = me->SummonCreature(itr->GetEntry(), itr->GetPositionX(), itr->GetPositionY(), itr->GetPositionZ(), itr->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+                                       // itr->Respawn(true);
+                                       // Reset();
+
+                                        if (rykul)
+                                        {
+                                            //rykul->SetSpeed(MOVE_RUN, 1.9, true);
+                                            //rykul->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                                           // rykul->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG2_DISABLE_TURN);
+                                            //rykul->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                                            rykul->setFaction(16);
+                                            rykul->SetReactState(REACT_AGGRESSIVE);
+
+                                            if (Player* nearest = me->FindNearestPlayer(100.0f, true))
+                                                rykul->GetMotionMaster()->MovePoint(0, nearest->GetPositionX(), nearest->GetPositionY(), nearest->GetPositionZ());
+                                            //rykul->AddThreat(oshir->getVictim(), 200.0f);
+                                            //rykul->Attack(oshir->getVictim(), true);
+                                        }
                                     }
                                 }
                             }
@@ -644,8 +680,12 @@ public:
 
             if (acidInterval <= diff)
             {
-                me->CastSpell(me, SPELL_ACIDIC_CAST);
-                acidInterval = urand(11000, 16000);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                {
+                    me->SummonCreature(TRIGGER_ACID_POOL, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    me->CastSpell(target, SPELL_ACIDIC_CAST);
+                    acidInterval = urand(11000, 16000);
+                }
             }
             else
                 acidInterval -= diff;
@@ -659,7 +699,6 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
-
 class iron_docks_mob_wolf : public CreatureScript
 {
 public:
@@ -719,42 +758,69 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
-class spell_acid_spew : public SpellScriptLoader
+class iron_docks_oshir_trigger_acid_spit : public CreatureScript
 {
 public:
-    spell_acid_spew() : SpellScriptLoader("spell_acid_spew") { }
+    iron_docks_oshir_trigger_acid_spit() : CreatureScript("iron_docks_oshir_trigger_acid_spit") { }
 
-    class iron_docks_spell : public SpellScript
+    struct mob_iron_docksAI : public Scripted_NoMovementAI
     {
-        PrepareSpellScript(iron_docks_spell);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
+        mob_iron_docksAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            if (!GetCaster() || !GetHitUnit())
-                return;
-
-            std::list<Player*> pl_list;
-
-            if (pl_list.empty())
-                return;
-
-            GetCaster()->GetPlayerListInGrid(pl_list, 50.0f);
-
-            for (auto itr : pl_list)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_ACIDIC_AREA_TRIGGERS, true);
-            }
+            instance = me->GetInstanceScript();
         }
+        uint32 interval;
+        InstanceScript* instance;
 
-        void Register()
+        void Reset()
         {
-            OnEffectHitTarget += SpellEffectFn(iron_docks_spell::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            interval = 1000;
+            me->setFaction(16);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            if (interval <= diff)
+            {
+                std::list<Player*> PL_list;
+                PL_list.clear();
+
+                JadeCore::AnyPlayerInObjectRangeCheck check(me, 2.0f);
+                JadeCore::PlayerListSearcher<JadeCore::AnyPlayerInObjectRangeCheck> searcher(me, PL_list, check);
+                me->VisitNearbyObject(2.0f, searcher);
+
+                if (PL_list.empty())
+                    return;
+
+                for (std::list<Player*>::const_iterator itr = PL_list.begin(); itr != PL_list.end(); ++itr)
+                {
+                    if (!(*itr)->HasAura(171533))
+                    {
+                        (*itr)->CastSpell((*itr), 171533);
+
+                        if ((*itr)->HasAura(171533))
+                        {
+                            AuraPtr aura = (*itr)->GetAura(171533);
+
+                            if (aura)
+                            {
+                                aura->SetDuration(3);
+                            }
+                        }
+                    }
+                }
+                interval = 1000;
+            }
+            else
+                interval -= diff;
         }
     };
 
-    SpellScript* GetSpellScript() const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new iron_docks_spell();
+        return new mob_iron_docksAI(creature);
     }
 };
 void AddSC_boss_oshir()
@@ -762,7 +828,8 @@ void AddSC_boss_oshir()
     // boss
     new boss_oshir();
     // spells
-    new spell_acid_spew();
+    //new spell_acid_spew();
+    new iron_docks_oshir_trigger_acid_spit();
     // adds
     new iron_docks_mob_rylak();
     new iron_docks_mob_wolf();
