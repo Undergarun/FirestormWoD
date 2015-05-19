@@ -3267,6 +3267,15 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
+            case CRITERIA_CONDITION_WORLD_STATE_EXPRESSION:
+            {
+                WorldStateExpressionEntry const* l_Expression = sWorldStateExpressionStore.LookupEntry(l_ReqValue);
+
+                if (!l_Expression || !l_Expression->Eval(p_ReferencePlayer))
+                    return false;
+
+                break;
+            }
             case CRITERIA_CONDITION_DIFFICULTY:                    // 68
                 if (!p_ReferencePlayer || p_ReferencePlayer->GetMap()->GetDifficultyID() != Difficulty(l_ReqValue))
                     return false;

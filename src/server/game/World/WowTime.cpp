@@ -261,7 +261,7 @@ namespace MS { namespace Utilities
         if (!l_PosixTime)
             return 0;
 
-        return (((1749024623285053783LL * l_PosixTime) >> 64) >> 63) + (((1749024623285053783LL * l_PosixTime) >> 64) >> 13);
+        return l_PosixTime / Globals::InSeconds::Day;
     }
 
     /// Get POSIX time from UTC timestamp

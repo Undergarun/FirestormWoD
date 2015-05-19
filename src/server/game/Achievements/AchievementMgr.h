@@ -167,7 +167,7 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_RATED_BATTLEGROUND                   = 63,   // 19116
     CRITERIA_CONDITION_PROJECT_RARITY                       = 65,   // 19116
     CRITERIA_CONDITION_PROJECT_RACE                         = 66,   // 19116
-    CRITERIA_CONDITION_UNK67                                = 67,   // 19116 - NYI - See: http://www.wowhead.com/achievement=156 - May need hard code
+    CRITERIA_CONDITION_WORLD_STATE_EXPRESSION               = 67,   // 19116
     CRITERIA_CONDITION_DIFFICULTY                           = 68,   // 19116
     CRITERIA_CONDITION_UNK69                                = 69,   // 19116 - Not used
     CRITERIA_CONDITION_TARGET_MIN_LEVEL                     = 70,   // 19116
