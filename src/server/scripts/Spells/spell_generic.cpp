@@ -3791,7 +3791,7 @@ public:
     }
 };
 
-class spell_gen_dampening: public SpellScriptLoader
+class spell_gen_dampening : public SpellScriptLoader
 {
     public:
         spell_gen_dampening() : SpellScriptLoader("spell_gen_dampening") { }
@@ -3803,8 +3803,8 @@ class spell_gen_dampening: public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (AuraEffectPtr l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
-                    if (l_FirstEffect->GetAmount() < 100)
-                        l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
+                if (l_FirstEffect->GetAmount() < 100)
+                    l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
             }
 
 
@@ -3812,16 +3812,51 @@ class spell_gen_dampening: public SpellScriptLoader
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_dampening_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
+
+            AuraScript* GetAuraScript() const
+            {
+                return new spell_gen_dampening_AuraScript();
+            }
+        }
+}
+
+/// last update : 6.1.2 19802
+/// Drums of Fury - 178207
+class spell_gen_drums_of_fury : public SpellScriptLoader
+{
+    public:
+        spell_gen_drums_of_fury() : SpellScriptLoader("spell_gen_drums_of_fury") { }
+
+        class spell_gen_drums_of_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_drums_of_fury_AuraScript);
+
+            enum eSpells
+            {
+                Exhausted = 57723
+            };
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+            }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_gen_dampening_AuraScript();
+            return new spell_gen_drums_of_fury_AuraScript();
         }
 };
 
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();
