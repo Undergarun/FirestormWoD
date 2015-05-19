@@ -3207,7 +3207,16 @@ class spell_dru_rake: public SpellScriptLoader
             void HandleOnPrepare()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     m_isStealthed = l_Caster->HasStealthAura();
+                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                    {
+                        if (m_isStealthed)
+                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
+                        else
+                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
+                    }
+                }
             }
 
             void HandleOnHit()
@@ -3229,12 +3238,7 @@ class spell_dru_rake: public SpellScriptLoader
                     if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                     {
                         if (m_isStealthed)
-                        {
                             SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
-                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
-                        }
-                        else
-                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
                 }
 
