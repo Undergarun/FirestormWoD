@@ -7070,6 +7070,10 @@ SpellCastResult Spell::CheckCasterAuras() const
                     if ((*i)->GetSpellInfo()->Id == 6770 && m_spellInfo->Id == 1044)
                         continue;
 
+                    /// Cold Snap and Ice Block hack
+                    if ((*i)->GetSpellInfo()->Id == 45438 && m_spellInfo->Id == 11958)
+                        continue;
+
                     foundNotStun = true;
                     break;
                 }
