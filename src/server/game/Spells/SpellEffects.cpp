@@ -7439,30 +7439,6 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
         break;
     }
-    case 119031:/// Healing Sphere
-    {
-        int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
-
-        if (count > 3)
-        {
-            std::list<AreaTrigger*> healingSphereList;
-            m_caster->GetAreaTriggerList(healingSphereList, m_spellInfo->Id);
-
-            if (!healingSphereList.empty())
-            {
-                healingSphereList.sort(JadeCore::AreaTriggerDurationPctOrderPred());
-
-                for (auto itr : healingSphereList)
-                {
-                    AreaTrigger* healingSphere = itr;
-                    healingSphere->SetDuration(0);
-                    break;
-                }
-            }
-        }
-
-        break;
-    }
     case 116011:// Rune of Power
     {
         int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
