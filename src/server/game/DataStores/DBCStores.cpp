@@ -1365,6 +1365,23 @@ namespace WorldStateExpressionFunctions
         TimerCurrentTime,
         WeekNumber
     };
+
+    const char * Names[] =
+    {
+        "None",
+        "Random",
+        "Month",
+        "Day",
+        "TimeOfDay",
+        "Region",
+        "ClockHour",
+        "DifficultyID",
+        "HolidayStart",
+        "HolidayLeft",
+        "HolidayActive",
+        "TimerCurrentTime",
+        "WeekNumber"
+    };
 }
 
 static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunction[] =
@@ -1377,7 +1394,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
     /// WorldStateExpressionFunctions::Random
     [](Player* p_Player, int32 p_Min, int32 p_Max) -> int32
     {
-        return p_Min + ((p_Max - p_Min + 1) * rand() >> 32);
+        return urand(p_Min, p_Max);
     },
     /// WorldStateExpressionFunctions::Month
     [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
@@ -1448,13 +1465,14 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
             l_ChoosedDuration = 24;
 
         time_t l_CurrentTime = sWorld->GetGameTime();
-        struct tm* l_LocalTime;
+        struct tm l_LocalTime;
+        l_LocalTime.tm_isdst = -1;
 
-        ACE_OS::localtime_r(&l_CurrentTime, l_LocalTime);
+        ACE_OS::localtime_r(&l_CurrentTime, &l_LocalTime);
 
         MS::Utilities::WowTime l_GameTime;
         l_GameTime.SetUTCTimeFromPosixTime(l_CurrentTime);
-        l_GameTime.YearDay = l_LocalTime->tm_yday;
+        l_GameTime.YearDay = l_LocalTime.tm_yday;
 
         for (uint32 l_I = 0; l_I < MAX_HOLIDAY_DATES; ++l_I)
         {
@@ -1518,7 +1536,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
 
             if (l_GameTime <= l_Time)
             {
-                for (uint32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
+                for (int32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
                 {
                     uint32 l_Value = l_Entry->Duration[l_Y];
                     if (!l_Value)
@@ -1549,14 +1567,14 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
             l_ChoosedDuration = 24;
 
         time_t l_CurrentTime = sWorld->GetGameTime();
-        struct tm* l_LocalTime;
-        l_LocalTime->tm_isdst = -1;
+        struct tm l_LocalTime;
+        l_LocalTime.tm_isdst = -1;
 
-        ACE_OS::localtime_r(&l_CurrentTime, l_LocalTime);
+        ACE_OS::localtime_r(&l_CurrentTime, &l_LocalTime);
 
         MS::Utilities::WowTime l_GameTime;
         l_GameTime.SetUTCTimeFromPosixTime(l_CurrentTime);
-        l_GameTime.YearDay = l_LocalTime->tm_yday;
+        l_GameTime.YearDay = l_LocalTime.tm_yday;
 
         for (uint32 l_I = 0; l_I < MAX_HOLIDAY_DATES; ++l_I)
         {
@@ -1622,7 +1640,7 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
             {
                 if (p_Arg2 > 0)
                 {
-                    for (uint32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
+                    for (int32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
                     {
                         uint32 l_Value = l_Entry->Duration[l_Y];
                         if (!l_Value)
@@ -1727,12 +1745,10 @@ std::string UnpackWorldStateExpression(char const* p_Input)
     return l_Unpacked;
 }
 
-int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExpression)
+int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
-#define UNPACK_UINT8(x) { x = *(uint8*)l_StartReadPosition; *p_UnpackedExpression = l_StartReadPosition + sizeof(uint8);} 
-#define UNPACK_INT32(x) { x = *(int32*)l_StartReadPosition; *p_UnpackedExpression = l_StartReadPosition + sizeof(int32);} 
-    char const* l_StartReadPosition = *p_UnpackedExpression;
-
+#define UNPACK_UINT8(x) { x = *((uint8*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(uint8);} 
+#define UNPACK_INT32(x) { x = *((int32*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(int32);} 
     uint8 l_OpType;
     UNPACK_UINT8(l_OpType);
 
@@ -1741,12 +1757,22 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int32 l_Value;
         UNPACK_INT32(l_Value);
 
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, " + std::to_string(l_Value));
+#endif
+
         return l_Value;
     }
     else if (l_OpType == WorldStateExpressionCustomOpType::PushWorldStateValue)
     {
         int32 l_WorldStateID;
         UNPACK_INT32(l_WorldStateID);
+
+#ifdef _MSC_VER
+        p_Instructions.push_back("push " + std::to_string(l_WorldStateID));
+        p_Instructions.push_back("call GetWorldStateValue");
+        p_Instructions.push_back("mov ret, eax");
+#endif
 
         if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
             return p_Player->GetWorldState(l_WorldStateID);
@@ -1756,11 +1782,18 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         int32 l_FunctionID;
         UNPACK_INT32(l_FunctionID);
 
-        int l_Arg1 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression);
-        int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression);
+        int l_Arg1 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+        int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
         if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
             return 0;
+
+#ifdef _MSC_VER
+        p_Instructions.push_back("push " + std::to_string(l_Arg1));
+        p_Instructions.push_back("push " + std::to_string(l_Arg2));
+        p_Instructions.push_back("call " + std::string(WorldStateExpressionFunctions::Names[l_FunctionID]));
+        p_Instructions.push_back("mov ret, eax");
+#endif
 
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
     }
@@ -1770,33 +1803,64 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression)
+int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
-    int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression);
-    char l_Opperand = *(*p_UnpackedExpression)++;
+#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+    int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+    char l_Opperand;
+    UNPACK_UINT8(l_Opperand);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pA, ret");
+#endif
 
     if (!l_Opperand)
+    {
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, pA");
+#endif
         return l_LeftValue;
+    }
 
-    int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression);
+    int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pB, ret");
+#endif
+
     switch (l_Opperand)
     {
         case WorldStateExpressionMathOpcode::Add:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA + pB]");
+#endif
             return l_RightValue + l_LeftValue;
             break;
         case WorldStateExpressionMathOpcode::Substract:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA - pB]");
+#endif
             return l_LeftValue - l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Multiply:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA * pB]");
+#endif
             return l_LeftValue * l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Divide:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA / pB]");
+#endif
             if (!l_RightValue)
                 return 0;
 
             return l_LeftValue / l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Modulo:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA % pB]");
+#endif
             if (!l_RightValue)
                 return 0;
 
@@ -1807,36 +1871,72 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
     }
 
     return 0;
+#undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression)
+bool WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
-    int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression);
-    char l_Opperand = *(*p_UnpackedExpression)++;
+#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+    int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
+    char l_Opperand;
+    UNPACK_UINT8(l_Opperand);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pA, ret");
+#endif
 
     if (!l_Opperand)
-        return l_LeftValue;
+    {
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, pA");
+#endif
+        return !!l_LeftValue;
+    }
 
-    int l_RightValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression);
+    int l_RightValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pB, ret");
+#endif
+
     switch (l_Opperand)
     {
         case WorldStateExpressionCompareOpcode::Equal:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA == pB]");
+#endif
             return l_LeftValue == l_RightValue;
         case WorldStateExpressionCompareOpcode::Different:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA != pB]");
+#endif
             return l_LeftValue != l_RightValue;
         case WorldStateExpressionCompareOpcode::Less:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA < pB]");
+#endif
             return l_LeftValue < l_RightValue;
         case WorldStateExpressionCompareOpcode::LessOrEqual:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA <= pB]");
+#endif
             return l_LeftValue <= l_RightValue;
         case WorldStateExpressionCompareOpcode::More:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA > pB]");
+#endif
             return l_LeftValue > l_RightValue;
         case WorldStateExpressionCompareOpcode::MoreOrEqual:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA >= pB]");
+#endif
             return l_LeftValue >= l_RightValue;
         default:
             break;
     }
 
     return 0;
+#undef UNPACK_UINT8
 }
 
 bool WorldStateExpression_EvalResult(char p_LogicResult, int32 p_EvalResult, int p_PrevResult)
@@ -1877,25 +1977,31 @@ bool WorldStateExpression_EvalResult(char p_LogicResult, int32 p_EvalResult, int
 /// Eval a worldstate expression
 bool WorldStateExpressionEntry::Eval(Player* p_Player)
 {
+#define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);} 
+    std::vector<std::string> p_Instructions;
     if (this->Expression && strlen(this->Expression))
     {
         std::string l_UnpackedExpressionString = UnpackWorldStateExpression(this->Expression);
         char const* l_UnpackedExpression = l_UnpackedExpressionString.c_str();
 
-        if (*l_UnpackedExpression == 1)
+        char l_Value;
+        UNPACK_UINT8(l_Value);
+
+        if (l_Value == 1)
         {
-            bool l_Result = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression);
-            char l_ResultLogic = *l_UnpackedExpression++;
+            bool l_Result = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions);
+            char l_ResultLogic;
+            UNPACK_UINT8(l_ResultLogic);
 
             if (l_ResultLogic)
             {
-                l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression), l_Result);
-                l_ResultLogic = *l_UnpackedExpression++;
+                l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+                UNPACK_UINT8(l_ResultLogic);
 
                 if (l_ResultLogic)
                 {
-                    l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression), l_Result);
-                    l_ResultLogic = *l_UnpackedExpression++;
+                    l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+                    UNPACK_UINT8(l_ResultLogic);
                 }
             }
 
@@ -1904,4 +2010,5 @@ bool WorldStateExpressionEntry::Eval(Player* p_Player)
     }
 
     return false;
+#undef UNPACK_UINT8
 }
