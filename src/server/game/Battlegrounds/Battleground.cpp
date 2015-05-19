@@ -293,6 +293,8 @@ void Battleground::Update(uint32 diff)
             // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
+                ApplyDampeningIfNeeded();
+
                 if (GetElapsedTime() >= 20 *  MINUTE * IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
@@ -1455,6 +1457,8 @@ void Battleground::AddPlayer(Player* player)
         team_packet.Initialize(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
         BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(player->GetBGTeam()));
         player->GetSession()->SendPacket(&team_packet);
+
+        ApplyDampeningIfNeeded();
     }
     else
     {
@@ -1533,6 +1537,8 @@ void Battleground::EventPlayerLoggedIn(Player* player)
         if (player->GetTeam() != player->GetBGTeam())
             player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
     }
+
+    ApplyDampeningIfNeeded();
 
     uint64 guid = player->GetGUID();
     // player is correct pointer
@@ -2326,4 +2332,44 @@ uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
         default:
             return 0;
     }
+}
+
+void Battleground::ApplyDampeningIfNeeded()
+{
+    if (!isArena())
+        return;
+
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    uint32 l_Timer = 5;
+
+    if (GetArenaType() == ArenaType::Arena2v2)
+    {
+        bool l_TeamHasHealer[TEAM_NEUTRAL] = { false, false };
+
+        for (int l_Team = 0; l_Team < TEAM_NEUTRAL; l_Team++)
+        {
+            for (BattlegroundPlayerMap::iterator l_Iter = m_Players.begin(); l_Iter != m_Players.end(); ++l_Iter)
+            {
+                if (Player* l_Player = _GetPlayerForTeam(l_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE, l_Iter, "ApplyDampeningIfNeeded"))
+                {
+                    if (l_Player->GetRoleForGroup() == ROLE_HEALER)
+                    {
+                        l_TeamHasHealer[l_Team] = true;
+                        break;
+                    }
+                }
+            }
+
+            if (l_TeamHasHealer[TEAM_ALLIANCE] && l_TeamHasHealer[TEAM_HORDE])
+                l_Timer = 0;
+        }
+    }
+
+    if (GetElapsedTime() >= (l_Timer * MINUTE * IN_MILLISECONDS))
+        for (BattlegroundPlayerMap::iterator l_Iter = m_Players.begin(); l_Iter != m_Players.end(); ++l_Iter)
+            if (Player* l_Player = _GetPlayer(l_Iter, "ApplyDampeningIfNeeded"))
+                if (!l_Player->HasAura(110310))
+                    l_Player->AddAura(110310, l_Player);
 }

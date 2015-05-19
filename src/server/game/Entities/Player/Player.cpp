@@ -20676,6 +20676,58 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
+    /// Player was saved in BG or arena.
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    {
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
+
+            m_bgData.bgTypeID = currentBg->GetTypeID();
+
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+        }
+        // Bg was not found - go to Entry Point
+        else
+        {
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
+
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
+            }
+            else
+                Relocate(&_loc);
+
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
+        }
+    }
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
@@ -20939,59 +20991,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
-
-    /// Player was saved in BG or arena.
-    if (mapEntry && mapEntry->IsBattlegroundOrArena())
-    {
-        Battleground* currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
-
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
-
-        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
-        {
-            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-            AddBattlegroundQueueId(bgQueueTypeId);
-
-            m_bgData.bgTypeID = currentBg->GetTypeID();
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-
-            /// We give the deserter aura by default when we leave a battleground
-            /// so if we succeed at re-entering the battleground, we remove the aura.
-            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
-                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
-        }
-        // Bg was not found - go to Entry Point
-        else
-        {
-            /// Leave bg.
-            if (player_at_bg)
-                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
-
-            /// Do not look for instance if bg not found.
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
-
-            /// Db field type is type int16, so it can never be MAPID_INVALID.
-            /// if (mapId == MAPID_INVALID) -- code kept for reference
-            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                RelocateToHomebind();
-            }
-            else
-                Relocate(&_loc);
-
-            /// We are not in BG anymore.
-            m_bgData.bgInstanceID = 0;
-        }
-    }
 
     l_Times.push_back(getMSTime() - l_StartTime);
 

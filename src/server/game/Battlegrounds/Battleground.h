@@ -1182,6 +1182,7 @@ class Battleground
         virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; }
         virtual bool IsScoreIncremental() const { return true; }
 
+        void ApplyDampeningIfNeeded();
     private:
         // Battleground
         BattlegroundTypeId m_TypeID;

@@ -493,7 +493,12 @@ namespace MS { namespace Skill
                         if (l_ItemBonusGroup == nullptr)
                             continue;
 
-                        l_ItemTarget->AddItemBonus(l_ItemBonusGroup->at(rand() % l_ItemBonusGroup->size()));
+                        std::vector<uint32> l_BonusList(*l_ItemBonusGroup);
+
+                        auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                        std::shuffle(l_BonusList.begin(), l_BonusList.end(), std::default_random_engine(l_Seed));
+
+                        l_ItemTarget->AddItemBonus(l_BonusList.at(0));
                     }
 
                     l_ItemTarget->SetState(ITEM_CHANGED, GetCaster()->ToPlayer());
