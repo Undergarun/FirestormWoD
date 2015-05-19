@@ -12097,6 +12097,8 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     data.WriteBit(0);
     data.FlushBits();
     GetSession()->SendPacket(&data);
+
+    SetWorldState(Field, Value);
 }
 
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
@@ -12901,11 +12903,22 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
     }
 
+    uint32 l_WorldStateCount = l_Buffer.size() / 8;
+    l_Buffer.rpos(0);
+
+    for (uint32 l_I = 0; l_I < l_WorldStateCount; ++l_I)
+    {
+        uint32 l_Field, l_Value;
+        l_Buffer >> l_Field >> l_Value;
+
+        SetWorldState(l_Field, l_Value);
+    }
+
     WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 4 + l_Buffer.size());
     data << uint32(mapid);                                  // mapid
     data << uint32(zoneid);                                 // zone id
     data << uint32(areaid);                                 // area id, new 2.1.0
-    data << uint32(l_Buffer.size() / 8);
+    data << uint32(l_WorldStateCount);
     data.append(l_Buffer);
 
     GetSession()->SendPacket(&data);
@@ -26964,7 +26977,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
     l_Data << uint32(sWorld->GetServerRegionID());                ///< Server Region ID
-    l_Data << uint32(0);                                          ///< Raid origin
+    l_Data << uint32(sWorld->GetServerRaidOrigin());              ///< Raid origin
     GetSession()->SendPacket(&l_Data);
 
     if (Pet* l_Pet = GetPet())

@@ -43,6 +43,7 @@
 #include "CinematicPathMgr.h"
 #include "VignetteMgr.hpp"
 #include "BitSet.hpp"
+#include "MutexedMap.hpp"
 
 // for template
 #include "SpellMgr.h"
@@ -2829,6 +2830,15 @@ class Player : public Unit, public GridObject<Player>
         void SendUpdateWorldState(uint32 Field, uint32 Value);
         void SendDirectMessage(WorldPacket* data);
         void SendBGWeekendWorldStates();
+        void SetWorldState(uint32 p_ID, uint32 p_Value)
+        {
+            m_WorldStates.Remove(p_ID);
+            m_WorldStates.Insert(p_ID, p_Value);
+        }
+        uint32 GetWorldState(uint32 p_ID)
+        {
+            return m_WorldStates.Find(p_ID);
+        }
 
         void SendAurasForTarget(Unit* target);
         void SendCooldownAtLogin();
@@ -3995,6 +4005,12 @@ class Player : public Unit, public GridObject<Player>
         uint32              m_CinematicClientStartTime;
         float               m_CinematicStartX, m_CinematicStartY, m_CinematicStartZ, m_CinematicStartO;
         bool                m_FlyingBeforeCinematic;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// World States
+        //////////////////////////////////////////////////////////////////////////
+        MS::Utilities::MutextedMap<uint32, uint32> m_WorldStates;
+
 
         uint32 m_knockBackTimer;
         uint8  m_ignoreMovementCount;

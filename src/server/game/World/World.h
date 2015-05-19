@@ -726,8 +726,10 @@ class World
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
-        /// Get server region ID
+        /// Get server region ID (used in wow time calculation)
         uint32 const GetServerRegionID() const { return 1135753200; }
+        /// Get server raid origin (used in wow time calculation)
+        uint32 const GetServerRaidOrigin() const { return 0; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
