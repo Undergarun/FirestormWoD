@@ -3818,7 +3818,7 @@ class spell_gen_dampening : public SpellScriptLoader
                 return new spell_gen_dampening_AuraScript();
             }
         }
-}
+};
 
 /// last update : 6.1.2 19802
 /// Drums of Fury - 178207
