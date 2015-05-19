@@ -3812,11 +3812,11 @@ class spell_gen_dampening : public SpellScriptLoader
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_dampening_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
+        };
 
-            AuraScript* GetAuraScript() const
-            {
-                return new spell_gen_dampening_AuraScript();
-            }
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_dampening_AuraScript();
         }
 };
 
