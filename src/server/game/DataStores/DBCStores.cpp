@@ -704,8 +704,8 @@ void LoadDBCStores(const std::string& dataPath)
     // Battle pets
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetXPStore,            dbcPath, "gtBattlePetXP.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore, dbcPath, "gtBattlePetTypeDamageMod.dbc");                                     // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldState,                    dbcPath, "WorldState.dbc");                                                   // 19865
-    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateExpression,          dbcPath, "WorldStateExpression.dbc");                                         // 19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateStore,               dbcPath, "WorldState.dbc");                                                   // 19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateExpressionStore,     dbcPath, "WorldStateExpression.dbc");                                         // 19865
 
     for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); i++)
     {
