@@ -1035,13 +1035,8 @@ class spell_dru_regrowth : public SpellScriptLoader
 
             void HandlePeriodic(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(effIndex);
-
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster && l_Caster->HasAura(eSpells::GlyphOfRegrowth))
-                    return;
-
-                GetSpell()->EffectApplyAura(effIndex);
+                if (!GetCaster() || GetCaster()->HasAura(eSpells::GlyphOfRegrowth))
+                    PreventHitAura();
             }
 
             void HandleBeforeHit()
