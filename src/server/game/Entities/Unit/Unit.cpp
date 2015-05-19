@@ -1143,6 +1143,20 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                 }
             }
         }
+        
+        /// Mastery: Primal Tenacity - 155783
+        /// Proc just from physical attack 
+        if (damage && cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_DRUID && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
+        {
+            /// Apply absorb just in case if this damage not absorbed
+            if (cleanDamage->absorbed_damage == 0)
+            {
+                float l_Mastery = victim->ToPlayer()->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 1.5f;
+                int32 l_Value = CalculatePct(damage, l_Mastery);
+
+                victim->CastCustomSpell(victim, 155783, nullptr, &l_Value, nullptr, true);
+            }
+        }
 
         if (GetTypeId() == TYPEID_PLAYER)
         {

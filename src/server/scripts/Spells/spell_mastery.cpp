@@ -1242,6 +1242,60 @@ class spell_mastery_master_mental_anguish : public SpellScriptLoader
         }
 };
 
+/// Mastrey: Primal Tenacity - 159195
+class spell_mastery_primal_tenacity : public SpellScriptLoader
+{
+public:
+    spell_mastery_primal_tenacity() : SpellScriptLoader("spell_mastery_primal_tenacity") { }
+
+    class spell_mastery_primal_tenacity_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mastery_primal_tenacity_AuraScript);
+
+        enum eSpells
+        {
+            SPELL_DRU_PRIMAL_TENACITY = 155784
+        };
+
+        void OnUpdate(uint32 /*diff*/, AuraEffectPtr aurEff)
+        {
+            if (!GetCaster())
+                return;
+
+            if (Unit* l_Player = GetCaster()->ToPlayer())
+            {
+                l_Player->CastSpell(l_Player, SPELL_DRU_PRIMAL_TENACITY, true);
+
+                int32 l_Mastery = int32(l_Player->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 1.5f);
+
+                /// Update tooltip information
+                if (AuraEffectPtr l_PrimalTenacityEffect = l_Player->GetAuraEffect(SPELL_DRU_PRIMAL_TENACITY, EFFECT_1))
+                    l_PrimalTenacityEffect->SetAmount(l_Mastery);
+            }
+        }
+
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* l_Player = GetTarget()->ToPlayer())
+            {
+                if (l_Player->HasAura(SPELL_DRU_PRIMAL_TENACITY))
+                    l_Player->RemoveAura(SPELL_DRU_PRIMAL_TENACITY);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectUpdate += AuraEffectUpdateFn(spell_mastery_primal_tenacity_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT);
+            OnEffectRemove += AuraEffectRemoveFn(spell_mastery_primal_tenacity_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER_PCT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_mastery_primal_tenacity_AuraScript();
+    }
+};
+
 void AddSC_mastery_spell_scripts()
 {
     new spell_mastery_molten_earth();
@@ -1267,4 +1321,5 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_master_demonologist_aura();
     new spell_mastery_master_mental_anguish();
     new spell_mastery_divine_bulwark();
+    new spell_mastery_primal_tenacity();
 }
