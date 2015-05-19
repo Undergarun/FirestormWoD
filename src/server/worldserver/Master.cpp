@@ -876,6 +876,36 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
+    if (ConfigMgr::GetBoolDefault("MopTransfer.enable", false))
+    {
+        ///- Get MoP login database info from configuration file
+        dbstring = ConfigMgr::GetStringDefault("LoginMoPDatabaseInfo", "");
+        if (dbstring.empty())
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Login mop database not specified in configuration file");
+            return false;
+        }
+
+        async_threads = ConfigMgr::GetIntDefault("LoginMoPDatabaseInfo.WorkerThreads", 1);
+        if (async_threads < 1 || async_threads > 32)
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Login mop database: invalid number of worker threads specified. "
+                "Please pick a value between 1 and 32.");
+            return false;
+        }
+
+        synch_threads = ConfigMgr::GetIntDefault("LoginMoPDatabaseInfo.SynchThreads", 1);
+        ///- Initialize the login database
+        if (!LoginMopDatabase.Open(dbstring, async_threads, synch_threads))
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login mop database %s", dbstring.c_str());
+            return false;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     dbstring = ConfigMgr::GetStringDefault("HotfixDatabaseInfo", "");
     if (dbstring.empty())
     {
