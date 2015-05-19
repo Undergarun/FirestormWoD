@@ -1975,7 +1975,7 @@ bool WorldStateExpression_EvalResult(char p_LogicResult, int32 p_EvalResult, int
 }
 
 /// Eval a worldstate expression
-bool WorldStateExpressionEntry::Eval(Player* p_Player)
+bool WorldStateExpressionEntry::Eval(Player* p_Player) const
 {
 #define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);} 
     std::vector<std::string> p_Instructions;

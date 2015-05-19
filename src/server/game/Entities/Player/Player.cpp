@@ -3856,7 +3856,18 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     }
     #pragma endregion AuraSpellLogic, AuraSpellID
 
-    /// @TODO : WorldStateExpressionID
+    #pragma region WorldStateExpressionID
+    if (l_Entry->WorldStateExpressionID != 0)
+    {
+        WorldStateExpressionEntry const* l_Expression = sWorldStateExpressionStore.LookupEntry(l_Entry->WorldStateExpressionID);
+
+        if (!l_Expression)
+            return std::pair<bool, std::string>(false, "Failed on WorldStateExpressionID => DBC WorldStateExpression entry not found");
+
+        if (!l_Expression->Eval(this))
+            return std::pair<bool, std::string>(false, "Failed on WorldStateExpressionID => eval failed");
+    }
+    #pragma endregion WorldStateExpressionID
 
     #pragma region Weather
     if (l_Entry->WeatherID != 0)
