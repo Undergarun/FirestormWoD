@@ -1127,15 +1127,21 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             }
         }
 
-        /// WoD: Arms Warriors now generate Rage from taking auto-attack damage.
-        /// Each 1% of health taken as damage will generate 1 Rage, up to 5 Rage per hit.
-        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+        /// Item – Warrior WoD Warrior 4P Bonus (165670) now generate Rage from damage taken.
+        /// Each 1k of damage taken will generate 1 Rage, up to 5 Rage per hit.
+        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE)
         {
-            float l_RetiredPctOfHealth = damage / (victim->GetMaxHealth() / 100.0f);
-            if (l_RetiredPctOfHealth > 5.0f)
-                l_RetiredPctOfHealth = 5.0f;
+            if (AuraPtr l_Pvp4pBonus = victim->GetAura(165670))
+            {
+                if (damage > uint32(l_Pvp4pBonus->GetEffect(0)->GetAmount()))
+                {
+                    int32 l_Bp = floor(damage / l_Pvp4pBonus->GetEffect(0)->GetAmount());
+                    if (l_Bp > 5)
+                        l_Bp = 5;
 
-            victim->RewardRage(l_RetiredPctOfHealth);
+                    victim->EnergizeBySpell(victim, 165672, l_Bp * victim->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
+                }
+            }
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
