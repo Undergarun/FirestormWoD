@@ -2548,6 +2548,14 @@ class spell_pal_denounce : public SpellScriptLoader
 
                 if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
                     l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly2PBonus);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints);
             }
 
             void Register()

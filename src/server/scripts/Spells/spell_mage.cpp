@@ -1473,6 +1473,16 @@ class spell_mage_time_warp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
@@ -1489,6 +1499,7 @@ class spell_mage_time_warp: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);

@@ -2432,12 +2432,12 @@ class spell_hun_ancient_hysteria: public SpellScriptLoader
 
             SpellCastResult CheckMap()
             {
-                if (GetCaster())
-                {
-                    if (GetCaster()->GetMap() && GetCaster()->GetMap()->IsBattleArena())
-                        return SPELL_FAILED_DONT_REPORT;
-                }
-                else
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetMap() && l_Caster->GetMap()->IsBattleArena())
                     return SPELL_FAILED_DONT_REPORT;
 
                 return SPELL_CAST_OK;
