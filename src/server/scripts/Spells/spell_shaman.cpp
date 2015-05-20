@@ -2514,13 +2514,23 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                RemoveAllVisuals(GetCaster());
-                GetCaster()->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                RemoveAllVisuals(l_Caster);
+                l_Caster->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], l_Caster);
             }
             
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                RemoveAllVisuals(GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                RemoveAllVisuals(l_Caster);
             }
 
             void RemoveAllVisuals(Unit* l_Caster)
