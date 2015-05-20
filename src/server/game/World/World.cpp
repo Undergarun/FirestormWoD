@@ -2381,7 +2381,7 @@ void World::Update(uint32 diff)
             m_transferMop = LoginMopDatabase.AsyncQuery(l_Statement);
         }
 
-        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(5 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER_MOP].Reset();
     }
 
