@@ -1381,8 +1381,9 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
-// Atonement - 81749
+/// Last Update 6.1.2
+/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+/// Atonement - 81749
 class spell_pri_atonement: public SpellScriptLoader
 {
     public:
