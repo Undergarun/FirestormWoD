@@ -3639,6 +3639,14 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     if (!l_Entry)
         return std::pair<bool, std::string>(false, "Condition entry not found");
 
+    if (sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
+    {
+        if (!sScriptMgr->EvalPlayerConditionScript(l_Entry, this))
+            return std::pair<bool, std::string>(false, "Condition script failed");
+
+        return std::pair<bool, std::string>(true, "");
+    }
+
     auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
     {
         bool l_Result = p_Matches[0] && p_Matches[1] && p_Matches[2] && p_Matches[3];

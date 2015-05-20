@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_GAMEOBJECT
-#define SCRIPTING_INTERFACES_GAMEOBJECT
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_GAMEOBJECT_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_GAMEOBJECT_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -163,4 +169,4 @@ class GameObjectScript : public ScriptObjectImpl<true>, public UpdatableScript<G
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_GAMEOBJECT
+#endif  ///< SCRIPTING_INTERFACES_GAMEOBJECT_HPP_INCLUDED

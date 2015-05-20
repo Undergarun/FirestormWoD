@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_PLAYER
-#define SCRIPTING_INTERFACES_PLAYER
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -590,6 +596,7 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_Player);
             UNUSED(p_SceneInstanceId);
         }
+
 };
 
-#endif  ///< SCRIPTING_INTERFACES_PLAYER
+#endif  ///< SCRIPTING_INTERFACES_PLAYER_HPP_INCLUDED
