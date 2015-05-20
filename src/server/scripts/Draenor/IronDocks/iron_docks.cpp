@@ -1609,12 +1609,12 @@ public:
                 if (deckhands)
                 {
                     deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    deckhandslist.push_back(deckhands);
+                    deckhandslist.push_back(deckhands->GetGUID());
                 }
             }
         }
         int visual;
-        std::list<Creature*> deckhandslist;
+        std::list<uint64> deckhandslist;
 
         void Reset()
         {
@@ -1624,9 +1624,13 @@ public:
             if (!deckhandslist.empty())
                 for (auto itr : deckhandslist)
                 {
-                    if (itr->isAlive())
+
+                    if (Creature* l_Creature = Unit::GetCreature(*me, itr))
                     {
-                        itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        if (!l_Creature->isAlive())
+                            continue;
+
+                        l_Creature->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
                     }
                 }
         }
@@ -1646,11 +1650,16 @@ public:
             if (!UpdateVictim())
             {
                 if (!deckhandslist.empty())
+                {
                     for (auto itr : deckhandslist)
                     {
-                        if (!itr->isMoving())
-                            itr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        if (Creature* l_Creature = Unit::GetCreature(*me, itr))
+                        {
+                            if (!l_Creature->isMoving())
+                                l_Creature->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        }
                     }
+                }
             }
 
             if (!UpdateVictim())

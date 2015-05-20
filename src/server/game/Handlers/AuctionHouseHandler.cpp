@@ -103,7 +103,7 @@ void WorldSession::SendAuctionBidderNotification(AuctionEntry* p_Auction,uint64 
     }
     else
     {
-        WorldPacket l_Data(SMSG_AUCTION_BIDDER_NOTIFICATION);
+        WorldPacket l_Data(SMSG_AUCTION_BIDDER_NOTIFICATION, 2048);
         l_Data << uint32(p_Auction->Id);
         l_Data.appendPackGUID(l_BidderGuid);
         p_Auction->BuildAuctionInfo(l_Data);
@@ -116,7 +116,7 @@ void WorldSession::SendAuctionBidderNotification(AuctionEntry* p_Auction,uint64 
 // This void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* p_Auction)
 {
-    WorldPacket l_Data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 40);
+    WorldPacket l_Data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 400);
     l_Data << uint32(p_Auction->itemEntry);
     l_Data << uint64(p_Auction->bid);
     p_Auction->BuildAuctionInfo(l_Data);
@@ -578,7 +578,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4 + 4 + 4));
+    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, 10 * 1024);
     uint32 l_Count = 0;
     uint32 l_TotalCount = 0;
 
@@ -618,7 +618,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_OWNER_LIST_RESULT, (4 + 4 + 4));
+    WorldPacket l_Data(SMSG_AUCTION_OWNER_LIST_RESULT, 100 * 1024);
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // Count place holder

@@ -922,7 +922,7 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate)
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate, bool p_Ennemy)
 {
     assert(p_Player && p_Data);
 
@@ -952,9 +952,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPac
                 l_PlayerStatus |= MEMBER_STATUS_DND;
         }
 
-        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 500);
+        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 1024);
 
-        p_Data->WriteBit(false);                    ///< ForEnemy
+        p_Data->WriteBit(p_Ennemy);                  ///< ForEnemy
         p_Data->FlushBits();
         p_Data->appendPackGUID(p_Player->GetGUID());
         *p_Data << uint8(1);                        ///< Same realms ?

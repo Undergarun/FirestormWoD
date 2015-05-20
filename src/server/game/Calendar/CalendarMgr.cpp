@@ -615,7 +615,7 @@ void CalendarMgr::SendCalendarEvent(uint64 p_Guid, CalendarEvent const& p_Calend
     CalendarInviteStore const& l_InvitList = m_Invites[p_CalendarEvent.GetEventId()];
     Guild* l_Guild = sGuildMgr->GetGuildById(p_CalendarEvent.GetGuildId());
 
-    WorldPacket l_Data(SMSG_CALENDAR_SEND_EVENT, 60 + l_InvitList.size() * 32);
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_EVENT, 1024);
     l_Data << uint8(p_SendType);
     l_Data.appendPackGUID(p_CalendarEvent.GetCreatorGUID());
     l_Data << uint64(p_CalendarEvent.GetEventId());

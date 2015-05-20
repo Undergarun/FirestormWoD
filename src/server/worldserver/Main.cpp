@@ -53,6 +53,8 @@ WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
+LoginMopDatabaseWorkerPool LoginMopDatabase;                ///< Accessor to the mop login database
+
 
 uint32 g_RealmID;                                             ///< Id of the realm
 

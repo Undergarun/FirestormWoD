@@ -208,7 +208,7 @@ namespace MS
                 uint8 l_IsArena = (p_BG->isArena() ? 1 : 0);               ///< Arena names
                 uint8 l_IsRatedBg = (p_BG->IsRatedBG() ? 1 : 0);
 
-                p_Data->Initialize(SMSG_PVPLOG_DATA);
+                p_Data->Initialize(SMSG_PVPLOG_DATA, 5 * 1024);
 
                 Battleground::BattlegroundScoreMap::const_iterator l_ScoreBeginIT = p_BG->GetPlayerScoresBegin();
 

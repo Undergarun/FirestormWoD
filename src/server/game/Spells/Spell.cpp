@@ -3862,6 +3862,37 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
+    switch (m_spellInfo->Id)
+    {
+        case 101603: // Throw Totem
+            if(m_caster->HasAura(107837))
+                m_caster->RemoveAura(107837, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(101601, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 119393: // Siege Explosive
+            if(m_caster->HasAura(119388))
+                m_caster->RemoveAura(119388, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(119386, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 123057: // Sonic Divebomb
+            if(m_caster->HasAura(123021))
+                m_caster->RemoveAura(123021, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(123057, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 123039: // Player Throw Barrel
+            if(m_caster->HasAura(123032))
+                m_caster->RemoveAura(123032, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(123035, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 127329: // Throw Bomb
+            if(m_caster->HasAura(127226))
+                m_caster->RemoveAura(127226, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(127175, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+    default:
+        break;
+    }
+
     CallScriptBeforeCastHandlers();
 
     // skip check if done already (for instant cast spells for example)
@@ -5186,7 +5217,7 @@ void Spell::SendLogExecute()
     if (m_effectExecuteData.size() <= 0)
         return;
 
-    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG);
+    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
 
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);

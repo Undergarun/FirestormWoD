@@ -9356,7 +9356,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
 
-    WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4);
+    WorldPacket data(SMSG_PVP_CREDIT, 4 + 16 + 2 + 4);
     data << uint32(honor);
     data.appendPackGUID(victim_guid);
     data << uint32(victim_rank);
@@ -20119,7 +20119,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
+        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, 200);
         data << uint32(quest->GetQuestId());
         data.appendPackGUID(GetGUID());
         data.WriteBits(strTitle.size(), 10);
@@ -20133,7 +20133,7 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
 {
     if (player)
     {
-        WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+        WorldPacket data(SMSG_QUEST_PUSH_RESULT, 16 + 2 + 1);
 
         data.appendPackGUID(player->GetGUID());
         data << uint8(msg);
@@ -22478,7 +22478,7 @@ void Player::BindToInstance()
 void Player::SendRaidInfo()
 {
     uint32 l_Counter = 0;
-    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO);
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO, 1024);
     ByteBuffer l_Buffer;
     time_t l_Now = time(NULL);
 
@@ -24419,7 +24419,7 @@ void Player::PetSpellInitialize()
     uint16 l_Specialization       = l_Pet->GetSpecializationId();
     ObjectGuid l_PetGUID          = l_Pet->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24504,7 +24504,7 @@ void Player::PossessSpellInitialize()
     uint16 l_Specialization       = 0;
     ObjectGuid l_PetGUID          = l_Charm->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24535,7 +24535,7 @@ void Player::VehicleSpellInitialize()
     uint16 l_Specialization       = 0;                                                                  // I think it's useless in case of vehicle action bar
     ObjectGuid l_PetGUID          = l_Vehicle->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24654,7 +24654,7 @@ void Player::CharmSpellInitialize()
     uint16 l_Specialization       = 0;
     ObjectGuid l_PetGUID          = l_Charm->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24711,7 +24711,7 @@ void Player::SendRemoveControlBar()
     uint16 l_Specialization = 0;
     ObjectGuid l_PetGUID = 0;
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -29989,7 +29989,7 @@ void Player::SendEquipmentSetList()
 {
     uint32 l_EquipmentSetCount = 0;
 
-    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 1024);
+    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 4 * 1024);
 
     for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {

@@ -17515,7 +17515,7 @@ void Unit::SendPetTalk(uint32 p_Action)
 
     uint64 l_UnitGUID = GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 8 + 4);
+    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 16 + 2 + 4);
     l_Data.appendPackGUID(l_UnitGUID);      ///< UnitGUID
     l_Data << uint32(p_Action);             ///< Action
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -18333,7 +18333,7 @@ void Unit::PlayOneShotAnimKit(uint32 id)
 
 void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 {
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
+    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(p_AnimKitID);
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
@@ -18341,7 +18341,7 @@ void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
 {
-    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
     l_Data.WriteVector3(p_Source);
     l_Data.WriteVector3(p_Orientation);
@@ -21201,7 +21201,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_THREAT_UPDATE, 500);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE, 1024);
         l_Data.appendPackGUID(GetGUID());
         l_Data << l_Count;
 

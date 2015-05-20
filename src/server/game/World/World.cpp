@@ -1411,6 +1411,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_ACHIEVEMENT_DISABLE] = ConfigMgr::GetBoolDefault("Achievement.disable", false);
 
+    m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 
@@ -2018,6 +2020,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2367,6 +2370,56 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_REALM_STATS].Reset();
         LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
+    }
+
+    if (m_timers[WUPDATE_TRANSFER_MOP].Passed())
+    {
+        if (sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
+        {
+            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
+            l_Statement->setUInt32(0, sLog->GetRealmID());
+            m_transferMop = LoginMopDatabase.AsyncQuery(l_Statement);
+        }
+
+        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_MOP].Reset();
+    }
+
+    if (m_transferMop.ready())
+    {
+        PreparedQueryResult l_ToDump;
+        m_transferMop.get(l_ToDump);
+
+        if (l_ToDump)
+        {
+            do
+            {
+                Field* l_Fields    = l_ToDump->Fetch();
+                uint32 l_Timestamp = getMSTime();
+                uint32 l_Id        = l_Fields[0].GetUInt32();
+                uint32 l_Account   = l_Fields[1].GetUInt32();
+                std::string l_Dump = l_Fields[2].GetString();
+
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
+
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
+
+                fprintf(l_File, "%s\n", l_Dump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
+            }
+            while (l_ToDump->NextRow());
+        }
+
+        m_transferMop.cancel();
     }
 
     if (m_timers[WUPDATE_TRANSFERT].Passed())

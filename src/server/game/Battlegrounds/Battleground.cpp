@@ -565,24 +565,59 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         // Remove preparation
         if (isArena())
         {
+            for (BattlegroundPlayerMap::const_iterator l_Iterator = GetPlayers().begin(); l_Iterator != GetPlayers().end(); ++l_Iterator)
+            {
+                if (Player* l_Player = ObjectAccessor::FindPlayer(l_Iterator->first))
+                {
+                    for (BattlegroundPlayerMap::const_iterator l_Iterator = GetPlayers().begin(); l_Iterator != GetPlayers().end(); ++l_Iterator)
+                    {
+                        if (Player* l_Player2 = ObjectAccessor::FindPlayer(l_Iterator->first))
+                        {
+                            l_Player2->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
+                            l_Player2->ForceValuesUpdateAtIndex(UNIT_FIELD_AURA_STATE);
+
+                            UpdateData l_UpdateData(GetMapId());
+                            WorldPacket l_Packet;
+
+                            l_Player2->BuildValuesUpdateBlockForPlayer(&l_UpdateData, l_Player);
+                            if (l_UpdateData.BuildPacket(&l_Packet))
+                                l_Player->SendDirectMessage(&l_Packet);
+                        }
+                    }
+                }
+            }
+
             // TODO : add arena sound PlaySoundToAll(SOUND_ARENA_START);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                if (Player* l_Player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     // BG Status packet
                     WorldPacket status;
                     MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
-                    uint32 queueSlot = player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
-                    MS::Battlegrounds::PacketFactory::Status(&status, this, player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
-                    player->GetSession()->SendPacket(&status);
+                    uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
+                    MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
+                    l_Player->GetSession()->SendPacket(&status);
 
-                    player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, player->GetBGTeam());
+                    l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, l_Player->GetBGTeam());
+                    l_Player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+                    l_Player->ResetAllPowers();
 
-                    player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
-                    player->ResetAllPowers();
+                    WorldPacket team_packet(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
+                    BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(l_Player->GetBGTeam()));
+                    l_Player->GetSession()->SendPacket(&team_packet);
+
+                    for (BattlegroundPlayerMap::iterator l_Iterator = m_Players.begin(); l_Iterator != m_Players.end(); ++l_Iterator)
+                    {
+                        if (Player* l_Member = _GetPlayerForTeam(GetOtherTeam(l_Player->GetBGTeam()), l_Iterator, "BuildArenaOpponentSpecializations"))
+                        {
+                            WorldPacket l_Data;
+                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true, true);
+                            l_Player->GetSession()->SendPacket(&l_Data);
+                        }
+                    }
 
                     // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
+                    Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                     {
                         AuraApplication * aurApp = iter->second;
@@ -592,7 +627,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             && aurApp->IsPositive()
                             && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
                             && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            player->RemoveAura(iter);
+                            l_Player->RemoveAura(iter);
                         else
                             ++iter;
                     }
