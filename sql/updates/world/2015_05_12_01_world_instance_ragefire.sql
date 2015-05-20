@@ -603,3 +603,6 @@ INSERT INTO gameobject (`id`, `map`, `position_x`, `position_y`, `position_z`, `
 -- set spawnmask
 UPDATE creature SET spawnmask = 2 WHERE map = 389;
 UPDATE gameobject SET spawnmask = 2 WHERE map = 389;
+
+UPDATE creature SET spawntimesecs = 7200 WHERE map =389;
+UPDATE creature SET spawntimesecs = 43200 WHERE id in (61408, 61412, 61463, 61528);
