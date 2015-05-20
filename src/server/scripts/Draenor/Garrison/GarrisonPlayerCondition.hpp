@@ -61,8 +61,8 @@ namespace MS { namespace Garrison
     using PlayerCondition_ScribesQuarters_Level2            = GarrisonHasBuildingPlayerCondition<29537, Buildings::ScribesQuarters__ScribesQuarters_Level2>;
     using PlayerCondition_ScribesQuarters_Level3            = GarrisonHasBuildingPlayerCondition<29538, Buildings::ScribesQuarters__ScribesQuarters_Level3>;
 
-    using PlayerCondition_EnchanterStudy_Level2             = GarrisonHasBuildingPlayerCondition<31228, Buildings::EnchanterStudy_EnchanterStudy_Level2>;
-    using PlayerCondition_EnchanterStudy_Level3             = GarrisonHasBuildingPlayerCondition<31229, Buildings::EnchanterStudy_EnchanterStudy_Level3>;
+    using PlayerCondition_EnchanterStudy_Level2_Second      = GarrisonHasBuildingPlayerCondition<31228, Buildings::EnchanterStudy_EnchanterStudy_Level2>;
+    using PlayerCondition_EnchanterStudy_Level3_Second      = GarrisonHasBuildingPlayerCondition<31229, Buildings::EnchanterStudy_EnchanterStudy_Level3>;
 
     using PlayerCondition_ScribesQuarters_Level2_Second     = GarrisonHasBuildingPlayerCondition<31230, Buildings::ScribesQuarters__ScribesQuarters_Level2>;
     using PlayerCondition_ScribesQuarters_Level3_Second     = GarrisonHasBuildingPlayerCondition<31231, Buildings::ScribesQuarters__ScribesQuarters_Level3>;
