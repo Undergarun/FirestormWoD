@@ -818,6 +818,7 @@ void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
+void AddSC_Garrison_PlayerConditions();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_A2();
 void AddSC_Garrison_A3();
@@ -1730,9 +1731,12 @@ void AddDraenorScripts()
     AddSC_spires_of_arak();
     AddSC_frostfire_ridge();
     AddSC_gorgrond();
+
+    /// Garrison
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
+    AddSC_Garrison_PlayerConditions();
     AddSC_Garrison_A1();
     AddSC_Garrison_A2();
     AddSC_Garrison_A3();
