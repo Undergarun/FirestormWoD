@@ -1,5 +1,7 @@
-
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
+#include "GridNotifiers.h"
 #include "auchindon.h"
 
 #define cooldown_mind_spike urand(2000, 5000)
