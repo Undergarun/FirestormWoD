@@ -4960,8 +4960,6 @@ void Player::SendKnownSpells()
     l_Data << uint32(l_SpellCount);
 
     GetSession()->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Send Known Spells");
 }
 
 void Player::RemoveMail(uint32 id)

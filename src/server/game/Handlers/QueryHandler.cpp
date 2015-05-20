@@ -91,12 +91,8 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
-
     uint64 guid;
     recvData.readPackGUID(guid);
-
-    // This is disable by default to prevent lots of console spam
-    // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);
 
     SendNameQueryOpcode(guid);
 }

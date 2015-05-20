@@ -328,8 +328,6 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
     p_Packet >> l_PackSlot;
     p_Packet >> l_Slot;
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", l_PackSlot, l_Slot);
-
     Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
 
     if (!l_Item)
