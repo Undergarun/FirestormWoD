@@ -4254,7 +4254,11 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         continue;
 
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
+
+                    /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(171109))
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
 
                     /// Item - Druid WoD PvP Feral 2P Bonus

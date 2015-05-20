@@ -3803,8 +3803,10 @@ class spell_gen_dampening : public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (AuraEffectPtr l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
-                if (l_FirstEffect->GetAmount() < 100)
-                    l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
+                {
+                    if (l_FirstEffect->GetAmount() < 100)
+                        l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
+                }
             }
 
 
