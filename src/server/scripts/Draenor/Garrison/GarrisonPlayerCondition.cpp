@@ -25,8 +25,8 @@ void AddSC_Garrison_PlayerConditions()
     new MS::Garrison::PlayerCondition_EngineeringWorks_Level3();
     new MS::Garrison::PlayerCondition_ScribesQuarters_Level2();
     new MS::Garrison::PlayerCondition_ScribesQuarters_Level3();
-    new MS::Garrison::PlayerCondition_EnchanterStudy_Level2();
-    new MS::Garrison::PlayerCondition_EnchanterStudy_Level3();
+    new MS::Garrison::PlayerCondition_EnchanterStudy_Level2_Second();
+    new MS::Garrison::PlayerCondition_EnchanterStudy_Level3_Second();
     new MS::Garrison::PlayerCondition_ScribesQuarters_Level2_Second();
     new MS::Garrison::PlayerCondition_ScribesQuarters_Level3_Second();
     new MS::Garrison::PlayerCondition_EngineeringWorks_Level2_Second();
