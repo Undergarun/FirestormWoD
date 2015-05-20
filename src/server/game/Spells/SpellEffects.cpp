@@ -5543,53 +5543,44 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         duration = 5000;
     }
 
-    if (go_id == 0)
+    if (go_id == 0 && !m_spellInfo->IsRaidMarker())
         return;
 
     int8 slot = 0;
 
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-        slot = m_spellInfo->Effects[effIndex].MiscValueB;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-        slot = 1;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-        slot = 2;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-        slot = 3;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT:
-        slot = -1;
-        break;
-    default:
-        return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT:
+            slot = -1;
+            break;
+        default:
+            return;
     }
 
-    switch (m_spellInfo->Id)
-    {
-    case 84996: // Raid Marker 1
-    case 84997: // Raid Marker 2
-    case 84998: // Raid Marker 3
-    case 84999: // Raid Marker 4
-    case 85000: // Raid Marker 5
+    if (m_spellInfo->IsRaidMarker())
     {
         if (m_caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        float x = 0.0f, y = 0.0f, z = 0.0f;
+        float l_X = 0.0f, l_Y = 0.0f, l_Z = 0.0f;
         if (m_targets.HasDst())
-            destTarget->GetPosition(x, y, z);
+            destTarget->GetPosition(l_X, l_Y, l_Z);
 
-        if (Group* group = m_caster->ToPlayer()->GetGroup())
-            group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+        if (Group* l_Group = m_caster->ToPlayer()->GetGroup())
+            l_Group->AddRaidMarker(damage, m_caster->GetMapId(), l_X, l_Y, l_Z);
         return;
-    }
-    default:
-        break;
     }
 
     if (slot != -1)

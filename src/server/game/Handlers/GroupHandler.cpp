@@ -1419,7 +1419,7 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& p_RecvData)
     if (!l_Group)
         return;
 
-    if (l_MarkerID < 5)
+    if (l_MarkerID < eRaidMarkersMisc::MaxRaidMarkers)
         l_Group->RemoveRaidMarker(l_MarkerID);
     else
         l_Group->RemoveAllRaidMarkers();
