@@ -2410,7 +2410,7 @@ void World::Update(uint32 diff)
                 fprintf(l_File, "%s\n", l_Dump.c_str());
                 fclose(l_File);
 
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0);
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
                 remove(l_Filename.str().c_str());
 
                 if (l_Error == DUMP_SUCCESS)
