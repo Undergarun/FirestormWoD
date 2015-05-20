@@ -3876,7 +3876,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
                 Exhausted = 57723
             };
 
-            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
             {
                 if (Unit* l_Target = GetTarget())
                     l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
@@ -3884,7 +3884,7 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
