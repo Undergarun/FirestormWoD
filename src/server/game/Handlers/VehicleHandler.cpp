@@ -83,7 +83,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& p_RecvData)
 
     switch (p_RecvData.GetOpcode())
     {
-        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
+        /*case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
         {
             m_Player->ChangeSeat(-1);
             SendCancelVehicleRideAura();
@@ -139,7 +139,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket& p_RecvData)
 
             SendCancelVehicleRideAura();
             break;
-        }
+        }*/
         default:
             break;
     }

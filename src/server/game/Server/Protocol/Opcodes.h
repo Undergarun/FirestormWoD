@@ -46,7 +46,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     #pragma region JamProtocol
         /// Opcodes
-        SMSG_AUTH_CHALLENGE                         = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x007E
+        SMSG_AUTH_CHALLENGE                         = 0x1102, ///< 6.2.0 20033
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -999,12 +999,12 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_LOG_STREAMING_ERROR                    = 0x0000, ///<
     CMSG_QUEUED_MESSAGES_END                    = 0x0000, ///<
-    CMSG_LOG_DISCONNECT                         = 0x0000, ///<
+    CMSG_LOG_DISCONNECT                         = 0x045D, ///< 6.2.0 20033
     CMSG_PING                                   = 0x0000, ///<
     CMSG_AUTH_CONTINUED_SESSION                 = 0x0000, ///<
     CMSG_SUSPEND_TOKEN_RESPONSE                 = 0x0000, ///<
-    CMSG_AUTH_SESSION                           = 0x0000, ///<
-    CMSG_ENABLE_NAGLE                           = 0x0000, ///<
+    CMSG_AUTH_SESSION                           = 0x045A, ///< 6.2.0 20033
+    CMSG_ENABLE_NAGLE                           = 0x065D, ///< 6.2.0 20033
     CMSG_SUSPEND_COMMS_ACK                      = 0x0000, ///<
     CMSG_KEEP_ALIVE                             = 0x0000, ///<
     CMSG_OBJECT_UPDATE_FAILED                   = 0x0000, ///<
@@ -1013,11 +1013,11 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Character
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ENUM_CHARACTERS                        = 0x0000, ///<
+    CMSG_ENUM_CHARACTERS                        = 0x03C6, ///< 6.2.0 20033
     CMSG_CREATE_CHARACTER                       = 0x0000, ///<
     CMSG_CHAR_DELETE                            = 0x0000, ///<
     CMSG_REORDER_CHARACTERS                     = 0x0000, ///<
-    CMSG_PLAYER_LOGIN                           = 0x0000, ///<
+    CMSG_PLAYER_LOGIN                           = 0x0921, ///< 6.2.0 20033
     CMSG_VIOLENCE_LEVEL                         = 0x0000, ///<
     CMSG_LOAD_SCREEN                            = 0x0000, ///<
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x0000, ///<
