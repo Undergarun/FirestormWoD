@@ -148,7 +148,7 @@ namespace MS { namespace Garrison
 
             /// Called when a CreatureAI object is needed for the creature.
             /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const
+            CreatureAI * GetAI(Creature * p_Creature) const override
             {
                 return new SimpleSequenceCosmeticScriptAI<t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>(p_Creature);
             }

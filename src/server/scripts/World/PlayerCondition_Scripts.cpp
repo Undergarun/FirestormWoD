@@ -13,13 +13,12 @@
 namespace MS { namespace Script 
 {
 
-
-    void AddSC_PlayerConditions()
-    {
-
-    }
-
 }   ///< namespace Garrison
 }   ///< namespace MS
+
+void AddSC_PlayerConditions()
+{
+
+}
 
 #endif  ///< PLAYER_CONDITION_SCRIPTS_HPP_WORLD

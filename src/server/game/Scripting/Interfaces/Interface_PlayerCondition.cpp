@@ -10,6 +10,7 @@
 /// Constructor
 /// @p_ID : Player condition ID
 PlayerConditionScript::PlayerConditionScript(uint32 p_ID)
+    : ScriptObjectImpl("PlayerConditionScript")
 {
     sScriptMgr->RegisterPlayerConditionScript(p_ID, this);
 }
