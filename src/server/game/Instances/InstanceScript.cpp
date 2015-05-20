@@ -334,7 +334,7 @@ bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
                 {
                     /// Now you have to fight for at least 3mins to get a stack.
                     /// It was nerfed due to people intentionally reseting the boss to gain max stack to kill the boss faster.
-                    if (instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
+                    if (m_EncounterTime && instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
                         DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
                     break;
                 }

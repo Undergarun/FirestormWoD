@@ -1926,21 +1926,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
         }
 
-        /// Unleashed Fury - Earthliving
-        if (caster && caster->HasAura(118473))
-        {
-            bool singleTarget = false;
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && m_spellInfo->Effects[i].TargetB.GetTarget() == 0)
-                singleTarget = true;
-
-            if (singleTarget)
-            {
-                addhealth += CalculatePct(damage, 50.0f);
-                caster->RemoveAurasDueToSpell(118473);
-            }
-        }
-
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
             if (AuraPtr renew = unitTarget->GetAura(139, caster->GetGUID()))
@@ -7447,30 +7432,6 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
                 {
                     AreaTrigger* angelicFeather = itr;
                     angelicFeather->SetDuration(0);
-                    break;
-                }
-            }
-        }
-
-        break;
-    }
-    case 119031:/// Healing Sphere
-    {
-        int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
-
-        if (count > 3)
-        {
-            std::list<AreaTrigger*> healingSphereList;
-            m_caster->GetAreaTriggerList(healingSphereList, m_spellInfo->Id);
-
-            if (!healingSphereList.empty())
-            {
-                healingSphereList.sort(JadeCore::AreaTriggerDurationPctOrderPred());
-
-                for (auto itr : healingSphereList)
-                {
-                    AreaTrigger* healingSphere = itr;
-                    healingSphere->SetDuration(0);
                     break;
                 }
             }

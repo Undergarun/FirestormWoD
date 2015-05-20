@@ -2441,7 +2441,7 @@ void LFGMgr::RewardDungeonDoneFor(uint32 const p_DungeonID, Player* p_Player)
 
     /// Clear player related LFG stuff
     uint32 l_RandDungeonID = (*GetSelectedDungeons(l_Guid).begin());
-    if (l_RandDungeonID == (*GetSelectedDungeons(l_Guid).end()))
+    if (GetSelectedDungeons(l_Guid).empty())
         l_RandDungeonID = p_DungeonID;
 
     ClearState(l_Guid);
