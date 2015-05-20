@@ -23,6 +23,13 @@ namespace MS { namespace Garrison
         float X, Y, Z, O;
     };
 
+    /// TradeSkill NPC recipes
+    struct SkillNPC_RecipeEntry
+    {
+        uint32 AbilitySpellID;
+        uint32 AbilitySpellIDPlayerCondition;
+    };
+
     class GarrisonNPCAI : public AI::CosmeticAI
     {
         public:
@@ -38,8 +45,15 @@ namespace MS { namespace Garrison
             /// @p_O : Relative angle
             void SetFacingBuildingRelative(float p_O);
 
+            /// Set NPC recipes
+            /// @p_Recipes          : Recipes
+            /// @p_RecipesSkillID   : Skill line ID
+            void SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID);
+
             /// Show shipment crafter UI
             void SendShipmentCrafterUI(Player * p_Player);
+            /// Show trade skill crafter UI
+            void SendTradeSkillUI(Player * p_Player);
 
             /// Get building ID
             uint32 GetBuildingID();
@@ -75,6 +89,10 @@ namespace MS { namespace Garrison
             uint32 m_SequenceSize;
             uint32 m_FirstMovePointID;
             uint8 m_SequencePosition;
+
+        private:
+            std::vector<SkillNPC_RecipeEntry> * m_Recipes;
+            uint32 m_RecipesSkillID;
 
     };
 

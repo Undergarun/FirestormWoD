@@ -939,6 +939,7 @@ enum Opcodes
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0988, ///< 6.1.2 19783
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x01A8, ///< 6.1.2 19783
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x018F, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

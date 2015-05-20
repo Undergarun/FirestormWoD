@@ -71,7 +71,8 @@ namespace MS { namespace Garrison
         Horde_YourFirstAlchemyWorkOrder           = 37568,
         Horde_YourFirstLeatherworkingWorkOrder    = 37574,
         Horde_YourFirstEnchantingWorkOrder        = 37570,
-        Horde_YourFirstJewelcraftingWorkOrder     = 37573
+        Horde_YourFirstJewelcraftingWorkOrder     = 37573,
+        Horde_YourFirstEngineeringWorkOrder       = 37571
     };
 
     /// Garrison achievement related
