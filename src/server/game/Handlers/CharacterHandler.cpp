@@ -1079,7 +1079,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         std::vector<std::string> l_Lines;
         uint32 l_LineCount = 0;
 
-        l_Data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
+        l_Data.Initialize(SMSG_MOTD, 100);                     // new in 2.0.1
 
         l_Position = 0;
         while ((l_NextPosition = l_MotdStr.find('@', l_Position)) != std::string::npos)
@@ -1563,7 +1563,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 {
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
+        WorldPacket data(SMSG_CHAR_RENAME);
         BuildCharacterRename(&data, 0, CHAR_CREATE_ERROR, newName);
         SendPacket(&data);
         return;

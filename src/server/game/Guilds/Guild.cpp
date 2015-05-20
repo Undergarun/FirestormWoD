@@ -482,7 +482,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 
 void Guild::BankTab::SendText(const Guild * p_Guild, WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT);
+    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 500);
 
     l_Data << uint32(m_tabId);
     l_Data.WriteBits(m_text.size(), 14);
@@ -1220,7 +1220,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER, 25 * 1024);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 200 * 1024);
 
     l_Data << uint32(m_accountsNumber);
     l_Data << uint32(secsToTimeBitFields(m_createdDate));
@@ -2097,7 +2097,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
     if (!l_CurrTab && p_TabID > 0)
         return;
 
-    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS);
+    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS, 6 * 1024);
 
     uint32 l_ItemCount = 0;
 

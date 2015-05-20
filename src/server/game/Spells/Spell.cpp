@@ -5213,7 +5213,7 @@ void Spell::SendLogExecute()
     if (m_effectExecuteData.size() <= 0)
         return;
 
-    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG);
+    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
 
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);

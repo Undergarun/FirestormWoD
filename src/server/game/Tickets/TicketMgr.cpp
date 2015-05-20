@@ -373,7 +373,7 @@ void TicketMgr::SendTicket(WorldSession* p_Session, GmTicket* p_Ticket) const
     if (p_Ticket)
         l_Status = GMTICKET_STATUS_HASTEXT;
 
-    WorldPacket l_Data(SMSG_GM_TICKET_GET_TICKET_RESPONSE);
+    WorldPacket l_Data(SMSG_GM_TICKET_GET_TICKET_RESPONSE, 2 * 1024);
     l_Data << uint32(l_Status);
     l_Data.WriteBit(l_Status == GMTICKET_STATUS_HASTEXT);
     l_Data.FlushBits();

@@ -323,7 +323,7 @@ void QuestMenu::ClearMenu()
 
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, uint64 npcGUID)
 {
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 500);
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 1024);
     data.appendPackGUID(npcGUID);
     data << uint32(eEmote._Emote);                         // NPC emote
     data << uint32(eEmote._Delay);                         // player emote

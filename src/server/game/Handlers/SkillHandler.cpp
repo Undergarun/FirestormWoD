@@ -149,7 +149,7 @@ void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleArcheologyRequestHistory(WorldPacket& p_RecvData)
 {
-    WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY);
+    WorldPacket l_Data(SMSG_SETUP_RESEARCH_HISTORY, 2048);
 
     MS::Skill::Archaeology::CompletedProjectMap& l_Projects = GetPlayer()->GetArchaeologyMgr().GetCompletedProjects();
     uint32 l_Count = l_Projects.size();
@@ -207,7 +207,7 @@ void WorldSession::HandleShowTradeSkillOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    WorldPacket l_Data(SMSG_SHOW_TRADE_SKILL_RESPONSE, 500);
+    WorldPacket l_Data(SMSG_SHOW_TRADE_SKILL_RESPONSE, 20 * 1024);
     l_Data.appendPackGUID(l_PlayerGuid);        ///< PlayerGUID
     l_Data << uint32(l_SpellID);                ///< SpellID
     l_Data << uint32(1);                        ///< SkillLineIDs count

@@ -186,7 +186,7 @@ void WorldSession::HandleLfgLockInfoRequestOpcode(WorldPacket& p_Packet)
             l_LockMap[l_CurrentGroupPlayer->GetGUID()] = sLFGMgr->GetLockedDungeons(l_CurrentGroupPlayer->GetGUID());
         }
 
-        WorldPacket l_Data(Opcodes::SMSG_LFG_PARTY_INFO, 25 * 1024);
+        WorldPacket l_Data(Opcodes::SMSG_LFG_PARTY_INFO, 150 * 1024);
 
         l_Data << uint32(l_LockMap.size());
 

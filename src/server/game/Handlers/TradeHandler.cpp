@@ -75,7 +75,7 @@ void WorldSession::SendUpdateTrade(bool p_WhichPlayer /*= true*/)
             ++l_Count;
     }
 
-    WorldPacket l_Data(SMSG_TRADE_UPDATED);
+    WorldPacket l_Data(SMSG_TRADE_UPDATED, 1024);
     l_Data << uint8(p_WhichPlayer);
     l_Data << uint32(1);
     l_Data << uint32(m_Player->GetClientStateIndex());

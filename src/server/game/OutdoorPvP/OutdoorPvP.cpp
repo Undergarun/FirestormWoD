@@ -816,7 +816,7 @@ void OutdoorPvP::SendAreaSpiritHealerQueryOpcode(Player* p_Player, uint64 const&
 {
     ASSERT(p_Player && p_Player->GetSession());
 
-    WorldPacket l_Data(Opcodes::SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    WorldPacket l_Data(Opcodes::SMSG_AREA_SPIRIT_HEALER_TIME, 16 + 2 + 4);
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(m_LastResurectTimer);
     p_Player->GetSession()->SendPacket(&l_Data);

@@ -124,7 +124,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
     std::vector<int32> l_KnownSpecializations   = l_Garrison->GetKnownSpecializations();
 
-    WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 200);
+    WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 500);
 
     l_Data << uint32(l_KnownBlueprints.size());
     l_Data << uint32(l_KnownSpecializations.size());
@@ -566,7 +566,7 @@ void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
 
     bool l_Success = !!l_ShipmentID && !!l_PlotInstanceID;
 
-    WorldPacket l_Response(SMSG_GET_SHIPMENT_INFO_RESPONSE);
+    WorldPacket l_Response(SMSG_GET_SHIPMENT_INFO_RESPONSE, 1024);
     l_Response.WriteBit(l_Success);
     l_Response.FlushBits();
 
@@ -757,7 +757,7 @@ void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
 
     std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
 
-    WorldPacket l_Data(SMSG_GET_SHIPMENTS, 500);
+    WorldPacket l_Data(SMSG_GET_SHIPMENTS, 1024);
     l_Data << uint32(l_WorkOrders.size());
 
     for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
