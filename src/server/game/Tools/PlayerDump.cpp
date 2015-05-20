@@ -662,6 +662,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
+        if (l_TableType == DTT_MAIL || l_TableType == DTT_MAIL_ITEM)
+            continue;
+
+
         bool l_AllowedAppend = true;
 
         // change the data to server values
