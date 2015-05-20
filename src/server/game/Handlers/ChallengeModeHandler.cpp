@@ -73,7 +73,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    WorldPacket l_Data(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT);
+    WorldPacket l_Data(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT, 300);
 
     l_Data << int32(l_MapID);
     l_Data << int32(time(NULL));

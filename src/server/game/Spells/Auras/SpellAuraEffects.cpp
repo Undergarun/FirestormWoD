@@ -3514,7 +3514,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
     }
 
     if (GetId() == 180545      ///< Mystic Runesaber
-        || GetId() == 163024)  ///< Warforged Nightmare
+        || GetId() == 163024  ///< Warforged Nightmare
+        || GetId() == 171847) ///< Cindermane Charger
     {
         if (p_Apply)
             l_Target->CastSpell(l_Target, 86461, true);

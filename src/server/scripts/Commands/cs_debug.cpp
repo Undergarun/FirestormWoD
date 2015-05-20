@@ -493,7 +493,7 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPlayOrphanSpellVisual(ChatHandler* p_Handler, char const* p_Args)
         {
-            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
             G3D::Vector3 l_Source (3737.686f, 7660.064f, 24.95166f);
             G3D::Vector3 l_Target (3737.686f, 7660.064f, 25.05166f);
