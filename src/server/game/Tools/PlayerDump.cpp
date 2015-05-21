@@ -662,6 +662,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
         if (l_TableType == DTT_MAIL || l_TableType == DTT_MAIL_ITEM)
             continue;
 
+        if (l_TableName == "character_aura"
+            || l_TableName == "character_aura_effect")
+            continue;
+
         bool l_AllowedAppend = true;
 
         // change the data to server values
