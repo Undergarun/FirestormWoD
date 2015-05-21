@@ -67,8 +67,8 @@ namespace MS
                     l_Player->SetInviteForBattlegroundQueueType(p_GroupInfo->m_BgTypeId, p_GroupInfo->m_IsInvitedToBGInstanceGUID);
 
                     /// Create remind invite news.
-                    BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
-                    m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
+                    //BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
+                    //m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
@@ -361,6 +361,8 @@ namespace MS
 
                     l_Player->RemoveBattlegroundQueueId(m_BgType);
                     l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true, Battlegrounds::GetSchedulerType(m_BgTypeId));
+
+                    l_Bg->DecreaseInvitedCount(l_Player->GetTeam());
 
                     WorldPacket l_Data;
                     PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(m_BgTypeId)), 0, 0, false);
