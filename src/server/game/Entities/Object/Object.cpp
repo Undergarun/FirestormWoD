@@ -407,7 +407,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 *p_Data << uint32(0);                                       ///< Remove force IDs
 
             p_Data->WriteBits(l_MovementFlags, 30);                         ///< Movement flags
-            p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
+            p_Data->WriteBits(l_ExtraMovementFlags, 16);                    ///< Extra movement flags
             p_Data->WriteBit(l_HasTransportInformations);                   ///< Has transport informations
             p_Data->WriteBit(l_HasFallData);                                ///< Has fall data
             p_Data->WriteBit(l_HasMovementSpline);                          ///< Has Movement Spline
@@ -528,7 +528,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                         break;
                 }
 
-                p_Data->WriteBits(l_Spline->splineflags.raw(), 25);         ///< Spline flags
+                p_Data->WriteBits(l_Spline->splineflags.raw(), 28);         ///< Spline flags
                 p_Data->WriteBits(l_FinalFacingMove, 2);                    ///< Final facing computation
                 p_Data->WriteBit(l_IsParabolicAndNotEnded);                 ///< Is an parabolic movement and it's not ended
                 p_Data->WriteBit(l_IsParabolicOrAnimated);                  ///< Is an parabolic movement or it's animated
@@ -683,6 +683,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         p_Data->WriteBit(l_Attached);                                                   ///< Attached
         p_Data->WriteBit(l_FaceMovementDir);                                            ///< Face Movement Dir
         p_Data->WriteBit(l_FollowsTerrain);                                             ///< Follows Terrain
+        p_Data->WriteBit(0);                                                            ///< Unk bit 6.2.0 could also be swapped with the other bits above
         p_Data->WriteBit(l_HasTargetRollPitchYaw);                                      ///< HasTargetRollPitchYaw
         p_Data->WriteBit(l_HasScaleCurveID);                                            ///< Has Scale Curve ID
         p_Data->WriteBit(l_HasMorphCurveID);                                            ///< Has Morph Curve ID

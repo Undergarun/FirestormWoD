@@ -666,7 +666,7 @@ void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_Movemen
                 break;
 
             case MSEMovementFlags2:
-                p_MovementInformation->flags2 = p_Data.ReadBits(15);
+                p_MovementInformation->flags2 = p_Data.ReadBits(16);
                 break;
 
             case MSETimestamp:

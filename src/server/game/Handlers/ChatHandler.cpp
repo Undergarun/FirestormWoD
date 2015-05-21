@@ -70,9 +70,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
     switch (p_RecvData.GetOpcode())
     {
-       /* case CMSG_CHAT_MESSAGE_SAY:
+        case CMSG_CHAT_MESSAGE_SAY:
             l_Type = CHAT_MSG_SAY;
             break;
+        /*
         case CMSG_CHAT_MESSAGE_YELL:
             l_Type = CHAT_MSG_YELL;
             break;
