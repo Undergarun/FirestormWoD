@@ -8,6 +8,8 @@
 #ifndef GARRISON_PROFESSION_BUILDING_HPP_GARRISON
 #define GARRISON_PROFESSION_BUILDING_HPP_GARRISON
 
+#include "../GarrisonScriptData.hpp"
+#include "../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 #include "SharedDefines.h"
 
