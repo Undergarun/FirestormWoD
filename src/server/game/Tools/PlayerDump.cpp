@@ -908,7 +908,15 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
                     uint32 flags = atoi(l_Line.substr(s, e - s).c_str());
                     if (!(flags & 1))
-                        l_AllowedAppend = false;
+                    {
+                        l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
+                        uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
+
+                        /// Don't delete sac even if they aren't bounded, cause items can be inside
+                        ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemEntry);
+                        if (l_Item && l_Item->InventoryType != INVTYPE_BAG)
+                            l_AllowedAppend = false;
+                    }
                 }
 
                 break;
