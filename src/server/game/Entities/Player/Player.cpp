@@ -22414,58 +22414,61 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     }
 }
 
-InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, bool load)
+InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_Permanent, bool p_Load)
 {
-    if (save)
+    if (p_InstanceSave && p_InstanceSave->GetDifficulty() != Difficulty::DifficultyRaidLFR && p_InstanceSave->GetDifficulty() != Difficulty::DifficultyRaidTool)
     {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-        if (bind.save)
+        InstancePlayerBind& l_InstanceBind = m_boundInstances[p_InstanceSave->GetDifficulty()][p_InstanceSave->GetMapId()];
+        if (l_InstanceBind.save)
         {
             // update the save when the group kills a boss
-            if (permanent != bind.perm || save != bind.save)
-                if (!load)
+            if (p_Permanent != l_InstanceBind.perm || p_InstanceSave != l_InstanceBind.save)
+            {
+                if (!p_Load)
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-
-                    stmt->setUInt32(0, save->GetInstanceId());
-                    stmt->setBool(1, permanent);
-                    stmt->setUInt32(2, GetGUIDLow());
-                    stmt->setUInt32(3, bind.save->GetInstanceId());
-
-                    CharacterDatabase.Execute(stmt);
+                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
+                    l_Statement->setUInt32(0, p_InstanceSave->GetInstanceId());
+                    l_Statement->setBool(1, p_Permanent);
+                    l_Statement->setUInt32(2, GetGUIDLow());
+                    l_Statement->setUInt32(3, l_InstanceBind.save->GetInstanceId());
+                    CharacterDatabase.Execute(l_Statement);
                 }
+            }
         }
         else
-            if (!load)
-            {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
-
-                stmt->setUInt32(0, GetGUIDLow());
-                stmt->setUInt32(1, save->GetInstanceId());
-                stmt->setBool(2, permanent);
-
-                CharacterDatabase.Execute(stmt);
-            }
-
-        if (bind.save != save)
         {
-            if (bind.save)
-                bind.save->RemovePlayer(this);
-            save->AddPlayer(this);
+            if (!p_Load)
+            {
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
+                l_Statement->setUInt32(0, GetGUIDLow());
+                l_Statement->setUInt32(1, p_InstanceSave->GetInstanceId());
+                l_Statement->setBool(2, p_Permanent);
+                CharacterDatabase.Execute(l_Statement);
+            }
         }
 
-        if (permanent)
-            save->SetCanReset(false);
+        if (l_InstanceBind.save != p_InstanceSave)
+        {
+            if (l_InstanceBind.save)
+                l_InstanceBind.save->RemovePlayer(this);
 
-        bind.save = save;
-        bind.perm = permanent;
-        if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
-        return &bind;
+            p_InstanceSave->AddPlayer(this);
+        }
+
+        if (p_Permanent)
+            p_InstanceSave->SetCanReset(false);
+
+        l_InstanceBind.save = p_InstanceSave;
+        l_InstanceBind.perm = p_Permanent;
+
+        if (!p_Load)
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), p_InstanceSave->GetMapId(), p_InstanceSave->GetInstanceId(), p_InstanceSave->GetDifficulty());
+
+        sScriptMgr->OnPlayerBindToInstance(this, p_InstanceSave->GetDifficulty(), p_InstanceSave->GetMapId(), p_Permanent);
+        return &l_InstanceBind;
     }
     else
-        return NULL;
+        return nullptr;
 }
 
 void Player::BindToInstance()
