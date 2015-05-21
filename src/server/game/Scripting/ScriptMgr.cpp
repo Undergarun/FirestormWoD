@@ -2522,6 +2522,14 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
     ScriptRegistry<AreaTriggerEntityScript>::AddScript(this);
 }
 
+/// Constructor
+/// @p_ID : Player condition ID
+PlayerConditionScript::PlayerConditionScript(uint32 p_ID)
+    : ScriptObjectImpl("PlayerConditionScript")
+{
+    sScriptMgr->RegisterPlayerConditionScript(p_ID, this);
+}
+
 /// Instantiate static members of ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptRegistry<TScript>::_scriptIdCounter = 0;
