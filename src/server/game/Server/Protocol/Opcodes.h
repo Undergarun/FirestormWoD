@@ -1029,7 +1029,7 @@ enum Opcodes
     CMSG_SHOWING_HELM                           = 0x0A5B, ///< 6.2.0 20033
     CMSG_SET_ACTIVE_MOVER                       = 0x0932, ///< 6.2.0 20033
     CMSG_LEARN_TALENTS                          = 0x0AAA, ///< 6.2.0 20033
-    CMSG_AUTOEQUIP_ITEM                         = 0x066C, ///< 6.2.0 20033
+    CMSG_AUTOEQUIP_ITEM                         = 0x0A64, ///< 6.2.0 20033
     CMSG_SWAP_INV_ITEM                          = 0x0651, ///< 6.2.0 20033
     CMSG_SWAP_ITEM                              = 0x066C, ///< 6.2.0 20033
     CMSG_AUTOSTORE_BAG_ITEM                     = 0x0245, ///< 6.2.0 20033
@@ -1314,57 +1314,57 @@ enum Opcodes
     /// Movement
     //////////////////////////////////////////////////////////////////////////
     /// Start
-    CMSG_MOVE_START_FORWARD                     = 0x0000, ///<
-    CMSG_MOVE_START_TURN_LEFT                   = 0x0000, ///<
-    CMSG_MOVE_START_TURN_RIGHT                  = 0x0000, ///<
-    CMSG_MOVE_START_BACKWARD                    = 0x0000, ///<
-    CMSG_MOVE_START_STRAFE_LEFT                 = 0x0000, ///<
-    CMSG_MOVE_START_STRAFE_RIGHT                = 0x0000, ///<
-    CMSG_MOVE_START_ASCEND                      = 0x0000, ///<
-    CMSG_MOVE_START_DESCEND                     = 0x0000, ///<
-    CMSG_MOVE_START_PITCH_UP                    = 0x0000, ///<
-    CMSG_MOVE_START_PITCH_DOWN                  = 0x0000, ///<
-    CMSG_MOVE_START_SWIM                        = 0x0000, ///<
+    CMSG_MOVE_START_FORWARD                     = 0x1B97, ///< 6.2.0 20033
+    CMSG_MOVE_START_TURN_LEFT                   = 0x1298, ///< 6.2.0 20033
+    CMSG_MOVE_START_TURN_RIGHT                  = 0x1A03, ///< 6.2.0 20033
+    CMSG_MOVE_START_BACKWARD                    = 0x1294, ///< 6.2.0 20033
+    CMSG_MOVE_START_STRAFE_LEFT                 = 0x1A53, ///< 6.2.0 20033
+    CMSG_MOVE_START_STRAFE_RIGHT                = 0x1657, ///< 6.2.0 20033
+    CMSG_MOVE_START_ASCEND                      = 0x17C4, ///< 6.2.0 20033
+    CMSG_MOVE_START_DESCEND                     = 0x1B43, ///< 6.2.0 20033
+    CMSG_MOVE_START_PITCH_UP                    = 0x12D7, ///< 6.2.0 20033
+    CMSG_MOVE_START_PITCH_DOWN                  = 0x1704, ///< 6.2.0 20033
+    CMSG_MOVE_START_SWIM                        = 0x13C8, ///< 6.2.0 20033
 
     /// Misc
-    CMSG_MOVE_JUMP                              = 0x0000, ///<
-    CMSG_MOVE_FALL_LAND                         = 0x0000, ///<
-    CMSG_WORLD_PORT_RESPONSE                    = 0x0000, ///<
-    CMSG_MOVE_TIME_SKIPPED                      = 0x0000, ///<
-    CMSG_MOVE_SPLINE_DONE                       = 0x0000, ///<
+    CMSG_MOVE_JUMP                              = 0x1A18, ///< 6.2.0 20033
+    CMSG_MOVE_FALL_LAND                         = 0x12C8, ///< 6.2.0 20033
+    CMSG_WORLD_PORT_RESPONSE                    = 0x04B6, ///< 6.2.0 20033
+    CMSG_MOVE_TIME_SKIPPED                      = 0x1317, ///< 6.2.0 20033
+    CMSG_MOVE_SPLINE_DONE                       = 0x16C8, ///< 6.2.0 20033
 
     /// Update
-    CMSG_MOVE_HEARTBEAT                         = 0x0000, ///<
-    CMSG_MOVE_SET_FACING                        = 0x0000, ///<
-    CMSG_MOVE_SET_PITCH                         = 0x0000, ///<
-    CMSG_MOVE_SET_RUN_MODE                      = 0x0000, ///<
-    CMSG_MOVE_SET_WALK_MODE                     = 0x0000, ///<
-    CMSG_MOVE_TELEPORT_ACK                      = 0x0000, ///<
-    CMSG_MOVE_CHNG_TRANSPORT                    = 0x0000, ///<
+    CMSG_MOVE_HEARTBEAT                         = 0x1B18, ///< 6.2.0 20033
+    CMSG_MOVE_SET_FACING                        = 0x1A13, ///< 6.2.0 20033
+    CMSG_MOVE_SET_PITCH                         = 0x1797, ///< 6.2.0 20033
+    CMSG_MOVE_SET_RUN_MODE                      = 0x1287, ///< 6.2.0 20033
+    CMSG_MOVE_SET_WALK_MODE                     = 0x16C4, ///< 6.2.0 20033
+    CMSG_MOVE_TELEPORT_ACK                      = 0x17C8, ///< 6.2.0 20033
+    CMSG_MOVE_CHNG_TRANSPORT                    = 0x1B13, ///< 6.2.0 20033
 
     /// Stop
-    CMSG_MOVE_STOP                              = 0x0000, ///<
-    CMSG_MOVE_STOP_TURN                         = 0x0000, ///<
-    CMSG_MOVE_STOP_STRAFE                       = 0x0000, ///<
-    CMSG_MOVE_STOP_SWIM                         = 0x0000, ///<
-    CMSG_MOVE_STOP_ASCEND                       = 0x0000, ///<
-    CMSG_MOVE_STOP_PITCH                        = 0x0000, ///<
+    CMSG_MOVE_STOP                              = 0x1A08, ///< 6.2.0 20033
+    CMSG_MOVE_STOP_TURN                         = 0x16D7, ///< 6.2.0 20033
+    CMSG_MOVE_STOP_STRAFE                       = 0x1218, ///< 6.2.0 20033
+    CMSG_MOVE_STOP_SWIM                         = 0x1247, ///< 6.2.0 20033
+    CMSG_MOVE_STOP_ASCEND                       = 0x1303, ///< 6.2.0 20033
+    CMSG_MOVE_STOP_PITCH                        = 0x1A98, ///< 6.2.0 20033
 
     /// ACK
-    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x0000, ///<
-    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x0000, ///<
-    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x0000, ///<
-    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x0000, ///<
-    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x0000, ///<
-    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x0000, ///<
-    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x0000, ///<
-    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x0000, ///<
-    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x0000, ///<
-    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x0000, ///<
-    CMSG_MOVE_WATER_WALK_ACK                    = 0x0000, ///<
-    CMSG_MOVE_HOVER_ACK                         = 0x0000, ///<
+    CMSG_MOVE_SET_RUN_SPEED_CHEAT               = 0x1383, ///< 6.2.0 20033
+    CMSG_MOVE_SET_RUN_BACK_SPEED_CHEAT          = 0x1A04, ///< 6.2.0 20033
+    CMSG_MOVE_SET_WALK_SPEED_CHEAT              = 0x1E18, ///< 6.2.0 20033
+    CMSG_MOVE_SET_SWIM_SPEED_CHEAT              = 0x1314, ///< 6.2.0 20033
+    CMSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT         = 0x1B83, ///< 6.2.0 20033
+    CMSG_MOVE_SET_FLIGHT_SPEED_CHEAT            = 0x1A44, ///< 6.2.0 20033
+    CMSG_MOVE_SET_FLIGHT_BACK_SPEED_CHEAT       = 0x1397, ///< 6.2.0 20033
+    CMSG_MOVE_SET_TURN_SPEED_CHEAT              = 0x1683, ///< 6.2.0 20033
+    CMSG_MOVE_SET_PITCH_SPEED_CHEAT             = 0x12C4, ///< 6.2.0 20033
+    CMSG_MOVE_KNOCK_BACK_ACK                    = 0x1244, ///< 6.2.0 20033
+    CMSG_MOVE_SET_CAN_FLY_ACK                   = 0x1798, ///< 6.2.0 20033
+    CMSG_MOVE_FEATHER_FALL_ACK                  = 0x1707, ///< 6.2.0 20033
+    CMSG_MOVE_WATER_WALK_ACK                    = 0x1754, ///< 6.2.0 20033
+    CMSG_MOVE_HOVER_ACK                         = 0x1284, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Group
