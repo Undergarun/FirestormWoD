@@ -392,6 +392,9 @@ public:
         {
             ACE_Based::Thread::Sleep(30 * IN_MILLISECONDS);
 
+            if (!sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
+                continue;
+
             PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
             l_Statement->setUInt32(0, sLog->GetRealmID());
 

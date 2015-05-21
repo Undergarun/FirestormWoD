@@ -678,7 +678,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         else if (l_DB2Store)
         {
             ByteBuffer l_ResponseData(2 * 1024);
-            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
+            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData, GetSessionDbLocaleIndex()))
             {
                 WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
                 l_Data << uint32(l_Type);

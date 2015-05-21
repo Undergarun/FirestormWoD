@@ -1172,7 +1172,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         l_Data << uint32(sItemExtendedCostStore.GetHash());
 
         ByteBuffer l_ResponseData;
-        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData))
+        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData, GetSessionDbLocaleIndex()))
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
