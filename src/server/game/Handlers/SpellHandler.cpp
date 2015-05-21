@@ -977,7 +977,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
                 data << uint32(0);
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
-            else if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(player->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (*itr * 3))))
+            else if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(player->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (*itr * 2))))
                 data << uint32(l_Proto->DisplayInfoID);
             else
                 data << uint32(0);
