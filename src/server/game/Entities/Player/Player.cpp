@@ -22416,9 +22416,9 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
 
 InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_Permanent, bool p_Load)
 {
-    if (p_InstanceSave && p_InstanceSave->GetDifficulty() != Difficulty::DifficultyRaidLFR && p_InstanceSave->GetDifficulty() != Difficulty::DifficultyRaidTool)
+    if (p_InstanceSave && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidLFR && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidTool)
     {
-        InstancePlayerBind& l_InstanceBind = m_boundInstances[p_InstanceSave->GetDifficulty()][p_InstanceSave->GetMapId()];
+        InstancePlayerBind& l_InstanceBind = m_boundInstances[p_InstanceSave->GetDifficultyID()][p_InstanceSave->GetMapId()];
         if (l_InstanceBind.save)
         {
             // update the save when the group kills a boss
@@ -22462,9 +22462,9 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_
         l_InstanceBind.perm = p_Permanent;
 
         if (!p_Load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), p_InstanceSave->GetMapId(), p_InstanceSave->GetInstanceId(), p_InstanceSave->GetDifficulty());
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), p_InstanceSave->GetMapId(), p_InstanceSave->GetInstanceId(), p_InstanceSave->GetDifficultyID());
 
-        sScriptMgr->OnPlayerBindToInstance(this, p_InstanceSave->GetDifficulty(), p_InstanceSave->GetMapId(), p_Permanent);
+        sScriptMgr->OnPlayerBindToInstance(this, p_InstanceSave->GetDifficultyID(), p_InstanceSave->GetMapId(), p_Permanent);
         return &l_InstanceBind;
     }
     else
