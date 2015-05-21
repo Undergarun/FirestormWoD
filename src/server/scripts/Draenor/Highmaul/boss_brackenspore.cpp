@@ -210,6 +210,11 @@ class boss_brackenspore : public CreatureScript
                 }
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) override
             {
                 if (p_AreaTrigger == nullptr)

@@ -251,6 +251,11 @@ class boss_the_butcher : public CreatureScript
                 }
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
                 if (me->HasAura(eSpells::SpellFrenzy))

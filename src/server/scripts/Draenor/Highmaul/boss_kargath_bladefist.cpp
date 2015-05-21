@@ -305,6 +305,11 @@ class boss_kargath_bladefist : public CreatureScript
                 summons.DespawnAll();
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void KilledUnit(Unit* p_Who) override
             {
                 if (p_Who->GetTypeId() == TypeID::TYPEID_PLAYER)
