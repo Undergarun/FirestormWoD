@@ -1315,7 +1315,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     if (pCurrChar->HasAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL))
     {
         pCurrChar->DeleteInvalidSpells();
-        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_RESET_SPECS);
+        pCurrChar->RemoveAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL);
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
