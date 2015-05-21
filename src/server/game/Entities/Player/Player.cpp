@@ -5025,42 +5025,10 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
@@ -5084,42 +5052,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     if (sSpellMgr->IsSpellForbidden(spellId) && !isGameMaster() && sWorld->getBoolConfig(CONFIG_SPELL_FORBIDDEN))
     {
@@ -21640,10 +21576,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid = 0;
-        }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
     }
