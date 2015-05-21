@@ -28,7 +28,7 @@ namespace MS { namespace Garrison
         public:
             /// Constructor
             ProfessionBuilding_WorkOrderNPC()
-                : SimpleSequenceCosmeticScript()
+                : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
 
             }
@@ -80,7 +80,7 @@ namespace MS { namespace Garrison
         public:
             /// Constructor
             ProfessionBuilding_SkillNPC()
-                : SimpleSequenceCosmeticScript()
+                : SimpleSequenceCosmeticScript<t_ScriptName, t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>()
             {
 
             }
