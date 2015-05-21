@@ -3468,8 +3468,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
 
         for (uint32 l_I = 0; l_I < sMountStore.GetNumRows(); ++l_I)
         {
-            auto l_MountEntry = sMountStore.LookupEntry(GetId());
-
+            auto l_MountEntry = sMountStore.LookupEntry(l_I);
             if (!l_MountEntry || l_MountEntry->SpellID != GetId())
                 continue;
 
