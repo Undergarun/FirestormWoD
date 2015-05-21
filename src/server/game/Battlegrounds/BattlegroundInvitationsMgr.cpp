@@ -280,6 +280,11 @@ namespace MS
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
                     plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
+
+                    Battleground * l_BG = sBattlegroundMgr->GetBattleground(l_Group->m_IsInvitedToBGInstanceGUID, bgQueueTypeId);
+                    if (l_BG)
+                        l_BG->DecreaseInvitedCount(plr2->GetTeam());
+
                     // queue->removeplayer, it causes bugs
                     WorldPacket data;
                     PacketFactory::Status(&data, bg, plr2, queueSlot, STATUS_NONE, plr2->GetBattlegroundQueueJoinTime(l_Group->m_BgTypeId), 0, 0, false);
@@ -361,8 +366,6 @@ namespace MS
 
                     l_Player->RemoveBattlegroundQueueId(m_BgType);
                     l_InvitationsMgr.RemovePlayer(m_PlayerGuid, true, Battlegrounds::GetSchedulerType(m_BgTypeId));
-
-                    l_Bg->DecreaseInvitedCount(l_Player->GetTeam());
 
                     WorldPacket l_Data;
                     PacketFactory::Status(&l_Data, l_Bg, l_Player, l_QueueSlot, STATUS_NONE, l_Player->GetBattlegroundQueueJoinTime(GetSchedulerType(m_BgTypeId)), 0, 0, false);
