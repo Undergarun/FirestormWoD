@@ -77,6 +77,9 @@ namespace MS { namespace Garrison
             /// @p_ID    : Value ID
             /// @p_Value : Value
             virtual void SetData(uint32 p_ID, uint32 p_Value) override;
+            /// Get UInt32 value
+            /// @p_ID    : Value ID
+            virtual uint32 GetData(uint32 p_ID) override;
 
         protected:
             GarrisonPlotInstanceInfoLocation const* m_PlotInstanceLocation; ///< This creature plot

@@ -205,7 +205,8 @@ namespace MS { namespace Garrison
             Builder         = 10000,
             PeonWorking     = 10001,
             BuildingID      = 10002,
-            PlotInstanceID  = 10003
+            PlotInstanceID  = 10003,
+            HasRecipe       = 0x40000000
         };
     }
 

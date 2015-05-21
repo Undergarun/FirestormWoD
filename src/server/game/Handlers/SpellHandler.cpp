@@ -33,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
+#include "GarrisonMgr.hpp"
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -666,9 +667,28 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         }
         else
         {
+            Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_UnkGUID, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+
+            if (l_Unit)
+            {
+                uint32 l_ConditionID = l_Unit->AI()->GetData(MS::Garrison::CreatureAIDataIDs::HasRecipe + l_SpellID);
+                if (l_ConditionID == (uint32)-1)
+                {
+                    p_RecvPacket.rfinish();
+                    return;
+                }
+
+                if (l_ConditionID != 0 && !m_Player->EvalPlayerCondition(l_ConditionID).first)
+                {
+                    p_RecvPacket.rfinish();
+                    return;
+                }
+
+                /// All is ok, we continue
+            }
             // not have spell in spellbook
             // cheater? kick? ban?
-            if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+            else if(!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
             {
                 p_RecvPacket.rfinish(); // prevent spam at ignore packet
                 return;

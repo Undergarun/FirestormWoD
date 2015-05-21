@@ -192,6 +192,31 @@ namespace MS { namespace Garrison
         }
     }
 
+    /// Get UInt32 value
+    /// @p_ID    : Value ID
+    uint32 GarrisonNPCAI::GetData(uint32 p_ID)
+    {
+        if ((p_ID & CreatureAIDataIDs::HasRecipe) != 0)
+        {
+            if (!m_Recipes)
+                return (uint32)-1;
+
+            uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
+
+            auto l_It = std::find_if(m_Recipes->begin(), m_Recipes->end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
+            {
+                return p_Entry.AbilitySpellID == l_RecipeID;
+            });
+
+            if (l_It == m_Recipes->end())
+                return (uint32)-1;
+
+            return l_It->AbilitySpellIDPlayerCondition;
+        }
+        
+        return (uint32)-1;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
