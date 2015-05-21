@@ -606,9 +606,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     SQLTransaction l_AccTransaction  = LoginDatabase.BeginTransaction();
     std::stringstream stringstr;
 
-    ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
-    sObjectMgr->_hiItemGuid++;
-
     while (!feof(fin))
     {
         if (!fgets(buf, 32000, fin))
@@ -664,7 +661,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
         if (l_TableType == DTT_MAIL || l_TableType == DTT_MAIL_ITEM)
             continue;
-
 
         bool l_AllowedAppend = true;
 
