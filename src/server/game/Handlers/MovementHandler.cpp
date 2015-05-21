@@ -32,6 +32,8 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
+#include "BattlegroundMgr.hpp"
+#include "Battleground.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
@@ -117,7 +119,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
             {
                 bg->AddPlayer(m_Player);
-                bg->DecreaseInvitedCount(m_Player->GetTeam());
+
+                /// Remove battleground queue status from BGmgr
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, MS::Battlegrounds::GetSchedulerType(bg->GetTypeID()));
             }
         }
     }

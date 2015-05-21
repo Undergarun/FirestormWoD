@@ -219,7 +219,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGroupFinderCategoryStore,       db2Path, "GroupFinderCategory.db2"                                              );
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2"                                                         );
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2",            "map_challenge_mode",           "ID");
-    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2"                                                            );
+    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2",                       "mount",                        "ID");
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2"                                                  );
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );

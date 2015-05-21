@@ -3466,9 +3466,16 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             l_Target->SetDisplayId(l_DisplayId);
         }
 
-        auto l_MountEntry = sMountStore.LookupEntry(GetId());
-        if (l_MountEntry != nullptr)
+        for (uint32 l_I = 0; l_I < sMountStore.GetNumRows(); ++l_I)
+        {
+            auto l_MountEntry = sMountStore.LookupEntry(GetId());
+
+            if (!l_MountEntry || l_MountEntry->SpellID != GetId())
+                continue;
+
             l_DisplayId = l_MountEntry->CreatureDisplayID;
+            break;
+        }
 
         /// Hackfix for somes mount unavailable on retail (data aren't)
         /// But we need it because we sell it on the shop

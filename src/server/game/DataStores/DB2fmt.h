@@ -77,7 +77,7 @@ const char SpellClassOptionsEntryfmt[] = "niiiiii";
 const char SoundEntriesfmt[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char QuestPackageItemEntryfmt[] = "niiii";
-const char MountEntryfmt[] = "iiiisssini";
+const char MountEntryfmt[] = "niiisssiii";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
 
