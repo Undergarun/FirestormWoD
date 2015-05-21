@@ -611,7 +611,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         if (Player* l_Member = _GetPlayerForTeam(GetOtherTeam(l_Player->GetBGTeam()), l_Iterator, "BuildArenaOpponentSpecializations"))
                         {
                             WorldPacket l_Data;
-                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true, true);
+                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true);
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
