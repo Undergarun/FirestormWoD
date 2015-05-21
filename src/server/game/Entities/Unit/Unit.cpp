@@ -18467,7 +18467,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::min((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
                         if (l_Loot->Items.size() > l_Count)
                         {
