@@ -4795,9 +4795,8 @@ void Spell::SendSpellStart()
     data.appendPackGUID(l_CasterGuid1);
     data.appendPackGUID(l_CasterGuid2);
     data << uint8(m_cast_count);
-    data << uint32(0);                      ///< Projectile Visual 1
-    data << uint32(0);                      ///< Projectile Visual 2
     data << uint32(m_spellInfo->Id);
+    data << uint32(0);                      ///< Unk 6.2.0
     data << uint32(l_CastFlags);
     data << uint32(m_casttime);
     data << uint32(0);                      ///< Hitted target count
@@ -5001,9 +5000,8 @@ void Spell::SendSpellGo()
     l_Data.appendPackGUID(l_CasterGuid1);
     l_Data.appendPackGUID(l_CasterGuid2);
     l_Data << uint8(m_cast_count);
-    l_Data << uint32(0);                                    ///< Projectile Visual 1
-    l_Data << uint32(0);                                    ///< Projectile Visual 2
     l_Data << uint32(m_spellInfo->Id);
+    l_Data << uint32(0);                      ///< Unk 6.2.0
     l_Data << uint32(l_CastFlags);
     l_Data << uint32(m_casttime);
     l_Data << uint32(l_HitCount);

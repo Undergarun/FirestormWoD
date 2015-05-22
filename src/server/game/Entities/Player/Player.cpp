@@ -2516,7 +2516,7 @@ bool Player::BuildEnumData(PreparedQueryResult p_Result, ByteBuffer* p_Data)
     /// Character visible equipment
     for (uint8 l_EquipmentSlot = 0; l_EquipmentSlot < INVENTORY_SLOT_BAG_END; ++l_EquipmentSlot)
     {
-        uint32 l_Visualbase = l_EquipmentSlot * 3;
+        uint32 l_Visualbase = l_EquipmentSlot * 2;
         uint32 l_ItemID     = GetUInt32ValueFromArray(l_CharacterEquipment, l_Visualbase);
 
         ItemTemplate const * l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
@@ -22867,7 +22867,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode
@@ -22999,7 +22999,7 @@ void Player::SaveToDB(bool create /*=false*/)
 
         ss.str("");
         // cache equipment...
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 3; ++i)
+        for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
             ss << GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + i) << ' ';
 
         // ...and bags for enum opcode

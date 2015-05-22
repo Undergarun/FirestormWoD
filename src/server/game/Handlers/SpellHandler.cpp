@@ -115,6 +115,10 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket.readPackGUID(l_ItemGUID);
 
     p_RecvPacket >> l_CastCount;
+
+    for (int l_I = 0; l_I < 2; l_I++)
+        p_RecvPacket.read_skip<uint32>();
+
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
@@ -494,6 +498,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     WorldLocation l_DestinationTargetPosition;
 
     p_RecvPacket >> l_CastCount;
+
+    for (int l_I = 0; l_I < 2; l_I++)
+        p_RecvPacket.read_skip<uint32>();
+
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
@@ -1080,6 +1088,10 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     WorldLocation l_DestinationTargetPosition;
 
     p_RecvData >> l_CastCount;
+
+    for (int l_I = 0; l_I < 2; l_I++)
+        p_RecvData.read_skip<uint32>();
+
     p_RecvData >> l_SpellID;
     p_RecvData >> l_Misc;
 

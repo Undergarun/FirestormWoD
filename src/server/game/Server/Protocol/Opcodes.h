@@ -1096,27 +1096,27 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ATTACKSTOP                             = 0x0000, ///<
-    CMSG_ATTACKSWING                            = 0x0000, ///<
+    CMSG_ATTACKSTOP                             = 0x04D0, ///< 6.2.0 20033
+    CMSG_ATTACKSWING                            = 0x1D58, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Duel
     //////////////////////////////////////////////////////////////////////////
-    CMSG_DUEL_PROPOSED                          = 0x0000, ///<
-    CMSG_DUEL_RESPONSE                          = 0x0000, ///<
+    CMSG_DUEL_PROPOSED                          = 0x0235, ///< 6.2.0 20033
+    CMSG_DUEL_RESPONSE                          = 0x0248, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Spell
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CAST_SPELL                             = 0x0000, ///<
-    CMSG_CANCEL_CAST                            = 0x0000, ///<
-    CMSG_USE_ITEM                               = 0x0000, ///<
-    CMSG_CANCEL_AURA                            = 0x0000, ///<
-    CMSG_CANCEL_AUTO_REPEAT_SPELL               = 0x0000, ///<
-    CMSG_CANCEL_CHANNELLING                     = 0x0000, ///<
-    CMSG_CANCEL_GROWTH_AURA                     = 0x0000, ///<
-    CMSG_CANCEL_MOUNT_AURA                      = 0x0000, ///<
-    CMSG_CANCEL_QUEUED_SPELL                    = 0x0000, ///<
+    CMSG_CAST_SPELL                             = 0x1632, ///< 6.2.0 20033
+    CMSG_CANCEL_CAST                            = 0x1458, ///< 6.2.0 20033
+    CMSG_USE_ITEM                               = 0x1144, ///< 6.2.0 20033
+    CMSG_CANCEL_AURA                            = 0x14D3, ///< 6.2.0 20033
+    CMSG_CANCEL_AUTO_REPEAT_SPELL               = 0x04D0, ///< 6.2.0 20033
+    CMSG_CANCEL_CHANNELLING                     = 0x17F1, ///< 6.2.0 20033
+    CMSG_CANCEL_GROWTH_AURA                     = 0x1C04, ///< 6.2.0 20033
+    CMSG_CANCEL_MOUNT_AURA                      = 0x1518, ///< 6.2.0 20033
+    CMSG_CANCEL_QUEUED_SPELL                    = 0x1225, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Cache
@@ -1141,7 +1141,7 @@ enum Opcodes
     CMSG_LOGOUT_CANCEL                          = 0x00C8, ///< 6.2.0 20033
     CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
-    CMSG_SET_SELECTION                          = 0x0000, ///<
+    CMSG_SET_SELECTION                          = 0x0610, ///< 6.2.0 20033
     CMSG_SETSHEATHED                            = 0x0000, ///<
     CMSG_GOSSIP_HELLO                           = 0x0000, ///<
     CMSG_GOSSIP_SELECT_OPTION                   = 0x0000, ///<
