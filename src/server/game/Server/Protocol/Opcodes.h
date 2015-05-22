@@ -501,7 +501,7 @@ enum Opcodes
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x1976, ///< 6.1.2 19783
-        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< (NYI)
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x1232, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0D22, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
@@ -939,6 +939,7 @@ enum Opcodes
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0988, ///< 6.1.2 19783
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x01A8, ///< 6.1.2 19783
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x018F, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

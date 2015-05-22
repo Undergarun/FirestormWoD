@@ -91,12 +91,8 @@ void WorldSession::SendNameQueryOpcode(uint64 guid)
 
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recvData)
 {
-
     uint64 guid;
     recvData.readPackGUID(guid);
-
-    // This is disable by default to prevent lots of console spam
-    // sLog->outInfo(LOG_FILTER_NETWORKIO, "HandleNameQueryOpcode %u", guid);
 
     SendNameQueryOpcode(guid);
 }
@@ -572,7 +568,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& p_Packet)
     for (uint32 i = 0; i < l_Count; ++i)
         l_QuestList.push_back(p_Packet.read<uint32>());
 
-    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 10 * 1024);
+    WorldPacket l_Data(SMSG_QUEST_POIQUERY_RESPONSE, 15 * 1024);
     l_Data << uint32(l_Count); // count
     l_Data << uint32(l_Count);
 
@@ -678,7 +674,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
         else if (l_DB2Store)
         {
             ByteBuffer l_ResponseData(2 * 1024);
-            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData))
+            if (l_DB2Store->WriteRecord(l_Entry, l_ResponseData, GetSessionDbLocaleIndex()))
             {
                 WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
                 l_Data << uint32(l_Type);

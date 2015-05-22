@@ -31,7 +31,7 @@
 #include "zlib.h"
 #include "Config.h"
 
-#define DUMP_TABLE_COUNT 32
+#define DUMP_TABLE_COUNT 33
 
 struct DumpTable
 {
@@ -44,6 +44,7 @@ static DumpTable g_DumpTables[DUMP_TABLE_COUNT] =
 {
     { "account_achievement",              DTT_ACC_ACH    , {}},
     { "account_achievement_progress",     DTT_ACC_ACH_PRO, {}},
+    { "account_spell",                    DTT_ACC_SPELL,   {}},
     { "characters",                       DTT_CHARACTER  , {}},
     { "character_achievement",            DTT_CHAR_TABLE , {}},
     { "character_achievement_progress",   DTT_CHAR_TABLE , {}},
@@ -393,6 +394,9 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, uint32 account,
             break;
     }
 
+    if (type == DTT_ACC_SPELL)
+        return true;
+
     // for guid set stop if set is empty
     if (guids && guids->empty())
         return true; // nothing to do
@@ -566,9 +570,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     QueryResult result = QueryResult(NULL);
     char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20], atLogin[20];
 
-    // midgar
-    std::list<std::string> queryQueue;
-
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
     if (p_Guid != 0 && p_Guid < sObjectMgr->_hiCharGuid.value())
@@ -601,11 +602,9 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
     typedef PetIds::value_type PetIdsPair;
     PetIds petids;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_CharTransaction = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_AccTransaction  = LoginDatabase.BeginTransaction();
     std::stringstream stringstr;
-
-    ACE_Guard<ACE_Thread_Mutex>(sObjectMgr->m_GuidLock, true);
-    sObjectMgr->_hiItemGuid++;
 
     while (!feof(fin))
     {
@@ -660,6 +659,13 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
+        if (l_TableType == DTT_MAIL || l_TableType == DTT_MAIL_ITEM)
+            continue;
+
+        if (l_TableName == "character_aura"
+            || l_TableName == "character_aura_effect")
+            continue;
+
         bool l_AllowedAppend = true;
 
         // change the data to server values
@@ -710,8 +716,22 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                     }
                 }
 
-                const char null[5] = "NULL";
+                /// We transfer max 50k golds
+                l_Index = GetFieldIndexFromColumn("money", l_Columns) + 1;
+                uint64 l_Gold = atoi(getnth(l_Line, l_Index).c_str());
+                if (l_Gold > (50000 * GOLD))
+                {
+                    char l_MaxMoney[20];
+                    snprintf(l_MaxMoney, 20, "%u", 50000 * GOLD);
 
+                    if (!changenth(l_Line, l_Index, l_MaxMoney))
+                    {
+                        sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [can't change money]");
+                        ROLLBACK(DUMP_FILE_BROKEN);
+                    }
+                }
+
+                const char null[5] = "NULL";
                 l_Index = GetFieldIndexFromColumn("deleteInfos_Account", l_Columns) + 1;
                 if (!changenth(l_Line, l_Index, null))                                  ///< characters.deleteInfos_Account
                 {
@@ -888,7 +908,15 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
                     uint32 flags = atoi(l_Line.substr(s, e - s).c_str());
                     if (!(flags & 1))
-                        l_AllowedAppend = false;
+                    {
+                        l_Index = GetFieldIndexFromColumn("itemEntry", l_Columns) + 1;
+                        uint32 l_ItemEntry = atoi(getnth(l_Line, l_Index).c_str());
+
+                        /// Don't delete sac even if they aren't bounded, cause items can be inside
+                        ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemEntry);
+                        if (l_Item && l_Item->InventoryType != INVTYPE_BAG)
+                            l_AllowedAppend = false;
+                    }
                 }
 
                 break;
@@ -977,6 +1005,16 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
                 }
                 break;
             }
+            case DTT_ACC_SPELL:
+            {
+                uint32 l_Index = GetFieldIndexFromColumn("accountId", l_Columns) + 1;
+                if (!changenth(l_Line, l_Index, chraccount))
+                {
+                    sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [can't change accountId]");
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                }
+                break;
+            }
             case DTT_ACC_ACH_PRO:
                 break; // nothing to change, it's account id only
             default:
@@ -992,18 +1030,22 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
         {
             fixNULLfields(l_Line);
 
-            trans->Append(l_Line.c_str());
-            queryQueue.push_back(l_Line);
+            if (l_TableType == DTT_ACC_SPELL)
+                l_AccTransaction->Append(l_Line.c_str());
+            else
+                l_CharTransaction->Append(l_Line.c_str());
         }
     }
 
     fclose(fin);
 
-    if (!CharacterDatabase.DirectCommitTransaction(trans))
+    if (!CharacterDatabase.DirectCommitTransaction(l_CharTransaction))
     {
         sLog->outAshran("LoadDump: DUMP_FILE_BROKEN [37]");
         return DUMP_FILE_BROKEN;
     }
+
+    LoginDatabase.DirectCommitTransaction(l_AccTransaction);
 
     if (incHighest)
         ++sObjectMgr->_hiCharGuid;
@@ -1015,9 +1057,28 @@ void PlayerDump::LoadColumnsName()
 {
     for (int l_I = 0; l_I < DUMP_TABLE_COUNT; ++l_I)
     {
-        MySQLConnectionInfo l_Info = MySQLConnectionInfo(ConfigMgr::GetStringDefault("CharacterDatabaseInfo", ""));
+        std::string l_TableName = g_DumpTables[l_I].name;
 
-        std::string l_TableName    = g_DumpTables[l_I].name;
+        if (g_DumpTables[l_I].type == DTT_ACC_SPELL)
+        {
+            MySQLConnectionInfo l_Info = MySQLConnectionInfo(ConfigMgr::GetStringDefault("LoginDatabaseInfo", ""));
+            std::string l_DatabaseName = l_Info.database;
+
+            QueryResult l_TableInfoResult = LoginDatabase.PQuery("SELECT `COLUMN_NAME`  FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='%s' AND `TABLE_NAME`='%s'", l_DatabaseName.c_str(), l_TableName.c_str());
+            if (l_TableInfoResult)
+            {
+                do
+                {
+                    Field* l_Fields = l_TableInfoResult->Fetch();
+                    std::string l_Column = l_Fields[0].GetString();
+
+                    g_DumpTables[l_I].columns.push_back(l_Column);
+                } while (l_TableInfoResult->NextRow());
+            }
+            continue;
+        }
+
+        MySQLConnectionInfo l_Info = MySQLConnectionInfo(ConfigMgr::GetStringDefault("CharacterDatabaseInfo", ""));
         std::string l_DatabaseName = l_Info.database;
 
         QueryResult l_TableInfoResult = CharacterDatabase.PQuery("SELECT `COLUMN_NAME`  FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='%s' AND `TABLE_NAME`='%s'", l_DatabaseName.c_str(), l_TableName.c_str());
@@ -1029,8 +1090,7 @@ void PlayerDump::LoadColumnsName()
                 std::string l_Column = l_Fields[0].GetString();
 
                 g_DumpTables[l_I].columns.push_back(l_Column);
-            }
-            while (l_TableInfoResult->NextRow());
+            } while (l_TableInfoResult->NextRow());
         }
     }
 }

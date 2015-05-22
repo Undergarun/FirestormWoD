@@ -125,7 +125,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& p_Packet)
         return;
     }
 
-    WorldPacket l_Response(SMSG_LFGUILD_BROWSE);
+    WorldPacket l_Response(SMSG_LFGUILD_BROWSE, 1024);
     l_Response << uint32(l_GuildCount);
 
     for (LFGuildStore::const_iterator l_It = l_GuildList.begin(); l_It != l_GuildList.end(); ++l_It)
@@ -226,7 +226,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& p_Packet)
 
     std::vector<MembershipRequest> l_RecruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(m_Player->GetGuildId());
 
-    WorldPacket l_Data(SMSG_LFGUILD_RECRUITS, 500);
+    WorldPacket l_Data(SMSG_LFGUILD_RECRUITS, 10 * 1024);
 
     l_Data << uint32(l_RecruitsList.size());                            ///< Recruits Count
     l_Data << uint32(time(NULL));                                       ///< Update Time

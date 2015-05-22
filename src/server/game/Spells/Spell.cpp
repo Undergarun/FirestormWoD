@@ -3213,7 +3213,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
                 if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
-                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131369);
+                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
                 if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
@@ -3682,6 +3682,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
 
+    // Unstable Afflication (30108) with Soulborn: Soul Swap (141931)
+    if (m_spellInfo && m_spellInfo->Id == 30108 && _triggeredCastFlags == TRIGGERED_FULL_MASK)
+        m_casttime = 0;
+
     // If spell not channeled and was stolen he have no cast time
     if (isStolen && !m_spellInfo->IsChanneled() && m_spellInfo->Id != 605)
         m_casttime = 0;
@@ -3856,6 +3860,37 @@ void Spell::cast(bool skipCheck)
         // Set spell which will drop charges for triggered cast spells
         // if not successfully casted, will be remove in finish(false)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
+    }
+
+    switch (m_spellInfo->Id)
+    {
+        case 101603: // Throw Totem
+            if(m_caster->HasAura(107837))
+                m_caster->RemoveAura(107837, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(101601, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 119393: // Siege Explosive
+            if(m_caster->HasAura(119388))
+                m_caster->RemoveAura(119388, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(119386, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 123057: // Sonic Divebomb
+            if(m_caster->HasAura(123021))
+                m_caster->RemoveAura(123021, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(123057, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 123039: // Player Throw Barrel
+            if(m_caster->HasAura(123032))
+                m_caster->RemoveAura(123032, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(123035, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+        case 127329: // Throw Bomb
+            if(m_caster->HasAura(127226))
+                m_caster->RemoveAura(127226, 0, 0, AURA_REMOVE_BY_CANCEL);
+                m_caster->RemoveAura(127175, 0, 0, AURA_REMOVE_BY_CANCEL);
+            break;
+    default:
+        break;
     }
 
     CallScriptBeforeCastHandlers();
@@ -5182,7 +5217,7 @@ void Spell::SendLogExecute()
     if (m_effectExecuteData.size() <= 0)
         return;
 
-    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG);
+    WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
 
     l_Data.appendPackGUID(m_caster->GetGUID());
     l_Data << uint32(m_spellInfo->Id);

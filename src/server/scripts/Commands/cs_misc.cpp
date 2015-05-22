@@ -3018,7 +3018,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+            WorldPacket data(SMSG_PLAY_SOUND, 2 + 16 + 8);
             ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
             data << uint32(soundId);
             data.appendPackGUID(guid);

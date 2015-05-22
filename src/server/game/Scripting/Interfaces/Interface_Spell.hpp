@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_SPELL
-#define SCRIPTING_INTERFACES_SPELL
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_SPELL_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_SPELL_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -27,4 +33,4 @@ class SpellScriptLoader : public ScriptObjectImpl<true>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_SPELL
+#endif  ///< SCRIPTING_INTERFACES_SPELL_HPP_INCLUDED

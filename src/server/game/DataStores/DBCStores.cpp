@@ -28,6 +28,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include "WowTime.hpp"
+#include <ace/OS_NS_time.h>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
@@ -245,6 +247,8 @@ DBCStorage <WorldSafeLocsEntry> sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage <PhaseEntry> sPhaseStores(PhaseEntryfmt);
 DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore(GtBattlePetXPfmt);
 DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
+DBCStorage <WorldStateEntry>              sWorldStateStore(WorldStateEntryfmt);
+DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore(WorldStateExpressionEntryfmt);
 
 typedef std::list<std::string> StoreProblemList;
 
@@ -700,6 +704,8 @@ void LoadDBCStores(const std::string& dataPath)
     // Battle pets
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetXPStore,            dbcPath, "gtBattlePetXP.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtBattlePetTypeDamageModStore, dbcPath, "gtBattlePetTypeDamageMod.dbc");                                     // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateStore,               dbcPath, "WorldState.dbc");                                                   // 19865
+    LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateExpressionStore,     dbcPath, "WorldStateExpression.dbc");                                         // 19865
 
     for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); i++)
     {
@@ -1266,4 +1272,743 @@ uint32 GetQuestUniqueBitFlag(uint32 questId)
         return 0;
 
     return v2->UniqueBitFlag;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+static uint8 const g_WorldState_UnpackUnkTable[] = {
+    0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00,
+    0x20, 0x00, 0x28, 0x00, 0x28, 0x00, 0x28, 0x00, 0x28, 0x00, 0x28, 0x00, 0x20, 0x00, 0x20, 0x00,
+    0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00,
+    0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00, 0x20, 0x00,
+    0x48, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00,
+    0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00,
+    0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00,
+    0x84, 0x00, 0x84, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00,
+    0x10, 0x00, 0x81, 0x00, 0x81, 0x00, 0x81, 0x00, 0x81, 0x00, 0x81, 0x00, 0x81, 0x00, 0x01, 0x00,
+    0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00,
+    0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00,
+    0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00,
+    0x10, 0x00, 0x82, 0x00, 0x82, 0x00, 0x82, 0x00, 0x82, 0x00, 0x82, 0x00, 0x82, 0x00, 0x02, 0x00,
+    0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00,
+    0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00,
+    0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00, 0x20, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+namespace WorldStateExpressionMathOpcode
+{
+    enum
+    {
+        Add         = 1,
+        Substract   = 2,
+        Multiply    = 3,
+        Divide      = 4,
+        Modulo      = 5
+    };
+}
+
+namespace WorldStateExpressionCompareOpcode
+{
+    enum
+    {
+        Equal       = 1,
+        Different   = 2,
+        Less        = 3,
+        LessOrEqual = 4,
+        More        = 5,
+        MoreOrEqual = 6
+    };
+}
+
+namespace WorldStateExpressionCustomOpType
+{
+    enum
+    {
+        PushUInt32          = 1,
+        PushWorldStateValue = 2,
+        CallFunction        = 3
+    };
+}
+
+namespace WorldStateExpressionFunctions
+{
+    enum
+    {
+        None,
+        Random,
+        Month,
+        Day,
+        TimeOfDay,
+        Region,
+        ClockHour,
+        DifficultyID,
+        HolidayStart,
+        HolidayLeft,
+        HolidayActive,
+        TimerCurrentTime,
+        WeekNumber
+    };
+
+    const char * Names[] =
+    {
+        "None",
+        "Random",
+        "Month",
+        "Day",
+        "TimeOfDay",
+        "Region",
+        "ClockHour",
+        "DifficultyID",
+        "HolidayStart",
+        "HolidayLeft",
+        "HolidayActive",
+        "TimerCurrentTime",
+        "WeekNumber"
+    };
+}
+
+static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunction[] =
+{
+    /// WorldStateExpressionFunctions::None
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::Random
+    [](Player* p_Player, int32 p_Min, int32 p_Max) -> int32
+    {
+        return urand(p_Min, p_Max);
+    },
+    /// WorldStateExpressionFunctions::Month
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        MS::Utilities::WowTime l_Time;
+        l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
+
+        return l_Time.Month + 1;
+    },
+    /// WorldStateExpressionFunctions::Day
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        MS::Utilities::WowTime l_Time;
+        l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
+
+        return l_Time.MonthDay + 1;
+    },
+    /// WorldStateExpressionFunctions::TimeOfDay
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        MS::Utilities::WowTime l_Time;
+        l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
+
+        return l_Time.GetHourAndMinutes();
+    },
+    /// WorldStateExpressionFunctions::Region
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return sWorld->GetServerRegionID();
+    },
+    /// WorldStateExpressionFunctions::ClockHour
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        MS::Utilities::WowTime l_Time;
+        l_Time.SetUTCTimeFromPosixTime(sWorld->GetGameTime());
+
+        if (l_Time.Hour <= 12)
+            return l_Time.Hour;
+
+        if (l_Time.Hour - 12)
+            return l_Time.Hour - 12;
+
+        return 12;
+    },
+    /// WorldStateExpressionFunctions::Region
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return sWorld->GetServerRegionID();
+    },
+    /// WorldStateExpressionFunctions::DifficultyID
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        if (!p_Player)
+            return 0;
+
+        return p_Player->GetMap()->GetDifficultyID();
+    },
+    /// WorldStateExpressionFunctions::HolidayStart
+    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    {
+        HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
+
+        if (!l_Entry || (p_Arg2 > 0 && !l_Entry->Duration[p_Arg2]))
+            return 0;
+
+        int l_ChoosedDuration = l_Entry->Duration[p_Arg2];
+        if (!l_ChoosedDuration)
+            l_ChoosedDuration = 24;
+
+        time_t l_CurrentTime = sWorld->GetGameTime();
+        struct tm l_LocalTime;
+        l_LocalTime.tm_isdst = -1;
+
+        ACE_OS::localtime_r(&l_CurrentTime, &l_LocalTime);
+
+        MS::Utilities::WowTime l_GameTime;
+        l_GameTime.SetUTCTimeFromPosixTime(l_CurrentTime);
+        l_GameTime.YearDay = l_LocalTime.tm_yday;
+
+        for (uint32 l_I = 0; l_I < MAX_HOLIDAY_DATES; ++l_I)
+        {
+            MS::Utilities::WowTime l_Time;
+            l_Time.Decode(l_Entry->Date[l_I]);
+
+            if (l_Entry->flags & 1)
+            {
+                l_Time.YearDay = l_GameTime.YearDay;
+                l_Time.ComputeRegionTime(l_Time);
+            }
+
+            if (l_Time.Minute   < 0) l_Time.Minute      = l_GameTime.Minute;
+            if (l_Time.Hour     < 0) l_Time.Hour        = l_GameTime.Hour;
+            if (l_Time.MonthDay < 0) l_Time.MonthDay    = l_GameTime.Minute;
+            if (l_Time.Month    < 0) l_Time.Month       = l_GameTime.Month;
+            if (l_Time.Year     < 0)
+            {
+                l_Time.Year = l_GameTime.Year;
+
+                if (l_GameTime < l_Time)
+                    --l_Time.Year;
+            }
+
+            if (l_Entry->Looping)
+            {
+                int32 l_I = 0;
+                int32 v7 = 0;
+                int32 v8 = 0;
+                do
+                {
+                    if (l_I >= p_Arg2)
+                    {
+                        if (l_I > p_Arg2)
+                            v8 += l_Entry->Duration[l_I];
+                    }
+                    else
+                    {
+                        v7 += l_Entry->Duration[l_I];
+                        if (!l_I && !l_Entry->Duration[0])
+                            v7 += 24;
+                    }
+                    ++l_I;
+                } while (l_I < MAX_HOLIDAY_DURATIONS);
+
+                int v10 = MS::Utilities::Globals::InMinutes::Hour * v7;
+                int v11 = MS::Utilities::Globals::InMinutes::Hour * v8;
+                while (!(l_GameTime <= l_Time))
+                {
+                    l_Time.AddHolidayDuration(v10);
+                    l_Time.AddHolidayDuration(l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour);
+                    if (!(l_GameTime >= l_Time))
+                    {
+                        int l_Result = (MS::Utilities::Globals::InMinutes::Day * (l_Time.GetDaysSinceEpoch() - l_GameTime.GetDaysSinceEpoch())) - l_GameTime.GetHourAndMinutes();
+                        return l_Result + l_Time.GetHourAndMinutes();
+                    }
+                    l_Time.AddHolidayDuration(v11);
+                }
+                return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
+            }
+
+            if (l_GameTime <= l_Time)
+            {
+                for (int32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
+                {
+                    uint32 l_Value = l_Entry->Duration[l_Y];
+                    if (!l_Value)
+                        l_Value = 24;
+
+                    l_Time.AddHolidayDuration(l_Value * MS::Utilities::Globals::InMinutes::Hour);
+                }
+
+                l_Time.AddHolidayDuration(l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour);
+
+                if (!(l_GameTime >= l_Time))
+                    return l_Time.DiffTime(l_GameTime) / MS::Utilities::Globals::InMinutes::Hour;
+            }
+        }
+
+        return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
+    },
+    /// WorldStateExpressionFunctions::HolidayLeft
+    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    {
+        HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
+
+        if (!l_Entry || (p_Arg2 <= 0 && l_Entry->Duration[p_Arg2]))
+            return 0;
+
+        int l_ChoosedDuration = l_Entry->Duration[p_Arg2];
+        if (!l_ChoosedDuration)
+            l_ChoosedDuration = 24;
+
+        time_t l_CurrentTime = sWorld->GetGameTime();
+        struct tm l_LocalTime;
+        l_LocalTime.tm_isdst = -1;
+
+        ACE_OS::localtime_r(&l_CurrentTime, &l_LocalTime);
+
+        MS::Utilities::WowTime l_GameTime;
+        l_GameTime.SetUTCTimeFromPosixTime(l_CurrentTime);
+        l_GameTime.YearDay = l_LocalTime.tm_yday;
+
+        for (uint32 l_I = 0; l_I < MAX_HOLIDAY_DATES; ++l_I)
+        {
+            MS::Utilities::WowTime l_Time;
+            l_Time.Decode(l_Entry->Date[l_I]);
+
+            if (l_Entry->flags & 1)
+            {
+                l_Time.YearDay = l_GameTime.YearDay;
+                l_Time.ComputeRegionTime(l_Time);
+            }
+
+            if (l_Time.Minute   < 0) l_Time.Minute      = l_GameTime.Minute;
+            if (l_Time.Hour     < 0) l_Time.Hour        = l_GameTime.Hour;
+            if (l_Time.MonthDay < 0) l_Time.MonthDay    = l_GameTime.Minute;
+            if (l_Time.Month    < 0) l_Time.Month       = l_GameTime.Month;
+            if (l_Time.Year     < 0)
+            {
+                l_Time.Year = l_GameTime.Year;
+
+                if (l_GameTime < l_Time)
+                    --l_Time.Year;
+            }
+
+            if (l_Entry->Looping)
+            {
+                int32 l_I = 0;
+                int32 v7 = 0;
+                int32 v8 = 0;
+                do
+                {
+                    if (l_I >= p_Arg2)
+                    {
+                        if (l_I > p_Arg2)
+                            v8 += l_Entry->Duration[l_I];
+                    }
+                    else
+                    {
+                        v7 += l_Entry->Duration[l_I];
+                        if (!l_I && !l_Entry->Duration[0])
+                            v7 += 24;
+                    }
+                    ++l_I;
+                } while (l_I < MAX_HOLIDAY_DURATIONS);
+
+                int v10 = MS::Utilities::Globals::InMinutes::Hour * v7;
+                int v11 = MS::Utilities::Globals::InMinutes::Hour * v8;
+                while (!(l_GameTime <= l_Time))
+                {
+                    l_Time.AddHolidayDuration(v10);
+                    l_Time.AddHolidayDuration(l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour);
+                    if (!(l_GameTime >= l_Time))
+                    {
+                        int l_Result = (MS::Utilities::Globals::InMinutes::Day * (l_Time.GetDaysSinceEpoch() - l_GameTime.GetDaysSinceEpoch())) - l_GameTime.GetHourAndMinutes();
+                        return l_Result + l_Time.GetHourAndMinutes();
+                    }
+                    l_Time.AddHolidayDuration(v11);
+                }
+                return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
+            }
+
+            if (l_GameTime <= l_Time)
+            {
+                if (p_Arg2 > 0)
+                {
+                    for (int32 l_Y = 0; l_Y < p_Arg2 && l_Y < MAX_HOLIDAY_DURATIONS; ++l_Y)
+                    {
+                        uint32 l_Value = l_Entry->Duration[l_Y];
+                        if (!l_Value)
+                            l_Value = 24;
+
+                        l_Time.AddHolidayDuration(l_Value * MS::Utilities::Globals::InMinutes::Hour);
+                    }
+                }
+
+                l_Time.AddHolidayDuration(l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour);
+
+                if (!(l_GameTime >= l_Time))
+                    return l_Time.DiffTime(l_GameTime) / MS::Utilities::Globals::InMinutes::Hour;
+            }
+        }
+
+        return l_ChoosedDuration * MS::Utilities::Globals::InMinutes::Hour;
+    },
+    /// WorldStateExpressionFunctions::HolidayActive
+    [](Player* p_Player, int32 p_HolidayID, int32 p_Arg2) -> int32
+    {
+        HolidaysEntry const* l_Entry = sHolidaysStore.LookupEntry(p_HolidayID);
+
+        if (l_Entry)
+        {
+            int l_I = 0;
+            uint32 const* l_Durations = l_Entry->Duration;
+            while (l_I <= 0 || *l_Durations)
+            {
+                signed int l_CurrentDuration = *l_Durations;
+
+                if (!l_CurrentDuration)
+                    l_CurrentDuration = 24;
+
+                if (g_WorldStateExpressionFunction[WorldStateExpressionFunctions::HolidayStart](p_Player, p_HolidayID, l_I) < (MS::Utilities::Globals::InMinutes::Hour * l_CurrentDuration))
+                    return 1;
+
+                ++l_I;
+                l_Durations += 4;
+
+                if (l_I >= MAX_HOLIDAY_DURATIONS)
+                    return 0;
+            }
+        }
+
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::TimerCurrentTime
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return time(nullptr);
+    },
+    /// WorldStateExpressionFunctions::WeekNumber
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        time_t l_Time = sWorld->GetGameTime();
+        return (l_Time - sWorld->GetServerRaidOrigin()) / WEEK;
+    }
+};
+
+/// 19865 - sub_A671A3
+bool UnkSubFunction(char p_Char)
+{
+    /// @TODO NEED MORE WORK
+    ///if (dword_1368528)
+    ///{
+    ///    return !!sub_A67152(p_Char, 0);
+    ///}
+    
+    uint16_t l_Value = *(uint16_t*)(&g_WorldState_UnpackUnkTable[p_Char * 2]);
+    return !!(l_Value & 4);
+}
+
+std::string UnpackWorldStateExpression(char const* p_Input)
+{
+    char const* l_ExpressionStr = p_Input;
+    std::string l_Unpacked;
+
+    while (*l_ExpressionStr)
+    {
+        char l_Out = 0;
+        char l_Temp = 0;
+        if (!UnkSubFunction(l_ExpressionStr[0]))
+            l_Temp = l_ExpressionStr[0] - '7';
+        else
+            l_Temp = l_ExpressionStr[0] - '0';
+
+        l_Out |= l_Temp;
+        l_Out *= 16;
+
+        if (!UnkSubFunction(l_ExpressionStr[1]))
+            l_Temp = l_ExpressionStr[1] - '7';
+        else
+            l_Temp = l_ExpressionStr[1] - '0';
+
+        l_Out |= l_Temp;
+        l_Unpacked += l_Out;
+
+        l_ExpressionStr += 2;
+    }
+
+    return l_Unpacked;
+}
+
+int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+{
+#define UNPACK_UINT8(x) { x = *((uint8*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(uint8);} 
+#define UNPACK_INT32(x) { x = *((int32*)((char const*)*p_UnpackedExpression)); *p_UnpackedExpression += sizeof(int32);} 
+    uint8 l_OpType;
+    UNPACK_UINT8(l_OpType);
+
+    if (l_OpType == WorldStateExpressionCustomOpType::PushUInt32)
+    {
+        int32 l_Value;
+        UNPACK_INT32(l_Value);
+
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, " + std::to_string(l_Value));
+#endif
+
+        return l_Value;
+    }
+    else if (l_OpType == WorldStateExpressionCustomOpType::PushWorldStateValue)
+    {
+        int32 l_WorldStateID;
+        UNPACK_INT32(l_WorldStateID);
+
+#ifdef _MSC_VER
+        p_Instructions.push_back("push " + std::to_string(l_WorldStateID));
+        p_Instructions.push_back("call GetWorldStateValue");
+        p_Instructions.push_back("mov ret, eax");
+#endif
+
+        if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
+            return p_Player->GetWorldState(l_WorldStateID);
+    }
+    else if(l_OpType == WorldStateExpressionCustomOpType::CallFunction)
+    {
+        int32 l_FunctionID;
+        UNPACK_INT32(l_FunctionID);
+
+        int l_Arg1 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+        int l_Arg2 = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+
+        if (l_FunctionID > (sizeof(g_WorldStateExpressionFunction) / sizeof(g_WorldStateExpressionFunction[0])))
+            return 0;
+
+#ifdef _MSC_VER
+        p_Instructions.push_back("push " + std::to_string(l_Arg1));
+        p_Instructions.push_back("push " + std::to_string(l_Arg2));
+        p_Instructions.push_back("call " + std::string(WorldStateExpressionFunctions::Names[l_FunctionID]));
+        p_Instructions.push_back("mov ret, eax");
+#endif
+
+        return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
+    }
+
+    return 0;
+#undef UNPACK_INT32
+#undef UNPACK_UINT8
+}
+
+int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+{
+#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+    int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+    char l_Opperand;
+    UNPACK_UINT8(l_Opperand);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pC, ret");
+#endif
+
+    if (!l_Opperand)
+    {
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, pC");
+#endif
+        return l_LeftValue;
+    }
+
+    int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pD, ret");
+#endif
+
+    switch (l_Opperand)
+    {
+        case WorldStateExpressionMathOpcode::Add:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pC + pD]");
+#endif
+            return l_RightValue + l_LeftValue;
+            break;
+        case WorldStateExpressionMathOpcode::Substract:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pC - pD]");
+#endif
+            return l_LeftValue - l_RightValue;
+            break;
+        case WorldStateExpressionMathOpcode::Multiply:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pC * pD]");
+#endif
+            return l_LeftValue * l_RightValue;
+            break;
+        case WorldStateExpressionMathOpcode::Divide:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pC / pD]");
+#endif
+            if (!l_RightValue)
+                return 0;
+
+            return l_LeftValue / l_RightValue;
+            break;
+        case WorldStateExpressionMathOpcode::Modulo:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pC % pD]");
+#endif
+            if (!l_RightValue)
+                return 0;
+
+            return l_LeftValue % l_RightValue;
+            break;
+        default:
+            break;
+    }
+
+    return 0;
+#undef UNPACK_UINT8
+}
+
+bool WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+{
+#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+    int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
+    char l_Opperand;
+    UNPACK_UINT8(l_Opperand);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pA, ret");
+#endif
+
+    if (!l_Opperand)
+    {
+#ifdef _MSC_VER
+        p_Instructions.push_back("mov ret, pA");
+#endif
+        return !!l_LeftValue;
+    }
+
+    int l_RightValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
+
+#ifdef _MSC_VER
+    p_Instructions.push_back("mov pB, ret");
+#endif
+
+    switch (l_Opperand)
+    {
+        case WorldStateExpressionCompareOpcode::Equal:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA == pB]");
+#endif
+            return l_LeftValue == l_RightValue;
+        case WorldStateExpressionCompareOpcode::Different:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA != pB]");
+#endif
+            return l_LeftValue != l_RightValue;
+        case WorldStateExpressionCompareOpcode::Less:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA < pB]");
+#endif
+            return l_LeftValue < l_RightValue;
+        case WorldStateExpressionCompareOpcode::LessOrEqual:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA <= pB]");
+#endif
+            return l_LeftValue <= l_RightValue;
+        case WorldStateExpressionCompareOpcode::More:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA > pB]");
+#endif
+            return l_LeftValue > l_RightValue;
+        case WorldStateExpressionCompareOpcode::MoreOrEqual:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov ret, [pA >= pB]");
+#endif
+            return l_LeftValue >= l_RightValue;
+        default:
+            break;
+    }
+
+    return 0;
+#undef UNPACK_UINT8
+}
+
+bool WorldStateExpression_EvalResult(char p_LogicResult, int32 p_EvalResult, int p_PrevResult)
+{
+    int v3;
+    int v4;
+
+    v3 = p_LogicResult - 1;
+    if (v3)
+    {
+        v4 = v3 - 1;
+        if (v4)
+        {
+            if (v4 != 1)
+                return false;
+            if (p_PrevResult)
+            {
+                if (p_EvalResult)
+                    return false;
+                return 1;
+            }
+        }
+        else if (p_PrevResult)
+        {
+            return 1;
+        }
+    }
+    else if (!p_PrevResult)
+    {
+        return false;
+    }
+    if (p_EvalResult)
+        return 1;
+
+    return false;
+}
+
+/// Eval a worldstate expression
+bool WorldStateExpressionEntry::Eval(Player* p_Player) const
+{
+#define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);} 
+    std::vector<std::string> p_Instructions;
+    if (this->Expression && strlen(this->Expression))
+    {
+        std::string l_UnpackedExpressionString = UnpackWorldStateExpression(this->Expression);
+        char const* l_UnpackedExpression = l_UnpackedExpressionString.c_str();
+
+        char l_Value;
+        UNPACK_UINT8(l_Value);
+
+        if (l_Value == 1)
+        {
+            bool l_Result = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions);
+            char l_ResultLogic;
+            UNPACK_UINT8(l_ResultLogic);
+
+            if (l_ResultLogic)
+            {
+                l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+                UNPACK_UINT8(l_ResultLogic);
+
+                if (l_ResultLogic)
+                {
+                    l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+                    UNPACK_UINT8(l_ResultLogic);
+                }
+            }
+
+            return l_Result;
+        }
+    }
+
+    return false;
+#undef UNPACK_UINT8
 }

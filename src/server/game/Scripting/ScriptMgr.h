@@ -12,6 +12,7 @@
 #include "Common.h"
 #include "DBCStores.h"
 #include "Interfaces/Interfaces.hpp"
+#include "MutexedMap.hpp"
 
 /// Placed here due to ScriptRegistry::AddScript dependency.
 #define sScriptMgr ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance()
@@ -810,7 +811,6 @@ class ScriptMgr
         /// @p_Damage          : Amount of damage taken
         void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage);
 
-
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.
@@ -895,11 +895,28 @@ class ScriptMgr
         /// @p_Passanger : Passenger to remove
         void OnRemovePassenger(Vehicle* p_Vehicle, Unit* p_Passenger);
 
+    /// Player conditions
+    public:
+        /// Register a player condition script
+        /// @p_ID     : Condition ID
+        /// @p_Script : Script instance
+        void RegisterPlayerConditionScript(uint32 p_ID, PlayerConditionScript* p_Script);
+        /// Has player condition script
+        /// @p_ID: Player condition ID
+        bool HasPlayerConditionScript(uint32 p_ID);
+        /// Eval a player condition script
+        /// @p_Condition : Condition
+        /// @p_Player    : Player instance
+        bool EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player);
+
     private:
         /// Registered script count
         uint32 m_ScriptCount;
         /// Atomic op counter for active scripts amount
         ACE_Atomic_Op<ACE_Thread_Mutex, long> m_ScheduledScripts;
+        /// Player condition scripts
+        MS::Utilities::MutextedMap<uint32, PlayerConditionScript*> m_PlayerConditionScripts;
+
 };
 
 #endif

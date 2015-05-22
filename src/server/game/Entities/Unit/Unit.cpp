@@ -2348,6 +2348,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitted, &split_absorb);
 
+            // Need to remove all auras breakable by damage.
+            caster->RemoveAurasBreakableByDamage();
+
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
             CleanDamage cleanDamage = CleanDamage(splitted, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
@@ -4459,6 +4462,16 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
 void Unit::RemoveMovementImpairingAuras()
 {
     RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+}
+
+void Unit::RemoveAurasBreakableByDamage()
+{
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE);
+    RemoveAurasWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+
+    // Hack fix for Paralysis, don't want to spend time for debuging why it doesn't remove
+    if (HasAura(115078))
+        RemoveAura(115078);
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except, uint8 count)
@@ -11051,6 +11064,8 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                 RemoveAllMinionsByEntry(61029);
             else if (minion->GetEntry() == 15430 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
                 RemoveAllMinionsByEntry(61056);
+            else if (minion->GetEntry() == 77934 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+                RemoveAllMinionsByEntry(77942);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -12782,7 +12797,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 {
     float TakenTotalMod = 1.0f;
 
-    /// Dampeding, must be calculated off the raw amount
+    /// Dampening, must be calculated off the raw amount
     if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
         healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
 
@@ -13892,7 +13907,7 @@ void Unit::ClearInCombat()
         if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->isPet())
+        if (creature->isPet() && !creature->isHunterPet()) ///< fix a problem with hunter pets , that their speed is wrong
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
@@ -14473,6 +14488,10 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+
+    /// Walk speed can't be faster then run speed
+    if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
+        m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
     m_speed_rate[p_MovementType] = rate;
 
@@ -17048,12 +17067,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
-        if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && HasAura(131369) && isVictim)
+        if ((spellInfo->Id == 115191 || spellInfo->Id == 1784) && HasAura(131361) && isVictim)
             useCharges = false;
 
         // Note: must SetCantProc(false) before return
@@ -17496,7 +17515,7 @@ void Unit::SendPetTalk(uint32 p_Action)
 
     uint64 l_UnitGUID = GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 8 + 4);
+    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 16 + 2 + 4);
     l_Data.appendPackGUID(l_UnitGUID);      ///< UnitGUID
     l_Data << uint32(p_Action);             ///< Action
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -18314,7 +18333,7 @@ void Unit::PlayOneShotAnimKit(uint32 id)
 
 void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 {
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
+    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(p_AnimKitID);
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
@@ -18322,7 +18341,7 @@ void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
 {
-    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
     l_Data.WriteVector3(p_Source);
     l_Data.WriteVector3(p_Orientation);
@@ -18448,7 +18467,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::min((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
                         if (l_Loot->Items.size() > l_Count)
                         {
@@ -21182,7 +21201,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_THREAT_UPDATE, 500);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE, 1024);
         l_Data.appendPackGUID(GetGUID());
         l_Data << l_Count;
 

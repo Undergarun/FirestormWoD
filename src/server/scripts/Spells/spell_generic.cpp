@@ -3791,7 +3791,7 @@ public:
     }
 };
 
-class spell_gen_dampening: public SpellScriptLoader
+class spell_gen_dampening : public SpellScriptLoader
 {
     public:
         spell_gen_dampening() : SpellScriptLoader("spell_gen_dampening") { }
@@ -3803,8 +3803,10 @@ class spell_gen_dampening: public SpellScriptLoader
             void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (AuraEffectPtr l_FirstEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                {
                     if (l_FirstEffect->GetAmount() < 100)
                         l_FirstEffect->SetAmount(l_FirstEffect->GetAmount() + 1);
+                }
             }
 
 
@@ -3820,8 +3822,86 @@ class spell_gen_dampening: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Drums of Fury - 178207
+class spell_gen_drums_of_fury : public SpellScriptLoader
+{
+    public:
+        spell_gen_drums_of_fury() : SpellScriptLoader("spell_gen_drums_of_fury") { }
+
+        class spell_gen_drums_of_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_drums_of_fury_SpellScript);
+
+            enum eSpells
+            {
+                Exhausted           = 57723,
+                Insanity            = 95809,
+                Sated               = 57724,
+                TemporalDisplacement = 80354
+            };
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::Exhausted))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Insanity));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Exhausted));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Sated));
+                targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::TemporalDisplacement));
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_drums_of_fury_SpellScript::CheckCast);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_drums_of_fury_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+            }
+        };
+
+        class spell_gen_drums_of_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_drums_of_fury_AuraScript);
+
+            enum eSpells
+            {
+                Exhausted = 57723
+            };
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->CastSpell(l_Target, eSpells::Exhausted, true);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_drums_of_fury_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_drums_of_fury_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_drums_of_fury_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
+    new spell_gen_drums_of_fury();
     new spell_gen_absorb0_hitlimit1();
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();

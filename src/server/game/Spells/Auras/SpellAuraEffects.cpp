@@ -3466,9 +3466,15 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             l_Target->SetDisplayId(l_DisplayId);
         }
 
-        auto l_MountEntry = sMountStore.LookupEntry(GetId());
-        if (l_MountEntry != nullptr)
+        for (uint32 l_I = 0; l_I < sMountStore.GetNumRows(); ++l_I)
+        {
+            auto l_MountEntry = sMountStore.LookupEntry(l_I);
+            if (!l_MountEntry || l_MountEntry->SpellID != GetId())
+                continue;
+
             l_DisplayId = l_MountEntry->CreatureDisplayID;
+            break;
+        }
 
         /// Hackfix for somes mount unavailable on retail (data aren't)
         /// But we need it because we sell it on the shop
@@ -3491,12 +3497,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
         l_Target->RemoveFlagsAuras();
 
-        // cast speed aura
-        if (GetMiscValue() != 305)
-        {
-            if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
-                l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
-        }
+        if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
+            l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
     }
     else
     {
@@ -3517,65 +3519,14 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         }
     }
 
-    /// Handle new WoD mount ...
-    if (GetMiscValue() == 305)
+    if (GetId() == 180545      ///< Mystic Runesaber
+        || GetId() == 163024  ///< Warforged Nightmare
+        || GetId() == 171847) ///< Cindermane Charger
     {
-        std::vector<int32> l_MountCapability
-        {
-            GetMiscValue(),
-            GetMiscValueB()
-        };
-
-        uint32 l_ZoneId;
-        uint32 l_AreaID;
-        l_Target->GetZoneAndAreaId(l_ZoneId, l_AreaID);
-
-        uint32 l_RidingSkill = 5000;
-        if (l_Target->GetTypeId() == TYPEID_PLAYER)
-            l_RidingSkill = l_Target->ToPlayer()->GetSkillValue(SKILL_RIDING);
-
-        for (auto l_ID : l_MountCapability)
-        {
-            MountCapabilityEntry const* l_MountCapability = sMountCapabilityStore.LookupEntry(l_ID);
-            if (!l_MountCapability)
-                continue;
-
-            if (l_RidingSkill < l_MountCapability->RequiredRidingSkill)
-                continue;
-
-            if (l_Target->HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
-            {
-                if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
-                    continue;
-            }
-            else if (l_Target->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
-            {
-                if (!(l_MountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
-                    continue;
-            }
-            else if (!(l_MountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-            {
-                if (!(l_MountCapability->Flags & 0x2))
-                    continue;
-            }
-
-            if (l_MountCapability->RequiredMap != -1 && int32(l_Target->GetMapId()) != l_MountCapability->RequiredMap)
-                continue;
-
-            if (l_MountCapability->RequiredArea && (l_MountCapability->RequiredArea != l_ZoneId && l_MountCapability->RequiredArea != l_AreaID))
-                continue;
-
-            if (l_MountCapability->RequiredAura && !l_Target->HasAura(l_MountCapability->RequiredAura))
-                continue;
-
-            if (l_MountCapability->RequiredSpell && (l_Target->GetTypeId() != TYPEID_PLAYER || !l_Target->ToPlayer()->HasSpell(l_MountCapability->RequiredSpell)))
-                continue;
-
-            if (p_Apply)
-                l_Target->CastSpell(l_Target, l_MountCapability->SpeedModSpell, true);
-            else
-                l_Target->RemoveAurasDueToSpell(l_MountCapability->SpeedModSpell, l_Target->GetGUID());
-        }
+        if (p_Apply)
+            l_Target->CastSpell(l_Target, 86461, true);
+        else
+            l_Target->RemoveAurasDueToSpell(86461, l_Target->GetGUID());
     }
 
     l_Target->UpdateSpeed(MOVE_RUN, true);

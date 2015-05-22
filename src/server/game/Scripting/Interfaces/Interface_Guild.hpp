@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_GUILD
-#define SCRIPTING_INTERFACES_GUILD
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_GUILD_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_GUILD_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -151,4 +157,4 @@ class GuildScript : public ScriptObjectImpl<false>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_GUILD
+#endif  ///< SCRIPTING_INTERFACES_GUILD_HPP_INCLUDED

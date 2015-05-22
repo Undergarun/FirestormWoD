@@ -1097,38 +1097,83 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
 class spell_pri_binding_heal : public SpellScriptLoader
 {
     public:
-        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_binding_heal") { }
 
-        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        class spell_pri_binding_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+            PrepareSpellScript(spell_pri_binding_heal_SpellScript);
 
             enum eSpells
             {
                 GlyphOfBindingHeal = 63248
             };
 
+            uint64 m_MainTargetGUID = 0;
+
+            uint64 GetRandomSecondTarget(std::list<WorldObject*>& p_Targets)
+            {
+                for (auto itr : p_Targets)
+                {
+                    if (itr != nullptr && itr->GetGUID() != m_MainTargetGUID)
+                        return itr->GetGUID();
+                }
+                return 0;
+            }
+
+            void HandleOnPrepare()
+            {
+                Unit* l_MainTarget = GetExplTargetUnit();
+
+                if (l_MainTarget == nullptr)
+                    return;
+
+                m_MainTargetGUID = l_MainTarget->GetGUID();
+            }
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
 
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfBindingHeal);
+                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && p_Targets.size() > 2)
+                {
 
-                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && l_SpellInfo != nullptr && p_Targets.size() > l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                    JadeCore::RandomResizeList(p_Targets, l_SpellInfo->Effects[EFFECT_1].BasePoints);
-                else
-                    p_Targets.clear();
+                    uint64 l_SecondTargetGUID = GetRandomSecondTarget(p_Targets);
+
+                    p_Targets.remove_if([this, l_SecondTargetGUID](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr )
+                            return true;
+
+                        if (p_Object->GetGUID() != m_MainTargetGUID && p_Object->GetGUID() != l_SecondTargetGUID)
+                            return true;
+                        return false;
+                    });
+                }
+                else if (p_Targets.size() > 1)
+                {
+                    p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                            return true;
+
+                        if (p_Object->ToUnit()->GetGUID() != m_MainTargetGUID)
+                            return true;
+
+                        return false;
+                    });
+                }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnPrepare += SpellOnPrepareFn(spell_pri_binding_heal_SpellScript::HandleOnPrepare);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_binding_heal_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
+            return new spell_pri_binding_heal_SpellScript();
         }
 };
 enum MasterySpells
@@ -1160,9 +1205,12 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
                 {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
                     p_Amount += CalculatePct(p_Amount, l_Mastery);
                 }
+
+                /// Apply versatility 
+                p_Amount += CalculatePct(p_Amount, l_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
@@ -1333,8 +1381,9 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
-// Atonement - 81749
+/// Last Update 6.1.2
+/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+/// Atonement - 81749
 class spell_pri_atonement: public SpellScriptLoader
 {
     public:
@@ -2616,7 +2665,7 @@ public:
     }
 };
 
-/// Last Update 6.1.2
+/// Last Update 6.1.2 19802
 /// Clarity of will - 152118
 class spell_pri_clarity_of_will: public SpellScriptLoader
 {
@@ -2650,7 +2699,13 @@ public:
 
             if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
             {
-                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.0f);
+                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.3f);
+                /// Apply Mastery
+                float l_Mastery = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
+                l_Bp += CalculatePct(l_Bp, l_Mastery);
+                /// Apply versatility 
+                l_Bp += CalculatePct(l_Bp, l_Player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+
                 int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
 
                 if (l_Bp > l_MaxStackAmount)

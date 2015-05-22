@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_MAP
-#define SCRIPTING_INTERFACES_MAP
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_MAP_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_MAP_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -138,4 +144,4 @@ class BattlegroundMapScript : public ScriptObjectImpl<false>, public MapScript<B
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_MAP
+#endif  ///< SCRIPTING_INTERFACES_MAP_HPP_INCLUDED

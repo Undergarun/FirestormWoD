@@ -459,6 +459,10 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
     if (!IS_PLAYER_GUID(GetOwnerGUID()))
         return;
 
+    /// Primal Elementalist - don't need to save pet to database, so mark it like stampeded
+    if (GetEntry() == 61029 || GetEntry() == 61056 || GetEntry() == 77942)
+        return;
+
     Player* owner = (Player*)GetOwner();
     if (!owner)
         return;
@@ -1348,23 +1352,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do pet spell book cleanup
-        if (state == PETSPELL_UNCHANGED)                    // spell load case
-        {
-            sLog->outError(LOG_FILTER_PETS, "Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_PETS, "Pet::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     PetSpellMap::iterator itr = m_spells.find(spellId);
     if (itr != m_spells.end())

@@ -32,6 +32,8 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
+#include "BattlegroundMgr.hpp"
+#include "Battleground.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
@@ -117,7 +119,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
             {
                 bg->AddPlayer(m_Player);
-                bg->DecreaseInvitedCount(m_Player->GetTeam());
+
+                /// Remove battleground queue status from BGmgr
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, MS::Battlegrounds::GetSchedulerType(bg->GetTypeID()));
             }
         }
     }
@@ -208,16 +212,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
-
     uint64 l_MoverGUID;
     uint32 l_AckIndex, l_MoveTime;
 
     recvPacket.readPackGUID(l_MoverGUID);
     recvPacket >> l_AckIndex >> l_MoveTime;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(l_MoverGUID));
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "AckIndex %u, MoveTime %u", l_AckIndex, l_MoveTime/IN_MILLISECONDS);
 
     Player* l_MoverPlayer = m_Player->m_mover->ToPlayer();
 
@@ -608,8 +607,6 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
-
     uint64 guid;                                            // guid - unused
     recvData.readPackGUID(guid);
 

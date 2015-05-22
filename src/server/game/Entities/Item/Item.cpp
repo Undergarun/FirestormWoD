@@ -38,7 +38,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        //sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -510,7 +510,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     }
 
     std::string enchants = fields[6].GetString();
-    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET, false);
 
     if (uint32 transmogId = fields[8].GetInt32())
     {
@@ -2233,11 +2233,12 @@ bool Item::HasItemBonus(uint32 p_ItemBonusId) const
 bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
         if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
-            SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
+            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i);
             return true;
         }
     }

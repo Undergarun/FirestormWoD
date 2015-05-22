@@ -1033,6 +1033,12 @@ class spell_dru_regrowth : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_regrowth_SpellScript);
 
+            void HandlePeriodic(SpellEffIndex effIndex)
+            {
+                if (!GetCaster() || GetCaster()->HasAura(eSpells::GlyphOfRegrowth))
+                    PreventHitAura();
+            }
+
             void HandleBeforeHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1056,6 +1062,7 @@ class spell_dru_regrowth : public SpellScriptLoader
             {
                 BeforeHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleBeforeHit);
                 AfterHit += SpellHitFn(spell_dru_regrowth_SpellScript::HandleAfterHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_regrowth_SpellScript::HandlePeriodic, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -1067,9 +1074,6 @@ class spell_dru_regrowth : public SpellScriptLoader
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->HasAura(eSpells::GlyphOfRegrowth))
-                        PreventDefaultAction();
-
                     ///If soul of the forest is activated we increase the heal by 100%
                     if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
                     {
@@ -2642,6 +2646,14 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 if (l_Caster->HasUnitState(UNIT_STATE_CONTROLLED))
                     return;
 
+                /// Can't hit a target in stealth
+                if (l_Target->HasAuraType(SPELL_AURA_MOD_STEALTH))
+                    return;
+
+                /// Can't hit a target in LoS
+                if (!l_Target->IsWithinLOSInMap(l_Caster))
+                    return;
+
                 /// Starfall can only hit targets with Moonfire or Sunfire by default
                 /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
                 if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
@@ -3190,7 +3202,16 @@ class spell_dru_rake: public SpellScriptLoader
             void HandleOnPrepare()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     m_isStealthed = l_Caster->HasStealthAura();
+                    if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
+                    {
+                        if (m_isStealthed)
+                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
+                        else
+                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
+                    }
+                }
             }
 
             void HandleOnHit()
@@ -3212,12 +3233,7 @@ class spell_dru_rake: public SpellScriptLoader
                     if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                     {
                         if (m_isStealthed)
-                        {
                             SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
-                            l_ImprovedRake->GetEffect(1)->SetAmount(1);
-                        }
-                        else
-                            l_ImprovedRake->GetEffect(1)->SetAmount(0);
                     }
                 }
 
@@ -4017,6 +4033,46 @@ class spell_dru_pulverize : public SpellScriptLoader
         }
 };
 
+/// Last Update - 6.1.2 19802
+/// Empowered Moonkin - 157228
+/// Called by Wrath - 5176, Stellar Flare - 152221, Starfire - 2912, Starsurge - 78674
+class spell_dru_empowered_moonkin : public SpellScriptLoader
+{
+    public:
+        spell_dru_empowered_moonkin() : SpellScriptLoader("spell_dru_empowered_moonkin") { }
+
+        class spell_dru_empowered_moonkin_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_empowered_moonkin_SpellScript);
+
+            enum eSpells
+            {
+                EmpoweredMoonkin = 157228
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::EmpoweredMoonkin))
+                    l_Caster->RemoveAura(eSpells::EmpoweredMoonkin);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dru_empowered_moonkin_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_empowered_moonkin_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_pulverize();
@@ -4092,4 +4148,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom_heal_proc();
     new spell_dru_dream_of_cenarius_feral();
     new spell_dru_wod_pvp_2p_restoration();
+    new spell_dru_empowered_moonkin();
 }

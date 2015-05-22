@@ -2421,6 +2421,7 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
 
 /// last update : 6.1.2 19802
 /// Sanctified Wrath - 53376
+/// Called by Avenging Wrath - 31884
 class spell_pal_sanctified_wrath : public SpellScriptLoader
 {
     public:
@@ -2472,8 +2473,8 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -2524,6 +2525,51 @@ class spell_pal_selfless_healer_proc : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Denounce - 2812
+class spell_pal_denounce : public SpellScriptLoader
+{
+    public:
+        spell_pal_denounce() : SpellScriptLoader("spell_pal_denounce") { }
+
+        class spell_pal_denounce_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_denounce_SpellScript);
+
+            enum eSpells
+            {
+                WoDPvPHoly2PBonusAura   = 170860,
+                WoDPvPHoly2PBonus       = 170866
+            };
+
+            void HandleDamage(SpellEffIndex /*l_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly2PBonus);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_denounce_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_denounce_SpellScript();
+        }
+};
+
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {
@@ -2552,6 +2598,7 @@ public:
 
 void AddSC_paladin_spell_scripts()
 {
+    new spell_pal_denounce();
     new spell_pal_enhanced_holy_shock();
     new spell_pal_light_of_dawn();
     new spell_pal_word_of_glory_damage();
