@@ -24,6 +24,7 @@
 #include "Buildings/Alliance/Small/ATheTannery.hpp"
 #include "Buildings/Alliance/Small/AEnchanterStudy.hpp"
 #include "Buildings/Alliance/Small/AGemBoutique.hpp"
+#include "Buildings/Alliance/Small/AEngineeringWorks.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
@@ -504,6 +505,10 @@ void AddSC_Garrison_NPC()
         /// Gem boutique
         new MS::Garrison::npc_CostanHighwall;
         new MS::Garrison::npc_KayaSolasen;
+
+        /// Engineering works
+        new MS::Garrison::npc_Zaren;
+        new MS::Garrison::npc_HelaynWhent;
     }
 
     /// Horde
