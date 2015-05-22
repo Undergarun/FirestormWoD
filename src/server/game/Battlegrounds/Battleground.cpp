@@ -718,9 +718,9 @@ inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const c
     if (!offlineRemove)
     {
         player = ObjectAccessor::FindPlayer(guid);
-        if (!player)
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
-                context, GUID_LOPART(guid), m_MapId, m_InstanceID);
+//         if (!player)
+//             sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//                 context, GUID_LOPART(guid), m_MapId, m_InstanceID);
     }
     return player;
 }
@@ -1734,9 +1734,9 @@ void Battleground::DoorOpen(uint32 type)
 GameObject* Battleground::GetBGObject(uint32 type)
 {
     GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]);
-    if (!obj)
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
+//     if (!obj)
+//         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//             type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
     return obj;
 }
 
