@@ -243,6 +243,10 @@ namespace MS
             else
                 l_Itr->second.Infos.erase(l_Pair);
 
+            Battleground* l_BG = sBattlegroundMgr->GetBattleground(l_Group->m_IsInvitedToBGInstanceGUID, GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType, l_Group->m_IsSkirmish));
+            if (l_BG)
+                l_BG->DecreaseInvitedCount(l_Group->m_Team);
+
             /// If player leaves queue and he is invited to rated arena match, then he have to lose.
             if (l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG && IsArena(l_Group->m_BgTypeId) && p_DecreaseInvitedCount)
             {
@@ -280,10 +284,6 @@ namespace MS
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
                     plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
-
-                    Battleground * l_BG = sBattlegroundMgr->GetBattleground(l_Group->m_IsInvitedToBGInstanceGUID, bgQueueTypeId);
-                    if (l_BG)
-                        l_BG->DecreaseInvitedCount(plr2->GetTeam());
 
                     // queue->removeplayer, it causes bugs
                     WorldPacket data;
