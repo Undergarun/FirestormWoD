@@ -389,7 +389,7 @@ public:
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
     uint32 TotemCategory[2];
-    uint32 SpellVisual[2];
+    uint32 SpellVisual[MAX_SPELL_VISUAL];
     uint32 SpellIconID;
     uint32 ActiveIconID;
     char* SpellName;
@@ -430,6 +430,7 @@ public:
     SpellChainNode const* ChainEntry;
     std::list<SpellPowerEntry const*> SpellPowers;
     uint32 ResearchProject;
+    uint32 FirstSpellXSpellVIsualID;
 
     // SpecializationSpellEntry
     std::list<uint32> SpecializationIdList;

@@ -616,6 +616,18 @@ struct SpellClassOptionsEntry
     uint32  SpellFamilyName;                                        ///< 6      m_spellClassSet
 };
 
+struct SpellXSpellVisualEntry
+{
+    uint32 Id;
+    uint32 SpellId;
+    uint32 Unk1;
+    uint32 VisualID;
+    //uint32 Unk2;
+    float Scale;
+    //uint32 Unk4;
+    //uint32 Unk5;
+};
+
 ////////////////////////////////////////////////////////////////////
 /// Garrison DB2
 ////////////////////////////////////////////////////////////////////

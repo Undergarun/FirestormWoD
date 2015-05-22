@@ -1130,8 +1130,10 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     //PowerType = spellEntry->powerType; WTF
     RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
     Speed = _misc ? _misc->speed : 1.00f;
+
     for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = _misc ? _misc->SpellVisual[i] : 0;
+        SpellVisual[i] = 0;
+
     SpellIconID = _misc ? _misc->SpellIconID : 0;
     ActiveIconID = _misc ? _misc->activeIconID : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
@@ -1185,6 +1187,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     ChainEntry = NULL;
 
     ResearchProject =  p_SpellEntry->ResearchProject;
+    FirstSpellXSpellVIsualID = 0;
 }
 
 SpellInfo::~SpellInfo()

@@ -64,6 +64,7 @@ extern DB2Storage <SpellMiscEntry>                  sSpellMiscStore;
 extern DB2Storage <SpellPowerEntry>                 sSpellPowerStore;
 extern DB2Storage <SpellTotemsEntry>                sSpellTotemsStore;
 extern DB2Storage <SpellClassOptionsEntry>          sSpellClassOptionsStore;
+extern DB2Storage <SpellXSpellVisualEntry>          sSpellXSpellVisualStore;
 extern DB2Storage <MapChallengeModeEntry>           sMapChallengeModeStore;
 extern DB2Storage <QuestPackageItemEntry>           sQuestPackageItemStore;
 extern DB2Storage <MountEntry>                      sMountStore;

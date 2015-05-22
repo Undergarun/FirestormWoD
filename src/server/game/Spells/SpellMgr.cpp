@@ -3101,6 +3101,40 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
+    for (uint32 l_ID = 0; l_ID < sSpellXSpellVisualStore.GetNumRows(); l_ID++)
+    {
+        SpellXSpellVisualEntry const* l_Entry = sSpellXSpellVisualStore.LookupEntry(l_ID);
+
+        if (!l_Entry)
+            continue;
+
+        // if unk0 != 0 difficulty is already there ?
+        if (!l_Entry->SpellId || l_Entry->Unk1 != 0 || l_Entry->SpellId >= sSpellStore.GetNumRows())
+            continue;
+
+        for (int l_Diff = 0; l_Diff < Difficulty::MaxDifficulties; l_Diff++)
+        {
+            SpellInfo* l_SpellInfo = mSpellInfoMap[l_Diff][l_Entry->SpellId];
+
+            if (!l_SpellInfo)
+                continue;
+
+            for (int l_I = 0; l_I < MAX_SPELL_VISUAL + 1; l_I++)
+            {
+                assert("MAX_SPELL_VISUAL too low, needs to be increased!" && l_I < MAX_SPELL_VISUAL);
+
+                if (!l_SpellInfo->SpellVisual[l_I])
+                {
+                    if (l_I == 0)
+                        l_SpellInfo->FirstSpellXSpellVIsualID = l_ID;
+
+                    l_SpellInfo->SpellVisual[l_I] = l_Entry->VisualID;
+                    break;
+                }
+            }
+        }
+    }
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded spell info store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 

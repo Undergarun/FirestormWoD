@@ -74,6 +74,7 @@ const char SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiif";
 const char SpellPowerEntryfmt[] = "niiiiiiiiiffif";
 const char SpellTotemsEntryfmt[] = "niiii";
 const char SpellClassOptionsEntryfmt[] = "niiiiii";
+const char SpellXSpellVisualfmt[] = "niiixfxx";
 const char SoundEntriesfmt[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char QuestPackageItemEntryfmt[] = "niiii";

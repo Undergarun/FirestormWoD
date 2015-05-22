@@ -1027,7 +1027,7 @@ enum Opcodes
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x09B1, ///< 6.2.0 20033
     CMSG_SHOWING_CLOAK                          = 0x0843, ///< 6.2.0 20033
     CMSG_SHOWING_HELM                           = 0x0A5B, ///< 6.2.0 20033
-    CMSG_SET_ACTIVE_MOVER                       = 0x0932, ///< 6.2.0 20033
+    CMSG_SET_ACTIVE_MOVER                       = 0x12C3, ///< 6.2.0 20033
     CMSG_LEARN_TALENTS                          = 0x0AAA, ///< 6.2.0 20033
     CMSG_AUTOEQUIP_ITEM                         = 0x0A64, ///< 6.2.0 20033
     CMSG_SWAP_INV_ITEM                          = 0x0651, ///< 6.2.0 20033
@@ -1185,7 +1185,7 @@ enum Opcodes
     CMSG_INSPECT                                = 0x0000, ///<
     CMSG_INSPECT_HONOR_STATS                    = 0x0000, ///<
     CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0000, ///<
-    CMSG_TIME_SYNC_RESP                         = 0x0000, ///<
+    CMSG_TIME_SYNC_RESP                         = 0x1A94, ///< 6.2.0 20033
     CMSG_UNLEARN_SKILL                          = 0x0000, ///<
     CMSG_EMOTE                                  = 0x0000, ///<
     CMSG_SEND_TEXT_EMOTE                        = 0x0000, ///<
@@ -1604,7 +1604,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Time
     //////////////////////////////////////////////////////////////////////////
-    CMSG_UITIME_REQUEST                            = 0x0000, ///<
+    CMSG_UITIME_REQUEST                            = 0x0F32, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// GameMasters
