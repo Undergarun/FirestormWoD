@@ -961,7 +961,7 @@ void WorldSession::WriteMovementInfo(WorldPacket & p_Data, MovementInfo* p_Movem
                 break;
 
             case MSEMovementFlags2:
-                p_Data.WriteBits(p_MovementInformation->flags2, 15);
+                p_Data.WriteBits(p_MovementInformation->flags2, 16);
                 break;
 
             case MSETimestamp:

@@ -1001,7 +1001,7 @@ void Group::SendLootStartRollToPlayer(uint32 p_CountDown, uint32 p_MapID, Player
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1024,7 +1024,7 @@ void Group::SendLootRoll(uint64 p_TargetGUID, uint64 targetGuid, uint8 p_RollNum
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);
@@ -1056,7 +1056,7 @@ void Group::SendLootRollWon(uint64 p_SourceGUID, uint64 p_TargetGUID, uint8 p_Ro
     l_Data.WriteBit(true);                                  ///< Can Trade To Tap List
     l_Data.FlushBits();
     l_Data << uint32(p_Roll.itemCount);
-    l_Data << uint8(LOOT_SLOT_TYPE_MASTER);
+    l_Data << uint8(LOOT_SLOT_TYPE_OWNER);
     l_Data << uint8(p_Roll.itemSlot);
 
     Item::BuildDynamicItemDatas(l_Data, p_Roll.itemid, p_Roll.m_ItemBonuses);

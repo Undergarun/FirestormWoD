@@ -1059,39 +1059,39 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Bank
     //////////////////////////////////////////////////////////////////////////
-    CMSG_BANKER_ACTIVATE                        = 0x0000, ///<
-    CMSG_AUTOBANK_ITEM                          = 0x0000, ///<
-    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0000, ///<
-    CMSG_BUY_BANK_SLOT                          = 0x0000, ///<
-    CMSG_BUY_REAGENT_BANK                       = 0x0000, ///<
-    CMSG_SORT_BANK_BAGS                         = 0x0000, ///<
-    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x0000, ///<
-    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x0000, ///<
+    CMSG_BANKER_ACTIVATE                        = 0x0298, ///< 6.2.0 20033
+    CMSG_AUTOBANK_ITEM                          = 0x0263, ///< 6.2.0 20033
+    CMSG_AUTOSTORE_BANK_ITEM                    = 0x0364, ///< 6.2.0 20033
+    CMSG_BUY_BANK_SLOT                          = 0x0813, ///< 6.2.0 20033
+    CMSG_BUY_REAGENT_BANK                       = 0x00CF, ///< 6.2.0 20033
+    CMSG_SORT_BANK_BAGS                         = 0x0D63, ///< 6.2.0 20033
+    CMSG_SORT_REAGENT_BANK_BAGS                 = 0x1361, ///< 6.2.0 20033
+    CMSG_DEPOSIT_ALL_REAGENTS                   = 0x18C8, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Auction House
     //////////////////////////////////////////////////////////////////////////
-    CMSG_AUCTION_LIST_BIDDER_ITEMS              = 0x0000, ///<
-    CMSG_AUCTION_LIST_ITEMS                     = 0x0000, ///<
-    CMSG_AUCTION_LIST_OWNER_ITEMS               = 0x0000, ///<
-    CMSG_AUCTION_LIST_PENDING_SALES             = 0x0000, ///<
-    CMSG_AUCTION_PLACE_BID                      = 0x0000, ///<
-    CMSG_AUCTION_REMOVE_ITEM                    = 0x0000, ///<
-    CMSG_AUCTION_SELL_ITEM                      = 0x0000, ///<
+    CMSG_AUCTION_LIST_BIDDER_ITEMS              = 0x0293, ///< 6.2.0 20033
+    CMSG_AUCTION_LIST_ITEMS                     = 0x0848, ///< 6.2.0 20033
+    CMSG_AUCTION_LIST_OWNER_ITEMS               = 0x0810, ///< 6.2.0 20033
+    CMSG_AUCTION_LIST_PENDING_SALES             = 0x0887, ///< 6.2.0 20033
+    CMSG_AUCTION_PLACE_BID                      = 0x0853, ///< 6.2.0 20033
+    CMSG_AUCTION_REMOVE_ITEM                    = 0x061C, ///< 6.2.0 20033
+    CMSG_AUCTION_SELL_ITEM                      = 0x0A08, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Loot
     //////////////////////////////////////////////////////////////////////////
-    CMSG_LOOT                                   = 0x0000, ///<
-    CMSG_LOOT_MONEY                             = 0x0000, ///<
-    CMSG_LOOT_ITEM                              = 0x0000, ///<
-    CMSG_LOOT_RELEASE                           = 0x0000, ///<
-    CMSG_LOOT_ROLL                              = 0x0000, ///<
-    CMSG_MASTER_LOOT_ITEM                       = 0x0000, ///<
-    CMSG_DO_MASTER_LOOT_ROLL                    = 0x0000, ///<
-    CMSG_SET_LOOT_SPECIALIZATION                = 0x0000, ///<
-    CMSG_SET_LOOT_METHOD                        = 0x0000, ///<
-    CMSG_OPT_OUT_OF_LOOT                        = 0x0000, ///<
+    CMSG_LOOT                                   = 0x14C8, ///< 6.2.0 20033
+    CMSG_LOOT_MONEY                             = 0x0D24, ///< 6.2.0 20033
+    CMSG_LOOT_ITEM                              = 0x11C3, ///< 6.2.0 20033
+    CMSG_LOOT_RELEASE                           = 0x17F6, ///< 6.2.0 20033
+    CMSG_LOOT_ROLL                              = 0x0B28, ///< 6.2.0 20033
+    CMSG_MASTER_LOOT_ITEM                       = 0x11C8, ///< 6.2.0 20033
+    CMSG_DO_MASTER_LOOT_ROLL                    = 0x08C5, ///< 6.2.0 20033
+    CMSG_SET_LOOT_SPECIALIZATION                = 0x0048, ///< 6.2.0 20033
+    CMSG_SET_LOOT_METHOD                        = 0x01C2, ///< 6.2.0 20033
+    CMSG_OPT_OUT_OF_LOOT                        = 0x0A17, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Combat
@@ -1123,7 +1123,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_DB_QUERY_BULK                          = 0x0A42, ///< 6.2.0 20033
     CMSG_QUERY_CREATURE                         = 0x1408, ///< 6.2.0 20033
-    CMSG_NPC_TEXT_QUERY                         = 0x1E24, ///< 6.2.0 20033
+    CMSG_NPC_TEXT_QUERY                         = 0x1C47, ///< 6.2.0 20033
     CMSG_NAME_QUERY                             = 0x0932, ///< 6.2.0 20033
     CMSG_QUEST_QUERY                            = 0x0FA9, ///< 6.2.0 20033
     CMSG_QUEST_POI_QUERY                        = 0x01A6, ///< 6.2.0 20033
@@ -1142,9 +1142,9 @@ enum Opcodes
     CMSG_SET_ACTION_BUTTON                      = 0x0000, ///<
     CMSG_SET_ACTIONBAR_TOGGLES                  = 0x0000, ///<
     CMSG_SET_SELECTION                          = 0x0610, ///< 6.2.0 20033
-    CMSG_SETSHEATHED                            = 0x0000, ///<
-    CMSG_GOSSIP_HELLO                           = 0x0000, ///<
-    CMSG_GOSSIP_SELECT_OPTION                   = 0x0000, ///<
+    CMSG_SETSHEATHED                            = 0x06DC, ///< 6.2.0 20033
+    CMSG_GOSSIP_HELLO                           = 0x04D3, ///< 6.2.0 20033
+    CMSG_GOSSIP_SELECT_OPTION                   = 0x0420, ///< 6.2.0 20033
     CMSG_TOGGLE_PVP                             = 0x0000, ///<
     CMSG_TUTORIAL                               = 0x0000, ///<
     CMSG_SET_SPECIALIZATION                     = 0x0000, ///<
@@ -1369,27 +1369,27 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Group
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PARTY_INVITE                           = 0x0000, ///<
-    CMSG_PARTY_INVITE_RESPONSE                  = 0x0000, ///<
-    CMSG_LEAVE_GROUP                            = 0x0000, ///<
-    CMSG_PARTY_UNINVITE                         = 0x0000, ///<
-    CMSG_SET_PARTY_LEADER                       = 0x0000, ///<
-    CMSG_SET_ROLE                               = 0x0000, ///<
-    CMSG_MINIMAP_PING                           = 0x0000, ///<
-    CMSG_RANDOM_ROLL                            = 0x0000, ///<
-    CMSG_UPDATE_RAID_TARGET                     = 0x0000, ///<
-    CMSG_CONVERT_RAID                           = 0x0000, ///<
-    CMSG_DO_READY_CHECK                         = 0x0000, ///<
-    CMSG_READY_CHECK_RESPONSE                   = 0x0000, ///<
-    CMSG_INITIATE_ROLE_POLL                     = 0x0000, ///<
-    CMSG_REQUEST_RAID_INFO                      = 0x0000, ///<
-    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0000, ///<
-    CMSG_CLEAR_RAID_MARKER                      = 0x0000, ///<
-    CMSG_GROUP_ASSISTANT_LEADER                 = 0x0000, ///<
-    CMSG_GROUP_ASSIGNMENT                       = 0x0000, ///<
-    CMSG_GROUP_CHANGE_SUB_GROUP                 = 0x0000, ///<
-    CMSG_GROUP_REQUEST_JOIN_UPDATES             = 0x0000, ///<
-    CMSG_GROUP_SWAP_SUB_GROUP                   = 0x0000, ///<
+    CMSG_PARTY_INVITE                           = 0x10C1, ///< 6.2.0 20033
+    CMSG_PARTY_INVITE_RESPONSE                  = 0x0736, ///< 6.2.0 20033
+    CMSG_LEAVE_GROUP                            = 0x0856, ///< 6.2.0 20033
+    CMSG_PARTY_UNINVITE                         = 0x05A2, ///< 6.2.0 20033
+    CMSG_SET_PARTY_LEADER                       = 0x02D2, ///< 6.2.0 20033
+    CMSG_SET_ROLE                               = 0x0A25, ///< 6.2.0 20033
+    CMSG_MINIMAP_PING                           = 0x04B1, ///< 6.2.0 20033
+    CMSG_RANDOM_ROLL                            = 0x0D32, ///< 6.2.0 20033
+    CMSG_UPDATE_RAID_TARGET                     = 0x0636, ///< 6.2.0 20033
+    CMSG_CONVERT_RAID                           = 0x0C26, ///< 6.2.0 20033
+    CMSG_DO_READY_CHECK                         = 0x0B46, ///< 6.2.0 20033
+    CMSG_READY_CHECK_RESPONSE                   = 0x03A5, ///< 6.2.0 20033
+    CMSG_INITIATE_ROLE_POLL                     = 0x02A1, ///< 6.2.0 20033
+    CMSG_REQUEST_RAID_INFO                      = 0x0CB1, ///< 6.2.0 20033
+    CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0432, ///< 6.2.0 20033
+    CMSG_CLEAR_RAID_MARKER                      = 0x0B2B, ///< 6.2.0 20033
+    CMSG_GROUP_ASSISTANT_LEADER                 = 0x0BD6, ///< 6.2.0 20033
+    CMSG_GROUP_ASSIGNMENT                       = 0x0925, ///< 6.2.0 20033
+    CMSG_GROUP_CHANGE_SUB_GROUP                 = 0x0A52, ///< 6.2.0 20033
+    CMSG_GROUP_REQUEST_JOIN_UPDATES             = 0x0121, ///< 6.2.0 20033
+    CMSG_GROUP_SWAP_SUB_GROUP                   = 0x02A6, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Friend
