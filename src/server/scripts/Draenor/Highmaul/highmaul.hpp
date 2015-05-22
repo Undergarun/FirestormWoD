@@ -78,7 +78,12 @@ enum eHighmaulCreatures
     TheButcher          = 77404,
     /// Gorian Strands
     Brackenspore        = 78491,
-    BFC9000             = 81403
+    BFC9000             = 81403,
+    /// The Market
+    Tectus              = 78948,
+    Rokka               = 86071,
+    Oro                 = 86072,
+    Lokk                = 86073
 };
 
 enum eHighmaulGameobjects
@@ -116,7 +121,8 @@ enum eHighmaulWorldStates
 enum eHighmaulSpells
 {
     PlayChogallScene    = 178333,
-    ChogallNight        = 163661
+    ChogallNight        = 163661,
+    Berserker           = 26662
 };
 
 enum eHighmaulLocs

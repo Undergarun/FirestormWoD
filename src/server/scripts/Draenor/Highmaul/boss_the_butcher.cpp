@@ -123,8 +123,6 @@ class boss_the_butcher : public CreatureScript
             /// Energy management
             Angry5PerTick       = 156720,
             Angry10PerTick      = 160248,
-            /// Berserker
-            SpellBerserk        = 26662,
             /// Frenzy (30%)
             SpellFrenzy         = 156598
         };
@@ -186,7 +184,7 @@ class boss_the_butcher : public CreatureScript
                 _Reset();
 
                 me->RemoveAura(eSpells::SpellFrenzy);
-                me->RemoveAura(eSpells::SpellBerserk);
+                me->RemoveAura(eHighmaulSpells::Berserker);
                 me->RemoveAura(eSpells::Angry5PerTick);
                 me->RemoveAura(eSpells::Angry10PerTick);
 
@@ -215,9 +213,6 @@ class boss_the_butcher : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                if (m_Instance != nullptr)
-                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossTheButcher);
-
                 _EnterCombat();
 
                 me->CastSpell(me, eSpells::Angry5PerTick, true);
@@ -415,7 +410,7 @@ class boss_the_butcher : public CreatureScript
                     case eEvents::EventBerserk:
                     {
                         Talk(eTalks::Berserk);
-                        me->CastSpell(me, eSpells::SpellBerserk, true);
+                        me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         break;
                     }
                     case eEvents::EventBoundingCleave:

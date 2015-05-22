@@ -1433,6 +1433,11 @@ void Unit::CastSpell(Position const p_Pos, uint32 p_SpellID, bool p_Triggered, I
     CastSpell(p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
 }
 
+void Unit::CastSpell(WorldLocation const* p_Loc, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
+{
+    CastSpell(p_Loc->m_positionX, p_Loc->m_positionY, p_Loc->m_positionZ, p_SpellID, p_Triggered, p_CastItem, p_AurEff, p_OriginalCaster);
+}
+
 void Unit::CastSpell(uint32 p_LocEntry, uint32 p_SpellID, bool p_Triggered, Item* p_CastItem /*= nullptr*/, constAuraEffectPtr p_AurEff /*= NULLAURA_EFFECT*/, uint64 p_OriginalCaster /*= 0*/)
 {
     WorldSafeLocsEntry const* l_Loc = sWorldSafeLocsStore.LookupEntry(p_LocEntry);

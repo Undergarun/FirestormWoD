@@ -49,6 +49,8 @@ class instance_highmaul : public InstanceMapScript
                 m_TheButcherGuid            = 0;
 
                 m_BrackensporeGuid          = 0;
+
+                m_TectusGuid                = 0;
             }
 
             uint64 m_ArenaMasterGuid;
@@ -73,6 +75,9 @@ class instance_highmaul : public InstanceMapScript
 
             /// Gorian Strand
             uint64 m_BrackensporeGuid;
+
+            /// The Market
+            uint64 m_TectusGuid;
 
             void Initialize() override
             {
@@ -128,6 +133,9 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulCreatures::Brackenspore:
                         m_BrackensporeGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Tectus:
+                        m_TectusGuid = p_Creature->GetGUID();
                         break;
                     default:
                         break;
@@ -297,6 +305,8 @@ class instance_highmaul : public InstanceMapScript
                         return m_RaidGrateGuids[eHighmaulDatas::RaidGrate003];
                     case eHighmaulGameobjects::RaidGrate4:
                         return m_RaidGrateGuids[eHighmaulDatas::RaidGrate004];
+                    case eHighmaulCreatures::Tectus:
+                        return m_TectusGuid;
                     default:
                         break;
                 }
@@ -309,12 +319,14 @@ class instance_highmaul : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
+                /// Highmaul has 4 main encounters (Kargath Bladefist, Ko'ragh, Twin Ogron, Imperator Mar'gok).
+                /// There are also three optional encounters - The Butcher, Brackenspore and Tectus.
                 switch (p_BossID)
                 {
-                    case eHighmaulDatas::BossTheButcher:
-                    case eHighmaulDatas::BossBrackenspore:
-                    case eHighmaulDatas::BossTectus:
                     case eHighmaulDatas::BossTwinOgron:
+                        if (GetBossState(eHighmaulDatas::BossKargathBladefist) != EncounterState::DONE)
+                            return false;
+                        break;
                     case eHighmaulDatas::BossKoragh:
                     case eHighmaulDatas::BossImperatorMargok:
                         if (GetBossState(p_BossID - 1) != EncounterState::DONE)

@@ -1622,6 +1622,207 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
         }
 };
 
+/// Night-Twisted Ritualist - 85245
+class npc_highmaul_night_twisted_ritualist : public CreatureScript
+{
+    public:
+        npc_highmaul_night_twisted_ritualist() : CreatureScript("npc_highmaul_night_twisted_ritualist") { }
+
+        enum eSpells
+        {
+            VoidChannel = 170677,
+            VoidTouch   = 175581
+        };
+
+        enum eEvent
+        {
+            EventVoidTouch = 1
+        };
+
+        enum eCreature
+        {
+            GreaterAberration = 85246
+        };
+
+        enum eAction
+        {
+            RitualistDied
+        };
+
+        struct npc_highmaul_night_twisted_ritualistAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_night_twisted_ritualistAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+                m_Aberration = 0;
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            uint64 m_Aberration;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    if (Creature* l_Aberration = me->FindNearestCreature(eCreature::GreaterAberration, 20.0f))
+                        m_Aberration = l_Aberration->GetGUID();
+                });
+
+                me->CastSpell(me, eSpells::VoidChannel, true);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->RemoveAura(eSpells::VoidChannel);
+
+                m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(3000, 6000));
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (Creature* l_Aberration = Creature::GetCreature(*me, m_Aberration))
+                    l_Aberration->AI()->DoAction(eAction::RitualistDied);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventVoidTouch:
+                        me->CastSpell(me, eSpells::VoidTouch, false);
+                        m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(6000, 9000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_night_twisted_ritualistAI(p_Creature);
+        }
+};
+
+/// Greater Void Aberration - 85246
+class npc_highmaul_greater_void_aberration : public CreatureScript
+{
+    public:
+        npc_highmaul_greater_void_aberration() : CreatureScript("npc_highmaul_greater_void_aberration") { }
+
+        enum eSpells
+        {
+            VoidCommunion   = 175539,
+            CallOfTheVoid   = 175589
+        };
+
+        enum eEvent
+        {
+            EventCallOfTheVoid = 1
+        };
+
+        enum eCreature
+        {
+            NightTwistedRitualist = 85245
+        };
+
+        enum eAction
+        {
+            RitualistDied
+        };
+
+        struct npc_highmaul_greater_void_aberrationAI : public MS::AI::CosmeticAI
+        {
+            npc_highmaul_greater_void_aberrationAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+                m_Ritualists = 0;
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+
+            uint32 m_Ritualists;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    std::list<Creature*> l_RitualistList;
+                    me->GetCreatureListWithEntryInGrid(l_RitualistList, eCreature::NightTwistedRitualist, 20.0f);
+                    m_Ritualists = (uint32)l_RitualistList.size();
+
+                    if (m_Ritualists)
+                        me->CastSpell(me, eSpells::VoidCommunion, true);
+                });
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(6000, 9000));
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action == eAction::RitualistDied && m_Ritualists)
+                {
+                    --m_Ritualists;
+
+                    if (!m_Ritualists)
+                        me->RemoveAura(eSpells::VoidCommunion);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventCallOfTheVoid:
+                        me->CastSpell(me, eSpells::CallOfTheVoid, false);
+                        m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(9000, 12000));
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_greater_void_aberrationAI(p_Creature);
+        }
+};
+
 /// Arena Elevator - 233098
 class go_highmaul_arena_elevator : public GameObjectScript
 {
@@ -1949,6 +2150,8 @@ void AddSC_highmaul()
     new npc_highmaul_iron_flame_technician();
     new npc_highmaul_iron_warmaster();
     new npc_highmaul_iron_blood_mage();
+    new npc_highmaul_night_twisted_ritualist();
+    new npc_highmaul_greater_void_aberration();
 
     /// GameObjects
     new go_highmaul_arena_elevator();

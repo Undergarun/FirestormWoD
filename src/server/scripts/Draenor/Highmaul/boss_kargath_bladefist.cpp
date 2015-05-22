@@ -216,8 +216,6 @@ class boss_kargath_bladefist : public CreatureScript
             Obscured                = 160131,
             ChainHurlStunAura       = 159947,
 
-            SpellBerserker          = 26662,
-
             /// In Mythic difficulty, the raid must perform well to gain favor that is tracked by Roar of the Crowd.
             /// If the raid gains enough favor from Roar of the Crowd, the raid is granted increased damage dealing.
             SpellRoarOfTheCrowd     = 163302,   ///< Enable Alt Power
@@ -278,6 +276,7 @@ class boss_kargath_bladefist : public CreatureScript
                 me->RemoveAura(eSpells::BladeFistAmputation);
                 me->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 me->RemoveAura(eSpells::FirePillarTargetSelect);
+                me->RemoveAura(eHighmaulSpells::Berserker);
 
                 me->SetDisplayId(eDatas::MorphWithWeapon);
 
@@ -733,7 +732,7 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eEvents::EventBerserker:
                     {
-                        me->CastSpell(me, eSpells::SpellBerserker, true);
+                        me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         Talk(eTalks::Berserk);
                         break;
                     }
