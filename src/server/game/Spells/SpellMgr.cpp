@@ -3108,7 +3108,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!l_Entry)
             continue;
 
-        // if unk0 != 0 difficulty is already there ?
+        // unk0 always exists and has same values as l_Entry->Unk != 0 -- could be difficulty ???
         if (!l_Entry->SpellId || l_Entry->Unk1 != 0 || l_Entry->SpellId >= sSpellStore.GetNumRows())
             continue;
 
