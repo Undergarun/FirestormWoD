@@ -555,6 +555,7 @@ public:
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
         }
         void EnterCombat(Unit* who)
         {
@@ -2141,6 +2142,14 @@ public:
             me->SetHealth(6000000);
             me->SetMaxHealth(6000000);
             me->GetMap()->SetObjectVisibility(1000.0f);
+        }
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            if (spell->Id == 168539)
+            {
+                if (me->GetEntry() != 83612)
+                me->CastSpell(me, 168540);
+            }
         }
     };
 
