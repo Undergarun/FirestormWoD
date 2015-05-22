@@ -161,14 +161,30 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FULL = GROUP_UPDATE_PLAYER | GROUP_UPDATE_PET // all known flags, except UNK100 and VEHICLE_SEAT
 };
 
-enum GroupRaidMarkersFlags
+enum eRaidMarkersFlags
 {
-    RAID_MARKER_NONE    = 0x00,
-    RAID_MARKER_BLUE    = 0x01,
-    RAID_MARKER_GREEN   = 0x02,
-    RAID_MARKER_PURPLE  = 0x04,
-    RAID_MARKER_RED     = 0x08,
-    RAID_MARKER_YELLOW  = 0x10
+    RaidMarkerNone      = 0x00,
+    RaidMarkerBlue      = 0x01,
+    RaidMarkerGreen     = 0x02,
+    RaidMarkerPurple    = 0x04,
+    RaidMarkerRed       = 0x08,
+    RaidMarkerYellow    = 0x10,
+    RaidMarkerOrange    = 0x20,
+    RaidMarkerSilver    = 0x40,
+    RaidMarkerWhite     = 0x80
+};
+
+enum eRaidMarkersMisc
+{
+    SlotBlue        = 0,
+    SlotGreen       = 1,
+    SlotPurple      = 2,
+    SlotRed         = 3,
+    SlotYellow      = 4,
+    SlotOrange      = 5,
+    SlotSilver      = 6,
+    SlotWhite       = 7,
+    MaxRaidMarkers
 };
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
@@ -231,14 +247,23 @@ class Group
 
         struct RaidMarker
         {
-            float  posX;
-            float  posY;
-            float  posZ;
-            uint32 mapId;
-            uint32 mask;
-        };
+            RaidMarker()
+            {
+                PosX    = 0.0f;
+                PosY    = PosX;
+                PosZ    = PosX;
+                MapID   = 0;
+                Mask    = eRaidMarkersFlags::RaidMarkerNone;
+                Slot    = 0;
+            }
 
-        typedef std::list<RaidMarker> RaidMarkerList;
+            float  PosX;
+            float  PosY;
+            float  PosZ;
+            uint32 MapID;
+            uint32 Mask;
+            uint8  Slot;
+        };
 
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
@@ -306,10 +331,12 @@ class Group
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
 
-        RaidMarkerList const& GetRaidMarkers() const { return m_raidMarkers; }
+        std::vector<RaidMarker> const& GetRaidMarkers() const { return m_RaidMarkers; }
+        uint32 GetActiveMarkers() const;
+        uint32 CountActiveMarkers() const;
         void SendRaidMarkersUpdate();
-        void AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z);
-        void RemoveRaidMarker(uint8 markerId);
+        void AddRaidMarker(uint8 p_Slot, uint32 p_MapID, float p_X, float p_Y, float p_Z);
+        void RemoveRaidMarker(uint8 p_Slot);
         void RemoveAllRaidMarkers();
 
         uint8 GetMemberGroup(uint64 guid) const;
@@ -429,7 +456,6 @@ class Group
         void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply);
 
         MemberSlotList      m_memberSlots;
-        RaidMarkerList      m_raidMarkers;
         GroupRefManager     m_memberMgr;
         mutable ACE_Thread_Mutex    m_inviteesLock;
         InvitesList         m_invitees;
@@ -455,5 +481,7 @@ class Group
         uint8               m_readyCheckCount;
         uint8               m_membersInInstance;
         bool                m_readyCheck;
+
+        std::vector<RaidMarker> m_RaidMarkers;
 };
 #endif

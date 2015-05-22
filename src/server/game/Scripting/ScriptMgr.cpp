@@ -2271,6 +2271,45 @@ void ScriptMgr::OnRemovePassenger(Vehicle * p_Vehicle, Unit * p_Passanger)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/// Register a player condition script
+/// @p_ID     : Condition ID
+/// @p_Script : Script instance
+void ScriptMgr::RegisterPlayerConditionScript(uint32 p_ID, PlayerConditionScript* p_Script)
+{
+    if (!p_Script)
+        return;
+
+    m_PlayerConditionScripts.Remove(p_ID);
+    m_PlayerConditionScripts.Insert(p_ID, p_Script);
+}
+
+/// Has player condition script
+/// @p_ID: Player condition ID
+bool ScriptMgr::HasPlayerConditionScript(uint32 p_ID)
+{
+    return m_PlayerConditionScripts.Find(p_ID) != nullptr;
+}
+
+/// Eval a player condition script
+/// @p_Condition : Condition
+/// @p_Player    : Player instance
+bool ScriptMgr::EvalPlayerConditionScript(PlayerConditionEntry const* p_Condition, Player* p_Player)
+{
+    if (!p_Condition)
+        return false;
+
+    uint32 l_ConditionID = p_Condition->ID;
+    auto l_Script = m_PlayerConditionScripts.Find(l_ConditionID);
+
+    if (!l_Script)
+        return false;
+
+    return l_Script->OnConditionCheck(p_Condition, p_Player);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// Constructor
 /// @p_Name : Script name
 SpellScriptLoader::SpellScriptLoader(const char * p_Name)
@@ -2481,6 +2520,14 @@ AreaTriggerEntityScript::AreaTriggerEntityScript(char const* p_Name)
     : ScriptObjectImpl(p_Name)
 {
     ScriptRegistry<AreaTriggerEntityScript>::AddScript(this);
+}
+
+/// Constructor
+/// @p_ID : Player condition ID
+PlayerConditionScript::PlayerConditionScript(uint32 p_ID)
+    : ScriptObjectImpl("PlayerConditionScript")
+{
+    sScriptMgr->RegisterPlayerConditionScript(p_ID, this);
 }
 
 /// Instantiate static members of ScriptRegistry.

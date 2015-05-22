@@ -1,17 +1,15 @@
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
-
-//todo: реализовать робота и аддов на героике, включение робота после убийства пары мобов
 enum ScriptTexts
 {
-    SAY_AGGRO    = 0,
-    SAY_DEATH    = 1,
-    SAY_KILL    = 2,
-    SAY_SPELL1    = 3,
-    SAY_SPELL2    = 4,
-    SAY_SPELL3    = 5,
-    SAY_SPELL4    = 6,
+    SAY_AGGRO       = 0,
+    SAY_DEATH       = 1,
+    SAY_KILL        = 2,
+    SAY_SPELL1      = 3,
+    SAY_SPELL2      = 4,
+    SAY_SPELL3      = 5,
+    SAY_SPELL4      = 6
 };
 
 enum Spells

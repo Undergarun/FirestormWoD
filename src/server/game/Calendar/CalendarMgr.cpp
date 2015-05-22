@@ -22,6 +22,7 @@
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
+#include "WowTime.hpp"
 
 /////////////////////////////////////////////////////////////////////
 /// CalendarInvite
@@ -48,7 +49,7 @@ std::string CalendarEvent::BuildCalendarMailSubject(uint64 p_Remover) const
 std::string CalendarEvent::BuildCalendarMailBody() const
 {
     std::ostringstream l_Stream;
-    l_Stream << uint32(secsToTimeBitFields(m_EventTime));
+    l_Stream << uint32(MS::Utilities::WowTime::Encode(m_EventTime));
     return l_Stream.str();
 }
 /////////////////////////////////////////////////////////////////////
@@ -471,7 +472,7 @@ void CalendarMgr::SendCalendarEventInvite(CalendarInvite const& p_Invite)
         l_Data << uint8(l_Level);
         l_Data << uint8(p_Invite.GetStatus());
         l_Data << uint8(l_CalendarEvent ? l_CalendarEvent->GetType() : 0);
-        l_Data << uint32(secsToTimeBitFields(l_StatusTime));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_StatusTime));
         l_Data.WriteBit(l_StatusTime == 946684800);
         l_Data.FlushBits();
         l_Player->SendDirectMessage(&l_Data);
@@ -485,10 +486,10 @@ void CalendarMgr::SendCalendarEventInviteStatus(uint64 p_Guid, CalendarEvent con
         WorldPacket l_Data(SMSG_CALENDAR_EVENT_INVITE_STATUS);
         l_Data.appendPackGUID(p_Invite.GetInviteeGUID());
         l_Data << uint64(p_CalendarEvent.GetEventId());
-        l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
         l_Data << uint32(p_CalendarEvent.GetFlags());
         l_Data << uint8(p_Invite.GetStatus());
-        l_Data << uint32(secsToTimeBitFields(time(NULL)));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(time(NULL)));
         l_Data.WriteBit(true);  ///< ClearPending
         l_Player->SendDirectMessage(&l_Data);
     }
@@ -516,7 +517,7 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& p_CalendarEv
     WorldPacket l_Data(SMSG_CALENDAR_EVENT_INVITE_ALERT);
 
     l_Data << uint64(p_CalendarEvent.GetEventId());
-    l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
     l_Data << uint32(p_CalendarEvent.GetFlags());
     l_Data << uint8(p_CalendarEvent.GetType());
     l_Data << int32(p_CalendarEvent.GetDungeonId());
@@ -546,7 +547,7 @@ void CalendarMgr::SendCalendarEventInviteRemoveAlert(uint64 p_Guid, CalendarEven
         WorldPacket l_Data(SMSG_CALENDAR_EVENT_INVITE_REMOVED_ALERT, 8 + 4 + 4 + 1);
         l_Data << uint64(p_CalendarEvent.GetEventId());
         l_Data << uint32(p_CalendarEvent.GetFlags());
-        l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
         l_Data << uint8(p_Status);
         l_Player->SendDirectMessage(&l_Data);
     }
@@ -556,7 +557,7 @@ void CalendarMgr::SendCalendarEventRemovedAlert(CalendarEvent const& p_CalendarE
 {
     WorldPacket l_Data(SMSG_CALENDAR_EVENT_REMOVED_ALERT, 1 + 8 + 1);
     l_Data << uint64(p_CalendarEvent.GetEventId());
-    l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
     l_Data.WriteBit(true);  ///< ClearPending
     SendPacketToAllEventRelatives(l_Data, p_CalendarEvent, true);
 }
@@ -565,8 +566,8 @@ void CalendarMgr::SendCalendarEventUpdateAlert(CalendarEvent const& p_CalendarEv
 {
     WorldPacket l_Data(SMSG_CALENDAR_EVENT_UPDATED_ALERT);
     l_Data << uint64(p_CalendarEvent.GetEventId());
-    l_Data << uint32(secsToTimeBitFields(p_OldEventTime));
-    l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_OldEventTime));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
     l_Data << uint32(0);    ///< LockDate
     l_Data << uint32(p_CalendarEvent.GetFlags());
     l_Data << int32(p_CalendarEvent.GetDungeonId());
@@ -614,15 +615,15 @@ void CalendarMgr::SendCalendarEvent(uint64 p_Guid, CalendarEvent const& p_Calend
     CalendarInviteStore const& l_InvitList = m_Invites[p_CalendarEvent.GetEventId()];
     Guild* l_Guild = sGuildMgr->GetGuildById(p_CalendarEvent.GetGuildId());
 
-    WorldPacket l_Data(SMSG_CALENDAR_SEND_EVENT, 60 + l_InvitList.size() * 32);
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_EVENT, 1024);
     l_Data << uint8(p_SendType);
     l_Data.appendPackGUID(p_CalendarEvent.GetCreatorGUID());
     l_Data << uint64(p_CalendarEvent.GetEventId());
     l_Data << uint8(p_CalendarEvent.GetType());
     l_Data << int32(p_CalendarEvent.GetDungeonId());
     l_Data << uint32(p_CalendarEvent.GetFlags());
-    l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetEventTime()));
-    l_Data << uint32(secsToTimeBitFields(p_CalendarEvent.GetTimeZoneTime()));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetEventTime()));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_CalendarEvent.GetTimeZoneTime()));
     l_Data.appendPackGUID(l_Guild ? l_Guild->GetGUID() : 0);
     l_Data << uint32(l_InvitList.size());
 
@@ -638,7 +639,7 @@ void CalendarMgr::SendCalendarEvent(uint64 p_Guid, CalendarEvent const& p_Calend
         l_Data << uint8(l_Invite->GetStatus());
         l_Data << uint8(l_Invite->GetRank());
         l_Data << uint8(p_CalendarEvent.GetGuildId() != 0);
-        l_Data << uint32(secsToTimeBitFields(l_Invite->GetStatusTime()));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_Invite->GetStatusTime()));
         l_Data.WriteBits(l_Invite->GetText().size(), 8);
         l_Data.WriteString(l_Invite->GetText());
         l_Data.FlushBits();

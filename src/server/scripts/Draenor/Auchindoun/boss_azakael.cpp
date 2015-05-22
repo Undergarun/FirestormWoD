@@ -1,4 +1,7 @@
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
+#include "GridNotifiers.h"
 #include "auchindon.h"
 
 enum AzzakelSpells

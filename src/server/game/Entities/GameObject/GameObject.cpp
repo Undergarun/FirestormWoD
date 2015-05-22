@@ -269,9 +269,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     LastUsedScriptID = GetGOInfo()->ScriptId;
     AIM_Initialize();
 
-    auto l_MapDifficulty     = map->GetMapDifficulty();
-    if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficultyID();
+    loot.Context = map->GetLootItemContext();
 
     switch (goinfo->type)
     {
@@ -2063,7 +2061,7 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     // TODO: is there any packet for healing?
     if (change < 0 && player)
     {
-        WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);
+        WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, (3 * (16 + 2)) + 4 + 4);
         data.appendPackGUID(GetGUID());
         data.appendPackGUID(player->GetGUID());
         data.appendPackGUID(attackerOrHealer->GetGUID());

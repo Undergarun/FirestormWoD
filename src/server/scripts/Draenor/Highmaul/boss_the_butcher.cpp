@@ -32,16 +32,9 @@ G3D::Vector3 ComputeLocationSelection(Creature* p_Source, float p_SearchRange, f
     }
 
     std::map<uint32, Cluster> l_ClusterMap;
-    GuidCluster l_VisitedObjects;
-    GuidCluster l_VisitedNeighboor;
 
     for (Player* l_Player : l_Targets)
     {
-        if (l_VisitedObjects.find(l_Player->GetGUIDLow()) != l_VisitedObjects.end())
-            continue;
-
-        l_VisitedObjects.insert(l_Player->GetGUIDLow());
-
         Cluster l_Neighboor;
         for (Player* l_PlayerSecond : l_Targets)
         {
@@ -249,6 +242,11 @@ class boss_the_butcher : public CreatureScript
                     m_AddCount = 0;
                     m_Events.ScheduleEvent(eEvents::EventCadaver, 18 * TimeConstants::IN_MILLISECONDS);
                 }
+            }
+
+            bool CanRespawn() override
+            {
+                return false;
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override

@@ -428,9 +428,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket& p_Packet)
             /// Bg->HandleBeforeTeleportToBattleground(_player);
             sBattlegroundMgr->TeleportToBattleground(m_Player, l_GroupQueueInfo.m_IsInvitedToBGInstanceGUID, l_BGQueueTypeID);
 
-            /// Remove battleground queue status from BGmgr
-            sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, l_BGQueueTypeID);
-
             /// Add only in HandleMoveWorldPortAck()
             /// Bg->AddPlayer(_player, team);
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", m_Player->GetName(), m_Player->GetGUIDLow(), l_BG->GetInstanceID(), l_BG->GetTypeID(), l_BGQueueTypeID);

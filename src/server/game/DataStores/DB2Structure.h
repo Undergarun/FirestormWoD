@@ -51,16 +51,16 @@ struct CurrencyTypesEntry
 {
     uint32    ID;                                                   ///< 0      m_ID
     uint32    Category;                                             ///< 1      m_CategoryID
-    char*     m_NameLang;                                           ///< 2      m_NameLang
-    char*     m_InventoryIcon;                                      ///< 3      m_InventoryIcon
-    char*     m_InventoryIcon2;                                     ///< 4      m_InventoryIcon2
+    LocalizedString const*    m_NameLang;                           ///< 2      m_NameLang
+    LocalizedString const*    m_InventoryIcon;                      ///< 3      m_InventoryIcon
+    LocalizedString const*    m_InventoryIcon2;                     ///< 4      m_InventoryIcon2
     uint32    m_SpellWeight;                                        ///< 5      m_SpellWeight
     uint32    m_SpellCategory;                                      ///< 6      m_SpellCategory
     uint32    TotalCap;                                             ///< 7      m_MaxQty
     uint32    WeekCap;                                              ///< 8      m_MaxEarnablePerWeek
     uint32    Flags;                                                ///< 9      m_Flags
     uint32    m_Quality;                                            ///< 10     m_Quality
-    char*     m_DescriptionLang;                                    ///< 11     m_DescriptionLang
+    LocalizedString const*    m_DescriptionLang;                    ///< 11     m_DescriptionLang
 
     bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
     bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
@@ -82,14 +82,14 @@ struct GroupFinderActivityEntry
     int32  Unk9;                                                    ///< 10
     int32  Unk10;                                                   ///< 11
     int32  Unk11;                                                   ///< 12
-    char*  Name;                                                    ///< 13
-    char*  Difficulty;                                              ///< 14
+    LocalizedString const* Name;                                    ///< 13
+    LocalizedString const* Difficulty;                              ///< 14
 };
 
 struct GroupFinderCategoryEntry
 {
     uint32 ID;                                                      ///< 0
-    char*  Name;                                                    ///< 1
+    LocalizedString const* Name;                                    ///< 1
     int32  Unk1;                                                    ///< 2
     int32  Unk2;                                                    ///< 3
 };
@@ -147,7 +147,7 @@ struct ItemBonusTreeNodeEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 Category;                                                ///< 1
-    uint32 Difficulty;                                              ///< 2
+    uint32 Context;                                                 ///< 2
     uint32 LinkedCategory;                                          ///< 3
     uint32 ItemBonusEntry;                                          ///< 4
 };
@@ -201,11 +201,11 @@ struct ItemSparseEntry
     uint32 Delay;                                                   ///< 67
     float  RangedModRange;                                          ///< 68
     uint32 Bonding;                                                 ///< 69
-    char*  Name;                                                    ///< 70
-    char*  Name2;                                                   ///< 71
-    char*  Name3;                                                   ///< 72
-    char*  Name4;                                                   ///< 73
-    char*  Description;                                             ///< 74
+    LocalizedString const* Name;                                    ///< 70
+    LocalizedString const* Name2;                                   ///< 71
+    LocalizedString const* Name3;                                   ///< 72
+    LocalizedString const* Name4;                                   ///< 73
+    LocalizedString const* Description;                             ///< 74
     uint32 PageText;                                                ///< 75
     uint32 LanguageID;                                              ///< 76
     uint32 PageMaterial;                                            ///< 77
@@ -252,7 +252,7 @@ struct HeirloomEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 ItemID;                                                  ///< 1
-    char*  Description[2];                                          ///< 2-4    0 = horde, 1 = ally, if 0 is NULL then 1 is for both
+    LocalizedString const* Description[2];                          ///< 2-4    0 = horde, 1 = ally, if 0 is NULL then 1 is for both
     uint32 MaxHeirloomUpgrade;                                      ///< 5
     uint32 OldHeirloomID[2];                                        ///< 6-8
     uint32 HeroicVersion;                                           ///< 9
@@ -356,8 +356,8 @@ struct MapChallengeModeEntry
 struct SceneScriptEntry
 {
     uint32 Entry;                                                   ///< 0
-    char*  Name;                                                    ///< 1
-    char*  Script;                                                  ///< 2
+    LocalizedString const* Name;                                    ///< 1
+    LocalizedString const* Script;                                  ///< 2
     uint32 PrevScript;                                              ///< 3
     uint32 NextScript;                                              ///< 4
 };
@@ -365,14 +365,14 @@ struct SceneScriptEntry
 struct SceneScriptPackageEntry
 {
     uint32 Entry;                                                   ///< 0
-    char*  Name;                                                    ///< 1
+    LocalizedString const* Name;                                    ///< 1
 };
 
 struct SoundEntriesEntry
 {
     uint32 Id;                                                      ///< 0      m_ID
     uint32 Type;                                                    ///< 1      m_SoundType
-    char*  InternalName;                                            ///< 2      m_Name
+    LocalizedString const* InternalName;                            ///< 2      m_Name
     uint32 m_FileDataID[20];                                        ///< 3-22   m_FileDataID
     uint32 m_Freq[20];                                              ///< 23-42  m_Freq
     float  m_volumeFloat;                                           ///< 43     m_VolumeFloat
@@ -441,7 +441,7 @@ struct TaxiNodesEntry
     float  x;                                                       ///< 2
     float  y;                                                       ///< 3
     float  z;                                                       ///< 4
-    char*  name;                                                    ///< 5
+    LocalizedString const* name;                                    ///< 5
     uint32 MountCreatureID[2];                                      ///< 6-7
     uint32 m_ConditionID;                                           ///< 8
     uint32 LearnableIndex;                                          ///< 9      some kind of index only for learnable nodes
@@ -495,8 +495,8 @@ struct AreaPOIEntry
     uint32 unk3;                                                    ///< 6
     float x;                                                        ///< 7      m_Pos
     float y;                                                        ///< 8      m_Pos
-    char* m_NameLang;                                               ///< 9      m_NameLang
-    char* m_DescriptionLang;                                        ///< 10     m_DescriptionLang
+    LocalizedString const*m_NameLang;                               ///< 9      m_NameLang
+    LocalizedString const*m_DescriptionLang;                        ///< 10     m_DescriptionLang
     uint32 worldState;                                              ///< 11     m_WorldStateID
     uint32 m_PlayerConditionID;                                     ///< 12     @TODO
     uint32 unk4;                                                    ///< 13
@@ -518,7 +518,7 @@ struct HolidaysEntry
     uint32 holidayNameId;                                           ///< 39     m_holidayNameID (HolidayNames.dbc)
     uint32 holidayDescriptionId;                                    ///< 40     m_holidayDescriptionID (HolidayDescriptions.dbc)
     uint32 Priority;                                                ///< 41     m_priority
-    char*  TextureFilename;                                         ///< 42     m_textureFilename
+    LocalizedString const* TextureFilename;                         ///< 42     m_textureFilename
     int32  CalendarFilterType;                                      ///< 43     m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     uint32 flags;                                                   ///< 44     m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
@@ -649,7 +649,7 @@ struct GarrPlotInstanceEntry
 {
     uint32 InstanceID;                                              ///< 0
     uint32 PlotID;                                                  ///< 1
-    char*  Name;                                                    ///< 2
+    LocalizedString const* Name;                                    ///< 2
 };
 
 struct GarrPlotEntry
@@ -658,7 +658,7 @@ struct GarrPlotEntry
     uint32 PlotUiCategoryID;                                        ///< 1
     uint32 PlotType;                                                ///< 2
     uint32 Unk2;                                                    ///< 3      alway 0 (6.1.2)
-    char*  Name;                                                    ///< 4
+    LocalizedString const* Name;                                    ///< 4
     uint32 Unk4;                                                    ///< 5
     uint32 Unk5;                                                    ///< 6
     uint32 BuildingGameObject[2];                                   ///< 7-8
@@ -667,7 +667,7 @@ struct GarrPlotEntry
 struct GarrPlotUICategoryEntry
 {
     uint32 PlotUiCategoryID;                                        ///< 0
-    char*  Name;                                                    ///< 1
+    LocalizedString const* Name;                                    ///< 1
     uint32 Type;                                                    ///< 2
 };
 
@@ -683,9 +683,9 @@ struct GarrMissionEntry
     uint32 OfferTime;                                               ///< 7
     uint32 LocPrefixID;                                             ///< 8
     uint32 Category;                                                ///< 9      @Todo this is the mission categorie see http://www.wowhead.com/missions=35
-    char*  Name;                                                    ///< 10
-    char*  Description;                                             ///< 11
-    char*  Location;                                                ///< 12
+    LocalizedString const* Name;                                    ///< 10
+    LocalizedString const* Description;                             ///< 11
+    LocalizedString const* Location;                                ///< 12
     uint32 SubCategory2;                                            ///< 13
     uint32 SubCategory1;                                            ///< 14
     uint32 GarrisonCurrencyStartCost;                               ///< 15
@@ -722,10 +722,10 @@ struct GarrBuildingEntry
     uint32 Unk2;                                                    ///< 3
     uint32 BuildingType;                                            ///< 4
     uint32 BuildingLevel;                                           ///< 5
-    char*  NameA;                                                   ///< 6
-    char*  NameH;                                                   ///< 7
-    char*  Brief;                                                   ///< 8
-    char*  Description;                                             ///< 9
+    LocalizedString const* NameA;                                   ///< 6
+    LocalizedString const* NameH;                                   ///< 7
+    LocalizedString const* Brief;                                   ///< 8
+    LocalizedString const* Description;                             ///< 9
     uint32 BuildTime;                                               ///< 10
     uint32 BuildCostCurrencyID;                                     ///< 11
     uint32 BuildCostCurrencyAmount;                                 ///< 12
@@ -754,21 +754,21 @@ struct GarrFollowerEntry
     uint32 Entry[2];                                                ///< 1 - 2
     uint32 Class[2];                                                ///< 3 - 4
     uint32 Quality;                                                 ///< 5
-    uint32 Unk4;                                                    ///< 6      H
-    uint32 Unk5;                                                    ///< 7      A
-    uint32 Unk6;                                                    ///< 8      H
-    uint32 Unk7;                                                    ///< 9      A
+    uint32 HordeGarrClassSecID;                                     ///< 6      GarrClassSpec.db2
+    uint32 AllianceGarrClassSecID;                                  ///< 7
+    uint32 HordeGarrFollItemSetID;                                  ///< 8
+    uint32 AllianceGarrFollItemSetID;                               ///< 9
     int32  Level;                                                   ///< 10
     int32  ItemLevelWeapon;                                         ///< 11
     int32  ItemLevelArmor;                                          ///< 12
     uint32 Unk8;                                                    ///< 13
-    uint32 Unk9;                                                    ///< 14
-    char * UnkString1;                                              ///< 15     Descr1 : zoneH (where you find this follower)
-    char * UnkString2;                                              ///< 16     Descr2 : zoneA (where you find this follower)
+    uint32 Flags;                                                   ///< 14
+    char * HordeSourceText;                                         ///< 15     Descr1 : zoneH (where you find this follower)
+    char * AllinaceSourceText;                                      ///< 16     Descr2 : zoneA (where you find this follower)
     int32  Unk10;                                                   ///< 17     H
     int32  Unk11;                                                   ///< 18     A
-    uint32 Unk12;                                                   ///< 19     H
-    uint32 Unk13;                                                   ///< 20     A
+    uint32 HordePortraitIconID;                                     ///< 19
+    uint32 AlliancePortraitIconID;                                  ///< 20
 };
 
 struct GarrAbilityEntry
@@ -778,7 +778,7 @@ struct GarrAbilityEntry
     char * Name;                                                    ///< 2
     char * Description;                                             ///< 3
     uint32 IconID;                                                  ///< 4
-    uint32 Unk3;                                                    ///< 5
+    uint32 OtherfactionGarrAbilityID;                               ///< 5
     uint32 Category;                                                ///< 6
 };
 
@@ -826,8 +826,8 @@ struct GarrMechanicTypeEntry
 {
     uint32 ID;                                                      ///< 0
     uint32 Type;                                                    ///< 1
-    char*  Environment;                                             ///< 2
-    char*  EnvironmentDesc;                                         ///< 3
+    LocalizedString const* Environment;                             ///< 2
+    LocalizedString const* EnvironmentDesc;                         ///< 3
     uint32 EnvironmentTextureID;                                    ///< 4
 };
 
@@ -854,8 +854,8 @@ struct GarrSpecializationEntry
     uint32 Unk4;                                                    ///< 4
     float  BasePoint;                                               ///< 5
     uint32 Unk6;                                                    ///< 6
-    char*  Name;                                                    ///< 7
-    char*  Description;                                             ///< 8
+    LocalizedString const* Name;                                    ///< 7
+    LocalizedString const* Description;                             ///< 8
 };
 
 namespace CharShipmentFlags
@@ -883,14 +883,14 @@ struct CharShipmentContainerEntry
     uint32 ID;                                                      ///< 0
     uint32 Unk1;                                                    ///< 1
     uint32 BuildingType;                                            ///< 2
-    char*  Name;                                                    ///< 3
+    LocalizedString const* Name;                                    ///< 3
     uint32 TextureKitID;                                            ///< 4
     uint32 Unk2;                                                    ///< 5
     uint32 Unk3;                                                    ///< 6
     uint32 Unk4;                                                    ///< 7
     uint32 Unk5;                                                    ///< 8
     uint32 Unk6;                                                    ///< 9
-    char*  Description;                                             ///< 10
+    LocalizedString const* Description;                             ///< 10
     uint32 Unk7;                                                    ///< 11
     uint32 Unk8;                                                    ///< 12
 };
@@ -942,7 +942,7 @@ struct BattlePetStateEntry
 {
     uint32 id;                                                      ///< 0
     uint32 parent;                                                  ///< 1      BattlePetState.dbc
-    char*  name;                                                    ///< 3
+    LocalizedString const* name;                                    ///< 3
     uint32 flags;                                                   ///< 4
 };
 
@@ -973,7 +973,7 @@ struct BattlePetEffectPropertiesEntry
 {
     uint32 effect;                                                  ///< 0
     uint32 flags;                                                   ///< 1
-    char*  propName[MAX_BATTLEPET_PROPERTIES];                      ///< 2-8
+    LocalizedString const* propName[MAX_BATTLEPET_PROPERTIES];      ///< 2-8
     uint32 propIsId[MAX_BATTLEPET_PROPERTIES];                      ///< 9-15   Only set to 1 for AuraID
 };
 
@@ -1011,8 +1011,8 @@ struct BattlePetSpeciesEntry
     uint32 type;                                                    ///< 4
     uint32 obtainmentCategoryDescription;                           ///< 5
     uint32 flags;                                                   ///< 6
-    char*  source;                                                  ///< 7
-    char*  description;                                             ///< 8
+    LocalizedString const* source;                                  ///< 7
+    LocalizedString const* description;                             ///< 8
 };
 
 struct BattlePetSpeciesStateEntry
@@ -1038,9 +1038,9 @@ struct MountEntry
     uint32 Category;                                                ///< 2
     uint32 CreatureDisplayID;                                       ///< 3
     uint32 Flags;                                                   ///< 4
-    char*  Name;                                                    ///< 5
-    char*  Description;                                             ///< 6
-    char*  Icon;                                                    ///< 7
+    LocalizedString const* Name;                                    ///< 5
+    LocalizedString const* Description;                             ///< 6
+    LocalizedString const* Icon;                                    ///< 7
     int32  FilterCategory;                                          ///< 8      Used for filter un Mount page in-game
     uint32 SpellID;                                                 ///< 9
     uint32 PlayerConditionID;                                       ///< 10
@@ -1121,7 +1121,7 @@ struct PlayerConditionEntry
     int32  MaxAvgEquippedItemLevel;                                 ///< 129
     int32  ChrSpecializationIndex;                                  ///< 130
     int32  ChrSpecializationRole;                                   ///< 131
-    char*  FailureDescriptionLang;                                  ///< 132
+    LocalizedString const* FailureDescriptionLang;                  ///< 132
     int32  PowerType;                                               ///< 133
     int32  PowerTypeComp;                                           ///< 134
     int32  PowerTypeValue;                                          ///< 135
@@ -1139,7 +1139,7 @@ namespace PrevQuestLogicFlags
 struct VignetteEntry
 {
     uint32 Id;                                                      ///< 0
-    char*  Name;                                                    ///< 1
+    LocalizedString const* Name;                                    ///< 1
     uint32 QuestFeedbackEffectId;                                   ///< 2
     uint32 Flags;                                                   ///< 3
     float  X;                                                       ///< 4

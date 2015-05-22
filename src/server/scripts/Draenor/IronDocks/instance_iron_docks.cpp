@@ -214,6 +214,18 @@ public:
                             }
                 break;
             }
+            case BOSS_SKULLOC:
+            {
+                if (creature->GetMap()->IsHeroic())
+                {
+                    Pinstance->DoCompleteAchievement(9047);
+                }
+                else
+                {
+                    Pinstance->DoCompleteAchievement(9038);
+                }
+                break;
+            }
             default:
                 break;
             }
@@ -349,7 +361,6 @@ public:
                 break;
                 */
             }
-
             return true;
         }
         bool IsWipe()

@@ -24,7 +24,7 @@ void AddSC_promotion_new_players();
 void AddSC_first_time_connexion();
 void AddSC_user_reporting();
 void AddSC_warning_update_client();
-//void AddSC_DuelReset();
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -86,6 +86,7 @@ void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
+void AddSC_hotfix_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -100,6 +101,7 @@ void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_npc_companions();
 void AddSC_achievement_scripts();
+void AddSC_PlayerConditions();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -816,6 +818,7 @@ void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
+void AddSC_Garrison_PlayerConditions();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_A2();
 void AddSC_Garrison_A3();
@@ -907,7 +910,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    //AddSC_DuelReset();
+    AddSC_DuelReset();
 #endif
 }
 
@@ -973,6 +976,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
+    AddSC_hotfix_commandscript();
 }
 
 void AddWorldScripts()
@@ -989,6 +993,7 @@ void AddWorldScripts()
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
     AddSC_chat_log();
+    AddSC_PlayerConditions();
 #endif
 }
 
@@ -1726,9 +1731,12 @@ void AddDraenorScripts()
     AddSC_spires_of_arak();
     AddSC_frostfire_ridge();
     AddSC_gorgrond();
+
+    /// Garrison
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
+    AddSC_Garrison_PlayerConditions();
     AddSC_Garrison_A1();
     AddSC_Garrison_A2();
     AddSC_Garrison_A3();

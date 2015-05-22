@@ -809,8 +809,8 @@ class spell_mage_arcane_barrage: public SpellScriptLoader
                             for (auto itr : l_TargetList)
                                 l_Target->CastCustomSpell(itr, SPELL_MAGE_ARCANE_BARRAGE_TRIGGERED, &l_Basepoints, NULL, NULL, true, 0, NULLAURA_EFFECT, l_Player->GetGUID());
 
-                            if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                                l_ArcaneCharge->DropStack();
+                            if (AuraPtr l_ArcaneCharge = l_Player->GetAura(SPELL_MAGE_ARCANE_CHARGE, l_Player->GetGUID()))
+                                l_ArcaneCharge->ModStackAmount(-l_ArcaneCharge->GetCharges());
                         }
                     }
                 }
@@ -1473,6 +1473,16 @@ class spell_mage_time_warp: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_time_warp_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_SHAMAN_EXHAUSTED))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
@@ -1489,6 +1499,7 @@ class spell_mage_time_warp: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_mage_time_warp_SpellScript::CheckCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_mage_time_warp_SpellScript::ApplyDebuff);
@@ -2221,14 +2232,6 @@ class spell_mage_novas_talent : public SpellScriptLoader
 
                 if (GetExplTargetUnit() != nullptr)
                     m_MainTarget = GetExplTargetUnit()->GetGUID();
-
-                /// Ice Nova, Blast Wave, Supernova, now has a 3-second cooldown.
-                Player* l_Player = GetCaster()->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->AddSpellCooldown(GetSpellInfo()->Id, 0, 3 * IN_MILLISECONDS);
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -2308,12 +2311,22 @@ class spell_mage_blink : public SpellScriptLoader
 
         enum eSpells
         {
-            GlyphOfRapidDisplacement = 163558
+            GlyphOfRapidDisplacement = 146659
         };
 
         class spell_mage_blink_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blink_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphOfRapidDisplacement) && l_Caster->HasAuraType(SPELL_AURA_MOD_STUN))
+                    return SPELL_FAILED_STUNNED;
+
+                return SPELL_CAST_OK;
+            }
 
             void HandleImmunity(SpellEffIndex p_EffIndex)
             {
@@ -2326,12 +2339,15 @@ class spell_mage_blink : public SpellScriptLoader
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
+                {
                     if (l_Caster->HasAura(SPELL_MAGE_IMPROVED_BLINK) && l_Caster->getLevel() >= 92)
                         l_Caster->CastSpell(l_Caster, SPELL_MAGE_IMPROVED_BLINK_PROC, true);
+                }
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_mage_blink_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
                 OnEffectHitTarget += SpellEffectFn(spell_mage_blink_SpellScript::HandleImmunity, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
                 AfterHit += SpellHitFn(spell_mage_blink_SpellScript::HandleAfterHit);

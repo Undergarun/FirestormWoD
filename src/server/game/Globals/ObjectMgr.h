@@ -815,7 +815,6 @@ typedef std::vector<GuildChallengeReward> GuildChallengeRewardData;
 typedef std::map<uint32, RealmCompletedChallenge> GroupsCompletedChallengesMap;
 typedef std::map<uint32, RealmCompletedChallenge> GuildsCompletedChallengesMap;
 typedef std::map<uint32, ChallengeReward> ChallengeRewardsMap;
-typedef std::map<uint32, MapChallengeModeHotfix> MapChallengeModeHotfixes;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 typedef std::vector<ResearchLootEntry> ResearchLootVector;
@@ -1145,7 +1144,6 @@ class ObjectMgr
         void LoadItemTemplateCorrections();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
-        void LoadItemLocales();
         void LoadItemSpecs();
         void LoadItemSpecsOverride();
         void LoadItemBonusGroup();
@@ -1218,7 +1216,6 @@ class ObjectMgr
         void LoadCharacterTemplateData();
         void LoadRealmCompletedChallenges();
         void LoadChallengeRewards();
-        void LoadMapChallengeModeHotfixes();
 
         RealmCompletedChallenge* GetGroupCompletedChallengeForMap(uint32 p_MapID)
         {
@@ -1247,14 +1244,6 @@ class ObjectMgr
                 return nullptr;
 
             return &m_ChallengeRewardsMap[p_MapID];
-        }
-
-        MapChallengeModeHotfix* GetMapChallengeModeHotfix(uint32 p_ID)
-        {
-            if (m_MapChallengeModeHotfixes.find(p_ID) == m_MapChallengeModeHotfixes.end())
-                return nullptr;
-
-            return &m_MapChallengeModeHotfixes[p_ID];
         }
 
         BattlePetTemplate const* GetBattlePetTemplate(uint32 species) const
@@ -1360,12 +1349,6 @@ class ObjectMgr
         {
             GameObjectLocaleContainer::const_iterator itr = _gameObjectLocaleStore.find(entry);
             if (itr == _gameObjectLocaleStore.end()) return NULL;
-            return &itr->second;
-        }
-        ItemLocale const* GetItemLocale(uint32 entry) const
-        {
-            ItemLocaleContainer::const_iterator itr = _itemLocaleStore.find(entry);
-            if (itr == _itemLocaleStore.end()) return NULL;
             return &itr->second;
         }
         QuestLocale const* GetQuestLocale(uint32 entry) const
@@ -1526,7 +1509,10 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
 
-        void LoadHotfixData();
+        void LoadHotfixData(bool p_Reload = false);
+        void LoadHotfixTableHashs();
+        std::map<std::string, uint32> HotfixTableID;
+
         HotfixData const& GetHotfixData() const { return _hotfixData; }
         time_t GetHotfixDate(uint32 entry, uint32 type) const
         {
@@ -1575,8 +1561,6 @@ class ObjectMgr
         {
             _lootViewGUID[lootview] = creature;
         }
-
-        ACE_Thread_Mutex m_GuidLock;
 
         const AreaTriggerTemplateList* GetAreaTriggerTemplatesForEntry(uint32 p_Entry)
         {
@@ -1693,7 +1677,6 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiItemGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
@@ -1706,6 +1689,8 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
+
+        std::atomic_uint m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
@@ -1828,7 +1813,6 @@ class ObjectMgr
         TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
-        ItemLocaleContainer _itemLocaleStore;
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
@@ -1861,7 +1845,6 @@ class ObjectMgr
         GroupsCompletedChallengesMap m_GroupsCompletedChallenges;
         GuildsCompletedChallengesMap m_GuildsCompletedChallenges;
         ChallengeRewardsMap m_ChallengeRewardsMap;
-        MapChallengeModeHotfixes m_MapChallengeModeHotfixes;
         TaxiNodes _taxiNodes;
 };
 

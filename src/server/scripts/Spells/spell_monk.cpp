@@ -1140,7 +1140,7 @@ class spell_monk_black_ox_statue: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-// Guard - 115295 and Guard - 118604
+/// Guard - 115295
 class spell_monk_guard: public SpellScriptLoader
 {
     public:
@@ -1149,6 +1149,12 @@ class spell_monk_guard: public SpellScriptLoader
         class spell_monk_guard_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_monk_guard_AuraScript);
+
+            enum eSpells
+            {
+                WoDPvPBrewmaster4PBonusAura   = 171445,
+                WoDPvPBrewmaster4PBonusEffect = 171452
+            };
 
             void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & p_Amount, bool & /*canBeRecalculated*/)
             {
@@ -1160,6 +1166,25 @@ class spell_monk_guard: public SpellScriptLoader
                     p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+
+                if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
+                {
+                    std::list<Unit*> l_TargetList;
+                    float l_Radius = 15.0f;
+
+                    JadeCore::NearestFriendlyUnitInObjectRangeCheck l_NearestFriendlyUnitCheck(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::NearestFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_NearestFriendlyUnitCheck);
+                    l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    if (l_TargetList.size() > 1)
+                    {
+                        l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
+                        l_TargetList.resize(1);
+                    }
+
+                    for (auto l_Target : l_TargetList)
+                        l_Target->CastCustomSpell(l_Target, eSpells::WoDPvPBrewmaster4PBonusEffect, &p_Amount, nullptr, nullptr, true);
+                }
             }
 
             void Register()
@@ -3321,9 +3346,6 @@ class spell_monk_touch_of_death: public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
-                        if (target->GetTypeId() == TYPEID_UNIT && (target->ToCreature()->IsDungeonBoss() || target->ToCreature()->isWorldBoss()))
-                            return SPELL_FAILED_BAD_TARGETS;
-
                         if (caster->HasAura(124490))
                         {
                             if (target->GetTypeId() == TYPEID_UNIT && !target->GetOwner() && target->GetHealthPct() > 10.0f && (target->GetHealth() > caster->GetMaxHealth()))
@@ -4098,7 +4120,10 @@ class spell_monk_hurricane_strike : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
-                    l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
+                {
+                    for (uint8 l_I = 1; l_I < 10; ++l_I)
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_HURRICANE_STRIKE_DAMAGE, true);
+                }
             }
 
             void Register()
@@ -4123,6 +4148,13 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_hurricane_strike_damage_SpellScript);
 
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                /// Damage 1 random target
+                if (p_Targets.size() > 1)
+                    JadeCore::RandomResizeList(p_Targets, 1);
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE) || !sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration())
@@ -4140,11 +4172,12 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS)));
+                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (5 * (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS))));
             }
 
             void Register()
             {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_hurricane_strike_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_hurricane_strike_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };

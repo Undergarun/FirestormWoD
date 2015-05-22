@@ -30,17 +30,17 @@
 
 struct SqlDb2
 {
-    const std::string * m_FormatString;
-    const std::string * m_IndexName;
+    std::string m_FormatString;
+    std::string m_IndexName;
     std::string m_SQLTableName;
     int32 m_IndexPosition;
     int32 m_SQLIndexPosition;
 
-    SqlDb2(const std::string * p_FileName, const std::string * p_Format, const std::string * p_IndexName, const char * p_DB2Fmt)
+    SqlDb2(const std::string p_FileName, const std::string p_Format, const std::string p_IndexName, const char * p_DB2Fmt)
         : m_FormatString(p_Format), m_IndexName(p_IndexName), m_SQLIndexPosition(0)
     {
         /// Convert dbc file name to sql table name
-        m_SQLTableName = *p_FileName;
+        m_SQLTableName = p_FileName;
         for (uint32 l_I = 0; l_I < m_SQLTableName.size(); ++l_I)
         {
             if (isalpha(m_SQLTableName[l_I]))
@@ -54,10 +54,10 @@ struct SqlDb2
         if (m_IndexPosition >= 0)
         {
             uint32 uindexPos = uint32(m_IndexPosition);
-            for (uint32 l_X = 0; l_X < m_FormatString->size(); ++l_X)
+            for (uint32 l_X = 0; l_X < m_FormatString.size(); ++l_X)
             {
                 // Count only fields present in sql
-                if ((*m_FormatString)[l_X] == FT_SQL_PRESENT)
+                if (m_FormatString[l_X] == FT_SQL_PRESENT)
                 {
                     if (l_X == uindexPos)
                         break;
@@ -108,7 +108,7 @@ class DB2StorageBase
         /// Write record into a ByteBuffer
         /// @p_ID     : Record ID
         /// @p_Buffer : Destination buffer
-        virtual bool WriteRecord(uint32 p_ID, ByteBuffer & p_Buffer)
+        virtual bool WriteRecord(uint32 p_ID, ByteBuffer & p_Buffer, uint32 p_Locale)
         {
             char const* l_Raw = LookupEntryRaw(p_ID);
 
@@ -135,7 +135,9 @@ class DB2StorageBase
                         break;
                     case FT_STRING:
                     {
-                        char* locStr = *(char**)l_Raw;
+                        LocalizedString * l_LocalizedString = *((LocalizedString**)(l_Raw));
+
+                        char const* locStr = l_LocalizedString->Get(p_Locale);
                         l_Raw += sizeof(char*);
 
                         std::string l_String(locStr);
@@ -156,6 +158,9 @@ class DB2StorageBase
             return true;
         }
 
+        /// Reload the data store
+        virtual bool Reload(std::string& p_OutMessage) = 0;
+
     protected:
         uint32 m_TableHash;
         uint32 m_MaxID;
@@ -173,7 +178,7 @@ template<class T> class DB2Storage : public DB2StorageBase
         /// Constructor
         /// @p_Format :  DB2 format
         explicit DB2Storage(char const* p_Format)
-            : DB2StorageBase(p_Format), m_IndexTable(NULL), m_DataTable(NULL)
+            : DB2StorageBase(p_Format), m_IndexTable(NULL), m_DataTable(NULL), m_SQL(nullptr)
         { 
 
         }
@@ -240,10 +245,10 @@ template<class T> class DB2Storage : public DB2StorageBase
         /// Load the DB2 from a file
         /// @p_FileName : DB2 file path
         /// @p_SQL      : SQL options
-        bool Load(char const* p_FileName, SqlDb2 * p_SQL)
+        bool Load(char const* p_FileName, SqlDb2 * p_SQL, uint32 p_Locale)
         {
             DB2FileLoader l_DB2Reader;
-
+            m_SQL = p_SQL;
             /// Check if load was successful, only then continue
             if (!l_DB2Reader.Load(p_FileName, m_Format))
                 return false;
@@ -260,7 +265,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                 std::string l_SQLQueryStr = "SELECT * FROM " + p_SQL->m_SQLTableName;
 
                 if (p_SQL->m_IndexPosition >= 0)
-                    l_SQLQueryStr += " ORDER BY " + *p_SQL->m_IndexName + " DESC";
+                    l_SQLQueryStr += " ORDER BY " + p_SQL->m_IndexName + " DESC";
                 l_SQLQueryStr += ';';
 
                 l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
@@ -284,9 +289,9 @@ template<class T> class DB2Storage : public DB2StorageBase
             m_FieldCount    = l_DB2Reader.GetCols();
             m_TableHash     = l_DB2Reader.GetHash();
 
-            m_DataTable = (T*)l_DB2Reader.AutoProduceData(m_Format, m_MaxID, (char**&)m_IndexTable);                    ///< Load raw non-string data
-            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStringsArrayHolders(m_Format, (char*)m_DataTable));       ///< Create string holders for loaded string fields
-            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable));                   ///< Load strings from dbc data
+            m_DataTable = (T*)l_DB2Reader.AutoProduceData(m_Format, m_MaxID, (char**&)m_IndexTable, m_LocalizedString);         ///< Load raw non-string data
+            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStringsArrayHolders(m_Format, (char*)m_DataTable, p_Locale));     ///< Create string holders for loaded string fields
+            m_StringPoolList.push_back(l_DB2Reader.AutoProduceStrings(m_Format, (char*)m_DataTable, p_Locale));                 ///< Load strings from dbc data
 
             /// Insert SQL data into arrays
             if (l_SQLQueryResult)
@@ -298,20 +303,24 @@ template<class T> class DB2Storage : public DB2StorageBase
                         l_SQLFields = l_SQLQueryResult->Fetch();
 
                         uint32 l_Entry = l_SQLFields[p_SQL->m_IndexPosition].GetUInt32();
-                        T * l_NewEntry = new T();
+                        T * l_NewEntry = (T*)LookupEntry(l_Entry);
+
+                        if (!l_NewEntry)
+                            l_NewEntry = new T();
+
                         char * l_WritePtr = (char*)l_NewEntry;
 
                         uint32 l_ColumnNumber       = 0;
                         uint32 l_SQLColumnNumber    = 0;
                         uint32 l_WritePosition      = 0;
 
-                        for (; l_ColumnNumber < p_SQL->m_FormatString->size(); ++l_ColumnNumber)
+                        for (; l_ColumnNumber < p_SQL->m_FormatString.size(); ++l_ColumnNumber)
                         {
-                            if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
+                            if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
                             {
                                 break;
                             }
-                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
+                            else if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
                             {
                                 switch (m_Format[l_ColumnNumber])
                                 {
@@ -329,13 +338,21 @@ template<class T> class DB2Storage : public DB2StorageBase
                                         l_WritePosition += 1;
                                         break;
                                     case FT_STRING:
+                                        if (!LookupEntry(l_Entry))
+                                        {
+                                            *((LocalizedString**)(&l_WritePtr[l_WritePosition])) = new LocalizedString();
+                                            m_LocalizedString.emplace(*((LocalizedString**)(&l_WritePtr[l_WritePosition])));
+                                        }
+
+                                        LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+
                                         // Beginning of the pool - empty string
-                                        *((char**)(&l_NewEntry[l_WritePosition])) = m_StringPoolList.back();
-                                        l_WritePosition += sizeof(char*);
+                                        l_LocalizedString->Str[LOCALE_enUS] = m_StringPoolList.back();
+                                        l_WritePosition += sizeof(LocalizedString*);
                                         break;
                                 }
                             }
-                            else if ((*p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
+                            else if ((p_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
                             {
                                 bool l_IsValidSqlColumn = true;
                                 switch (m_Format[l_ColumnNumber])
@@ -355,13 +372,20 @@ template<class T> class DB2Storage : public DB2StorageBase
                                         break;
                                     case FT_STRING:
                                     {
+                                        if (!LookupEntry(l_Entry))
+                                        {
+                                            *((LocalizedString**)(&l_WritePtr[l_WritePosition])) = new LocalizedString();
+                                            m_LocalizedString.emplace(*((LocalizedString**)(&l_WritePtr[l_WritePosition])));
+                                        }
+
                                         m_CustomStrings.push_back(l_SQLFields[l_SQLColumnNumber].GetString());
+
                                         char * l_NewString = const_cast<char*>(m_CustomStrings.back().c_str());
-                                        char ** l_StringInStructPtr = ((char**)(&l_WritePtr[l_WritePosition]));
 
-                                        *l_StringInStructPtr = l_NewString;
+                                        LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+                                        l_LocalizedString->Str[LOCALE_enUS] = l_NewString;
 
-                                        l_WritePosition += sizeof(char*);
+                                        l_WritePosition += sizeof(LocalizedString*);
                                         break;
                                     }
                                     case FT_SORT:
@@ -369,7 +393,7 @@ template<class T> class DB2Storage : public DB2StorageBase
                                     default:
                                         l_IsValidSqlColumn = false;
                                 }
-                                if (l_IsValidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString->size() - 1)))
+                                if (l_IsValidSqlColumn && (l_ColumnNumber != (p_SQL->m_FormatString.size() - 1)))
                                     l_SQLColumnNumber++;
                             }
                             else
@@ -384,13 +408,327 @@ template<class T> class DB2Storage : public DB2StorageBase
                             return false;
                         }
 
-                        AddEntry(l_Entry, l_NewEntry, true);
+                        if (!LookupEntry(l_Entry))
+                            AddEntry(l_Entry, l_NewEntry, true);
+                    } while (l_SQLQueryResult->NextRow());
+                }
+            }
+
+            int l_StringCount = 0;
+
+            for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
+            {
+                if (m_Format[l_I] == FT_STRING)
+                    l_StringCount++;
+            }
+
+            if (m_SQL && l_StringCount)
+            {
+                std::string l_SQLQueryStr = "SELECT * FROM " + m_SQL->m_SQLTableName + "_locale";
+
+                if (m_SQL->m_IndexPosition >= 0)
+                    l_SQLQueryStr += " ORDER BY " + m_SQL->m_IndexName + " DESC";
+                l_SQLQueryStr += ';';
+
+                l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
+                if (l_SQLQueryResult)
+                {
+                    /// All locales (but not us), Index & BuildVerified
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
+                    {
+                        sLog->outError(LOG_FILTER_GENERAL, "SQL format invalid for table : '%s_locale'", p_SQL->m_SQLTableName.c_str());
+                        return false;
+                    }
+
+                    Field* l_SQLFields = nullptr;
+                    uint32 l_SQLColumnNumber = 0;
+
+                    do
+                    {
+                        l_SQLFields = l_SQLQueryResult->Fetch();
+                        uint32 l_EntryID = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+                        T * l_Entry = (T*)LookupEntry(l_EntryID);
+
+                        if (!l_Entry)
+                            continue;
+
+                        char * l_WritePtr = (char*)l_Entry;
+                        uint32 l_WritePosition = 0;
+
+                        for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
+                        {
+                            switch (m_Format[l_I])
+                            {
+                                case FT_FLOAT:
+                                case FT_INDEX:
+                                case FT_INT:
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_BYTE:
+                                    l_WritePosition += 1;
+                                    break;
+                                case FT_STRING:
+                                {
+                                    LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+
+                                    for (uint32 l_Y = 1; l_Y < MAX_LOCALES; l_Y++)
+                                    {
+                                        std::string l_Str = l_SQLFields[l_SQLColumnNumber++].GetString();
+
+                                        if (l_Str.empty())
+                                            continue;
+
+                                        m_CustomStrings.push_back(l_Str);
+                                        char * l_NewString = const_cast<char*>(m_CustomStrings.back().c_str());
+
+                                        l_LocalizedString->Str[l_Y] = l_NewString;
+                                    }
+                                    l_WritePosition += sizeof(LocalizedString*);
+                                    break;
+                                }
+                                case FT_SORT:
+                                    break;
+                            }
+                        }
                     } while (l_SQLQueryResult->NextRow());
                 }
             }
 
             /// Error in DB2 file at loading if NULL
             return m_IndexTable != nullptr;
+        }
+
+        /// Reload the data store
+        bool Reload(std::string& p_OutMessage) override
+        {
+            if (!m_SQL)
+            {
+                p_OutMessage = "No sql settings found";
+                return false;
+            }
+
+            std::string l_SQLQueryStr = "SELECT * FROM " + m_SQL->m_SQLTableName;
+
+            if (m_SQL->m_IndexPosition >= 0)
+                l_SQLQueryStr += " ORDER BY " + m_SQL->m_IndexName + " DESC";
+            l_SQLQueryStr += ';';
+
+            QueryResult l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
+            if (l_SQLQueryResult)
+            {
+                uint32 l_SQLlRecordCount = 0;
+                uint32 l_SQLHighestIndex = 0;
+                Field* l_SQLFields = nullptr;
+
+                l_SQLlRecordCount = uint32(l_SQLQueryResult->GetRowCount());
+                if (m_SQL->m_IndexPosition >= 0)
+                {
+                    l_SQLFields = l_SQLQueryResult->Fetch();
+                    l_SQLHighestIndex = l_SQLFields[m_SQL->m_SQLIndexPosition].GetUInt32();
+                }
+                /// Check if SQL index pos is valid
+                if (int32(l_SQLQueryResult->GetFieldCount() - 1) < m_SQL->m_SQLIndexPosition)
+                {
+                    p_OutMessage = "Invalid index pos for db2:'" + m_SQL->m_SQLTableName + "'";
+                    return false;
+                }
+
+                do
+                {
+                    l_SQLFields = l_SQLQueryResult->Fetch();
+
+                    uint32 l_Entry = l_SQLFields[m_SQL->m_IndexPosition].GetUInt32();
+                    T * l_NewEntry = (T*)LookupEntry(l_Entry);
+
+                    if (!l_NewEntry)
+                        l_NewEntry = new T();
+
+                    char * l_WritePtr = (char*)l_NewEntry;
+
+                    uint32 l_ColumnNumber = 0;
+                    uint32 l_SQLColumnNumber = 0;
+                    uint32 l_WritePosition = 0;
+
+                    for (; l_ColumnNumber < m_SQL->m_FormatString.size(); ++l_ColumnNumber)
+                    {
+                        if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_SUP)
+                        {
+                            break;
+                        }
+                        else if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_ABSENT)
+                        {
+                            switch (m_Format[l_ColumnNumber])
+                            {
+                                case FT_FLOAT:
+                                    *((float*)(&l_WritePtr[l_WritePosition])) = 0.0f;
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_INDEX:
+                                case FT_INT:
+                                    *((uint32*)(&l_WritePtr[l_WritePosition])) = uint32(0);
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_BYTE:
+                                    *((uint8*)(&l_WritePtr[l_WritePosition])) = uint8(0);
+                                    l_WritePosition += 1;
+                                    break;
+                                case FT_STRING:
+                                    if (!LookupEntry(l_Entry))
+                                    {
+                                        *((LocalizedString**)(&l_WritePtr[l_WritePosition])) = new LocalizedString();
+                                        m_LocalizedString.emplace(*((LocalizedString**)(&l_WritePtr[l_WritePosition])));
+                                    }
+
+                                    LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+
+                                    // Beginning of the pool - empty string
+                                    l_LocalizedString->Str[LOCALE_enUS] = m_StringPoolList.back();
+                                    l_WritePosition += sizeof(LocalizedString*);
+                                    break;
+                            }
+                        }
+                        else if ((m_SQL->m_FormatString)[l_ColumnNumber] == FT_SQL_PRESENT)
+                        {
+                            bool l_IsValidSqlColumn = true;
+                            switch (m_Format[l_ColumnNumber])
+                            {
+                                case FT_FLOAT:
+                                    *((float*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetFloat();
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_INDEX:
+                                case FT_INT:
+                                    *((uint32*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetUInt32();
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_BYTE:
+                                    *((uint8*)(&l_WritePtr[l_WritePosition])) = l_SQLFields[l_SQLColumnNumber].GetUInt8();
+                                    l_WritePosition += 1;
+                                    break;
+                                case FT_STRING:
+                                {
+                                    if (!LookupEntry(l_Entry))
+                                    {
+                                        *((LocalizedString**)(&l_WritePtr[l_WritePosition])) = new LocalizedString();
+                                        m_LocalizedString.emplace(*((LocalizedString**)(&l_WritePtr[l_WritePosition])));
+                                    }
+
+                                    m_CustomStrings.push_back(l_SQLFields[l_SQLColumnNumber].GetString());
+
+                                    char * l_NewString = const_cast<char*>(m_CustomStrings.back().c_str());
+
+                                    LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+                                    l_LocalizedString->Str[LOCALE_enUS] = l_NewString;
+
+                                    l_WritePosition += sizeof(LocalizedString*);
+                                    break;
+                                }
+                                case FT_SORT:
+                                    break;
+                                default:
+                                    l_IsValidSqlColumn = false;
+                            }
+                            if (l_IsValidSqlColumn && (l_ColumnNumber != (m_SQL->m_FormatString.size() - 1)))
+                                l_SQLColumnNumber++;
+                        }
+                        else
+                        {
+                            p_OutMessage = "Incorrect SQL format string '" + m_SQL->m_SQLTableName + " at char " + std::to_string(l_ColumnNumber);
+                            return false;
+                        }
+                    }
+                    if (l_SQLColumnNumber != (l_SQLQueryResult->GetFieldCount() - 1))
+                    {
+                        p_OutMessage = "SQL and DB2 format strings are not matching for table: '" + m_SQL->m_SQLTableName + "'";
+                        return false;
+                    }
+
+                    if (!LookupEntry(l_Entry))
+                        AddEntry(l_Entry, l_NewEntry, true);
+                } while (l_SQLQueryResult->NextRow());
+            }
+
+            int l_StringCount = 0;
+
+            for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
+            {
+                if (m_Format[l_I] == FT_STRING)
+                    l_StringCount++;
+            }
+
+            if (l_StringCount)
+            {
+                std::string l_SQLQueryStr = "SELECT * FROM " + m_SQL->m_SQLTableName + "_locale";
+
+                if (m_SQL->m_IndexPosition >= 0)
+                    l_SQLQueryStr += " ORDER BY " + m_SQL->m_IndexName + " DESC";
+                l_SQLQueryStr += ';';
+
+                l_SQLQueryResult = HotfixDatabase.Query(l_SQLQueryStr.c_str());
+                if (l_SQLQueryResult)
+                {
+                    /// All locales (but not us), Index & BuildVerified
+                    if (l_SQLQueryResult->GetFieldCount() != ((l_StringCount * (MAX_LOCALES - 1)) + 2))
+                    {
+                        p_OutMessage = "SQL format invalid for table : '" + m_SQL->m_SQLTableName + "_locale'";
+                        return false;
+                    }
+
+                    Field* l_SQLFields = nullptr;
+                    uint32 l_SQLColumnNumber = 0;
+
+                    do
+                    {
+                        l_SQLFields = l_SQLQueryResult->Fetch();
+                        uint32 l_EntryID = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+                        T * l_Entry = (T*)LookupEntry(l_EntryID);
+
+                        if (!l_Entry)
+                            continue;
+
+                        char * l_WritePtr = (char*)l_Entry;
+                        uint32 l_WritePosition = 0;
+
+                        for (uint32 l_I = 0; l_I < strlen(m_Format); ++l_I)
+                        {
+                            switch (m_Format[l_I])
+                            {
+                                case FT_FLOAT:
+                                case FT_INDEX:
+                                case FT_INT:
+                                    l_WritePosition += 4;
+                                    break;
+                                case FT_BYTE:
+                                    l_WritePosition += 1;
+                                    break;
+                                case FT_STRING:
+                                {
+                                    LocalizedString * l_LocalizedString = *((LocalizedString**)(&l_WritePtr[l_WritePosition]));
+
+                                    for (uint32 l_Y = 1; l_Y < MAX_LOCALES; l_Y++)
+                                    {
+                                        std::string l_Str = l_SQLFields[l_SQLColumnNumber++].GetString();
+
+                                        if (l_Str.empty())
+                                            continue;
+
+                                        m_CustomStrings.push_back(l_Str);
+                                        char * l_NewString = const_cast<char*>(m_CustomStrings.back().c_str());
+
+                                        l_LocalizedString->Str[l_Y] = l_NewString;
+                                    }
+                                    l_WritePosition += sizeof(LocalizedString*);
+                                    break;
+                                }
+                                case FT_SORT:
+                                    break;
+                            }
+                        }
+                    } while (l_SQLQueryResult->NextRow());
+                }
+            }
+
+            return true;
         }
 
         /// Load string from an other DB2
@@ -428,6 +766,10 @@ template<class T> class DB2Storage : public DB2StorageBase
             for (typename DataTableEx::const_iterator l_It = m_DataTableEx.begin(); l_It != m_DataTableEx.end(); ++l_It)
                 delete *l_It;
 
+            for (auto l_Elem : m_LocalizedString)
+                delete l_Elem;
+
+            m_LocalizedString.clear();
             m_DataTableEx.clear();
 
             while (!m_StringPoolList.empty())
@@ -437,6 +779,9 @@ template<class T> class DB2Storage : public DB2StorageBase
             }
 
             m_MaxID = 0;
+
+            if (m_SQL)
+                delete m_SQL;
         }
 
     private:
@@ -445,6 +790,8 @@ template<class T> class DB2Storage : public DB2StorageBase
         DataTableEx m_DataTableEx;
         StringPoolList m_StringPoolList;
         std::list<std::string> m_CustomStrings;
+        std::set<LocalizedString*> m_LocalizedString;
+        SqlDb2 * m_SQL;
 
 };
 

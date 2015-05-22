@@ -584,7 +584,7 @@ enum BattlegroundTimeIntervals
     RESURRECTION_INTERVAL           = 30000,                // ms
     //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
+    INVITE_ACCEPT_WAIT_TIME         = 20000,                // ms
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -966,7 +966,7 @@ class Battleground
 
         // Map pointers
         void SetBgMap(BattlegroundMap* map) { m_Map = map; }
-        BattlegroundMap* GetBgMap() const { ASSERT(m_Map); return m_Map; }
+        BattlegroundMap* GetBgMap() const { return m_Map; }
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
         void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
@@ -1053,8 +1053,6 @@ class Battleground
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
-
-        void AddCrowdChoseYouEffect();
 
         // Triggers handle
         // must be implemented in BG subclass
@@ -1184,6 +1182,7 @@ class Battleground
         virtual uint32 GetTeamScore(uint32 p_Team) const { return 0; }
         virtual bool IsScoreIncremental() const { return true; }
 
+        void ApplyDampeningIfNeeded();
     private:
         // Battleground
         BattlegroundTypeId m_TypeID;

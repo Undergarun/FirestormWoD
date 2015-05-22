@@ -268,6 +268,22 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
 };
 
+enum class ItemContext : uint8
+{
+    None             = 0,
+    DungeonNormal    = 1,
+    DungeonHeroic    = 2,
+    RaidHeroic       = 5,
+    RaidMythic       = 6,
+    RaidNormal       = 8,   ///< Gussed
+    RaidLfr          = 9,   ///< Gussed
+    TradeSkill       = 13,
+    DungeonLevelUp1  = 17,
+    DungeonLevelUp2  = 18,
+    DungeonLevelUp3  = 19,
+    DungeonLevelUp4  = 20,
+};
+
 enum MountFlags
 {
     MOUNT_FLAG_CAN_PITCH                = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING

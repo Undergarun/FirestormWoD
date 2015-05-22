@@ -236,7 +236,8 @@ class boss_kargath_bladefist : public CreatureScript
             EventChainHurl,
             EventBerserker,
             EventSpawnIronBombers,
-            EventFreeTiger
+            EventFreeTiger,
+            EventEndOfChainHurl
         };
 
         enum eCreatures
@@ -302,6 +303,11 @@ class boss_kargath_bladefist : public CreatureScript
                 }
 
                 summons.DespawnAll();
+            }
+
+            bool CanRespawn() override
+            {
+                return false;
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -412,7 +418,10 @@ class boss_kargath_bladefist : public CreatureScript
             void JustSummoned(Creature* p_Summon) override
             {
                 if (p_Summon->GetEntry() == eCreatures::BladefistTarget)
+                {
                     me->Kill(p_Summon);
+                    p_Summon->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                }
 
                 summons.Summon(p_Summon);
             }
@@ -719,6 +728,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                         m_Events.DelayEvent(eEvents::EventImpale, 18000);
                         m_Events.DelayEvent(eEvents::EventBerserkerRush, 18000);
+                        m_Events.ScheduleEvent(eEvents::EventEndOfChainHurl, 14000);
                         break;
                     }
                     case eEvents::EventBerserker:
@@ -771,6 +781,9 @@ class boss_kargath_bladefist : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
                         break;
                     }
+                    case eEvents::EventEndOfChainHurl:
+                        DoAction(eActions::EndOfChainHurl);
+                        break;
                     default:
                         break;
                 }
@@ -1629,7 +1642,11 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
                     if (Player* l_Target = Player::GetPlayer(*me, m_ChaseTarget))
                     {
                         if (l_Target->IsWithinMeleeRange(me, 2.0f) && l_Target->isAlive())
+                        {
+                            me->AddAura(eSpells::InThePitAura, l_Target);
                             me->CastSpell(l_Target, eSpells::SpellMaul, true);
+                            l_Target->RemoveAura(eSpells::InThePitAura);
+                        }
 
                         Position l_Pos;
                         l_Target->GetPosition(&l_Pos);
@@ -1649,11 +1666,11 @@ class npc_highmaul_ravenous_bloodmaw : public CreatureScript
 
                     for (Player* l_Player : l_PlrList)
                     {
-                        if (!l_Player->isAlive())
+                        if (!l_Player->isAlive() || l_Player->GetPositionZ() > 50.0f)
                             continue;
 
                         me->AddAura(eSpells::InThePitAura, l_Player);
-                        me->CastSpell(l_Player, eSpells::SpellMaul, false);
+                        me->CastSpell(l_Player, eSpells::SpellMaul, true);
                         l_Player->RemoveAura(eSpells::InThePitAura);
                         break;
                     }
@@ -2430,9 +2447,6 @@ class npc_highmaul_chain_hurl_vehicle : public CreatureScript
                 m_Angle = 0.0f;
                 me->SetFacingTo(m_Angle);
                 me->SetOrientation(m_Angle);
-
-                if (Creature* l_Kargath = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::KargathBladefist)))
-                    l_Kargath->AI()->DoAction(eAction::EndOfChainHurl);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -3453,8 +3467,9 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
 
         enum eSpells
         {
-            Obscured = 160131,
-            IronBomb = 159386
+            Obscured        = 160131,
+            IronBomb        = 159386,
+            BerserkerRush   = 163180
         };
 
         class spell_highmaul_correct_searchers_SpellScript : public SpellScript
@@ -3464,6 +3479,23 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
             void CorrectTargets(std::list<WorldObject*>& p_Targets)
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Obscured));
+
+                if (GetSpellInfo()->Id == eSpells::BerserkerRush && p_Targets.size() > 0)
+                {
+                    p_Targets.remove_if([this](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr || p_Object->GetTypeId() != TypeID::TYPEID_PLAYER)
+                            return true;
+
+                        if (Player* l_Player = p_Object->ToPlayer())
+                        {
+                            if (l_Player->GetRoleForGroup() == Roles::ROLE_TANK)
+                                return true;
+                        }
+
+                        return false;
+                    });
+                }
             }
 
             void Register() override

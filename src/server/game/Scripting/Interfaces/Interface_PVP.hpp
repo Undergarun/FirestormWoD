@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_PVP
-#define SCRIPTING_INTERFACES_PVP
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_PVP_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_PVP_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -33,4 +39,4 @@ class OutdoorPvPScript : public ScriptObjectImpl<true>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_PVP
+#endif  ///< SCRIPTING_INTERFACES_PVP_HPP_INCLUDED

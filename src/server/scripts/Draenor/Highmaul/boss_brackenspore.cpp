@@ -210,6 +210,11 @@ class boss_brackenspore : public CreatureScript
                 }
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) override
             {
                 if (p_AreaTrigger == nullptr)
@@ -302,13 +307,17 @@ class boss_brackenspore : public CreatureScript
                             }
                         });
 
-                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this, l_Warmasters]() -> void
+                        std::list<uint64> l_WarMasterGuids;
+                        for (Creature* l_Iter : l_Warmasters)
+                            l_WarMasterGuids.push_back(l_Iter->GetGUID());
+
+                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this, l_WarMasterGuids]() -> void
                         {
-                            if (!l_Warmasters.empty())
-                            {
-                                if (Creature* l_IronWar = (*l_Warmasters.begin()))
-                                    me->Kill(l_IronWar);
-                            }
+                            if (l_WarMasterGuids.empty())
+                                return;
+
+                            if (Creature* l_IronWar = Creature::GetCreature(*me, (*l_WarMasterGuids.begin())))
+                                me->Kill(l_IronWar);
 
                             Reset();
                         });

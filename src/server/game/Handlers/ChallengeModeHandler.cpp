@@ -29,6 +29,7 @@
 #include <list>
 #include <vector>
 #include <utility>
+#include <WowTime.hpp>
 
 void WorldSession::HandleGetChallengeModeRewards(WorldPacket& /*p_RecvData*/)
 {
@@ -73,7 +74,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    WorldPacket l_Data(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT);
+    WorldPacket l_Data(SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT, 300);
 
     l_Data << int32(l_MapID);
     l_Data << int32(time(NULL));
@@ -94,7 +95,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
         l_Data << uint32(g_RealmID);
         l_Data << uint32(l_GroupChallenge->m_AttemptID);
         l_Data << int32(l_GroupChallenge->m_CompletionTime);
-        l_Data << uint32(secsToTimeBitFields(l_GroupChallenge->m_CompletionDate));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_GroupChallenge->m_CompletionDate));
         l_Data << int32(l_GroupChallenge->m_MedalEarned);
 
         uint32 l_Members = l_GroupChallenge->m_MembersCount;
@@ -115,7 +116,7 @@ void WorldSession::HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData)
         l_Data << uint32(g_RealmID);
         l_Data << uint32(l_GuildChallenge->m_AttemptID);
         l_Data << int32(l_GuildChallenge->m_CompletionTime);
-        l_Data << uint32(secsToTimeBitFields(l_GuildChallenge->m_CompletionDate));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_GuildChallenge->m_CompletionDate));
         l_Data << int32(l_GuildChallenge->m_MedalEarned);
 
         uint32 l_Members = l_GuildChallenge->m_MembersCount;
@@ -151,12 +152,42 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPacket& /*p_RecvData*
             l_Data << int32(l_CompletedChallenge.m_BestTime);
             l_Data << int32(l_CompletedChallenge.m_LastTime);
             l_Data << int32(l_CompletedChallenge.m_BestMedal);
-            l_Data << uint32(secsToTimeBitFields(l_CompletedChallenge.m_BestMedalDate));
+            l_Data << uint32(MS::Utilities::WowTime::Encode(l_CompletedChallenge.m_BestMedalDate));
 
             uint32 l_SpecCount = 0;
             l_Data << uint32(l_SpecCount);
 
-            ///< BestSpecs - Useless part ?
+            /// BestSpecs - Useless part ?
+            {
+                for (uint32 l_J = 0; l_J < l_SpecCount; ++l_J)
+                    l_Data << uint16(0);    ///< SpecID
+            }
+        }
+    }
+
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendChallengeModeMapStatsUpdate(uint32 p_MapID)
+{
+    WorldPacket l_Data(Opcodes::SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE, 6 * 4);
+
+    for (auto l_ChallengeData : m_Player->m_CompletedChallenges)
+    {
+        if (l_ChallengeData.first == p_MapID)
+        {
+            CompletedChallenge l_CompletedChallenge = l_ChallengeData.second;
+
+            l_Data << int32(l_ChallengeData.first);
+            l_Data << int32(l_CompletedChallenge.m_BestTime);
+            l_Data << int32(l_CompletedChallenge.m_LastTime);
+            l_Data << int32(l_CompletedChallenge.m_BestMedal);
+            l_Data << uint32(MS::Utilities::WowTime::Encode(l_CompletedChallenge.m_BestMedalDate));
+
+            uint32 l_SpecCount = 0;
+            l_Data << uint32(l_SpecCount);
+
+            /// BestSpecs - Useless part ?
             {
                 for (uint32 l_J = 0; l_J < l_SpecCount; ++l_J)
                     l_Data << uint16(0);    ///< SpecID

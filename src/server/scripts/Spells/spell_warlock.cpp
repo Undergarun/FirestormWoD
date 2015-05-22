@@ -49,9 +49,6 @@ enum WarlockSpells
     WARLOCK_RAIN_OF_FIRE                    = 104232,
     WARLOCK_RAIN_OF_FIRE_TRIGGERED          = 104233,
     WARLOCK_SPAWN_PURPLE_DEMONIC_GATEWAY    = 113890,
-    WARLOCK_DEMONIC_GATEWAY_TELEPORT_GREEN  = 113896,
-    WARLOCK_DEMONIC_GATEWAY_TELEPORT_PURPLE = 120729,
-    WARLOCK_DEMONIC_GATEWAY_PERIODIC_CHARGE = 113901,
     WARLOCK_SOUL_SWAP_AURA                  = 86211,
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
@@ -282,72 +279,6 @@ class spell_warl_haunt : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_haunt_SpellScript();
-        }
-};
-
-const int32 greenAuras[6] = { 113930, 113903, 113911, 113912, 113913, 113914 };
-const int32 purpleAuras[6] = { 113931, 113915, 113916, 113917, 113918, 113919 };
-
-// Demonic Gateway (charges periodic) - 113901
-// TODO
-class spell_warl_demonic_gateway_charges: public SpellScriptLoader
-{
-    public:
-        spell_warl_demonic_gateway_charges() : SpellScriptLoader("spell_warl_demonic_gateway_charges") { }
-
-        class spell_warl_demonic_gateway_charges_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_demonic_gateway_charges_AuraScript);
-
-            void OnTick(constAuraEffectPtr aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 charges = aurEff->GetAmount();
-                    if (charges > 4)
-                        return;
-                    else
-                        aurEff->GetBase()->GetEffect(0)->SetAmount(++charges);
-
-                    switch (caster->GetEntry())
-                    {
-                        case 59262: // Green
-                        {
-                            for (int i = 0; i < 6; ++i)
-                            {
-                                if (i <= charges)
-                                    caster->CastSpell(caster, greenAuras[i], true);
-                                else
-                                    caster->RemoveAura(greenAuras[i]);
-                            }
-
-                            break;
-                        }
-                        case 59271: // Purple
-                        {
-                            for (int i = 0; i < 6; ++i)
-                            {
-                                if (i <= charges)
-                                    caster->CastSpell(caster, purpleAuras[i], true);
-                                else
-                                    caster->RemoveAura(purpleAuras[i]);
-                            }
-
-                            break;
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_gateway_charges_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_demonic_gateway_charges_AuraScript();
         }
 };
 
@@ -1696,13 +1627,13 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     // Soul Swap override spell
                     l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
                     l_Caster->RemoveSoulSwapDOT(l_Target);
                 }
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     l_Caster->ApplySoulSwapDOT(l_Target);
                     l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
@@ -1748,6 +1679,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
+            bool m_UnderImproved = false;
+
             void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
@@ -1759,10 +1692,24 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 p_AurEff->GetTargetList(l_TargetList);
                 for (auto l_Target : l_TargetList)
                 {
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() >= 20)
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        if (l_SpellInfo != nullptr && m_UnderImproved)
+                        {
+                            m_UnderImproved = false;
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() - CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                        }
+                    }
+
                     if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
                     {
-                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        if (l_SpellInfo != nullptr && !m_UnderImproved)
+                        {
+                            m_UnderImproved = true;
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                        }
                     }
 
                     /// Associate DoT spells to their damage spells
@@ -3351,7 +3298,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_immolate();
     new spell_warl_grimoire_of_service();
     new spell_warl_haunt_dispel();
-    new spell_warl_demonic_gateway_charges();
     new spell_warl_grimoire_of_supremacy();
     new spell_warl_soulburn_seed_of_corruption_damage();
     new spell_warl_soulburn_seed_of_corruption();

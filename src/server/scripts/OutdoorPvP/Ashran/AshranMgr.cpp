@@ -520,6 +520,7 @@ void OPvPCapturePoint_Graveyard::SpawnFactionFlags(uint8 p_Faction)
                 if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(3))
                     l_Graveyard->GiveControlTo(TeamId::TEAM_NEUTRAL);
 
+                DelCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer);
                 AddCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer, g_MarketplaceGraveyardSpirits[TeamId::TEAM_ALLIANCE]);
                 break;
             case eControlStatus::ControlHorde:
@@ -530,6 +531,7 @@ void OPvPCapturePoint_Graveyard::SpawnFactionFlags(uint8 p_Faction)
                 if (OutdoorGraveyard* l_Graveyard = m_PvP->GetGraveyardById(3))
                     l_Graveyard->GiveControlTo(TeamId::TEAM_HORDE);
 
+                DelCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer);
                 AddCreature(eSpecialSpawns::MarketplaceGraveyardSpiritHealer, g_MarketplaceGraveyardSpirits[TeamId::TEAM_HORDE]);
                 break;
             case eControlStatus::ControlNeutral:
@@ -712,6 +714,15 @@ void OutdoorPvPAshran::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 
     m_InvitedPlayers[p_Player->GetTeamId()][p_Player->GetGUID()] = time(NULL) + eAshranDatas::AshranTimeForInvite;
 
+    /// Hotfix (2014-12-15): Players are now removed from a Dungeon Finder or Raid Finder group upon accepting the queue to enter Ashran.
+    {
+        Group* l_Group = p_Player->GetGroup();
+
+        /// Check cheating - only leader can leave the queue
+        if (!l_Group || l_Group->GetLeaderGUID() == p_Player->GetGUID())
+            sLFGMgr->Leave(p_Player, l_Group);
+    }
+
     /// Sending the packet to player
     WorldPacket l_Data(Opcodes::SMSG_BFMGR_ENTRY_INVITE);
     l_Data << uint64(m_Guid);                                           ///< QueueID
@@ -774,6 +785,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersWillBeKick[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+        m_Players[p_Player->GetTeamId()].erase(p_Player->GetGUID());
     }
 
     SendRemoveWorldStates(p_Player);
@@ -809,10 +821,10 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 
 void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 {
-    if (p_Player == nullptr || p_Player->isInFlight())
+    if (p_Player == nullptr || p_Player->getLevel() < MAX_LEVEL)
         return;
 
-    if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
+    if (p_Player->GetMapId() != eAshranDatas::AshranMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
@@ -842,10 +854,10 @@ void OutdoorPvPAshran::HandlePlayerEnterArea(Player* p_Player, uint32 p_AreaID)
 
 void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
 {
-    if (p_Player == nullptr)
+    if (p_Player == nullptr || p_Player->isInFlight() || p_Player->getLevel() < MAX_LEVEL)
         return;
 
-    if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID && p_Player->GetMapId() != eAshranDatas::AshranMapID)
+    if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID)
         return;
 
     if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
@@ -943,7 +955,7 @@ void OutdoorPvPAshran::FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64
                                               l_ArtifactCount,                                  ///< MaxCount
                                               std::vector<uint32>());                           ///< ItemBonuses
 
-    p_Loot.Items.push_back(LootItem(l_StoreItem, 0, &p_Loot));
+    p_Loot.Items.push_back(LootItem(l_StoreItem, ItemContext::None, &p_Loot));
     p_Loot.FillCurrencyLoot(p_Looter);
 }
 
@@ -1357,6 +1369,7 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
     {
         m_PlayersInWar[p_Player->GetTeamId()].insert(p_Player->GetGUID());
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
+        m_Players[p_Player->GetTeamId()].insert(p_Player->GetGUID());
 
         p_Player->GetSession()->SendBfEntered(m_Guid);
     }

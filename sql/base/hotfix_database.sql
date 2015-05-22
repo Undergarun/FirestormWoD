@@ -1,4 +1,78 @@
+#
+# SQL Export
+# Created by Querious (974)
+# Created: May 13, 2015 at 11:31:38 AM CDT
+# Encoding: Unicode (UTF-8)
+#
+
+
+DROP TABLE IF EXISTS `item_x_bonus_tree`;
+DROP TABLE IF EXISTS `item_sparse`;
+DROP TABLE IF EXISTS `item_modified_appearance`;
+DROP TABLE IF EXISTS `item_extended_cost`;
 DROP TABLE IF EXISTS `item_effect`;
+DROP TABLE IF EXISTS `item_currency_cost`;
+DROP TABLE IF EXISTS `item_bonus_tree_node`;
+DROP TABLE IF EXISTS `item_bonus`;
+DROP TABLE IF EXISTS `item_appearance`;
+DROP TABLE IF EXISTS `item`;
+
+
+CREATE TABLE `item` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `Class` int(11) NOT NULL DEFAULT '0',
+  `SubClass` int(11) NOT NULL DEFAULT '0',
+  `SoundOverrideSubclass` int(11) NOT NULL DEFAULT '0',
+  `Material` int(11) NOT NULL DEFAULT '0',
+  `InventoryType` int(11) NOT NULL DEFAULT '0',
+  `Sheath` int(11) NOT NULL DEFAULT '0',
+  `DisplayId` int(11) NOT NULL DEFAULT '0',
+  `GroupSoundsID` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `item_appearance` (
+  `ID` int(10) unsigned NOT NULL,
+  `DisplayID` int(10) unsigned DEFAULT NULL,
+  `Unk` int(10) unsigned DEFAULT NULL,
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `item_bonus` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `Entry` int(11) NOT NULL DEFAULT '0',
+  `Type` int(11) NOT NULL DEFAULT '0',
+  `Value1` int(11) NOT NULL DEFAULT '0',
+  `Value2` int(11) NOT NULL DEFAULT '0',
+  `Index` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `item_bonus_tree_node` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `Category` int(11) NOT NULL DEFAULT '0',
+  `Difficulty` int(11) NOT NULL DEFAULT '0',
+  `LinkedCategory` int(11) NOT NULL DEFAULT '0',
+  `ItemBonusEntry` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `item_currency_cost` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `ItemID` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `item_effect` (
   `ID` int(10) unsigned NOT NULL,
   `ItemID` int(10) unsigned DEFAULT NULL,
@@ -13,7 +87,42 @@ CREATE TABLE `item_effect` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `item_appearance`;
+
+CREATE TABLE `item_extended_cost` (
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `RequiredArenaSlot` int(11) NOT NULL DEFAULT '0',
+  `RequiredItem1` int(11) NOT NULL DEFAULT '0',
+  `RequiredItem2` int(11) NOT NULL DEFAULT '0',
+  `RequiredItem3` int(11) NOT NULL DEFAULT '0',
+  `RequiredItem4` int(11) NOT NULL DEFAULT '0',
+  `RequiredItem5` int(11) NOT NULL DEFAULT '0',
+  `RequiredItemCount1` int(11) NOT NULL DEFAULT '0',
+  `RequiredItemCount2` int(11) NOT NULL DEFAULT '0',
+  `RequiredItemCount3` int(11) NOT NULL DEFAULT '0',
+  `RequiredItemCount4` int(11) NOT NULL DEFAULT '0',
+  `RequiredItemCount5` int(11) NOT NULL DEFAULT '0',
+  `RequiredPersonalArenaRating` int(11) NOT NULL DEFAULT '0',
+  `ItemPurchaseGroup` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrency1` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrency2` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrency3` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrency4` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrency5` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrencyCount1` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrencyCount2` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrencyCount3` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrencyCount4` int(11) NOT NULL DEFAULT '0',
+  `RequiredCurrencyCount5` int(11) NOT NULL DEFAULT '0',
+  `RequiredFactionId` int(11) NOT NULL DEFAULT '0',
+  `RequiredFactionStanding` int(11) NOT NULL DEFAULT '0',
+  `RequirementFlags` int(11) NOT NULL DEFAULT '0',
+  `RequiredAchievement` int(11) NOT NULL DEFAULT '0',
+  `OverrideBuyPrice` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `item_modified_appearance` (
   `ID` int(10) unsigned NOT NULL,
   `ItemID` int(10) DEFAULT NULL,
@@ -25,209 +134,123 @@ CREATE TABLE `item_modified_appearance` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `item_appearance`;
-CREATE TABLE `item_appearance` (
-  `ID` int(10) unsigned NOT NULL,
-  `DisplayID` int(10) unsigned DEFAULT NULL,
-  `Unk` int(10) unsigned DEFAULT NULL,
+
+CREATE TABLE `item_sparse` (
+  `ID` int(10) unsigned NOT NULL DEFAULT '0',
+  `Quality` int(11) NOT NULL DEFAULT '0',
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags2` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags3` int(10) unsigned NOT NULL DEFAULT '0',
+  `Unk430_1` float NOT NULL DEFAULT '0',
+  `Unk430_2` float NOT NULL DEFAULT '0',
+  `BuyCount` int(11) NOT NULL DEFAULT '0',
+  `BuyPrice` int(11) NOT NULL DEFAULT '0',
+  `SellPrice` int(11) NOT NULL DEFAULT '0',
+  `InventoryType` int(11) NOT NULL DEFAULT '0',
+  `AllowableClass` int(11) NOT NULL DEFAULT '0',
+  `AllowableRace` int(11) NOT NULL DEFAULT '0',
+  `ItemLevel` int(11) NOT NULL DEFAULT '0',
+  `RequiredLevel` int(11) NOT NULL DEFAULT '0',
+  `RequiredSkill` int(11) NOT NULL DEFAULT '0',
+  `RequiredSkillRank` int(11) NOT NULL DEFAULT '0',
+  `RequiredSpell` int(11) NOT NULL DEFAULT '0',
+  `RequiredHonorRank` int(11) NOT NULL DEFAULT '0',
+  `RequiredCityRank` int(11) NOT NULL DEFAULT '0',
+  `RequiredReputationFaction` int(11) NOT NULL DEFAULT '0',
+  `RequiredReputationRank` int(11) NOT NULL DEFAULT '0',
+  `MaxCount` int(11) NOT NULL DEFAULT '0',
+  `Stackable` int(11) NOT NULL DEFAULT '0',
+  `ContainerSlots` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType0` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType1` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType2` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType3` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType4` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType5` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType6` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType7` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType8` int(11) NOT NULL DEFAULT '0',
+  `ItemStatType9` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue0` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue1` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue2` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue3` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue4` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue5` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue6` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue7` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue8` int(11) NOT NULL DEFAULT '0',
+  `ItemStatValue9` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue0` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue1` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue2` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue3` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue4` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue5` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue6` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue7` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue8` int(11) NOT NULL DEFAULT '0',
+  `ScalingValue9` int(11) NOT NULL DEFAULT '0',
+  `SocketCostRate0` float NOT NULL DEFAULT '0',
+  `SocketCostRate1` float NOT NULL DEFAULT '0',
+  `SocketCostRate2` float NOT NULL DEFAULT '0',
+  `SocketCostRate3` float NOT NULL DEFAULT '0',
+  `SocketCostRate4` float NOT NULL DEFAULT '0',
+  `SocketCostRate5` float NOT NULL DEFAULT '0',
+  `SocketCostRate6` float NOT NULL DEFAULT '0',
+  `SocketCostRate7` float NOT NULL DEFAULT '0',
+  `SocketCostRate8` float NOT NULL DEFAULT '0',
+  `SocketCostRate9` float NOT NULL DEFAULT '0',
+  `ScalingStatDistribution` int(11) NOT NULL DEFAULT '0',
+  `DamageType` int(11) NOT NULL DEFAULT '0',
+  `Delay` int(11) NOT NULL DEFAULT '0',
+  `RangedModRange` float NOT NULL DEFAULT '0',
+  `Bonding` int(11) NOT NULL DEFAULT '0',
+  `Name` text NOT NULL,
+  `Name2` text NOT NULL,
+  `Name3` text NOT NULL,
+  `Name4` text NOT NULL,
+  `Description` text NOT NULL,
+  `PageText` int(11) NOT NULL DEFAULT '0',
+  `LanguageID` int(11) NOT NULL DEFAULT '0',
+  `PageMaterial` int(11) NOT NULL DEFAULT '0',
+  `StartQuest` int(11) NOT NULL DEFAULT '0',
+  `LockID` int(11) NOT NULL DEFAULT '0',
+  `Material` int(11) NOT NULL DEFAULT '0',
+  `Sheath` int(11) NOT NULL DEFAULT '0',
+  `RandomProperty` int(11) NOT NULL DEFAULT '0',
+  `RandomSuffix` int(11) NOT NULL DEFAULT '0',
+  `ItemSet` int(11) NOT NULL DEFAULT '0',
+  `Area` int(11) NOT NULL DEFAULT '0',
+  `Map` int(11) NOT NULL DEFAULT '0',
+  `BagFamily` int(11) NOT NULL DEFAULT '0',
+  `TotemCategory` int(11) NOT NULL DEFAULT '0',
+  `Color0` int(11) NOT NULL DEFAULT '0',
+  `Color1` int(11) NOT NULL DEFAULT '0',
+  `Color3` int(11) NOT NULL DEFAULT '0',
+  `SocketBonus` int(11) NOT NULL DEFAULT '0',
+  `GemProperties` int(11) NOT NULL DEFAULT '0',
+  `ArmorDamageModifier` float NOT NULL DEFAULT '0',
+  `Duration` int(11) NOT NULL DEFAULT '0',
+  `ItemLimitCategory` int(11) NOT NULL DEFAULT '0',
+  `HolidayId` int(11) NOT NULL DEFAULT '0',
+  `StatScalingFactor` float NOT NULL DEFAULT '0',
+  `CurrencySubstitutionId` int(11) NOT NULL DEFAULT '0',
+  `CurrencySubstitutionCount` int(11) NOT NULL DEFAULT '0',
+  `ItemNameDescriptionID` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `item_sparse`;
-CREATE TABLE `item_sparse` (
-	`ID` INT UNSIGNED NOT NULL DEFAULT '0',
-	`Quality` INT NOT NULL DEFAULT '0',
-	`Flags` INT UNSIGNED NOT NULL DEFAULT '0',
-	`Flags2` INT UNSIGNED NOT NULL DEFAULT '0',
-	`Flags3` INT UNSIGNED NOT NULL DEFAULT '0',
-	`Unk430_1` FLOAT NOT NULL DEFAULT '0',
-	`Unk430_2` FLOAT NOT NULL DEFAULT '0',
-	`BuyCount` INT NOT NULL DEFAULT '0',
-	`BuyPrice` INT NOT NULL DEFAULT '0',
-	`SellPrice` INT NOT NULL DEFAULT '0',
-	`InventoryType` INT NOT NULL DEFAULT '0',
-	`AllowableClass` INT NOT NULL DEFAULT '0',
-	`AllowableRace` INT NOT NULL DEFAULT '0',
-	`ItemLevel` INT NOT NULL DEFAULT '0',
-	`RequiredLevel` INT NOT NULL DEFAULT '0',
-	`RequiredSkill` INT NOT NULL DEFAULT '0',
-	`RequiredSkillRank` INT NOT NULL DEFAULT '0',
-	`RequiredSpell` INT NOT NULL DEFAULT '0',
-	`RequiredHonorRank` INT NOT NULL DEFAULT '0',
-	`RequiredCityRank` INT NOT NULL DEFAULT '0',
-	`RequiredReputationFaction` INT NOT NULL DEFAULT '0',
-	`RequiredReputationRank` INT NOT NULL DEFAULT '0',
-	`MaxCount` INT NOT NULL DEFAULT '0',
-	`Stackable` INT NOT NULL DEFAULT '0',
-	`ContainerSlots` INT NOT NULL DEFAULT '0',
-	`ItemStatType0` INT NOT NULL DEFAULT '0',
-	`ItemStatType1` INT NOT NULL DEFAULT '0',
-	`ItemStatType2` INT NOT NULL DEFAULT '0',
-	`ItemStatType3` INT NOT NULL DEFAULT '0',
-	`ItemStatType4` INT NOT NULL DEFAULT '0',
-	`ItemStatType5` INT NOT NULL DEFAULT '0',
-	`ItemStatType6` INT NOT NULL DEFAULT '0',
-	`ItemStatType7` INT NOT NULL DEFAULT '0',
-	`ItemStatType8` INT NOT NULL DEFAULT '0',
-	`ItemStatType9` INT NOT NULL DEFAULT '0',
-	`ItemStatValue0` INT NOT NULL DEFAULT '0',
-	`ItemStatValue1` INT NOT NULL DEFAULT '0',
-	`ItemStatValue2` INT NOT NULL DEFAULT '0',
-	`ItemStatValue3` INT NOT NULL DEFAULT '0',
-	`ItemStatValue4` INT NOT NULL DEFAULT '0',
-	`ItemStatValue5` INT NOT NULL DEFAULT '0',
-	`ItemStatValue6` INT NOT NULL DEFAULT '0',
-	`ItemStatValue7` INT NOT NULL DEFAULT '0',
-	`ItemStatValue8` INT NOT NULL DEFAULT '0',
-	`ItemStatValue9` INT NOT NULL DEFAULT '0',
-	`ScalingValue0` INT NOT NULL DEFAULT '0',
-	`ScalingValue1` INT NOT NULL DEFAULT '0',
-	`ScalingValue2` INT NOT NULL DEFAULT '0',
-	`ScalingValue3` INT NOT NULL DEFAULT '0',
-	`ScalingValue4` INT NOT NULL DEFAULT '0',
-	`ScalingValue5` INT NOT NULL DEFAULT '0',
-	`ScalingValue6` INT NOT NULL DEFAULT '0',
-	`ScalingValue7` INT NOT NULL DEFAULT '0',
-	`ScalingValue8` INT NOT NULL DEFAULT '0',
-	`ScalingValue9` INT NOT NULL DEFAULT '0',
-	`SocketCostRate0` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate1` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate2` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate3` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate4` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate5` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate6` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate7` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate8` FLOAT NOT NULL DEFAULT '0',
-	`SocketCostRate9` FLOAT NOT NULL DEFAULT '0',
-	`ScalingStatDistribution` INT NOT NULL DEFAULT '0',
-	`DamageType` INT NOT NULL DEFAULT '0',
-	`Delay` INT NOT NULL DEFAULT '0',
-	`RangedModRange` FLOAT NOT NULL DEFAULT '0',
-	`Bonding` INT NOT NULL DEFAULT '0',
-	`Name` TEXT NOT NULL,
-	`Name2` TEXT NOT NULL,
-	`Name3` TEXT NOT NULL,
-	`Name4` TEXT NOT NULL,
-	`Description` TEXT NOT NULL,
-	`PageText` INT NOT NULL DEFAULT '0',
-	`LanguageID` INT NOT NULL DEFAULT '0',
-	`PageMaterial` INT NOT NULL DEFAULT '0',
-	`StartQuest` INT NOT NULL DEFAULT '0',
-	`LockID` INT NOT NULL DEFAULT '0',
-	`Material` INT NOT NULL DEFAULT '0',
-	`Sheath` INT NOT NULL DEFAULT '0',
-	`RandomProperty` INT NOT NULL DEFAULT '0',
-	`RandomSuffix` INT NOT NULL DEFAULT '0',
-	`ItemSet` INT NOT NULL DEFAULT '0',
-	`Area` INT NOT NULL DEFAULT '0',
-	`Map` INT NOT NULL DEFAULT '0',
-	`BagFamily` INT NOT NULL DEFAULT '0',
-	`TotemCategory` INT NOT NULL DEFAULT '0',
-	`Color0` INT NOT NULL DEFAULT '0',
-	`Color1` INT NOT NULL DEFAULT '0',
-	`Color3` INT NOT NULL DEFAULT '0',
-	`SocketBonus` INT NOT NULL DEFAULT '0',
-	`GemProperties` INT NOT NULL DEFAULT '0',
-	`ArmorDamageModifier` FLOAT NOT NULL DEFAULT '0',
-	`Duration` INT NOT NULL DEFAULT '0',
-	`ItemLimitCategory` INT NOT NULL DEFAULT '0',
-	`HolidayId` INT NOT NULL DEFAULT '0',
-	`StatScalingFactor` FLOAT NOT NULL DEFAULT '0',
-	`CurrencySubstitutionId` INT NOT NULL DEFAULT '0',
-	`CurrencySubstitutionCount` INT NOT NULL DEFAULT '0',
-	`ItemNameDescriptionID` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `item_currency_cost`;
-CREATE TABLE `item_currency_cost` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`ItemID` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `item`;
-CREATE TABLE `item` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`Class` INT NOT NULL DEFAULT '0',
-	`SubClass` INT NOT NULL DEFAULT '0',
-	`SoundOverrideSubclass` INT NOT NULL DEFAULT '0',
-	`Material` INT NOT NULL DEFAULT '0',
-	`InventoryType` INT NOT NULL DEFAULT '0',
-	`Sheath` INT NOT NULL DEFAULT '0',
-	`DisplayId` INT NOT NULL DEFAULT '0',
-	`GroupSoundsID` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `item_extended_cost`;
-CREATE TABLE `item_extended_cost` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`RequiredArenaSlot` INT NOT NULL DEFAULT '0',
-	`RequiredItem1` INT NOT NULL DEFAULT '0',
-	`RequiredItem2` INT NOT NULL DEFAULT '0',
-	`RequiredItem3` INT NOT NULL DEFAULT '0',
-	`RequiredItem4` INT NOT NULL DEFAULT '0',
-	`RequiredItem5` INT NOT NULL DEFAULT '0',
-	`RequiredItemCount1` INT NOT NULL DEFAULT '0',
-	`RequiredItemCount2` INT NOT NULL DEFAULT '0',
-	`RequiredItemCount3` INT NOT NULL DEFAULT '0',
-	`RequiredItemCount4` INT NOT NULL DEFAULT '0',
-	`RequiredItemCount5` INT NOT NULL DEFAULT '0',
-	`RequiredPersonalArenaRating` INT NOT NULL DEFAULT '0',
-	`ItemPurchaseGroup` INT NOT NULL DEFAULT '0',
-	`RequiredCurrency1` INT NOT NULL DEFAULT '0',
-	`RequiredCurrency2` INT NOT NULL DEFAULT '0',
-	`RequiredCurrency3` INT NOT NULL DEFAULT '0',
-	`RequiredCurrency4` INT NOT NULL DEFAULT '0',
-	`RequiredCurrency5` INT NOT NULL DEFAULT '0',
-	`RequiredCurrencyCount1` INT NOT NULL DEFAULT '0',
-	`RequiredCurrencyCount2` INT NOT NULL DEFAULT '0',
-	`RequiredCurrencyCount3` INT NOT NULL DEFAULT '0',
-	`RequiredCurrencyCount4` INT NOT NULL DEFAULT '0',
-	`RequiredCurrencyCount5` INT NOT NULL DEFAULT '0',
-	`RequiredFactionId` INT NOT NULL DEFAULT '0',
-	`RequiredFactionStanding` INT NOT NULL DEFAULT '0',
-	`RequirementFlags` INT NOT NULL DEFAULT '0',
-	`RequiredAchievement` INT NOT NULL DEFAULT '0',
-	`OverrideBuyPrice` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `item_bonus`;
-CREATE TABLE `item_bonus` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`Entry` INT NOT NULL DEFAULT '0',
-	`Type` INT NOT NULL DEFAULT '0',
-	`Value1` INT NOT NULL DEFAULT '0',
-	`Value2` INT NOT NULL DEFAULT '0',
-	`Index` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `item_bonus_tree_node`;
-CREATE TABLE `item_bonus_tree_node` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`Category` INT NOT NULL DEFAULT '0',
-	`Difficulty` INT NOT NULL DEFAULT '0',
-	`LinkedCategory` INT NOT NULL DEFAULT '0',
-	`ItemBonusEntry` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `item_x_bonus_tree`;
 CREATE TABLE `item_x_bonus_tree` (
-	`ID` INT NOT NULL DEFAULT '0',
-	`ItemID` INT NOT NULL DEFAULT '0',
-	`ItemBonusTreeCategory` INT NOT NULL DEFAULT '0',
-    `BuildVerified` int(10) unsigned DEFAULT NULL,
-	PRIMARY KEY (`ID`)
+  `ID` int(11) NOT NULL DEFAULT '0',
+  `ItemID` int(11) NOT NULL DEFAULT '0',
+  `ItemBonusTreeCategory` int(11) NOT NULL DEFAULT '0',
+  `BuildVerified` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+
+

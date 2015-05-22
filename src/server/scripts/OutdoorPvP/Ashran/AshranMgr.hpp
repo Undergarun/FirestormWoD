@@ -21,6 +21,8 @@
 #include "ScriptedCosmeticAI.hpp"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
+#include "LFGMgr.h"
+#include "Group.h"
 
 #ifndef ASHRAN_MGR_HPP_ASHRAN
 #define ASHRAN_MGR_HPP_ASHRAN

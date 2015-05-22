@@ -293,8 +293,7 @@ void Battleground::Update(uint32 diff)
             // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetElapsedTime() >= 15 * MINUTE * IN_MILLISECONDS)
-                    AddCrowdChoseYouEffect();
+                ApplyDampeningIfNeeded();
 
                 if (GetElapsedTime() >= 20 *  MINUTE * IN_MILLISECONDS)
                 {
@@ -566,24 +565,59 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         // Remove preparation
         if (isArena())
         {
+            for (BattlegroundPlayerMap::const_iterator l_Iterator = GetPlayers().begin(); l_Iterator != GetPlayers().end(); ++l_Iterator)
+            {
+                if (Player* l_Player = ObjectAccessor::FindPlayer(l_Iterator->first))
+                {
+                    for (BattlegroundPlayerMap::const_iterator l_Iterator = GetPlayers().begin(); l_Iterator != GetPlayers().end(); ++l_Iterator)
+                    {
+                        if (Player* l_Player2 = ObjectAccessor::FindPlayer(l_Iterator->first))
+                        {
+                            l_Player2->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, false);
+                            l_Player2->ForceValuesUpdateAtIndex(UNIT_FIELD_AURA_STATE);
+
+                            UpdateData l_UpdateData(GetMapId());
+                            WorldPacket l_Packet;
+
+                            l_Player2->BuildValuesUpdateBlockForPlayer(&l_UpdateData, l_Player);
+                            if (l_UpdateData.BuildPacket(&l_Packet))
+                                l_Player->SendDirectMessage(&l_Packet);
+                        }
+                    }
+                }
+            }
+
             // TODO : add arena sound PlaySoundToAll(SOUND_ARENA_START);
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                if (Player* l_Player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     // BG Status packet
                     WorldPacket status;
                     MS::Battlegrounds::BattlegroundType::Type l_BgType = MS::Battlegrounds::GetTypeFromId(m_TypeID, GetArenaType(), IsSkirmish());
-                    uint32 queueSlot = player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
-                    MS::Battlegrounds::PacketFactory::Status(&status, this, player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
-                    player->GetSession()->SendPacket(&status);
+                    uint32 queueSlot = l_Player->GetBattlegroundQueueIndex(MS::Battlegrounds::GetSchedulerType(m_TypeID));
+                    MS::Battlegrounds::PacketFactory::Status(&status, this, l_Player, queueSlot, STATUS_IN_PROGRESS, GetExpirationDate(), GetElapsedTime(), GetArenaType(), IsSkirmish());
+                    l_Player->GetSession()->SendPacket(&status);
 
-                    player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, player->GetBGTeam());
+                    l_Player->SetByteValue(PLAYER_FIELD_ARENA_FACTION, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, l_Player->GetBGTeam());
+                    l_Player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+                    l_Player->ResetAllPowers();
 
-                    player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
-                    player->ResetAllPowers();
+                    WorldPacket team_packet(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
+                    BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(l_Player->GetBGTeam()));
+                    l_Player->GetSession()->SendPacket(&team_packet);
+
+                    for (BattlegroundPlayerMap::iterator l_Iterator = m_Players.begin(); l_Iterator != m_Players.end(); ++l_Iterator)
+                    {
+                        if (Player* l_Member = _GetPlayerForTeam(GetOtherTeam(l_Player->GetBGTeam()), l_Iterator, "BuildArenaOpponentSpecializations"))
+                        {
+                            WorldPacket l_Data;
+                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true);
+                            l_Player->GetSession()->SendPacket(&l_Data);
+                        }
+                    }
 
                     // remove auras with duration lower than 30s
-                    Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
+                    Unit::AuraApplicationMap & auraMap = l_Player->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
                     {
                         AuraApplication * aurApp = iter->second;
@@ -593,7 +627,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                             && aurApp->IsPositive()
                             && (!(aura->GetSpellInfo()->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
                             && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))
-                            player->RemoveAura(iter);
+                            l_Player->RemoveAura(iter);
                         else
                             ++iter;
                     }
@@ -684,9 +718,9 @@ inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const c
     if (!offlineRemove)
     {
         player = ObjectAccessor::FindPlayer(guid);
-        if (!player)
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
-                context, GUID_LOPART(guid), m_MapId, m_InstanceID);
+//         if (!player)
+//             sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//                 context, GUID_LOPART(guid), m_MapId, m_InstanceID);
     }
     return player;
 }
@@ -804,13 +838,22 @@ void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
 {
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::UpdateWorldState(&data, Field, Value);
-    SendPacketToAll(&data);
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
+        {
+            player->SetWorldState(Field, Value);
+            player->GetSession()->SendPacket(&data);
+        }
+    }
 }
 
 void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source)
 {
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::UpdateWorldState(&data, Field, Value);
+    Source->SetWorldState(Field, Value);
     Source->GetSession()->SendPacket(&data);
 }
 
@@ -1423,6 +1466,8 @@ void Battleground::AddPlayer(Player* player)
         team_packet.Initialize(SMSG_ARENA_OPPONENT_SPECIALIZATIONS);
         BuildArenaOpponentSpecializations(&team_packet, GetOtherTeam(player->GetBGTeam()));
         player->GetSession()->SendPacket(&team_packet);
+
+        ApplyDampeningIfNeeded();
     }
     else
     {
@@ -1501,6 +1546,8 @@ void Battleground::EventPlayerLoggedIn(Player* player)
         if (player->GetTeam() != player->GetBGTeam())
             player->AddAura(player->GetBGTeam() == ALLIANCE ? 81748 : 81744, player);
     }
+
+    ApplyDampeningIfNeeded();
 
     uint64 guid = player->GetGUID();
     // player is correct pointer
@@ -1696,18 +1743,18 @@ void Battleground::DoorOpen(uint32 type)
 GameObject* Battleground::GetBGObject(uint32 type)
 {
     GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]);
-    if (!obj)
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
+//     if (!obj)
+//         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//             type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
     return obj;
 }
 
 Creature* Battleground::GetBGCreature(uint32 type)
 {
     Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]);
-    if (!creature)
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, GUID_LOPART(BgCreatures[type]), m_MapId, m_InstanceID);
+//     if (!creature)
+//         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//             type, GUID_LOPART(BgCreatures[type]), m_MapId, m_InstanceID);
     return creature;
 }
 
@@ -2225,25 +2272,6 @@ uint32 Battleground::GetArenaMatchmakerRating(uint32 Team, uint8 slot)
     return MMR;
 }
 
-void Battleground::AddCrowdChoseYouEffect()
-{
-    if (m_CrowdChosed)
-        return;
-
-    uint8 team = 0;
-
-    if (GetAlivePlayersCountByTeam(ALLIANCE) != GetAlivePlayersCountByTeam(HORDE))
-        team = GetAlivePlayersCountByTeam(ALLIANCE) > GetAlivePlayersCountByTeam(HORDE) ? ALLIANCE : HORDE;
-    else
-        team = m_teamDealMaxDamage;
-
-    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(team, itr, "AddCrowdChoseYouEffect"))
-            player->CastSpell(player, 144389, true);
-
-    m_CrowdChosed = true;
-}
-
 void Battleground::AwardTeams(uint32 p_Winner)
 {
     if (IsSkirmish() && p_Winner)
@@ -2313,4 +2341,44 @@ uint32 Battleground::GetSpellIdForAward(BattlegroundAward p_Award)
         default:
             return 0;
     }
+}
+
+void Battleground::ApplyDampeningIfNeeded()
+{
+    if (!isArena())
+        return;
+
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    uint32 l_Timer = 5;
+
+    if (GetArenaType() == ArenaType::Arena2v2)
+    {
+        bool l_TeamHasHealer[TEAM_NEUTRAL] = { false, false };
+
+        for (int l_Team = 0; l_Team < TEAM_NEUTRAL; l_Team++)
+        {
+            for (BattlegroundPlayerMap::iterator l_Iter = m_Players.begin(); l_Iter != m_Players.end(); ++l_Iter)
+            {
+                if (Player* l_Player = _GetPlayerForTeam(l_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE, l_Iter, "ApplyDampeningIfNeeded"))
+                {
+                    if (l_Player->GetRoleForGroup() == ROLE_HEALER)
+                    {
+                        l_TeamHasHealer[l_Team] = true;
+                        break;
+                    }
+                }
+            }
+
+            if (l_TeamHasHealer[TEAM_ALLIANCE] && l_TeamHasHealer[TEAM_HORDE])
+                l_Timer = 0;
+        }
+    }
+
+    if (GetElapsedTime() >= (l_Timer * MINUTE * IN_MILLISECONDS))
+        for (BattlegroundPlayerMap::iterator l_Iter = m_Players.begin(); l_Iter != m_Players.end(); ++l_Iter)
+            if (Player* l_Player = _GetPlayer(l_Iter, "ApplyDampeningIfNeeded"))
+                if (!l_Player->HasAura(110310))
+                    l_Player->AddAura(110310, l_Player);
 }

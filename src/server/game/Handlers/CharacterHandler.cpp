@@ -1079,7 +1079,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         std::vector<std::string> l_Lines;
         uint32 l_LineCount = 0;
 
-        l_Data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
+        l_Data.Initialize(SMSG_MOTD, 100);                     // new in 2.0.1
 
         l_Position = 0;
         while ((l_NextPosition = l_MotdStr.find('@', l_Position)) != std::string::npos)
@@ -1172,7 +1172,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         l_Data << uint32(sItemExtendedCostStore.GetHash());
 
         ByteBuffer l_ResponseData;
-        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData))
+        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData, GetSessionDbLocaleIndex()))
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
@@ -1315,7 +1315,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     if (pCurrChar->HasAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL))
     {
         pCurrChar->DeleteInvalidSpells();
-        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_RESET_SPECS);
+        pCurrChar->RemoveAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL);
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
@@ -1563,7 +1563,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 {
     if (!result)
     {
-        WorldPacket data(SMSG_CHAR_RENAME, 1);
+        WorldPacket data(SMSG_CHAR_RENAME);
         BuildCharacterRename(&data, 0, CHAR_CREATE_ERROR, newName);
         SendPacket(&data);
         return;

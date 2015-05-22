@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 #include "GuildMgr.h"
 #include "WorldSession.h"
+#include "WowTime.hpp"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 {
@@ -36,10 +37,10 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
     uint64 l_Guid = m_Player->GetGUID();
     uint32 l_Now = time(NULL);
 
-    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR, 2 * 1024);
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR, 10 * 1024);
     l_Data << uint32(l_Now);
-    l_Data << uint32(secsToTimeBitFields(l_Now));
-    l_Data << uint32(1135753200);
+    l_Data << uint32(MS::Utilities::WowTime::Encode(l_Now));
+    l_Data << uint32(sWorld->GetServerRegionID());
 
     CalendarInviteStore l_Invites = sCalendarMgr->GetPlayerInvites(l_Guid);
     CalendarEventStore l_Events = sCalendarMgr->GetPlayerEvents(l_Guid);
@@ -101,7 +102,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 
         l_Data << uint64(l_CalendarEvent->GetEventId());
         l_Data << uint8(l_CalendarEvent->GetType());
-        l_Data << uint32(secsToTimeBitFields(l_CalendarEvent->GetEventTime()));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_CalendarEvent->GetEventTime()));
         l_Data << uint32(l_CalendarEvent->GetFlags());
         l_Data << uint32(l_CalendarEvent->GetDungeonId());
         l_Data.appendPackGUID(l_GuildGUID);

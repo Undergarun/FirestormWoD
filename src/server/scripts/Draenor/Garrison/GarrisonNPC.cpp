@@ -13,26 +13,28 @@
 #include "Spell.h"
 #include "GarrisonMgr.hpp"
 
-#include "Buildings/Alliance/AFishingHut.hpp"
-#include "Buildings/Alliance/ALunarfallExcavation.hpp"
-#include "Buildings/Alliance/ATheForge.hpp"
-#include "Buildings/Alliance/ADwarvenBunker.hpp"
-#include "Buildings/Alliance/ABarracks.hpp"
-#include "Buildings/Alliance/ATradingPost.hpp"
-#include "Buildings/Alliance/ATailoringEmporium.hpp"
-#include "Buildings/Alliance/AAlchemyLab.hpp"
-#include "Buildings/Alliance/ATheTannery.hpp"
-#include "Buildings/Alliance/AEnchanterStudy.hpp"
-#include "Buildings/Alliance/AGemBoutique.hpp"
+#include "Buildings/Alliance/Large/ABarracks.hpp"
+#include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
+#include "Buildings/Alliance/Medium/ATradingPost.hpp"
+#include "Buildings/Alliance/Small/AFishingHut.hpp"
+#include "Buildings/Alliance/Small/ALunarfallExcavation.hpp"
+#include "Buildings/Alliance/Small/ATheForge.hpp"
+#include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
+#include "Buildings/Alliance/Small/AAlchemyLab.hpp"
+#include "Buildings/Alliance/Small/ATheTannery.hpp"
+#include "Buildings/Alliance/Small/AEnchanterStudy.hpp"
+#include "Buildings/Alliance/Small/AGemBoutique.hpp"
+#include "Buildings/Alliance/Small/AEngineeringWorks.hpp"
 
-#include "Buildings/Horde/HTheForge.hpp"
-#include "Buildings/Horde/HTradingPost.hpp"
-#include "Buildings/Horde/HWarMill.hpp"
-#include "Buildings/Horde/HTailoringEmporium.hpp"
-#include "Buildings/Horde/HAlchemyLab.hpp"
-#include "Buildings/Horde/HTheTannery.hpp"
-#include "Buildings/Horde/HEnchanterStudy.hpp"
-#include "Buildings/Horde/HGemBoutique.hpp"
+#include "Buildings/Horde/Large/HWarMill.hpp"
+#include "Buildings/Horde/Medium/HTradingPost.hpp"
+#include "Buildings/Horde/Small/HTheForge.hpp"
+#include "Buildings/Horde/Small/HTailoringEmporium.hpp"
+#include "Buildings/Horde/Small/HAlchemyLab.hpp"
+#include "Buildings/Horde/Small/HTheTannery.hpp"
+#include "Buildings/Horde/Small/HEnchanterStudy.hpp"
+#include "Buildings/Horde/Small/HGemBoutique.hpp"
+#include "Buildings/Horde/Small/HEngineeringWorks.hpp"
 
 #include <random>
 
@@ -40,7 +42,7 @@ namespace MS { namespace Garrison
 {
     /// Constructor
     GarrisonNPCAI::GarrisonNPCAI(Creature * p_Creature)
-        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0)
+        : MS::AI::CosmeticAI(p_Creature), m_PlotInstanceLocation(nullptr), m_BuildingID(0), m_SequenceSize(0), m_Recipes(nullptr)
     {
 
     }
@@ -82,6 +84,18 @@ namespace MS { namespace Garrison
             l_Angle += m_PlotInstanceLocation->O;
 
         me->SetFacingTo(Position::NormalizeOrientation(l_Angle));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Set NPC recipes
+    /// @p_Recipes          : Recipes
+    /// @p_RecipesSkillID   : Skill line ID
+    void GarrisonNPCAI::SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID)
+    {
+        m_Recipes           = p_Recipes;
+        m_RecipesSkillID    = p_RecipesSkillID;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -179,6 +193,31 @@ namespace MS { namespace Garrison
         }
     }
 
+    /// Get UInt32 value
+    /// @p_ID    : Value ID
+    uint32 GarrisonNPCAI::GetData(uint32 p_ID)
+    {
+        if ((p_ID & CreatureAIDataIDs::HasRecipe) != 0)
+        {
+            if (!m_Recipes)
+                return (uint32)-1;
+
+            uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
+
+            auto l_It = std::find_if(m_Recipes->begin(), m_Recipes->end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
+            {
+                return p_Entry.AbilitySpellID == l_RecipeID;
+            });
+
+            if (l_It == m_Recipes->end())
+                return (uint32)-1;
+
+            return l_It->AbilitySpellIDPlayerCondition;
+        }
+        
+        return (uint32)-1;
+    }
+
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
@@ -194,6 +233,38 @@ namespace MS { namespace Garrison
                 WorldPacket l_Data(SMSG_OPEN_SHIPMENT_NPCFROM_GOSSIP);
                 l_Data.appendPackGUID(me->GetGUID());
                 l_Data << uint32(l_ShipmentID);
+
+                p_Player->SendDirectMessage(&l_Data);
+            }
+            else
+                p_Player->PlayerTalkClass->SendCloseGossip();
+        }
+    }
+
+    /// Show trade skill crafter UI
+    void GarrisonNPCAI::SendTradeSkillUI(Player * p_Player)
+    {
+        if (p_Player->IsInGarrison())
+        {
+            if (m_Recipes)
+            {
+                WorldPacket l_Data(SMSG_GARRISON_OPEN_TRADESKILL_NPC);
+                l_Data.appendPackGUID(me->GetGUID());
+                l_Data << uint32(0);                    ///< SpellID
+                l_Data << uint32(1);                    ///< Skill line ID count
+                l_Data << uint32(0);                    ///< Skill rank count
+                l_Data << uint32(0);                    ///< Skill max rank count
+                l_Data << uint32(m_Recipes->size());    ///< Skill known ability spell id count
+
+                l_Data << uint32(m_RecipesSkillID);     ///< Skill line ID
+
+                for (uint32 l_I = 0; l_I < m_Recipes->size(); ++l_I)
+                    l_Data << m_Recipes->at(l_I).AbilitySpellID;
+
+                l_Data << uint32(m_Recipes->size());    ///< Skill known ability spell id condition count
+
+                for (uint32 l_I = 0; l_I < m_Recipes->size(); ++l_I)
+                    l_Data << m_Recipes->at(l_I).AbilitySpellIDPlayerCondition;
 
                 p_Player->SendDirectMessage(&l_Data);
             }
@@ -434,6 +505,10 @@ void AddSC_Garrison_NPC()
         /// Gem boutique
         new MS::Garrison::npc_CostanHighwall;
         new MS::Garrison::npc_KayaSolasen;
+
+        /// Engineering works
+        new MS::Garrison::npc_Zaren;
+        new MS::Garrison::npc_HelaynWhent;
     }
 
     /// Horde
@@ -477,5 +552,9 @@ void AddSC_Garrison_NPC()
         /// Gem boutique
         new MS::Garrison::npc_Dorogarr;
         new MS::Garrison::npc_ElrondirSurrion;
+
+        /// Engineering works
+        new MS::Garrison::npc_Pozzlow;
+        new MS::Garrison::npc_GarbraFizzwonk;
     }
 }

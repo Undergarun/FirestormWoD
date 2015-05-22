@@ -1374,8 +1374,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
     m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
     m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
-    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsBeforeBan", 10);
-    m_int_configs[CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE] = ConfigMgr::GetIntDefault("Anticheat.BanCheckTimeRange", 60);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsBeforeBan", 200);
+    m_int_configs[CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE] = ConfigMgr::GetIntDefault("Anticheat.BanCheckTimeRange", 120);
 
     // Announce server for a ban
     m_bool_configs[CONFIG_ANNOUNCE_BAN] = ConfigMgr::GetBoolDefault("AnnounceBan", false);
@@ -1410,6 +1410,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_LEXICS_CUTTER_ENABLE] = ConfigMgr::GetBoolDefault("LexicsCutterEnable", true);
 
     m_bool_configs[CONFIG_ACHIEVEMENT_DISABLE] = ConfigMgr::GetBoolDefault("Achievement.disable", false);
+
+    m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
 
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
@@ -1548,7 +1550,6 @@ void World::SetInitialWorldSettings()
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadItemLocales();
     sObjectMgr->LoadQuestLocales();
     sObjectMgr->LoadNpcTextLocales();
     sObjectMgr->LoadPageTextLocales();
@@ -2019,6 +2020,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_REALM_STATS].SetInterval(MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_TRANSFERT].SetInterval(15 * IN_MILLISECONDS);
+    m_timers[WUPDATE_TRANSFER_MOP].SetInterval(1 * MINUTE * IN_MILLISECONDS);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2111,6 +2113,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
+    sObjectMgr->LoadHotfixTableHashs();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading guild challenge rewards...");
     sObjectMgr->LoadGuildChallengeRewardInfo();
@@ -2145,9 +2148,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading challenge mode rewards...");
     sObjectMgr->LoadChallengeRewards();
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading map challenge mode hotfixes...");
-    sObjectMgr->LoadMapChallengeModeHotfixes();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Init Garrison shipment manager...");
     sGarrisonShipmentManager->Init();
@@ -2371,6 +2371,57 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_REALM_STATS].Reset();
         LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
     }
+
+    /// Moved to MopTransfersRunnable (see Master.cpp)
+    /*if (m_timers[WUPDATE_TRANSFER_MOP].Passed())
+    {
+        if (sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
+        {
+            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
+            l_Statement->setUInt32(0, sLog->GetRealmID());
+            m_transferMop = LoginMopDatabase.AsyncQuery(l_Statement);
+        }
+
+        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(5 * MINUTE * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_MOP].Reset();
+    }
+
+    if (m_transferMop.ready())
+    {
+        PreparedQueryResult l_ToDump;
+        m_transferMop.get(l_ToDump);
+
+        if (l_ToDump)
+        {
+            do
+            {
+                Field* l_Fields    = l_ToDump->Fetch();
+                uint32 l_Timestamp = getMSTime();
+                uint32 l_Id        = l_Fields[0].GetUInt32();
+                uint32 l_Account   = l_Fields[1].GetUInt32();
+                std::string l_Dump = l_Fields[2].GetString();
+
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
+
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
+
+                fprintf(l_File, "%s\n", l_Dump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
+            }
+            while (l_ToDump->NextRow());
+        }
+
+        m_transferMop.cancel();
+    }*/
 
     if (m_timers[WUPDATE_TRANSFERT].Passed())
     {
@@ -3392,11 +3443,10 @@ void World::InitCurrencyResetTime()
         while (nextResetDay < currentDay)
             nextResetDay += 7;
 
-        nextResetDay = nextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(MS::Battlegrounds::WsCurrency::ResetTime, nextResetDay);
     }
 
-    m_NextCurrencyReset = nextResetDay;
+    m_NextCurrencyReset = nextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitDailyLootResetTime()
@@ -3406,11 +3456,10 @@ void World::InitDailyLootResetTime()
     {
         uint32 l_CurrentDay = (time(NULL) + 3600) / 86400;
         l_NextResetDay = l_CurrentDay + 1;
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
         sWorld->setWorldState(WS_DAILY_LOOT_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextDailyLootReset = l_NextResetDay;
+    m_NextDailyLootReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitGuildChallengesResetTime()
@@ -3425,11 +3474,11 @@ void World::InitGuildChallengesResetTime()
         while (l_NextResetDay < l_CurrentDay)
             l_NextResetDay += 7;
 
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        l_NextResetDay = l_NextResetDay;
         sWorld->setWorldState(WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextGuildChallengesReset = l_NextResetDay;
+    m_NextGuildChallengesReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 void World::InitBossLootedResetTime()
@@ -3444,11 +3493,11 @@ void World::InitBossLootedResetTime()
         while (l_NextResetDay < l_CurrentDay)
             l_NextResetDay += 7;
 
-        l_NextResetDay = l_NextResetDay * 86400 + 5 * 3600;
+        l_NextResetDay = l_NextResetDay;
         sWorld->setWorldState(WS_WEEKLY_BOSS_LOOTED_RESET_TIME, l_NextResetDay);
     }
 
-    m_NextBossLootedReset = l_NextResetDay;
+    m_NextBossLootedReset = l_NextResetDay * 86400 + 5 * 3600;
 }
 
 /*void World::InitServerAutoRestartTime()
@@ -3503,8 +3552,7 @@ void World::ResetCurrencyWeekCap()
     CharacterDatabase.Execute("UPDATE `character_currency` SET `week_count` = 0, `needResetCap` = 1");
     CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekWins0` = `weekWins0`, `prevWeekWins1` = `weekWins1`, `prevWeekWins2` = `weekWins2`");
     CharacterDatabase.Execute("UPDATE `character_arena_data` SET `bestRatingOfWeek0` = 0, `weekWins0` = 0, `bestRatingOfWeek1` = 0, `weekWins1` = 0, `bestRatingOfWeek2` = 0, `weekWins2` = 0");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`");
-    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
+    CharacterDatabase.Execute("UPDATE `character_arena_data` SET `prevWeekGames0` = `weekGames0`, `prevWeekGames1` = `weekGames1`, `prevWeekGames2` = `weekGames2`, `prevWeekGames3` = `weekGames3`, `prevWeekGames4` = `weekGames4`, `prevWeekGames5` = `weekGames5`, `weekGames0` = 0, `weekGames1` = 0, `weekGames2` = 0, `weekGames3` = 0, `weekGames4` = 0, `weekGames5` = 0");
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())

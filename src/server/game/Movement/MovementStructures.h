@@ -156,6 +156,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     // Cast spell has movement data part when castflags & 0x10, patched ClientSide to have same data of CMSG_PLAYER_MOVE
     if (opcode == CMSG_CAST_SPELL
+        || opcode == CMSG_USE_ITEM
+        || opcode == CMSG_PET_CAST_SPELL
 
         || opcode == CMSG_MOVE_START_FORWARD
         || opcode == CMSG_MOVE_START_TURN_LEFT

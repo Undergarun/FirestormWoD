@@ -237,7 +237,7 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
                     sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                     rc_account, "", 0, l_Target.c_str(),
                                     "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) to player: %s (Account: %u)",
-                                    GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(), l_Target.c_str(), rc_account);
+                                    GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), item->GetEntry(), item->GetCount(), l_Target.c_str(), rc_account);
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
@@ -469,7 +469,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& p_Packet)
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                 sender_accId, "", sender_guid, sender_name.c_str(),
                                 "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %lu to player: %s (Account: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receive)
                 sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
@@ -564,7 +564,7 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 2 * 1024);
+    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 35 * 1024);
     ByteBuffer l_MailsBuffer;
 
     time_t cur_time = time(NULL);

@@ -29,6 +29,8 @@
 #include <set>
 #include <vector>
 
+class Player;
+
 // Structures using to access raw DBC data and required packing to portability
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
@@ -2339,6 +2341,20 @@ struct SpellProcsPerMinuteEntry
     //bool unk;                                             // 2
 };
 
+struct WorldStateEntry
+{
+    uint32 ID;                                              // 0
+};
+
+struct WorldStateExpressionEntry
+{
+    uint32 ID;                                              // 0
+    char*  Expression;                                      // 1
+
+    /// Eval a worldstate expression
+    bool Eval(Player* p_Player) const;
+};
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
@@ -2357,19 +2373,19 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 struct MapDifficulty
 {
     MapDifficulty()
-        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), Context(0)
     {
     }
 
     MapDifficulty(uint32 p_DifficultyID, uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
-        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), Context(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
     {
     }
 
     uint32 DifficultyID;
     uint32 ResetTime;
     uint32 MaxPlayers;
-    uint32 ItemBonusTreeDifficulty;
+    uint32 Context;
     bool   HasErrorMessage;
 };
 

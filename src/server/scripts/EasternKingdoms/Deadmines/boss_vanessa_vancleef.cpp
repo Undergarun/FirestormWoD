@@ -225,8 +225,8 @@ class boss_vanessa_vancleef : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        private:
-            uint8 phase;
+            private:
+                uint8 phase;
         };
 };
 
@@ -341,9 +341,9 @@ class npc_vanessa_vancleef_vanessa_sitting : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-        private:
-            InstanceScript* pInstance;
-            EventMap events;
+            private:
+                InstanceScript* pInstance;
+                EventMap events;
         };
 };
 

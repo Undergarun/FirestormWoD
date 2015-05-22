@@ -370,7 +370,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 //
 
 // Constructor, copies most fields from LootStoreItem and generates random count
-LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty, Loot* p_Loot)
+LootItem::LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot* p_Loot)
 {
     currentLoot = p_Loot;
     itemid      = p_LootItem.itemid;
@@ -396,7 +396,7 @@ LootItem::LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty
         randomSuffix        = GenerateEnchSuffixFactor(itemid);
         randomPropertyId    = Item::GenerateItemRandomPropertyId(itemid);
 
-        Item::GenerateItemBonus(itemid, p_ItemBonusDifficulty, itemBonuses);
+        Item::GenerateItemBonus(itemid, p_Context, itemBonuses);
     }
 
     count               = urand(p_LootItem.mincountOrRef, p_LootItem.maxcount);     // constructor called for mincountOrRef > 0 only
@@ -501,11 +501,11 @@ void Loot::AddItem(LootStoreItem const & item)
     if (item.needs_quest)                                   // Quest drop
     {
         if (QuestItems.size() < MAX_NR_QUEST_ITEMS)
-            QuestItems.push_back(LootItem(item, ItemBonusDifficulty, this));
+            QuestItems.push_back(LootItem(item, Context, this));
     }
     else if (Items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
     {
-        Items.push_back(LootItem(item, ItemBonusDifficulty, this));
+        Items.push_back(LootItem(item, Context, this));
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
@@ -773,7 +773,7 @@ void Loot::NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter /*= 0*/)
     }
 }
 
-void Loot::NotifyMoneyRemoved(uint64 gold)
+void Loot::NotifyMoneyRemoved(bool p_IsAoE /*= false*/)
 {
     // notify all players that are looting this that the money was removed
     std::set<uint64>::iterator i_next;
@@ -782,7 +782,7 @@ void Loot::NotifyMoneyRemoved(uint64 gold)
         i_next = i;
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
-            player->SendNotifyLootMoneyRemoved();
+            player->SendNotifyLootMoneyRemoved(p_IsAoE);
         else
             PlayersLooting.erase(i);
     }

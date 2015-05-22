@@ -380,6 +380,8 @@ class Map : public GridRefManager<NGridType>
         MapDifficulty const* GetMapDifficulty() const;
         CriteriaLegacyRaidType GetLegacyRaidType() const;
 
+        ItemContext GetLootItemContext() const;
+
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }

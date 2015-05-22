@@ -69,6 +69,8 @@ m_dungeonDifficulty(DifficultyNormal), m_raidDifficulty(DifficultyRaidNormal), m
 
     uint32 lowguid = sGroupMgr->GenerateGroupId();
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
+
+    m_RaidMarkers.resize(eRaidMarkersMisc::MaxRaidMarkers);
 }
 
 Group::~Group()
@@ -497,7 +499,7 @@ bool Group::AddMember(Player* player)
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
     WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0, true);
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -505,7 +507,7 @@ bool Group::AddMember(Player* player)
         if (member && member != player && !member->IsWithinDist(player, member->GetSightRange(), false))
         {
             WorldPacket data2;
-            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0, true);
+            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0);
 
             member->GetSession()->SendPacket(&data);
             player->GetSession()->SendPacket(&data2);
@@ -2780,106 +2782,118 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
 
+uint32 Group::GetActiveMarkers() const
+{
+    uint32 l_Mask = eRaidMarkersFlags::RaidMarkerNone;
+
+    for (RaidMarker l_Marker : GetRaidMarkers())
+    {
+        if (l_Marker.Mask)
+            l_Mask |= l_Marker.Mask;
+    }
+
+    return l_Mask;
+}
+
+uint32 Group::CountActiveMarkers() const
+{
+    uint32 l_Count = 0;
+
+    for (RaidMarker l_Marker : GetRaidMarkers())
+    {
+        if (l_Marker.Mask)
+            ++l_Count;
+    }
+
+    return l_Count;
+}
+
 void Group::SendRaidMarkersUpdate()
 {
-    uint32 l_Mask = RAID_MARKER_NONE;
+    std::vector<RaidMarker> const& l_RaidMarkers = GetRaidMarkers();
+    WorldPacket l_Data(Opcodes::SMSG_RAID_MARKERS_CHANGED, 10);
 
-    for (auto l_Iter : GetRaidMarkers())
-        l_Mask |= l_Iter.mask;
+    l_Data << uint8(0); ///< PartyIndex
+    l_Data << uint32(GetActiveMarkers());
+    l_Data.WriteBits(CountActiveMarkers(), 4);
 
-    WorldPacket l_Data(SMSG_RAID_MARKERS_CHANGED, 10);
-    l_Data << uint8(0);
-    l_Data << uint32(l_Mask);
-    l_Data.WriteBits(GetRaidMarkers().size(), 4);
-
-    for (auto l_Iter : GetRaidMarkers())
+    for (RaidMarker l_Marker : l_RaidMarkers)
     {
-        l_Data.appendPackGUID(0);
-        l_Data << uint32(l_Iter.mapId);
-        l_Data << float(l_Iter.posX);
-        l_Data << float(l_Iter.posY);
-        l_Data << float(l_Iter.posZ);
+        if (!l_Marker.Mask)
+            continue;
+
+        l_Data.appendPackGUID(0);   ///< TransportGuid
+        l_Data << uint32(l_Marker.MapID);
+        l_Data << float(l_Marker.PosX);
+        l_Data << float(l_Marker.PosY);
+        l_Data << float(l_Marker.PosZ);
     }
 
     BroadcastPacket(&l_Data, true);
 }
 
-void Group::AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z)
+void Group::AddRaidMarker(uint8 p_Slot, uint32 p_MapID, float p_X, float p_Y, float p_Z)
 {
-    uint32 mask = RAID_MARKER_NONE;
+    if (p_Slot >= eRaidMarkersMisc::MaxRaidMarkers)
+        return;
 
-    RaidMarker marker;
-    marker.mapId = mapId;
-    marker.posX  = x;
-    marker.posY  = y;
-    marker.posZ  = z;
+    uint32 l_Mask = eRaidMarkersFlags::RaidMarkerNone;
 
-    switch (spellId)
+    RaidMarker l_RaidMarker;
+    l_RaidMarker.MapID  = p_MapID;
+    l_RaidMarker.PosX   = p_X;
+    l_RaidMarker.PosY   = p_Y;
+    l_RaidMarker.PosZ   = p_Z;
+    l_RaidMarker.Slot   = p_Slot;
+
+    switch (p_Slot)
     {
-        case 84996: // Raid Marker 1
-            mask = RAID_MARKER_BLUE;
+        case eRaidMarkersMisc::SlotBlue:
+            l_Mask = eRaidMarkersFlags::RaidMarkerBlue;
             break;
-        case 84997: // Raid Marker 2
-            mask = RAID_MARKER_GREEN;
+        case eRaidMarkersMisc::SlotGreen:
+            l_Mask = eRaidMarkersFlags::RaidMarkerGreen;
             break;
-        case 84998: // Raid Marker 3
-            mask = RAID_MARKER_PURPLE;
+        case eRaidMarkersMisc::SlotPurple:
+            l_Mask = eRaidMarkersFlags::RaidMarkerPurple;
             break;
-        case 84999: // Raid Marker 4
-            mask = RAID_MARKER_RED;
+        case eRaidMarkersMisc::SlotRed:
+            l_Mask = eRaidMarkersFlags::RaidMarkerRed;
             break;
-        case 85000: // Raid Marker 5
-            mask = RAID_MARKER_YELLOW;
+        case eRaidMarkersMisc::SlotYellow:
+            l_Mask = eRaidMarkersFlags::RaidMarkerYellow;
+            break;
+        case eRaidMarkersMisc::SlotOrange:
+            l_Mask = eRaidMarkersFlags::RaidMarkerOrange;
+            break;
+        case eRaidMarkersMisc::SlotSilver:
+            l_Mask = eRaidMarkersFlags::RaidMarkerSilver;
+            break;
+        case eRaidMarkersMisc::SlotWhite:
+            l_Mask = eRaidMarkersFlags::RaidMarkerWhite;
             break;
         default:
             break;
     }
 
-    marker.mask = mask;
+    l_RaidMarker.Mask = l_Mask;
 
-    m_raidMarkers.push_back(marker);
+    m_RaidMarkers[p_Slot] = l_RaidMarker;
     SendRaidMarkersUpdate();
 }
 
-void Group::RemoveRaidMarker(uint8 markerId)
+void Group::RemoveRaidMarker(uint8 p_Slot)
 {
-    uint32 mask = RAID_MARKER_NONE;
+    if (p_Slot >= eRaidMarkersMisc::MaxRaidMarkers)
+        return;
 
-    switch (markerId)
-    {
-        case 0: // Blue
-            mask = RAID_MARKER_BLUE;
-            break;
-        case 1: // Green
-            mask = RAID_MARKER_GREEN;
-            break;
-        case 2: // Purple
-            mask = RAID_MARKER_PURPLE;
-            break;
-        case 3: // Red
-            mask = RAID_MARKER_RED;
-            break;
-        case 4: // Yellow
-            mask = RAID_MARKER_YELLOW;
-            break;
-        default:
-            break;
-    }
-
-    for (RaidMarkerList::iterator itr = m_raidMarkers.begin(); itr != m_raidMarkers.end();)
-    {
-        if (mask == (*itr).mask)
-            m_raidMarkers.erase(itr++);
-        else
-            ++itr;
-    }
-
+    m_RaidMarkers[p_Slot] = RaidMarker();
     SendRaidMarkersUpdate();
 }
 
 void Group::RemoveAllRaidMarkers()
 {
-    m_raidMarkers.clear();
+    m_RaidMarkers.clear();
     SendRaidMarkersUpdate();
 }
 

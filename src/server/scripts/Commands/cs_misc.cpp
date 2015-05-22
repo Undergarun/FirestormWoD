@@ -997,44 +997,50 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleCooldownCommand(ChatHandler* handler, char const* args)
+        static bool HandleCooldownCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player* target = handler->getSelectedPlayer();
-            if (!target)
+            Player* l_Target = p_Handler->getSelectedPlayer();
+            if (!l_Target)
             {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            std::string nameLink = handler->GetNameLink(target);
+            std::string l_NameLink = p_Handler->GetNameLink(l_Target);
 
-            if (!*args)
+            if (!*p_Args)
             {
-                target->RemoveAllSpellCooldown();
-                target->SendClearAllSpellCharges();
-                handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, nameLink.c_str());
+                l_Target->RemoveAllSpellCooldown();
+                l_Target->SendClearAllSpellCharges();
+                p_Handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, l_NameLink.c_str());
             }
             else
             {
-                // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-                uint32 spellIid = handler->extractSpellIdFromLink((char*)args);
-                if (!spellIid)
+                /// Number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+                uint32 l_SpellID = p_Handler->extractSpellIdFromLink((char*)p_Args);
+                if (!l_SpellID)
                     return false;
 
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(spellIid);
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
                 if (l_SpellInfo == nullptr)
                 {
-                    handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
-                    handler->SetSentErrorMessage(true);
+                    p_Handler->PSendSysMessage(LANG_UNKNOWN_SPELL, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
+                    p_Handler->SetSentErrorMessage(true);
                     return false;
                 }
 
-                target->RemoveSpellCooldown(spellIid, true);
-                target->SendClearSpellCharges(l_SpellInfo->GetSpellCategories()->Category);
-                target->m_SpellChargesMap.erase(l_SpellInfo->GetSpellCategories()->Category);
-                handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
+                l_Target->RemoveSpellCooldown(l_SpellID, true);
+
+                if (SpellCategoriesEntry const* l_CatEntry = l_SpellInfo->GetSpellCategories())
+                {
+                    l_Target->SendClearSpellCharges(l_CatEntry->Category);
+                    l_Target->m_SpellChargesMap.erase(l_CatEntry->Category);
+                }
+
+                p_Handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, l_SpellID, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
             }
+
             return true;
         }
 
@@ -3012,7 +3018,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+            WorldPacket data(SMSG_PLAY_SOUND, 2 + 16 + 8);
             ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
             data << uint32(soundId);
             data.appendPackGUID(guid);

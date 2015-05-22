@@ -218,26 +218,19 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
 
 void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 {
-    ObjectGuid playerGuid;
+    uint64 l_PlayerGUID = 0;
+    recvData.readPackGUID(l_PlayerGUID);
 
-    uint8 bits[8] = { 7, 6, 3, 0, 4, 5, 1, 2 };
-    recvData.ReadBitInOrder(playerGuid, bits);
-
-    recvData.FlushBits();
-
-    uint8 bytes[8] = { 2, 4, 5, 7, 0, 1, 6, 3 };
-    recvData.ReadBytesSeq(playerGuid, bytes);
-
-    Player* reportedPlayer = ObjectAccessor::FindPlayer(playerGuid);
-    if (!reportedPlayer)
+    Player* l_ReportedPlayer = ObjectAccessor::FindPlayer(l_PlayerGUID);
+    if (!l_ReportedPlayer)
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: player not found");
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: %s reported %s", m_Player->GetName(), reportedPlayer->GetName());
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleReportPvPAFK: %s reported %s", m_Player->GetName(), l_ReportedPlayer->GetName());
 
-    reportedPlayer->ReportedAfkBy(m_Player);
+    l_ReportedPlayer->ReportedAfkBy(m_Player);
 }
 
 void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)

@@ -17,6 +17,8 @@
 */
 
 #include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "auchindon.h"
 
