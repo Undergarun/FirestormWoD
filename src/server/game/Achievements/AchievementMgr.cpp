@@ -928,10 +928,7 @@ void AchievementMgr<Player>::LoadFromDB(Player* p_Player, Guild* /*p_Guild*/, Pr
 
             // Achievement in character_achievement but not in account_achievement, there is a problem.
             if (m_completedAchievements.find(achievementid) == m_completedAchievements.end())
-            {
-                sLog->outError(LOG_FILTER_ACHIEVEMENTSYS, "Achievement '%u' in character_achievement but not in account_achievement, there is a problem.", achievementid);
                 continue;
-            }
 
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.completedByThisCharacter = true;
