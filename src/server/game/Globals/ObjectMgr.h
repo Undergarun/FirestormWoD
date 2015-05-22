@@ -1690,7 +1690,7 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
 
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HighItemGuid;
+        std::atomic_uint m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
