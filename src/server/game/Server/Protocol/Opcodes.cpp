@@ -1254,12 +1254,12 @@ void InitOpcodes()
     //////////////////////////////////////////////////////////////////////////
     /// Vehicles
     //////////////////////////////////////////////////////////////////////////
+    DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_VEHICLE_REC_ID_ACK,                     STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_PLAYER_VEHICLE_ENTER,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleEnterPlayerVehicle         );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_VEHICLE_EXIT,                            STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleRequestVehicleExit         );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_VEHICLE_NEXT_SEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleChangeSeatsOnControlledVehicle);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_VEHICLE_PREV_SEAT,                       STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleChangeSeatsOnControlledVehicle);
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_VEHICLE_SWITCH_SEAT,                     STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleChangeSeatsOnControlledVehicle);
-    DEFINE_OPCODE_HANDLER(CMSG_SET_VEHICLE_REC_ID_ACK,                          STATUS_UNHANDLED,   PROCESS_INPLACE,        &WorldSession::Handle_NULL                      );
     DEFINE_OPCODE_HANDLER(CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE,              STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleChangeSeatsOnControlledVehicle);
     DEFINE_OPCODE_HANDLER(CMSG_EJECT_PASSENGER,                                 STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleEjectPassenger             );
     DEFINE_OPCODE_HANDLER(CMSG_DISMISS_CONTROLLED_VEHICLE,                      STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleDismissControlledVehicle   );
