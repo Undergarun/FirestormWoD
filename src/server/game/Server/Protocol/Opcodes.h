@@ -1393,39 +1393,39 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Friend
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SEND_CONTACT_LIST                      = 0x0000, ///<
-    CMSG_ADD_FRIEND                             = 0x0000, ///<
-    CMSG_ADD_IGNORE                             = 0x0000, ///<
-    CMSG_SET_CONTACT_NOTES                      = 0x0000, ///<
-    CMSG_DEL_FRIEND                             = 0x0000, ///<
-    CMSG_DEL_IGNORE                             = 0x0000, ///<
+    CMSG_SEND_CONTACT_LIST                      = 0x0EA2, ///< 6.2.0 20033
+    CMSG_ADD_FRIEND                             = 0x1085, ///< 6.2.0 20033
+    CMSG_ADD_IGNORE                             = 0x0842, ///< 6.2.0 20033
+    CMSG_SET_CONTACT_NOTES                      = 0x0D22, ///< 6.2.0 20033
+    CMSG_DEL_FRIEND                             = 0x0936, ///< 6.2.0 20033
+    CMSG_DEL_IGNORE                             = 0x0C22, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Petition
     //////////////////////////////////////////////////////////////////////////
-    CMSG_OFFER_PETITION                         = 0x0000, ///<
-    CMSG_PETITION_BUY                           = 0x0000, ///<
-    CMSG_PETITION_DECLINE                       = 0x0000, ///<
-    CMSG_PETITION_RENAME                        = 0x0000, ///<
-    CMSG_PETITION_SHOWLIST                      = 0x0000, ///<
-    CMSG_PETITION_SHOW_SIGNATURES               = 0x0000, ///<
-    CMSG_PETITION_SIGN                          = 0x0000, ///<
-    CMSG_TURN_IN_PETITION                       = 0x0000, ///<
+    CMSG_OFFER_PETITION                         = 0x0A56, ///< 6.2.0 20033
+    CMSG_PETITION_BUY                           = 0x00DB, ///< 6.2.0 20033
+    CMSG_PETITION_DECLINE                       = 0x02CF, ///< 6.2.0 20033
+    CMSG_PETITION_RENAME                        = 0x0035, ///< 6.2.0 20033
+    CMSG_PETITION_SHOWLIST                      = 0x0208, ///< 6.2.0 20033
+    CMSG_PETITION_SHOW_SIGNATURES               = 0x0658, ///< 6.2.0 20033
+    CMSG_PETITION_SIGN                          = 0x08D4, ///< 6.2.0 20033
+    CMSG_TURN_IN_PETITION                       = 0x069F, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Pet
     //////////////////////////////////////////////////////////////////////////
-    CMSG_PET_NAME_QUERY                         = 0x0000, ///<
-    CMSG_PET_RENAME                             = 0x0000, ///<
-    CMSG_PET_ABANDON                            = 0x0000, ///<
-    CMSG_PET_ACTION                             = 0x0000, ///<
-    CMSG_PET_CANCEL_AURA                        = 0x0000, ///<
-    CMSG_PET_CAST_SPELL                         = 0x0000, ///<
-    CMSG_PET_SET_ACTION                         = 0x0000, ///<
-    CMSG_PET_STOP_ATTACK                        = 0x0000, ///<
+    CMSG_PET_NAME_QUERY                         = 0x17E8, ///< 6.2.0 20033
+    CMSG_PET_RENAME                             = 0x0232, ///< 6.2.0 20033
+    CMSG_PET_ABANDON                            = 0x04C4, ///< 6.2.0 20033
+    CMSG_PET_ACTION                             = 0x000B, ///< 6.2.0 20033
+    CMSG_PET_CANCEL_AURA                        = 0x14D3, ///< 6.2.0 20033
+    CMSG_PET_CAST_SPELL                         = 0x13E2, ///< 6.2.0 20033
+    CMSG_PET_SET_ACTION                         = 0x06D8, ///< 6.2.0 20033
+    CMSG_PET_STOP_ATTACK                        = 0x0694, ///< 6.2.0 20033
     CMSG_LEARN_PET_SPECIALIZATION_GROUP         = 0x0636, ///< 6.2.0 20033
-    CMSG_LIST_STABLE_PETS                       = 0x0000, ///<
-    CMSG_SET_PET_SLOT                           = 0x0000, ///<
+    CMSG_LIST_STABLE_PETS                       = 0x0250, ///< 6.2.0 20033
+    CMSG_SET_PET_SLOT                           = 0x0C41, ///< 6.2.0 20033
 
     //////////////////////////////////////////////////////////////////////////
     /// Battlegrounds
