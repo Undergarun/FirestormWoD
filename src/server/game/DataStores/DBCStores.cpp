@@ -477,6 +477,11 @@ void LoadDBCStores(const std::string& dataPath)
 
         sMapDifficultyStore.Clear();
     }
+    
+    /// Hackfix to make Tarren Mill as a continent
+    MapEntry* l_Map = (MapEntry*)sMapStore.LookupEntry(1280);
+    if (l_Map)
+        l_Map->instanceType = InstanceTypes::MAP_COMMON;    
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMinorTalentStore,            dbcPath, "MinorTalent.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");                                              // 17399
