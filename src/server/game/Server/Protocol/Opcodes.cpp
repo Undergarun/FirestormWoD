@@ -1487,7 +1487,6 @@ void InitOpcodes()
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_QUEUE_EXIT_REQUEST,              STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfExitQueueRequest             );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE,           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfEntryInviteResponse          );
     DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LIST,                                STATUS_LOGGEDIN,    PROCESS_THREADUNSAFE,   &WorldSession::HandleBattlefieldListOpcode          );
-    DEFINE_OPCODE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                               STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleBfExitRequest                  );
     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_RATED_BATTLEFIELD_INFO,                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleRequestRatedBgStats            );
     DEFINE_OPCODE_HANDLER(CMSG_START_WAR_GAME,                                  STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleStartWarGame                   );
     DEFINE_OPCODE_HANDLER(CMSG_ACCEPT_WARGAME_INVITE,                           STATUS_LOGGEDIN,    PROCESS_INPLACE,        &WorldSession::HandleAcceptWarGameInvite            );
