@@ -1886,8 +1886,22 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
 
             enum eSpells
             {
-                PoolOfMists = 173841
+                PoolOfMists = 173841,
+                JadeMists = 165397,
+                CatergoryID = 1517
             };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Your Renewing Mist have a chance equal to your multistrike chance to not go on cooldown when used
+                if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                    l_Player->RestoreCharge(eSpells::CatergoryID);
+            }
 
             void HandleDummy(SpellEffIndex /*p_EffIndex*/)
             {
@@ -1897,11 +1911,12 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);                    
             }
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_monk_renewing_mist_hot_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_hot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -4248,6 +4263,24 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rising_sun_kick_SpellScript);
 
+            enum eSpells
+            {
+                JadeMists = 165397,
+                CatergoryID = 1518
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+                
+                /// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
+                if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                    l_Player->RestoreCharge(eSpells::CatergoryID);
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
@@ -4283,6 +4316,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_monk_rising_sun_kick_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
