@@ -555,6 +555,7 @@ public:
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+
         }
         void EnterCombat(Unit* who)
         {
@@ -1604,33 +1605,40 @@ public:
                 Position pos;
 
                 me->GetRandomNearPosition(pos, 10.0f);
+                std::list<Creature*> deckhandslist;
 
                 Creature* deckhands = me->SummonCreature(NPC_GROMKAR_DECKHAND, pos, TEMPSUMMON_DEAD_DESPAWN);
                 if (deckhands)
                 {
                     deckhands->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
-                    deckhandslist.push_back(deckhands->GetGUID());
+                    deckhandslist.push_back(deckhands);
+                }
+
+                for (auto itr : deckhandslist)
+                {
+                    itr->GetAI()->Reset();
+                    workers.push_back(itr->GetGUID());
                 }
             }
         }
         int visual;
-        std::list<uint64> deckhandslist;
-
+  
+        std::list<uint64> workers;
         void Reset()
         {
             visual = 6000;
             me->SetSpeed(MOVE_RUN, 0.5, true);
 
-            if (!deckhandslist.empty())
-                for (auto itr : deckhandslist)
+            if (!workers.empty())
+                for (auto itr : workers)
                 {
-
-                    if (Creature* l_Creature = Unit::GetCreature(*me, itr))
+                    Creature* workersitr = Unit::GetCreature(*me, itr);
+                    if (workersitr)
                     {
-                        if (!l_Creature->isAlive())
-                            continue;
-
-                        l_Creature->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        if (workersitr->isAlive())
+                        {
+                            workersitr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                        }
                     }
                 }
         }
@@ -1649,17 +1657,18 @@ public:
         {
             if (!UpdateVictim())
             {
-                if (!deckhandslist.empty())
-                {
-                    for (auto itr : deckhandslist)
+                if (!workers.empty())
+                    for (auto itr : workers)
                     {
-                        if (Creature* l_Creature = Unit::GetCreature(*me, itr))
+                        Creature* workersitr = Unit::GetCreature(*me, itr);
+                        if (workersitr)
                         {
-                            if (!l_Creature->isMoving())
-                                l_Creature->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                            if (workersitr->isAlive())
+                            {
+                                workersitr->GetMotionMaster()->MoveFollow(me, urand(1, 3), urand(40, 120), MOTION_SLOT_ACTIVE);
+                            }
                         }
                     }
-                }
             }
 
             if (!UpdateVictim())
@@ -2145,11 +2154,10 @@ public:
         void Reset()
         {
             me->setFaction(16);
-            me->SetReactState(REACT_PASSIVE);
-            me->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
             me->SetHealth(6000000);
             me->SetMaxHealth(6000000);
             me->GetMap()->SetObjectVisibility(1000.0f);
+            me->SetReactState(REACT_PASSIVE);
         }
     };
 
@@ -2158,7 +2166,39 @@ public:
         return new mob_iron_docksAI(creature);
     }
 };
+class spell_barrage_targets_los_fix : public SpellScriptLoader
+{
+public:
+    spell_barrage_targets_los_fix() : SpellScriptLoader("spell_barrage_targets_los_fix") { }
 
+    class spell_barrage_targets_spell_script : public SpellScript
+    {
+        PrepareSpellScript(spell_barrage_targets_spell_script);
+
+
+        bool Load()
+        {
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+            spell->AttributesEx2 += SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+            return true;
+        }
+
+        void CorrectTargets(std::list<WorldObject*>& targets)
+        {
+        }
+
+        void Register()
+        {
+            //OnEffectHitTarget += SpellEffectFn(spell_barrage_targets_spell_script::HandleTriggerMissile, EFFECT_0, TARGET_DEST_DEST);
+            //OnHit += SpellHitFn(spell_barrage_targets_spell_script::UponHit);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_barrage_targets_spell_script::CorrectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        }
+    };
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_barrage_targets_spell_script();
+    }
+};
 void AddSC_iron_docks_cpp()
 {
     new iron_docks_mob_gromkar_battlemaster();
@@ -2196,4 +2236,5 @@ void AddSC_iron_docks_cpp()
     new iron_docks_mob_thundering_wandler();
     new iron_docks_mob_rampaging_clefthoof();
     new iron_docks_mob_drake(); // ironwing_flamespitter no idea why i called it that way
+    new spell_barrage_targets_los_fix();
 }
