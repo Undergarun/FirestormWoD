@@ -1,7 +1,5 @@
-#include "ScriptMgr.h"
-#include "SpellScript.h"
+
 #include "ScriptedCreature.h"
-#include "GridNotifiers.h"
 #include "auchindon.h"
 
 #define cooldown_mind_spike urand(2000, 5000)
@@ -110,6 +108,11 @@ enum Events
 enum FixingActions
 {
     ACTION_CONFIRM_TUULANI_EVENT = 324266,
+};
+enum spells_fix
+{
+    SPELL_VOID_SHIFT_HEALO = 157036,
+    SPELL_VOID_SHIFT_DMGO = 157037,
 };
 
 class patrol : public BasicEvent
@@ -365,6 +368,7 @@ public:
                 {
                     vigiliant->CastSpell(vigiliant, SPELL_GUARD);
                  
+
                     vigiliant->SetCurrentEquipmentId(77819);
 
                     vigiliant->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
@@ -609,7 +613,6 @@ public:
                 }
             }
         }
-        return false;
     }
 private:
     Creature* storm;
@@ -835,9 +838,9 @@ class auchindon_creature_sargerei_ritualist : public CreatureScript
 public:
     auchindon_creature_sargerei_ritualist() : CreatureScript("auchindon_creature_sargerei_ritualist") { }
 
-    struct auchindon_creatures : public ScriptedAI
+    struct auchindon_creatures : public Scripted_NoMovementAI
     {
-        auchindon_creatures(Creature* creature) : ScriptedAI(creature)
+        auchindon_creatures(Creature* creature) : Scripted_NoMovementAI(creature)
         {
         }
         InstanceScript* instance = me->GetInstanceScript();
@@ -885,7 +888,6 @@ public:
                 events.ScheduleEvent(EVENT_MIND_SPIKE, urand(7500, 10000));
                 break;
             }
-            DoMeleeAttackIfReady();
         }
     };
     CreatureAI* GetAI(Creature* creature) const
@@ -956,6 +958,10 @@ public:
         }
 
         InstanceScript* instance = me->GetInstanceScript();
+        void Reset()
+        {
+            events.Reset();
+        }
         void EnterCombat(Unit* attacker)
         {
             events.ScheduleEvent(EVENT_VOID_MENDING, 10000);
@@ -988,11 +994,8 @@ public:
                 events.ScheduleEvent(EVENT_VOID_MENDING, 10000);
                 break;
             case EVENT_VOID_SHIFT:
-                if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                {
-                    me->CastSpell(random, SPELL_VOID_SHIFT_DUMMY);
-                    events.ScheduleEvent(EVENT_VOID_SHIFT, 16000);
-                }
+                me->CastSpell(me, SPELL_VOID_SHIFT_DUMMY);
+                events.ScheduleEvent(EVENT_VOID_SHIFT, 16000);     
                 break;
             }
             DoMeleeAttackIfReady();
@@ -1016,6 +1019,10 @@ public:
         }
 
         InstanceScript* instance = me->GetInstanceScript();
+        void Reset()
+        {
+            events.Reset();
+        }
         void EnterCombat(Unit* attacker)
         {
             events.ScheduleEvent(EVENT_SHIELD_BASH, urand(8000, 12000));
@@ -1169,6 +1176,7 @@ public:
         void EnterCombat(Unit* attacker)
         {
             events.ScheduleEvent(EVENT_WARDEN_HAMMER, urand(12000, 16000));
+            events.ScheduleEvent(EVENT_WARDEN_CHAIN, 5000);
         }
         void UpdateAI(const uint32 diff)
         {
@@ -1186,6 +1194,15 @@ public:
                     events.ScheduleEvent(EVENT_WARDEN_HAMMER, urand(12000, 16000));
                     break;
                 }
+            case EVENT_WARDEN_CHAIN:
+                if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                {
+                    me->CastSpell(random, 154831);
+                    random->CastSpell(me, 154639);
+                    random->AddAura(154263, random);
+                }
+                events.ScheduleEvent(EVENT_WARDEN_CHAIN, 20000);
+                break;
             }
             DoMeleeAttackIfReady();
         }
@@ -1400,58 +1417,83 @@ class auchindon_spell_void_mending : public SpellScriptLoader
 public:
     auchindon_spell_void_mending() : SpellScriptLoader("auchindon_spell_void_mending") { }
 
-    class spells_auchindon : public SpellScript
+    class everbloom_spells : public SpellScript
     {
-        PrepareSpellScript(spells_auchindon);
+        PrepareSpellScript(everbloom_spells);
 
-        void AfterCastHandle()
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
 
-            if (GetExplTargetUnit())
+            if (GetHitUnit())
             {
-                GetCaster()->AddAura(SPELL_VOID_MENDING_AURA, GetExplTargetUnit());
+                GetCaster()->AddAura(SPELL_VOID_MENDING_AURA, GetHitUnit());
             }
         }
+
         void Register()
         {
-            AfterCast += SpellCastFn(spells_auchindon::AfterCastHandle);
+            OnEffectHitTarget += SpellEffectFn(everbloom_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
+
     SpellScript* GetSpellScript() const
     {
-        return new spells_auchindon();
+        return new everbloom_spells();
     }
 };
-class auchindon_spell_void_shift : public SpellScriptLoader
+class auchindoun_void_shift : public SpellScriptLoader
 {
 public:
-    auchindon_spell_void_shift() : SpellScriptLoader("auchindon_spell_void_shift") { }
+    auchindoun_void_shift() : SpellScriptLoader("auchindoun_void_shift") { }
 
-    class spells_auchindon : public SpellScript
+    class auchindoun_spells : public SpellScript
     {
-        PrepareSpellScript(spells_auchindon);
+        PrepareSpellScript(auchindoun_spells);
 
-        void VoidShiftBarrage()
+        void HandleDummy(SpellEffIndex effIndex)
         {
-            if (!GetCaster() && !GetExplTargetUnit())
+            if (!GetCaster())
                 return;
 
-            for (int i = 0; i <= 12; i++)
+            std::list<Unit*> PL_list;
+
+            JadeCore::AnyUnitInObjectRangeCheck check(GetCaster(), 30.0f);
+            JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> searcher(GetCaster(), PL_list, check);
+            GetCaster()->VisitNearbyObject(30.0f, searcher);
+
+            if (PL_list.empty())
+                return;
+
+            for (std::list<Unit*>::const_iterator it = PL_list.begin(); it != PL_list.end(); ++it)
             {
-                GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_VOID_SHIFT_DAMAGE, true);
+                if (!(*it))
+                    return;
+
+                if ((*it)->GetTypeId() == TYPEID_PLAYER)
+                {
+                    int32 calc = 5000;
+                    GetCaster()->CastCustomSpell((*it), SPELL_VOID_SHIFT_DAMAGE, &calc, NULL, NULL, true, NULL);
+                }
+                else
+                {
+                    int32 calc = 8000;
+                    GetCaster()->CastCustomSpell((*it), SPELL_VOID_SHIFT_HEALO, &calc, NULL, NULL, true, NULL);
+                }
             }
+
         }
+
         void Register()
-        {       
-            AfterCast += SpellCastFn(spells_auchindon::VoidShiftBarrage);
+        {
+            OnEffectLaunch += SpellEffectFn(iron_docks_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
     SpellScript* GetSpellScript() const
     {
-        return new spells_auchindon();
+        return new auchindoun_spells();
     }
 };
 /*
@@ -1498,7 +1540,6 @@ public:
         {
             SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             spell->Effects[0].TriggerSpell = 157791;
-            return true;
         }
         void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {
@@ -1608,7 +1649,7 @@ public:
     {
     }
 
-    uint32 diff = 9000;
+    int diff = 9000;
     void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
     {
         if (diff <= p_Time)
@@ -1789,7 +1830,7 @@ void AddSC_AuchindounNEW()
     new auchindon_trigger_arcane_bomb_npc_explosion();
     new auchindon_trigger_warden_hammer();
     new auchindon_areatrigger_arcane_bomb();
-    new auchindon_spell_void_shift();  
+    new auchindoun_void_shift();
     new auchindon_spell_void_mending();
     new auchindon_spell_void_shell_filter();
     new auchindon_spell_arcane_bomb_dummy();
