@@ -497,15 +497,18 @@ class spell_pal_shield_of_the_righteous: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* unitTarget = GetHitUnit())
-                    {
-                        // -20% damage taken for 3s
-                        _player->CastSpell(_player, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
-                        _player->CastSpell(_player, PALADIN_SPELL_BASTION_OF_GLORY, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                int32 l_PreviousDuration = 0;
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                    l_PreviousDuration = l_Aura->GetDuration();
+
+                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                    l_Aura->SetDuration(l_Aura->GetDuration() + l_PreviousDuration);
+
+                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_BASTION_OF_GLORY, true);
             }
 
             void Register()
