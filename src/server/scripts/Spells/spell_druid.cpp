@@ -1475,6 +1475,11 @@ class spell_dru_cat_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_cat_form_SpellScript);
 
+            enum eSpells
+            {
+                SPELL_DRU_SAVAGE_ROAR = 52610
+            };
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
@@ -1484,6 +1489,30 @@ class spell_dru_cat_form: public SpellScriptLoader
                     /// Some form has this aura apply without having the glyph
                     if (!l_Player->HasGlyph(SPELL_DRUID_GLYPH_OF_CAT_FORM))
                         l_Player->RemoveAura(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    uint32 l_SavageRoarDuration;
+                    bool l_HasSavageRoar = false;
+
+                    /// Savage Roar
+                    if (AuraPtr l_SavageRoar = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
+                    {
+                        l_SavageRoarDuration = l_SavageRoar->GetDuration();
+                        l_SavageRoar->Remove();
+                        l_HasSavageRoar = true;
+                    }
+
+                    if (l_HasSavageRoar)
+                    {
+                        l_Player->AddAura(eSpells::SPELL_DRU_SAVAGE_ROAR, l_Player);
+                        if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
+                            l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
+                    }
                 }
             }
 

@@ -477,6 +477,12 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
                 return 6 * IN_MILLISECONDS;
             break;
         }
+        case SPELLFAMILY_WARLOCK:
+        {
+            if (spellproto->Id == 5484)
+                return 6 * IN_MILLISECONDS;
+            break;
+        }
         default:
             break;
     }
