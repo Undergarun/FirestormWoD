@@ -4883,6 +4883,42 @@ class spell_monk_detonate_chi : public SpellScriptLoader
         }
 };
 
+/// Glyph of Freedom Roll - 159534
+/// Call by Roll - 109132, Chi Torpedo - 115008 and Flying Serpent Kick - 115057
+class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
+{
+    public:
+        spell_monk_glyph_of_freedom_roll() : SpellScriptLoader("spell_monk_glyph_of_freedom_roll") { }
+
+        class spell_monk_glyph_of_freedom_roll_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_glyph_of_freedom_roll_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofFreedomRoll = 159534
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphofFreedomRoll))
+                    l_Caster->RemoveMovementImpairingAuras();
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_glyph_of_freedom_roll_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -4967,6 +5003,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_WoDPvPBrewmaster2PBonus();
     new spell_monk_zen_sphere_tick();
     new spell_monk_zen_sphere_detonate_heal();
+    new spell_monk_glyph_of_freedom_roll();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();
