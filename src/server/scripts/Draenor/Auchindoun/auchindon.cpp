@@ -1487,7 +1487,7 @@ public:
 
         void Register()
         {
-            OnEffectLaunch += SpellEffectFn(iron_docks_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectLaunch += SpellEffectFn(auchindoun_spells::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -1540,6 +1540,7 @@ public:
         {
             SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
             spell->Effects[0].TriggerSpell = 157791;
+            return true;
         }
         void HandlePeriodic(constAuraEffectPtr /*aurEff*/)
         {
