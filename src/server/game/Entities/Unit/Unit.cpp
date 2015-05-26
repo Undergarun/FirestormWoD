@@ -12242,12 +12242,29 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
-bool Unit::IsAuraAbsorbCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
 {
     if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
         return false;
 
-    return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
+    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    float l_CritAbsorb = 0.0f;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        l_CritAbsorb = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+    else
+    {
+        l_CritAbsorb = 5.0f;
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+    }
+
+    if (l_CritAbsorb <= 0.0f)
+        return false;
+
+    return roll_chance_f(l_CritAbsorb);
 }
 
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
@@ -12594,6 +12611,19 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
     return p_Damage;
 }
 
+uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage)
+{
+    int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
+
+    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+        l_CritPctBonus = 50; ///< 150% on pvp like healing
+
+    ///< Maybe some bonus of Aura to apply?
+    ///< l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
+
+    return p_Damage;
+}
 
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
