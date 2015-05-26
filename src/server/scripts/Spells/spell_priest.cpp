@@ -1203,15 +1203,6 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
-                    p_Amount += CalculatePct(p_Amount, l_Mastery);
-                }
-
-                /// Apply versatility 
-                p_Amount += CalculatePct(p_Amount, l_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
