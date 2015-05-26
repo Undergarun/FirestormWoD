@@ -766,41 +766,6 @@ class spell_mastery_icicles_hit: public SpellScriptLoader
         }
 };
 
-// Called by Clarity of Will - 152118, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
-// Mastery : Shield Discipline - 77484
-class spell_mastery_shield_discipline: public SpellScriptLoader
-{
-    public:
-        spell_mastery_shield_discipline() : SpellScriptLoader("spell_mastery_shield_discipline") { }
-
-        class spell_mastery_shield_discipline_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr , int32 & p_Amount, bool & )
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
-                    {
-                        float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                        p_Amount += CalculatePct(p_Amount, l_Mastery);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_shield_discipline_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_shield_discipline_AuraScript();
-        }
-};
-
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
 class spell_mastery_blood_shield: public SpellScriptLoader
@@ -1293,7 +1258,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_icicles_trigger();
     new spell_mastery_icicles_periodic();
     new spell_mastery_icicles_hit();
-    new spell_mastery_shield_discipline();
     new spell_mastery_blood_shield();
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();
