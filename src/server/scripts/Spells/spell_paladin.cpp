@@ -2548,6 +2548,10 @@ class spell_pal_denounce : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*l_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
                     l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
@@ -2558,7 +2562,7 @@ class spell_pal_denounce : public SpellScriptLoader
                     return;
 
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
-                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
             }
 
             void Register()
