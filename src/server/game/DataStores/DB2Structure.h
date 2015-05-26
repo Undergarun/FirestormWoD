@@ -244,6 +244,7 @@ struct ItemEffectEntry
     uint32 SpellCooldown;                                           ///< 6
     uint32 SpellCategory;                                           ///< 7
     uint32 SpellCategoryCooldown;                                   ///< 8
+    uint32 Unk1;                                                    ///< 9
 };
 
 #define MAX_HEIRLOOM_UPGRADE_LEVEL 2
