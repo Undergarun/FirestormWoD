@@ -1397,7 +1397,8 @@ class spell_pal_consecration_area: public SpellScriptLoader
         }
 };
 
-//  Word of Glory (Heal) - 130551
+/// last update : 6.1.2 19802
+/// Word of Glory (Heal) - 130551
 class spell_pal_word_of_glory_heal: public SpellScriptLoader
 {
 public:
@@ -1406,6 +1407,12 @@ public:
     class spell_pal_word_of_glory_heal_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_word_of_glory_heal_SpellScript);
+
+        enum eSpells
+        {
+            WoDPvPHoly4PBonusAura = 180766,
+            WoDPvPHoly4PBonus = 180767
+        };
 
         void HandleHeal(SpellEffIndex /*effIndex*/)
         {
@@ -1429,6 +1436,17 @@ public:
                                 SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
                                 l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
                             }
+                        }
+                    }
+                    if (l_Caster->HasAura(eSpells::WoDPvPHoly4PBonusAura))
+                    {
+                        l_Caster->CastSpell(l_Target, eSpells::WoDPvPHoly4PBonus, true);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura);
+
+                        if (l_SpellInfo != nullptr)
+                        {
+                            if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -l_Power);
                         }
                     }
 
