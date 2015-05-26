@@ -3301,7 +3301,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
         {
             if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
             {
-                if (p_Player->GetHealthPct() < 20.0f)
+                if (p_Player->GetHealthPct() < 20.0f && !p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus))
                     p_Player->CastSpell(p_Player, WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus, true);
 
                 /// Remove aura if player has more than 20% life
