@@ -1279,7 +1279,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         /// Apply Versatility absorb bonus
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
+        {
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+            
+            if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+                amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+        }
     }
 
     amount *= GetBase()->GetStackAmount();
