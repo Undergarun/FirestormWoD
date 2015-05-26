@@ -2815,7 +2815,7 @@ void ObjectMgr::LoadItemSpecs()
     /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
 
     const uint32 l_CharacterLevel = 100;
-
+    /*
     for (ItemTemplateContainer::iterator l_Itr = _itemTemplateStore.begin(); l_Itr != _itemTemplateStore.end(); ++l_Itr)
     {
         ItemTemplate& l_ItemTemplate = l_Itr->second;
@@ -2862,7 +2862,7 @@ void ObjectMgr::LoadItemSpecs()
             }
         }
     }
-
+    */
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item specs in %u ms", l_Count, GetMSTimeDiffToNow(l_OldMSTime));
 }
 

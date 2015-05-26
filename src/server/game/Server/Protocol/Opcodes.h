@@ -1022,13 +1022,13 @@ enum Opcodes
     CMSG_LOAD_SCREEN                            = 0x0735, ///< 6.2.0 20033
     CMSG_REQUEST_ACCOUNT_DATA                   = 0x0CB6, ///< 6.2.0 20033
     CMSG_UPDATE_ACCOUNT_DATA                    = 0x0DB5, ///< 6.2.0 20033
-    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0E16, ///< 6.2.0 20033
-    CMSG_SET_RAID_DIFFICULTY                    = 0x0397, ///< 6.2.0 20033
+    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x09A1, ///< 6.2.0 20033
+    CMSG_SET_RAID_DIFFICULTY                    = 0x08B2, ///< 6.2.0 20033
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x09B1, ///< 6.2.0 20033
     CMSG_SHOWING_CLOAK                          = 0x0843, ///< 6.2.0 20033
     CMSG_SHOWING_HELM                           = 0x0A5B, ///< 6.2.0 20033
     CMSG_SET_ACTIVE_MOVER                       = 0x12C3, ///< 6.2.0 20033
-    CMSG_LEARN_TALENTS                          = 0x0AAA, ///< 6.2.0 20033
+    CMSG_LEARN_TALENTS                          = 0x16A3, ///< 6.2.0 20033
     CMSG_AUTOEQUIP_ITEM                         = 0x0A64, ///< 6.2.0 20033
     CMSG_SWAP_INV_ITEM                          = 0x0651, ///< 6.2.0 20033
     CMSG_SWAP_ITEM                              = 0x066C, ///< 6.2.0 20033
@@ -1125,7 +1125,7 @@ enum Opcodes
     CMSG_QUERY_CREATURE                         = 0x1408, ///< 6.2.0 20033
     CMSG_NPC_TEXT_QUERY                         = 0x1C47, ///< 6.2.0 20033
     CMSG_NAME_QUERY                             = 0x0932, ///< 6.2.0 20033
-    CMSG_QUEST_QUERY                            = 0x0FA9, ///< 6.2.0 20033
+    CMSG_QUEST_QUERY                            = 0x0A24, ///< 6.2.0 20033
     CMSG_QUEST_POI_QUERY                        = 0x01A6, ///< 6.2.0 20033
     CMSG_REALM_NAME_QUERY                       = 0x0B21, ///< 6.2.0 20033
     CMSG_GAMEOBJECT_QUERY                       = 0x17F8, ///< 6.2.0 20033
@@ -1220,8 +1220,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_LIST_INVENTORY                         = 0x001F, ///< 6.2.0 20033
     CMSG_REPAIR_ITEM                            = 0x19A2, ///< 6.2.0 20033
-    CMSG_BUYBACK_ITEM                           = 0x1E84, ///< 6.2.0 20033
-    CMSG_BUY_ITEM                               = 0x1CE5, ///< 6.2.0 20033
+    CMSG_BUYBACK_ITEM                           = 0x008C, ///< 6.2.0 20033
+    CMSG_BUY_ITEM                               = 0x08DF, ///< 6.2.0 20033
     CMSG_SELL_ITEM                              = 0x045B, ///< 6.2.0 20033
     CMSG_ITEM_REFUND                            = 0x028B, ///< 6.2.0 20033
 
@@ -1241,7 +1241,7 @@ enum Opcodes
     CMSG_QUESTGIVER_HELLO                       = 0x009C, ///< 6.2.0 20033
     CMSG_QUEST_GIVER_STATUS_QUERY               = 0x0493, ///< 6.2.0 20033
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY       = 0x065C, ///< 6.2.0 20033
-    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0017, ///< 6.2.0 20033
+    CMSG_QUESTGIVER_QUERY_QUEST                 = 0x0A43, ///< 6.2.0 20033
     CMSG_QUESTGIVER_COMPLETE_QUEST              = 0x0017, ///< 6.2.0 20033
     CMSG_QUESTGIVER_CHOOSE_REWARD               = 0x0084, ///< 6.2.0 20033
     CMSG_QUESTGIVER_ACCEPT_QUEST                = 0x0014, ///< 6.2.0 20033

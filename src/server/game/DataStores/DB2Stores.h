@@ -46,6 +46,7 @@ extern DB2Storage <PvpItemEntry>                    sPvpItemStore;
 extern DB2Storage <ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore;
 extern DB2Storage <ItemAppearanceEntry>             sItemAppearanceStore;
 extern DB2Storage <SpellReagentsEntry>              sSpellReagentsStore;
+extern DB2Storage <SpellReagentsCurrencyEntry>      sSpellReagentsCurrencyStore;
 extern DB2Storage <ItemUpgradeEntry>                sItemUpgradeStore;
 extern DB2Storage <RulesetItemUpgradeEntry>         sRulesetItemUpgradeStore;
 extern DB2Storage <SceneScriptEntry>                sSceneScriptStore;
@@ -113,6 +114,52 @@ extern DB2Storage<BattlePetSpeciesEntry> sBattlePetSpeciesStore;
 extern DB2Storage<BattlePetSpeciesStateEntry> sBattlePetSpeciesStateStore;
 extern DB2Storage<BattlePetSpeciesXAbilityEntry> sBattlePetSpeciesXAbilityStore;
 
+extern DB2Storage <AuctionHouseEntry>            sAuctionHouseStore;
+extern DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore;
+extern DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore;
+extern DB2Storage <ChrPowerTypesEntry>           sChrPowerTypesStore;
+extern DB2Storage <CinematicSequencesEntry>      sCinematicSequencesStore;
+extern DB2Storage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore;
+extern DB2Storage <CreatureTypeEntry>            sCreatureTypeStore;
+extern DB2Storage <DestructibleModelDataEntry>   sDestructibleModelDataStore;
+extern DB2Storage <DurabilityQualityEntry>       sDurabilityQualityStore;
+extern DB2Storage <GlyphSlotEntry>               sGlyphSlotStore;
+extern DB2Storage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
+extern DB2Storage <ImportPriceArmorEntry>        sImportPriceArmorStore;
+extern DB2Storage <ImportPriceQualityEntry>      sImportPriceQualityStore;
+extern DB2Storage <ImportPriceShieldEntry>       sImportPriceShieldStore;
+extern DB2Storage <ImportPriceWeaponEntry>       sImportPriceWeaponStore;
+extern DB2Storage <ItemPriceBaseEntry>           sItemPriceBaseStore;
+extern DB2Storage <ItemClassEntry>               sItemClassStore;
+extern DB2Storage <ItemDisenchantLootEntry>      sItemDisenchantLootStore;
+extern DB2Storage <ItemLimitCategoryEntry>       sItemLimitCategoryStore;
+extern DB2Storage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;
+extern DB2Storage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;
+extern DB2Storage <ItemSpecEntry>                sItemSpecStore;
+extern DB2Storage <ItemSpecOverrideEntry>        sItemSpecOverrideStore;
+extern DB2Storage <MountCapabilityEntry>         sMountCapabilityStore;
+extern DB2Storage <MountTypeEntry>               sMountTypeStore;
+extern DB2Storage <MountTypeXCapabilityEntry>    sMountTypeXCapabilityStore;
+extern DB2Storage <NameGenEntry>                 sNameGenStore;
+extern DB2Storage <QuestSortEntry>               sQuestSortStore;
+extern DB2Storage <QuestV2Entry>                 sQuestV2Store;
+extern DB2Storage <QuestXPEntry>                 sQuestXPStore;
+extern DB2Storage <ResearchBranchEntry>          sResearchBranchStore;
+extern DB2Storage <ResearchProjectEntry>         sResearchProjectStore;
+extern DB2Storage <ResearchSiteEntry>            sResearchSiteStore;
+extern DB2Storage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
+extern DB2Storage <ScenarioEntry>                sScenarioStore;
+extern DB2Storage <SpellCastTimesEntry>          sSpellCastTimesStore;
+extern DB2Storage <SpellDurationEntry>           sSpellDurationStore;
+extern DB2Storage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore;
+extern DB2Storage <SpellRadiusEntry>             sSpellRadiusStore;
+extern DB2Storage <SpellRangeEntry>              sSpellRangeStore;
+extern DB2Storage <SpellProcsPerMinuteEntry>     sSpellProcsPerMinuteStore;
+extern DB2Storage <TotemCategoryEntry>           sTotemCategoryStore;
+extern DB2Storage <TransportAnimationEntry>      sTransportAnimationStore;
+extern DB2Storage <TransportRotationEntry>       sTransportRotationStore;
+extern DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
+
 SpellReagentsEntry const* GetSpellReagentEntry(uint32 spellId, uint8 reagent);
 SpellTotemsEntry const* GetSpellTotemEntry(uint32 spellId, uint8 totem);
 
@@ -120,6 +167,7 @@ extern std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 extern std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 extern std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
 extern std::map<uint32, std::vector<QuestPackageItemEntry const*>> sQuestPackageItemsByGroup;
+extern MountCapabilitiesMap sMountCapabilitiesMap;
 
 std::vector<ItemBonusEntry const*> const* GetItemBonusesByID(uint32 Id);
 void LoadDB2Stores(const std::string& dataPath);
@@ -206,7 +254,7 @@ typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 typedef std::unordered_map<uint32, std::vector<TaxiNodesEntry const*> > TaxiNodesByMap;
 
-#define TaxiMaskSize 201
+#define TaxiMaskSize 215
 typedef uint8 TaxiMask[TaxiMaskSize];
 
 extern TaxiMask                                  sTaxiNodesMask;

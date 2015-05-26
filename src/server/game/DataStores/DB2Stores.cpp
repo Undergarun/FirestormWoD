@@ -50,6 +50,7 @@ DB2Storage <PvpItemEntry>                   sPvpItemStore(PvpItemfmt);
 DB2Storage <ItemModifiedAppearanceEntry>    sItemModifiedAppearanceStore(ItemModifiedAppearanceFmt);
 DB2Storage <ItemAppearanceEntry>            sItemAppearanceStore(ItemAppearanceFmt);
 DB2Storage <SpellReagentsEntry>             sSpellReagentsStore(SpellReagentsEntryfmt);
+DB2Storage <SpellReagentsCurrencyEntry>     sSpellReagentsCurrencyStore(SpellReagentsCurrencyfmt);
 DB2Storage <ItemUpgradeEntry>               sItemUpgradeStore(ItemUpgradeEntryfmt);
 DB2Storage <RulesetItemUpgradeEntry>        sRulesetItemUpgradeStore(RulesetItemUpgradeEntryfmt);
 DB2Storage <SceneScriptEntry>               sSceneScriptStore(SceneScriptEntryfmt);
@@ -118,6 +119,54 @@ DB2Storage<BattlePetSpeciesEntry>           sBattlePetSpeciesStore(BattlePetSpec
 DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore(BattlePetSpeciesStatefmt);
 DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore(BattlePetSpeciesXAbilityfmt);
 
+DB2Storage <AuctionHouseEntry>            sAuctionHouseStore(AuctionHouseEntryfmt);
+DB2Storage <BarberShopStyleEntry>         sBarberShopStyleStore(BarberShopStyleEntryfmt);
+DB2Storage <CharStartOutfitEntry>         sCharStartOutfitStore(CharStartOutfitEntryfmt);
+DB2Storage <ChrPowerTypesEntry>           sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
+DB2Storage <CinematicSequencesEntry>      sCinematicSequencesStore(CinematicSequencesEntryfmt);
+DB2Storage <CreatureDisplayInfoEntry>     sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
+DB2Storage <CreatureTypeEntry>            sCreatureTypeStore(CreatureTypefmt);
+DB2Storage <DestructibleModelDataEntry>   sDestructibleModelDataStore(DestructibleModelDatafmt);
+DB2Storage <DurabilityQualityEntry>       sDurabilityQualityStore(DurabilityQualityfmt);
+DB2Storage <GlyphSlotEntry>               sGlyphSlotStore(GlyphSlotfmt);
+DB2Storage <GuildPerkSpellsEntry>         sGuildPerkSpellsStore(GuildPerkSpellsfmt);
+DB2Storage <ImportPriceArmorEntry>        sImportPriceArmorStore(ImportPriceArmorfmt);
+DB2Storage <ImportPriceQualityEntry>      sImportPriceQualityStore(ImportPriceQualityfmt);
+DB2Storage <ImportPriceShieldEntry>       sImportPriceShieldStore(ImportPriceShieldfmt);
+DB2Storage <ImportPriceWeaponEntry>       sImportPriceWeaponStore(ImportPriceWeaponfmt);
+DB2Storage <ItemPriceBaseEntry>           sItemPriceBaseStore(ItemPriceBasefmt);
+DB2Storage <ItemClassEntry>               sItemClassStore(ItemClassfmt);
+DB2Storage <ItemDisenchantLootEntry>      sItemDisenchantLootStore(ItemDisenchantLootfmt);
+DB2Storage <ItemLimitCategoryEntry>       sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
+DB2Storage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
+DB2Storage <ItemRandomSuffixEntry>        sItemRandomSuffixStore(ItemRandomSuffixfmt);
+DB2Storage <ItemSpecEntry>                sItemSpecStore(ItemSpecEntryfmt);
+DB2Storage <ItemSpecOverrideEntry>        sItemSpecOverrideStore(ItemSpecOverrideEntryfmt);
+DB2Storage <MountCapabilityEntry>         sMountCapabilityStore(MountCapabilityfmt);
+DB2Storage <MountTypeEntry>               sMountTypeStore(MountTypefmt);
+DB2Storage <MountTypeXCapabilityEntry>    sMountTypeXCapabilityStore(MountTypeXCapabilityfmt);
+DB2Storage <NameGenEntry>                 sNameGenStore(NameGenfmt);
+DB2Storage <QuestSortEntry>               sQuestSortStore(QuestSortEntryfmt);
+DB2Storage <QuestV2Entry>                 sQuestV2Store(QuestV2fmt);
+DB2Storage <QuestXPEntry>                 sQuestXPStore(QuestXPfmt);
+DB2Storage <ResearchBranchEntry>          sResearchBranchStore(ResearchBranchfmt);
+DB2Storage <ResearchSiteEntry>            sResearchSiteStore(ResearchSitefmt);
+DB2Storage <ResearchProjectEntry>         sResearchProjectStore(ResearchProjectfmt);
+DB2Storage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
+DB2Storage <ScenarioEntry>                sScenarioStore(ScenarioEntryfmt);
+DB2Storage <SpellItemEnchantmentConditionEntry> sSpellItemEnchantmentConditionStore(SpellItemEnchantmentConditionfmt);
+DB2Storage <SpellProcsPerMinuteEntry>     sSpellProcsPerMinuteStore(SpellProcsPerMinuteEntryfmt);
+DB2Storage <SpellCastTimesEntry>          sSpellCastTimesStore(SpellCastTimefmt);
+DB2Storage <SpellDurationEntry>           sSpellDurationStore(SpellDurationfmt);
+DB2Storage <SpellRadiusEntry>             sSpellRadiusStore(SpellRadiusfmt);
+DB2Storage <SpellRangeEntry>              sSpellRangeStore(SpellRangefmt);
+DB2Storage <TotemCategoryEntry>           sTotemCategoryStore(TotemCategoryEntryfmt);
+DB2Storage <TransportAnimationEntry>      sTransportAnimationStore(TransportAnimationfmt);
+DB2Storage <TransportRotationEntry>       sTransportRotationStore(TransportRotationfmt);
+DB2Storage <WorldMapOverlayEntry>         sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
+
+NameGenVectorArraysMap                   sGenNameVectoArraysMap;
+
 // DBC used only for initialization sTaxiPathNodeStore at startup.
 TaxiPathSetBySource sTaxiPathSetBySource;
 TaxiPathNodesByPath sTaxiPathNodesByPath;
@@ -129,6 +178,7 @@ TaxiMask sAllianceTaxiNodesMask;
 TaxiMask sDeathKnightTaxiNodesMask;
 
 SpellTotemMap       sSpellTotemMap;
+MountCapabilitiesMap sMountCapabilitiesMap;
 std::map<uint32, std::vector<uint32>> sItemEffectsByItemID;
 std::map<uint32, std::vector<ItemBonusEntry const*>> sItemBonusesByID;
 std::map<uint32, std::vector<ItemXBonusTreeEntry const*>> sItemBonusTreeByID;
@@ -270,6 +320,7 @@ void LoadDB2Stores(const std::string& dataPath)
     //////////////////////////////////////////////////////////////////////////
     LoadDB2(bad_db2_files, sSpellEffectGroupSizeStore,      db2Path, "SpellEffectGroupSize.db2",        "spell_effect_group_size",      "ID");
     LoadDB2(bad_db2_files, sSpellReagentsStore,             db2Path, "SpellReagents.db2"                                                    );
+    LoadDB2(bad_db2_files, sSpellReagentsCurrencyStore,     db2Path, "SpelLReagentsCurrency.db2"                                            );
     LoadDB2(bad_db2_files, sSpellRuneCostStore,             db2Path, "SpellRuneCost.db2"                                                    );
     LoadDB2(bad_db2_files, sSpellCastingRequirementsStore,  db2Path, "SpellCastingRequirements.db2",    "spell_casting_requirements",   "ID");
     LoadDB2(bad_db2_files, sSpellAuraRestrictionsStore,     db2Path, "SpellAuraRestrictions.db2",       "spell_aura_restrictions",      "ID");
@@ -320,6 +371,74 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2",            "battle_pet_species",           "ID");
     LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2"                                            );
     LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2"                                         );
+
+    LoadDB2(bad_db2_files,  sAuctionHouseStore,           db2Path, "AuctionHouse.db2");                                                 // 17399
+    LoadDB2(bad_db2_files,  sBarberShopStyleStore,        db2Path, "BarberShopStyle.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sCharStartOutfitStore,        db2Path, "CharStartOutfit.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sChrPowerTypesStore,          db2Path, "ChrClassesXPowerTypes.db2");                                        // 17399
+    LoadDB2(bad_db2_files,  sCinematicSequencesStore,     db2Path, "CinematicSequences.db2");                                           // 17399
+    LoadDB2(bad_db2_files,  sCreatureDisplayInfoStore,    db2Path, "CreatureDisplayInfo.db2");                                          // 17399
+    LoadDB2(bad_db2_files,  sCreatureTypeStore,           db2Path, "CreatureType.db2");                                                 // 17399
+    LoadDB2(bad_db2_files,  sDestructibleModelDataStore,  db2Path, "DestructibleModelData.db2");                                        // 17399
+    LoadDB2(bad_db2_files,  sDurabilityQualityStore,      db2Path, "DurabilityQuality.db2");                                            // 17399
+    LoadDB2(bad_db2_files,  sGlyphSlotStore,              db2Path, "GlyphSlot.db2");                                                    // 19027
+    LoadDB2(bad_db2_files,  sGuildPerkSpellsStore,        db2Path, "GuildPerkSpells.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sImportPriceArmorStore,       db2Path, "ImportPriceArmor.db2");                                             // 17399
+    LoadDB2(bad_db2_files,  sImportPriceQualityStore,     db2Path, "ImportPriceQuality.db2");                                           // 17399
+    LoadDB2(bad_db2_files,  sImportPriceShieldStore,      db2Path, "ImportPriceShield.db2");                                            // 17399
+    LoadDB2(bad_db2_files,  sImportPriceWeaponStore,      db2Path, "ImportPriceWeapon.db2");                                            // 17399
+    LoadDB2(bad_db2_files,  sItemPriceBaseStore,          db2Path, "ItemPriceBase.db2");                                                // 17399
+    LoadDB2(bad_db2_files,  sItemClassStore,              db2Path, "ItemClass.db2");                                                    // 17399
+    LoadDB2(bad_db2_files,  sItemLimitCategoryStore,      db2Path, "ItemLimitCategory.db2");                                            // 17399
+    LoadDB2(bad_db2_files,  sItemRandomPropertiesStore,   db2Path, "ItemRandomProperties.db2");                                         // 17399
+    LoadDB2(bad_db2_files,  sItemRandomSuffixStore,       db2Path, "ItemRandomSuffix.db2");                                             // 17399
+    LoadDB2(bad_db2_files,  sItemSpecOverrideStore,       db2Path, "ItemSpecOverride.db2");                                             // 17399
+    LoadDB2(bad_db2_files,  sItemSpecStore,               db2Path, "ItemSpec.db2");                                                     // 19116
+    LoadDB2(bad_db2_files,  sItemDisenchantLootStore,     db2Path, "ItemDisenchantLoot.db2");                                           // 17399
+    LoadDB2(bad_db2_files,  sMountCapabilityStore,        db2Path, "MountCapability.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sMountTypeStore,              db2Path, "MountType.db2");                                                    // 17399
+    LoadDB2(bad_db2_files,  sMountTypeXCapabilityStore,   db2Path, "MountTypeXCapability.db2");
+    LoadDB2(bad_db2_files,  sNameGenStore,                db2Path, "NameGen.db2");                                                      // 17399
+    LoadDB2(bad_db2_files,  sQuestV2Store,                db2Path, "QuestV2.db2");                                                      // 19342
+    LoadDB2(bad_db2_files,  sQuestXPStore,                db2Path, "QuestXP.db2");                                                      // 17399
+    LoadDB2(bad_db2_files,  sQuestSortStore,              db2Path, "QuestSort.db2");                                                    // 17399
+    LoadDB2(bad_db2_files,  sResearchBranchStore,         db2Path, "ResearchBranch.db2");                                               // 17399
+    LoadDB2(bad_db2_files,  sResearchProjectStore,        db2Path, "ResearchProject.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sResearchSiteStore,           db2Path, "ResearchSite.db2");
+    LoadDB2(bad_db2_files,  sScalingStatDistributionStore,db2Path, "ScalingStatDistribution.db2");                                      // 17399
+    LoadDB2(bad_db2_files,  sScenarioStore,               db2Path, "Scenario.db2");                                                     // 19027
+    LoadDB2(bad_db2_files,  sSpellProcsPerMinuteStore,    db2Path,"SpellProcsPerMinute.db2");
+    LoadDB2(bad_db2_files,  sSpellCastTimesStore,         db2Path, "SpellCastTimes.db2");                                               // 17399
+    LoadDB2(bad_db2_files,  sSpellDurationStore,          db2Path, "SpellDuration.db2");                                                // 17399
+    LoadDB2(bad_db2_files,  sSpellItemEnchantmentConditionStore, db2Path, "SpellItemEnchantmentCondition.db2");                         // 17399
+    LoadDB2(bad_db2_files,  sSpellRadiusStore,            db2Path, "SpellRadius.db2");                                                  // 17399
+    LoadDB2(bad_db2_files,  sSpellRangeStore,             db2Path, "SpellRange.db2");                                                   // 17399
+    LoadDB2(bad_db2_files,  sTotemCategoryStore,          db2Path, "TotemCategory.db2");                                                // 17399
+    LoadDB2(bad_db2_files,  sTransportAnimationStore,     db2Path, "TransportAnimation.db2");
+    LoadDB2(bad_db2_files,  sTransportRotationStore,      db2Path, "TransportRotation.db2");
+    LoadDB2(bad_db2_files,  sWorldMapOverlayStore,        db2Path, "WorldMapOverlay.db2");                                              // 17399
+
+    for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
+    {
+        MountTypeEntry const* l_Entry = sMountTypeStore.LookupEntry(l_ID);
+        if (!l_Entry)
+            continue;
+
+        MountCapabilities l_Capabilities;
+        memset(&l_Capabilities, 0, sizeof(l_Capabilities));
+
+        sMountCapabilitiesMap.insert({l_ID, l_Capabilities});
+    }
+
+    for (uint32 l_ID = 0; l_ID < sMountTypeXCapabilityStore.GetNumRows(); ++l_ID)
+    {
+        MountTypeXCapabilityEntry const* l_Entry = sMountTypeXCapabilityStore.LookupEntry(l_ID);
+        if (!l_Entry)
+            continue;
+
+        assert("MAX_MOUNT_CAPABILITIES too small, needs increase" && l_Entry->Index < MAX_MOUNT_CAPABILITIES);
+        sMountCapabilitiesMap[l_Entry->MountTypeID].Capabilities[l_Entry->Index] = l_Entry->CapabilityID;
+    }
 
     std::set<uint32> scalingCurves;
     for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
@@ -499,6 +618,41 @@ void LoadDB2Stores(const std::string& dataPath)
         if (uint32 l_HeroicID = l_Heirloom->HeroicVersion)
             HeirloomEntryByItemID.insert({ l_HeroicID, l_Heirloom});
     }
+        
+    for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
+        if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
+            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
+    sNameGenStore.Clear();
+
+    for (uint32 i =0; i < sResearchProjectStore.GetNumRows(); ++i)
+    {
+        ResearchProjectEntry const* rp = sResearchProjectStore.LookupEntry(i);
+        if (!rp)
+            continue;
+
+        // Branch 0 is for Blizzard tests
+        if (rp->branchId == 0)
+            continue;
+
+        sResearchProjectSet.insert(rp);
+    }
+    //sResearchProjectStore.Clear();
+
+    for (uint32 i =0; i < sResearchSiteStore.GetNumRows(); ++i)
+    {
+        ResearchSiteEntry const* rs = sResearchSiteStore.LookupEntry(i);
+        if (!rs)
+            continue;
+        if (rs->ID == 140           // template
+            || rs->ID == 142        // template
+            || rs->ID == 161        // template
+            || rs->ID == 471        // vashj'ir
+            || rs->ID == 473        // vashj'ir
+            || rs->ID == 475)       // vashj'ir
+            continue;
+        sResearchSiteSet.insert(rs);
+    }
+    //sResearchSiteStore.Clear();
 
     /// error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -677,4 +831,12 @@ TaxiNode* TaxiNode::GetClosestNodeTo(TaxiNode* node, std::set<uint32>& closed, P
         }
     }
     return heuristic;
+}
+
+const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
+{
+    uint32 size = sGenNameVectoArraysMap[race].stringVectorArray[gender].size();
+    uint32 randPos = urand(0,size-1);
+
+    return &sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
 }

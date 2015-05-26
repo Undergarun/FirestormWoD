@@ -540,6 +540,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_481
     &AuraEffect::HandleNULL,                                      //482 SPELL_AURA_482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_483
+    &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_484
+    &AuraEffect::HandleNULL,                                      //485 SPELL_AURA_485
 };
 
 AuraEffect::AuraEffect(AuraPtr base, uint8 effIndex, int32 *baseAmount, Unit* caster):

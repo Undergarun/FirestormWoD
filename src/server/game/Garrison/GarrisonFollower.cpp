@@ -121,6 +121,9 @@ namespace MS { namespace Garrison
 
         for (uint32 l_Y = 0; l_Y < this->Abilities.size(); ++l_Y)
             p_Buffer << int32(this->Abilities[l_Y]);
+
+        p_Buffer.WriteBits(0, 7);   ///< Name ???
+        p_Buffer.FlushBits();
     }
 
 }   ///< namespace Garrison

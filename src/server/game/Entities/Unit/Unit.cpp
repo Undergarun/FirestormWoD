@@ -67,6 +67,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundDG.h"
 #include "Guild.h"
+#include "DB2Stores.h"
 //#include <Reporting/Reporter.hpp>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -13696,7 +13697,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
     for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
     {
-        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(mountTypeEntry->MountCapability[i - 1]);
+        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(sMountCapabilitiesMap[mountType].Capabilities[i]);
         if (!mountCapability)
             continue;
 

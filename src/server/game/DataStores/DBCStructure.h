@@ -488,6 +488,7 @@ struct DifficultyEntry
     uint32 GroupSizeSpellPointsCurveID;
     char*  NameLang;
     uint32 ItemBonusTreeModID;
+    //uint32 Unk6.2.0
 };
 
 struct DungeonEncounterEntry
@@ -999,9 +1000,10 @@ struct LFGDungeonEntry
     //uint32    m_MinCountDamage;                           // 23       m_MinCountDamage
     //uint32    m_ScenarioID;                               // 24       m_ScenarioID
     uint32  category;                                       // 25       m_Subtype
-    //uint32    m_BonusReputationAmount;                    // 26       m_BonusReputationAmount
-    //uint32    m_MentorCharLevel;                          // 27       m_MentorCharLevel
-    //uint32    m_MentorItemLevel;                          // 28       m_MentorItemLevel
+    //uint32    m_Unk6.2.0                                  // 26
+    //uint32    m_BonusReputationAmount;                    // 27       m_BonusReputationAmount
+    //uint32    m_MentorCharLevel;                          // 28       m_MentorCharLevel
+    //uint32    m_MentorItemLevel;                          // 29       m_MentorItemLevel
 
     // Helpers
     uint32 Entry() const { return ID + (type << 24); }
@@ -1157,7 +1159,14 @@ struct MountCapabilityEntry
 struct MountTypeEntry
 {
     uint32  Id;                                             // 0        m_ID
-    uint32  MountCapability[MAX_MOUNT_CAPABILITIES];        // 1        m_Capability
+};
+
+struct MountTypeXCapabilityEntry
+{
+    uint32 ID;              // 0
+    uint32 MountTypeID;     // 1
+    uint32 Index;           // 2
+    uint32 CapabilityID;    // 3
 };
 
 struct MovieEntry

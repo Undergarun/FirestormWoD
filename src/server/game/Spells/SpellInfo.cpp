@@ -1145,8 +1145,10 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
         ReagentCount[i] = _reagents ? _reagents->ReagentCount[i] : 0;
 
-    CurrencyID = _reagents ? _reagents->CurrencyID : 0;
-    CurrencyCount = _reagents ? _reagents->CurrencyCount : 0;
+    SpellReagentsCurrencyEntry const* l_CurrencyReagents = sSpellReagentsCurrencyStore.LookupEntry(p_SpellEntry->Id);
+    CurrencyID = l_CurrencyReagents ? l_CurrencyReagents->CurrencyID : 0;
+    CurrencyCount = l_CurrencyReagents ? l_CurrencyReagents->CurrencyCount : 0;
+
 
     // SpellShapeshiftEntry
     SpellShapeshiftEntry const* _shapeshift = GetSpellShapeshift();

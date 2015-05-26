@@ -397,8 +397,14 @@ struct SpellReagentsEntry
     ///uint32    Id;                                                ///< 0      m_ID
     int32  Reagent[MAX_SPELL_REAGENTS];                             ///< 1-8    m_reagent
     uint32 ReagentCount[MAX_SPELL_REAGENTS];                        ///< 9-16   m_reagentCount
-    uint32 CurrencyID;                                              ///< 17     m_CurrencyID
-    uint32 CurrencyCount;                                           ///< 18     m_CurrencyCount
+};
+
+struct SpellReagentsCurrencyEntry
+{
+    //uint32 ID
+    uint32 SpellID;
+    uint32 CurrencyID;
+    uint32 CurrencyCount;
 };
 
 struct SpellReagent
@@ -561,11 +567,10 @@ struct SpellMiscEntry
     uint32 DurationIndex;                                           ///< 16     m_durationIndex
     uint32 rangeIndex;                                              ///< 17     m_rangeIndex
     float  speed;                                                   ///< 18     m_speed
-    uint32 SpellVisual[2];                                          ///< 19-20  m_spellVisualID
-    uint32 SpellIconID;                                             ///< 21     m_spellIconID
-    uint32 activeIconID;                                            ///< 22     m_activeIconID
-    uint32 SchoolMask;                                              ///< 23     m_schoolMask
-    float  MultistrikeSpeedMod;                                     ///< 24     @TODO
+    uint32 SpellIconID;                                             ///< 19     m_spellIconID
+    uint32 activeIconID;                                            ///< 20     m_activeIconID
+    uint32 SchoolMask;                                              ///< 21     m_schoolMask
+    float  MultistrikeSpeedMod;                                     ///< 22     @TODO
 };
 
 struct SpellPowerEntry
@@ -606,7 +611,13 @@ struct SpellTotem
     SpellTotemsEntry const* totems[MAX_SPELL_TOTEMS];
 };
 
+struct MountCapabilities
+{
+    uint32 Capabilities[MAX_MOUNT_CAPABILITIES];
+};
+
 typedef std::map<uint32, SpellTotem> SpellTotemMap;
+typedef std::unordered_map<uint32, MountCapabilities> MountCapabilitiesMap;
 
 struct SpellClassOptionsEntry
 {
@@ -1047,6 +1058,7 @@ struct BattlePetSpeciesXAbilityEntry
 struct MountEntry
 {
     uint32 Id;                                                      ///< 0
+    uint32 SpellID;                                                 ///< 1
     uint32 Category;                                                ///< 2
     uint32 CreatureDisplayID;                                       ///< 3
     uint32 Flags;                                                   ///< 4
@@ -1054,8 +1066,7 @@ struct MountEntry
     LocalizedString const* Description;                             ///< 6
     LocalizedString const* Icon;                                    ///< 7
     int32  FilterCategory;                                          ///< 8      Used for filter un Mount page in-game
-    uint32 SpellID;                                                 ///< 9
-    uint32 PlayerConditionID;                                       ///< 10
+    uint32 PlayerConditionID;                                       ///< 9
 };
 
 /// PlayerCondition.db2

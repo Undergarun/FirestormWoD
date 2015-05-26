@@ -1067,7 +1067,7 @@ enum Team
     TEAM_OTHER           = 0            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
-#define MAX_SPELL_VISUAL 2
+#define MAX_SPELL_VISUAL 5
 
 enum SpellEffects
 {
@@ -1322,7 +1322,8 @@ enum SpellEffects
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
     PELL_EFFECT_TAKE_SCREENSHOT                     = 250,  ///< Serverside marker for selfie screenshot
-    TOTAL_SPELL_EFFECTS                             = 251
+    SPELL_EFFECT_251                                = 251,
+    TOTAL_SPELL_EFFECTS                             = 252
 };
 
 enum PetTameResult

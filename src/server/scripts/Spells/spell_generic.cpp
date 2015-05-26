@@ -35,6 +35,7 @@
 #include "LFGMgr.h"
 #include "Player.h"
 #include "GameEventMgr.h"
+#include "DB2Stores.h"
 
 class spell_gen_absorb0_hitlimit1: public SpellScriptLoader
 {

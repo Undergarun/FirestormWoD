@@ -65,6 +65,8 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     l_Infos << uint32(l_Followers.size());
     l_Infos << uint32(l_Missions.size());
     l_Infos << uint32(l_CompletedMission.size());
+    l_Infos << uint32(l_Missions.size());                                       ///< Bit loop - ship related ? 6.2 - cannot be null if missions.size() > 0
+    l_Infos << uint32(0);                                                       ///< Uint32 loop - ship related ? 6.2
 
     l_Infos << int32(l_Garrison->GetNumFollowerActivationsRemaining());
 
@@ -119,6 +121,10 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     for (uint32 l_I = 0; l_I < l_CompletedMission.size(); ++l_I)
         l_Infos << int32(l_CompletedMission[l_I].MissionID);
 
+    for (uint32 l_I = 0; l_I < l_Missions.size(); ++l_I)
+        l_Infos.WriteBit(0);
+
+    l_Infos.FlushBits();
     SendPacket(&l_Infos);
 
     std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
