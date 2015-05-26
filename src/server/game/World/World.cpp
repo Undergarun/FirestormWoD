@@ -2372,7 +2372,8 @@ void World::Update(uint32 diff)
         LoginDatabase.PExecute("UPDATE realmlist SET online = %u, queue = %u where id = %u", GetActiveSessionCount(), GetQueuedSessionCount(), g_RealmID);
     }
 
-    if (m_timers[WUPDATE_TRANSFER_MOP].Passed())
+    /// Moved to MopTransfersRunnable (see Master.cpp)
+    /*if (m_timers[WUPDATE_TRANSFER_MOP].Passed())
     {
         if (sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
         {
@@ -2381,7 +2382,7 @@ void World::Update(uint32 diff)
             m_transferMop = LoginMopDatabase.AsyncQuery(l_Statement);
         }
 
-        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(HOUR * IN_MILLISECONDS);
+        m_timers[WUPDATE_TRANSFER_MOP].SetInterval(5 * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_TRANSFER_MOP].Reset();
     }
 
@@ -2410,7 +2411,7 @@ void World::Update(uint32 diff)
                 fprintf(l_File, "%s\n", l_Dump.c_str());
                 fclose(l_File);
 
-                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0);
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
                 remove(l_Filename.str().c_str());
 
                 if (l_Error == DUMP_SUCCESS)
@@ -2420,7 +2421,7 @@ void World::Update(uint32 diff)
         }
 
         m_transferMop.cancel();
-    }
+    }*/
 
     if (m_timers[WUPDATE_TRANSFERT].Passed())
     {

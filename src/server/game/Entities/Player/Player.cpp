@@ -5043,42 +5043,10 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
@@ -5102,42 +5070,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     if (sSpellMgr->IsSpellForbidden(spellId) && !isGameMaster() && sWorld->getBoolConfig(CONFIG_SPELL_FORBIDDEN))
     {
@@ -8391,9 +8327,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
+
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_TALENT + field, offset, 0);
 
@@ -8417,7 +8354,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             // update value
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
         }
     }
     else if (newVal)                                        //add
@@ -20460,8 +20397,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE, false);
+    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2, true);
 
     SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBAT_REACH, 1.5f);
@@ -21669,10 +21606,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid = 0;
-        }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
     }
@@ -22411,58 +22345,61 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     }
 }
 
-InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, bool load)
+InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_Permanent, bool p_Load)
 {
-    if (save)
+    if (p_InstanceSave && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidLFR && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidTool)
     {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-        if (bind.save)
+        InstancePlayerBind& l_InstanceBind = m_boundInstances[p_InstanceSave->GetDifficultyID()][p_InstanceSave->GetMapId()];
+        if (l_InstanceBind.save)
         {
             // update the save when the group kills a boss
-            if (permanent != bind.perm || save != bind.save)
-                if (!load)
+            if (p_Permanent != l_InstanceBind.perm || p_InstanceSave != l_InstanceBind.save)
+            {
+                if (!p_Load)
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-
-                    stmt->setUInt32(0, save->GetInstanceId());
-                    stmt->setBool(1, permanent);
-                    stmt->setUInt32(2, GetGUIDLow());
-                    stmt->setUInt32(3, bind.save->GetInstanceId());
-
-                    CharacterDatabase.Execute(stmt);
+                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
+                    l_Statement->setUInt32(0, p_InstanceSave->GetInstanceId());
+                    l_Statement->setBool(1, p_Permanent);
+                    l_Statement->setUInt32(2, GetGUIDLow());
+                    l_Statement->setUInt32(3, l_InstanceBind.save->GetInstanceId());
+                    CharacterDatabase.Execute(l_Statement);
                 }
+            }
         }
         else
-            if (!load)
-            {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
-
-                stmt->setUInt32(0, GetGUIDLow());
-                stmt->setUInt32(1, save->GetInstanceId());
-                stmt->setBool(2, permanent);
-
-                CharacterDatabase.Execute(stmt);
-            }
-
-        if (bind.save != save)
         {
-            if (bind.save)
-                bind.save->RemovePlayer(this);
-            save->AddPlayer(this);
+            if (!p_Load)
+            {
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
+                l_Statement->setUInt32(0, GetGUIDLow());
+                l_Statement->setUInt32(1, p_InstanceSave->GetInstanceId());
+                l_Statement->setBool(2, p_Permanent);
+                CharacterDatabase.Execute(l_Statement);
+            }
         }
 
-        if (permanent)
-            save->SetCanReset(false);
+        if (l_InstanceBind.save != p_InstanceSave)
+        {
+            if (l_InstanceBind.save)
+                l_InstanceBind.save->RemovePlayer(this);
 
-        bind.save = save;
-        bind.perm = permanent;
-        if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
-        return &bind;
+            p_InstanceSave->AddPlayer(this);
+        }
+
+        if (p_Permanent)
+            p_InstanceSave->SetCanReset(false);
+
+        l_InstanceBind.save = p_InstanceSave;
+        l_InstanceBind.perm = p_Permanent;
+
+        if (!p_Load)
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), p_InstanceSave->GetMapId(), p_InstanceSave->GetInstanceId(), p_InstanceSave->GetDifficultyID());
+
+        sScriptMgr->OnPlayerBindToInstance(this, p_InstanceSave->GetDifficultyID(), p_InstanceSave->GetMapId(), p_Permanent);
+        return &l_InstanceBind;
     }
     else
-        return NULL;
+        return nullptr;
 }
 
 void Player::BindToInstance()
@@ -29524,7 +29461,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             continue;
 
         uint16 value = 0;
-        uint16 max = 75;
+        uint16 max = 0;
         uint16 step = 0;
 
         uint16 field = count / 2;

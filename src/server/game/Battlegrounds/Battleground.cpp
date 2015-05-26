@@ -611,7 +611,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         if (Player* l_Member = _GetPlayerForTeam(GetOtherTeam(l_Player->GetBGTeam()), l_Iterator, "BuildArenaOpponentSpecializations"))
                         {
                             WorldPacket l_Data;
-                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true, true);
+                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true);
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
@@ -718,9 +718,9 @@ inline Player* Battleground::_GetPlayer(uint64 guid, bool offlineRemove, const c
     if (!offlineRemove)
     {
         player = ObjectAccessor::FindPlayer(guid);
-        if (!player)
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
-                context, GUID_LOPART(guid), m_MapId, m_InstanceID);
+//         if (!player)
+//             sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::%s: player (GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//                 context, GUID_LOPART(guid), m_MapId, m_InstanceID);
     }
     return player;
 }
@@ -1743,18 +1743,18 @@ void Battleground::DoorOpen(uint32 type)
 GameObject* Battleground::GetBGObject(uint32 type)
 {
     GameObject* obj = GetBgMap()->GetGameObject(BgObjects[type]);
-    if (!obj)
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
+//     if (!obj)
+//         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGObject: gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//             type, GUID_LOPART(BgObjects[type]), m_MapId, m_InstanceID);
     return obj;
 }
 
 Creature* Battleground::GetBGCreature(uint32 type)
 {
     Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]);
-    if (!creature)
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, GUID_LOPART(BgCreatures[type]), m_MapId, m_InstanceID);
+//     if (!creature)
+//         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetBGCreature: creature (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
+//             type, GUID_LOPART(BgCreatures[type]), m_MapId, m_InstanceID);
     return creature;
 }
 

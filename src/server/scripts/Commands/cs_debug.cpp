@@ -2703,7 +2703,7 @@ class debug_commandscript: public CommandScript
             auto l_SendHotfixPacket = [&p_Handler](DB2StorageBase* p_Store, uint32 p_Entry) -> void
             {
                 ByteBuffer l_ResponseData(2 * 1024);
-                if (p_Store->WriteRecord(p_Entry, l_ResponseData))
+                if (p_Store->WriteRecord(p_Entry, l_ResponseData, p_Handler->GetSessionDbLocaleIndex()))
                 {
                     WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
                     l_Data << uint32(p_Store->GetHash());

@@ -690,6 +690,9 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    if (victim->isDead() || victim->GetHealth() == 0)
+        return 0; ///< Prevent double death
+
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
@@ -12243,6 +12246,14 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
+bool Unit::IsAuraAbsorbCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+{
+    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+        return false;
+
+    return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
@@ -18468,7 +18479,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::min((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
                         if (l_Loot->Items.size() > l_Count)
                         {

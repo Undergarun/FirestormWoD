@@ -24,6 +24,7 @@
 #include "Buildings/Alliance/Small/ATheTannery.hpp"
 #include "Buildings/Alliance/Small/AEnchanterStudy.hpp"
 #include "Buildings/Alliance/Small/AGemBoutique.hpp"
+#include "Buildings/Alliance/Small/AEngineeringWorks.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
@@ -190,6 +191,31 @@ namespace MS { namespace Garrison
             m_BuildingID = p_Value;
             OnSetBuildingID(m_BuildingID);
         }
+    }
+
+    /// Get UInt32 value
+    /// @p_ID    : Value ID
+    uint32 GarrisonNPCAI::GetData(uint32 p_ID)
+    {
+        if ((p_ID & CreatureAIDataIDs::HasRecipe) != 0)
+        {
+            if (!m_Recipes)
+                return (uint32)-1;
+
+            uint32 l_RecipeID = p_ID & ~CreatureAIDataIDs::HasRecipe;
+
+            auto l_It = std::find_if(m_Recipes->begin(), m_Recipes->end(), [l_RecipeID](SkillNPC_RecipeEntry const& p_Entry) -> bool
+            {
+                return p_Entry.AbilitySpellID == l_RecipeID;
+            });
+
+            if (l_It == m_Recipes->end())
+                return (uint32)-1;
+
+            return l_It->AbilitySpellIDPlayerCondition;
+        }
+        
+        return (uint32)-1;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -479,6 +505,10 @@ void AddSC_Garrison_NPC()
         /// Gem boutique
         new MS::Garrison::npc_CostanHighwall;
         new MS::Garrison::npc_KayaSolasen;
+
+        /// Engineering works
+        new MS::Garrison::npc_Zaren;
+        new MS::Garrison::npc_HelaynWhent;
     }
 
     /// Horde

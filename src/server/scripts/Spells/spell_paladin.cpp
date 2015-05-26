@@ -2570,7 +2570,6 @@ class spell_pal_denounce : public SpellScriptLoader
         }
 };
 
-
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript
 {

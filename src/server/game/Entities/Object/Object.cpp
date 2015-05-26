@@ -958,20 +958,20 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
-void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 count)
+void Object::_LoadIntoDataField(char const* p_Data, uint32 p_StartOffset, uint32 p_Count, bool p_Force)
 {
-    if (!data)
+    if (!p_Data)
         return;
 
-    Tokenizer tokens(data, ' ', count);
+    Tokenizer l_Tokens(p_Data, ' ', p_Count);
 
-    if (tokens.size() != count)
+    if (l_Tokens.size() != p_Count && !p_Force)
         return;
 
-    for (uint32 index = 0; index < count; ++index)
+    for (uint32 l_Index = 0; l_Index < l_Tokens.size(); ++l_Index)
     {
-        m_uint32Values[startOffset + index] = atol(tokens[index]);
-        _changesMask.SetBit(startOffset + index);
+        m_uint32Values[p_StartOffset + l_Index] = atol(l_Tokens[l_Index]);
+        _changesMask.SetBit(p_StartOffset + l_Index);
     }
 }
 

@@ -1176,6 +1176,12 @@ class spell_monk_guard: public SpellScriptLoader
                     JadeCore::UnitListSearcher<JadeCore::NearestFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_NearestFriendlyUnitCheck);
                     l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
+                    if (l_TargetList.size() > 1)
+                    {
+                        l_TargetList.sort(JadeCore::ObjectDistanceOrderPred(l_Caster));
+                        l_TargetList.resize(1);
+                    }
+
                     for (auto l_Target : l_TargetList)
                         l_Target->CastCustomSpell(l_Target, eSpells::WoDPvPBrewmaster4PBonusEffect, &p_Amount, nullptr, nullptr, true);
                 }

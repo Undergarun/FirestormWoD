@@ -1172,7 +1172,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         l_Data << uint32(sItemExtendedCostStore.GetHash());
 
         ByteBuffer l_ResponseData;
-        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData))
+        if (sItemExtendedCostStore.WriteRecord(extendedCost->ID, l_ResponseData, GetSessionDbLocaleIndex()))
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
@@ -1315,7 +1315,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     if (pCurrChar->HasAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL))
     {
         pCurrChar->DeleteInvalidSpells();
-        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_RESET_SPECS);
+        pCurrChar->RemoveAtLoginFlag(AtLoginFlags::AT_LOGIN_DELETE_INVALID_SPELL);
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))

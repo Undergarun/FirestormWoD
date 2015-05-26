@@ -108,7 +108,7 @@ class DB2StorageBase
         /// Write record into a ByteBuffer
         /// @p_ID     : Record ID
         /// @p_Buffer : Destination buffer
-        virtual bool WriteRecord(uint32 p_ID, ByteBuffer & p_Buffer)
+        virtual bool WriteRecord(uint32 p_ID, ByteBuffer & p_Buffer, uint32 p_Locale)
         {
             char const* l_Raw = LookupEntryRaw(p_ID);
 
@@ -135,7 +135,9 @@ class DB2StorageBase
                         break;
                     case FT_STRING:
                     {
-                        char* locStr = *(char**)l_Raw;
+                        LocalizedString * l_LocalizedString = *((LocalizedString**)(l_Raw));
+
+                        char const* locStr = l_LocalizedString->Get(p_Locale);
                         l_Raw += sizeof(char*);
 
                         std::string l_String(locStr);

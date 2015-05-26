@@ -79,7 +79,7 @@ const char SpellXSpellVisualfmt[] = "niiixfxx";
 const char SoundEntriesfmt[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
 const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
 const char QuestPackageItemEntryfmt[] = "niiii";
-const char MountEntryfmt[] = "iniiisssii";
+const char MountEntryfmt[] = "niiisssiii";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
 

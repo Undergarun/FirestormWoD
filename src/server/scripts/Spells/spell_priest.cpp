@@ -1097,38 +1097,83 @@ class spell_pri_holy_word_sanctuary_heal : public SpellScriptLoader
 class spell_pri_binding_heal : public SpellScriptLoader
 {
     public:
-        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_holy_word_sanctuary_heal") { }
+        spell_pri_binding_heal() : SpellScriptLoader("spell_pri_binding_heal") { }
 
-        class spell_pri_holy_word_sanctuary_heal_SpellScript : public SpellScript
+        class spell_pri_binding_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_holy_word_sanctuary_heal_SpellScript);
+            PrepareSpellScript(spell_pri_binding_heal_SpellScript);
 
             enum eSpells
             {
                 GlyphOfBindingHeal = 63248
             };
 
+            uint64 m_MainTargetGUID = 0;
+
+            uint64 GetRandomSecondTarget(std::list<WorldObject*>& p_Targets)
+            {
+                for (auto itr : p_Targets)
+                {
+                    if (itr != nullptr && itr->GetGUID() != m_MainTargetGUID)
+                        return itr->GetGUID();
+                }
+                return 0;
+            }
+
+            void HandleOnPrepare()
+            {
+                Unit* l_MainTarget = GetExplTargetUnit();
+
+                if (l_MainTarget == nullptr)
+                    return;
+
+                m_MainTargetGUID = l_MainTarget->GetGUID();
+            }
+
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
                 Unit* l_Caster = GetCaster();
 
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphOfBindingHeal);
+                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && p_Targets.size() > 2)
+                {
 
-                if (l_Caster->HasAura(eSpells::GlyphOfBindingHeal) && l_SpellInfo != nullptr && p_Targets.size() > l_SpellInfo->Effects[EFFECT_1].BasePoints)
-                    JadeCore::RandomResizeList(p_Targets, l_SpellInfo->Effects[EFFECT_1].BasePoints);
-                else
-                    p_Targets.clear();
+                    uint64 l_SecondTargetGUID = GetRandomSecondTarget(p_Targets);
+
+                    p_Targets.remove_if([this, l_SecondTargetGUID](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr )
+                            return true;
+
+                        if (p_Object->GetGUID() != m_MainTargetGUID && p_Object->GetGUID() != l_SecondTargetGUID)
+                            return true;
+                        return false;
+                    });
+                }
+                else if (p_Targets.size() > 1)
+                {
+                    p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                    {
+                        if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                            return true;
+
+                        if (p_Object->ToUnit()->GetGUID() != m_MainTargetGUID)
+                            return true;
+
+                        return false;
+                    });
+                }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_holy_word_sanctuary_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnPrepare += SpellOnPrepareFn(spell_pri_binding_heal_SpellScript::HandleOnPrepare);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_binding_heal_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_holy_word_sanctuary_heal_SpellScript();
+            return new spell_pri_binding_heal_SpellScript();
         }
 };
 enum MasterySpells
@@ -1336,8 +1381,9 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
-// Atonement - 81749
+/// Last Update 6.1.2
+/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+/// Atonement - 81749
 class spell_pri_atonement: public SpellScriptLoader
 {
     public:

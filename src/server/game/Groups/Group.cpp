@@ -499,7 +499,7 @@ bool Group::AddMember(Player* player)
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
     WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0, true);
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -507,7 +507,7 @@ bool Group::AddMember(Player* player)
         if (member && member != player && !member->IsWithinDist(player, member->GetSightRange(), false))
         {
             WorldPacket data2;
-            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0, true);
+            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0);
 
             member->GetSession()->SendPacket(&data);
             player->GetSession()->SendPacket(&data2);
