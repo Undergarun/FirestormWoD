@@ -3285,6 +3285,32 @@ public:
     }
 };
 
+enum WoDPvPDemonology2PBonusSpells
+{
+    WoDPvPDemonology2PBonusAura = 171393,
+    WoDPvPDemonology2PBonus = 171397
+};
+
+/// WoD PvP Demonology 2P Bonus - 171393
+class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
+{
+    public:
+        PlayerScript_WoDPvPDemonology2PBonus() :PlayerScript("PlayerScript_WoDPvPDemonology2PBonus") {}
+
+        void OnModifyHealth(Player * p_Player, int32 p_Value)
+        {
+            if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
+            {
+                if (p_Player->GetHealthPct() < 20.0f)
+                    p_Player->CastSpell(p_Player, WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus, true);
+
+                /// Remove aura if player has more than 20% life
+                if (p_Player->GetHealthPct() >= 20.0f)
+                    p_Player->RemoveAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus);
+            }
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3355,4 +3381,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
+
+    new PlayerScript_WoDPvPDemonology2PBonus();
 }
