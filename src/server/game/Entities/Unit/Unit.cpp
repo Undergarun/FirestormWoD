@@ -7847,8 +7847,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
                                 basepoints0 += aurShield->GetAmount();
 
-                            int32 maxHealth = CountPctFromMaxHealth(10);
-                            basepoints0 = std::min(basepoints0, maxHealth);
+                            /// Illuminated Healing stacks up to a maximum of 1/3 of target's maximum health
+                            int32 maxHealth = victim->GetMaxHealth() / 3;
+
+                            if (basepoints0 > maxHealth)
+                                basepoints0 = maxHealth;
 
                             break;
                         }
