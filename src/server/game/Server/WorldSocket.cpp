@@ -819,12 +819,12 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession(*new_pct);
             }
-            /*case CMSG_KEEP_ALIVE:
+            case CMSG_KEEP_ALIVE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            }*/
+            }
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
