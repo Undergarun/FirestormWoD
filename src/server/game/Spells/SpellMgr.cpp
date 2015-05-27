@@ -5418,6 +5418,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 106334: ///< Wash Away
                 spellInfo->AttributesEx3 &= ~ SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
+            case 124974: ///< Nature's Vigil
+                spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
             case 120552: ///< Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                 break;
