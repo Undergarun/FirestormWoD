@@ -4294,6 +4294,8 @@ void Spell::SendSpellCooldown()
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
+        if (!_player->isInCombat())
+            _player->UpdatePotionCooldown();
         return;
     }
 
