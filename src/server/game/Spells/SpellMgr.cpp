@@ -3864,6 +3864,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137313: ///< Lightning Storm
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
+            case 157096: ///< Empowered Demons
+                spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 0;
+                break;
             case 138732: ///< Ionization
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
                 break;
