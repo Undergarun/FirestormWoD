@@ -1163,9 +1163,9 @@ class spell_monk_guard: public SpellScriptLoader
                     return;
 
                 if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+                    p_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
-                    p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+                    p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
 
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
@@ -1175,6 +1175,8 @@ class spell_monk_guard: public SpellScriptLoader
                     JadeCore::NearestFriendlyUnitInObjectRangeCheck l_NearestFriendlyUnitCheck(l_Caster, l_Caster, l_Radius);
                     JadeCore::UnitListSearcher<JadeCore::NearestFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_NearestFriendlyUnitCheck);
                     l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    l_TargetList.remove(l_Caster);
 
                     if (l_TargetList.size() > 1)
                     {
