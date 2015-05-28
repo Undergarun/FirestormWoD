@@ -2040,6 +2040,7 @@ class Player : public Unit, public GridObject<Player>
             }
         }
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
+        void AreaExploredOrEventHappens(uint32 questId);
         void GroupEventHappens(uint32 questId, WorldObject const* pEventObject);
         void ItemAddedQuestCheck(uint32 entry, uint32 count);
         void ItemRemovedQuestCheck(int32 entry, uint32 count);
