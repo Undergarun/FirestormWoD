@@ -182,7 +182,7 @@ struct LootItem
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
-    explicit LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty, Loot* p_Loot);
+    explicit LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot* p_Loot);
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -359,11 +359,11 @@ struct Loot
     uint32 MaxLinkedSlot;
     uint32 AdditionalLinkedGold;
     uint32 Gold;
-    uint32 ItemBonusDifficulty;                             ///< Used to find item bonus to apply in dungeon / raid
+    ItemContext Context;                                    ///< Used to find item bonus to apply in dungeon / raid
     uint8 UnlootedCount;
     bool  m_IsAoELoot;
 
-    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0), RoundRobinPlayer(0) {}
+    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), Context(ItemContext::None), RoundRobinPlayer(0) {}
     ~Loot() { clear(); }
 
     void SetSource(uint64 p_Source) { source = p_Source; }

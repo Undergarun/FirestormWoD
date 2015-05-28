@@ -766,41 +766,6 @@ class spell_mastery_icicles_hit: public SpellScriptLoader
         }
 };
 
-// Called by Clarity of Will - 152118, Power Word : Shield - 17, Power Word : Shield (Divine Insight) - 123258, Spirit Shell - 114908, Angelic Bulwark - 114214 and Divine Aegis - 47753
-// Mastery : Shield Discipline - 77484
-class spell_mastery_shield_discipline: public SpellScriptLoader
-{
-    public:
-        spell_mastery_shield_discipline() : SpellScriptLoader("spell_mastery_shield_discipline") { }
-
-        class spell_mastery_shield_discipline_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mastery_shield_discipline_AuraScript);
-
-            void CalculateAmount(constAuraEffectPtr , int32 & p_Amount, bool & )
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && caster->getLevel() >= 80)
-                    {
-                        float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                        p_Amount += CalculatePct(p_Amount, l_Mastery);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mastery_shield_discipline_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mastery_shield_discipline_AuraScript();
-        }
-};
-
 // Called by 45470 - Death Strike (Heal)
 // 77513 - Mastery : Blood Shield
 class spell_mastery_blood_shield: public SpellScriptLoader
@@ -894,9 +859,16 @@ class spell_mastery_ignite: public SpellScriptLoader
                                         l_Bp = l_Bp / (l_SpellInfo->GetMaxDuration() / l_SpellInfo->Effects[EFFECT_0].Amplitude);
                                     
                                     if (AuraPtr l_PreviousIgnite = l_Target->GetAura(MASTERY_SPELL_IGNITE_AURA, l_Caster->GetGUID()))
-                                        if (uint32 l_Amplitude = l_PreviousIgnite->GetEffect(EFFECT_0)->GetAmplitude())
-                                            if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
-                                                l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
+                                    {
+                                        if (AuraEffectPtr l_Effect = l_PreviousIgnite->GetEffect(EFFECT_0))
+                                        {
+                                            if (uint32 l_Amplitude = l_Effect->GetAmplitude())
+                                            {
+                                                if (uint32 l_Stacks = l_PreviousIgnite->GetDuration() / l_Amplitude)
+                                                    l_Bp += (l_Target->GetRemainingPeriodicAmount(l_Caster->GetGUID(), MASTERY_SPELL_IGNITE_AURA, SPELL_AURA_PERIODIC_DAMAGE) / l_Stacks);
+                                            }
+                                        }
+                                    }
 
                                     l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_IGNITE_AURA, &l_Bp, NULL, NULL, true);
 
@@ -933,19 +905,43 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
         {
             PrepareSpellScript(spell_mastery_hand_of_light_SpellScript);
 
+            enum eSpells
+            {
+                SPELL_PAL_INQUISITION = 111341,
+                MASTERY_HAND_OF_LIGHT = 76672
+            };
+
             void HandleAfterHit()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
                     if (Unit* l_Target = GetHitUnit())
                     {
-                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->HasAura(76672) && l_Caster->getLevel() >= 80)
+                        if (l_Caster->GetTypeId() == TYPEID_PLAYER && l_Caster->GetGUID() != l_Target->GetGUID() && l_Caster->getLevel() >= 80 && l_Caster->HasAura(eSpells::MASTERY_HAND_OF_LIGHT))
                         {
                             uint32 l_ProcSpellId = GetSpellInfo()->Id ? GetSpellInfo()->Id : 0;
                             if (l_ProcSpellId != MASTERY_SPELL_HAND_OF_LIGHT)
                             {
-                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f));
-                                l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
+                                float value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
+
+                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), value));
+
+                                SpellInfo const* l_Inquisition = sSpellMgr->GetSpellInfo(SPELL_PAL_INQUISITION);
+                                // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
+                                if (l_Caster->HasAura(SPELL_PAL_INQUISITION))
+                                    AddPct(l_Bp, l_Inquisition->Effects[EFFECT_0].BasePoints);
+
+                                // Need to recalculate if damage is absorbed
+                                if (!l_Bp)
+                                {
+                                    int32 l_AbsorbedDamage = int32(CalculatePct(GetAbsorbedDamage(), value));
+                                    // If spell didn't hit, absorbedDamage will be random negative value, because of it players receive 1kk+ heal/damage from it.
+                                    // 100000 - to prevent bug with high damage, because it's unreal to deal ~555k damage (555k*0.18%=100k).
+                                    if (l_AbsorbedDamage > 0 && l_AbsorbedDamage < 100000)
+                                        l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_AbsorbedDamage, NULL, NULL, true);
+                                }
+                                else
+                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
                             }
                         }
                     }
@@ -1262,7 +1258,6 @@ void AddSC_mastery_spell_scripts()
     new spell_mastery_icicles_trigger();
     new spell_mastery_icicles_periodic();
     new spell_mastery_icicles_hit();
-    new spell_mastery_shield_discipline();
     new spell_mastery_blood_shield();
     new spell_mastery_ignite();
     new spell_mastery_hand_of_light();

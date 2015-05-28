@@ -117,7 +117,7 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
 };
 
 enum AchievementCriteriaAdditionalCondition
@@ -167,7 +167,7 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_RATED_BATTLEGROUND                   = 63,   // 19116
     CRITERIA_CONDITION_PROJECT_RARITY                       = 65,   // 19116
     CRITERIA_CONDITION_PROJECT_RACE                         = 66,   // 19116
-    CRITERIA_CONDITION_UNK67                                = 67,   // 19116 - NYI - See: http://www.wowhead.com/achievement=156 - May need hard code
+    CRITERIA_CONDITION_WORLD_STATE_EXPRESSION               = 67,   // 19116
     CRITERIA_CONDITION_DIFFICULTY                           = 68,   // 19116
     CRITERIA_CONDITION_UNK69                                = 69,   // 19116 - Not used
     CRITERIA_CONDITION_TARGET_MIN_LEVEL                     = 70,   // 19116

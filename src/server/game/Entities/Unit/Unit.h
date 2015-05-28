@@ -788,7 +788,8 @@ enum NPCFlags2
     UNIT_NPC_FLAG2_STEERING                     = 0x00000008,       /// ?
     UNIT_NPC_FLAG2_UNUSED_1                     = 0x00000010,       /// ?
     UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER    = 0x00000020,       /// Garrison Shipment Crafter
-    UNIT_NPC_FLAG2_GARRISON_MISSION_NPC         = 0x00000040        /// Garrison Mission NPC
+    UNIT_NPC_FLAG2_GARRISON_MISSION_NPC         = 0x00000040,       /// Garrison Mission NPC
+    UNIT_NPC_FLAG2_TRADESKILL_NPC               = 0x00000080        /// Garrison tradeskill NPC
 };
 
 enum MovementFlags
@@ -2062,6 +2063,7 @@ class Unit : public WorldObject
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID);
         void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode = AURA_REMOVE_BY_DEFAULT, uint32 except = 0, uint8 count = 0);
         void RemoveMovementImpairingAuras();
+        void RemoveAurasBreakableByDamage();
 
         void RemoveAreaAurasDueToLeaveWorld();
         void RemoveAllAuras();
@@ -2337,10 +2339,12 @@ class Unit : public WorldObject
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = WeaponAttackType::BaseAttack);
         bool   isBlockCritical();
         bool   IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
+        bool   IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const;
         float  GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType = WeaponAttackType::BaseAttack) const;
         uint32 MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType);
         uint32 SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
         uint32 SpellCriticalHealingBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim);
+        uint32 SpellCriticalAuraAbsorbBonus(SpellInfo const* p_SpellProto, uint32 p_Damage);
 
         void SetContestedPvP(Player* attackedPlayer = NULL);
 

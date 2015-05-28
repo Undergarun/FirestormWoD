@@ -258,8 +258,6 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_PetitionID;
     p_RecvData.readPackGUID(l_ItemGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(l_ItemGUID), l_PetitionID);
-
     SendPetitionQueryOpcode(uint64(l_PetitionID));
 }
 
@@ -718,9 +716,6 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& p_Packet)
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    // created
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", GUID_LOPART(l_PetitionGuid));
 
     l_Data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
     l_Data.WriteBits(PETITION_TURN_OK, 4);

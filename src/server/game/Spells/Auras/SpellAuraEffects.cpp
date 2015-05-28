@@ -1273,14 +1273,28 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         amount += (int32)DoneActualBenefit;
     }
 
+    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
+
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
-        /// Apply Versatility absorb bonus
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
+        {
+            /// Apply Versatility absorb bonus
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+            
+            /// Apply Mastery: Discipline Shield
+            if (caster->HasAura(77584))
+            {
+                float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                amount += CalculatePct(amount, l_Mastery);
+            }
+
+            /// Check if is crit
+            if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+                amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+        }
     }
 
-    GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
 
     return amount;
@@ -3465,9 +3479,15 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             l_Target->SetDisplayId(l_DisplayId);
         }
 
-        auto l_MountEntry = sMountStore.LookupEntry(GetId());
-        if (l_MountEntry != nullptr)
+        for (uint32 l_I = 0; l_I < sMountStore.GetNumRows(); ++l_I)
+        {
+            auto l_MountEntry = sMountStore.LookupEntry(l_I);
+            if (!l_MountEntry || l_MountEntry->SpellID != GetId())
+                continue;
+
             l_DisplayId = l_MountEntry->CreatureDisplayID;
+            break;
+        }
 
         /// Hackfix for somes mount unavailable on retail (data aren't)
         /// But we need it because we sell it on the shop
@@ -3490,7 +3510,6 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
         l_Target->Mount(l_DisplayId, l_VehicleId, GetMiscValue());
         l_Target->RemoveFlagsAuras();
 
-        // cast speed aura
         if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
             l_Target->CastSpell(l_Target, mountCapability->SpeedModSpell, true);
     }
@@ -3511,6 +3530,16 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* p_AurApp, uint8 p_Mode
             if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(GetAmount()))
                 l_Target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, l_Target->GetGUID());
         }
+    }
+
+    if (GetId() == 180545      ///< Mystic Runesaber
+        || GetId() == 163024  ///< Warforged Nightmare
+        || GetId() == 171847) ///< Cindermane Charger
+    {
+        if (p_Apply)
+            l_Target->CastSpell(l_Target, 86461, true);
+        else
+            l_Target->RemoveAurasDueToSpell(86461, l_Target->GetGUID());
     }
 
     l_Target->UpdateSpeed(MOVE_RUN, true);

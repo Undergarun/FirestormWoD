@@ -470,6 +470,13 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
                 return 4 * IN_MILLISECONDS;
             break;
         }
+        case SPELLFAMILY_PRIEST:
+        {
+            /// Psychic Scream - 6 seconds in PvP
+            if (spellproto->Id == 8122)
+                return 6 * IN_MILLISECONDS;
+            break;
+        }
         default:
             break;
     }
@@ -3204,8 +3211,15 @@ void SpellMgr::LoadSpellCustomAttr()
                         break;
                     case SPELL_EFFECT_CREATE_ITEM:
                     case SPELL_EFFECT_CREATE_ITEM_2:
+                    {
                         mSpellCreateItemList.push_back(i);
+
+                        SkillLineAbilityMapBounds l_SpellBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
+                        for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_SpellBounds.first; l_SpellIdx != l_SpellBounds.second; ++l_SpellIdx)
+                            m_ItemSourceSkills[spellInfo->Effects[j].ItemType].push_back(l_SpellIdx->second->skillId);
+
                         break;
+                    }
                     case SPELL_EFFECT_ENCHANT_ITEM:
                     case SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY:
                     case SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC:
@@ -3849,6 +3863,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137313: ///< Lightning Storm
                 spellInfo->Effects[1].TriggerSpell = 0;
+                break;
+            case 157096: ///< Empowered Demons
+                spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 0;
                 break;
             case 138732: ///< Ionization
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
@@ -4685,6 +4703,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 97817: ///< Leap of Faith
                 spellInfo->Effects[0].TargetA = TARGET_DEST_TARGET_FRONT;
+                spellInfo->Effects[0].MiscValue = 25;
+                spellInfo->Effects[0].ValueMultiplier = 0;
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(7); ///< radius 2.0 instead of 7.0
                 break;
             case 122706: ///< Noise Cancelling
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5176,6 +5197,26 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 spellInfo->Effects[1].BonusMultiplier = 0;
                 break;
+            case 132411:///< Singe Magic
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
+                break;
+            case 49376: ///< Wild Charge
+                spellInfo->Effects[1].MiscValue = 25;
+                spellInfo->Effects[1].ValueMultiplier = 0;
+                break;
+            case 169157:///< Demonic Leap (jump)
+                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(43);
+                spellInfo->Effects[0].MiscValue = 35;
+                spellInfo->Effects[0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[0].TargetB = TARGET_DEST_CASTER_FRONT;
+                break;
+            case 49575: ///< Death Grip (effect)
+                spellInfo->Effects[0].ValueMultiplier = 0;
+                break;
+            case 165201:///< Mind blast (reduce cooldown from haste)
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
+                spellInfo->Effects[1].MiscValue = 11;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
@@ -5476,6 +5517,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 96172:  ///< Hand of Light
             case 101085: ///< Wrath of Tarecgosa
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_IGNORE_CASTER_AURAS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                 break;
             case 33891:  ///< Tree form
             case 114282: ///< Tree form
@@ -6022,6 +6068,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158221: ///< Hurricane Strike (damage)
                 spellInfo->SetDurationIndex(39); ///< 2 seconds
                 spellInfo->MaxAffectedTargets = 3;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
+                break;
+            case 152118: ///< Clarity of Will
+                spellInfo->InterruptFlags = 0x0000000F;
                 break;
             case 115399: ///< Chi Brew
                 /// SPELL_ATTR4_CAN_CAST_WHILE_CASTING bypass charge check and players can usebug (the check is only doing client-side)

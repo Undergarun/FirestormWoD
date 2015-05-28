@@ -13,7 +13,7 @@ Position const g_GhargFirstPos = { 3466.11f, 7577.58f, 15.203f, 0.8954f };
 Position const g_GhargSecondPos = { 3483.23f, 7598.67f, 10.65f, 0.8954f };
 
 /// Gharg Teleport position
-Position const g_GhargTeleportPos = { 3483.23f, 7598.67f, 10.65f, 0.888926f };
+Position const g_GhargTeleportPos = { 3475.60f, 7590.64f, 55.30f, 4.062f };
 
 /// Mar'gok (Cosmetic) teleport position
 Position const g_MargokTeleport = { 3432.25f, 7536.13f, 73.664f, 0.896154f };
@@ -568,7 +568,13 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
                             me->CastSpell(l_Target, eSpells::SpellDevouringLeap, true);
-                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Target]() -> void { me->CastSpell(l_Target, eSpells::SpellDevour, false); });
+
+                            uint64 l_Guid = l_Target->GetGUID();
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                            {
+                                if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                    me->CastSpell(l_Target, eSpells::SpellDevour, false);
+                            });
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 11000));

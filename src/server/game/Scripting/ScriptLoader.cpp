@@ -102,6 +102,7 @@ void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_npc_companions();
 void AddSC_achievement_scripts();
+void AddSC_PlayerConditions();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -818,6 +819,7 @@ void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
+void AddSC_Garrison_PlayerConditions();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_A2();
 void AddSC_Garrison_A3();
@@ -993,6 +995,7 @@ void AddWorldScripts()
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
     AddSC_chat_log();
+    AddSC_PlayerConditions();
 #endif
 }
 
@@ -1730,9 +1733,12 @@ void AddDraenorScripts()
     AddSC_spires_of_arak();
     AddSC_frostfire_ridge();
     AddSC_gorgrond();
+
+    /// Garrison
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
+    AddSC_Garrison_PlayerConditions();
     AddSC_Garrison_A1();
     AddSC_Garrison_A2();
     AddSC_Garrison_A3();

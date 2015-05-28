@@ -1,7 +1,13 @@
-/// Copyright MilleniumStudio 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_INTERFACES
-#define SCRIPTING_INTERFACES_INTERFACES
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 #include "Interface_AreaTrigger.hpp"
@@ -17,5 +23,6 @@
 #include "Interface_Spell.hpp"
 #include "Interface_Transport.hpp"
 #include "Interface_Vehicle.hpp"
+#include "Interface_PlayerCondition.hpp"
 
-#endif  ///< SCRIPTING_INTERFACES_INTERFACES
+#endif  ///< SCRIPTING_INTERFACES_INTERFACES_HPP_INCLUDED

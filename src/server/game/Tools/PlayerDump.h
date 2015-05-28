@@ -54,6 +54,7 @@ enum DumpTableType
 
     DTT_ACC_ACH_PRO,    //   account_achievement_progress
     DTT_ACC_ACH,        //   account_achievement
+    DTT_ACC_SPELL,      ///< account_spell
 };
 
 enum DumpReturn

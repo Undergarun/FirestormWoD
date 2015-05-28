@@ -263,10 +263,12 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
-    _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
+    _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
     _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
     m_HiVignetteGuid(1)
-{}
+{
+    m_HighItemGuid = 1;
+}
 
 ObjectMgr::~ObjectMgr()
 {
@@ -2202,37 +2204,6 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
     return 0;
 }
 
-void ObjectMgr::LoadItemLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _itemLocaleStore.clear();                                 // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, name_loc1, description_loc1, name_loc2, description_loc2, name_loc3, description_loc3, name_loc4, description_loc4, name_loc5, description_loc5, name_loc6, description_loc6, name_loc7, description_loc7, name_loc8, description_loc8, name_loc9, description_loc9, name_loc10, description_loc10 FROM locales_item");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        ItemLocale& data = _itemLocaleStore[entry];
-
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.Name);
-            AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.Description);
-        }
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Item locale strings in %u ms", (unsigned long)_itemLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadRealmCompletedChallenges()
 {
     uint32 l_OldMSTime = getMSTime();
@@ -2692,6 +2663,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
+        itemTemplate.FlagsCu = 0;
 
         if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(itemId))
             itemTemplate.PvPScalingLevel = pvpItem->ilvl;
@@ -2791,6 +2763,19 @@ void ObjectMgr::LoadItemTemplateAddon()
         }
         while (result->NextRow());
     }
+
+    for (uint32 l_Entry = 0; l_Entry < sItemSparseStore.GetNumRows(); l_Entry++)
+    {
+        auto l_Itr = _itemTemplateStore.find(l_Entry);
+        if (l_Itr == _itemTemplateStore.end())
+            continue;
+
+        ItemTemplate& l_ItemTemplate = l_Itr->second;
+
+        if (l_ItemTemplate.Quality == ItemQualities::ITEM_QUALITY_HEIRLOOM)
+            l_ItemTemplate.FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
+    }
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u item addon templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -6305,13 +6290,13 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        _hiItemGuid = (*result)[0].GetUInt32()+1;
+        m_HighItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid.value());      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid.value());          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid.value());         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid.value());     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", (uint32)m_HighItemGuid);      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", (uint32)m_HighItemGuid);          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", (uint32)m_HighItemGuid);         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", (uint32)m_HighItemGuid);     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6408,8 +6393,8 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     {
         case HIGHGUID_ITEM:
         {
-            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
-            return _hiItemGuid++;
+            ASSERT(m_HighItemGuid < 0xFFFFFFFE && "Item guid overflow!");
+            return m_HighItemGuid.fetch_add(1);
         }
         case HIGHGUID_UNIT:
         {
@@ -10296,8 +10281,7 @@ void ObjectMgr::LoadTaxiData()
             nodePos.m_positionZ = nodeEntry->z;
             nodePos.m_orientation = 0.f;
 
-            std::string l_Name = nodeEntry->name;
-            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, l_Name, entry->price);
+            node = new TaxiNode(entry->from, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
             node->AddConnectedNode(entry->to);
 
             _taxiNodes[entry->from] = node;
@@ -10328,8 +10312,7 @@ void ObjectMgr::LoadTaxiData()
         nodePos.m_positionZ = nodeEntry->z;
         nodePos.m_orientation = 0.f;
 
-        std::string l_Name = nodeEntry->name;
-        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, l_Name, entry->price);
+        node = new TaxiNode(entry->to, nodeEntry->map_id, nodePos, nodeEntry->name, entry->price);
 
         _taxiNodes[entry->to] = node;
     }

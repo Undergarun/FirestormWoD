@@ -1528,11 +1528,7 @@ class spell_dk_blood_boil: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Target, DK_SPELL_FROST_FEVER, true);
                     if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
-                    {
-                        // Don't Refresh diseases
-                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                            l_AuraFrostFever->SetDuration(m_FrostFever);
-                    }
+                        l_AuraFrostFever->SetDuration(m_FrostFever);
                 }
 
                 // Blood plague
@@ -1540,14 +1536,18 @@ class spell_dk_blood_boil: public SpellScriptLoader
                 {
                     l_Caster->CastSpell(l_Target, DK_SPELL_BLOOD_PLAGUE, true);
                     if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
-                    {
-                        // Don't Refresh diseases
-                        if (!l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
-                            l_AuraBloodPlague->SetDuration(m_BloodPlague);
-                    }
+                        l_AuraBloodPlague->SetDuration(m_BloodPlague);
                 }
 
-                l_Caster->CastSpell(l_Caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                /// In blood spec we should update duration of DOTs
+                if (l_Caster->HasAura(DK_SPELL_SCENT_OF_BLOOD))
+                {
+                    if (AuraPtr l_AuraFrostFever = l_Target->GetAura(DK_SPELL_FROST_FEVER, l_Caster->GetGUID()))
+                        l_AuraFrostFever->SetDuration(l_AuraFrostFever->GetMaxDuration());
+
+                    if (AuraPtr l_AuraBloodPlague = l_Target->GetAura(DK_SPELL_BLOOD_PLAGUE, l_Caster->GetGUID()))
+                        l_AuraBloodPlague->SetDuration(l_AuraBloodPlague->GetMaxDuration());
+                }
             }
 
             void HandleAfterCast()

@@ -190,6 +190,61 @@ class spell_sha_unleashed_fury : public SpellScriptLoader
             }
         };
 
+        class spell_sha_unleashed_fury_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_unleashed_fury_AuraScript);
+
+            enum eSpells
+            {
+                UnleashLife = 73685,
+                UnleashedFuryTalentRestauration = 165479,
+                UnleashedRestauration = 118473
+            };
+
+            void CalculateAmount(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::UnleashedRestauration);
+
+                if (l_Caster->HasAura(eSpells::UnleashedFuryTalentRestauration))
+                    p_Amount += l_SpellInfo->Effects[EFFECT_0].BasePoints;
+            }
+
+            void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::UnleashedRestauration))
+                    l_Caster->RemoveAura(eSpells::UnleashedRestauration);
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                    case eSpells::UnleashLife:
+                        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_unleashed_fury_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER);
+                        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_unleashed_fury_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_DUMMY);
+                        OnEffectRemove += AuraEffectRemoveFn(spell_sha_unleashed_fury_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                    break;
+                    default:
+                        break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_unleashed_fury_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_unleashed_fury_SpellScript();
@@ -974,14 +1029,21 @@ class spell_sha_lava_surge: public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_lava_surge_AuraScript);
 
-            void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
+            enum eData
             {
-                Player* l_Player = GetCaster()->ToPlayer();
+                CategoryID = 1536
+            };
 
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
                 if (l_Player == nullptr)
                     return;
 
-                l_Player->RestoreCharge(1536);
+                l_Player->RestoreCharge(eData::CategoryID);
             }
 
             void Register()
@@ -1443,6 +1505,16 @@ class spell_sha_heroism: public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_heroism_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SHAMAN_SPELL_EXHAUSTION))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_EXHAUSTION))
@@ -1465,6 +1537,7 @@ class spell_sha_heroism: public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_sha_heroism_SpellScript::CheckCast);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism_SpellScript::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
                 AfterHit += SpellHitFn(spell_sha_heroism_SpellScript::ApplyDebuff);
@@ -2507,13 +2580,23 @@ class spell_sha_maelstrom_weapon: public SpellScriptLoader
 
             void OnApply(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                RemoveAllVisuals(GetCaster());
-                GetCaster()->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                RemoveAllVisuals(l_Caster);
+                l_Caster->AddAura(g_MaelstromVisualSpellIds[aurEff->GetBase()->GetStackAmount() - 1], l_Caster);
             }
             
             void OnRemove(constAuraEffectPtr aurEff, AuraEffectHandleModes /*mode*/)
             {
-                RemoveAllVisuals(GetCaster());
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                RemoveAllVisuals(l_Caster);
             }
 
             void RemoveAllVisuals(Unit* l_Caster)

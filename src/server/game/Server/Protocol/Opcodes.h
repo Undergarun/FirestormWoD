@@ -398,7 +398,7 @@ enum Opcodes
         SMSG_INSTANCE_ENCOUNTER_TIMER_START                     = 0x0619, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START                 = 0x0B3D, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE              = 0x0735, ///< 6.1.2 19783
-        SMSG_INSTANCE_ENCOUNTER_START                           = 0x171A, ///< 6.1.2 19783
+        SMSG_INSTANCE_ENCOUNTER_START                           = 0x06B9, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE                = 0x1219, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_END                             = 0x16B5, ///< 6.1.2 19783
         SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION          = 0x1717, ///< 6.1.2 19783
@@ -412,6 +412,7 @@ enum Opcodes
         SMSG_INSTANCE_SAVE_CREATED                              = 0x0DA2, ///< 6.1.2 19783
         SMSG_INSTANCE_GROUP_SIZE_CHANGED                        = 0x1C22, ///< 6.1.2 19783
         SMSG_ENCOUNTER_END                                      = 0x0862, ///< 6.1.2 19783
+        SMSG_ENCOUNTER_START                                    = 0x171A, ///< 6.1.2 19783
         SMSG_BOSS_KILL_CREDIT                                   = 0x0395, ///< 6.1.2 19783
 
         /// Scenarios
@@ -500,7 +501,7 @@ enum Opcodes
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x1976, ///< 6.1.2 19783
-        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< (NYI)
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x1232, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0D22, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
@@ -938,6 +939,7 @@ enum Opcodes
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0988, ///< 6.1.2 19783
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x01A8, ///< 6.1.2 19783
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x018F, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

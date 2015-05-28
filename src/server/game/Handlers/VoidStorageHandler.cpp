@@ -87,7 +87,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
             ++l_ItemCount;
     }
 
-    WorldPacket l_Data(SMSG_VOID_STORAGE_CONTENTS);
+    WorldPacket l_Data(SMSG_VOID_STORAGE_CONTENTS, 5 * 1024);
 
     l_Data.WriteBits(l_ItemCount, 8);
     l_Data.FlushBits();
@@ -253,7 +253,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
         m_Player->DeleteVoidStorageItem(l_Slot);
     }
 
-    WorldPacket l_Data(SMSG_VOID_STORAGE_TRANSFER_CHANGES);
+    WorldPacket l_Data(SMSG_VOID_STORAGE_TRANSFER_CHANGES, 500);
 
     l_Data.WriteBits(l_DepositCountSecond, 4);
     l_Data.WriteBits(l_WithdrawCountSecond, 4);

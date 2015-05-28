@@ -263,11 +263,15 @@ class InstanceScript : public ZoneScript
         // Checks encounter state at kill/spellcast
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
+        void SendEncounterStart(uint32 p_EncounterID);
+        void SendEncounterEnd(uint32 p_EncounterID, bool p_Success);
+        uint32 GetEncounterIDForBoss(Creature* p_Boss) const;
+
         // Used only during loading
-        void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
+        void SetCompletedEncountersMask(uint32 newMask) { m_CompletedEncounters = newMask; }
 
         // Returns completed encounters mask for packets
-        uint32 GetCompletedEncounterMask() const { return completedEncounters; }
+        uint32 GetCompletedEncounterMask() const { return m_CompletedEncounters; }
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
 
@@ -459,7 +463,7 @@ class InstanceScript : public ZoneScript
         std::vector<BossScenarios> m_BossesScenarios;
         DoorInfoMap doors;
         MinionInfoMap minions;
-        uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 m_CompletedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         uint32 m_EncounterTime;
 };
 #endif

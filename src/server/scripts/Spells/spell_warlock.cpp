@@ -1627,13 +1627,13 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     // Soul Swap override spell
                     l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
                     l_Caster->RemoveSoulSwapDOT(l_Target);
                 }
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     l_Caster->ApplySoulSwapDOT(l_Target);
                     l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
@@ -1679,6 +1679,8 @@ class spell_warl_drain_soul: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_soul_AuraScript);
 
+            bool m_UnderImproved = false;
+
             void HandlePeriodicDamage(AuraEffectPtr p_AurEff)
             {
                 Unit* l_Caster = GetCaster();
@@ -1690,10 +1692,24 @@ class spell_warl_drain_soul: public SpellScriptLoader
                 p_AurEff->GetTargetList(l_TargetList);
                 for (auto l_Target : l_TargetList)
                 {
+                    if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() >= 20)
+                    {
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        if (l_SpellInfo != nullptr && m_UnderImproved)
+                        {
+                            m_UnderImproved = false;
+                            p_AurEff->SetAmount(p_AurEff->GetAmount() - CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                        }
+                    }
+
                     if (l_Caster->getLevel() >= 92 && l_Caster->HasSpell(SPELL_WARL_IMPROVED_DRAIN_SOUL) && l_Target->GetHealthPct() < 20)
                     {
-                        if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL))
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_WARL_IMPROVED_DRAIN_SOUL);
+                        if (l_SpellInfo != nullptr && !m_UnderImproved)
+                        {
+                            m_UnderImproved = true;
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
+                        }
                     }
 
                     /// Associate DoT spells to their damage spells
@@ -3269,6 +3285,32 @@ public:
     }
 };
 
+enum WoDPvPDemonology2PBonusSpells
+{
+    WoDPvPDemonology2PBonusAura = 171393,
+    WoDPvPDemonology2PBonus = 171397
+};
+
+/// WoD PvP Demonology 2P Bonus - 171393
+class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
+{
+    public:
+        PlayerScript_WoDPvPDemonology2PBonus() :PlayerScript("PlayerScript_WoDPvPDemonology2PBonus") {}
+
+        void OnModifyHealth(Player * p_Player, int32 p_Value)
+        {
+            if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
+            {
+                if (p_Player->GetHealthPct() < 20.0f && !p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus))
+                    p_Player->CastSpell(p_Player, WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus, true);
+
+                /// Remove aura if player has more than 20% life
+                if (p_Player->GetHealthPct() >= 20.0f)
+                    p_Player->RemoveAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus);
+            }
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3339,4 +3381,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
+
+    new PlayerScript_WoDPvPDemonology2PBonus();
 }

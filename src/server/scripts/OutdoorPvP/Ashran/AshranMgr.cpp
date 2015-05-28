@@ -785,7 +785,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersWillBeKick[p_Player->GetTeamId()].erase(p_Player->GetGUID());
-        m_players[p_Player->GetTeamId()].insert(p_Player);
+        m_Players[p_Player->GetTeamId()].erase(p_Player->GetGUID());
     }
 
     SendRemoveWorldStates(p_Player);
@@ -955,7 +955,7 @@ void OutdoorPvPAshran::FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64
                                               l_ArtifactCount,                                  ///< MaxCount
                                               std::vector<uint32>());                           ///< ItemBonuses
 
-    p_Loot.Items.push_back(LootItem(l_StoreItem, 0, &p_Loot));
+    p_Loot.Items.push_back(LootItem(l_StoreItem, ItemContext::None, &p_Loot));
     p_Loot.FillCurrencyLoot(p_Looter);
 }
 
@@ -1369,7 +1369,7 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
     {
         m_PlayersInWar[p_Player->GetTeamId()].insert(p_Player->GetGUID());
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
-        m_players[p_Player->GetTeamId()].insert(p_Player);
+        m_Players[p_Player->GetTeamId()].insert(p_Player->GetGUID());
 
         p_Player->GetSession()->SendBfEntered(m_Guid);
     }

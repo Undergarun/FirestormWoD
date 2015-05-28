@@ -228,6 +228,8 @@ extern DBCStorage <World_PVP_AreaEntry>          sWorld_PVP_AreaStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
 extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
+extern DBCStorage <WorldStateEntry>              sWorldStateStore;
+extern DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore;
 
 void LoadDBCStores(const std::string& dataPath);
 

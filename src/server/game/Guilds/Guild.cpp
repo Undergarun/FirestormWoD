@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
+#include "WowTime.hpp"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -482,7 +483,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 
 void Guild::BankTab::SendText(const Guild * p_Guild, WorldSession* p_Session) const
 {
-    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT);
+    WorldPacket l_Data(SMSG_GUILD_BANK_QUERY_TEXT_RESULT, 500);
 
     l_Data << uint32(m_tabId);
     l_Data.WriteBits(m_text.size(), 14);
@@ -905,7 +906,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     if (!pFrom->IsBank() && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && !AccountMgr::IsPlayerAccount(m_pPlayer->GetSession()->GetSecurity()))       // TODO: move to scripts
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(), "", m_pPlayer->GetGUIDLow(), m_pPlayer->GetName(), 0, "", 0, "",
                         "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
-                        m_pPlayer->GetName(), m_pPlayer->GetSession()->GetAccountId(), pFrom->GetItem()->GetTemplate()->Name1.c_str(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(), m_pGuild->GetId());
+                        m_pPlayer->GetName(), m_pPlayer->GetSession()->GetAccountId(), pFrom->GetItem()->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(), m_pGuild->GetId());
 }
 
 Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const
@@ -1220,10 +1221,10 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     ByteBuffer memberData;
     uint32 weeklyRepCap = uint32(sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP));
 
-    WorldPacket l_Data(SMSG_GUILD_ROSTER, 25 * 1024);
+    WorldPacket l_Data(SMSG_GUILD_ROSTER, 200 * 1024);
 
     l_Data << uint32(m_accountsNumber);
-    l_Data << uint32(secsToTimeBitFields(m_createdDate));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(m_createdDate));
     l_Data << uint32(0);                                      ///< Guild Flags
     l_Data << uint32(m_members.size());
 
@@ -2097,7 +2098,7 @@ void Guild::SendBankList(WorldSession* p_Session, uint8 p_TabID, bool p_WithCont
     if (!l_CurrTab && p_TabID > 0)
         return;
 
-    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS);
+    WorldPacket l_Data(Opcodes::SMSG_GUILD_BANK_QUERY_RESULTS, 6 * 1024);
 
     uint32 l_ItemCount = 0;
 
@@ -3577,7 +3578,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 p_ID, GuildNewsEntry & p_GuildNew
     p_Data << uint32(1);
 
     p_Data << uint32(p_ID);
-    p_Data << uint32(secsToTimeBitFields(p_GuildNews.Date));
+    p_Data << uint32(MS::Utilities::WowTime::Encode(p_GuildNews.Date));
     p_Data << uint32(p_GuildNews.EventType);
     p_Data << uint32(p_GuildNews.Flags);                      ///< 1 sticky
     p_Data << uint32(p_GuildNews.Data);                       ///< Data 1
@@ -3598,7 +3599,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
     for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); l_It++)
     {
         p_Data << uint32(l_It->first);
-        p_Data << uint32(secsToTimeBitFields(l_It->second.Date));
+        p_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.Date));
         p_Data << uint32(l_It->second.EventType);
         p_Data << uint32(l_It->second.Flags);                     ///< 1 sticky
         p_Data << uint32(l_It->second.Data);                      ///< Data 1

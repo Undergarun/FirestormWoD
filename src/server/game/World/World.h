@@ -93,6 +93,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFERT,
+    WUPDATE_TRANSFER_MOP,
     WUPDATE_COUNT
 };
 
@@ -207,6 +208,7 @@ enum WorldBoolConfigs
     CONFIG_AOE_LOOT_ENABLED,
     CONFIG_LEXICS_CUTTER_ENABLE,
     CONFIG_ACHIEVEMENT_DISABLE,
+    CONFIG_MOP_TRANSFER_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -726,6 +728,10 @@ class World
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
+        /// Get server region ID (used in wow time calculation)
+        uint32 const GetServerRegionID() const { return 1135753200; }
+        /// Get server raid origin (used in wow time calculation)
+        uint32 const GetServerRaidOrigin() const { return 0; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
@@ -1044,6 +1050,7 @@ class World
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
         PreparedQueryResultFuture m_transfertsDumpCallbacks;
         PreparedQueryResultFuture m_transfertsLoadCallbacks;
+        PreparedQueryResultFuture m_transferMop;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
         LexicsCutter *m_lexicsCutter;
 };

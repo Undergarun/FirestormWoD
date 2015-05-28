@@ -48,7 +48,7 @@ enum ItemBonusType
     ITEM_BONUS_DESCRIPTION          = 4,
     ITEM_BONUS_ITEM_SUFFIX          = 5,
     ITEM_BONUS_ADD_SOCKET           = 6,
-    ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
+    ITEM_BONUS_MODIFY_APPEARANCE    = 7,
     ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
     ITEM_BONUS_UNK2                 = 9,
     ITEM_BONUS_UNK3                 = 10,
@@ -360,7 +360,9 @@ class Item : public Object
         * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
         * @param p_ItemBonus: Vector of bonus to fill
         */
-        static void GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus);
+        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus);
+
+        static ItemContext GetItemContextFromDifficulty(Difficulty p_Difficulty);
 
         static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item);
         static void BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item);
@@ -478,6 +480,8 @@ class Item : public Object
         void RemoveAllItemBonuses();
         uint32 GetItemLevelBonusFromItemBonuses() const;
         std::vector<uint32> const& GetAllItemBonuses() const;
+
+        uint32 GetAppearanceModID() const;
 
     private:
         std::string m_text;

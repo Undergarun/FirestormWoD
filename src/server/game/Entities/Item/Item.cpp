@@ -38,7 +38,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        //sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -510,7 +510,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     }
 
     std::string enchants = fields[6].GetString();
-    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET, false);
 
     if (uint32 transmogId = fields[8].GetInt32())
     {
@@ -596,7 +596,7 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
-void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
+void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus)
 {
     auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
     if (l_ItemTemplate == nullptr)
@@ -618,7 +618,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
 
     /// Step one : search for generic bonus we can find in DB2 (90, 92, 94, 95, 97, heroic)
     auto& l_ItemBonusTree = sItemBonusTreeByID[p_ItemId];
-    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_ItemBonusDifficulty, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
+    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_Context, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
     {
         /// Lookup for the right bonus
         for (uint32 l_Index = 0; l_Index < sItemBonusTreeNodeStore.GetNumRows(); l_Index++)
@@ -630,7 +630,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
             if (l_ItemBonusTreeNode->Category != p_ItemXBonusTree->ItemBonusTreeCategory)
                 continue;
 
-            if (l_ItemBonusTreeNode->Difficulty != p_ItemBonusDifficulty)
+            if (l_ItemBonusTreeNode->Context != uint32(p_Context))
                 continue;
 
             auto l_BonusId = l_ItemBonusTreeNode->ItemBonusEntry;
@@ -662,7 +662,16 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step two : Roll for stats bonus (Avoidance, Leech & Speed)
     /// Atm, i can't find percentage chance to have stats but it's same pretty low (~ 10%)
     /// Item can have only on stat bonus, and it's only in dungeon/raid
-    if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
+    if (p_Context == ItemContext::RaidNormal
+        || p_Context == ItemContext::RaidHeroic
+        || p_Context == ItemContext::RaidLfr
+        || p_Context == ItemContext::RaidMythic
+        || p_Context == ItemContext::DungeonLevelUp1
+        || p_Context == ItemContext::DungeonLevelUp2
+        || p_Context == ItemContext::DungeonLevelUp3
+        || p_Context == ItemContext::DungeonLevelUp4
+        || p_Context == ItemContext::DungeonNormal
+        || p_Context == ItemContext::DungeonHeroic)             ///< Only in dungeon & raid
     {
         std::vector<uint32> l_StatsBonus =
         {
@@ -671,9 +680,10 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
             ItemBonus::Stats::Leech
         };
 
-        if (p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
-            p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
-            p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
+        if (p_Context == ItemContext::RaidNormal ||
+            p_Context == ItemContext::RaidMythic ||
+            p_Context == ItemContext::RaidHeroic ||
+            p_Context == ItemContext::RaidLfr)
             l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats))
@@ -691,10 +701,11 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    if (p_ItemBonusDifficulty == Difficulty::DifficultyHeroic ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidNormal ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidHeroic ||
-        p_ItemBonusDifficulty == Difficulty::DifficultyRaidMythic)
+    if (p_Context == ItemContext::DungeonHeroic ||
+        p_Context == ItemContext::RaidNormal ||
+        p_Context == ItemContext::RaidHeroic ||
+        p_Context == ItemContext::RaidMythic ||
+        p_Context == ItemContext::RaidLfr)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
@@ -2222,11 +2233,12 @@ bool Item::HasItemBonus(uint32 p_ItemBonusId) const
 bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
         if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
-            SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
+            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i);
             return true;
         }
     }
@@ -2271,4 +2283,28 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     }
 
     return itemLevel;
+}
+
+uint32 Item::GetAppearanceModID() const
+{
+    uint32 l_Appearance = 0;
+
+    for (uint32 l_Bonus : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+    {
+        std::vector<ItemBonusEntry const*> const* l_Bonuses = GetItemBonusesByID(l_Bonus);
+        if (l_Bonuses == nullptr)
+            continue;
+
+        for (uint32 l_I = 0; l_I < l_Bonuses->size(); l_I++)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_Bonuses)[l_I];
+            if (!l_ItemSubBonus)
+                continue;
+
+            if (l_ItemSubBonus->Type == ITEM_BONUS_MODIFY_APPEARANCE && l_ItemSubBonus->Value[0] > l_Appearance)
+                l_Appearance = l_ItemSubBonus->Value[0];
+        }
+    }
+
+    return l_Appearance;
 }

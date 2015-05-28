@@ -2348,6 +2348,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitted, &split_absorb);
 
+            // Need to remove all auras breakable by damage.
+            caster->RemoveAurasBreakableByDamage();
+
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
             CleanDamage cleanDamage = CleanDamage(splitted, 0, WeaponAttackType::BaseAttack, MELEE_HIT_NORMAL);
@@ -4459,6 +4462,16 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
 void Unit::RemoveMovementImpairingAuras()
 {
     RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+}
+
+void Unit::RemoveAurasBreakableByDamage()
+{
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE);
+    RemoveAurasWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+
+    // Hack fix for Paralysis, don't want to spend time for debuging why it doesn't remove
+    if (HasAura(115078))
+        RemoveAura(115078);
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except, uint8 count)
@@ -11051,6 +11064,8 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                 RemoveAllMinionsByEntry(61029);
             else if (minion->GetEntry() == 15430 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
                 RemoveAllMinionsByEntry(61056);
+            else if (minion->GetEntry() == 77934 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+                RemoveAllMinionsByEntry(77942);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -12227,6 +12242,31 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
+{
+    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+        return false;
+
+    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    float l_CritAbsorb = 0.0f;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        l_CritAbsorb = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+    else
+    {
+        l_CritAbsorb = 5.0f;
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+    }
+
+    if (l_CritAbsorb <= 0.0f)
+        return false;
+
+    return roll_chance_f(l_CritAbsorb);
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
@@ -12571,6 +12611,19 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
     return p_Damage;
 }
 
+uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage)
+{
+    int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
+
+    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+        l_CritPctBonus = 50; ///< 150% on pvp like healing
+
+    ///< Maybe some bonus of Aura to apply?
+    ///< l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
+
+    return p_Damage;
+}
 
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
@@ -12781,6 +12834,10 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint32 stack)
 {
     float TakenTotalMod = 1.0f;
+
+    /// Dampening, must be calculated off the raw amount
+    if (AuraEffectPtr l_AurEff = GetAuraEffect(110310, EFFECT_0))
+        healamount = CalculatePct(healamount, 100 - l_AurEff->GetAmount());
 
     // No bonus for Eminence (statue) and Eminence
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
@@ -13780,23 +13837,26 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
     }
 }
 
-void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
+void Unit::SetInCombatState(bool p_IsPVP, Unit* p_Enemy, bool p_IsControlled)
 {
-    // only alive units can be in combat
+    /// Only alive units can be in combat
     if (!isAlive())
         return;
 
-    if (Creature* l_Creature = enemy->ToCreature())
-        if (l_Creature->GetEntry() == 900000)   /// Sovaks training dummy
-            PvP = true;
-
-    if (PvP)
+    if (Creature* l_Creature = p_Enemy->ToCreature())
     {
-        if (Player* player = ToPlayer())
+        if (l_Creature->GetEntry() == 900000) ///< Sovaks training dummy
+            p_IsPVP = true;
+    }
+
+    if (p_IsPVP)
+    {
+        if (Player* l_Player = ToPlayer())
         {
-            player->SetPvPTimer(15000); // 5 + 10 secs
-            if (!player->IsInPvPCombat())
-                player->SetInPvPCombat(true);
+            l_Player->SetPvPTimer(15000); ///< 5 + 10 secs
+
+            if (!l_Player->IsInPvPCombat())
+                l_Player->SetInPvPCombat(true);
         }
 
         m_CombatTimer = 5000;
@@ -13805,38 +13865,52 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
     if (isInCombat() || HasUnitState(UNIT_STATE_EVADE))
         return;
 
-    if (Creature* creature = ToCreature())
-        if (IsAIEnabled && creature->AI()->IsPassived())
+    if (Creature* l_Creature = ToCreature())
+    {
+        if (IsAIEnabled && l_Creature->AI()->IsPassived())
             return;
+    }
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-    if (isControlled)
+
+    if (p_IsControlled)
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
-    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
-        (*itr)->SetInCombatState(PvP, enemy, true);
+    for (Unit::ControlList::iterator l_Iter = m_Controlled.begin(); l_Iter != m_Controlled.end(); ++l_Iter)
+        (*l_Iter)->SetInCombatState(p_IsPVP, p_Enemy, true);
 
-    RemoveAura(121308); // Glyph of Disguise, only out of combat
+    RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
-    if (Creature* creature = ToCreature())
+    if (Creature* l_Creature = ToCreature())
     {
-        // Set home position at place of engaging combat for escorted creatures
-        if ((IsAIEnabled && creature->AI()->IsEscorted()) ||
+        /// Set home position at place of engaging combat for escorted creatures
+        if ((IsAIEnabled && l_Creature->AI()->IsEscorted()) ||
             (GetMotionMaster() && (GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE ||
             GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)))
-            creature->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            l_Creature->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
-        if (enemy)
+        if (p_Enemy)
         {
-            enemy->RemoveAura(121308); // Glyph of Disguise, only out of combat
+            p_Enemy->RemoveAura(121308); ///< Glyph of Disguise, only out of combat
 
             if (IsAIEnabled)
             {
-                creature->AI()->EnterCombat(enemy);
-                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); // unit has engaged in combat, remove immunity so players can fight back
+                l_Creature->AI()->EnterCombat(p_Enemy);
+
+                if (l_Creature->isWorldBoss())
+                {
+                    if (InstanceScript* l_Instance = l_Creature->GetInstanceScript())
+                    {
+                        l_Instance->SendEncounterStart(l_Instance->GetEncounterIDForBoss(l_Creature));
+                        l_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_START, l_Creature->ToUnit());
+                    }
+                }
+
+                RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC); ///< Unit has engaged in combat, remove immunity so players can fight back
             }
-            if (creature->GetFormation())
-                creature->GetFormation()->MemberAttackStart(creature, enemy);
+
+            if (l_Creature->GetFormation())
+                l_Creature->GetFormation()->MemberAttackStart(l_Creature, p_Enemy);
         }
 
         if (isPet())
@@ -13846,13 +13920,11 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy, bool isControlled)
             UpdateSpeed(MOVE_FLIGHT, true);
         }
 
-        if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
+        if (!(l_Creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
     }
-    else if (Player* player = ToPlayer())
-    {
-        sScriptMgr->OnPlayerEnterInCombat(player);
-    }
+    else if (Player* l_Player = ToPlayer())
+        sScriptMgr->OnPlayerEnterInCombat(l_Player);
 
     if (GetTypeId() == TYPEID_PLAYER && !ToPlayer()->IsInWorgenForm() && ToPlayer()->CanSwitch())
         ToPlayer()->SwitchToWorgenForm();
@@ -13873,7 +13945,7 @@ void Unit::ClearInCombat()
         if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->isPet())
+        if (creature->isPet() && !creature->isHunterPet()) ///< fix a problem with hunter pets , that their speed is wrong
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
@@ -14454,6 +14526,10 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+
+    /// Walk speed can't be faster then run speed
+    if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
+        m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
     m_speed_rate[p_MovementType] = rate;
 
@@ -17029,12 +17105,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
-        if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && HasAura(131369) && isVictim)
+        if ((spellInfo->Id == 115191 || spellInfo->Id == 1784) && HasAura(131361) && isVictim)
             useCharges = false;
 
         // Note: must SetCantProc(false) before return
@@ -17477,7 +17553,7 @@ void Unit::SendPetTalk(uint32 p_Action)
 
     uint64 l_UnitGUID = GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 8 + 4);
+    WorldPacket l_Data(SMSG_PET_ACTION_SOUND, 16 + 2 + 4);
     l_Data.appendPackGUID(l_UnitGUID);      ///< UnitGUID
     l_Data << uint32(p_Action);             ///< Action
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
@@ -18295,7 +18371,7 @@ void Unit::PlayOneShotAnimKit(uint32 id)
 
 void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 {
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 7 + 2);
+    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(p_AnimKitID);
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
@@ -18303,7 +18379,7 @@ void Unit::SetAIAnimKit(uint32 p_AnimKitID)
 
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
 {
-    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+    WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
     l_Data.WriteVector3(p_Source);
     l_Data.WriteVector3(p_Orientation);
@@ -18418,20 +18494,50 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
             if (uint32 l_LootID = l_KilledCreature->GetCreatureTemplate()->lootid)
                 l_Loot->FillLoot(l_LootID, LootTemplates_Creature, l_Looter, false, false, l_KilledCreature->GetLootMode());
 
-            uint32 mingold = l_KilledCreature->GetCreatureTemplate()->mingold;
-            uint32 maxgold = l_KilledCreature->GetCreatureTemplate()->maxgold;
+            uint32 l_MinGold = l_KilledCreature->GetCreatureTemplate()->mingold;
+            uint32 l_MaxGold = l_KilledCreature->GetCreatureTemplate()->maxgold;
 
-            if (l_KilledCreature->GetMap()->IsRaid())
+            if (Map* l_Map = l_KilledCreature->GetMap())
             {
-                uint32 maxplayers = l_KilledCreature->GetMap()->GetEntry()->MaxPlayers;
-                if (maxplayers < 1)
-                    maxplayers = 1;
+                if (l_Map->IsRaid())
+                {
+                    /// Resize item count depending on player count
+                    if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
+                    {
+                        /// Assuming we have one loot per 5 players
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
-                mingold /= maxplayers;
-                maxgold /= maxplayers;
+                        if (l_Loot->Items.size() > l_Count)
+                        {
+                            std::random_device l_RandomDevice;
+                            std::mt19937 l_RandomGenerator(l_RandomDevice());
+                            std::shuffle(l_Loot->Items.begin(), l_Loot->Items.end(), l_RandomGenerator);
+
+                            std::vector<LootItem> l_RealLoots;
+                            for (LootItem l_LootItem : l_Loot->Items)
+                            {
+                                if (!l_Count)
+                                    break;
+
+                                --l_Count;
+                                l_RealLoots.push_back(l_LootItem);
+                            }
+
+                            l_Loot->Items.clear();
+                            l_Loot->Items = l_RealLoots;
+                        }
+                    }
+
+                    uint32 l_MaxPlayers = l_KilledCreature->GetMap()->GetEntry()->MaxPlayers;
+                    if (l_MaxPlayers < 1)
+                        l_MaxPlayers = 1;
+
+                    l_MinGold /= l_MaxPlayers;
+                    l_MaxGold /= l_MaxPlayers;
+                }
             }
 
-            l_Loot->generateMoneyLoot(mingold, maxgold);
+            l_Loot->generateMoneyLoot(l_MinGold, l_MaxGold);
         }
 
         l_KillerPlayer->RewardPersonnalCurrencies(l_KilledVictim);
@@ -19572,8 +19678,6 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
     if (!target)
         return;
-
-    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
@@ -21135,7 +21239,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 l_Count = getThreatManager().getThreatList().size();
 
-        WorldPacket l_Data(SMSG_THREAT_UPDATE, 500);
+        WorldPacket l_Data(SMSG_THREAT_UPDATE, 1024);
         l_Data.appendPackGUID(GetGUID());
         l_Data << l_Count;
 

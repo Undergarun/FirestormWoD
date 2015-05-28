@@ -295,7 +295,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectObtainFollower,                           //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER     Obtain a garrison follower (contract item)
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221                     Unk 6.0.1
     &Spell::EffectCreateHeirloom,                           //222 SPELL_EFFECT_CREATE_HEIRLOOM         Create Heirloom
-    &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
+    &Spell::EffectChangeItemBonus,                          //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectGarrisonFinalize,                         //224 SPELL_EFFECT_GARRISON_FINALIZE_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226                     Unk 6.1.2
@@ -1635,6 +1635,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
             AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
             AddPct(currentValue, AbsorbMod2);
+
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
     }
@@ -1922,21 +1923,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             m_caster->CastCustomSpell(unitTarget, 77489, &bp, NULL, NULL, true);
         }
 
-        /// Unleashed Fury - Earthliving
-        if (caster && caster->HasAura(118473))
-        {
-            bool singleTarget = false;
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY && m_spellInfo->Effects[i].TargetB.GetTarget() == 0)
-                singleTarget = true;
-
-            if (singleTarget)
-            {
-                addhealth += CalculatePct(damage, 50.0f);
-                caster->RemoveAurasDueToSpell(118473);
-            }
-        }
-
         // Chakra : Serenity - 81208
         if (caster && addhealth && caster->HasAura(81208) && m_spellInfo->Effects[0].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) // Single heal target
             if (AuraPtr renew = unitTarget->GetAura(139, caster->GetGUID()))
@@ -2151,6 +2137,8 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
         // create the new item and store it
         Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
 
+
+
         /*if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
         if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
         guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_CRAFTED, time(NULL), player->GetGUID(), 0, pProto->ItemId);*/
@@ -2161,6 +2149,10 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, bool vellum)
             player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
             return;
         }
+
+        std::vector<uint32> l_ItemBonus;
+        Item::GenerateItemBonus(newitemid, ItemContext::TradeSkill, l_ItemBonus);
+        pItem->AddItemBonuses(l_ItemBonus);
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
@@ -2246,7 +2238,7 @@ void Spell::EffectCreateItem2(SpellEffIndex effIndex)
 
     // special case: fake item replaced by generate using spell_loot_template
     if (m_spellInfo->IsLootCrafting())
-    {    
+    {
         if (item_id && LootTemplates_Spell.HaveLootFor(m_spellInfo->Id))
         {
             if (!player->HasItemCount(item_id))
@@ -2903,7 +2895,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                     if (l_SpellId)
                     {
-                        m_originalCaster->CastSpell(m_originalCaster, l_SpellId, true);
+                        m_originalCaster->GetOwner()->CastSpell(m_originalCaster->GetOwner(), l_SpellId, true);
                         return;
                     }
                 }
@@ -2978,6 +2970,10 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->isTotem())
                         return;
+
+                    /// Glyph of Totemic Vigor
+                    if (AuraEffectPtr l_GlyphOfTotemicVigor = m_caster->GetAuraEffect(63298, EFFECT_0))
+                        damage += m_caster->CountPctFromMaxHealth(l_GlyphOfTotemicVigor->GetAmount());
 
                     if (damage)                                            // if not spell info, DB values used
                     {
@@ -3272,7 +3268,7 @@ void Spell::EffectDispel(SpellEffIndex p_EffectIndex)
         l_DispellData.WriteBit(!!l_Rolled);                     ///< IsRolled
         l_DispellData.WriteBit(!!l_Needed);                     ///< IsNeeded
         l_DispellData.FlushBits();
-       
+
         if (l_Rolled)
             l_DispellData << uint32(l_Rolled);                  ///< Rolled
 
@@ -4255,12 +4251,16 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         continue;
 
                     /// Item - Rogue WoD PvP 2P Bonus - 165995
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
+
+                    /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(171109))
                         m_originalCaster->CastSpell(unitTarget, 165996, true);
 
                     /// Item - Druid WoD PvP Feral 2P Bonus
                     if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
-                    { 
+                    {
                         if (Player* l_Player = m_originalCaster->ToPlayer())
                         {
                             /// Interrupting a spell with Skull Bash resets the cooldown of Tiger's Fury.
@@ -4963,12 +4963,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_caster->CastCustomSpell(totem, 55277, &basepoints0, NULL, NULL, true);
                         }
                     }
-                    // Glyph of Stoneclaw Totem
-                    if (AuraEffectPtr aur = unitTarget->GetAuraEffect(63298, 0))
-                    {
-                        basepoints0 *= aur->GetAmount();
-                        m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, NULL, NULL, true);
-                    }
                     break;
                 }
                 case 66545: //Summon Memory
@@ -5111,7 +5105,7 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     unitTarget->CombatStop(false);
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
-    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131369)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 131361)
     {
         m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT_2);
@@ -5550,53 +5544,44 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         duration = 5000;
     }
 
-    if (go_id == 0)
+    if (go_id == 0 && !m_spellInfo->IsRaidMarker())
         return;
 
     int8 slot = 0;
 
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
-        slot = m_spellInfo->Effects[effIndex].MiscValueB;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
-        slot = 1;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
-        slot = 2;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
-        slot = 3;
-        break;
-    case SPELL_EFFECT_SUMMON_OBJECT:
-        slot = -1;
-        break;
-    default:
-        return;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT1:
+            slot = m_spellInfo->Effects[effIndex].MiscValueB;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT2:
+            slot = 1;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT3:
+            slot = 2;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT_SLOT4:
+            slot = 3;
+            break;
+        case SPELL_EFFECT_SUMMON_OBJECT:
+            slot = -1;
+            break;
+        default:
+            return;
     }
 
-    switch (m_spellInfo->Id)
-    {
-    case 84996: // Raid Marker 1
-    case 84997: // Raid Marker 2
-    case 84998: // Raid Marker 3
-    case 84999: // Raid Marker 4
-    case 85000: // Raid Marker 5
+    if (m_spellInfo->IsRaidMarker())
     {
         if (m_caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        float x = 0.0f, y = 0.0f, z = 0.0f;
+        float l_X = 0.0f, l_Y = 0.0f, l_Z = 0.0f;
         if (m_targets.HasDst())
-            destTarget->GetPosition(x, y, z);
+            destTarget->GetPosition(l_X, l_Y, l_Z);
 
-        if (Group* group = m_caster->ToPlayer()->GetGroup())
-            group->AddRaidMarker(m_spellInfo->Id, m_caster->GetMapId(), x, y, z);
+        if (Group* l_Group = m_caster->ToPlayer()->GetGroup())
+            l_Group->AddRaidMarker(damage, m_caster->GetMapId(), l_X, l_Y, l_Z);
         return;
-    }
-    default:
-        break;
     }
 
     if (slot != -1)
@@ -6238,8 +6223,8 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    int32 mana = 0;
-    float manaCostPercentage = 0.00f;
+    int32 l_Mana = 0;
+    int32 l_RefundPercentage = 0;
     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
@@ -6252,15 +6237,36 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                manaCostPercentage = spellInfo->ManaCostPercentage;
-                mana += m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
+                if (!spellInfo->SpellPowers.empty())
+                {
+                    for (auto l_Iter : spellInfo->SpellPowers)
+                    {
+                        if (l_Iter->PowerType == POWER_MANA && l_Iter->CostBasePercentage)
+                        {
+                            int32 l_BaseMana = CalculatePct(m_caster->GetMaxPower(POWER_MANA), 25);
+                            l_Mana += CalculatePct(l_BaseMana, l_Iter->CostBasePercentage);
+                        }
+                    }
+                }
             }
             totem->ToTotem()->UnSummon();
         }
     }
-    ApplyPct(mana, damage);
-    if (mana)
-        m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
+
+    if (l_Mana)
+    {
+        /// Totemic Recall - Returns your totems to the earth, refunding 25% of their mana cost
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(39104);
+        l_RefundPercentage = l_SpellInfo->Effects[EFFECT_1].BasePoints;
+
+        /// Glyph of Totemic Recall
+        if (AuraEffectPtr l_GlyphOfTotemicRecall = m_caster->GetAuraEffect(55438, EFFECT_0))
+            l_RefundPercentage += l_GlyphOfTotemicRecall->GetAmount();
+
+
+        l_Mana = CalculatePct(l_Mana, l_RefundPercentage);
+        m_caster->CastCustomSpell(m_caster, l_SpellInfo->Id, &l_Mana, NULL, NULL, true);
+    }
 }
 
 void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
@@ -7425,30 +7431,6 @@ void Spell::EffectCreateAreatrigger(SpellEffIndex effIndex)
 
         break;
     }
-    case 119031:/// Healing Sphere
-    {
-        int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
-
-        if (count > 3)
-        {
-            std::list<AreaTrigger*> healingSphereList;
-            m_caster->GetAreaTriggerList(healingSphereList, m_spellInfo->Id);
-
-            if (!healingSphereList.empty())
-            {
-                healingSphereList.sort(JadeCore::AreaTriggerDurationPctOrderPred());
-
-                for (auto itr : healingSphereList)
-                {
-                    AreaTrigger* healingSphere = itr;
-                    healingSphere->SetDuration(0);
-                    break;
-                }
-            }
-        }
-
-        break;
-    }
     case 116011:// Rune of Power
     {
         int32 count = m_caster->CountAreaTrigger(m_spellInfo->Id);
@@ -8200,4 +8182,89 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex p_EffIndex)
             break;
         }
     }
+}
+
+void Spell::EffectChangeItemBonus(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Item* l_ItemTarget = m_targets.GetItemTarget();
+    if (l_ItemTarget == nullptr)
+        return;
+
+    uint32 l_OldItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValue;
+    uint32 l_NewItemBonusTreeCategory = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+
+    ItemBonusTreeNodeEntry const* l_OldBonusTree = nullptr;
+    ItemBonusTreeNodeEntry const* l_NewBonusTree = nullptr;
+
+    /// Search for item bonus tree ...
+    for (uint32 l_Entry = 0; l_Entry < sItemBonusTreeNodeStore.GetNumRows(); l_Entry++)
+    {
+        auto l_BonusTree = sItemBonusTreeNodeStore.LookupEntry(l_Entry);
+        if (l_BonusTree == nullptr)
+            continue;
+
+        if (l_BonusTree->Context != uint32(ItemContext::TradeSkill))
+            continue;
+
+        if (l_BonusTree->Category == l_OldItemBonusTreeCategory)
+            l_OldBonusTree = l_BonusTree;
+
+        if (l_BonusTree->Category == l_NewItemBonusTreeCategory)
+            l_NewBonusTree = l_BonusTree;
+    }
+
+    /// @TODO: Somes bonus are missing, even with hotfixes data ...
+    if (l_OldBonusTree == nullptr
+        || l_NewBonusTree == nullptr)
+        return;
+
+    std::vector<uint32> const& l_CurrentItemBonus = l_ItemTarget->GetAllItemBonuses();
+
+    /// Check if the selected item have the old bonus, and with the right context
+    bool l_BonusFound = false;
+    for (auto l_Bonus : l_CurrentItemBonus)
+    {
+        if (l_Bonus == l_OldBonusTree->ItemBonusEntry)
+        {
+            l_BonusFound = true;
+            break;
+        }
+    }
+
+    /// Cheater ?
+    if (!l_BonusFound)
+        return;
+
+    /// Not sure if somes item can be changed without have specific bonus in ItemXBonusTree
+    auto l_BonusTrees = sItemBonusTreeByID.find(l_ItemTarget->GetEntry());
+    if (l_BonusTrees == sItemBonusTreeByID.end() ||  l_BonusTrees->second.empty())
+        return;
+
+    for (auto l_BonusTree : l_BonusTrees->second)
+    {
+        for (uint32 l_BonusTreeNodeID = 0; l_BonusTreeNodeID < sItemBonusTreeNodeStore.GetNumRows(); l_BonusTreeNodeID++)
+        {
+            auto l_ItemTreeNode = sItemBonusTreeNodeStore.LookupEntry(l_BonusTreeNodeID);
+            if (!l_ItemTreeNode)
+                continue;
+
+            if (l_ItemTreeNode->Category != l_BonusTree->ItemBonusTreeCategory)
+                continue;
+
+            if (l_ItemTreeNode->Context != (uint32)ItemContext::TradeSkill)
+                continue;
+
+            /// Item selected can't be upgrade / change with that spell.
+            if (l_ItemTreeNode->ItemBonusEntry == l_NewBonusTree->ItemBonusEntry && l_ItemTreeNode != l_OldBonusTree)
+                return;
+        }
+    }
+
+    /// All is fine, now we can update item bonus
+    l_ItemTarget->RemoveItemBonus(l_OldBonusTree->ItemBonusEntry);
+    l_ItemTarget->AddItemBonus(l_NewBonusTree->ItemBonusEntry);
+    l_ItemTarget->SetState(ITEM_CHANGED, m_caster->ToPlayer());
 }

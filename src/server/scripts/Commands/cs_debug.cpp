@@ -132,6 +132,7 @@ class debug_commandscript: public CommandScript
                 { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
+                { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -492,7 +493,7 @@ class debug_commandscript: public CommandScript
 
         static bool HandleDebugPlayOrphanSpellVisual(ChatHandler* p_Handler, char const* p_Args)
         {
-            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
 
             G3D::Vector3 l_Source (3737.686f, 7660.064f, 24.95166f);
             G3D::Vector3 l_Target (3737.686f, 7660.064f, 25.05166f);
@@ -2404,7 +2405,7 @@ class debug_commandscript: public CommandScript
 
            uint32 minDamage, maxDamage;
            proto->CalculateMinMaxDamageScaling(ilvl, minDamage, maxDamage);
-           handler->PSendSysMessage("%s(%i): %i", proto->Name1.c_str(), proto->ItemId, ilvl);
+           handler->PSendSysMessage("%s(%i): %i", proto->Name1->Get(handler->GetSessionDbcLocale()), proto->ItemId, ilvl);
            handler->PSendSysMessage("%i - %i", minDamage, maxDamage);
            handler->PSendSysMessage("Armor: %i", proto->CalculateArmorScaling(ilvl));
            for (int i = 0; i < 10; i++)
@@ -2579,7 +2580,7 @@ class debug_commandscript: public CommandScript
             for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
             {
                 ItemTemplate const* l_Template = &l_Iter->second;
-                if (l_Template->Name1.find(l_SearchString) != std::string::npos)
+                if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) != std::string::npos)
                 {
                     if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
                         continue;
@@ -2694,7 +2695,82 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
-        
+        static bool HandleHotfixOverride(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            auto l_SendHotfixPacket = [&p_Handler](DB2StorageBase* p_Store, uint32 p_Entry) -> void
+            {
+                ByteBuffer l_ResponseData(2 * 1024);
+                if (p_Store->WriteRecord(p_Entry, l_ResponseData, p_Handler->GetSessionDbLocaleIndex()))
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(p_Entry);
+                    l_Data << uint32(sObjectMgr->GetHotfixDate(p_Entry, p_Store->GetHash()));
+                    l_Data << uint32(l_ResponseData.size());
+                    l_Data.append(l_ResponseData);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+                else
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(-int32(p_Entry));
+                    l_Data << uint32(time(NULL));
+                    l_Data << uint32(0);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+            };
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+
+            std::string l_HotfixType = arg1;
+            uint32 l_HotfixEntry = atoi(arg2);
+            if (l_HotfixType == "item")
+            {
+                l_SendHotfixPacket(&sItemStore, l_HotfixEntry);
+                l_SendHotfixPacket(&sItemSparseStore, l_HotfixEntry);
+
+                for (uint32 i = 0; i < sItemEffectStore.GetNumRows(); ++i)
+                {
+                    ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+                    
+                    l_SendHotfixPacket(&sItemEffectStore, i);
+                }
+
+                std::vector<uint32> l_Appearances;
+                for (uint32 i = 0; i < sItemModifiedAppearanceStore.GetNumRows(); ++i)
+                {
+                    ItemModifiedAppearanceEntry const* l_Entry = sItemModifiedAppearanceStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemModifiedAppearanceStore, i);
+                    l_Appearances.push_back(i);
+                }
+
+                for (uint32 l_AppearanceID : l_Appearances)
+                {
+                    ItemAppearanceEntry const* l_Entry = sItemAppearanceStore.LookupEntry(l_AppearanceID);
+                    if (!l_Entry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemAppearanceStore, l_AppearanceID);
+                }
+
+            }
+
+            return true;
+        }
 };
 
 void AddSC_debug_commandscript()

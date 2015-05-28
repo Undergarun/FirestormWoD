@@ -173,7 +173,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
         sql = new SqlDb2(customTableName, l_SQLFormat, customIndexName, storage.GetFormat());
     }
 
-    if (!storage.Load(db2_filename.c_str(), sql))
+    if (!storage.Load(db2_filename.c_str(), sql, sWorld->GetDefaultDbcLocale()))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
         if (FILE * f = fopen(db2_filename.c_str(), "rb"))
@@ -219,7 +219,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sGroupFinderCategoryStore,       db2Path, "GroupFinderCategory.db2"                                              );
     LoadDB2(bad_db2_files, sHolidaysStore,                  db2Path, "Holidays.db2"                                                         );
     LoadDB2(bad_db2_files, sMapChallengeModeStore,          db2Path, "MapChallengeMode.db2",            "map_challenge_mode",           "ID");
-    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2"                                                            );
+    LoadDB2(bad_db2_files, sMountStore,                     db2Path, "Mount.db2",                       "mount",                        "ID");
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2"                                                  );
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );

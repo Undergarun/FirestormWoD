@@ -1054,6 +1054,26 @@ namespace JadeCore
             float m_Range;
     };
 
+    class NearestFriendlyUnitInObjectRangeCheck
+    {
+        public:
+            NearestFriendlyUnitInObjectRangeCheck(WorldObject const* p_Obj, Unit const* p_Unit, float p_Range) : m_Obj(p_Obj), m_Unit(p_Unit), m_Range(p_Range) {}
+            bool operator()(Unit* u)
+            {
+                if (u->isAlive() && m_Obj->IsWithinDistInMap(u, m_Range) && m_Unit->IsFriendlyTo(u) && u != m_Unit)
+                {
+                    m_Range = m_Obj->GetDistance(u);        // use found unit range as new range limit for next check
+                    return true;
+                }
+
+                return false;
+            }
+        private:
+            WorldObject const* m_Obj;
+            Unit const* m_Unit;
+            float m_Range;
+    };
+
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
     class NearestAttackableUnitInObjectRangeCheck
     {

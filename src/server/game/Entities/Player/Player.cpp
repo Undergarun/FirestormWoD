@@ -85,6 +85,7 @@
 #include "GarrisonMgr.hpp"
 #include "PetBattle.h"
 #include "Vignette.hpp"
+#include "WowTime.hpp"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -3638,6 +3639,14 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     if (!l_Entry)
         return std::pair<bool, std::string>(false, "Condition entry not found");
 
+    if (sScriptMgr->HasPlayerConditionScript(p_ConditionsID))
+    {
+        if (!sScriptMgr->EvalPlayerConditionScript(l_Entry, this))
+            return std::pair<bool, std::string>(false, "Condition script failed");
+
+        return std::pair<bool, std::string>(true, "");
+    }
+
     auto EvalMatch = [](bool * p_Matches, uint32 p_Flags) -> bool
     {
         bool l_Result = p_Matches[0] && p_Matches[1] && p_Matches[2] && p_Matches[3];
@@ -3855,7 +3864,18 @@ std::pair<bool, std::string> Player::EvalPlayerCondition(uint32 p_ConditionsID, 
     }
     #pragma endregion AuraSpellLogic, AuraSpellID
 
-    /// @TODO : WorldStateExpressionID
+    #pragma region WorldStateExpressionID
+    if (l_Entry->WorldStateExpressionID != 0)
+    {
+        WorldStateExpressionEntry const* l_Expression = sWorldStateExpressionStore.LookupEntry(l_Entry->WorldStateExpressionID);
+
+        if (!l_Expression)
+            return std::pair<bool, std::string>(false, "Failed on WorldStateExpressionID => DBC WorldStateExpression entry not found");
+
+        if (!l_Expression->Eval(this))
+            return std::pair<bool, std::string>(false, "Failed on WorldStateExpressionID => eval failed");
+    }
+    #pragma endregion WorldStateExpressionID
 
     #pragma region Weather
     if (l_Entry->WeatherID != 0)
@@ -4948,8 +4968,6 @@ void Player::SendKnownSpells()
     l_Data << uint32(l_SpellCount);
 
     GetSession()->SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CHARACTER: Sent Send Known Spells");
 }
 
 void Player::RemoveMail(uint32 id)
@@ -5025,42 +5043,10 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
@@ -5084,42 +5070,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     if (sSpellMgr->IsSpellForbidden(spellId) && !isGameMaster() && sWorld->getBoolConfig(CONFIG_SPELL_FORBIDDEN))
     {
@@ -8373,9 +8327,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_LINEID + field, offset, id);
+
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MODIFIER + field, offset, 0);
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_TALENT + field, offset, 0);
 
@@ -8399,7 +8354,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_STEP + field, offset, 0);
             // update value
             SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_RANK + field, offset, 0);
-            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 75);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_OFFSET_MAX_RANK + field, offset, 0);
         }
     }
     else if (newVal)                                        //add
@@ -9344,7 +9299,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0, 20+] HK: <>
 
-    WorldPacket data(SMSG_PVP_CREDIT, 4 + 8 + 4);
+    WorldPacket data(SMSG_PVP_CREDIT, 4 + 16 + 2 + 4);
     data << uint32(honor);
     data.appendPackGUID(victim_guid);
     data << uint32(victim_rank);
@@ -12000,8 +11955,8 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
 
 #ifdef _MSC_VER
             char* l_Size[] = { "None", "Small", "Medium", "Big" };
-            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
-            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+            ChatHandler(this).PSendSysMessage("Loot find fish %s(%u) size %s", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid, l_Size[(int)GetFishType(l_LootItem->itemid)]);
+            ChatHandler(this).PSendSysMessage("Loot removed fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
             l_Fishs.push_back(l_LootItem);
             l_LootItem->needs_quest = true;
@@ -12031,7 +11986,7 @@ void Player::SendLoot(uint64 p_Guid, LootType p_LootType, bool p_FetchLoot)
                 {
 #ifdef _MSC_VER
                     ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_LootItem->itemid);
-                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1.c_str(), l_LootItem->itemid);
+                    ChatHandler(this).PSendSysMessage("Loot added fish %s(%u)", l_ItemTemplate->Name1->Get(sWorld->GetDefaultDbcLocale()), l_LootItem->itemid);
 #endif
                     l_LootItem->needs_quest = false;
                 }
@@ -12096,6 +12051,8 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
     data.WriteBit(0);
     data.FlushBits();
     GetSession()->SendPacket(&data);
+
+    SetWorldState(Field, Value);
 }
 
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
@@ -12900,11 +12857,22 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
     }
 
+    uint32 l_WorldStateCount = l_Buffer.size() / 8;
+    l_Buffer.rpos(0);
+
+    for (uint32 l_I = 0; l_I < l_WorldStateCount; ++l_I)
+    {
+        uint32 l_Field, l_Value;
+        l_Buffer >> l_Field >> l_Value;
+
+        SetWorldState(l_Field, l_Value);
+    }
+
     WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 4 + l_Buffer.size());
     data << uint32(mapid);                                  // mapid
     data << uint32(zoneid);                                 // zone id
     data << uint32(areaid);                                 // area id, new 2.1.0
-    data << uint32(l_Buffer.size() / 8);
+    data << uint32(l_WorldStateCount);
     data.append(l_Buffer);
 
     GetSession()->SendPacket(&data);
@@ -15588,8 +15556,8 @@ void Player::SetVisibleItemSlot(uint8 slot, Item* pItem)
     if (pItem)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 0, pItem->GetVisibleEntry());
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
-        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 1, pItem->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT));
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 0, pItem->GetAppearanceModID());
+        SetUInt16Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 1, 1, pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (slot * 3) + 2, 0);
     }
     else
@@ -20094,7 +20062,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
+        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, 200);
         data << uint32(quest->GetQuestId());
         data.appendPackGUID(GetGUID());
         data.WriteBits(strTitle.size(), 10);
@@ -20108,7 +20076,7 @@ void Player::SendPushToPartyResponse(Player* player, uint32 msg)
 {
     if (player)
     {
-        WorldPacket data(SMSG_QUEST_PUSH_RESULT, (8+1));
+        WorldPacket data(SMSG_QUEST_PUSH_RESULT, 16 + 2 + 1);
 
         data.appendPackGUID(player->GetGUID());
         data << uint8(msg);
@@ -20431,8 +20399,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE, false);
+    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2, true);
 
     SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBAT_REACH, 1.5f);
@@ -20676,6 +20644,58 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
+    /// Player was saved in BG or arena.
+    if (mapEntry && mapEntry->IsBattlegroundOrArena())
+    {
+        Battleground* currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
+
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
+
+        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
+            AddBattlegroundQueueId(bgQueueTypeId);
+
+            m_bgData.bgTypeID = currentBg->GetTypeID();
+
+            //join player to battleground group
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
+
+            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
+
+            /// We give the deserter aura by default when we leave a battleground
+            /// so if we succeed at re-entering the battleground, we remove the aura.
+            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
+                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
+        }
+        // Bg was not found - go to Entry Point
+        else
+        {
+            /// Leave bg.
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
+            /// Do not look for instance if bg not found.
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
+            mapId = _loc.GetMapId(); instanceId = 0;
+
+            /// Db field type is type int16, so it can never be MAPID_INVALID.
+            /// if (mapId == MAPID_INVALID) -- code kept for reference
+            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
+            {
+                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
+                RelocateToHomebind();
+            }
+            else
+                Relocate(&_loc);
+
+            /// We are not in BG anymore.
+            m_bgData.bgInstanceID = 0;
+        }
+    }
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
@@ -20939,59 +20959,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // add ghost flag (must be after aura load: PLAYER_FIELD_PLAYER_FLAGS_GHOST set in aura)
     if (HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
-
-    /// Player was saved in BG or arena.
-    if (mapEntry && mapEntry->IsBattlegroundOrArena())
-    {
-        Battleground* currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, MS::Battlegrounds::Maps::FindAssociatedType(mapEntry->MapID));
-
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
-
-        if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
-        {
-            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(currentBg->GetTypeID(), currentBg->GetArenaType(), currentBg->IsSkirmish());
-            AddBattlegroundQueueId(bgQueueTypeId);
-
-            m_bgData.bgTypeID = currentBg->GetTypeID();
-
-            //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this);
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
-
-            SetInviteForBattlegroundQueueType(bgQueueTypeId, currentBg->GetInstanceID());
-
-            /// We give the deserter aura by default when we leave a battleground
-            /// so if we succeed at re-entering the battleground, we remove the aura.
-            if (HasAura(MS::Battlegrounds::Spells::DeserterBuff))
-                RemoveAura(MS::Battlegrounds::Spells::DeserterBuff);
-        }
-        // Bg was not found - go to Entry Point
-        else
-        {
-            /// Leave bg.
-            if (player_at_bg)
-                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
-
-            /// Do not look for instance if bg not found.
-            const WorldLocation& _loc = GetBattlegroundEntryPoint();
-            mapId = _loc.GetMapId(); instanceId = 0;
-
-            /// Db field type is type int16, so it can never be MAPID_INVALID.
-            /// if (mapId == MAPID_INVALID) -- code kept for reference
-            if (int16(mapId) == int16(-1)) // Battleground Entry Point not found (???)
-            {
-                sLog->outError(LOG_FILTER_PLAYER, "Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid);
-                RelocateToHomebind();
-            }
-            else
-                Relocate(&_loc);
-
-            /// We are not in BG anymore.
-            m_bgData.bgInstanceID = 0;
-        }
-    }
 
     l_Times.push_back(getMSTime() - l_StartTime);
 
@@ -21641,10 +21608,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid = 0;
-        }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
     }
@@ -22383,58 +22347,61 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
     }
 }
 
-InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, bool load)
+InstancePlayerBind* Player::BindToInstance(InstanceSave* p_InstanceSave, bool p_Permanent, bool p_Load)
 {
-    if (save)
+    if (p_InstanceSave && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidLFR && p_InstanceSave->GetDifficultyID() != Difficulty::DifficultyRaidTool)
     {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-        if (bind.save)
+        InstancePlayerBind& l_InstanceBind = m_boundInstances[p_InstanceSave->GetDifficultyID()][p_InstanceSave->GetMapId()];
+        if (l_InstanceBind.save)
         {
             // update the save when the group kills a boss
-            if (permanent != bind.perm || save != bind.save)
-                if (!load)
+            if (p_Permanent != l_InstanceBind.perm || p_InstanceSave != l_InstanceBind.save)
+            {
+                if (!p_Load)
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-
-                    stmt->setUInt32(0, save->GetInstanceId());
-                    stmt->setBool(1, permanent);
-                    stmt->setUInt32(2, GetGUIDLow());
-                    stmt->setUInt32(3, bind.save->GetInstanceId());
-
-                    CharacterDatabase.Execute(stmt);
+                    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
+                    l_Statement->setUInt32(0, p_InstanceSave->GetInstanceId());
+                    l_Statement->setBool(1, p_Permanent);
+                    l_Statement->setUInt32(2, GetGUIDLow());
+                    l_Statement->setUInt32(3, l_InstanceBind.save->GetInstanceId());
+                    CharacterDatabase.Execute(l_Statement);
                 }
+            }
         }
         else
-            if (!load)
-            {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
-
-                stmt->setUInt32(0, GetGUIDLow());
-                stmt->setUInt32(1, save->GetInstanceId());
-                stmt->setBool(2, permanent);
-
-                CharacterDatabase.Execute(stmt);
-            }
-
-        if (bind.save != save)
         {
-            if (bind.save)
-                bind.save->RemovePlayer(this);
-            save->AddPlayer(this);
+            if (!p_Load)
+            {
+                PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
+                l_Statement->setUInt32(0, GetGUIDLow());
+                l_Statement->setUInt32(1, p_InstanceSave->GetInstanceId());
+                l_Statement->setBool(2, p_Permanent);
+                CharacterDatabase.Execute(l_Statement);
+            }
         }
 
-        if (permanent)
-            save->SetCanReset(false);
+        if (l_InstanceBind.save != p_InstanceSave)
+        {
+            if (l_InstanceBind.save)
+                l_InstanceBind.save->RemovePlayer(this);
 
-        bind.save = save;
-        bind.perm = permanent;
-        if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
-        return &bind;
+            p_InstanceSave->AddPlayer(this);
+        }
+
+        if (p_Permanent)
+            p_InstanceSave->SetCanReset(false);
+
+        l_InstanceBind.save = p_InstanceSave;
+        l_InstanceBind.perm = p_Permanent;
+
+        if (!p_Load)
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), p_InstanceSave->GetMapId(), p_InstanceSave->GetInstanceId(), p_InstanceSave->GetDifficultyID());
+
+        sScriptMgr->OnPlayerBindToInstance(this, p_InstanceSave->GetDifficultyID(), p_InstanceSave->GetMapId(), p_Permanent);
+        return &l_InstanceBind;
     }
     else
-        return NULL;
+        return nullptr;
 }
 
 void Player::BindToInstance()
@@ -22454,7 +22421,7 @@ void Player::BindToInstance()
 void Player::SendRaidInfo()
 {
     uint32 l_Counter = 0;
-    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO);
+    WorldPacket l_Data(SMSG_RAID_INSTANCE_INFO, 1024);
     ByteBuffer l_Buffer;
     time_t l_Now = time(NULL);
 
@@ -24395,7 +24362,7 @@ void Player::PetSpellInitialize()
     uint16 l_Specialization       = l_Pet->GetSpecializationId();
     ObjectGuid l_PetGUID          = l_Pet->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24480,7 +24447,7 @@ void Player::PossessSpellInitialize()
     uint16 l_Specialization       = 0;
     ObjectGuid l_PetGUID          = l_Charm->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24511,7 +24478,7 @@ void Player::VehicleSpellInitialize()
     uint16 l_Specialization       = 0;                                                                  // I think it's useless in case of vehicle action bar
     ObjectGuid l_PetGUID          = l_Vehicle->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24630,7 +24597,7 @@ void Player::CharmSpellInitialize()
     uint16 l_Specialization       = 0;
     ObjectGuid l_PetGUID          = l_Charm->GetGUID();
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -24687,7 +24654,7 @@ void Player::SendRemoveControlBar()
     uint16 l_Specialization = 0;
     ObjectGuid l_PetGUID = 0;
 
-    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE);
+    WorldPacket l_Data(SMSG_PET_SPELLS_MESSAGE, 500);
     l_Data.appendPackGUID(l_PetGUID);           ///< PetGUID
     l_Data << uint16(l_CreatureFamily);         ///< CreatureFamily
     l_Data << uint16(l_Specialization);         ///< Specialization
@@ -26936,8 +26903,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     l_Data.Initialize(SMSG_LOGIN_SET_TIME_SPEED, 4 * 5);
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // server hour    ServerTime
-    l_Data << uint32(secsToTimeBitFields(sWorld->GetGameTime())); // local hour     GameTime
+    l_Data << uint32(MS::Utilities::WowTime::Encode(sWorld->GetGameTime())); // server hour    ServerTime
+    l_Data << uint32(MS::Utilities::WowTime::Encode(sWorld->GetGameTime())); // local hour     GameTime
     l_Data << float(0.01666667f);                                 // game speed     NewSpeed
     l_Data << uint32(1);                                          // added in 5.4.0 GameTimeHolidayOffset or ServerTimeHolidayOffset
     l_Data << uint32(1);                                          // added in 3.1.2 GameTimeHolidayOffset or ServerTimeHolidayOffset
@@ -26962,8 +26929,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     l_Data.Initialize(SMSG_INITIAL_SETUP, 2062);
     l_Data << uint8(sWorld->getIntConfig(CONFIG_EXPANSION));      ///< Server Expansion Level
     l_Data << uint8(0);                                           ///< Server Expansion Tier
-    l_Data << uint32(1135753200);                                 ///< Server Region ID
-    l_Data << uint32(0);                                          ///< Raid origin
+    l_Data << uint32(sWorld->GetServerRegionID());                ///< Server Region ID
+    l_Data << uint32(sWorld->GetServerRaidOrigin());              ///< Raid origin
     GetSession()->SendPacket(&l_Data);
 
     if (Pet* l_Pet = GetPet())
@@ -29496,7 +29463,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             continue;
 
         uint16 value = 0;
-        uint16 max = 75;
+        uint16 max = 0;
         uint16 step = 0;
 
         uint16 field = count / 2;
@@ -29965,7 +29932,7 @@ void Player::SendEquipmentSetList()
 {
     uint32 l_EquipmentSetCount = 0;
 
-    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 1024);
+    WorldPacket l_Data(SMSG_EQUIPMENT_SET_LIST, 4 * 1024);
 
     for (EquipmentSets::iterator l_Itr = m_EquipmentSets.begin(); l_Itr != m_EquipmentSets.end(); ++l_Itr)
     {
@@ -33103,6 +33070,15 @@ CompletedChallenge* Player::GetCompletedChallenge(uint32 p_MapID)
 
     return &m_CompletedChallenges[p_MapID];
 }
+
+void Player::AddCompletedChallenge(uint32 p_MapID, CompletedChallenge p_Challenge)
+{
+    /// Already completed
+    if (m_CompletedChallenges.find(p_MapID) != m_CompletedChallenges.end())
+        return;
+
+    m_CompletedChallenges.insert(std::make_pair(p_MapID, p_Challenge));
+}
 //////////////////////////////////////////////////////////////////////////
 
 void Player::ApplyOnBagsItems(std::function<bool(Player*, Item*, uint8, uint8)>&& p_Function)
@@ -33196,13 +33172,16 @@ void Player::ResetDailyLoots()
 
 void Player::AddDailyLootCooldown(uint32 p_Entry)
 {
+    /// If not, already in database
     if (!m_DailyLootsCooldowns.count(p_Entry))
+    {
         m_DailyLootsCooldowns.insert(p_Entry);
 
-    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
-    l_Statement->setUInt32(0, GetGUIDLow());
-    l_Statement->setUInt32(1, p_Entry);
-    CharacterDatabase.Execute(l_Statement);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_DAILY_LOOT_COOLDOWNS);
+        l_Statement->setUInt32(0, GetGUIDLow());
+        l_Statement->setUInt32(1, p_Entry);
+        CharacterDatabase.Execute(l_Statement);
+    }
 }
 
 bool Player::AddHeirloom(HeirloomEntry const* p_HeirloomEntry, uint8 p_UpgradeLevel)
