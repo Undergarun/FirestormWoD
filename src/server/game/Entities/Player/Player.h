@@ -3607,7 +3607,7 @@ class Player : public Unit, public GridObject<Player>
             l_WorldState.Value   = p_Value;
             l_WorldState.Changed = true;
 
-            m_CharacterWorldStates.insert(std::make_pair(p_Index, l_WorldState));
+            m_CharacterWorldStates[p_Index] = l_WorldState;
         }
 
         CharacterWorldState const& GetCharacterWorldState(uint32 p_Index) const
