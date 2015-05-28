@@ -1016,6 +1016,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
+    PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1538,6 +1539,12 @@ struct WargameRequest
     uint64 QueueID;
     bool   TournamentRules;
     time_t CreationDate;
+};
+
+struct CharacterWorldState
+{
+    uint64 Value;
+    bool   Changed;
 };
 
 namespace MS { namespace Garrison 
@@ -3594,6 +3601,28 @@ class Player : public Unit, public GridObject<Player>
         void ResetBossLooted() { m_BossLooted.clear(); }
         BossLooted const GetBossLooted() const { return m_BossLooted; }
 
+        void SetCharacterWorldState(uint32 p_Index, uint64 p_Value)
+        {
+            CharacterWorldState l_WorldState;
+            l_WorldState.Value   = p_Value;
+            l_WorldState.Changed = true;
+
+            m_CharacterWorldStates.insert(std::make_pair(p_Index, l_WorldState));
+        }
+
+        CharacterWorldState const& GetCharacterWorldState(uint32 p_Index) const
+        {
+            return m_CharacterWorldStates.at(p_Index);
+        }
+
+        uint64 GetCharacterWorldStateValue(uint32 p_Index) const
+        {
+            if (m_CharacterWorldStates.find(p_Index) == m_CharacterWorldStates.end())
+                return 0;
+
+            return m_CharacterWorldStates.at(p_Index).Value;
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3613,8 +3642,6 @@ class Player : public Unit, public GridObject<Player>
         PlayerToys m_PlayerToys;
 
         BossLooted m_BossLooted;
-
-        void _LoadBossLooted(PreparedQueryResult p_Result);
 
     private:
         // Gamemaster whisper whitelist
@@ -3700,6 +3727,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
+        void _LoadBossLooted(PreparedQueryResult p_Result);
+        void _LoadWorldStates(PreparedQueryResult p_Result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3726,6 +3755,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
+        void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -4060,6 +4090,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Wargame
         WargameRequest* m_WargameRequest;
+
+        /// Character WorldState
+        std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
 
 };
 

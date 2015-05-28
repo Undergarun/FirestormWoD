@@ -20484,6 +20484,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     _LoadHeirloomCollection(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_HEIRLOOM_COLLECTION));
     _LoadToyBox(p_LoginDBQueryHolder->GetPreparedResult(PLAYER_LOGINDB_TOYS));
     _LoadBossLooted(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOSS_LOOTED));
+    _LoadWorldStates(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_WORLD_STATES));
 
     _LoadGroup(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -23006,6 +23007,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveInstanceTimeRestrictions(trans);
     _SaveCurrency(trans);
     m_archaeologyMgr.SaveArchaeology(trans);
+    _SaveCharacterWorldStates(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -33567,4 +33569,38 @@ uint32 Player::GetDefaultSpecId() const
     if (l_CharClasseEntry)
         return l_CharClasseEntry->m_DefaultSpec;
     return 0;
+}
+
+void Player::_LoadWorldStates(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    do
+    {
+        Field* l_Fields = p_Result->Fetch();
+        CharacterWorldState l_WorldState;
+        l_WorldState.Value   = l_Fields[1].GetUInt32();
+        l_WorldState.Changed = false;
+
+        m_CharacterWorldStates.insert(std::make_pair(l_Fields[0].GetUInt32(), l_WorldState));
+    }
+    while (p_Result->NextRow());
+}
+
+void Player::_SaveCharacterWorldStates(SQLTransaction& p_Transaction)
+{
+    for (auto l_Iterator : m_CharacterWorldStates)
+    {
+        CharacterWorldState& l_WorldState = l_Iterator.second;
+        if (!l_WorldState.Changed)
+            continue;
+
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_REP_WORLD_STATES);
+        l_Statement->setUInt32(0, GetGUIDLow());
+        l_Statement->setUInt32(1, l_Iterator.first);
+        l_Statement->setUInt64(2, l_WorldState.Value);
+
+        p_Transaction->Append(l_Statement);
+    }
 }
