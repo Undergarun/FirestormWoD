@@ -425,7 +425,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
  
             void OnUpdate(uint32 diff)
             {
-                if (Unit* target = GetTarget())
+                if (Unit* target = GetUnitOwner())
                 {
                     if (Unit* caster = GetCaster())
                     {

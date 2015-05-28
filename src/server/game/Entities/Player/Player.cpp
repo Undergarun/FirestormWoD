@@ -5043,42 +5043,10 @@ bool Player::AddTalent(uint32 spellId, uint8 spec, bool learning)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(spellId);
     if (itr != GetTalentMap(spec)->end())
@@ -5102,42 +5070,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     if (!SpellMgr::IsSpellValid(spellInfo, this, false))
-    {
-        // do character spell book cleanup (all characters)
-        if (!IsInWorld() && !learning)                       // spell load case
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed, deleting for all characters in `character_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Broken spell #%u learning not allowed.", spellId);
-
         return false;
-    }
 
     if (sSpellMgr->IsSpellForbidden(spellId) && !isGameMaster() && sWorld->getBoolConfig(CONFIG_SPELL_FORBIDDEN))
     {
@@ -18232,7 +18168,7 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
 
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
                 {
 
                 }
@@ -18460,7 +18396,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
-            || l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
             continue;
 
         m_questObjectiveStatus.insert(std::make_pair(l_Objective.ID, uint32(0)));
@@ -19573,6 +19509,26 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
     return 0;
 }
 
+void Player::AreaExploredOrEventHappens(uint32 questId)
+{
+    if (questId)
+    {
+        uint16 log_slot = FindQuestSlot(questId);
+        if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
+            QuestStatusData& q_status = m_QuestStatus[questId];
+
+            if (!q_status.Explored)
+            {
+                q_status.Explored = true;
+                m_QuestStatusSave[questId] = true;
+            }
+        }
+        if (CanCompleteQuest(questId))
+            CompleteQuest(questId);
+    }
+}
+
 void Player::AdjustQuestReqItemCount(Quest const* quest)
 {
     if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
@@ -19595,26 +19551,6 @@ uint16 Player::FindQuestSlot(uint32 quest_id) const
             return i;
 
     return MAX_QUEST_LOG_SIZE;
-}
-
-void Player::AreaExploredOrEventHappens(uint32 questId)
-{
-    if (questId)
-    {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
-        {
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
-            {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = true;
-            }
-        }
-        if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
-    }
 }
 
 //not used in Trinityd, function for external script library
@@ -20157,7 +20093,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     switch (p_Objective.Type)
     {
-        case QUEST_OBJECTIVE_TYPE_CRITERIA:
+        case QUEST_OBJECTIVE_TYPE_CRITERIA_TREE:
         {
             WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
             data << uint32(p_Quest->GetQuestId());
@@ -20182,7 +20118,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
         case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
         case QUEST_OBJECTIVE_TYPE_MONEY:
         case QUEST_OBJECTIVE_TYPE_PLAYER:
-        case QUEST_OBJECTIVE_AREATRIGGER:
+        case QUEST_OBJECTIVE_TYPE_AREATRIGGER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:
@@ -20463,8 +20399,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
     SetUInt32Value(PLAYER_FIELD_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[57].GetCString(), PLAYER_FIELD_EXPLORED_ZONES, PLAYER_EXPLORED_ZONES_SIZE, false);
+    _LoadIntoDataField(fields[59].GetCString(), PLAYER_FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2, true);
 
     SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBAT_REACH, 1.5f);
@@ -21672,10 +21608,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: " UI64FMTD ", entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid = 0;
-        }
 
         _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
     }
@@ -22043,7 +21976,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
 
-                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && (uint32)objective->Amount == amount)
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE && (uint32)objective->Amount == amount)
                     SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
@@ -26348,8 +26281,6 @@ void Player::UpdatePotionCooldown(Spell* spell)
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
         SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
-
-    m_lastPotionId = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -26817,15 +26748,6 @@ void Player::UpdateTriggerVisibility()
 void Player::SendInitialVisiblePackets(Unit* p_Target)
 {
     SendAurasForTarget(p_Target);
-
-    if (Creature* l_Creature = p_Target->ToCreature())
-    {
-        if (CreatureAddon const* l_CreatureAddon = l_Creature->GetCreatureAddon())
-        {
-            if (l_CreatureAddon->AnimKit)
-                l_Creature->SetAIAnimKit(l_CreatureAddon->AnimKit);
-        }
-    }
 
     if (p_Target->isAlive())
     {

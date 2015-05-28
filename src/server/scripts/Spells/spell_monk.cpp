@@ -1163,9 +1163,9 @@ class spell_monk_guard: public SpellScriptLoader
                     return;
 
                 if (l_Caster->GetTypeId() == TYPEID_PLAYER)
-                    p_Amount += int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+                    p_Amount = int32(l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
-                    p_Amount += int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
+                    p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
 
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
@@ -1175,6 +1175,8 @@ class spell_monk_guard: public SpellScriptLoader
                     JadeCore::NearestFriendlyUnitInObjectRangeCheck l_NearestFriendlyUnitCheck(l_Caster, l_Caster, l_Radius);
                     JadeCore::UnitListSearcher<JadeCore::NearestFriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_NearestFriendlyUnitCheck);
                     l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    l_TargetList.remove(l_Caster);
 
                     if (l_TargetList.size() > 1)
                     {
@@ -1873,7 +1875,8 @@ class spell_monk_surging_mist: public SpellScriptLoader
         }
 };
 
-// Renewing Mist (heal) - 115151
+/// last update : 6.1.2 19802
+/// Renewing Mist (heal) - 115151
 class spell_monk_renewing_mist_hot: public SpellScriptLoader
 {
     public:
@@ -1883,16 +1886,40 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_renewing_mist_hot_SpellScript);
 
-            void HandleOnHit()
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
-                    if (Unit* l_Target = GetHitUnit())
-                        l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);
+                PoolOfMists = 173841,
+                JadeMists = 165397,
+                CatergoryID = 1517
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                /// Your Renewing Mist have a chance equal to your multistrike chance to not go on cooldown when used
+                if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                    l_Player->RestoreCharge(eSpells::CatergoryID);
+            }
+
+            void HandleDummy(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                l_Caster->CastSpell(l_Target, SPELL_MONK_RENEWING_MIST_HOT, true);                    
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_monk_renewing_mist_hot_SpellScript::HandleOnHit);
+                AfterCast += SpellCastFn(spell_monk_renewing_mist_hot_SpellScript::HandleAfterCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_hot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1902,76 +1929,12 @@ class spell_monk_renewing_mist_hot: public SpellScriptLoader
         }
 };
 
-// Renewing Mist - 119611
+/// last update : 6.1.2 19802
+/// Renewing Mist - 119611
 class spell_monk_renewing_mist: public SpellScriptLoader
 {
     public:
         spell_monk_renewing_mist() : SpellScriptLoader("spell_monk_renewing_mist") { }
-
-        class spell_monk_renewing_mist_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_renewing_mist_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    std::list<Unit*> playerList;
-                    std::list<Creature*> tempList;
-                    std::list<Creature*> statueList;
-                    Creature* statue;
-
-                    _player->GetRaidMembers(playerList);
-
-                    if (playerList.size() > 1)
-                    {
-                        playerList.sort(JadeCore::HealthPctOrderPred());
-                        playerList.resize(1);
-                    }
-
-                    _player->GetCreatureListWithEntryInGrid(tempList, 60849, 100.0f);
-                    _player->GetCreatureListWithEntryInGrid(statueList, 60849, 100.0f);
-
-                    // Remove other players jade statue
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == _player && (*i)->isSummon())
-                            continue;
-
-                        statueList.remove((*i));
-                    }
-
-                    for (auto itr : playerList)
-                    {
-                        if (statueList.size() == 1)
-                        {
-                            for (auto itrBis : statueList)
-                                statue = itrBis;
-
-                            if (statue && (statue->isPet() || statue->isGuardian()))
-                            {
-                                if (statue->GetOwner() && statue->GetOwner()->GetGUID() == _player->GetGUID())
-                                {
-                                    _player->AddAura(SPELL_MONK_RENEWING_MIST_HOT, itr);
-                                    _player->CastSpell(itr, SPELL_MONK_RENEWING_MIST_JUMP_AURA, true);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_renewing_mist_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_renewing_mist_SpellScript();
-        }
 
         class spell_monk_renewing_mist_AuraScript : public AuraScript
         {
@@ -1992,7 +1955,7 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             void OnUpdate(uint32 diff, AuraEffectPtr aurEff)
             {
-                update += diff;
+               update += diff;
 
                 if (update >= 2500)
                 {
@@ -2006,47 +1969,39 @@ class spell_monk_renewing_mist: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr aurEff)
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetTarget();
+
+                if (l_Caster == nullptr || l_Target == nullptr)
+                    return;
+
+                /// Check if all the 'charges' are apply
+                if (aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() <= 1)
+                    return;
+
+                /// Get friendly unit on range
+                std::list<Unit*> l_FriendlyUnitList;
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Target, l_Target, 20.0f);
+                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Target, l_FriendlyUnitList, l_Check);
+                l_Target->VisitNearbyObject(20.0f, l_Searcher);
+
+                /// Remove friendly unit with already renewing mist apply
+                l_FriendlyUnitList.remove_if(JadeCore::UnitAuraCheck(true, GetSpellInfo()->Id));
+
+                /// Sort friendly unit by pourcentage of health and get the most injured
+                if (l_FriendlyUnitList.size() > 1)
                 {
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        Player* target = GetTarget()->ToPlayer();
-                        Unit* newTarget;
+                    l_FriendlyUnitList.sort(JadeCore::HealthPctOrderPred());
+                    l_FriendlyUnitList.resize(1);
+                }
 
-                        if (!target)
-                            return;
-
-                        if (target->HasAura(SPELL_MONK_RENEWING_MIST_JUMP_AURA, _player->GetGUID()))
-                        {
-                            if (_player->HasAura(SPELL_MONK_GLYPH_OF_RENEWING_MIST))
-                                newTarget = target->GetNextRandomRaidMemberOrPet(40.0f);
-                            else
-                                newTarget = target->GetNextRandomRaidMemberOrPet(20.0f);
-
-                            if (!newTarget)
-                                return;
-
-                            if (AuraPtr renewingMistJump = target->GetAura(SPELL_MONK_RENEWING_MIST_JUMP_AURA, _player->GetGUID()))
-                            {
-                                if (renewingMistJump->GetCharges() > 1)
-                                {
-                                    renewingMistJump->DropCharge();
-
-                                    // Spreads Renewing Mists 3 times maximum
-                                    if (AuraPtr renewingMistHot = target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
-                                        _player->AddAura(SPELL_MONK_RENEWING_MIST_HOT, newTarget);
-                                }
-                                else
-                                {
-                                    target->RemoveAura(SPELL_MONK_RENEWING_MIST_JUMP_AURA, _player->GetGUID());
-
-                                    // Spreads Renewing Mists 3 times maximum
-                                    if (AuraPtr renewingMistHot = target->GetAura(SPELL_MONK_RENEWING_MIST_HOT, _player->GetGUID()))
-                                        _player->AddAura(SPELL_MONK_RENEWING_MIST_HOT, newTarget);
-                                }
-                            }
-                        }
-                    }
+                /// Spread renewing mist on him
+                for (auto l_Itr : l_FriendlyUnitList)
+                {
+                    l_Caster->CastSpell(l_Itr, GetSpellInfo()->Id, true);
+                    if (AuraPtr l_RenewingMistHot = l_Itr->GetAura(GetSpellInfo()->Id, l_Caster->GetGUID()))
+                        l_RenewingMistHot->GetEffect(EFFECT_1)->SetAmount(1);
+                    aurEff->GetBase()->GetEffect(EFFECT_1)->SetAmount(aurEff->GetBase()->GetEffect(EFFECT_1)->GetAmount() - 1);
                 }
             }
 
@@ -4310,6 +4265,24 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_rising_sun_kick_SpellScript);
 
+            enum eSpells
+            {
+                JadeMists = 165397,
+                CatergoryID = 1518
+            };
+
+            void HandleAfterCast()
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+                
+                /// Your Rising Sun Kick have a chance equal to your multistrike chance to not go on cooldown when used
+                if (l_Player->HasAura(eSpells::JadeMists) && roll_chance_f(l_Player->GetFloatValue(PLAYER_FIELD_MULTISTRIKE)))
+                    l_Player->RestoreCharge(eSpells::CatergoryID);
+            }
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
@@ -4345,6 +4318,7 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
 
             void Register()
             {
+                AfterCast += SpellCastFn(spell_monk_rising_sun_kick_SpellScript::HandleAfterCast);
                 OnEffectHitTarget += SpellEffectFn(spell_monk_rising_sun_kick_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
@@ -4945,6 +4919,42 @@ class spell_monk_detonate_chi : public SpellScriptLoader
         }
 };
 
+/// Glyph of Freedom Roll - 159534
+/// Call by Roll - 109132, Chi Torpedo - 115008 and Flying Serpent Kick - 115057
+class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
+{
+    public:
+        spell_monk_glyph_of_freedom_roll() : SpellScriptLoader("spell_monk_glyph_of_freedom_roll") { }
+
+        class spell_monk_glyph_of_freedom_roll_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_glyph_of_freedom_roll_SpellScript);
+
+            enum eSpells
+            {
+                GlyphofFreedomRoll = 159534
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::GlyphofFreedomRoll))
+                    l_Caster->RemoveMovementImpairingAuras();
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_monk_glyph_of_freedom_roll_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_glyph_of_freedom_roll_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_uplift();
@@ -5029,6 +5039,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_WoDPvPBrewmaster2PBonus();
     new spell_monk_zen_sphere_tick();
     new spell_monk_zen_sphere_detonate_heal();
+    new spell_monk_glyph_of_freedom_roll();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

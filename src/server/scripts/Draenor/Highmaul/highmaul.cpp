@@ -539,7 +539,7 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                     DoZoneInCombat(me, 40.0f);
                 }
 
-                me->SetAIAnimKit(0);
+                me->SetAIAnimKitId(0);
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -942,7 +942,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 for (Creature* l_Creature : l_IronGrunts)
                     me->Kill(l_Creature);
 
-                me->SetAIAnimKit(0);
+                me->SetAIAnimKitId(0);
             }
 
             void UpdateAI(uint32 const p_Diff) override

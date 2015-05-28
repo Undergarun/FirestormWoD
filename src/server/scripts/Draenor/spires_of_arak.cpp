@@ -33,7 +33,7 @@ class boss_rukhmar : public CreatureScript
             void Reset()
             {
                 m_Events.Reset();
-                me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
+                me->m_CombatDistance = 500.0f;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -57,9 +57,11 @@ class boss_rukhmar : public CreatureScript
 
             void EnterCombat(Unit* p_Who) override
             {
+                me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
                 me->UpdateGroundPositionZ(p_Who->m_positionX, p_Who->m_positionY, p_Who->m_positionZ);
                 LaunchGroundEvents();
             }
+
             void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
@@ -74,8 +76,9 @@ class boss_rukhmar : public CreatureScript
                     l_Creature->DespawnOrUnsummon();
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
+                CreatureAI::EnterEvadeMode();
                 summons.DespawnAll();
                 m_Events.Reset();
 
@@ -87,10 +90,11 @@ class boss_rukhmar : public CreatureScript
                 for (Creature* l_Creature : l_CreatureList)
                     l_Creature->DespawnOrUnsummon();
 
+                me->RemoveAura(SpiresOfArakSpells::SpellSolarRadiationAura);
                 me->GetMotionMaster()->MoveTargetedHome();
             }
 
-            void DoAction(int32 const p_Param)
+            void DoAction(int32 const p_Param) override
             {
                 LaunchGroundEvents();
             }
@@ -117,6 +121,7 @@ class boss_rukhmar : public CreatureScript
                     {
                         float l_ZPos = me->GetPositionZ();
                         l_ZPos += 4.0f;
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                         m_Events.Reset();
 
                         me->UpdateGroundPositionZ(me->m_positionX, me->m_positionY, l_ZPos);
@@ -126,9 +131,9 @@ class boss_rukhmar : public CreatureScript
                         break;
                     }
                     case SpiresOfArakEvents::EventSharpBeak:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SpiresOfArakSpells::SpellSharpBeak, false);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 33000);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 10000);
                         break;
                     case SpiresOfArakEvents::EventBloodFeather:
                         me->CastSpell(me, SpiresOfArakSpells::SpellBloodFeatherDummy, false);
@@ -151,7 +156,7 @@ class boss_rukhmar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new boss_rukhmarAI(p_Creature);
         }
@@ -171,7 +176,7 @@ class npc_energized_phoenix : public CreatureScript
             uint64 m_PlayerGuid;
             bool m_KilledByPlayer;
 
-            void Reset()
+            void Reset() override
             {
                 me->SetSpeed(MOVE_WALK, 0.35f);
                 me->SetSpeed(MOVE_RUN, 0.3f);
@@ -189,7 +194,7 @@ class npc_energized_phoenix : public CreatureScript
                 summons.Summon(p_Summon);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* p_Summoner) override
             {
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 30.0f);

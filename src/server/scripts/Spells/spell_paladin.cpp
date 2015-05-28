@@ -497,15 +497,18 @@ class spell_pal_shield_of_the_righteous: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* unitTarget = GetHitUnit())
-                    {
-                        // -20% damage taken for 3s
-                        _player->CastSpell(_player, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
-                        _player->CastSpell(_player, PALADIN_SPELL_BASTION_OF_GLORY, true);
-                    }
-                }
+                Unit* l_Caster = GetCaster();
+                int32 l_PreviousDuration = 0;
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                    l_PreviousDuration = l_Aura->GetDuration();
+
+                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC, true);
+
+                if (AuraPtr l_Aura = l_Caster->GetAura(PALADIN_SPELL_SHIELD_OF_THE_RIGHTEOUS_PROC))
+                    l_Aura->SetDuration(l_Aura->GetDuration() + l_PreviousDuration);
+
+                l_Caster->CastSpell(l_Caster, PALADIN_SPELL_BASTION_OF_GLORY, true);
             }
 
             void Register()
@@ -1394,7 +1397,8 @@ class spell_pal_consecration_area: public SpellScriptLoader
         }
 };
 
-//  Word of Glory (Heal) - 130551
+/// last update : 6.1.2 19802
+/// Word of Glory (Heal) - 130551
 class spell_pal_word_of_glory_heal: public SpellScriptLoader
 {
 public:
@@ -1403,6 +1407,12 @@ public:
     class spell_pal_word_of_glory_heal_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_word_of_glory_heal_SpellScript);
+
+        enum eSpells
+        {
+            WoDPvPHoly4PBonusAura = 180766,
+            WoDPvPHoly4PBonus = 180767
+        };
 
         void HandleHeal(SpellEffIndex /*effIndex*/)
         {
@@ -1426,6 +1436,17 @@ public:
                                 SetHitHeal(GetHitHeal() + CalculatePct(GetHitHeal(), l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Aura->GetStackAmount()));
                                 l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_BASTION_OF_GLORY);
                             }
+                        }
+                    }
+                    if (l_Caster->HasAura(eSpells::WoDPvPHoly4PBonusAura))
+                    {
+                        l_Caster->CastSpell(l_Target, eSpells::WoDPvPHoly4PBonus, true);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly4PBonusAura);
+
+                        if (l_SpellInfo != nullptr)
+                        {
+                            if (AuraPtr l_Aura = l_Target->GetAura(eSpells::WoDPvPHoly4PBonus))
+                                l_Aura->GetEffect(EFFECT_0)->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * -l_Power);
                         }
                     }
 
@@ -2160,8 +2181,8 @@ public:
 
     void OnModifyHealth(Player* p_Player, int32 p_Value)
     {
-        if (((p_Player->HasAura(PALADIN_SPELL_BEACON_OF_FAITH) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
-            || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetOwner()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+        if (((p_Player->HasAura(PALADIN_SPELL_BEACON_OF_FAITH) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetCaster()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_FAITH)->GetCaster()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
+            || (p_Player->HasAura(PALADIN_SPELL_BEACON_OF_LIGHT) && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer() != nullptr && p_Player->GetAura(PALADIN_SPELL_BEACON_OF_LIGHT)->GetCaster()->ToPlayer()->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
             || p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT)) && p_Player->HasAura(PALADIN_SPELL_SAVED_BY_THE_LIGHT_PROC) == false)
             if (const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(PALADIN_SPELL_SAVED_BY_THE_LIGHT))
             { 
@@ -2545,6 +2566,10 @@ class spell_pal_denounce : public SpellScriptLoader
             void HandleDamage(SpellEffIndex /*l_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
                     l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
@@ -2555,7 +2580,7 @@ class spell_pal_denounce : public SpellScriptLoader
                     return;
 
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
-                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
             }
 
             void Register()
@@ -2569,7 +2594,6 @@ class spell_pal_denounce : public SpellScriptLoader
             return new spell_pal_denounce_SpellScript();
         }
 };
-
 
 /// Item - Paladin WoD PvP Retribution 4P Bonus - 165895
 class PlayerScript_paladin_wod_pvp_4p_bonus : public PlayerScript

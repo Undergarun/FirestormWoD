@@ -233,7 +233,7 @@ public:
             {
                 l_Player->ModifyMoney(l_Objective.Amount);
             }
-            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA)
+            else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
             {
                 l_Player->QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
             }

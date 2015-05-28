@@ -50,7 +50,7 @@ enum Spells
     SPELL_ABRUPT_RESTORATION = 163705,
     SPELL_TAINTED_BLOOD = 163740,
     // Noxx
-    SPELL_GUT_SHOT = 167115,
+    SPELL_GUT_SHOT = 163334,
     SPELL_OGRE_TRAP_THROWING_VISUAL = 163307,
     SPELL_OGRE_TRAP_OPEN_TEETH = 177391,
     SPELL_OGRE_TRAP_CLOSED_TEETH = 177396,
@@ -176,7 +176,7 @@ private:
     int Event;
 };
 
-Position trainspawn = {6617.87f, -1200.69f, 9.801f, 3.089053f};
+Position trainspawn = {6617.87, -1200.69f, 9.801f, 3.089053f};
 Position trainmove = { 6407.73f, -1200.30f, 9.800f, 3.126752f};
 
 enum trainevent
@@ -235,7 +235,7 @@ public:
                     train->SetSpeed(MOVE_WALK, 20.0f, true);
                     train->GetMotionMaster()->MovePoint(0, trainmove.GetPositionX(), trainmove.GetPositionY(), trainmove.GetPositionZ());
 
-                    events.ScheduleEvent(EVENT_PROCEED_1, 12000);
+                    events.ScheduleEvent(EVENT_PROCEED_1, 15000);
                     break;
                 case EVENT_PROCEED_1:
                     noxxe = train->SummonCreature(NPC_NOX, train->GetPositionX(), train->GetPositionY(), train->GetPositionZ(), train->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -410,12 +410,12 @@ public:
         void Reset()
         {
             me->AddAura(SPELL_LAVA_SWEEP_VISUAL, me);
-            me->SetSpeed(MOVE_RUN, 0.6f, true);
+            me->SetSpeed(MOVE_RUN, 0.8f, true);
 
-            if (Player* target = me->FindNearestPlayer(200.0f, true))
-            {
-                me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-            }
+            Position pos;
+            me->GetRandomNearPosition(pos, 60.0f);
+
+            me->GetMotionMaster()->MovePoint(0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());        
         }
         void UpdateAI(uint32 const diff)
         {
@@ -715,6 +715,8 @@ public:
         return new boss_grimrail_noxxAI(creature);
     }
 };
+
+// moshe bo layam
 class iron_docks_ogre_trap : public CreatureScript
 {
 public:
@@ -1063,6 +1065,39 @@ public:
         return new iron_docks_auras();
     }
 };
+class spell_grimrail_lava_wava_amplitude_fix : public SpellScriptLoader
+{
+public:
+    spell_grimrail_lava_wava_amplitude_fix() : SpellScriptLoader("spell_grimrail_lava_wava_amplitude_fix") { }
+
+    class irondocks_auras : public AuraScript
+    {
+        PrepareAuraScript(irondocks_auras);
+
+        bool Load()
+        {
+            if (GetCaster() && GetCaster()->GetMapId() == 1195)
+            {
+                SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+                spell->Effects[0].Amplitude = 4000;
+                return true;
+            }
+        }
+        void OnTick(constAuraEffectPtr /*aurEff*/)
+        {
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(irondocks_auras::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new irondocks_auras();
+    }
+};
 void AddSC_boss_grimrail()
 {
     // bosses
@@ -1084,4 +1119,5 @@ void AddSC_boss_grimrail()
     new spell_sanguine_sphere();
     new aura_sanguine_removal();
     new spell_tainted_blood_damage_target_change();
+    new spell_grimrail_lava_wava_amplitude_fix();
 }

@@ -183,7 +183,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
-    _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEMS, EQUIPMENT_SLOT_END);
+    _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEMS, EQUIPMENT_SLOT_END, false);
     SetUInt32Value(CORPSE_FIELD_SKIN_ID, fields[7].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FACIAL_HAIR_STYLE_ID, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());

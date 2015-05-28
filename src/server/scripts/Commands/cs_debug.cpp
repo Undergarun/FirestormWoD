@@ -448,9 +448,9 @@ class debug_commandscript: public CommandScript
             }
 
             if (p_Handler->getSelectedUnit())
-                p_Handler->getSelectedUnit()->SetAIAnimKit(l_ID);
+                p_Handler->getSelectedUnit()->SetAIAnimKitId(l_ID);
             else
-                p_Handler->GetSession()->GetPlayer()->SetAIAnimKit(l_ID);
+                p_Handler->GetSession()->GetPlayer()->SetAIAnimKitId(l_ID);
 
             return true;
         }
@@ -2703,7 +2703,7 @@ class debug_commandscript: public CommandScript
             auto l_SendHotfixPacket = [&p_Handler](DB2StorageBase* p_Store, uint32 p_Entry) -> void
             {
                 ByteBuffer l_ResponseData(2 * 1024);
-                if (p_Store->WriteRecord(p_Entry, l_ResponseData))
+                if (p_Store->WriteRecord(p_Entry, l_ResponseData, p_Handler->GetSessionDbLocaleIndex()))
                 {
                     WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
                     l_Data << uint32(p_Store->GetHash());

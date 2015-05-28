@@ -400,7 +400,7 @@ class Object
         void _InitValues();
         void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
-        void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
+        void _LoadIntoDataField(const char* p_Data, uint32 p_StartOffset, uint32 p_Count, bool p_Force);
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
@@ -1091,6 +1091,13 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
+        uint16 GetAIAnimKitId() const { return m_AIAnimKitId; }
+        void SetAIAnimKitId(uint16 animKitId);
+        uint16 GetMovementAnimKitId() const { return m_MovementAnimKitId; }
+        void SetMovementAnimKitId(uint16 animKitId);
+        uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }
+        void SetMeleeAnimKitId(uint16 animKitId);
+
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
         void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
@@ -1140,6 +1147,10 @@ class WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj) const;
+
+        uint16 m_AIAnimKitId;
+        uint16 m_MovementAnimKitId;
+        uint16 m_MeleeAnimKitId;
 };
 
 namespace JadeCore

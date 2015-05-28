@@ -263,10 +263,12 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
 
 ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
     _itemTextId(1), _mailId(1), _hiPetNumber(1), _voidItemId(1), _hiCharGuid(1),
-    _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
+    _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1),
     _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiAreaTriggerGuid(1), _hiMoTransGuid(1), _skipUpdateCount(1),
     m_HiVignetteGuid(1)
-{}
+{
+    m_HighItemGuid = 1;
+}
 
 ObjectMgr::~ObjectMgr()
 {
@@ -6288,13 +6290,13 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        _hiItemGuid = (*result)[0].GetUInt32()+1;
+        m_HighItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", _hiItemGuid.value());      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", _hiItemGuid.value());          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", _hiItemGuid.value());         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", _hiItemGuid.value());     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", (uint32)m_HighItemGuid);      // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", (uint32)m_HighItemGuid);          // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", (uint32)m_HighItemGuid);         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", (uint32)m_HighItemGuid);     // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6391,8 +6393,8 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     {
         case HIGHGUID_ITEM:
         {
-            ASSERT(_hiItemGuid < 0xFFFFFFFE && "Item guid overflow!");
-            return _hiItemGuid++;
+            ASSERT(m_HighItemGuid < 0xFFFFFFFE && "Item guid overflow!");
+            return m_HighItemGuid.fetch_add(1);
         }
         case HIGHGUID_UNIT:
         {

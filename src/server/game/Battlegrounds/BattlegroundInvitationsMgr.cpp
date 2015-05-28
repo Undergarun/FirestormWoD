@@ -67,8 +67,8 @@ namespace MS
                     l_Player->SetInviteForBattlegroundQueueType(p_GroupInfo->m_BgTypeId, p_GroupInfo->m_IsInvitedToBGInstanceGUID);
 
                     /// Create remind invite news.
-                    BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
-                    m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
+                    //BGQueueInviteEvent* l_InviteEvent = new BGQueueInviteEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, p_GroupInfo->m_ArenaType, p_GroupInfo->m_RemoveInviteTime);
+                    //m_Events.AddEvent(l_InviteEvent, m_Events.CalculateTime(INVITATION_REMIND_TIME));
 
                     /// Create automatic remove events.
                     BGQueueRemoveEvent* l_RemoveEvent = new BGQueueRemoveEvent(l_Player->GetGUID(), p_GroupInfo->m_IsInvitedToBGInstanceGUID, l_BGTypeId, l_BgQueueTypeId, p_GroupInfo->m_RemoveInviteTime);
@@ -243,6 +243,10 @@ namespace MS
             else
                 l_Itr->second.Infos.erase(l_Pair);
 
+            Battleground* l_BG = sBattlegroundMgr->GetBattleground(l_Group->m_IsInvitedToBGInstanceGUID, GetTypeFromId(GetIdFromType(l_Group->m_BgTypeId), l_Group->m_ArenaType, l_Group->m_IsSkirmish));
+            if (l_BG)
+                l_BG->DecreaseInvitedCount(l_Group->m_Team);
+
             /// If player leaves queue and he is invited to rated arena match, then he have to lose.
             if (l_Group->m_IsInvitedToBGInstanceGUID && l_Group->m_IsRatedBG && IsArena(l_Group->m_BgTypeId) && p_DecreaseInvitedCount)
             {
@@ -280,6 +284,7 @@ namespace MS
                     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(l_Group->m_BgTypeId);
                     uint32 queueSlot = plr2->GetBattlegroundQueueIndex(bgQueueTypeId);
                     plr2->RemoveBattlegroundQueueId(bgQueueTypeId); // must be called this way, because if you move this call to
+
                     // queue->removeplayer, it causes bugs
                     WorldPacket data;
                     PacketFactory::Status(&data, bg, plr2, queueSlot, STATUS_NONE, plr2->GetBattlegroundQueueJoinTime(l_Group->m_BgTypeId), 0, 0, false);

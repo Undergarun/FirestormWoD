@@ -1562,8 +1562,6 @@ class ObjectMgr
             _lootViewGUID[lootview] = creature;
         }
 
-        ACE_Thread_Mutex m_GuidLock;
-
         const AreaTriggerTemplateList* GetAreaTriggerTemplatesForEntry(uint32 p_Entry)
         {
             if (m_AreaTriggerTemplates.find(p_Entry) != m_AreaTriggerTemplates.end())
@@ -1679,7 +1677,6 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCreatureGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiPetGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiVehicleGuid;
-        ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiItemGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiGoGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiDoGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> _hiCorpseGuid;
@@ -1692,6 +1689,8 @@ class ObjectMgr
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_GarrisonWorkOrderID;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_HiVignetteGuid;
         ACE_Atomic_Op<ACE_Thread_Mutex, uint32> m_StandaloneSceneInstanceID;
+
+        std::atomic_uint m_HighItemGuid;
 
         QuestMap _questTemplates;
         QuestObjectiveLookupMap m_questObjectiveLookup;
