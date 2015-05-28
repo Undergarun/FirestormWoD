@@ -29322,6 +29322,10 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone, uint32 spellId) const
     if (mapid == 732)
         return false;
 
+    /// Tarren Mill
+    if (mapid == 1280)
+        return false;
+
     // continent checked in SpellMgr::GetSpellAllowedInLocationError at cast and area update
     uint32 v_map = GetVirtualMapForMapAndZone(mapid, zone);
     switch (v_map)
