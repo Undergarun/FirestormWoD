@@ -54,7 +54,9 @@ enum eHighmaulDatas
     HighmaulSweeperMovesCount = 9,
     /// Brackenspore
     MaxCreepingMoss = 16,
-    MaxFleshEaterPos = 2
+    MaxFleshEaterPos = 2,
+    /// The Market
+    MaxTectusGuardians = 3
 };
 
 enum eHighmaulCreatures
@@ -104,7 +106,13 @@ enum eHighmaulGameobjects
     RaidGrate1      = 232368,
     RaidGrate2      = 232369,
     RaidGrate3      = 232370,
-    RaidGrate4      = 232371
+    RaidGrate4      = 232371,
+
+    /// Tectus's Doors
+    Earthwall1      = 237777,
+    Earthwall2      = 237778,
+    Earthwall3      = 237779,
+    Earthwall4      = 237780
 };
 
 enum eHighmaulWorldStates

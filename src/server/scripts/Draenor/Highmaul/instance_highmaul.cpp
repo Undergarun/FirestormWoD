@@ -15,6 +15,10 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::FungalGiantDoor,    eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossBrackenspore,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall1,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall3,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall4,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -51,6 +55,7 @@ class instance_highmaul : public InstanceMapScript
                 m_BrackensporeGuid          = 0;
 
                 m_TectusGuid                = 0;
+                m_GuardiansGuids.resize(eHighmaulDatas::MaxTectusGuardians);
             }
 
             uint64 m_ArenaMasterGuid;
@@ -78,6 +83,7 @@ class instance_highmaul : public InstanceMapScript
 
             /// The Market
             uint64 m_TectusGuid;
+            std::vector<uint64> m_GuardiansGuids;
 
             void Initialize() override
             {
@@ -137,6 +143,11 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Tectus:
                         m_TectusGuid = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::Rokka:
+                    case eHighmaulCreatures::Oro:
+                    case eHighmaulCreatures::Lokk:
+                        m_GuardiansGuids[p_Creature->GetEntry() - eHighmaulCreatures::Rokka] = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -191,6 +202,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
                     case eHighmaulGameobjects::WindDoor:
+                    case eHighmaulGameobjects::Earthwall1:
+                    case eHighmaulGameobjects::Earthwall2:
+                    case eHighmaulGameobjects::Earthwall3:
+                    case eHighmaulGameobjects::Earthwall4:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -215,6 +230,25 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulGameobjects::RaidGrate4:
                         m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = p_GameObject->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* p_GameObject) override
+            {
+                switch (p_GameObject->GetEntry())
+                {
+                    case eHighmaulGameobjects::GateArenaExit:
+                    case eHighmaulGameobjects::FungalGiantDoor:
+                    case eHighmaulGameobjects::EarthenPillar:
+                    case eHighmaulGameobjects::WindDoor:
+                    case eHighmaulGameobjects::Earthwall1:
+                    case eHighmaulGameobjects::Earthwall2:
+                    case eHighmaulGameobjects::Earthwall3:
+                    case eHighmaulGameobjects::Earthwall4:
+                        AddDoor(p_GameObject, false);
                         break;
                     default:
                         break;
@@ -307,6 +341,10 @@ class instance_highmaul : public InstanceMapScript
                         return m_RaidGrateGuids[eHighmaulDatas::RaidGrate004];
                     case eHighmaulCreatures::Tectus:
                         return m_TectusGuid;
+                    case eHighmaulCreatures::Rokka:
+                    case eHighmaulCreatures::Oro:
+                    case eHighmaulCreatures::Lokk:
+                        return m_GuardiansGuids[p_Type - eHighmaulCreatures::Rokka];
                     default:
                         break;
                 }

@@ -8,24 +8,38 @@
 
 #include "highmaul.hpp"
 
-void RespawnGuardians(Creature* p_Source)
+uint8 GetEnergyGainFromHealth(float p_HealthPct)
 {
-    if (p_Source == nullptr)
+    if (p_HealthPct >= 50.0f)
+        return 1;
+    else if (p_HealthPct >= 20.0f)
+        return 2;
+    else if (p_HealthPct >= 10.0f)
+        return 3;
+    else if (p_HealthPct >= 5.0f)
+        return 4;
+    else
+        return 5;
+}
+
+void RespawnGuardians(Creature* p_Source, InstanceScript* p_Instance)
+{
+    if (p_Source == nullptr || p_Instance == nullptr)
         return;
 
-    if (Creature* l_Rokka = p_Source->FindNearestCreature(eHighmaulCreatures::Rokka, 100.0f))
+    if (Creature* l_Rokka = Creature::GetCreature(*p_Source, p_Instance->GetData64(eHighmaulCreatures::Rokka)))
     {
         l_Rokka->Respawn();
         l_Rokka->GetMotionMaster()->MoveTargetedHome();
     }
 
-    if (Creature* l_Lokk = p_Source->FindNearestCreature(eHighmaulCreatures::Lokk, 100.0f))
+    if (Creature* l_Lokk = Creature::GetCreature(*p_Source, p_Instance->GetData64(eHighmaulCreatures::Lokk)))
     {
         l_Lokk->Respawn();
         l_Lokk->GetMotionMaster()->MoveTargetedHome();
     }
 
-    if (Creature* l_Oro = p_Source->FindNearestCreature(eHighmaulCreatures::Oro, 100.0f))
+    if (Creature* l_Oro = Creature::GetCreature(*p_Source, p_Instance->GetData64(eHighmaulCreatures::Oro)))
     {
         l_Oro->Respawn();
         l_Oro->GetMotionMaster()->MoveTargetedHome();
@@ -55,10 +69,15 @@ class boss_tectus : public CreatureScript
 
         enum eSpells
         {
+            /// Energy Management
+            ZeroPowerZeroRegen          = 118357,
             /// Periodic dummy of 1s
-            TheLivingMountain   = 162287,
+            TheLivingMountain           = 162287,
             /// Arrow visual on player
-            CrystallingBarrage  = 162346
+            CrystallineBarrage          = 162346,
+            CrystallineBarrageSummon    = 162371,
+            /// +5% damage done
+            Accretion                   = 162288
         };
 
         enum eEvents
@@ -69,12 +88,14 @@ class boss_tectus : public CreatureScript
             EventCrystallineBarrage,
             /// Used at 25 energy
             EventEarthenPillar,
-            EventFracture
+            EventFracture,
+            EventAccretion
         };
 
         enum eActions
         {
-            GuardianDead
+            GuardianDead,
+            ScheduleEarthenPillar
         };
 
         enum eAnimKit
@@ -85,11 +106,6 @@ class boss_tectus : public CreatureScript
         enum eCreatures
         {
             EarthenPillarStalker = 80476
-        };
-
-        enum eGameObjects
-        {
-            GoBEarthenPillar = 229649
         };
 
         enum eTalks
@@ -107,7 +123,7 @@ class boss_tectus : public CreatureScript
         {
             boss_tectusAI(Creature* p_Creature) : BossAI(p_Creature, eHighmaulDatas::BossTectus)
             {
-                m_Instance  = p_Creature->GetInstanceScript();
+                m_Instance = p_Creature->GetInstanceScript();
             }
 
             EventMap m_Events;
@@ -119,9 +135,26 @@ class boss_tectus : public CreatureScript
 
                 _Reset();
 
+                me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
+                me->CastSpell(me, eSpells::TheLivingMountain, true);
+
                 me->RemoveAura(eHighmaulSpells::Berserker);
-                me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+
+                if (!AllGardiansDead())
+                {
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
+                else
+                {
+                    me->SetAIAnimKitId(0);
+                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
+
+                me->SetPower(Powers::POWER_ENERGY, 0);
+                me->SetMaxPower(Powers::POWER_ENERGY, 100);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
             }
 
             void JustReachedHome() override
@@ -133,7 +166,7 @@ class boss_tectus : public CreatureScript
                 }
                 else
                 {
-                    me->SetAIAnimKit(0);
+                    me->SetAIAnimKitId(0);
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 }
@@ -153,7 +186,7 @@ class boss_tectus : public CreatureScript
                         if (!AllGardiansDead())
                             return;
 
-                        me->SetAIAnimKit(0);
+                        me->SetAIAnimKitId(0);
                         me->PlayOneShotAnimKit(eAnimKit::AnimRise);
 
                         AddTimedDelayedOperation(4500, [this]() -> void
@@ -162,6 +195,13 @@ class boss_tectus : public CreatureScript
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         });
 
+                        break;
+                    }
+                    case eActions::ScheduleEarthenPillar:
+                    {
+                        if (m_Events.HasEvent(eEvents::EventEarthenPillar))
+                            break;
+                        m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 100);
                         break;
                     }
                     default:
@@ -180,8 +220,10 @@ class boss_tectus : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventSpawnEarthwarper, 8 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
 
-                me->CastSpell(me, eSpells::TheLivingMountain, true);
+                if (m_Instance)
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -214,7 +256,10 @@ class boss_tectus : public CreatureScript
                 CreatureAI::EnterEvadeMode();
 
                 if (m_Instance != nullptr)
+                {
                     m_Instance->SetBossState(eHighmaulDatas::BossTectus, EncounterState::FAIL);
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                }
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -222,11 +267,28 @@ class boss_tectus : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                /*switch (p_SpellInfo->Id)
                 {
                     default:
                         break;
+                }*/
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                /// This buff cause Tectus to be unkillable, although he can still be damaged during this time.
+                if (me->HasAura(eSpells::TheLivingMountain) && me->HealthBelowPctDamaged(1, p_Damage))
+                {
+                    me->SetHealth(1);
+                    p_Damage = 0;
+                    return;
                 }
+            }
+
+            void RegeneratePower(Powers p_Power, int32& p_Value) override
+            {
+                /// Tectus only regens by script
+                p_Value = 0;
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -251,9 +313,48 @@ class boss_tectus : public CreatureScript
                     case eEvents::EventSpawnEarthwarper:
                         break;
                     case eEvents::EventCrystallineBarrage:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        {
+                            me->CastSpell(l_Target, eSpells::CrystallineBarrage, true);
+
+                            AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                float l_Range = 0.01f;
+                                float l_Orientation = me->GetOrientation();
+                                float l_OrigX = me->GetPositionX();
+                                float l_OrigY = me->GetPositionY();
+                                float l_Z = me->GetPositionZ();
+
+                                float l_X = l_OrigX + (l_Range * cos(l_Orientation - M_PI / 3));
+                                float l_Y = l_OrigY + (l_Range * sin(l_Orientation - M_PI / 3));
+                                me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
+
+                                l_X = l_OrigX + (l_Range * cos(l_Orientation + M_PI / 3));
+                                l_Y = l_OrigY + (l_Range * sin(l_Orientation + M_PI / 3));
+                                me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
+                            });
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventFracture:
                         m_Events.ScheduleEvent(eEvents::EventFracture, 3 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventEarthenPillar:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                            me->SummonCreature(eCreatures::EarthenPillarStalker, *l_Target);
+
+                        if (!m_Events.HasEvent(eEvents::EventEarthenPillar))
+                            m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 60 * TimeConstants::IN_MILLISECONDS);
+
+                        break;
+                    }
+                    case eEvents::EventAccretion:
+                        me->CastSpell(me, eSpells::Accretion, true);
+                        m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -264,14 +365,26 @@ class boss_tectus : public CreatureScript
 
             bool AllGardiansDead() const
             {
-                if (Creature* l_Rokka = me->FindNearestCreature(eHighmaulCreatures::Rokka, 100.0f))
+                if (m_Instance == nullptr)
                     return false;
 
-                if (Creature* l_Lokk = me->FindNearestCreature(eHighmaulCreatures::Lokk, 100.0f))
-                    return false;
+                if (Creature* l_Rokka = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Rokka)))
+                {
+                    if (l_Rokka->isAlive())
+                        return false;
+                }
 
-                if (Creature* l_Oro = me->FindNearestCreature(eHighmaulCreatures::Oro, 100.0f))
-                    return false;
+                if (Creature* l_Lokk = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Lokk)))
+                {
+                    if (l_Lokk->isAlive())
+                        return false;
+                }
+
+                if (Creature* l_Oro = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Oro)))
+                {
+                    if (l_Oro->isAlive())
+                        return false;
+                }
 
                 return true;
             }
@@ -407,12 +520,14 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
         {
             npc_highmaul_rokka_and_lokkAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
             {
+                m_Instance = p_Creature->GetInstanceScript();
                 m_Risen = false;
             }
 
             bool m_Risen;
 
             EventMap m_Events;
+            InstanceScript* m_Instance;
 
             void Reset() override
             {
@@ -422,11 +537,17 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 else
-                    me->SetAIAnimKit(0);
+                    me->SetAIAnimKitId(0);
 
                 m_Events.Reset();
 
-                RespawnGuardians(me);
+                RespawnGuardians(me, m_Instance);
+            }
+
+            void JustReachedHome() override
+            {
+                if (m_Risen)
+                    me->SetAIAnimKitId(0);
             }
 
             bool CanRespawn() override
@@ -456,7 +577,7 @@ class npc_highmaul_rokka_and_lokk : public CreatureScript
                 if (p_Action == eActions::Rise && !m_Risen)
                 {
                     m_Risen = true;
-                    me->SetAIAnimKit(0);
+                    me->SetAIAnimKitId(0);
                     me->PlayOneShotAnimKit(eAnimKit::AnimRise);
 
                     AddTimedDelayedOperation(4500, [this]() -> void
@@ -553,12 +674,14 @@ class npc_highmaul_oro : public CreatureScript
         {
             npc_highmaul_oroAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
             {
+                m_Instance = p_Creature->GetInstanceScript();
                 m_Risen = false;
             }
 
             bool m_Risen;
 
             EventMap m_Events;
+            InstanceScript* m_Instance;
 
             void Reset() override
             {
@@ -568,11 +691,17 @@ class npc_highmaul_oro : public CreatureScript
                     me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 else
-                    me->SetAIAnimKit(0);
+                    me->SetAIAnimKitId(0);
 
                 m_Events.Reset();
 
-                RespawnGuardians(me);
+                RespawnGuardians(me, m_Instance);
+            }
+
+            void JustReachedHome() override
+            {
+                if (m_Risen)
+                    me->SetAIAnimKitId(0);
             }
 
             bool CanRespawn() override
@@ -593,7 +722,7 @@ class npc_highmaul_oro : public CreatureScript
                 if (p_Action == eActions::Rise && !m_Risen)
                 {
                     m_Risen = true;
-                    me->SetAIAnimKit(0);
+                    me->SetAIAnimKitId(0);
                     me->PlayOneShotAnimKit(eAnimKit::AnimRise);
 
                     AddTimedDelayedOperation(4500, [this]() -> void
@@ -657,6 +786,54 @@ class npc_highmaul_oro : public CreatureScript
         CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new npc_highmaul_oroAI(p_Creature);
+        }
+};
+
+/// Earthen Pillar Stalker - 80476
+class npc_highmaul_earthen_pillar_stalker : public CreatureScript
+{
+    public:
+        npc_highmaul_earthen_pillar_stalker() : CreatureScript("npc_highmaul_earthen_pillar_stalker") { }
+
+        struct npc_highmaul_earthen_pillar_stalkerAI: public ScriptedAI
+        {
+            npc_highmaul_earthen_pillar_stalkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EarthenPillarTimer  = 166024,
+                EarthenPillarKill   = 162522
+            };
+
+            enum eGameObject
+            {
+                GoBEarthenPillar = 229649
+            };
+
+            void Reset() override
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                me->CastSpell(me, eSpells::EarthenPillarTimer, true);
+
+                me->SummonGameObject(eGameObject::GoBEarthenPillar, *me, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, nullptr, 100, 0, false, true);
+            }
+
+            void DoAction(int32 const p_Action) override
+            {
+                if (p_Action)
+                    return;
+
+                me->CastSpell(me, eSpells::EarthenPillarKill, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_earthen_pillar_stalkerAI(p_Creature);
         }
 };
 
@@ -747,6 +924,180 @@ class spell_highmaul_stonebolt_volley : public SpellScriptLoader
         }
 };
 
+/// The Living Mountain - 162287
+/// Shard of the Mountain - 162658
+class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_tectus_energy_gain() : SpellScriptLoader("spell_highmaul_tectus_energy_gain") { }
+
+        class spell_highmaul_tectus_energy_gain_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_tectus_energy_gain_AuraScript);
+
+            enum eAction
+            {
+                ScheduleEarthenPillar = 1
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Creature* l_Target = GetTarget()->ToCreature())
+                {
+                    if (!l_Target->isInCombat())
+                        return;
+
+                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, GetEnergyGainFromHealth(l_Target->GetHealthPct()), Powers::POWER_ENERGY);
+
+                    if (l_Target->IsAIEnabled && l_Target->GetPower(Powers::POWER_ENERGY) >= 25)
+                        l_Target->AI()->DoAction(eAction::ScheduleEarthenPillar);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_tectus_energy_gain_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_tectus_energy_gain_AuraScript();
+        }
+};
+
+/// Earthen Pillar (timer) - 166024
+class spell_highmaul_earthen_pillar_timer : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_earthen_pillar_timer() : SpellScriptLoader("spell_highmaul_earthen_pillar_timer") { }
+
+        class spell_highmaul_earthen_pillar_timer_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_earthen_pillar_timer_AuraScript);
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Creature* l_Target = GetTarget()->ToCreature())
+                {
+                    if (l_Target->IsAIEnabled)
+                        l_Target->AI()->DoAction(0);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_earthen_pillar_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_earthen_pillar_timer_AuraScript();
+        }
+};
+
+/// Accretion - 162288
+class spell_highmaul_accretion : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_accretion() : SpellScriptLoader("spell_highmaul_accretion") { }
+
+        class spell_highmaul_accretion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_accretion_AuraScript);
+
+            uint32 m_DamageTaken;
+
+            bool Load()
+            {
+                m_DamageTaken = 0;
+                return true;
+            }
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Target = GetTarget())
+                {
+                    m_DamageTaken += p_EventInfo.GetDamageInfo()->GetDamage();
+
+                    if (m_DamageTaken >= l_Target->CountPctFromMaxHealth(2))
+                    {
+                        p_AurEff->GetBase()->DropStack();
+                        m_DamageTaken = 0;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_highmaul_accretion_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_accretion_AuraScript();
+        }
+};
+
+/// Crystalline Barrage - 162370
+class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_crystalline_barrage() : AreaTriggerEntityScript("areatrigger_highmaul_crystalline_barrage") { }
+
+        enum eSpell
+        {
+            CrystallineBarrage = 162370
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 4.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (l_TargetList.empty())
+                    return;
+
+                l_TargetList.remove_if([this, p_AreaTrigger](Unit* p_Unit) -> bool
+                {
+                    if (p_Unit == nullptr)
+                        return true;
+
+                    if (p_Unit->GetDistance(p_AreaTrigger) > 1.0f && !p_Unit->HasAura(eSpell::CrystallineBarrage))
+                        return true;
+
+                    if (p_Unit->GetDistance(p_AreaTrigger) <= 1.0f && p_Unit->HasAura(eSpell::CrystallineBarrage))
+                        return true;
+
+                    return false;
+                });
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 1.0f)
+                        l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
+                    else
+                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_crystalline_barrage();
+        }
+};
+
 void AddSC_boss_tectus()
 {
     /// Boss
@@ -756,8 +1107,15 @@ void AddSC_boss_tectus()
     new npc_highmaul_night_twisted_supplicant();
     new npc_highmaul_rokka_and_lokk();
     new npc_highmaul_oro();
+    new npc_highmaul_earthen_pillar_stalker();
 
     /// Spells
     new spell_highmaul_meteoric_earthspire();
     new spell_highmaul_stonebolt_volley();
+    new spell_highmaul_tectus_energy_gain();
+    new spell_highmaul_earthen_pillar_timer();
+    new spell_highmaul_accretion();
+
+    /// AreaTriggers
+    new areatrigger_highmaul_crystalline_barrage();
 }

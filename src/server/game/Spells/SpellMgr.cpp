@@ -3539,6 +3539,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 162346:///< Crystalline Barrage (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 162371:///< Crystalling Barrage - Summon (Tectus)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -4141,6 +4144,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163140:///< Mind Fungus
             case 163590:///< Creeping Moss (damage)
             case 165494:///< Creeping Moss (healing)
+            case 162370:///< Crystalline Barrage (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;

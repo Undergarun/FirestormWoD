@@ -58,11 +58,11 @@ class boss_koragh : public CreatureScript
 
             void DoAction(int32 const p_Action) override
             {
-                switch (p_Action)
+                /*switch (p_Action)
                 {
                     default:
                         break;
-                }
+                }*/
             }
 
             void EnterCombat(Unit* p_Attacker) override
@@ -100,11 +100,11 @@ class boss_koragh : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                switch (p_SpellInfo->Id)
+                /*switch (p_SpellInfo->Id)
                 {
                     default:
                         break;
-                }
+                }*/
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -117,11 +117,11 @@ class boss_koragh : public CreatureScript
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (m_Events.ExecuteEvent())
+                /*switch (m_Events.ExecuteEvent())
                 {
                     default:
                         break;
-                }
+                }*/
 
                 DoMeleeAttackIfReady();
             }
