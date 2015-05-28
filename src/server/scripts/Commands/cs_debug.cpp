@@ -448,9 +448,9 @@ class debug_commandscript: public CommandScript
             }
 
             if (p_Handler->getSelectedUnit())
-                p_Handler->getSelectedUnit()->SetAIAnimKit(l_ID);
+                p_Handler->getSelectedUnit()->SetAIAnimKitId(l_ID);
             else
-                p_Handler->GetSession()->GetPlayer()->SetAIAnimKit(l_ID);
+                p_Handler->GetSession()->GetPlayer()->SetAIAnimKitId(l_ID);
 
             return true;
         }
