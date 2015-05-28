@@ -18375,14 +18375,6 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     SendMessageToSet(&l_Data, true);
 }
 
-void Unit::SetAIAnimKit(uint32 p_AnimKitID)
-{
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << uint16(p_AnimKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
-}
-
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
 {
     WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);

@@ -352,6 +352,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
 
+    if (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId())
+        p_Flags |= UPDATEFLAG_HAS_ANIMKITS_CREATE;
+
     p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
     p_Data->WriteBit(p_Flags & UPDATEFLAG_ENABLE_PORTALS);          ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_PLAY_HOVER_ANIM);         ///< Play hover anim
@@ -642,9 +645,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_ANIMKITS_CREATE)
     {
-        *p_Data << uint16(0);                                               ///< AnimKit1
-        *p_Data << uint16(0);                                               ///< AnimKit2
-        *p_Data << uint16(0);                                               ///< AnimKit3
+        *p_Data << uint16(l_WorldObject->GetAIAnimKitId());                 ///< AnimKit1
+        *p_Data << uint16(l_WorldObject->GetMovementAnimKitId());           ///< AnimKit2
+        *p_Data << uint16(l_WorldObject->GetMeleeAnimKitId());              ///< AnimKit3
     }
 
     if (p_Flags & UPDATEFLAG_HAS_ROTATION)
@@ -1703,7 +1706,7 @@ void MovementInfo::Normalize()
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
  m_zoneScript(NULL), m_name(""), m_isActive(false), m_isWorldObject(isWorldObject),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL)
+m_phaseMask(PHASEMASK_NORMAL), m_AIAnimKitId(0), m_MovementAnimKitId(0), m_MeleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -3961,4 +3964,55 @@ uint64 WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return 0;
+}
+
+void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_AIAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_AIAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
+}
+
+void WorldObject::SetMovementAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_MovementAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_MovementAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_MOVEMENT_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
+}
+
+void WorldObject::SetMeleeAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_MeleeAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_MeleeAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_MELEE_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
 }

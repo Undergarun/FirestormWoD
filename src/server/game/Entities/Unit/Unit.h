@@ -1689,7 +1689,6 @@ class Unit : public WorldObject
 
         void SendDurabilityLoss(Player* receiver, uint32 percent);
         void PlayOneShotAnimKit(uint32 id);
-        void SetAIAnimKit(uint32 p_AnimKitID);
         void PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed = 1.0f, uint64 p_TargetGuid = 0, bool p_SpeedAsTime = true);
         void CancelOrphanSpellVisual(int32 p_SpellVisualID);
 

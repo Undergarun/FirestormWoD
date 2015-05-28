@@ -18168,7 +18168,7 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
 
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
                 {
 
                 }
@@ -18396,7 +18396,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
-            || l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
             continue;
 
         m_questObjectiveStatus.insert(std::make_pair(l_Objective.ID, uint32(0)));
@@ -19509,6 +19509,26 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
     return 0;
 }
 
+void Player::AreaExploredOrEventHappens(uint32 questId)
+{
+    if (questId)
+    {
+        uint16 log_slot = FindQuestSlot(questId);
+        if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
+            QuestStatusData& q_status = m_QuestStatus[questId];
+
+            if (!q_status.Explored)
+            {
+                q_status.Explored = true;
+                m_QuestStatusSave[questId] = true;
+            }
+        }
+        if (CanCompleteQuest(questId))
+            CompleteQuest(questId);
+    }
+}
+
 void Player::AdjustQuestReqItemCount(Quest const* quest)
 {
     if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
@@ -19531,26 +19551,6 @@ uint16 Player::FindQuestSlot(uint32 quest_id) const
             return i;
 
     return MAX_QUEST_LOG_SIZE;
-}
-
-void Player::AreaExploredOrEventHappens(uint32 questId)
-{
-    if (questId)
-    {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
-        {
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
-            {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = true;
-            }
-        }
-        if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
-    }
 }
 
 //not used in Trinityd, function for external script library
@@ -20093,7 +20093,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     switch (p_Objective.Type)
     {
-        case QUEST_OBJECTIVE_TYPE_CRITERIA:
+        case QUEST_OBJECTIVE_TYPE_CRITERIA_TREE:
         {
             WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
             data << uint32(p_Quest->GetQuestId());
@@ -20118,7 +20118,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
         case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
         case QUEST_OBJECTIVE_TYPE_MONEY:
         case QUEST_OBJECTIVE_TYPE_PLAYER:
-        case QUEST_OBJECTIVE_AREATRIGGER:
+        case QUEST_OBJECTIVE_TYPE_AREATRIGGER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:
@@ -21976,7 +21976,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
 
-                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && (uint32)objective->Amount == amount)
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE && (uint32)objective->Amount == amount)
                     SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
@@ -26281,8 +26281,6 @@ void Player::UpdatePotionCooldown(Spell* spell)
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
         SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
-
-    m_lastPotionId = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -26750,15 +26748,6 @@ void Player::UpdateTriggerVisibility()
 void Player::SendInitialVisiblePackets(Unit* p_Target)
 {
     SendAurasForTarget(p_Target);
-
-    if (Creature* l_Creature = p_Target->ToCreature())
-    {
-        if (CreatureAddon const* l_CreatureAddon = l_Creature->GetCreatureAddon())
-        {
-            if (l_CreatureAddon->AnimKit)
-                l_Creature->SetAIAnimKit(l_CreatureAddon->AnimKit);
-        }
-    }
 
     if (p_Target->isAlive())
     {

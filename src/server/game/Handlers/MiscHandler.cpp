@@ -998,9 +998,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
         sScriptMgr->OnExitAreaTrigger(l_Player, l_ATEntry);
 
     if (l_Player->isAlive())
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(l_ID))
-            if (l_Player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                l_Player->AreaExploredOrEventHappens(questId);
+        l_Player->QuestObjectiveSatisfy(l_ID, 1, QUEST_OBJECTIVE_TYPE_AREATRIGGER, l_Player->GetGUID());
 
     if (sObjectMgr->IsTavernAreaTrigger(l_ID))
     {
