@@ -19,7 +19,7 @@ bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
     RegisterZone(eTarrenMillFunDatas::ZoneId);
     RegisterScoresResetTime();
 
-    LoadTitleRewards();
+    LoadKillsRewards();
 
     return true;
 }
@@ -61,9 +61,9 @@ void OutdoorPvPTarrenMillFun::ResetScores()
     SendUpdateWorldState(eWorldStates::HordeScore, 0);
 }
 
-void OutdoorPvPTarrenMillFun::LoadTitleRewards()
+void OutdoorPvPTarrenMillFun::LoadKillsRewards()
 {
-    QueryResult l_Result = WorldDatabase.PQuery("SELECT `kills`, `title_h`, `title_a` FROM fun_tarrenmill_titles");
+    QueryResult l_Result = WorldDatabase.PQuery("SELECT `kills`, `title_a`, `title_h`, `item_a`, `item_h`, `aura_a`, `aura_h` FROM fun_tarrenmill_reward");
     if (!l_Result)
         return;
 
@@ -71,14 +71,27 @@ void OutdoorPvPTarrenMillFun::LoadTitleRewards()
     {
         Field* l_Fields = l_Result->Fetch();
 
-        TitleRewardInfo l_TitleReward;
-        l_TitleReward.Kills         = l_Fields[0].GetUInt32();
-        l_TitleReward.HordeTitle    = l_Fields[1].GetInt32();
-        l_TitleReward.AllianceTitle = l_Fields[2].GetUInt32();
+        KillRewardInfo l_KillReward;
+        l_KillReward.Kills    = l_Fields[0].GetUInt32();
+        l_KillReward.Title[0] = l_Fields[1].GetUInt32();
+        l_KillReward.Title[1] = l_Fields[2].GetUInt32();
+        l_KillReward.Item[0]  = l_Fields[3].GetUInt32();
+        l_KillReward.Item[1]  = l_Fields[4].GetUInt32();
+        l_KillReward.Aura[0]  = l_Fields[5].GetUInt32();
+        l_KillReward.Aura[1]  = l_Fields[6].GetUInt32();
 
-        m_TitleRewards.push_back(l_TitleReward);
+        m_KillRewards.push_back(l_KillReward);
     } 
     while (l_Result->NextRow());
+
+    /// Sort rewards per kills
+    m_KillRewards.sort([](KillRewardInfo const& p_Reward1, KillRewardInfo const& p_Reward2) -> bool
+    {
+        if (p_Reward1.Kills < p_Reward2.Kills)
+            return true;
+
+        return false;
+    });
 }
 
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
@@ -123,6 +136,117 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
 
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
+}
+
+void OutdoorPvPTarrenMillFun::HandleKill(Player* p_Killer, Unit* p_Killed)
+{
+    if (p_Killed->GetTypeId() != TypeID::TYPEID_PLAYER)
+        return;
+
+    if (p_Killed->ToPlayer()->GetTeamId() == p_Killer->GetTeamId())
+        return;
+
+    uint32 l_Kills = p_Killer->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+    l_Kills++;
+
+    p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
+    UpdateRankAura(p_Killer);
+}
+
+void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
+{
+    uint32 l_Kills = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+
+    for (auto l_Iterator : m_KillRewards)
+    {
+        if (l_Iterator.Kills == l_Kills)
+        {
+            TeamId l_Team = p_Player->GetTeamId();
+            if (l_Team == TeamId::TEAM_NEUTRAL)
+                break;
+
+            CharTitlesEntry const* l_Title = sCharTitlesStore.LookupEntry(l_Iterator.Title[l_Team]);
+            if (l_Title)
+                p_Player->SetTitle(l_Title);
+
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Iterator.Item[l_Team]);
+            if (l_ItemTemplate)
+            {
+                uint32 l_NoSpace = 0;
+                p_Player->AddItem(l_ItemTemplate->ItemId, 1, &l_NoSpace);
+
+                if (l_NoSpace)
+                {
+                    Item* l_Item = Item::CreateItem(l_ItemTemplate->ItemId, 1, p_Player);
+                    MailDraft l_Draft("Tarren Mill Reward", "");
+
+                    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
+                    if (l_Item)
+                    {
+                        l_Item->SaveToDB(l_Transaction);
+                        l_Draft.AddItem(l_Item);
+                    }
+
+                    l_Draft.SendMailTo(l_Transaction, p_Player, MailSender(MAIL_CREATURE, g_TarrenMillFunRewardSender[l_Team]));
+                    CharacterDatabase.CommitTransaction(l_Transaction);
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+RankInfo OutdoorPvPTarrenMillFun::GetRankAuraAndMissingKills(Player* p_Player)
+{
+    RankInfo l_RankInfo;
+    l_RankInfo.first  = 0;  ///< Rank aura
+    l_RankInfo.second = 0;  ///< Missing Kill
+
+    TeamId l_TeamId = p_Player->GetTeamId();
+
+    if (l_TeamId == TeamId::TEAM_NEUTRAL)
+        return l_RankInfo;
+
+    uint32 l_Kills   = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+    l_RankInfo.first = g_TarrenMillFirstRankAura[l_TeamId];
+
+    /// Assume m_KillRewards is ordered by lower to higher (see OutdoorPvPTarrenMillFun::LoadTitleRewards)
+    for (auto l_Iterator : m_KillRewards)
+    {
+        if (l_Iterator.Kills > l_Kills)
+        {
+            l_RankInfo.second = l_Iterator.Kills - l_Kills;
+            break;
+        }
+
+        l_RankInfo.first  = l_Iterator.Aura[l_TeamId];
+        l_Kills -= l_Iterator.Kills;
+    }
+
+    return l_RankInfo;
+}
+
+void OutdoorPvPTarrenMillFun::UpdateRankAura(Player* p_Player)
+{
+    RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
+
+    if (!p_Player->HasAura(l_RankInfo.first))
+        p_Player->CastSpell(p_Player, l_RankInfo.first, true);
+
+    if (AuraEffectPtr l_RankAura = p_Player->GetAuraEffect(l_RankInfo.first, 0))
+        l_RankAura->ChangeAmount(l_RankInfo.second);
+}
+
+void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
+{
+    UpdateRankAura(p_Player);
+}
+
+void OutdoorPvPTarrenMillFun::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
+{
+    RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
+    p_Player->RemoveAurasDueToSpell(l_RankInfo.first);
 }
 
 class OutdoorPvP_TarrenMillFun : public OutdoorPvPScript

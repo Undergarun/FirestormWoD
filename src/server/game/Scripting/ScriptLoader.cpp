@@ -890,6 +890,9 @@ void AddSC_AshranAreaTrigger();
 void AddSC_AshranNPCNeutral();
 void AddSC_AshranQuest();
 
+/// Fun
+void AddSC_TarrenMillFun();
+
 // player
 void AddSC_chat_log();
 #endif
@@ -913,6 +916,7 @@ void AddScripts()
     AddCustomScripts();
     AddSC_DuelReset();
     AddSC_FunScripts();
+    AddSC_TarrenMillFun();
 #endif
 }
 
