@@ -127,7 +127,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 janxiGuid;
             uint64 qinxiGuid;
 
-            std::list<uint32> m_AuraToClear;
+            std::list<uint32>   m_AuraToClear;
 
             std::vector<uint64> stoneGuardGUIDs;
             std::vector<uint64> fengStatuesGUIDs;
@@ -207,19 +207,37 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         }
 
                         uint32 difficulty = instance->GetSpawnMode();
-                        bool turnOver = (difficulty == Difficulty::Difficulty10N || difficulty == Difficulty::Difficulty10HC || instance->IsLFR());
+                        bool turnOver = (difficulty == Difficulty10N || difficulty == Difficulty10HC || difficulty == DifficultyRaidTool);
 
                         // In 10N, 10H or LFR, there are only 3 guardians
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)
                         {
-                            std::vector<uint32> l_Gardians { NPC_JADE, NPC_AMETHYST, NPC_COBALT };
-                            Creature* l_Creature = instance->GetCreature(GetData64(l_Gardians[urand(0, 2)]));
-                            if (l_Creature != nullptr)
+                            uint8 choice;
+                            Creature* guardian = 0;
+                            bool loop = true;
+                            do
                             {
-                                l_Creature->DespawnOrUnsummon();
-                                --guardianAliveCount;
-                            }
+                                choice = urand(0, 3);
+                                guardian = instance->GetCreature(stoneGuardGUIDs[choice]);
+                                // Jasper will always remain for loot purpose
+                                if (guardian && guardian->GetEntry() != NPC_JASPER)
+                                    loop = false;
 
+                            } while (loop);
+
+                            uint8 i = 0;
+                            for (auto itr : stoneGuardGUIDs)
+                            {
+                                if (i == choice)
+                                {
+                                    if (Creature* stoneGuard = instance->GetCreature(itr))
+                                    {
+                                        stoneGuard->DespawnOrUnsummon();
+                                        --guardianAliveCount;
+                                    }
+                                }
+                                ++i;
+                            }
                         }
                         break;
                     }
@@ -280,6 +298,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_SPIRIT_KINGS_WIND_WALL:
                     case GOB_SPIRIT_KINGS_EXIT:
                     case GOB_CELESTIAL_DOOR:
+                        /// Don't allow players to reach second part if it's in LFR mode
+                        if (go->GetEntry() == GOB_GARAJAL_EXIT && instance->IsLFR())
+                            break;
                         AddDoor(go, true);
                         break;
                     // Feng
@@ -332,6 +353,28 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         break;
                     case GOB_ANCIENT_CONTROL_CONSOLE:
                         ancientConsoleGuid = go->GetGUID();
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GOB_STONE_GUARD_DOOR_ENTRANCE:
+                    case GOB_FENG_DOOR_FENCE:
+                    case GOB_FENG_DOOR_EXIT:
+                    case GOB_GARAJAL_FENCE:
+                    case GOB_GARAJAL_EXIT:
+                    case GOB_SPIRIT_KINGS_WIND_WALL:
+                    case GOB_SPIRIT_KINGS_EXIT:
+                    case GOB_CELESTIAL_DOOR:
+                    case GOB_STONE_GUARD_DOOR_EXIT:
+                    case GOB_ELEGON_DOOR_ENTRANCE:
+                    case GOB_WILL_OF_EMPEROR_ENTRANCE:
+                        AddDoor(go, false);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -450,8 +493,6 @@ class instance_mogu_shan_vault : public InstanceMapScript
                                 willOfEmperorBossSpawnTimer     = 90000;
                                 willOfEmperorGasPhaseTimer      = 210000; // 120 + 90
                                 woeIsGasPhaseActive             = false;
-                                break;
-                            default:
                                 break;
                         }
                     }
