@@ -178,7 +178,8 @@ enum SpellSpecificType
     SpellSpecificLoneWolfBuff,
     SpellSpecificLethalPoison,
     SpellSpecificNonLethalPoison,
-    SpellSpecificCrowdFavorite
+    SpellSpecificCrowdFavorite,
+    SpellSpecificTarrenMillTitle,
 };
 
 enum SpellCustomAttributes

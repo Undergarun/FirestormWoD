@@ -1706,6 +1706,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificLethalPoison:
         case SpellSpecificType::SpellSpecificNonLethalPoison:
         case SpellSpecificType::SpellSpecificCrowdFavorite:
+        case SpellSpecificType::SpellSpecificTarrenMillTitle:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2461,6 +2462,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 default:
                     break;
             }
+
+            /// Tarren Mill titles
+            if (Id >= 168412 && Id <= 168444)
+                return SpellSpecificType::SpellSpecificTarrenMillTitle;
 
             break;
         }
