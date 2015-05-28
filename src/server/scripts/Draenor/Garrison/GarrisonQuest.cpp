@@ -30,7 +30,7 @@ namespace MS { namespace Garrison
     void GarrisonQuestPlayerScript::OnItemLooted(Player* p_Player, Item * p_Item)
     {
         if (p_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS) && p_Item && p_Item->GetEntry() == Items::ITEM_GARRISON_BLUEPRINT_BARRACKS_LEVEL1)
-            p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA);
+            p_Player->QuestObjectiveSatisfy(39015, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace MS { namespace Garrison
             Player * l_Player = GetCaster()->ToPlayer();
 
             if (l_Player->GetGarrison() && l_Player->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
-                l_Player->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, l_Player->GetGUID());
+                l_Player->QuestObjectiveSatisfy(39012, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, l_Player->GetGUID());
         }
     }
 

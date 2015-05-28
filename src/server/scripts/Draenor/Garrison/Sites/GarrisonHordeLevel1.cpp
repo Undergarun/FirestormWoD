@@ -250,7 +250,7 @@ namespace MS { namespace Garrison { namespace Sites
         /// Build your Barracks quest
         if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
-            p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
+            p_Owner->QuestObjectiveSatisfy(36167, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
 
             if (!m_CreaturesPerEntry[NPCs::NPC_GASLOWE].empty())
             {
@@ -276,7 +276,7 @@ namespace MS { namespace Garrison { namespace Sites
         /// Build your Barracks quest
         if (p_BuildingID == Buildings::Barracks__Barracks_Level1 && p_Owner->HasQuest(Quests::QUEST_BUILD_YOUR_BARRACKS))
         {
-            p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_Owner->GetGUID());
+            p_Owner->QuestObjectiveSatisfy(35753, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_Owner->GetGUID());
         }
     }
 
