@@ -726,4 +726,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_SEL_BOSS_LOOTED, "SELECT `boss_entry`, `boss_model_id` FROM `characters_boss_looted` WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_BOSS_LOOTED, "INSERT INTO `characters_boss_looted` (`guid`, `boss_entry`, `boss_model_id`) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_SEL_WORLD_STATES, "SELECT `worldstate`, `value` FROM character_worldstates WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_REP_WORLD_STATES, "REPLACE INTO `character_worldstates` (`guid`, `worldstate`, `value`) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }
