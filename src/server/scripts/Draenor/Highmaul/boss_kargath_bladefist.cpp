@@ -171,7 +171,8 @@ class boss_kargath_bladefist : public CreatureScript
         enum eCosmeticEvents
         {
             OrientationForFight = 1,
-            EventEndOfArenasStands
+            EventEndOfArenasStands,
+            EventEndOfChainHurl
         };
 
         enum eDatas
@@ -237,7 +238,6 @@ class boss_kargath_bladefist : public CreatureScript
             EventBerserker,
             EventSpawnIronBombers,
             EventFreeTiger,
-            EventEndOfChainHurl
         };
 
         enum eCreatures
@@ -630,6 +630,11 @@ class boss_kargath_bladefist : public CreatureScript
                             l_Sweeper->AI()->DoAction(0);
                         break;
                     }
+                    case eCosmeticEvents::EventEndOfChainHurl:
+                    {
+                        DoAction(eActions::EndOfChainHurl);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -728,7 +733,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                         m_Events.DelayEvent(eEvents::EventImpale, 18000);
                         m_Events.DelayEvent(eEvents::EventBerserkerRush, 18000);
-                        m_Events.ScheduleEvent(eEvents::EventEndOfChainHurl, 14000);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfChainHurl, 14000);
                         break;
                     }
                     case eEvents::EventBerserker:
@@ -781,9 +786,6 @@ class boss_kargath_bladefist : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
                         break;
                     }
-                    case eEvents::EventEndOfChainHurl:
-                        DoAction(eActions::EndOfChainHurl);
-                        break;
                     default:
                         break;
                 }
@@ -1429,7 +1431,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                         me->PlayOneShotAnimKit(eData::AnimKit1);
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKit(eData::AnimKit2); });
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKitId(eData::AnimKit2); });
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::FlameJet, true); });
 
                         if (me->GetMap()->IsMythic())
@@ -1489,7 +1491,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                 me->RemoveAllAreasTrigger();
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                 me->RemoveAllAuras();
-                me->SetAIAnimKit(0);
+                me->SetAIAnimKitId(0);
                 me->PlayOneShotAnimKit(eData::AnimKit3);
                 me->RemoveAura(eSpells::FlameGoutPeriodic);
             }

@@ -3867,6 +3867,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137313: ///< Lightning Storm
                 spellInfo->Effects[1].TriggerSpell = 0;
                 break;
+            case 157096: ///< Empowered Demons
+                spellInfo->Effects[2].BasePoints = 0;
+                spellInfo->Effects[3].BasePoints = 0;
+                break;
             case 138732: ///< Ionization
                 spellInfo->Effects[0].TargetA = TARGET_SRC_CASTER;
                 break;
@@ -5417,6 +5421,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 106334: ///< Wash Away
                 spellInfo->AttributesEx3 &= ~ SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
+            case 124974: ///< Nature's Vigil
+                spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
             case 120552: ///< Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                 break;

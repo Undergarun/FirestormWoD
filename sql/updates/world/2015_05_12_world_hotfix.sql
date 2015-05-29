@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS hotfix_data;

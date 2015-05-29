@@ -1203,15 +1203,6 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
-                    p_Amount += CalculatePct(p_Amount, l_Mastery);
-                }
-
-                /// Apply versatility 
-                p_Amount += CalculatePct(p_Amount, l_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
@@ -2699,12 +2690,7 @@ public:
 
             if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
             {
-                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.3f);
-                /// Apply Mastery
-                float l_Mastery = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
-                l_Bp += CalculatePct(l_Bp, l_Mastery);
-                /// Apply versatility 
-                l_Bp += CalculatePct(l_Bp, l_Player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+                int32 l_Bp = m_AmountPreviousShield + l_Shield->GetAmount();
 
                 int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
 
@@ -2721,6 +2707,31 @@ public:
             AfterHit += SpellHitFn(spell_pri_clarity_of_will_SpellScript::HandleAfterHit);
         }
     };
+
+    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            amount = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f);
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_clarity_of_will_AuraScript();
+    }
 
     SpellScript* GetSpellScript() const
     {

@@ -35,7 +35,7 @@ namespace MS { namespace Garrison
 
         };
 
-        char ScriptName[] = "npc_Pozzlow_Garr";
+        char ScriptName[] = "npc_Zaren_Garr";
 
         std::vector<SkillNPC_RecipeEntry> Recipes
         {
@@ -77,7 +77,7 @@ namespace MS { namespace Garrison
 
         };
 
-        char ScriptName[] = "npc_GarbraFizzwonk_Garr";
+        char ScriptName[] = "npc_HelaynWhent_Garr";
     }
 
 }   ///< namespace Garrison

@@ -689,6 +689,9 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    if (victim->isDead() || victim->GetHealth() == 0)
+        return 0; ///< Prevent double death
+
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
@@ -7844,8 +7847,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
                                 basepoints0 += aurShield->GetAmount();
 
-                            int32 maxHealth = CountPctFromMaxHealth(10);
-                            basepoints0 = std::min(basepoints0, maxHealth);
+                            /// Illuminated Healing stacks up to a maximum of 1/3 of target's maximum health
+                            int32 maxHealth = victim->GetMaxHealth() / 3;
+
+                            if (basepoints0 > maxHealth)
+                                basepoints0 = maxHealth;
 
                             break;
                         }
@@ -12242,6 +12248,31 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
+{
+    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+        return false;
+
+    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    float l_CritAbsorb = 0.0f;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        l_CritAbsorb = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+    else
+    {
+        l_CritAbsorb = 5.0f;
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+    }
+
+    if (l_CritAbsorb <= 0.0f)
+        return false;
+
+    return roll_chance_f(l_CritAbsorb);
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
@@ -12586,6 +12617,19 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
     return p_Damage;
 }
 
+uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage)
+{
+    int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
+
+    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+        l_CritPctBonus = 50; ///< 150% on pvp like healing
+
+    ///< Maybe some bonus of Aura to apply?
+    ///< l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
+
+    return p_Damage;
+}
 
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
@@ -18329,14 +18373,6 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     l_Data.appendPackGUID(GetGUID());
     l_Data << uint16(id);
     SendMessageToSet(&l_Data, true);
-}
-
-void Unit::SetAIAnimKit(uint32 p_AnimKitID)
-{
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << uint16(p_AnimKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)

@@ -1147,7 +1147,7 @@ ByteBuffer& operator<<(ByteBuffer& p_Data, LootView const& lv)
                     if (lv.viewer && lv.viewer->HasQuestForItem(l_Loot.Items[l_I].itemid))
                         l_ItemListType = LOOT_LIST_TRACKING_QUEST;
 
-                    uint8 l_UIType = LOOT_ITEM_UI_NORMAL;
+                    uint8 l_UIType = LOOT_ITEM_UI_ONLY_ONE_LOOTER;
                     if (lv.permission == MASTER_PERMISSION)
                         l_UIType = LOOT_ITEM_UI_MASTER;
 

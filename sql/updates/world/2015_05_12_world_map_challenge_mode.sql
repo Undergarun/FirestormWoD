@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS map_challenge_mode_hotfixes;
