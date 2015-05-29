@@ -440,13 +440,12 @@ template<class T> class DB2Storage : public DB2StorageBase
                         return false;
                     }
 
-                    Field* l_SQLFields = nullptr;
-                    uint32 l_SQLColumnNumber = 0;
-
                     do
                     {
-                        l_SQLFields = l_SQLQueryResult->Fetch();
-                        uint32 l_EntryID = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+                        Field* l_SQLFields          = l_SQLQueryResult->Fetch();
+                        uint32 l_SQLColumnNumber    = 0;
+                        uint32 l_EntryID            = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+
                         T * l_Entry = (T*)LookupEntry(l_EntryID);
 
                         if (!l_Entry)
@@ -674,13 +673,12 @@ template<class T> class DB2Storage : public DB2StorageBase
                         return false;
                     }
 
-                    Field* l_SQLFields = nullptr;
-                    uint32 l_SQLColumnNumber = 0;
-
                     do
                     {
-                        l_SQLFields = l_SQLQueryResult->Fetch();
-                        uint32 l_EntryID = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+                        Field* l_SQLFields          = l_SQLQueryResult->Fetch();
+                        uint32 l_SQLColumnNumber    = 0;
+                        uint32 l_EntryID            = l_SQLFields[l_SQLColumnNumber++].GetUInt32();
+
                         T * l_Entry = (T*)LookupEntry(l_EntryID);
 
                         if (!l_Entry)
