@@ -12,6 +12,7 @@
 
 OutdoorPvPTarrenMillFun::OutdoorPvPTarrenMillFun()
 {
+    m_TypeId = OUTDOOR_PVP_TARRENMILL;
 }
 
 bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
@@ -116,10 +117,10 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
     switch (p_Player->GetTeamId())
     {
         case TeamId::TEAM_ALLIANCE:
-            l_WorldState = eWorldStates::AllianceScore;
+            l_WorldState = eWorldStates::HordeScore;
             break;
         case TeamId::TEAM_HORDE:
-            l_WorldState = eWorldStates::HordeScore;
+            l_WorldState = eWorldStates::AllianceScore;
             break;
     }
 
@@ -151,15 +152,18 @@ void OutdoorPvPTarrenMillFun::HandleKill(Player* p_Killer, Unit* p_Killed)
 
     p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
     UpdateRankAura(p_Killer);
+    CheckKillRewardConditions(p_Killer);
 }
 
 void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
 {
-    uint32 l_Kills = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+    uint32 l_Kills     = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+    uint32 l_KillCount = 0;
 
+    /// Decrease lowers ranks
     for (auto l_Iterator : m_KillRewards)
     {
-        if (l_Iterator.Kills == l_Kills)
+        if (l_KillCount + l_Iterator.Kills == l_Kills)
         {
             TeamId l_Team = p_Player->GetTeamId();
             if (l_Team == TeamId::TEAM_NEUTRAL)
@@ -191,9 +195,9 @@ void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
                     CharacterDatabase.CommitTransaction(l_Transaction);
                 }
             }
-
             break;
         }
+        l_KillCount += l_Iterator.Kills;
     }
 }
 

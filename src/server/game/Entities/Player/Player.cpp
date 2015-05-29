@@ -12849,6 +12849,12 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 
             break;
         }
+        case 7107:
+        {
+            if (pvp && pvp->GetTypeId() == OUTDOOR_PVP_TARRENMILL)
+                pvp->FillInitialWorldStates(l_Buffer);
+            break;
+        }
         default:
             l_Buffer << uint32(0x914) << uint32(0x0);           // 7
             l_Buffer << uint32(0x913) << uint32(0x0);           // 8

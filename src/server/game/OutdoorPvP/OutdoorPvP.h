@@ -32,10 +32,11 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_TF      = 3,
     OUTDOOR_PVP_ZM      = 4,
     OUTDOOR_PVP_SI      = 5,
-    OUTDOOR_PVP_ASHRAN  = 6
+    OUTDOOR_PVP_ASHRAN  = 6,
+    OUTDOOR_PVP_TARRENMILL = 7
 };
 
-#define MAX_OUTDOORPVP_TYPES 7
+#define MAX_OUTDOORPVP_TYPES 8
 
 enum ObjectiveStates
 {
