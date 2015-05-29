@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -17,64 +18,32 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 79867 - Orgek Ironhand                                             ///
     //////////////////////////////////////////////////////////////////////////
-    class npc_OrgekIronhand : public CreatureScript
+    namespace npc_OrgekIronhandAIData
     {
-        public:
-            /// Constructor
-            npc_OrgekIronhand();
+        extern InitSequenceFunction FnLevel1;
+        extern InitSequenceFunction FnLevel2;
+        extern InitSequenceFunction FnLevel3;
 
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+        extern char ScriptName[];
 
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+    }
 
-            /// Creature AI
-            struct npc_OrgekIronhandAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_OrgekIronhandAI(Creature * p_Creature);
-
-            };
-
-    };
+    using npc_OrgekIronhand = ProfessionBuilding_SkillNPC<npc_OrgekIronhandAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, &npc_OrgekIronhandAIData::Recipes, &npc_OrgekIronhandAIData::FnLevel1, &npc_OrgekIronhandAIData::FnLevel2, &npc_OrgekIronhandAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79817 - Kinja                                                      ///
     //////////////////////////////////////////////////////////////////////////
-    class npc_Kinja : public CreatureScript
+    namespace npc_KinjaAIData
     {
-        public:
-            /// Constructor
-            npc_Kinja();
+        extern InitSequenceFunction FnLevel1;
+        extern InitSequenceFunction FnLevel2;
+        extern InitSequenceFunction FnLevel3;
 
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
+        extern char ScriptName[];
+    }
 
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
-
-            /// Creature AI
-            struct npc_KinjaAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_KinjaAI(Creature * p_Creature);
-
-            };
-
-    };
+    using npc_Kinja = ProfessionBuilding_WorkOrderNPC<npc_KinjaAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Horde_YourFirstBlacksmithingWorkOrder, &npc_KinjaAIData::FnLevel1, &npc_KinjaAIData::FnLevel2, &npc_KinjaAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS
