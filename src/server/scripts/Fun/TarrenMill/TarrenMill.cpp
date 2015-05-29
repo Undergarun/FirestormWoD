@@ -22,7 +22,20 @@ bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
 
     LoadKillsRewards();
 
+    InitializeGraveyards();
+
     return true;
+}
+
+void OutdoorPvPTarrenMillFun::InitializeGraveyards()
+{
+    SetGraveyardNumber(eGraveyards::TotalGraveyards);
+    for (uint8 l_I = 0; l_I < eGraveyards::TotalGraveyards; ++l_I)
+    {
+        OutdoorGraveyard* l_Graveyard = new OutdoorGraveyard(this);
+        l_Graveyard->Initialize(g_TarenMillGraveyards[l_I].StartTeam, g_TarenMillGraveyards[l_I].ID);
+        m_GraveyardList[l_I] = l_Graveyard;
+    }
 }
 
 void OutdoorPvPTarrenMillFun::RegisterScoresResetTime()
@@ -99,6 +112,8 @@ bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
 {
     if (time(nullptr) > m_ResetScoreTimestamp)
         ResetScores();
+
+    OutdoorPvP::Update(p_Diff);
 
     return true;
 }
@@ -252,6 +267,23 @@ void OutdoorPvPTarrenMillFun::HandlePlayerLeaveMap(Player* p_Player, uint32 p_Ma
     RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
     p_Player->RemoveAurasDueToSpell(l_RankInfo.first);
 }
+
+void OutdoorPvPTarrenMillFun::OnCreatureCreate(Creature* p_Creature)
+{
+    switch (p_Creature->GetEntry())
+    {
+        case eCreatures::AllianceSpiritGuide:
+        case eCreatures::HordeSpiritGuide:
+        {
+            TeamId l_TeamID = p_Creature->GetEntry() == eCreatures::HordeSpiritGuide ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE;
+            uint8 l_GraveyardID = p_Creature->GetEntry() == eCreatures::HordeSpiritGuide ? eGraveyards::HordeCity : eGraveyards::AllianceCity;
+            if (m_GraveyardList[l_GraveyardID] != nullptr)
+                m_GraveyardList[l_GraveyardID]->SetSpirit(p_Creature, l_TeamID);
+            break;
+        }
+    }
+}
+
 
 class OutdoorPvP_TarrenMillFun : public OutdoorPvPScript
 {

@@ -35,6 +35,32 @@ enum eTarrenMillFunDatas
     ResetHour     = 2       ///< 2:00 AM
 };
 
+enum eCreatures
+{
+    AllianceSpiritGuide = 80723,
+    HordeSpiritGuide    = 80724,
+};
+
+enum eGraveyards
+{
+    AllianceCity,
+    HordeCity,
+    TotalGraveyards
+};
+
+enum eWorldSafeLocs
+{
+    TarrenMillAllianceGraveyard = 4850,
+    TarrenMillHordeGraveyard    = 4851
+};
+
+
+struct TarrenMillGraveyard
+{
+    uint32 ID;
+    TeamId StartTeam;
+};
+
 struct KillRewardInfo
 {
     uint32 Kills;
@@ -55,6 +81,12 @@ const static uint32 g_TarrenMillFirstRankAura[MS::Battlegrounds::TeamsCount::Val
     168429, ///< Recruit (Horde)
 };
 
+TarrenMillGraveyard const g_TarenMillGraveyards[eGraveyards::TotalGraveyards] =
+{
+    { eWorldSafeLocs::TarrenMillAllianceGraveyard, TeamId::TEAM_ALLIANCE },  ///< 0 - Alliance base
+    { eWorldSafeLocs::TarrenMillHordeGraveyard,    TeamId::TEAM_HORDE    },  ///< 1 - Horde base
+};
+
 using TitleRewards = std::list<KillRewardInfo>;
 using RankInfo = std::pair<uint32, uint32>;
 
@@ -72,9 +104,12 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
         bool Update(uint32 p_Diff) override;
         void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) override;
         void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) override;
+        void OnCreatureCreate(Creature* p_Creature) override;
+
 
         /// Custom
         void RegisterScoresResetTime();
+        void InitializeGraveyards();
         void ResetScores();
         void LoadKillsRewards();
         void CheckKillRewardConditions(Player* p_Player);
