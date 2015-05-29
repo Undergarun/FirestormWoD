@@ -3538,8 +3538,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 162346:///< Crystalline Barrage (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 162371:///< Crystalling Barrage - Summon (Tectus)
+            case 163208:///< Fracture - Missile (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?

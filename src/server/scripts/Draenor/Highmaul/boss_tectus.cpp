@@ -69,15 +69,30 @@ class boss_tectus : public CreatureScript
 
         enum eSpells
         {
+            /// Misc
+            BreakPlayerTargetting       = 140562,
+            SuicideNoBloodNoLogging     = 117624,
+            SpawnTectusShards           = 169931,
+            EncounterEvent              = 181089,   ///< Don't know why, maybe useful
+            MidsizeTectusDamageReduct   = 178193,   ///< -30% damage done
+            MoteOfTectusDamageReduct    = 178194,   ///< -60% damage done
             /// Energy Management
             ZeroPowerZeroRegen          = 118357,
             /// Periodic dummy of 1s
             TheLivingMountain           = 162287,
+            ShardOfTheMountain          = 162658,
+            MoteOfTheMountain           = 162674,
             /// Arrow visual on player
-            CrystallineBarrage          = 162346,
+            SpellCrystallineBarrage     = 162346,
             CrystallineBarrageSummon    = 162371,
             /// +5% damage done
-            Accretion                   = 162288
+            Accretion                   = 162288,
+            Petrification               = 163809,
+            /// Fracture
+            FractureSearcher            = 163214,   ///< Must trigger 163208
+            FractureMissile             = 163208,   ///< Missile: 163209
+            /// Tectonic Upheaval
+            SpellTectonicUpheaval       = 162475    ///< 2s cast time, triggers 162510 each 1.5s
         };
 
         enum eEvents
@@ -86,26 +101,32 @@ class boss_tectus : public CreatureScript
             EventSpawnBersererk,
             EventSpawnEarthwarper,
             EventCrystallineBarrage,
+            EventSpawnCrystalline,
             /// Used at 25 energy
             EventEarthenPillar,
             EventFracture,
-            EventAccretion
+            EventAccretion,
+            EventTectonicUpheaval
         };
 
         enum eActions
         {
             GuardianDead,
-            ScheduleEarthenPillar
+            ScheduleEarthenPillar,
+            ScheduleTectonicUpheaval
         };
 
-        enum eAnimKit
+        enum eAnimKits
         {
-            AnimRise = 6961
+            AnimRise = 6961,
+            AnimFall = 6918
         };
 
         enum eCreatures
         {
-            EarthenPillarStalker = 80476
+            EarthenPillarStalker    = 80476,
+            ShardOfTectus           = 80551,
+            MoteOfTectus            = 80557
         };
 
         enum eTalks
@@ -116,7 +137,14 @@ class boss_tectus : public CreatureScript
             TectonicUpheavalCompleted,
             EarthenPillar,
             Slay,
-            Death
+            Death,
+            CrystallineBarrage
+        };
+
+        enum eMiscs
+        {
+            ShardSpawnCount = 2,
+            MotesSpawnCount = 4
         };
 
         struct boss_tectusAI : public BossAI
@@ -129,6 +157,11 @@ class boss_tectus : public CreatureScript
             EventMap m_Events;
             InstanceScript* m_Instance;
 
+            uint64 m_CrystallineBarrageTarget;
+
+            Position m_FirstCrystalline;
+            Position m_SecondCrystalline;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -136,25 +169,54 @@ class boss_tectus : public CreatureScript
                 _Reset();
 
                 me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
-                me->CastSpell(me, eSpells::TheLivingMountain, true);
+
+                switch (me->GetEntry())
+                {
+                    case eHighmaulCreatures::Tectus:
+                    {
+                        me->CastSpell(me, eSpells::TheLivingMountain, true);
+
+                        if (m_Instance)
+                            m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
+
+                        if (!AllGardiansDead())
+                        {
+                            me->SetReactState(ReactStates::REACT_PASSIVE);
+                            me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        }
+                        else
+                        {
+                            me->SetAIAnimKitId(0);
+                            me->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        }
+
+                        break;
+                    }
+                    case eCreatures::ShardOfTectus:
+                        me->CastSpell(me, eSpells::ShardOfTheMountain, true);
+                        break;
+                    case eCreatures::MoteOfTectus:
+                        me->CastSpell(me, eSpells::MoteOfTheMountain, true);
+                        break;
+                    default:
+                        break;
+                }
 
                 me->RemoveAura(eHighmaulSpells::Berserker);
 
-                if (!AllGardiansDead())
-                {
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                }
-                else
-                {
-                    me->SetAIAnimKitId(0);
-                    me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
-                }
+                me->RemoveAllAreasTrigger();
+
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 me->SetPower(Powers::POWER_ENERGY, 0);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
-                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                m_CrystallineBarrageTarget = 0;
+
+                m_FirstCrystalline = Position();
+                m_SecondCrystalline = Position();
             }
 
             void JustReachedHome() override
@@ -187,7 +249,7 @@ class boss_tectus : public CreatureScript
                             return;
 
                         me->SetAIAnimKitId(0);
-                        me->PlayOneShotAnimKit(eAnimKit::AnimRise);
+                        me->PlayOneShotAnimKit(eAnimKits::AnimRise);
 
                         AddTimedDelayedOperation(4500, [this]() -> void
                         {
@@ -201,7 +263,14 @@ class boss_tectus : public CreatureScript
                     {
                         if (m_Events.HasEvent(eEvents::EventEarthenPillar))
                             break;
-                        m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 100);
+                        ///m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 100);
+                        break;
+                    }
+                    case eActions::ScheduleTectonicUpheaval:
+                    {
+                        if (m_Events.HasEvent(eEvents::EventTectonicUpheaval))
+                            break;
+                        m_Events.ScheduleEvent(eEvents::EventTectonicUpheaval, 100);
                         break;
                     }
                     default:
@@ -213,34 +282,60 @@ class boss_tectus : public CreatureScript
             {
                 _EnterCombat();
 
-                Talk(eTalks::Aggro);
+                ///m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
 
-                m_Events.ScheduleEvent(eEvents::EventEnrage, IsMythic() ? 480 * TimeConstants::IN_MILLISECONDS : 600 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSpawnBersererk, 18 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSpawnEarthwarper, 8 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
-
-                if (m_Instance)
-                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+                switch (me->GetEntry())
+                {
+                    case eCreatures::ShardOfTectus:
+                        me->CastSpell(me, eSpells::MidsizeTectusDamageReduct, true);
+                        if (m_Instance)
+                            m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
+                        break;
+                    case eCreatures::MoteOfTectus:
+                        me->CastSpell(me, eSpells::MoteOfTectusDamageReduct, true);
+                        if (m_Instance)
+                            m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
+                        break;
+                    case eHighmaulCreatures::Tectus:
+                        if (m_Instance)
+                            m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
+                        Talk(eTalks::Aggro);
+                        m_Events.ScheduleEvent(eEvents::EventEnrage, IsMythic() ? 480 * TimeConstants::IN_MILLISECONDS : 600 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnBersererk, 18 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnEarthwarper, 8 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void KilledUnit(Unit* p_Killed) override
             {
-                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER && me->GetEntry() == eHighmaulCreatures::Tectus)
                     Talk(eTalks::Slay);
             }
 
             void JustDied(Unit* p_Killer) override
             {
+                if (me->GetEntry() != eHighmaulCreatures::Tectus && m_Instance)
+                {
+                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                    me->RemoveAllAreasTrigger();
+                    return;
+                }
+
                 _JustDied();
 
                 Talk(eTalks::Death);
 
+                me->RemoveAllAreasTrigger();
+
                 if (m_Instance != nullptr)
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
 
                     if (IsLFR())
                     {
@@ -253,6 +348,8 @@ class boss_tectus : public CreatureScript
 
             void EnterEvadeMode() override
             {
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+
                 CreatureAI::EnterEvadeMode();
 
                 if (m_Instance != nullptr)
@@ -267,21 +364,60 @@ class boss_tectus : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                /*switch (p_SpellInfo->Id)
+                switch (p_SpellInfo->Id)
                 {
+                    case eSpells::FractureSearcher:
+                        me->CastSpell(p_Target, eSpells::FractureMissile, true);
+                        break;
+                    case eSpells::Petrification:
+                        Talk(eTalks::TectonicUpheavalCompleted);
+                        break;
                     default:
                         break;
-                }*/
+                }
             }
 
             void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
             {
-                /// This buff cause Tectus to be unkillable, although he can still be damaged during this time.
-                if (me->HasAura(eSpells::TheLivingMountain) && me->HealthBelowPctDamaged(1, p_Damage))
-                {
-                    me->SetHealth(1);
-                    p_Damage = 0;
+                /// Prevent bug when boss instakills himself
+                if (p_Attacker == me)
                     return;
+
+                /// This buff cause Tectus to be unkillable, although he can still be damaged during this time.
+                if (me->HealthBelowPctDamaged(1, p_Damage))
+                {
+                    if (me->HasAura(eSpells::TheLivingMountain) || me->HasAura(eSpells::ShardOfTheMountain))
+                    {
+                        me->SetHealth(1);
+                        p_Damage = 0;
+                        return;
+                    }
+                    /// The Motes of Tectus can be killed outright.
+                    else if (me->GetEntry() != eCreatures::MoteOfTectus)
+                    {
+                        m_Events.Reset();
+
+                        me->InterruptNonMeleeSpells(true);
+                        me->SetHealth(1);
+                        p_Damage = 0;
+
+                        me->CastSpell(me, eSpells::EncounterEvent, true);
+                        me->CastSpell(me, eSpells::BreakPlayerTargetting, true);
+
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                        me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                        me->SetAIAnimKitId(eAnimKits::AnimFall);
+
+                        if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                        {
+                            Talk(eTalks::Shattered);
+                            SpawnShards();
+                        }
+                        else if (me->GetEntry() == eCreatures::ShardOfTectus)
+                            SpawnMotes();
+                    }
                 }
             }
 
@@ -306,42 +442,114 @@ class boss_tectus : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventEnrage:
+                    {
                         me->CastSpell(me, eHighmaulSpells::Berserker, true);
+
+                        std::list<Creature*> l_Shards;
+                        me->GetCreatureListWithEntryInGrid(l_Shards, eCreatures::ShardOfTectus, 150.0f);
+
+                        for (Creature* l_Shard : l_Shards)
+                            l_Shard->CastSpell(l_Shard, eHighmaulSpells::Berserker, true);
+
+                        std::list<Creature*> l_Motes;
+                        me->GetCreatureListWithEntryInGrid(l_Motes, eCreatures::MoteOfTectus, 150.0f);
+
+                        for (Creature* l_Mote : l_Motes)
+                            l_Mote->CastSpell(l_Mote, eHighmaulSpells::Berserker, true);
+
                         break;
+                    }
                     case eEvents::EventSpawnBersererk:
+                    {
                         break;
+                    }
                     case eEvents::EventSpawnEarthwarper:
+                    {
                         break;
+                    }
                     case eEvents::EventCrystallineBarrage:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            me->CastSpell(l_Target, eSpells::CrystallineBarrage, true);
+                            Talk(eTalks::CrystallineBarrage, l_Target->GetGUID());
+
+                            me->CastSpell(l_Target, eSpells::SpellCrystallineBarrage, true);
+                            m_CrystallineBarrageTarget = l_Target->GetGUID();
 
                             AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             {
-                                float l_Range = 0.01f;
+                                float l_Range = 7.0f;
                                 float l_Orientation = me->GetOrientation();
                                 float l_OrigX = me->GetPositionX();
                                 float l_OrigY = me->GetPositionY();
                                 float l_Z = me->GetPositionZ();
 
-                                float l_X = l_OrigX + (l_Range * cos(l_Orientation - M_PI / 3));
-                                float l_Y = l_OrigY + (l_Range * sin(l_Orientation - M_PI / 3));
+                                float l_X = l_OrigX + (l_Range * cos(l_Orientation - M_PI / 2));
+                                float l_Y = l_OrigY + (l_Range * sin(l_Orientation - M_PI / 2));
                                 me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
 
-                                l_X = l_OrigX + (l_Range * cos(l_Orientation + M_PI / 3));
-                                l_Y = l_OrigY + (l_Range * sin(l_Orientation + M_PI / 3));
+                                m_FirstCrystalline.m_positionX = l_X;
+                                m_FirstCrystalline.m_positionY = l_Y;
+                                m_FirstCrystalline.m_positionZ = l_Z;
+
+                                l_X = l_OrigX + (l_Range * cos(l_Orientation + M_PI / 2));
+                                l_Y = l_OrigY + (l_Range * sin(l_Orientation + M_PI / 2));
                                 me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
+
+                                m_SecondCrystalline.m_positionX = l_X;
+                                m_SecondCrystalline.m_positionY = l_Y;
+                                m_SecondCrystalline.m_positionZ = l_Z;
+
+                                m_Events.ScheduleEvent(eEvents::EventSpawnCrystalline, 500);
                             });
                         }
 
                         m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case eEvents::EventFracture:
-                        m_Events.ScheduleEvent(eEvents::EventFracture, 3 * TimeConstants::IN_MILLISECONDS);
+                    case eEvents::EventSpawnCrystalline:
+                    {
+                        if (Unit* l_Target = Unit::GetUnit(*me, m_CrystallineBarrageTarget))
+                        {
+                            if (!l_Target->HasAura(eSpells::SpellCrystallineBarrage))
+                            {
+                                m_CrystallineBarrageTarget = 0;
+                                m_FirstCrystalline = Position();
+                                m_SecondCrystalline = Position();
+                                break;
+                            }
+
+                            float l_Range = 2.0f;
+                            float l_Z = me->GetPositionZ();
+
+                            float l_Orientation = m_FirstCrystalline.GetAngle(l_Target);
+                            float l_X = m_FirstCrystalline.m_positionX + (l_Range * cos(l_Orientation));
+                            float l_Y = m_FirstCrystalline.m_positionY + (l_Range * sin(l_Orientation));
+                            me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
+
+                            m_FirstCrystalline.m_positionX = l_X;
+                            m_FirstCrystalline.m_positionY = l_Y;
+                            m_FirstCrystalline.m_positionZ = l_Z;
+
+                            l_Orientation = m_SecondCrystalline.GetAngle(l_Target);
+                            l_X = m_SecondCrystalline.m_positionX + (l_Range * cos(l_Orientation));
+                            l_Y = m_SecondCrystalline.m_positionY + (l_Range * sin(l_Orientation));
+                            me->CastSpell(l_X, l_Y, l_Z, eSpells::CrystallineBarrageSummon, true);
+
+                            m_SecondCrystalline.m_positionX = l_X;
+                            m_SecondCrystalline.m_positionY = l_Y;
+                            m_SecondCrystalline.m_positionZ = l_Z;
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventSpawnCrystalline, 500);
                         break;
+                    }
+                    case eEvents::EventFracture:
+                    {
+                        me->CastSpell(me, eSpells::FractureSearcher, true);
+                        m_Events.ScheduleEvent(eEvents::EventFracture, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     case eEvents::EventEarthenPillar:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
@@ -350,12 +558,23 @@ class boss_tectus : public CreatureScript
                         if (!m_Events.HasEvent(eEvents::EventEarthenPillar))
                             m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 60 * TimeConstants::IN_MILLISECONDS);
 
+                        Talk(eTalks::EarthenPillar);
                         break;
                     }
                     case eEvents::EventAccretion:
+                    {
                         me->CastSpell(me, eSpells::Accretion, true);
                         m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
+                    case eEvents::EventTectonicUpheaval:
+                    {
+                        /// If Tectus's health is depleted during Tectonic Upheaval, he will Shatter.
+                        Talk(eTalks::TectonicUpheaval);
+                        me->RemoveAura(eSpells::TheLivingMountain);
+                        me->CastSpell(me, eSpells::SpellTectonicUpheaval, false);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -387,6 +606,58 @@ class boss_tectus : public CreatureScript
                 }
 
                 return true;
+            }
+
+            void SpawnShards()
+            {
+                float l_OrigX = me->GetPositionX();
+                float l_OrigY = me->GetPositionY();
+                float l_Z = me->GetPositionZ();
+                float l_Range = 7.0f;
+
+                for (uint8 l_I = 0; l_I < eMiscs::ShardSpawnCount; ++l_I)
+                {
+                    float l_Orientation = frand(0, 2 * M_PI);
+                    float l_X = l_OrigX + (l_Range * cos(l_Orientation));
+                    float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
+
+                    if (Creature* l_Shard = me->SummonCreature(eCreatures::ShardOfTectus, l_X, l_Y, l_Z))
+                    {
+                        me->CastSpell(l_Shard, eSpells::SpawnTectusShards, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        {
+                            if (l_Shard->IsAIEnabled)
+                                l_Shard->AI()->AttackStart(l_Target);
+                        }
+                    }
+                }
+            }
+
+            void SpawnMotes()
+            {
+                float l_OrigX = me->GetPositionX();
+                float l_OrigY = me->GetPositionY();
+                float l_Z = me->GetPositionZ();
+                float l_Range = 7.0f;
+
+                for (uint8 l_I = 0; l_I < eMiscs::MotesSpawnCount; ++l_I)
+                {
+                    float l_Orientation = frand(0, 2 * M_PI);
+                    float l_X = l_OrigX + (l_Range * cos(l_Orientation));
+                    float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
+
+                    if (Creature* l_Mote = me->SummonCreature(eCreatures::MoteOfTectus, l_X, l_Y, l_Z))
+                    {
+                        me->CastSpell(l_Mote, eSpells::SpawnTectusShards, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        {
+                            if (l_Mote->IsAIEnabled)
+                                l_Mote->AI()->AttackStart(l_Target);
+                        }
+                    }
+                }
             }
         };
 
@@ -935,9 +1206,10 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_tectus_energy_gain_AuraScript);
 
-            enum eAction
+            enum eActions
             {
-                ScheduleEarthenPillar = 1
+                ScheduleEarthenPillar = 1,
+                ScheduleTectonicUpheaval
             };
 
             void OnTick(constAuraEffectPtr p_AurEff)
@@ -949,8 +1221,13 @@ class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
 
                     l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, GetEnergyGainFromHealth(l_Target->GetHealthPct()), Powers::POWER_ENERGY);
 
-                    if (l_Target->IsAIEnabled && l_Target->GetPower(Powers::POWER_ENERGY) >= 25)
-                        l_Target->AI()->DoAction(eAction::ScheduleEarthenPillar);
+                    if (l_Target->IsAIEnabled)
+                    {
+                        if (l_Target->GetPower(Powers::POWER_ENERGY) >= 100)
+                            l_Target->AI()->DoAction(eActions::ScheduleTectonicUpheaval);
+                        else if (l_Target->GetPower(Powers::POWER_ENERGY) >= 25)
+                            l_Target->AI()->DoAction(eActions::ScheduleEarthenPillar);
+                    }
                 }
             }
 
@@ -1065,26 +1342,9 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
                 JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
-                if (l_TargetList.empty())
-                    return;
-
-                l_TargetList.remove_if([this, p_AreaTrigger](Unit* p_Unit) -> bool
-                {
-                    if (p_Unit == nullptr)
-                        return true;
-
-                    if (p_Unit->GetDistance(p_AreaTrigger) > 1.0f && !p_Unit->HasAura(eSpell::CrystallineBarrage))
-                        return true;
-
-                    if (p_Unit->GetDistance(p_AreaTrigger) <= 1.0f && p_Unit->HasAura(eSpell::CrystallineBarrage))
-                        return true;
-
-                    return false;
-                });
-
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 1.0f)
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.0f)
                         l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
                     else
                         l_Unit->RemoveAura(eSpell::CrystallineBarrage);
@@ -1095,6 +1355,52 @@ class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
         AreaTriggerEntityScript* GetAI() const override
         {
             return new areatrigger_highmaul_crystalline_barrage();
+        }
+};
+
+/// Tectonic Upheaval - 162475
+class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_tectonic_upheaval() : SpellScriptLoader("spell_highmaul_tectonic_upheaval") { }
+
+        class spell_highmaul_tectonic_upheaval_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_tectonic_upheaval_AuraScript);
+
+            enum eSpell
+            {
+                Petrification = 163809
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                    l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, -10, Powers::POWER_ENERGY);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                    if (l_RemoveMode != AuraRemoveMode::AURA_REMOVE_BY_CANCEL)
+                        l_Target->CastSpell(l_Target, eSpell::Petrification, true);
+
+                    l_Target->SetPower(Powers::POWER_ENERGY, 0);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_tectonic_upheaval_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_tectonic_upheaval_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_tectonic_upheaval_AuraScript();
         }
 };
 
@@ -1115,6 +1421,7 @@ void AddSC_boss_tectus()
     new spell_highmaul_tectus_energy_gain();
     new spell_highmaul_earthen_pillar_timer();
     new spell_highmaul_accretion();
+    new spell_highmaul_tectonic_upheaval();
 
     /// AreaTriggers
     new areatrigger_highmaul_crystalline_barrage();
