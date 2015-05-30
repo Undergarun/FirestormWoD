@@ -770,7 +770,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     _resurrectionData = NULL;
 
-    memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
+    memset(m_items, 0, sizeof(Item*) * PLAYER_SLOTS_COUNT);
 
     m_social = NULL;
 
@@ -13406,17 +13406,7 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 
 Item* Player::GetItemByGuid(uint64 guid) const
 {
-    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (pItem->GetGUID() == guid)
-                return pItem;
-
-    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (pItem->GetGUID() == guid)
-                return pItem;
-
-    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
+    for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
                 return pItem;
@@ -13451,6 +13441,7 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
         return m_items[slot];
     else if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
+
     return NULL;
 }
 
@@ -31071,9 +31062,9 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
 
 uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
 {
-    int8 slot = GetNextVoidStorageFreeSlot();
+    uint8 slot = GetNextVoidStorageFreeSlot();
 
-    if (slot >= VOID_STORAGE_MAX_SLOT)  // @todo : Comparison of constant 160 with expression of type 'int8' (aka 'signed char') is always false
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return 255;
