@@ -5311,9 +5311,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
-            case 116740: ///< Tigereye Brew
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
-                break;
             case 117993: ///< Chi Torpedo : Heal
             case 124040: ///< Chi Torpedo : Damage
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(9);
