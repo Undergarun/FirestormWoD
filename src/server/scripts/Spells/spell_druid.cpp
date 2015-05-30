@@ -4147,7 +4147,16 @@ public:
             if (GetSpellInfo()->Id == SPELL_DRU_HEALING_TOUCH)
             {
                 if (l_Caster != l_Target && l_Caster->HasAura(SPELL_DRU_DREAM_OF_CENARIUS_FERAL))
-                    l_Caster->HealBySpell(l_Caster, GetSpellInfo(), GetHitHeal(), GetSpell()->IsCritForTarget(l_Target));
+                {
+                    uint32 l_HealAmount = GetHitHeal();
+                    SpellInfo const* l_GlyphOfCatForm = sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+
+                    /// Glyph of Cat Form
+                    if (l_Caster->GetShapeshiftForm() == FORM_CAT && l_Caster->ToPlayer()->HasGlyph(l_GlyphOfCatForm->Id))
+                        AddPct(l_HealAmount, l_GlyphOfCatForm->Effects[EFFECT_0].BasePoints);
+
+                        l_Caster->HealBySpell(l_Caster, GetSpellInfo(), l_HealAmount, GetSpell()->IsCritForTarget(l_Target));
+                }
             }
             else if (GetSpellInfo()->Id == SPELL_DRU_REJUVENATION)
             {
