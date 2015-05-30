@@ -21580,6 +21580,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 creatorGuid = fields[3].GetUInt32();
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
+        Tokenizer l_BonusToken(fields[6].GetString(), ' ');
 
         if (!itemId)
         {
@@ -21599,10 +21600,14 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
+        std::vector<uint32> l_Bonuses;
+        for (uint8 l_I = 0; l_I < l_BonusToken.size(); ++l_I)
+            l_Bonuses.push_back(atoi(l_BonusToken[l_I]));
+
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
             creatorGuid = 0;
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, l_Bonuses);
     }
     while (result->NextRow());
 }
@@ -23287,6 +23292,17 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(4, _voidStorageItems[i]->CreatorGuid);
             stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
             stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
+
+            std::ostringstream l_Bonuses;
+
+            for (uint32 l_I = 0; l_I < _voidStorageItems[i]->Bonuses.size(); l_I++)
+            {
+                if (_voidStorageItems[i])
+                    l_Bonuses << _voidStorageItems[i]->Bonuses[l_I] << ' ';
+            }
+
+            stmt->setString(7, l_Bonuses.str());
+
         }
 
         trans->Append(stmt);
@@ -31071,7 +31087,7 @@ uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, item.Bonuses);
     return slot;
 }
 
@@ -31091,7 +31107,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, item.Bonuses);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)
