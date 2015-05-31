@@ -19599,7 +19599,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
     l_Data << uint32(p_Duration);
-    SendMessageToSet(&l_Data, false);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
@@ -19607,7 +19607,7 @@ void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
     WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << int32(p_SpellVisualKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), true);
 }
 
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
