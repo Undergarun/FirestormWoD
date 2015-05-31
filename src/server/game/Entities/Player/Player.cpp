@@ -5668,7 +5668,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     /// Remove areatrigger
     std::list<AreaTrigger*> l_AreaTriggerList;
     GetAreaTriggerList(l_AreaTriggerList, spell_id);
-    if (l_AreaTriggerList.size() > 0)
+    if (!l_AreaTriggerList.empty())
     {
         for (auto l_Itr : l_AreaTriggerList)
             l_Itr->RemoveFromWorld();

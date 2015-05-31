@@ -390,10 +390,9 @@ class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
                     return;
                 }
 
-                if (m_Targets.size())
+                if (!m_Targets.empty())
                     m_Targets.remove(l_Target->GetGUID());
 
-                if (!m_Targets.size())
                 {
                     /// Remove Soul Burn aura
                     if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))

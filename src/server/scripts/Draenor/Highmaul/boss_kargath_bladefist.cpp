@@ -3482,7 +3482,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Obscured));
 
-                if (GetSpellInfo()->Id == eSpells::BerserkerRush && p_Targets.size() > 0)
+                if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
                     p_Targets.remove_if([this](WorldObject* p_Object) -> bool
                     {
