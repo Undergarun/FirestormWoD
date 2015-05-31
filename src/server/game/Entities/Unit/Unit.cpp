@@ -230,12 +230,13 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
         m_spellImmune[i].clear();
 
-    for (uint8 i = 0; i < UNIT_MOD_END; ++i)
+    for (uint8 l_I = 0; l_I < UNIT_MOD_END; ++l_I)
     {
-        m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][BASE_PCT] = 1.0f;
-        m_auraModifiersGroup[i][TOTAL_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][TOTAL_PCT] = 1.0f;
+        m_auraModifiersGroup[l_I][BASE_VALUE]               = 0.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT_EXCLUDE_CREATE]  = 100.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT]                 = 1.0f;
+        m_auraModifiersGroup[l_I][TOTAL_VALUE]              = 0.0f;
+        m_auraModifiersGroup[l_I][TOTAL_PCT]                = 1.0f;
     }
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
@@ -15577,6 +15578,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
     switch (modifierType)
     {
         case BASE_VALUE:
+        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -15668,8 +15670,7 @@ float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) c
         return 0.0f;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
-
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
     value += GetCreateStat(stat);
 
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
@@ -15690,7 +15691,8 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
     if (m_auraModifiersGroup[unitMod][TOTAL_PCT] <= 0.0f)
         return 0.0f;
 
-    float value = m_auraModifiersGroup[unitMod][BASE_VALUE];
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
+
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];

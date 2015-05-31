@@ -10615,8 +10615,8 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_AGILITY, float(val), applyStats);
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats); 
+                ApplyStatBuffMod(STAT_AGILITY, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_AGILITY, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_STRENGTH:
@@ -10625,7 +10625,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_STRENGTH, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STRENGTH, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_STRENGTH, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_INTELLECT:
@@ -10634,7 +10634,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_INTELLECT, float(val), applyStats);
+                ApplyStatBuffMod(STAT_INTELLECT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_INTELLECT, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_SPIRIT:
@@ -10643,12 +10643,12 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_SPIRIT, float(val), applyStats);
+                ApplyStatBuffMod(STAT_SPIRIT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_SPIRIT, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_STAMINA:
                 HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_STAMINA, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STAMINA, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             case ITEM_MOD_DODGE_RATING:
                 ApplyRatingMod(CR_DODGE, int32(val), applyStats);
