@@ -5216,7 +5216,7 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    if (!m_effectExecuteData.empty())
+    if (m_effectExecuteData.empty())
         return;
 
     WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
