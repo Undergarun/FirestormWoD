@@ -1,4 +1,3 @@
-thi
 #include "ScriptedCreature.h"
 #include "auchindon.h"
 
