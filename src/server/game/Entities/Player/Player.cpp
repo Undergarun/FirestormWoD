@@ -9776,7 +9776,7 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
         {
             if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
             {
-                cap = sWorld->getBoolConfig(GetSession()->IsPremium() ? CONFIG_CURRENCY_VIP_CONQUEST_POINTS_WEEK_CAP : CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP)
+                cap = sWorld->getBoolConfig(GetSession()->IsPremium() ? CONFIG_CURRENCY_VIP_CONQUEST_POINTS_WEEK_CAP : CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP);
                 cap += sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
                 break;
             }
