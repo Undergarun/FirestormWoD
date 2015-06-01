@@ -1571,10 +1571,13 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_Mushroomlist;
+                std::list<Creature*> l_TempMushroomlist;
+
                 l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
+                l_Player->GetCreatureListWithEntryInGrid(l_TempMushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
 
                 /// Remove other player mushrooms
-                for (std::list<Creature*>::iterator i = l_Mushroomlist.begin(); i != l_Mushroomlist.end(); ++i)
+                for (std::list<Creature*>::iterator i = l_TempMushroomlist.begin(); i != l_TempMushroomlist.end(); ++i)
                 {
                     Unit* l_Owner = (*i)->GetOwner();
                     if (l_Owner && l_Owner == l_Player && (*i)->isSummon())
