@@ -19,7 +19,7 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 77359 - Auria Irondreamer                                         ////
     //////////////////////////////////////////////////////////////////////////
-    namespace npc_CostanHighwallAIData
+    namespace npc_AuriaIrondreamerAIData
     {
         InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
