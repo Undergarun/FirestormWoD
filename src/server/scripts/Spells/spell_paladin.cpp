@@ -2119,10 +2119,20 @@ public:
     {
         PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
 
+        uint8 m_TargetCount = 0;
+
         enum eSpells
         {
             GlyphOfFinalWrath = 54935
         };
+
+        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        {
+            m_TargetCount = p_Targets.size();
+
+            if (!GetCaster())
+                return;
+        }
 
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
@@ -2133,6 +2143,9 @@ public:
             if (l_Target == nullptr)
                 return;
 
+            if (m_TargetCount)
+                SetHitDamage(GetHitDamage() / m_TargetCount);
+
             if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
                 l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
             if (l_Caster->HasAura(eSpells::GlyphOfFinalWrath) && l_GlyphOfFinalWrath != nullptr && l_Target->GetHealthPct() < 20.0f)
@@ -2141,6 +2154,7 @@ public:
 
         void Register()
         {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_wrath_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             OnEffectHitTarget += SpellEffectFn(spell_pal_holy_wrath_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
