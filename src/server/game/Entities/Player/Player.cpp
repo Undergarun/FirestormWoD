@@ -9774,6 +9774,13 @@ uint32 Player::CalculateCurrencyWeekCap(uint32 id)
             break;
         case CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS:
         {
+            if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
+            {
+                cap = sWorld->getBoolConfig(GetSession()->IsPremium() ? CONFIG_CURRENCY_VIP_CONQUEST_POINTS_WEEK_CAP : CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP)
+                cap += sWorld->getIntConfig(CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP);
+                break;
+            }
+
             uint32 l_MaxRating = 0;
 
             for (int l_Slot = 0; l_Slot < MAX_ARENA_SLOT; ++ l_Slot)

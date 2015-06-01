@@ -893,6 +893,8 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP] *= CURRENCY_PRECISION;     //precision mod
 
+    m_int_configs[CONFIG_CURRENCY_VIP_CONQUEST_POINTS_WEEK_CAP] = ConfigMgr::GetIntDefault("Currency.ConquestVipPointsWeekCap", 3000) * CURRENCY_PRECISION;
+
     m_int_configs[CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP] = ConfigMgr::GetIntDefault("Currency.ConquestPoints.Ashran.WeekCap", 200);
     if (int32(m_int_configs[CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP]) <= 0)
     {
