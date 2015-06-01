@@ -5,4 +5,8 @@ INSERT INTO `spell_script_names` VALUES (171745, 'spell_dru_cat_form');
 
 -- Mastery: Primal Tenacity
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_mastery_primal_tenacity';
-INSERT INTO `spell_script_names` VALUES (159195, 'spell_mastery_primal_tenacity');'
+INSERT INTO `spell_script_names` VALUES (159195, 'spell_mastery_primal_tenacity');
+
+-- fix usebug with Carrying Seaforium
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_carrying_seaforium';
+INSERT INTO `spell_script_names` VALUES (52410, 'spell_gen_carrying_seaforium');

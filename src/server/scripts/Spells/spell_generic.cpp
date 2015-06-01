@@ -3932,6 +3932,42 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         }
 };
 
+/// Carrying Seaforium - 52410
+class spell_gen_carrying_seaforium : public SpellScriptLoader
+{
+    public:
+        spell_gen_carrying_seaforium() : SpellScriptLoader("spell_gen_carrying_seaforium") { }
+
+        class spell_gen_carrying_seaforium_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_carrying_seaforium_SpellScript);
+
+            enum eSpells
+            {
+                CARRYING_SEAFORIUM_CAST = 52415
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::CARRYING_SEAFORIUM_CAST);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_carrying_seaforium_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_carrying_seaforium_SpellScript();
+        }
+};
 
 void AddSC_generic_spell_scripts()
 {
@@ -4011,6 +4047,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_doom_bolt();
     new spell_gen_dampening();
     new spell_gen_selfie_camera();
+    new spell_gen_carrying_seaforium();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();
