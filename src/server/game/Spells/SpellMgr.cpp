@@ -4897,6 +4897,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
+            case 20066: ///< Repentance
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 114163: ///< Eternal Flame
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
                 spellInfo->Effects[2].ApplyAuraName = SPELL_AURA_DUMMY;
