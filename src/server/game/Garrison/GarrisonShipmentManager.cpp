@@ -44,6 +44,10 @@ namespace MS { namespace Garrison
             if (!l_Entry || l_Entry->Flags & CharShipmentFlags::Quest || l_Entry->Flags & CharShipmentFlags::Internal)
                 continue;
 
+            /// Blizzard debug
+            if (l_Entry->SpellID == 156944)
+                continue;
+
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);
 
             if (!l_ContainerEntry || (std::string(l_ContainerEntry->Name->Get(sWorld->GetDefaultDbcLocale())).empty() && std::string(l_ContainerEntry->Description->Get(sWorld->GetDefaultDbcLocale())).empty()))
@@ -74,6 +78,10 @@ namespace MS { namespace Garrison
             CharShipmentEntry const* l_Entry = sCharShipmentStore.LookupEntry(l_I);
 
             if (!l_Entry || l_Entry->Flags != CharShipmentFlags::Quest)
+                continue;
+
+            /// Blizzard debug
+            if (l_Entry->SpellID == 156944)
                 continue;
 
             CharShipmentContainerEntry const* l_ContainerEntry = sCharShipmentContainerStore.LookupEntry(l_Entry->ShipmentContainerID);

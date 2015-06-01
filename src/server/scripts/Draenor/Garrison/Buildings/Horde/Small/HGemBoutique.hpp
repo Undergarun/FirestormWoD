@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,13 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
+
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_DorogarrlAI = SimpleSequenceCosmeticScriptAI<&npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
-
-    class npc_Dorogarr : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_Dorogarr();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_Dorogarr = ProfessionBuilding_SkillNPC<npc_DorogarrAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, &npc_DorogarrAIData::Recipes, &npc_DorogarrAIData::FnLevel1, &npc_DorogarrAIData::FnLevel2, &npc_DorogarrAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 79830 - Elrondir Surrion                                          ////
@@ -57,32 +39,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_ElrondirSurrionAI = SimpleSequenceCosmeticScriptAI<&npc_ElrondirSurrionAIData::FnLevel1, &npc_ElrondirSurrionAIData::FnLevel2, &npc_ElrondirSurrionAIData::FnLevel3>;
-
-    class npc_ElrondirSurrion : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_ElrondirSurrion();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_ElrondirSurrion = ProfessionBuilding_WorkOrderNPC<npc_ElrondirSurrionAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Horde_YourFirstJewelcraftingWorkOrder, &npc_ElrondirSurrionAIData::FnLevel1, &npc_ElrondirSurrionAIData::FnLevel2, &npc_ElrondirSurrionAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS

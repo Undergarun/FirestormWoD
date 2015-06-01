@@ -107,7 +107,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
 
         l_Data << uint32(l_I);
 
-        Item::BuildDynamicItemDatas(l_Data, l_Item->ItemEntry);
+        Item::BuildDynamicItemDatas(l_Data, l_Item->ItemEntry, l_Item->Bonuses);
     }
 
     SendPacket(&l_Data);
@@ -206,7 +206,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), l_Item->GetEntry(), l_Item->GetGuidValue(ITEM_FIELD_CREATOR), l_Item->GetItemRandomPropertyId(), l_Item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), l_Item->GetEntry(), l_Item->GetGuidValue(ITEM_FIELD_CREATOR), l_Item->GetItemRandomPropertyId(), l_Item->GetItemSuffixFactor(), l_Item->GetAllItemBonuses());
 
         uint8 l_Slot = m_Player->AddVoidStorageItem(itemVS);
 
@@ -245,6 +245,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
         Item * l_Item = m_Player->StoreNewItem(l_Destination, l_VoidStorageItem->ItemEntry, true, l_VoidStorageItem->ItemRandomPropertyId);
         l_Item->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_VoidStorageItem->CreatorGuid, 0, HIGHGUID_PLAYER));
+        l_Item->AddItemBonuses(l_VoidStorageItem->Bonuses);
         l_Item->SetBinding(true);
         m_Player->SendNewItem(l_Item, 1, false, false, false);
 

@@ -1532,16 +1532,12 @@ class npc_iron_grunt : public CreatureScript
                         if ((m_Pos.m_positionX <= 4091.0f && m_Pos.m_positionX >= 4090.0f) &&
                             (m_Pos.m_positionY >= -2325.0f && m_Pos.m_positionY <= -2324.0f))
                             return true;
-                        else
-                            break;
                     }
                     case eCreatureIds::Mumper:
                     {
                         if ((m_Pos.m_positionX <= 4042.0f && m_Pos.m_positionX >= 4041.0f) &&
                             (m_Pos.m_positionY >= -2325.0f && m_Pos.m_positionY <= -2324.0f))
                             return true;
-                        else
-                            break;
                     }
                     default:
                         break;

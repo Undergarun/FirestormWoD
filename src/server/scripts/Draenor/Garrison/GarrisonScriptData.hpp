@@ -60,6 +60,7 @@ namespace MS { namespace Garrison
         Alliance_YourFirstEnchantingWorkOrder       = 36645,
         Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
         Alliance_YourFirstEngineeringWorkOrder      = 36646,
+        Alliance_YourFirstInscriptionWorkOrder      = 36647,
 
         /// Horde
         QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
@@ -73,7 +74,8 @@ namespace MS { namespace Garrison
         Horde_YourFirstLeatherworkingWorkOrder    = 37574,
         Horde_YourFirstEnchantingWorkOrder        = 37570,
         Horde_YourFirstJewelcraftingWorkOrder     = 37573,
-        Horde_YourFirstEngineeringWorkOrder       = 37571
+        Horde_YourFirstEngineeringWorkOrder       = 37571,
+        Horde_YourFirstInscriptionWorkOrder       = 37572
     };
 
     /// Garrison achievement related
@@ -149,14 +151,6 @@ namespace MS { namespace Garrison
     {
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
     };
-
-    namespace ShipmentIDs
-    {
-        enum
-        {
-            TheForge = 103
-        };
-    }
 
     /// Garrison creation coords
     static const float gGarrisonCreationCoords[][4] =

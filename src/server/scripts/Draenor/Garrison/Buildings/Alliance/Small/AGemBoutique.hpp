@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,13 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
+
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_CostanHighwallAI = SimpleSequenceCosmeticScriptAI<&npc_CostanHighwallAIData::FnLevel1, &npc_CostanHighwallAIData::FnLevel2, &npc_CostanHighwallAIData::FnLevel3>;
-
-    class npc_CostanHighwall : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_CostanHighwall();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_CostanHighwall = ProfessionBuilding_SkillNPC<npc_CostanHighwallAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Alliance_YourFirstJewelcraftingWorkOrder, &npc_CostanHighwallAIData::Recipes, &npc_CostanHighwallAIData::FnLevel1, &npc_CostanHighwallAIData::FnLevel2, &npc_CostanHighwallAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77775 - Kaya Solasen                                              ////
@@ -57,32 +39,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_KayaSolasenAI = SimpleSequenceCosmeticScriptAI<&npc_KayaSolasenAIData::FnLevel1, &npc_KayaSolasenAIData::FnLevel2, &npc_KayaSolasenAIData::FnLevel3>;
-
-    class npc_KayaSolasen : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_KayaSolasen();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_KayaSolasen = ProfessionBuilding_WorkOrderNPC<npc_KayaSolasenAIData::ScriptName, SKILL_JEWELCRAFTING, Quests::Alliance_YourFirstJewelcraftingWorkOrder, &npc_KayaSolasenAIData::FnLevel1, &npc_KayaSolasenAIData::FnLevel2, &npc_KayaSolasenAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS
