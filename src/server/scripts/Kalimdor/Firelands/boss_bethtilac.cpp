@@ -244,7 +244,7 @@ class boss_bethtilac : public CreatureScript
                             PlayerPositionCheck checker(true);
                             Trinity::PlayerListSearcher<PlayerPositionCheck> searcher(me, PlayerList, checker);
                             me->VisitNearbyWorldObject(300.0f, searcher);
-                            if (PlayerList.size() == 0)
+                            if (PlayerList.empty())
                                 DoCastAOE(SPELL_VENOM_RAIN);
                             events.ScheduleEvent(EVENT_CHECK_HIGH, 5000);
                             break;
@@ -256,7 +256,7 @@ class boss_bethtilac : public CreatureScript
                                 PlayerPositionCheck checker(true);
                                 Trinity::PlayerListSearcher<PlayerPositionCheck> searcher(me, PlayerList, checker);
                                 me->VisitNearbyWorldObject(300.0f, searcher);
-                                if (PlayerList.size() > 0)
+                                if (!PlayerList.empty())
                                     DoCastAOE(SPELL_EMBER_FLARE_1);
                             }
                             else

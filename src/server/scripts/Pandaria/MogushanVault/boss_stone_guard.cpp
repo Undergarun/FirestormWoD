@@ -27,7 +27,7 @@ enum eSpells
     SPELL_JASPER_OVERLOAD               = 115843,
     SPELL_JASPER_PETRIFICATION          = 116036,
     SPELL_JASPER_PETRIFICATION_BAR      = 131270,
-    SEPLL_JASPER_TRUE_FORM              = 115828,
+    SPELL_JASPER_TRUE_FORM              = 115828,
     SPELL_JASPER_CHAINS                 = 130395,
     SPELL_JASPER_CHAINS_VISUAL          = 130403,
     SPELL_JASPER_CHAINS_DAMAGE          = 130404,
@@ -533,7 +533,7 @@ class boss_generic_guardian : public CreatureScript
                         spellOverloadId             = SPELL_JASPER_OVERLOAD;
                         spellPetrificationId        = SPELL_JASPER_PETRIFICATION;
                         spellPetrificationBarId     = SPELL_JASPER_PETRIFICATION_BAR;
-                        spellTrueFormId             = SEPLL_JASPER_TRUE_FORM;
+                        spellTrueFormId             = SPELL_JASPER_TRUE_FORM;
                         spellMainAttack             = SPELL_JASPER_CHAINS;
                         break;
                     case NPC_JADE:

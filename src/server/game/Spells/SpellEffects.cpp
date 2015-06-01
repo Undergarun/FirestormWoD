@@ -923,7 +923,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         return;
 
                     Unit *caster = m_caster;
-                    if (m_UniqueTargetInfo.size())
+                    if (!m_UniqueTargetInfo.empty())
                     {
                         if (m_UniqueTargetInfo.front().missCondition == SPELL_MISS_REFLECT)
                             caster = m_targets.GetUnitTarget();
@@ -2864,7 +2864,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
 
                 /// 1 gateway max
-                if ((int32)gatewayList.size() >= 1)
+                if (!gatewayList.empty())
                     gatewayList.back()->ToTempSummon()->UnSummon();
             }
             break;

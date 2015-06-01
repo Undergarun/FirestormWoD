@@ -1009,10 +1009,6 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
     if (IsPassive() && !m_spellInfo->DurationEntry)
         maxDuration = -1;
 
-    // Hack fix Duration for Tigereye Brew
-    if (m_spellInfo->Id == 116740)
-        maxDuration = 15000;
-
     // IsPermanent() checks max duration (which we are supposed to calculate here)
     if (maxDuration != -1 && modOwner)
         modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
