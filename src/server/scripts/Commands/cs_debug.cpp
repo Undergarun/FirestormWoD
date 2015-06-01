@@ -2573,6 +2573,11 @@ class debug_commandscript: public CommandScript
             const uint32 l_HordeMask = 0xFE5FFBB2;
             const uint32 l_AllianceMask = 0xFD7FFC4D;
             std::string l_SearchString = p_Args; /// Case sensitive search
+
+            std::list<uint8> l_ClassWeaponFind;
+            std::list<uint8> l_CloaksFind;
+            std::map<uint8, uint8> l_TrinketsFind;
+
             
             l_FirstEntry = true;
             l_StrBuilder << "INSERT INTO character_template_item VALUES";
@@ -2580,9 +2585,89 @@ class debug_commandscript: public CommandScript
             for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
             {
                 ItemTemplate const* l_Template = &l_Iter->second;
+
+                if (l_Template->InventoryType == INVTYPE_TRINKET)
+                {
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            if (!l_Template->HasClassSpec(l_ClassId))
+                                continue;
+
+                            if (l_TrinketsFind.find(l_ClassId) != l_TrinketsFind.end() && l_TrinketsFind[l_ClassId] == 2)
+                                continue;
+
+                            if (l_Template->ItemLevel != 610)
+                                continue;
+
+                            if (l_TrinketsFind.find(l_ClassId) == l_TrinketsFind.end())
+                                l_TrinketsFind[l_ClassId] = 1;
+                            else
+                                l_TrinketsFind[l_ClassId] = 2;
+
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 1 << " ," << 1 << ")", l_FirstEntry = false;
+                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << 1 << ")";
+                        }
+                    }
+                }
+
+                if (l_Template->InventoryType == INVTYPE_CLOAK)
+                {
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            if (!l_Template->HasClassSpec(l_ClassId))
+                                continue;
+
+                            if (std::find(l_CloaksFind.begin(), l_CloaksFind.end(), l_ClassId) != l_CloaksFind.end())
+                                continue;
+
+                            if (l_Template->ItemLevel != 610)
+                                continue;
+
+                            l_CloaksFind.push_back(l_ClassId);
+
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 1 << " ," << 1 << ")", l_FirstEntry = false;
+                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << 1 << ")";
+                        }
+                    }
+                }
+
+                if (l_Template->Class == ITEM_CLASS_WEAPON)
+                {
+                    uint32 l_Count = 1;
+
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            if (!l_Template->HasClassSpec(l_ClassId))
+                                continue;
+
+                            if (std::find(l_ClassWeaponFind.begin(), l_ClassWeaponFind.end(), l_ClassId) != l_ClassWeaponFind.end())
+                                continue;
+
+                            if (l_Template->ItemLevel != 610)
+                                continue;
+
+                            l_ClassWeaponFind.push_back(l_ClassId);
+
+                            l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," <<  1 << " ," << l_Count << ")", l_FirstEntry = false;
+                            l_StrBuilder << "," << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << 2 << " ," << l_Count << ")";
+                        }
+                    }
+                }
+
+                /// Armor
                 if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) != std::string::npos)
                 {
-                    if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
+                    if (l_Template->Class != ITEM_CLASS_ARMOR)
                         continue;
 
                     int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
@@ -2645,7 +2730,18 @@ class debug_commandscript: public CommandScript
                                 }
                             }
 
-                            l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
+                            if (l_Template->Class == ITEM_CLASS_WEAPON)
+                            {
+                                if (!l_Template->HasClassSpec(l_ClassId))
+                                    continue;
+
+                                if (std::find(l_ClassWeaponFind.begin(), l_ClassWeaponFind.end(), l_ClassId) != l_ClassWeaponFind.end())
+                                    continue;
+
+                                l_ClassWeaponFind.push_back(l_ClassId);
+                            }
+
+                            l_Count = 1;
                             l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
                         }
                     }
