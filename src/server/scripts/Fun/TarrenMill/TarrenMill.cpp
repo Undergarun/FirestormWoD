@@ -297,7 +297,39 @@ class OutdoorPvP_TarrenMillFun : public OutdoorPvPScript
         }
 };
 
+class go_taren_mill_portal : public GameObjectScript
+{
+    public:
+        go_taren_mill_portal() : GameObjectScript("go_taren_mill_portal") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            float l_PositionX   = 0.f;
+            float l_PositionY   = 0.f;
+            float l_PositionZ   = 0.f;
+            float l_Orientation = 0.f;
+
+            if (player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+            {
+                l_PositionX = 1752.77f;
+                l_PositionY = 1063.11f;
+                l_PositionZ = 6.9f;
+            }
+            else
+            {
+                l_PositionX = 2621.11f;
+                l_PositionY = 636.17;
+                l_PositionZ = 55.97f;
+                l_Orientation = 4.31f;
+            }
+
+
+            return true;
+        }
+};
+
 void AddSC_TarrenMillFun()
 {
     new OutdoorPvP_TarrenMillFun();
+    new go_taren_mill_portal();
 } 
