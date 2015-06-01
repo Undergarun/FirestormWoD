@@ -7994,8 +7994,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (AuraPtr l_BeaconOfInsight = triggeredByAura->GetBase())
                     {
-                        l_BeaconOfInsight->Remove();
-                        return true;
+                        if (victim->GetHealthPct() >= 90.0f)
+                        {
+                            l_BeaconOfInsight->Remove();
+                            return true;
+                        }
                     }
 
                     break;
