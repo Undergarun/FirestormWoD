@@ -3899,6 +3899,39 @@ class spell_gen_drums_of_fury : public SpellScriptLoader
         }
 };
 
+class spell_gen_selfie_camera : public SpellScriptLoader
+{
+    public:
+        spell_gen_selfie_camera() : SpellScriptLoader("spell_gen_selfie_camera") { }
+
+
+        class spell_gen_selfie_camera_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_selfie_camera_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            {
+                GetCaster()->ToPlayer()->SendPlaySpellVisualKit(54168, 2, 0);
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /* p_Mode */)
+            {
+                GetCaster()->ToPlayer()->CancelSpellVisualKit(54168);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_gen_selfie_camera_AuraScript::OnApply, EFFECT_0, SPELL_AURA_482, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_selfie_camera_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_482, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_selfie_camera_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -3976,6 +4009,7 @@ void AddSC_generic_spell_scripts()
     new Resolve::spell_resolve_passive();
     new spell_gen_doom_bolt();
     new spell_gen_dampening();
+    new spell_gen_selfie_camera();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

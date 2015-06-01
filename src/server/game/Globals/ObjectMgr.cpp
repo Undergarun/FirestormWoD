@@ -178,10 +178,8 @@ bool checkMailText(std::string _text)
     std::string temp_str(_text);
     std::transform(temp_str.begin(), temp_str.end(), temp_str.begin(), tolower);
 
-    bool bOk = true;
-
     // Check for special symbols
-    bOk = (temp_str.find("|tinterface") == std::string::npos);
+    bool bOk = (temp_str.find("|tinterface") == std::string::npos);
 
     return bOk;
 }

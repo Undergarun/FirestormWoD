@@ -137,8 +137,9 @@ const struct RewriteItem Win64Patchs[] =
     { 0x00407D1E, sizeof(client_check_data_win64),               client_check_data_win64                },        ///< bypass client dispatch socket check
 };
 
-const uint8_t client_packets_check_data_mac64[]     = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
-const uint8_t jam_dispatch_check_data_mac64[]       = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
+const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
+const uint8_t jam_dispatch_check_data_mac64[]   = { 0xEB, 0x19 };                                                   ///< jmp to bypass socket check
+const uint8_t jam_quest_check_data_mac64[]      = { 0xEB, 0x58 };                                                   ///< jmp to bypass socket check
 
 const struct RewriteItem Mac64Patchs[] =
 {
@@ -149,7 +150,8 @@ const struct RewriteItem Mac64Patchs[] =
      { 0x015E93A0, sizeof(bnet_logon_data),                       bnet_logon_data                   },             ///< Change bnet logon
      { 0x014B1076, sizeof(bnet_versions_data),                    bnet_versions_data                },             ///< Change bnet versions data
      { 0x014B10A2, sizeof(bnet_cdns_data),                        bnet_cdns_data                    },             ///< Change bnet cdns data
-     { 0x01094A26, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket check
+     { 0x01094A26, sizeof(jam_dispatch_check_data_mac64),         jam_dispatch_check_data_mac64     },             ///< Bypass jam dispatch socket 
+     { 0x010E8867, sizeof(jam_quest_check_data_mac64),            jam_quest_check_data_mac64        },             ///< Bypass jam dispatch socket check
      { 0x0064810C, sizeof(client_packets_check_data_mac64),       client_packets_check_data_mac64   },             ///< Bypass client send socket check
 };
 #endif

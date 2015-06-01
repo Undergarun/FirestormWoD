@@ -225,7 +225,7 @@ class boss_daakara : public CreatureScript
                         DoCast(me, SPELL_SHAPE_OF_THE_EAGLE, true);
                         std::list<Unit*> targets;
                         SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 0.0f, true);
-                        if (targets.size() > 0)
+                        if (!targets.empty())
                         {
                             for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                             {

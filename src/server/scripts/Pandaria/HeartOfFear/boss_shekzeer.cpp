@@ -815,7 +815,7 @@ class boss_shekzeer : public CreatureScript
                                         playerList.remove(*itr);
                                 }
 
-                                if (!playerList.size())
+                                if (playerList.empty())
                                     break;
 
                                 JadeCore::RandomResizeList(playerList, 1);
@@ -1870,7 +1870,7 @@ class spell_visions_of_demise : public SpellScriptLoader
                     std::list<Player*> playerList;
                     GetPlayerListInGrid(playerList, caster, 200.0f);
 
-                    if (playerList.size())
+                    if (!playerList.empty())
                     {
                         // Resizing the list to the wanted length
                         uint8 maxTarget = caster->GetInstanceScript()->instance->Is25ManRaid() ? 5 : 2;

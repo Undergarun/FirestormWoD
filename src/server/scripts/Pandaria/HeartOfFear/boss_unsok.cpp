@@ -444,7 +444,7 @@ class boss_unsok : public CreatureScript
                             bool canCast = true;
 
                             // We can't cast if there's no player
-                            if (!playerList.size())
+                            if (playerList.empty())
                                 canCast = false;
                             else
                             {
@@ -873,7 +873,7 @@ class mob_amber_pool_stalker : public CreatureScript
                             GetPlayerListInGrid(playerList, me, 200.0f);
 
                             // No player found
-                            if (!playerList.size())
+                            if (playerList.empty())
                             {
                                 events.ScheduleEvent(EVENT_VOLATILE_AMBER, 3000);
                                 break;
@@ -962,7 +962,7 @@ class mob_amber_globule : public CreatureScript
                 GetPlayerListInGrid(playerList, me, 200.0f);
 
                 // No player found: it's a wipe, so we despawn
-                if (!playerList.size())
+                if (playerList.empty())
                 {
                     me->DespawnOrUnsummon();
                     return;
