@@ -2598,8 +2598,13 @@ class spell_pal_denounce : public SpellScriptLoader
                 if (l_SpellInfo == nullptr)
                     return;
 
+                float l_CritPctOfTarget = 0.0f;
+
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_CritPctOfTarget = l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+
                 if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
-                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_CritPctOfTarget);
             }
 
             void Register()
@@ -2640,6 +2645,8 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Holy Shield - 152261
 class PlayerScript_paladin_holy_shield : public PlayerScript
 {
 public:
