@@ -1648,12 +1648,12 @@ class spell_pal_ardent_defender: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
-            uint32 absorbPct, healPct;
+            uint32 m_AbsorbPct, m_HealPct;
 
             bool Load()
             {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                m_HealPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -1663,21 +1663,26 @@ class spell_pal_ardent_defender: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
             {
-                Unit* victim = GetTarget();
-                int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
+                Unit* l_Victim = GetTarget();
+
+                if (l_Victim == nullptr)
+                    return;
+
+                int32 l_RemainingHealth =  l_Victim->GetHealth() - p_DmgInfo.GetDamage();
                 // If damage kills us
-                if (remainingHealth <= 0 && !victim->ToPlayer()->HasSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL))
+                if (l_RemainingHealth <= 0 && !l_Victim->ToPlayer()->HasSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL))
                 {
                     // Cast healing spell, completely avoid damage
-                    absorbAmount = dmgInfo.GetDamage();
+                    p_AbsorbAmount = p_DmgInfo.GetDamage();
 
-                    int32 healAmount = int32(victim->CountPctFromMaxHealth(healPct));
-                    victim->CastCustomSpell(victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+                    int32 l_HealAmount = int32(l_Victim->CountPctFromMaxHealth(m_HealPct));
+                    l_Victim->CastCustomSpell(l_Victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &l_HealAmount, NULL, NULL, true, NULL, p_AurEff);
+                    l_Victim->RemoveAurasDueToSpell(GetSpellInfo()->Id);
                 }
                 else
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), m_AbsorbPct);
             }
 
             void Register()
