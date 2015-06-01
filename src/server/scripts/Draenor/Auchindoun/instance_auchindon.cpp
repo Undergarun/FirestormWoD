@@ -17,8 +17,6 @@
 */
 
 #include "ScriptMgr.h"
-#include "GridNotifiers.h"
-#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "auchindon.h"
 
@@ -99,9 +97,9 @@ public:
             case GAMEOBJECT_FEL_BARRIER:
                  FelBarrierAzzakelObject = go->GetGUID();
                 break;
-            case GAMEOBJECT_DEMONIC_PORTAL:
-                FelPortal = go->GetGUID();
-                break;
+            //case GAMEOBJECT_DEMONIC_PORTAL:
+               //// FelPortal = go->GetGUID();
+               // break;
             case GAMEOBJECT_SOUL_TRANSPORT_START:
                 soultransportstart = go->GetGUID();
                 //go->SetLootState(GO_READY);

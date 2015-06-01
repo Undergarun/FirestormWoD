@@ -305,7 +305,7 @@ public:
             }
             */
             // Cicrular Mobs - Magus
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i <= 3; i++)
             {
                 Creature* magus = me->SummonCreature(CREATURE_AUCHENI_MAGUS, CircularMages[i], TEMPSUMMON_MANUAL_DESPAWN);
                 if (magus)
@@ -315,7 +315,7 @@ public:
                 }
             }
             // Cicrular Mobs - Priest
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i <= 2; i++)
             {
                 Creature* priest = me->SummonCreature(CREATURE_AUCHENI_SOUL_PRIEST, CircularPriests[i], TEMPSUMMON_MANUAL_DESPAWN);
                 if (priest)
@@ -325,7 +325,7 @@ public:
                 }
             }
             // Cicrular Mobs - Cleric
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i <= 2; i++)
             {
                 Creature* Cleric = me->SummonCreature(CREATURE_AUCHENI_SOUL_PRIEST, CircularHolies[i], TEMPSUMMON_MANUAL_DESPAWN);
                 if (Cleric)
