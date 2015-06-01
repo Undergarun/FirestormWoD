@@ -386,7 +386,7 @@ class boss_tayak : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -1050,7 +1050,7 @@ class mob_gale_winds_stalker : public CreatureScript
 
                                 for (auto player : playerList)
                                     if (player->HasMovementForce(me->GetGUID()))
-                                        player->SendApplyMovementForce(me->GetGUID(), false, pos);    ///< Use creature entry has force ID
+                                        player->SendApplyMovementForce(me->GetGUID(), false, pos);
                             }
 
                             isActive = false;
@@ -1102,7 +1102,7 @@ class mob_gale_winds_stalker : public CreatureScript
 };
 
 // 123175 - Wind Step
-class spell_wind_step: public SpellScriptLoader
+class spell_wind_step : public SpellScriptLoader
 {
     public:
         spell_wind_step() : SpellScriptLoader("spell_wind_step") { }
@@ -1166,7 +1166,7 @@ class spell_tayak_wind_step: public SpellScriptLoader
 };
 
 // 122982 - Unseen Strike
-class spell_unseen_strike_aura: public SpellScriptLoader
+class spell_unseen_strike_aura : public SpellScriptLoader
 {
     public:
         spell_unseen_strike_aura() : SpellScriptLoader("spell_unseen_strike") { }
@@ -1195,7 +1195,7 @@ class spell_unseen_strike_aura: public SpellScriptLoader
 };
 
 // 122994 - Unseen Strike
-class spell_unseen_strike_dmg: public SpellScriptLoader
+class spell_unseen_strike_dmg : public SpellScriptLoader
 {
     public :
         spell_unseen_strike_dmg() : SpellScriptLoader("spell_unseen_strike_dmg") { }
@@ -1313,7 +1313,7 @@ class spell_tayak_storm_unleashed_dmg: public SpellScriptLoader
 };
 
 // 122853 - Tempest Slash (damage aura)
-class spell_tempest_slash: public SpellScriptLoader
+class spell_tempest_slash : public SpellScriptLoader
 {
     public :
         spell_tempest_slash() : SpellScriptLoader("spell_tempest_slash") { }
@@ -1341,7 +1341,7 @@ class spell_tempest_slash: public SpellScriptLoader
 };
 
 // 123814 - Storm unleashed - Boss visual effect
-class spell_tayak_su_visual: public SpellScriptLoader
+class spell_tayak_su_visual : public SpellScriptLoader
 {
     public:
         spell_tayak_su_visual() : SpellScriptLoader("spell_tayak_su_visual") { }
@@ -1369,7 +1369,7 @@ class spell_tayak_su_visual: public SpellScriptLoader
 };
 
 // 124024 - Storm unleashed dummy visual
-class spell_su_dummy_visual: public SpellScriptLoader
+class spell_su_dummy_visual : public SpellScriptLoader
 {
     public:
         spell_su_dummy_visual() : SpellScriptLoader("spell_su_dummy_visual") { }
@@ -1397,7 +1397,7 @@ class spell_su_dummy_visual: public SpellScriptLoader
 };
 
 // 123633 - Gale Winds
-class spell_gale_winds: public SpellScriptLoader
+class spell_gale_winds : public SpellScriptLoader
 {
     public:
         spell_gale_winds() : SpellScriptLoader("spell_gale_winds") { }
@@ -1425,7 +1425,7 @@ class spell_gale_winds: public SpellScriptLoader
 };
 
 // 123600 - Storm unleashed
-class spell_su_dummy: public SpellScriptLoader
+class spell_su_dummy : public SpellScriptLoader
 {
     public:
         spell_su_dummy() : SpellScriptLoader("spell_su_dummy") { }
@@ -1459,7 +1459,7 @@ class spell_su_dummy: public SpellScriptLoader
 };
 
 // 123616 - Storm unleashed
-class spell_su_dumaura: public SpellScriptLoader
+class spell_su_dumaura : public SpellScriptLoader
 {
     public:
         spell_su_dumaura() : SpellScriptLoader("spell_su_dumaura") { }
@@ -1493,7 +1493,7 @@ class spell_su_dumaura: public SpellScriptLoader
 };
 
 // 125310
-class spell_blade_tempest: public SpellScriptLoader
+class spell_blade_tempest : public SpellScriptLoader
 {
     public:
         spell_blade_tempest() : SpellScriptLoader("spell_blade_tempest") { }

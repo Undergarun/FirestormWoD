@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
+#include "Group.h"
 
 enum eData
 {

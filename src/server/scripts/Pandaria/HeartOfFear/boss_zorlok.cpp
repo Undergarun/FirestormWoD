@@ -171,15 +171,15 @@ float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
 
 float rangeAttenuation1[2][2] =
 {
-    {-2256.0f, -2208.0f},
-      {190.0f,   240.0f}
+    -2256.0f, -2208.0f,
+      190.0f,   240.0f
 };
 
 float rangeAttenuation2[2][2] =
 {
     // Coords to redone
-    {-2297.0f, -2250.0f},
-      {237.0f,   280.0f}
+    -2297.0f, -2250.0f,
+      237.0f,   280.0f
 };
 
 // Zorlok - 62980
@@ -435,6 +435,7 @@ class boss_zorlok : public CreatureScript
 
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
                 }
 
                 if (me->GetMap()->IsLFR())
@@ -442,7 +443,7 @@ class boss_zorlok : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
 
                 _JustDied();
@@ -544,7 +545,7 @@ class boss_zorlok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 // Check if trashes are done
                 if (pInstance && !isEcho)
@@ -1340,7 +1341,7 @@ class mob_sonic_pulse : public CreatureScript
                 return reachPoint;
             }
 
-            void MovementInform(uint32 point, uint32 type)
+            void MovementInform(uint8 point, uint8 type)
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -1357,7 +1358,7 @@ class mob_sonic_pulse : public CreatureScript
 };
 
 // Inhale - 122852
-class spell_inhale: public SpellScriptLoader
+class spell_inhale : public SpellScriptLoader
 {
     public:
         spell_inhale() : SpellScriptLoader("spell_inhale") { }
@@ -1385,7 +1386,7 @@ class spell_inhale: public SpellScriptLoader
 };
 
 // Attenuation - 122440
-class spell_attenuation: public SpellScriptLoader
+class spell_attenuation : public SpellScriptLoader
 {
     public:
         spell_attenuation() : SpellScriptLoader("spell_attenuation") { }
@@ -1419,7 +1420,7 @@ class spell_attenuation: public SpellScriptLoader
 };
 
 // Force and Verve (Aura) - 122718
-class spell_force_verve: public SpellScriptLoader
+class spell_force_verve : public SpellScriptLoader
 {
     public:
         spell_force_verve() : SpellScriptLoader("spell_force_verve") { }
@@ -1455,7 +1456,7 @@ class spell_force_verve: public SpellScriptLoader
 };
 
 // Sonic Ring (Aura) - 122336
-class spell_sonic_ring: public SpellScriptLoader
+class spell_sonic_ring : public SpellScriptLoader
 {
     public:
         spell_sonic_ring() : SpellScriptLoader("spell_sonic_ring") { }
@@ -1506,7 +1507,7 @@ class spell_sonic_ring: public SpellScriptLoader
 };
 
 // Sonic Pulse (Aura) - 124673
-class spell_sonic_pulse: public SpellScriptLoader
+class spell_sonic_pulse : public SpellScriptLoader
 {
     public:
         spell_sonic_pulse() : SpellScriptLoader("spell_sonic_pulse") { }
@@ -1578,7 +1579,7 @@ class ExhaleTargetFilter : public std::unary_function<Unit*, bool>
 };
 
 // Exhale: 122761
-class spell_zorlok_exhale: public SpellScriptLoader
+class spell_zorlok_exhale : public SpellScriptLoader
 {
     public:
         spell_zorlok_exhale() : SpellScriptLoader("spell_zorlok_exhale") { }
@@ -1658,7 +1659,7 @@ class spell_zorlok_exhale: public SpellScriptLoader
 };
 
 // Exhale (damage): 122760
-class spell_zorlok_exhale_damage: public SpellScriptLoader
+class spell_zorlok_exhale_damage : public SpellScriptLoader
 {
     public:
         spell_zorlok_exhale_damage() : SpellScriptLoader("spell_zorlok_exhale_damage") { }
@@ -1667,7 +1668,7 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
         {
             PrepareSpellScript(spell_zorlok_exhale_damage_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*> & p_Targets)
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Unit* caster = GetCaster();
 
@@ -1677,10 +1678,10 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
                 //Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(TYPEID_PLAYER, 0, caster->GetAI()->GetData(TYPE_EXHALE_TARGET)));
                 Unit* currentTarget = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(caster->GetAI()->GetData(TYPE_EXHALE_TARGET), 0, HIGHGUID_PLAYER));
 
-                if (p_Targets.empty() || !currentTarget)
+                if (targets.empty() || !currentTarget)
                     return;
 
-                p_Targets.remove_if([this, caster, currentTarget](WorldObject* p_Object) -> bool
+                targets.remove_if([this, caster, currentTarget](WorldObject* p_Object) -> bool
                 {
                     if (p_Object == currentTarget)
                         return false;
@@ -1692,13 +1693,13 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
                 });
 
                 // Two or more targets, means there's someone between Zor'lok and his target.
-                if (p_Targets.size() > 1)
+                if (targets.size() > 1)
                 {
                     // Select first target between Zor'lok and the Exhale target.
                     WorldObject* nearestTarget = nullptr;
                     float distance = 1000.0f;
 
-                    for (WorldObject* l_Object : p_Targets)
+                    for (WorldObject* l_Object : targets)
                     {
                         if (caster->GetDistance2d(l_Object) < distance)
                         {
@@ -1707,8 +1708,7 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
                         }
                     }
 
-                    if (nearestTarget != nullptr
-                        && nearestTarget != currentTarget)
+                    if (nearestTarget != nullptr && nearestTarget != currentTarget)
                     {
                         // Set Zor'lok's current Exhale target to that nearest player.
                         uint32 targetLowGuid = nearestTarget->GetGUIDLow();
@@ -1730,7 +1730,7 @@ class spell_zorlok_exhale_damage: public SpellScriptLoader
 };
 
 // 122740 - Convert
-class spell_convert: public SpellScriptLoader
+class spell_convert : public SpellScriptLoader
 {
     public :
         spell_convert() : SpellScriptLoader("spell_convert") { }

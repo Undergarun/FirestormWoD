@@ -240,13 +240,13 @@ class boss_unsok : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
             void EnterCombat(Unit* attacker)
             {
-                if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_UNSOK))
+                if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK) && !IsLFR()))
                 {
                     me->SetFullHealth();
                     me->SetReactState(REACT_PASSIVE);
@@ -326,7 +326,7 @@ class boss_unsok : public CreatureScript
                         EnterCombat(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 if (!fightInProgress)
                     EnterCombat(attacker);
@@ -456,7 +456,7 @@ class boss_unsok : public CreatureScript
                                 {
                                     if (!(*itr)->HasAura(SPELL_RESHAPE_LIFE))
                                         // In phase 1, can only be casted on tank
-                                        if (phase > 1 || (*itr)->GetRoleForGroup() == ROLE_TANK)
+                                        if (phase > 1 || (*itr)->GetRoleForGroup() == Roles::ROLE_TANK)
                                             canCast = true;
 
                                     ++itr;
@@ -762,7 +762,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, SpellInfo const* p_SpellInfo)
+        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, const SpellInfo* p_SpellInfo)
         {
             if (me->HasAura(SPELL_TEMP_FEIGN_DEATH) || me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
             {
@@ -1125,7 +1125,7 @@ class mob_amber_scalpel : public CreatureScript
 };
 
 // 121995 - Amber Scalpel - Summoning Living Amber
-class spell_amber_scalpel: public SpellScriptLoader
+class spell_amber_scalpel : public SpellScriptLoader
 {
     public:
         spell_amber_scalpel() : SpellScriptLoader("spell_amber_scalpel")  { }
@@ -1160,7 +1160,7 @@ class spell_amber_scalpel: public SpellScriptLoader
 };
 
 // 122395 - Struggle for Control
-class spell_struggle_for_control: public SpellScriptLoader
+class spell_struggle_for_control : public SpellScriptLoader
 {
     public:
         spell_struggle_for_control() : SpellScriptLoader("spell_struggle_for_control") { }
@@ -1189,7 +1189,7 @@ class spell_struggle_for_control: public SpellScriptLoader
 };
 
 // 123156 - Consume Amber
-class spell_consume_amber: public SpellScriptLoader
+class spell_consume_amber : public SpellScriptLoader
 {
     public:
         spell_consume_amber() : SpellScriptLoader("spell_consume_amber") { }
@@ -1258,7 +1258,7 @@ class spell_break_free : SpellScriptLoader
 };
 
 // 122415 - Grab
-class spell_grab: public SpellScriptLoader
+class spell_grab : public SpellScriptLoader
 {
     public:
         spell_grab() : SpellScriptLoader("spell_grab") { }
@@ -1287,7 +1287,7 @@ class spell_grab: public SpellScriptLoader
 };
 
 // 122413 - Fling
-class spell_fling: public SpellScriptLoader
+class spell_fling : public SpellScriptLoader
 {
     public:
         spell_fling() : SpellScriptLoader("spell_fling") { }
@@ -1344,7 +1344,7 @@ class spell_fling: public SpellScriptLoader
 };
 
 // 122420 - Fling, victim thrown
-class spell_fling_thrown: public SpellScriptLoader
+class spell_fling_thrown : public SpellScriptLoader
 {
     public:
         spell_fling_thrown() : SpellScriptLoader("spell_fling_thrown") { }
@@ -1372,7 +1372,7 @@ class spell_fling_thrown: public SpellScriptLoader
 };
 
 // 122547 - Draw Power
-class spell_unsok_draw_power: public SpellScriptLoader
+class spell_unsok_draw_power : public SpellScriptLoader
 {
 public:
     spell_unsok_draw_power() : SpellScriptLoader("spell_unsok_draw_power") { }
@@ -1400,7 +1400,7 @@ public:
 };
 
 // 123014 - Volatile amber
-class spell_volatile_amber: public SpellScriptLoader
+class spell_volatile_amber : public SpellScriptLoader
 {
 public:
     spell_volatile_amber() : SpellScriptLoader("spell_volatile_amber") { }
