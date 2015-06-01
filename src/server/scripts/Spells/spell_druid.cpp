@@ -1580,7 +1580,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     if (l_Owner && l_Owner == l_Player && (*i)->isSummon())
                         continue;
 
-                    l_Mushroomlist.remove((*i));
+                    i = l_Mushroomlist.erase(i);
                 }
 
                 if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
