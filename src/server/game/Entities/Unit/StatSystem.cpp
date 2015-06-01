@@ -709,8 +709,15 @@ void Player::UpdateParryPercentage()
         // Parry from rating
         diminishing = GetRatingBonusValue(CR_PARRY);
 
+        /// Parry from strength, just for paladin/dk/warrior
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/
+        1% parry before diminishing returns = 176.3760684 strength
+        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
+        if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
+            diminishing += GetTotalStatValue(STAT_STRENGTH, false) * 0.00566970f;
+
         // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
 
         /// Apply parry from pct of critical strike from gear
         value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
