@@ -579,7 +579,8 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         }
 };
 
-// Chi Brew - 115399
+/// last update : 6.1.2 19802
+/// Chi Brew - 115399
 class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
@@ -598,37 +599,44 @@ class spell_monk_chi_brew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                bool l_Mastery = false;
+
+                /// Mastery: Bottled Fury
+                float l_MasteryAmount = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                
+                if (l_Player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(l_MasteryAmount))
+                    l_Mastery = true;
+
+                const SpellInfo *l_BonusAmount = sSpellMgr->GetSpellInfo(145640);
+
+                if (l_BonusAmount == nullptr)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        bool mastery = false;
-                        // Mastery: Bottled Fury
-                        float Mastery = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-                        if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
-                            mastery = true;
+                case SPEC_MONK_BREWMASTER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
+                    break;
+                case SPEC_MONK_MISTWEAVER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_2].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_MANA_TEA_STACKS, true);
+                    break;
+                case SPEC_MONK_WINDWALKER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
-                        switch (_player->GetSpecializationId(_player->GetActiveSpec()))
-                        {
-                            case SPEC_MONK_BREWMASTER:
-                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
-                                break;
-                            case SPEC_MONK_MISTWEAVER:
-                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                                break;
-                            case SPEC_MONK_WINDWALKER:
-                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-
-                                if (mastery)
-                                    _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    if (l_Mastery)
+                       l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                    break;
+                default:
+                    break;
                 }
             }
 
