@@ -565,6 +565,18 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
+    /// Hack fix : Single-Minded Fury
+    if (addTotalPct && l_UsedWeapon)
+    {
+        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            /// Two-Handed weapon
+            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
+            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
+                total_pct = total_pct / 1.2f;
+        }
+    }
+
     /// Apply Versatility rating to damage calculation
     base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
 
