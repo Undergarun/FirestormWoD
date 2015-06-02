@@ -50,8 +50,6 @@ namespace BNet2 {
             }
             /// Read bytes array
             void ReadBytes(uint8_t * p_Dest, uint32_t p_Count);
-            /// Skip bytes
-            void SkipBytes(uint32_t p_Count);
 
             /// Write data
             template<typename T> void Write(T p_Value)
@@ -142,6 +140,7 @@ namespace BNet2 {
             uint32_t                m_BitsCount;        ///< Num bits readed
             uint32_t                m_ReadPosition;     ///< Data read position
             uint32_t                m_WritePosition;    ///< Data write position
+
 
     };
 

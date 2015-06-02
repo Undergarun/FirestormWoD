@@ -51,6 +51,9 @@ namespace BNet2 {
             SRP6a * GetSRP();
 
         private:
+            /// Wait N bytes and append it to the current packet
+            void WaitBytes(uint32_t p_Count);
+
             /// Get socket
             RealmSocket & GetSocket(void);
 
@@ -58,33 +61,22 @@ namespace BNet2 {
             void SendAuthResult(BNet2::AuthResult p_Result, bool p_Failed = true);
 
         public:
-            bool HandleNullPacket(BNet2::Packet * p_Packet) { return false; }
-
-            /// Authentication resume request
-            bool Authentication_Handle_ResumeRequest(BNet2::Packet * p_Packet);
             /// Authentication informations client request
-            bool Authentication_Handle_LogonRequest3(BNet2::Packet * p_Packet);
+            bool None_Handle_InformationRequest(BNet2::Packet * p_Packet);
             /// Authentication client request
-            bool Authentication_Handle_ProofResponse(BNet2::Packet * p_Packet);
+            bool None_Handle_ProofResponse(BNet2::Packet * p_Packet);
 
             /// Ping request
-            bool Connection_Handle_Ping(BNet2::Packet * p_Packet);
-            /// Enable encryption
-            bool Connection_Handle_EnableEncryption(BNet2::Packet * p_Packet);
+            bool Creep_Handle_Ping(BNet2::Packet * p_Packet);
             /// Disconnect notify
-            bool Connection_Handle_LogoutRequest(BNet2::Packet * p_Packet);
-            /// Disconnect request
-            bool Connection_Handle_DisconnectRequest(BNet2::Packet * p_Packet);
-            /// Connection closing
-            bool Connection_Handle_ConnectionClosing(BNet2::Packet * p_Packet);
+            bool Creep_Handle_Disconnect(BNet2::Packet * p_Packet);
 
             /// Realm list client request
-            bool WoWRealm_Handle_RealmUpdate(BNet2::Packet * p_Packet);
+            bool WoW_Handle_RealmUpdate(BNet2::Packet * p_Packet);
             /// Realm connection client request
             bool WoW_Handle_JoinRequest(BNet2::Packet * p_Packet);
-
-            /// Get stream items
-            bool Cache_Handle_GetStreamItemsRequest(BNet2::Packet * p_Packet);
+            /// Multiple realm connection client request
+            bool WoW_Handle_MultiLogonRequest(BNet2::Packet * p_Packet);
 
         private:
             SessionState    m_State;            ///< Session state
