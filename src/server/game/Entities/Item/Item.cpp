@@ -746,7 +746,7 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
         for (auto& l_BonusId : l_Bonuses)
             p_Datas << uint32(l_BonusId);
     }
-    
+
     /// Item modifications
     if (l_Modifications.size() != 0)
     {

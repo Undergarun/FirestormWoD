@@ -64,7 +64,7 @@ void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficulty>> MapDifficultyMap;
-MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* difficulty = nullptr);
+MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* p_Difficulty = nullptr);
 MapDifficulty const* GetMapDifficultyData(uint32 p_MapID, Difficulty p_Difficulty);
 MapDifficulty const* GetDownscaledMapDifficultyData(uint32 p_MapID, Difficulty& p_Difficulty);
 
