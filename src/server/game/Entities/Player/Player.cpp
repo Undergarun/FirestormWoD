@@ -869,7 +869,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_dungeonDifficulty = DifficultyNormal;
     m_raidDifficulty = DifficultyRaidNormal;
     m_LegacyRaidDifficulty = Difficulty10N;
-    m_prevMapDifficulty = DifficultyRaidNormal;
+    m_PrevMapDifficulty = DifficultyRaidNormal;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -23929,10 +23929,10 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendDungeonDifficulty(int32 forcedDifficulty /*= -1*/)
+void Player::SendDungeonDifficulty(int32 p_ForcedDifficulty /*= -1*/)
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << uint32(forcedDifficulty == -1 ? GetDungeonDifficultyID() : forcedDifficulty);
+    data << uint32(p_ForcedDifficulty == -1 ? GetDungeonDifficultyID() : p_ForcedDifficulty);
     GetSession()->SendPacket(&data);
 }
 
@@ -27057,19 +27057,19 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (GetMap()->IsRaid())
     {
-        m_prevMapDifficulty = GetMap()->GetDifficultyID();
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(m_prevMapDifficulty);
-        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_prevMapDifficulty);
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_PrevMapDifficulty);
     }
     else if (GetMap()->IsNonRaidDungeon())
     {
-        m_prevMapDifficulty = GetMap()->GetDifficultyID();
-        SendDungeonDifficulty(m_prevMapDifficulty);
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        SendDungeonDifficulty(m_PrevMapDifficulty);
     }
     else if (!GetMap()->Instanceable())
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(m_prevMapDifficulty);
-        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
     GetSession()->SendPetBattleJournal();
