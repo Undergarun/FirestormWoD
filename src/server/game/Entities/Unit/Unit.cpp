@@ -10696,9 +10696,6 @@ bool Unit::AttackStop()
 
 void Unit::CombatStop(bool includingCast)
 {
-    if (GetTypeId() == TYPEID_PLAYER && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
-        return;
-
     if (includingCast && IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
