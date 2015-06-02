@@ -142,7 +142,9 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                     m_Targets.push_back(l_Target->GetGUID());
                 }
             }
-            for (uint64 l_TargetGuid : m_Targets)
+
+            std::list<uint64> l_Targets(m_Targets);
+            for (uint64 l_TargetGuid : l_Targets)
             {
                 Unit* l_Target = ObjectAccessor::GetUnit(*l_AreaTriggerCaster, l_TargetGuid);
 
