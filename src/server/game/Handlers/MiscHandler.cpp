@@ -1398,6 +1398,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
 
         l_Data.put(l_EnchantCountPos, l_EnchantCount);
         l_Data.WriteBit(true);
+        l_Data.FlushBits();
     }
 
     l_Data.put(l_EquipmentCountPos, l_EquipmentCount);
