@@ -24,16 +24,27 @@ class boss_rukhmar : public CreatureScript
     public:
         boss_rukhmar() : CreatureScript("boss_rukhmar") { }
 
+        float m_Bab;
+
         struct boss_rukhmarAI : public ScriptedAI
         {
             boss_rukhmarAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
+            float GetDataZ() { return m_ZRef; }
+
             EventMap m_Events;
+            float m_ZRef;
+            float m_ZNew;
+            bool m_MovingUpToward;
+            bool m_MovingDownToward;
 
             void Reset()
             {
                 m_Events.Reset();
-                me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
+                m_ZRef = 0.0f;
+                m_MovingUpToward = false;
+                m_MovingDownToward = false;
+                me->m_CombatDistance = 500.0f;
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -46,20 +57,34 @@ class boss_rukhmar : public CreatureScript
                 summons.Despawn(p_Summon);
             }
 
+            bool CheckPosition(float p_Ref)
+            {
+                float l_ActualZPos = me->GetPositionZ();
+
+                if (p_Ref == m_ZNew) ///< m_ZNew is float
+                    return ((l_ActualZPos <= m_ZNew + 0.01f) && (l_ActualZPos >= m_ZNew - 0.01f));
+                else if (p_Ref == m_ZRef) ///< m_ZRef is float
+                    return ((l_ActualZPos <= m_ZRef + 0.01f) && (l_ActualZPos >= m_ZRef - 0.01f));
+
+                return false;
+            }
+
+
             void LaunchGroundEvents()
             {
-                m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 3000);
-                m_Events.ScheduleEvent(SpiresOfArakEvents::EventBloodFeather, 7000);
-                m_Events.ScheduleEvent(SpiresOfArakEvents::EventSolarBreath, 11000);
-                m_Events.ScheduleEvent(SpiresOfArakEvents::EventBlazeOfGlory, 16000);
-                m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 33000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 3000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventBloodFeather, 7000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventSolarBreath, 12000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventBlazeOfGlory, 19000);
+                  m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 33000);
             }
 
             void EnterCombat(Unit* p_Who) override
             {
-                me->UpdateGroundPositionZ(p_Who->m_positionX, p_Who->m_positionY, p_Who->m_positionZ);
+                me->AddAura(SpiresOfArakSpells::SpellSolarRadiationAura, me);
                 LaunchGroundEvents();
             }
+
             void JustDied(Unit* /*p_Killer*/) override
             {
                 summons.DespawnAll();
@@ -74,8 +99,9 @@ class boss_rukhmar : public CreatureScript
                     l_Creature->DespawnOrUnsummon();
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode() override
             {
+                CreatureAI::EnterEvadeMode();
                 summons.DespawnAll();
                 m_Events.Reset();
 
@@ -87,16 +113,29 @@ class boss_rukhmar : public CreatureScript
                 for (Creature* l_Creature : l_CreatureList)
                     l_Creature->DespawnOrUnsummon();
 
+                me->RemoveAura(SpiresOfArakSpells::SpellSolarRadiationAura);
                 me->GetMotionMaster()->MoveTargetedHome();
             }
 
-            void DoAction(int32 const p_Param)
+            void DoAction(int32 const p_Action) override
             {
-                LaunchGroundEvents();
+                if (p_Action == SpiresOfArakActions::ActionMoveDownToward)
+                {
+                    m_Events.Reset();
+                    m_MovingDownToward = true;
+
+                    if (m_ZRef)
+                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZRef, 3.0f);
+                }
+                else
+                    LaunchGroundEvents();
             }
 
             void SpellHitTarget(Unit* p_Victim, SpellInfo const* p_SpellInfo) override
             {
+                if (!p_SpellInfo)
+                    return;
+
                 if (p_SpellInfo->Id == SpiresOfArakSpells::SpellLooseQuillsDummy)
                     me->CastSpell(p_Victim, SpiresOfArakSpells::SpellLooseQuillsMissile, true);
                 else if (p_SpellInfo->Id == SpiresOfArakSpells::SpellBloodFeatherDummy)
@@ -108,27 +147,50 @@ class boss_rukhmar : public CreatureScript
                 m_Events.Update(p_Diff);
                 EnterEvadeIfOutOfCombatArea(p_Diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
+                if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim() || (m_MovingUpToward || m_MovingDownToward))
+                {
+                    if (m_MovingUpToward)
+                    {
+                        if (CheckPosition(m_ZNew))
+                        {
+                            m_MovingUpToward = false;
+                            me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            me->AddUnitState(UNIT_STATE_ROOT);
+                        }
+                    }
+                    else if (m_MovingDownToward)
+                    {
+                        if (CheckPosition(m_ZRef))
+                        {
+                            m_ZRef = 0.0f;
+                            m_ZNew = 0.0f;
+                            m_MovingDownToward = false;
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                            me->ClearUnitState(UNIT_STATE_ROOT);
+                            LaunchGroundEvents();
+                        }
+                    }
                     return;
+                }
 
                 switch (m_Events.ExecuteEvent())
                 {
                     case SpiresOfArakEvents::EventLooseQuills:
                     {
-                        float l_ZPos = me->GetPositionZ();
-                        l_ZPos += 4.0f;
+                        m_MovingUpToward = true;
+                        m_ZRef = me->GetPositionZ();
+                        m_ZNew = m_ZRef + 15.0f;
                         m_Events.Reset();
 
-                        me->UpdateGroundPositionZ(me->m_positionX, me->m_positionY, l_ZPos);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 33000);
+                        me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZNew, 3.0f);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 90000);
                         break;
                     }
                     case SpiresOfArakEvents::EventSharpBeak:
-                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, SpiresOfArakSpells::SpellSharpBeak, false);
-                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 33000);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventSharpBeak, 10000);
                         break;
                     case SpiresOfArakEvents::EventBloodFeather:
                         me->CastSpell(me, SpiresOfArakSpells::SpellBloodFeatherDummy, false);
@@ -151,7 +213,7 @@ class boss_rukhmar : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const override
         {
             return new boss_rukhmarAI(p_Creature);
         }
@@ -168,19 +230,21 @@ class npc_energized_phoenix : public CreatureScript
             npc_energized_phoenixAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            uint64 m_SummonerGuid;
             uint64 m_PlayerGuid;
             bool m_KilledByPlayer;
 
-            void Reset()
+            void Reset() override
             {
-                me->SetSpeed(MOVE_WALK, 0.35f);
-                me->SetSpeed(MOVE_RUN, 0.3f);
-                me->SetSpeed(MOVE_FLIGHT, 0.3f);
+                me->SetSpeed(MOVE_WALK, 2.0f);
+                me->SetSpeed(MOVE_RUN, 2.0f);
+                me->SetSpeed(MOVE_FLIGHT, 2.0f);
                 me->SetFloatValue(UNIT_FIELD_COMBAT_REACH, 0);
                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 0);
                 me->SetReactState(REACT_PASSIVE);
                 m_KilledByPlayer = true;
                 m_PlayerGuid = 0;
+                m_SummonerGuid = 0;
                 m_Events.Reset();
             }
 
@@ -189,21 +253,23 @@ class npc_energized_phoenix : public CreatureScript
                 summons.Summon(p_Summon);
             }
 
-            void IsSummonedBy(Unit* p_Summoner)
+            void IsSummonedBy(Unit* p_Summoner) override
             {
+                /// Select some random player to focus on
                 std::list<Player*> l_PlayerList;
                 GetPlayerListInGrid(l_PlayerList, me, 30.0f);
+                m_SummonerGuid = p_Summoner->GetGUID();
 
-                for (Player* l_Player : l_PlayerList)
+                if (!l_PlayerList.empty())
                 {
-                    if (urand(0, 1))
-                    {
-                         m_PlayerGuid = l_Player->GetGUID();
-                         me->AddThreat(l_Player, 1000000.0f);
-                         me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
-                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                    JadeCore::RandomResizeList(l_PlayerList, 1);
 
-                        break;
+                    if (Player* l_Player = l_PlayerList.front())
+                    {
+                        m_PlayerGuid = l_Player->GetGUID();
+                        me->AddThreat(l_Player, 100000.0f);
+                        me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
                     }
                 }
             }
@@ -224,7 +290,7 @@ class npc_energized_phoenix : public CreatureScript
             {
                 m_Events.Update(p_Diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim())
+                if (!UpdateVictim())
                     return;
 
                 switch (m_Events.ExecuteEvent())
@@ -237,23 +303,29 @@ class npc_energized_phoenix : public CreatureScript
                             {
                                 if (me->GetDistance2d(l_Player) <= 1.0f)
                                 {
-                                    Position const* l_Pos = me;
                                     m_KilledByPlayer = false;
                                     m_Events.Reset();
 
                                     me->GetMotionMaster()->Clear();
                                     me->CastSpell(l_Player, SpiresOfArakSpells::SpellBlazeOfGloryDummy, true);
-                                    me->SummonCreature(SpiresOfArakCreatures::CreaturePileOfAsh, *l_Pos);
-                                    me->DespawnOrUnsummon();
+                                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventTurnPhoenixToAsh, 700);
                                 }
                                 else
                                 {
-                                    Position l_Pos;
-                                    l_Player->GetPosition(&l_Pos);
-                                    me->GetMotionMaster()->MovePoint(0, l_Pos);
+                                    me->GetMotionMaster()->MoveCharge(l_Player->m_positionX, l_Player->m_positionY, l_Player->m_positionZ, 2.0f);
                                     m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
                                 }
                             }
+                        }
+                        break;
+                    }
+                    case SpiresOfArakEvents::EventTurnPhoenixToAsh:
+                    {
+                        if (Creature* l_Rukhmar = me->GetCreature(*me, m_SummonerGuid))
+                        {
+                            Position const* l_Pos = me;
+                            me->SummonCreature(SpiresOfArakCreatures::CreaturePileOfAsh, *l_Pos);
+                            me->DespawnOrUnsummon();
                         }
                         break;
                     }
@@ -274,42 +346,54 @@ class npc_energized_phoenix : public CreatureScript
 /// 167629 - Blaze Of Glory
 class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
 {
-public:
-    spell_rukhmar_blaze_of_glory() : SpellScriptLoader("spell_rukhmar_blaze_of_glory") { }
+    public:
+        spell_rukhmar_blaze_of_glory() : SpellScriptLoader("spell_rukhmar_blaze_of_glory") { }
 
-    class spell_rukhmar_blaze_of_glory_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
-
-        uint64 m_MainTarget;
-
-        void HandleOnCast()
+        class spell_rukhmar_blaze_of_glory_SpellScript : public SpellScript
         {
-            Unit* l_Caster = GetCaster();
+            PrepareSpellScript(spell_rukhmar_blaze_of_glory_SpellScript);
 
-            if (!l_Caster)
-                return;
+            uint64 m_MainTarget;
 
-            std::list<Creature*> l_CreatureList;
-            l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 50.0f);
-
-            for (Creature* l_Creature : l_CreatureList)
+            void HandleOnCast()
             {
-                l_Creature->DespawnOrUnsummon();
-                l_Caster->SummonCreature(SpiresOfArakCreatures::CreatureEnergizedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                std::list<Creature*> l_CreatureList;
+                l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 50.0f);
+
+                for (Creature* l_Creature : l_CreatureList)
+                {
+                    l_Creature->DespawnOrUnsummon();
+                    l_Caster->SummonCreature(SpiresOfArakCreatures::CreatureEnergizedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
+                }
             }
-        }
 
-        void Register()
+            void CorrectRange(std::list<WorldObject*>& p_Targets)
+            {
+                if (!GetCaster())
+                    return;
+
+                p_Targets.remove_if([this](WorldObject* p_Obj) -> bool
+                {
+                    return p_Obj == GetCaster();
+                });
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_rukhmar_blaze_of_glory_SpellScript::HandleOnCast);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rukhmar_blaze_of_glory_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnCast += SpellCastFn(spell_rukhmar_blaze_of_glory_SpellScript::HandleOnCast);
+            return new spell_rukhmar_blaze_of_glory_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_rukhmar_blaze_of_glory_SpellScript();
-    }
 };
 
 /// 167647 - Loose Quills
@@ -330,14 +414,8 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
                 {
                     if (Creature* l_Creature = l_Owner->ToCreature())
                     {
-                        l_Owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-
-                        float l_ZPos = l_Owner->GetPositionZ();
-                        l_ZPos -= 4.0f;
-                        l_Owner->UpdateGroundPositionZ(l_Owner->m_positionX, l_Owner->m_positionY, l_ZPos);
-
-                        if (l_Creature->AI())
-                            l_Creature->AI()->DoAction(0);
+                        if (l_Creature->GetAI())
+                            l_Creature->GetAI()->DoAction(SpiresOfArakActions::ActionMoveDownToward);
                     }
                 }
             }
@@ -354,10 +432,44 @@ class spell_rukhmar_loose_quills : public SpellScriptLoader
         }
 };
 
+/// 167647 - Loose Quills
+class spell_aura_pierced_armor : public SpellScriptLoader
+{
+    public:
+        spell_aura_pierced_armor() : SpellScriptLoader("spell_aura_pierced_armor") {}
+
+        class spell_aura_pierced_armor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_aura_pierced_armor_AuraScript);
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                WorldObject* l_Owner = GetOwner();
+
+                if (!l_Owner)
+                    return;
+
+                if (Creature* l_Rukhmar = l_Owner->ToCreature())
+                    l_Rukhmar->CastSpell(l_Rukhmar, SpiresOfArakSpells::SpellSolarBreathDamage, false);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_pierced_armor_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_aura_pierced_armor_AuraScript();
+        }
+};
+
 void AddSC_spires_of_arak()
 {
     new boss_rukhmar();
     new npc_energized_phoenix();
     new spell_rukhmar_blaze_of_glory();
     new spell_rukhmar_loose_quills();
+    new spell_aura_pierced_armor();
 }
