@@ -297,19 +297,19 @@ class OutdoorPvP_TarrenMillFun : public OutdoorPvPScript
         }
 };
 
-class go_taren_mill_portal : public GameObjectScript
+class go_tarren_mill_portal : public GameObjectScript
 {
     public:
-        go_taren_mill_portal() : GameObjectScript("go_taren_mill_portal") { }
+        go_tarren_mill_portal() : GameObjectScript("go_tarren_mill_portal") { }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* p_Player, GameObject* p_Go)
         {
             float l_PositionX   = 0.f;
             float l_PositionY   = 0.f;
             float l_PositionZ   = 0.f;
             float l_Orientation = 0.f;
 
-            if (player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+            if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
             {
                 l_PositionX = 1752.77f;
                 l_PositionY = 1063.11f;
@@ -323,6 +323,7 @@ class go_taren_mill_portal : public GameObjectScript
                 l_Orientation = 4.31f;
             }
 
+            p_Player->TeleportTo(1280, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
 
             return true;
         }
@@ -331,5 +332,5 @@ class go_taren_mill_portal : public GameObjectScript
 void AddSC_TarrenMillFun()
 {
     new OutdoorPvP_TarrenMillFun();
-    new go_taren_mill_portal();
+    new go_tarren_mill_portal();
 } 
