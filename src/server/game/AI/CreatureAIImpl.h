@@ -467,6 +467,18 @@ class EventMap : private std::map<uint32, uint32>
             }
         }
 
+        /// Check if specified event is scheduled
+        bool HasEvent(uint32 p_EventID) const
+        {
+            for (const_iterator l_Iter = begin(); l_Iter != end(); ++l_Iter)
+            {
+                if ((l_Iter->second & 0x0000FFFF) == p_EventID)
+                    return true;
+            }
+
+            return false;
+        }
+
         // Cancel events with specified id
         void CancelEvent(uint32 eventId)
         {

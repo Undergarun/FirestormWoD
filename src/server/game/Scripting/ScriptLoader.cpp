@@ -861,6 +861,9 @@ void AddSC_highmaul();
 void AddSC_boss_kargath_bladefist();
 void AddSC_boss_the_butcher();
 void AddSC_boss_brackenspore();
+void AddSC_boss_tectus();
+void AddSC_boss_twin_ogron();
+void AddSC_boss_koragh();
 
 /// Auchindon
 void AddSC_instance_auchindon();
@@ -1778,6 +1781,9 @@ void AddDraenorScripts()
     AddSC_boss_kargath_bladefist();
     AddSC_boss_the_butcher();
     AddSC_boss_brackenspore();
+    AddSC_boss_tectus();
+    AddSC_boss_twin_ogron();
+    AddSC_boss_koragh();
 
     /// Auchindoun
     AddSC_instance_auchindon();
