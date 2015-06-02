@@ -924,7 +924,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 std::list<Creature*> l_IronGrunts;
                 me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreature::IronGrunt, 35.0f);
 
-                if (l_IronGrunts.size() > 0)
+                if (!l_IronGrunts.empty())
                 {
                     std::list<Unit*> l_Allies;
 

@@ -2034,6 +2034,14 @@ void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEf
     FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
 }
 
+/// Called when player block attack
+/// @p_Player : Player instance
+/// @p_DamageInfo  : Damage Infos
+void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnBlock(p_Player, p_Attacker);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

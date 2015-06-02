@@ -4579,7 +4579,7 @@ class spell_monk_chi_explosion_heal: public SpellScriptLoader
 
                 if (l_SpellValues->EffectBasePoints[EFFECT_1])
                 {
-                    if (!p_Targets.size())
+                    if (p_Targets.empty())
                         return;
 
                     Unit* l_MainTarget = (*p_Targets.begin())->ToUnit();
@@ -4955,8 +4955,51 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
         }
 };
 
+/// Glyph of Victory Roll - 159497
+class spell_monk_glyph_of_victory_roll : public SpellScriptLoader
+{
+public:
+    spell_monk_glyph_of_victory_roll() : SpellScriptLoader("spell_monk_glyph_of_victory_roll") { }
+
+    class spell_monk_glyph_of_victory_roll_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_monk_glyph_of_victory_roll_AuraScript);
+
+        enum eSpells
+        {
+            CatergoryID = 1365
+        };
+
+        void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& /*p_EventInfo*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            Player* l_Player = l_Caster->ToPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->RestoreCharge(eSpells::CatergoryID);
+        }
+
+        void Register()
+        {
+            OnEffectProc += AuraEffectProcFn(spell_monk_glyph_of_victory_roll_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_monk_glyph_of_victory_roll_AuraScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
+    new spell_monk_glyph_of_victory_roll();
     new spell_monk_uplift();
     new spell_monk_rising_sun_kick();
     new spell_monk_stance_of_tiger();

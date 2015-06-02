@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS quest_package_item_hotfix;

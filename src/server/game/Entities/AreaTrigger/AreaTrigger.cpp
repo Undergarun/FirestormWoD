@@ -405,7 +405,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
     {
         case AREATRIGGER_INTERPOLATION_LINEAR:
         {
-            if (!m_PathToLinearDestination.size())
+            if (m_PathToLinearDestination.empty())
             {
                 AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
                 /// Durations get decreased over time so create time + remaining duration = max duration

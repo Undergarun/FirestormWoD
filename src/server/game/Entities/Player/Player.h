@@ -718,15 +718,6 @@ class Item;
 class WorldSession;
 class BattlePet;
 
-enum PlayerSlots
-{
-    // first slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_START           = 0,
-    // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 184,
-    PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
-};
-
 #define INVENTORY_SLOT_BAG_0    255
 
 enum EquipmentSlots                                         // 19 slots
@@ -796,6 +787,15 @@ enum EquipmentSetUpdateState
     EQUIPMENT_SET_CHANGED   = 1,
     EQUIPMENT_SET_NEW       = 2,
     EQUIPMENT_SET_DELETED   = 3
+};
+
+enum PlayerSlots
+{
+    // first slot for item stored (in any way in player m_items data)
+    PLAYER_SLOT_START           = EQUIPMENT_SLOT_START,
+    // last+1 slot for item stored (in any way in player m_items data)
+    PLAYER_SLOT_END             = REAGENT_BANK_SLOT_BAG_END,
+    PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
 struct EquipmentSet
@@ -1016,6 +1016,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE               = 57,
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
+    PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1293,13 +1294,14 @@ struct VoidStorageItem
         ItemSuffixFactor = 0;
     }
 
-    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor)
+    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor, std::vector<uint32> const& bonuses)
     {
         ItemId = id;
         ItemEntry = entry;
         CreatorGuid = creator;
         ItemRandomPropertyId = randomPropertyId;
         ItemSuffixFactor = suffixFactor;
+        Bonuses = bonuses;
     }
 
     uint64 ItemId;
@@ -1307,6 +1309,7 @@ struct VoidStorageItem
     uint32 CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
+    std::vector<uint32> Bonuses;
 };
 
 class TradeData
@@ -1538,6 +1541,12 @@ struct WargameRequest
     uint64 QueueID;
     bool   TournamentRules;
     time_t CreationDate;
+};
+
+struct CharacterWorldState
+{
+    uint64 Value;
+    bool   Changed;
 };
 
 namespace MS { namespace Garrison 
@@ -2646,7 +2655,7 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 p_ForcedDifficulty = -1);
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -3594,6 +3603,28 @@ class Player : public Unit, public GridObject<Player>
         void ResetBossLooted() { m_BossLooted.clear(); }
         BossLooted const GetBossLooted() const { return m_BossLooted; }
 
+        void SetCharacterWorldState(uint32 p_Index, uint64 p_Value)
+        {
+            CharacterWorldState l_WorldState;
+            l_WorldState.Value   = p_Value;
+            l_WorldState.Changed = true;
+
+            m_CharacterWorldStates[p_Index] = l_WorldState;
+        }
+
+        CharacterWorldState const& GetCharacterWorldState(uint32 p_Index) const
+        {
+            return m_CharacterWorldStates.at(p_Index);
+        }
+
+        uint64 GetCharacterWorldStateValue(uint32 p_Index) const
+        {
+            if (m_CharacterWorldStates.find(p_Index) == m_CharacterWorldStates.end())
+                return 0;
+
+            return m_CharacterWorldStates.at(p_Index).Value;
+        }
+
     protected:
         void OnEnterPvPCombat();
         void OnLeavePvPCombat();
@@ -3613,8 +3644,6 @@ class Player : public Unit, public GridObject<Player>
         PlayerToys m_PlayerToys;
 
         BossLooted m_BossLooted;
-
-        void _LoadBossLooted(PreparedQueryResult p_Result);
 
     private:
         // Gamemaster whisper whitelist
@@ -3700,6 +3729,8 @@ class Player : public Unit, public GridObject<Player>
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
+        void _LoadBossLooted(PreparedQueryResult p_Result);
+        void _LoadWorldStates(PreparedQueryResult p_Result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3726,6 +3757,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);
+        void _SaveCharacterWorldStates(SQLTransaction& p_Transaction);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3756,7 +3788,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_LegacyRaidDifficulty;
-        Difficulty m_raidMapDifficulty;
+        Difficulty m_PrevMapDifficulty;
 
         uint32 m_atLoginFlags;
 
@@ -4060,6 +4092,9 @@ class Player : public Unit, public GridObject<Player>
 
         /// Wargame
         WargameRequest* m_WargameRequest;
+
+        /// Character WorldState
+        std::map<uint32/*WorldState*/, CharacterWorldState> m_CharacterWorldStates;
 
 };
 
