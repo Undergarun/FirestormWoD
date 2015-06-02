@@ -284,15 +284,8 @@ enum UnitRename
 #define MAX_SPELL_VEHICLE       6
 #define MAX_SPELL_POSSESS       8
 #define MAX_SPELL_CONTROL_BAR   10
-#define MAX_AGGRO_RESET_TIME    10 // in seconds
-#define MAX_AGGRO_RADIUS 45.0f  // yards
-
-enum Swing
-{
-    NOSWING                    = 0,
-    SINGLEHANDEDSWING          = 1,
-    TWOHANDEDSWING             = 2
-};
+#define MAX_AGGRO_RESET_TIME    10      // in seconds
+#define MAX_AGGRO_RADIUS        45.0f   // yards
 
 enum VictimState
 {
@@ -400,13 +393,6 @@ enum WeaponDamageRange
 {
     MINDAMAGE,
     MAXDAMAGE
-};
-
-enum DamageTypeToSchool
-{
-    RESISTANCE,
-    DAMAGE_DEALT,
-    DAMAGE_TAKEN
 };
 
 enum AuraRemoveMode
