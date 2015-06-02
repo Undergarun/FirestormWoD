@@ -5362,10 +5362,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 40;
                 spellInfo->Effects[1].MiscValue = 100;
                 break;
-            case 121253: ///< Keg Smash
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                spellInfo->MaxAffectedTargets = 3;
-                break;
             case 115308: ///< Elusive Brew
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
