@@ -185,6 +185,7 @@ class boss_tectus : public CreatureScript
                 me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
 
                 me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION | eUnitFlags::UNIT_FLAG_DISARMED);
 
                 switch (me->GetEntry())
                 {
@@ -215,7 +216,6 @@ class boss_tectus : public CreatureScript
                         me->CastSpell(me, eSpells::Grow, true);
                         me->SetDisplayId(eMiscs::InvisDisplay);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION | eUnitFlags::UNIT_FLAG_DISARMED);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         break;
@@ -226,7 +226,6 @@ class boss_tectus : public CreatureScript
                         me->CastSpell(me, eSpells::Grow, true);
                         me->SetDisplayId(eMiscs::InvisDisplay);
                         me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION | eUnitFlags::UNIT_FLAG_DISARMED);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         break;
