@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_CREATURE
-#define SCRIPTING_INTERFACES_CREATURE
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_CREATURE_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_CREATURE_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -143,4 +149,4 @@ class CreatureScript : public ScriptObjectImpl<true>, public UpdatableScript<Cre
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_CREATURE
+#endif  ///< SCRIPTING_INTERFACES_CREATURE_HPP_INCLUDED

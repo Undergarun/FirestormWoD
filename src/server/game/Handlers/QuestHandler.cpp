@@ -309,7 +309,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     {
                         m_Player->ModifyMoney(l_Objective.Amount);
                     }
-                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA)
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
                     {
                         m_Player->QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
                     }
@@ -551,8 +551,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             m_Player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             m_Player->RemoveActiveQuest(questId);
             m_Player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
-
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u abandoned quest %u", m_Player->GetGUIDLow(), questId);
         }
 
         m_Player->SetQuestSlot(slot, 0);

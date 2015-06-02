@@ -77,6 +77,7 @@ typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSet
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
+extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -228,7 +229,8 @@ extern DBCStorage <World_PVP_AreaEntry>          sWorld_PVP_AreaStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
 extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
-
+extern DBCStorage <WorldStateEntry>              sWorldStateStore;
+extern DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore;
 
 void LoadDBCStores(const std::string& dataPath);
 

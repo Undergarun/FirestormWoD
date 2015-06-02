@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
+#include "WowTime.hpp"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -1223,7 +1224,7 @@ void Guild::HandleRoster(WorldSession* p_Session /*= NULL*/)
     WorldPacket l_Data(SMSG_GUILD_ROSTER, 200 * 1024);
 
     l_Data << uint32(m_accountsNumber);
-    l_Data << uint32(secsToTimeBitFields(m_createdDate));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(m_createdDate));
     l_Data << uint32(0);                                      ///< Guild Flags
     l_Data << uint32(m_members.size());
 
@@ -3577,7 +3578,7 @@ void Guild::GuildNewsLog::BuildNewsData(uint32 p_ID, GuildNewsEntry & p_GuildNew
     p_Data << uint32(1);
 
     p_Data << uint32(p_ID);
-    p_Data << uint32(secsToTimeBitFields(p_GuildNews.Date));
+    p_Data << uint32(MS::Utilities::WowTime::Encode(p_GuildNews.Date));
     p_Data << uint32(p_GuildNews.EventType);
     p_Data << uint32(p_GuildNews.Flags);                      ///< 1 sticky
     p_Data << uint32(p_GuildNews.Data);                       ///< Data 1
@@ -3598,7 +3599,7 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& p_Data)
     for (GuildNewsLogMap::const_iterator l_It = _newsLog.begin(); l_It != _newsLog.end(); l_It++)
     {
         p_Data << uint32(l_It->first);
-        p_Data << uint32(secsToTimeBitFields(l_It->second.Date));
+        p_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.Date));
         p_Data << uint32(l_It->second.EventType);
         p_Data << uint32(l_It->second.Flags);                     ///< 1 sticky
         p_Data << uint32(l_It->second.Data);                      ///< Data 1

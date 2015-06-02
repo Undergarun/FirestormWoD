@@ -1623,7 +1623,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
 
     UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
+    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f 
+    float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
     PetStatInfo const* l_PetStat = GetPetStat();
@@ -1632,15 +1633,23 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerD
     else
         l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
 
+    /// Special calculation for hunter pets - WoD
+    /// Last Update 6.1.2 19802
+    if (isHunterPet())
+        l_BaseValue = GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
+
     float l_BasePct    = GetModifierValue(l_UnitMod, BASE_PCT);
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float l_WeaponMinDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
-    float l_WeaponMaxDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
+    float l_WeaponMinDamage = 0.0f;
+    float l_WeaponMaxDamage = 1.0f;
 
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
+
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_MinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_MaxDamage);
 
     SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
     SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);

@@ -613,8 +613,6 @@ void WorldSession::HandleMasterLootItemOpcode(WorldPacket & p_Packet)
     if (!l_Target)
         return;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_MASTER_LOOT_ITEM, 0x02A3) Target = [%s].", l_Target->GetName());
-
     for (uint32 l_I = 0; l_I < l_LootCount; ++l_I)
     {
         uint64 l_LootGUID = l_Objects[l_I];

@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_VEHICLE
-#define SCRIPTING_INTERFACES_VEHICLE
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_VEHICLE_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_VEHICLE_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -73,4 +79,4 @@ class VehicleScript : public ScriptObjectImpl<true>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_VEHICLE
+#endif  ///< SCRIPTING_INTERFACES_VEHICLE_HPP_INCLUDED

@@ -349,9 +349,6 @@ class WorldSession
 
         void SendPetitionQueryOpcode(uint64 petitionguid);
 
-        // Spell
-        void HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets & targets);
-
         // Pet
         void SendPetNameQuery(uint64 p_PetGUID);
         void SendStablePet(uint64 guid);
@@ -407,7 +404,7 @@ class WorldSession
         void SendAlreadySigned(uint64 p_PlayerGUID);
         void SendPetitionDeclined(uint64 p_PlayerGUID);
 
-        void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate = false, bool p_Ennemy = false);
+        void BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy = false);
 
         void DoLootRelease(uint64 lguid);
 
@@ -1146,6 +1143,8 @@ class WorldSession
         void HandleGetChallengeModeRewards(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestLeaders(WorldPacket& p_RecvData);
         void HandleChallengeModeRequestMapStats(WorldPacket& p_RecvData);
+
+        void SendChallengeModeMapStatsUpdate(uint32 p_MapID);
 
         /// Auto sort bags.
         void HandleSortBags(WorldPacket& p_RecvData);

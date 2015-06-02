@@ -230,12 +230,13 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
         m_spellImmune[i].clear();
 
-    for (uint8 i = 0; i < UNIT_MOD_END; ++i)
+    for (uint8 l_I = 0; l_I < UNIT_MOD_END; ++l_I)
     {
-        m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][BASE_PCT] = 1.0f;
-        m_auraModifiersGroup[i][TOTAL_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][TOTAL_PCT] = 1.0f;
+        m_auraModifiersGroup[l_I][BASE_VALUE]               = 0.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT_EXCLUDE_CREATE]  = 100.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT]                 = 1.0f;
+        m_auraModifiersGroup[l_I][TOTAL_VALUE]              = 0.0f;
+        m_auraModifiersGroup[l_I][TOTAL_PCT]                = 1.0f;
     }
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
@@ -689,6 +690,9 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    if (victim->isDead() || victim->GetHealth() == 0)
+        return 0; ///< Prevent double death
+
     // need for operations with Player class
     Player* plr = victim->ToPlayer();
 
@@ -2347,6 +2351,9 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             uint32 splitted = splitDamage;
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitted, &split_absorb);
+
+            // Need to remove all auras breakable by damage.
+            caster->RemoveAurasBreakableByDamage();
 
             SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellInfo()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
@@ -4459,6 +4466,16 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
 void Unit::RemoveMovementImpairingAuras()
 {
     RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+}
+
+void Unit::RemoveAurasBreakableByDamage()
+{
+    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE);
+    RemoveAurasWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE);
+
+    // Hack fix for Paralysis, don't want to spend time for debuging why it doesn't remove
+    if (HasAura(115078))
+        RemoveAura(115078);
 }
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except, uint8 count)
@@ -7831,8 +7848,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                             if (AuraEffectPtr aurShield = victim->GetAuraEffect(triggered_spell_id, EFFECT_0, GetGUID()))
                                 basepoints0 += aurShield->GetAmount();
 
-                            int32 maxHealth = CountPctFromMaxHealth(10);
-                            basepoints0 = std::min(basepoints0, maxHealth);
+                            /// Illuminated Healing stacks up to a maximum of 1/3 of target's maximum health
+                            int32 maxHealth = victim->GetMaxHealth() / 3;
+
+                            if (basepoints0 > maxHealth)
+                                basepoints0 = maxHealth;
 
                             break;
                         }
@@ -11051,6 +11071,8 @@ void Unit::SetMinion(Minion *minion, bool apply, PetSlot slot, bool stampeded)
                 RemoveAllMinionsByEntry(61029);
             else if (minion->GetEntry() == 15430 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
                 RemoveAllMinionsByEntry(61056);
+            else if (minion->GetEntry() == 77934 && minion->GetOwner() && minion->GetOwner()->HasAura(117013))
+                RemoveAllMinionsByEntry(77942);
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -12227,6 +12249,31 @@ bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
+bool Unit::IsAuraAbsorbCrit(SpellInfo const* spellProto, SpellSchoolMask schoolMask) const
+{
+    if (spellProto->SpellFamilyName != SPELLFAMILY_PRIEST)
+        return false;
+
+    if ((spellProto->AttributesEx2 & SPELL_ATTR2_CANT_CRIT))
+        return false;
+
+    float l_CritAbsorb = 0.0f;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        l_CritAbsorb = GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+    else
+    {
+        l_CritAbsorb = 5.0f;
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+        l_CritAbsorb += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
+    }
+
+    if (l_CritAbsorb <= 0.0f)
+        return false;
+
+    return roll_chance_f(l_CritAbsorb);
+}
+
 float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
 {
     //! Mobs can't crit with spells. Player Totems can
@@ -12571,6 +12618,19 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32
     return p_Damage;
 }
 
+uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage)
+{
+    int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
+
+    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+        l_CritPctBonus = 50; ///< 150% on pvp like healing
+
+    ///< Maybe some bonus of Aura to apply?
+    ///< l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
+
+    return p_Damage;
+}
 
 uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, uint8 effIndex, DamageEffectType damagetype, uint32 stack /*= 1*/)
 {
@@ -13892,7 +13952,7 @@ void Unit::ClearInCombat()
         if (HasFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
             SetUInt32Value(OBJECT_FIELD_DYNAMIC_FLAGS, creature->GetCreatureTemplate()->dynamicflags);
 
-        if (creature->isPet())
+        if (creature->isPet() && !creature->isHunterPet()) ///< fix a problem with hunter pets , that their speed is wrong
         {
             if (Unit* owner = GetOwner())
                 for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
@@ -14473,6 +14533,10 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
 
     // Update speed only on change
     bool clientSideOnly = m_speed_rate[p_MovementType] == rate;
+
+    /// Walk speed can't be faster then run speed
+    if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
+        m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
     m_speed_rate[p_MovementType] = rate;
 
@@ -15514,6 +15578,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
     switch (modifierType)
     {
         case BASE_VALUE:
+        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -15605,8 +15670,7 @@ float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) c
         return 0.0f;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
-
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
     value += GetCreateStat(stat);
 
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
@@ -15627,7 +15691,8 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
     if (m_auraModifiersGroup[unitMod][TOTAL_PCT] <= 0.0f)
         return 0.0f;
 
-    float value = m_auraModifiersGroup[unitMod][BASE_VALUE];
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
+
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
@@ -17048,12 +17113,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131369) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB))
                 CastSpell(this, 115192, true);
         }
 
         // Hack Fix - Vanish :  If rogue has vanish aura stealth is not removed on periodic damage
-        if (spellInfo->HasAura(SPELL_AURA_MOD_STEALTH) && HasAura(131369) && isVictim)
+        if ((spellInfo->Id == 115191 || spellInfo->Id == 1784) && HasAura(131361) && isVictim)
             useCharges = false;
 
         // Note: must SetCantProc(false) before return
@@ -18312,14 +18377,6 @@ void Unit::PlayOneShotAnimKit(uint32 id)
     SendMessageToSet(&l_Data, true);
 }
 
-void Unit::SetAIAnimKit(uint32 p_AnimKitID)
-{
-    WorldPacket l_Data(Opcodes::SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
-    l_Data.appendPackGUID(GetGUID());
-    l_Data << uint16(p_AnimKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
-}
-
 void Unit::PlayOrphanSpellVisual(G3D::Vector3 p_Source, G3D::Vector3 p_Orientation, G3D::Vector3 p_Target, int32 p_Visual, float p_TravelSpeed, uint64 p_TargetGuid, bool p_SpeedAsTime)
 {
     WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
@@ -18448,7 +18505,7 @@ void Unit::Kill(Unit * l_KilledVictim, bool p_DurabilityLoss, const SpellInfo * 
                     if (l_KilledCreature->isWorldBoss() && l_Map->Expansion() == Expansion::EXPANSION_WARLORDS_OF_DRAENOR && !l_Loot->Items.empty())
                     {
                         /// Assuming we have one loot per 5 players
-                        uint8 l_Count = std::min((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
+                        uint8 l_Count = std::max((uint8)1, (uint8)ceil((float)l_Map->GetPlayersCountExceptGMs() / 5));
 
                         if (l_Loot->Items.size() > l_Count)
                         {
@@ -19542,7 +19599,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
     l_Data << uint32(p_Duration);
-    SendMessageToSet(&l_Data, false);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
@@ -19550,7 +19607,7 @@ void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
     WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << int32(p_SpellVisualKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), true);
 }
 
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)

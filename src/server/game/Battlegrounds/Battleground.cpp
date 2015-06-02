@@ -611,7 +611,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                         if (Player* l_Member = _GetPlayerForTeam(GetOtherTeam(l_Player->GetBGTeam()), l_Iterator, "BuildArenaOpponentSpecializations"))
                         {
                             WorldPacket l_Data;
-                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true, true);
+                            l_Player->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data, GROUP_UPDATE_FULL, true);
                             l_Player->GetSession()->SendPacket(&l_Data);
                         }
                     }
@@ -838,13 +838,22 @@ void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
 {
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::UpdateWorldState(&data, Field, Value);
-    SendPacketToAll(&data);
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
+        {
+            player->SetWorldState(Field, Value);
+            player->GetSession()->SendPacket(&data);
+        }
+    }
 }
 
 void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source)
 {
     WorldPacket data;
     MS::Battlegrounds::PacketFactory::UpdateWorldState(&data, Field, Value);
+    Source->SetWorldState(Field, Value);
     Source->GetSession()->SendPacket(&data);
 }
 

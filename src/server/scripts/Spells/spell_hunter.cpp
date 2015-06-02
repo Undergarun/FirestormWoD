@@ -3191,14 +3191,29 @@ class spell_hun_claw_bite : public SpellScriptLoader
                     if (l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Caster->GetDistance(l_Target) > 10.0f)
                         return SPELL_FAILED_OUT_OF_RANGE;
 
-                    if (l_Caster->isInRoots() || l_Caster->isInStun())
+                    if ((l_Caster->isInRoots() || l_Caster->isInStun()) && l_Caster->GetDistance(l_Target) > 5.0f)
                         return SPELL_FAILED_ROOTED;
 
+                    /// Blinking Strikes
                     if (!l_Owner->ToPlayer()->HasSpellCooldown(HUNTER_SPELL_BLINK_STRIKES) && l_Target->IsWithinLOSInMap(l_Caster) && 
                         l_Caster->GetDistance(l_Target) > 10.0f && l_Caster->GetDistance(l_Target) < 30.0f && !l_Caster->isInRoots() && !l_Caster->isInStun())
                     {
-                        l_Caster->GetMotionMaster()->Clear();
                         l_Caster->CastSpell(l_Target, HUNTER_SPELL_BLINK_STRIKES_TELEPORT, true);
+
+                        if (l_Caster->ToCreature()->IsAIEnabled && l_Caster->ToPet())
+                        {
+                            l_Caster->ToPet()->ClearUnitState(UNIT_STATE_FOLLOW);
+                            if (l_Caster->ToPet()->getVictim())
+                                l_Caster->ToPet()->AttackStop();
+                            l_Caster->GetMotionMaster()->Clear();
+                            l_Caster->ToPet()->GetCharmInfo()->SetIsCommandAttack(true);
+                            l_Caster->ToPet()->GetCharmInfo()->SetIsAtStay(false);
+                            l_Caster->ToPet()->GetCharmInfo()->SetIsReturning(false);
+                            l_Caster->ToPet()->GetCharmInfo()->SetIsFollowing(false);
+
+                            l_Caster->ToCreature()->AI()->AttackStart(l_Target);
+                        }
+
                         l_Owner->ToPlayer()->AddSpellCooldown(HUNTER_SPELL_BLINK_STRIKES, 0, 20 * IN_MILLISECONDS, true);
                     }
                 }

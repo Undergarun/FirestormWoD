@@ -369,6 +369,9 @@ void BattlegroundBFG::_SendNodeUpdate(uint8 node)
 
 void BattlegroundBFG::_NodeOccupied(uint8 node, Team team)
 {
+    if (node >= GILNEAS_BG_DYNAMIC_NODES_COUNT)
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundBFG::_NodeOccupied node(%u) > GILNEAS_BG_DYNAMIC_NODES_COUNT(%u)", node, GILNEAS_BG_DYNAMIC_NODES_COUNT);
+
     if (!AddSpiritGuide(node, GILNEAS_BG_SpiritGuidePos[node][0], GILNEAS_BG_SpiritGuidePos[node][1], GILNEAS_BG_SpiritGuidePos[node][2], GILNEAS_BG_SpiritGuidePos[node][3], team))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 

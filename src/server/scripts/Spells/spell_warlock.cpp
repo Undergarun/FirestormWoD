@@ -390,10 +390,10 @@ class spell_warl_soulburn_seed_of_corruption_damage: public SpellScriptLoader
                     return;
                 }
 
-                if (m_Targets.size())
+                if (!m_Targets.empty())
                     m_Targets.remove(l_Target->GetGUID());
 
-                if (!m_Targets.size())
+                if (m_Targets.empty())
                 {
                     /// Remove Soul Burn aura
                     if (l_Caster->HasAura(WARLOCK_SEED_OF_CORRUPTION_DUMMY))
@@ -1627,13 +1627,13 @@ class spell_warl_soul_swap: public SpellScriptLoader
 
                 if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP)
                 {
+                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     // Soul Swap override spell
                     l_Caster->CastSpell(l_Caster, WARLOCK_SOUL_SWAP_AURA, true);
                     l_Caster->RemoveSoulSwapDOT(l_Target);
                 }
                 else if (GetSpellInfo()->Id == WARLOCK_SOUL_SWAP_EXHALE)
                 {
-                    l_Caster->CastSpell(l_Target, WARLOCK_SOUL_SWAP_VISUAL, true);
                     l_Caster->ApplySoulSwapDOT(l_Target);
                     l_Caster->RemoveAurasDueToSpell(WARLOCK_SOUL_SWAP_AURA);
 
@@ -3285,6 +3285,32 @@ public:
     }
 };
 
+enum WoDPvPDemonology2PBonusSpells
+{
+    WoDPvPDemonology2PBonusAura = 171393,
+    WoDPvPDemonology2PBonus = 171397
+};
+
+/// WoD PvP Demonology 2P Bonus - 171393
+class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
+{
+    public:
+        PlayerScript_WoDPvPDemonology2PBonus() :PlayerScript("PlayerScript_WoDPvPDemonology2PBonus") {}
+
+        void OnModifyHealth(Player * p_Player, int32 p_Value)
+        {
+            if (p_Player->getClass() == CLASS_WARLOCK && p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonusAura))
+            {
+                if (p_Player->GetHealthPct() < 20.0f && !p_Player->HasAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus))
+                    p_Player->CastSpell(p_Player, WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus, true);
+
+                /// Remove aura if player has more than 20% life
+                if (p_Player->GetHealthPct() >= 20.0f)
+                    p_Player->RemoveAura(WoDPvPDemonology2PBonusSpells::WoDPvPDemonology2PBonus);
+            }
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_fire_and_brimstone();
@@ -3355,4 +3381,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
+
+    new PlayerScript_WoDPvPDemonology2PBonus();
 }

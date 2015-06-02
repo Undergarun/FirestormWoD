@@ -43,6 +43,7 @@
 #include "Group.h"
 #include "Chat.h"
 #include "MapUpdater.h"
+#include "WowTime.hpp"
 
 namespace JadeCore
 {
@@ -1095,7 +1096,7 @@ void AchievementMgr<Guild>::Reset()
 
         l_Data.appendPackGUID(GetOwner()->GetGUID());
         l_Data << uint32(l_It->first);
-        l_Data << uint32(secsToTimeBitFields(l_It->second.date));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.date));
 
         SendPacket(&l_Data);
     }
@@ -1170,7 +1171,7 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     l_Data.appendPackGUID(GetOwner()->GetGUID());
     l_Data.appendPackGUID(firstPlayerOnAccountGuid);
     l_Data << uint32(achievement->ID);
-    l_Data << uint32(secsToTimeBitFields(time(NULL)));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(time(NULL)));
     l_Data << uint32(g_RealmID);
     l_Data << uint32(g_RealmID);
 
@@ -1187,7 +1188,7 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* p_Achi
 
     l_Data.appendPackGUID(GetOwner()->GetGUID());
     l_Data << uint32(p_Achievement->ID);
-    l_Data << uint32(secsToTimeBitFields(time(NULL)));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(time(NULL)));
 
     SendPacket(&l_Data);
 }
@@ -1212,7 +1213,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cr
     else
         l_Data << uint32(p_TimedCompleted ? 0 : 1);
 
-    l_Data << uint32(secsToTimeBitFields(p_Progress->date));
+    l_Data << uint32(MS::Utilities::WowTime::Encode(p_Progress->date));
     l_Data << uint32(p_TimeElapsed);                        // Time from start
     l_Data << uint32(0);                                  // Time from create
 
@@ -1224,7 +1225,7 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* p_Entry, Cr
         l_Packet << uint32(p_Entry->ID);
         l_Packet << uint64(p_Progress->counter);
         l_Packet.appendPackGUID(GetOwner()->GetGUID());
-        l_Packet << uint32(secsToTimeBitFields(p_Progress->date));
+        l_Packet << uint32(MS::Utilities::WowTime::Encode(p_Progress->date));
         l_Packet << uint32(p_TimeElapsed);
         l_Packet << uint32(0);
 
@@ -2339,7 +2340,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
             continue;
 
         data << uint32(itr->first);                                 ///< Id
-        data << uint32(secsToTimeBitFields((*itr).second.date));    ///< Date
+        data << uint32(MS::Utilities::WowTime::Encode((*itr).second.date));    ///< Date
         data.appendPackGUID((*itr).second.first_guid);              ///< Owner
         data << uint32(g_RealmID);                                  ///< Virtual Realm Address
         data << uint32(g_RealmID);                                  ///< Native Realm Address
@@ -2350,7 +2351,7 @@ void AchievementMgr<T>::SendAllAchievementData(Player* /*receiver*/)
         data << uint32(itr->first);                     ///< Id
         data << uint64(itr->second.counter);            ///< Quantity
         data.appendPackGUID(GetOwner()->GetGUID());     ///< Player
-        data << uint32(secsToTimeBitFields(time(0)));   ///< Date
+        data << uint32(MS::Utilities::WowTime::Encode(time(0)));   ///< Date
         data << uint32(0);                              ///< TimeFromStart
         data << uint32(0);                              ///< TimeFromCreate
         data.WriteBits(0, 4);                           ///< Flags
@@ -2369,7 +2370,7 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
     for (CompletedAchievementMap::const_iterator l_It = m_completedAchievements.begin(); l_It != m_completedAchievements.end(); ++l_It)
     {
         l_Data << uint32(l_It->first);
-        l_Data << uint32(secsToTimeBitFields(l_It->second.date));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_It->second.date));
         l_Data.appendPackGUID(l_It->second.first_guid);
         l_Data << uint32(g_RealmID);
         l_Data << uint32(g_RealmID);
@@ -2408,7 +2409,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
             continue;
 
         l_Data << uint32(l_Iter->first);
-        l_Data << uint32(secsToTimeBitFields((*l_Iter).second.date));
+        l_Data << uint32(MS::Utilities::WowTime::Encode((*l_Iter).second.date));
         l_Data.appendPackGUID((*l_Iter).second.first_guid);
         l_Data << uint32(g_RealmID);
         l_Data << uint32(g_RealmID);
@@ -2420,7 +2421,7 @@ void AchievementMgr<Player>::SendAchievementInfo(Player* p_Receiver, uint32 /*p_
         l_Data.appendPackGUID(l_Iter->second.counter);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
-        l_Data << uint32(secsToTimeBitFields((*l_Iter).second.date));
+        l_Data << uint32(MS::Utilities::WowTime::Encode((*l_Iter).second.date));
         l_Data << uint32(0);
         l_Data << uint32(0);
     }
@@ -3251,8 +3252,6 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                     return false;
                 break;
             }
-            case CRITERIA_CONDITION_UNK67:
-                return false;   ///< Must be scripted
             case CRITERIA_CONDITION_PROJECT_RACE:                       // 66
             {
                 if (!p_MiscValue1 || !p_ReferencePlayer)
@@ -3261,6 +3260,15 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(CriteriaEntry const* p_C
                 ResearchProjectEntry const* l_Project = sResearchProjectStore.LookupEntry(p_MiscValue1);
                 if (!l_Project || l_Project->branchId != l_ReqValue)
                     return false;
+                break;
+            }
+            case CRITERIA_CONDITION_WORLD_STATE_EXPRESSION:
+            {
+                WorldStateExpressionEntry const* l_Expression = sWorldStateExpressionStore.LookupEntry(l_ReqValue);
+
+                if (!l_Expression || !l_Expression->Eval(p_ReferencePlayer))
+                    return false;
+
                 break;
             }
             case CRITERIA_CONDITION_DIFFICULTY:                    // 68

@@ -27,7 +27,7 @@ enum eSpells
     SPELL_JASPER_OVERLOAD               = 115843,
     SPELL_JASPER_PETRIFICATION          = 116036,
     SPELL_JASPER_PETRIFICATION_BAR      = 131270,
-    SEPLL_JASPER_TRUE_FORM              = 115828,
+    SPELL_JASPER_TRUE_FORM              = 115828,
     SPELL_JASPER_CHAINS                 = 130395,
     SPELL_JASPER_CHAINS_VISUAL          = 130403,
     SPELL_JASPER_CHAINS_DAMAGE          = 130404,
@@ -246,12 +246,11 @@ class boss_stone_guard_controler : public CreatureScript
                                 me->CastSpell(l_Player, SPELL_STONE_GUARD_BONUS, true);
                         }
 
-                        if (me->GetMap()->IsLFR())
+                        if (IsLFR() && !l_PlrList.isEmpty())
                         {
-                            me->SetLootRecipient(NULL);
-                            Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                            Player* l_Player = l_PlrList.begin()->getSource();
                             if (l_Player && l_Player->GetGroup())
-                                sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                                sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                         }
 
                         break;
@@ -320,6 +319,7 @@ class boss_stone_guard_controler : public CreatureScript
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JASPER_PETRIFICATION_BAR);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
                             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
+                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TILES_AURA_EFFECT);
                         }
                         break;
                     }
@@ -533,7 +533,7 @@ class boss_generic_guardian : public CreatureScript
                         spellOverloadId             = SPELL_JASPER_OVERLOAD;
                         spellPetrificationId        = SPELL_JASPER_PETRIFICATION;
                         spellPetrificationBarId     = SPELL_JASPER_PETRIFICATION_BAR;
-                        spellTrueFormId             = SEPLL_JASPER_TRUE_FORM;
+                        spellTrueFormId             = SPELL_JASPER_TRUE_FORM;
                         spellMainAttack             = SPELL_JASPER_CHAINS;
                         break;
                     case NPC_JADE:
@@ -679,6 +679,9 @@ class boss_generic_guardian : public CreatureScript
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_JADE_PETRIFICATION_BAR);
                     pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_AMETHYST_PETRIFICATION_BAR);
                 }
+
+                if (IsLFR())
+                    me->SetLootRecipient(nullptr);
             }
 
             void DoAction(int32 const action)
@@ -1247,7 +1250,7 @@ class mob_tiling_creature : public CreatureScript
 };
 
 // Petrification - 115852 / 116006 / 116036 / 116057
-class spell_petrification: public SpellScriptLoader
+class spell_petrification : public SpellScriptLoader
 {
     public:
         spell_petrification() : SpellScriptLoader("spell_petrification") { }
@@ -1308,7 +1311,7 @@ class spell_petrification: public SpellScriptLoader
 };
 
 // Jasper Chains - 130395
-class spell_jasper_chains: public SpellScriptLoader
+class spell_jasper_chains : public SpellScriptLoader
 {
     public:
         spell_jasper_chains() : SpellScriptLoader("spell_jasper_chains") { }
@@ -1374,7 +1377,7 @@ class spell_jasper_chains: public SpellScriptLoader
 };
 
 // Jasper Chains (damage) - 130404
-class spell_jasper_chains_damage: public SpellScriptLoader
+class spell_jasper_chains_damage : public SpellScriptLoader
 {
     public:
         spell_jasper_chains_damage() : SpellScriptLoader("spell_jasper_chains_damage") { }
@@ -1410,14 +1413,85 @@ class spell_jasper_chains_damage: public SpellScriptLoader
         }
 };
 
+// 116541 - Energized Tiles
+class spell_energized_tiles : public SpellScriptLoader
+{
+    public:
+        spell_energized_tiles() : SpellScriptLoader("spell_energized_tiles") { }
+
+        class spell_energized_tiles_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_energized_tiles_SpellScript);
+
+            SpellCastResult Check()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return SPELL_FAILED_CASTER_DEAD;
+
+                if (l_Caster->GetMapId() != 1008)
+                    return SPELL_FAILED_INCORRECT_AREA;
+
+                InstanceScript* l_Instance = l_Caster->GetInstanceScript();
+                if (!l_Instance || l_Instance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS || !l_Instance->instance->IsHeroic())
+                    return SPELL_FAILED_SPELL_UNAVAILABLE;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_energized_tiles_SpellScript::Check);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_energized_tiles_SpellScript();
+        }
+
+        class spell_energized_tiles_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_energized_tiles_AuraScript);
+
+            void CheckAura(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Owner = GetUnitOwner();
+
+                if (!l_Owner)
+                    return;
+
+                InstanceScript* l_Instance = l_Owner->GetInstanceScript();
+                if (!l_Instance || l_Instance->GetBossState(DATA_STONE_GUARD) != IN_PROGRESS ||
+                    !l_Instance->instance->IsHeroic() || l_Owner->GetMapId() != 1008)
+                {
+                    if (AuraPtr l_EnergizedAura = l_Owner->GetAura(SPELL_TILES_AURA_EFFECT))
+                        l_EnergizedAura->Remove();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_energized_tiles_AuraScript::CheckAura, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_energized_tiles_AuraScript();
+        }
+};
+
 void AddSC_boss_stone_guard()
 {
-    new boss_stone_guard_controler();
-    new boss_generic_guardian();
-    new mob_cobalt_mine();
-    new mob_living_crystal();
-    new mob_tiling_creature();
-    new spell_petrification();
-    new spell_jasper_chains();
-    new spell_jasper_chains_damage();
+    new boss_stone_guard_controler();   // 60089
+    new boss_generic_guardian();        // 59915 - 60043 - 60047 - 50051
+    new mob_cobalt_mine();              // 65803
+    new mob_living_crystal();           // 60304 - 60306 - 60307 - 60308
+    new mob_tiling_creature();          // 62026
+    new spell_petrification();          // 115852 - 116006 - 116036 - 116057
+    new spell_jasper_chains();          // 130395
+    new spell_jasper_chains_damage();   // 130404
+    new spell_energized_tiles();        // 116541
 }

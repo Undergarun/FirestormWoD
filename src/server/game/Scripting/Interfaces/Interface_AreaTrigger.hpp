@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
-///
-///  MILLENIUM-STUDIO
-///  Copyright 2015 Millenium-studio SARL
-///  All Rights Reserved.
-///
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
 ////////////////////////////////////////////////////////////////////////////////
-
-#ifndef SCRIPTING_INTERFACES_AREATRIGGER
-# define SCRIPTING_INTERFACES_AREATRIGGER
+#pragma once
+#ifndef SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -43,6 +43,7 @@ class AreaTriggerScript : public ScriptObjectImpl<true>
         {
             UNUSED(p_AreaTrigger);
         }
+
 };
 
 /// Area Trigger Entity script interface
@@ -102,6 +103,7 @@ class AreaTriggerEntityScript : public ScriptObjectImpl<true>
 
         /// Allow to make local AreaTriggerEntityScript for each AreaTrigger
         virtual AreaTriggerEntityScript* GetAI() const = 0;
+
 };
 
-#endif  ///< SCRIPTING_INTERFACES_AREATRIGGER
+#endif  ///< SCRIPTING_INTERFACES_AREATRIGGER_HPP_INCLUDED

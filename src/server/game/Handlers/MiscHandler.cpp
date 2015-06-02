@@ -257,7 +257,6 @@ void WorldSession::HandleWhoOpcode(WorldPacket& p_RecvData)
                 continue;
 
             wstrToLower(l_Words[l_WordCounter]);
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "String %u: %s", l_WordCounter, l_Temp.c_str());
         }
     }
 
@@ -789,8 +788,6 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSetContactNotesOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_CONTACT_NOTES");
-
     uint64 l_Guid;
     uint32 l_VirtualRealmAddress;
 
@@ -1001,9 +998,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& p_RecvData)
         sScriptMgr->OnExitAreaTrigger(l_Player, l_ATEntry);
 
     if (l_Player->isAlive())
-        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(l_ID))
-            if (l_Player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
-                l_Player->AreaExploredOrEventHappens(questId);
+        l_Player->QuestObjectiveSatisfy(l_ID, 1, QUEST_OBJECTIVE_TYPE_AREATRIGGER, l_Player->GetGUID());
 
     if (sObjectMgr->IsTavernAreaTrigger(l_ID))
     {
@@ -1163,7 +1158,6 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& p_RecvData)
 
     if (!l_PackedData)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Remove action from button %u", l_Button);
         GetPlayer()->removeActionButton(l_Button);
     }
     else
@@ -1404,6 +1398,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& p_RecvData)
 
         l_Data.put(l_EnchantCountPos, l_EnchantCount);
         l_Data.WriteBit(true);
+        l_Data.FlushBits();
     }
 
     l_Data.put(l_EquipmentCountPos, l_EquipmentCount);
@@ -1536,8 +1531,6 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f", GetPlayer()->GetName(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
-
     if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
@@ -1546,8 +1539,6 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHOIS");
-
     uint32 textLength = recvData.ReadBits(6);
     recvData.FlushBits();
     std::string charname = recvData.ReadString(textLength);
@@ -1604,8 +1595,6 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     l_Data.FlushBits();
     l_Data.WriteString(msg);
     SendPacket(&l_Data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
 }
 
 void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
@@ -1623,8 +1612,6 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRealmSplitOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_SPLIT");
-
     uint32 unk;
     std::string split_date = "01/01/01";
     recvData >> unk;
@@ -1647,8 +1634,6 @@ enum RealmQueryNameResponse
 
 void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_REALM_QUERY_NAME");
-
     uint32 l_RealmID = 0;
 
     p_Packet >> l_RealmID;
@@ -1678,13 +1663,10 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& p_Packet)
 
     if (l_Apply)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", m_Player->GetGUIDLow());
         m_Player->SetSeer(m_Player);
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", m_Player->GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT), m_Player->GetGUIDLow());
-
         if (WorldObject * l_Target = m_Player->GetViewpoint())
             m_Player->SetSeer(l_Target);
         else
@@ -1696,8 +1678,6 @@ void WorldSession::HandleFarSightOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleSetTitleOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_SET_TITLE");
-
     uint32 l_Title = 0;
 
     p_Packet >> l_Title;
@@ -1937,8 +1917,6 @@ void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
     bool mode = recvData.ReadBit();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Client used \"/timetest %d\" command", mode);
 }
 
 void WorldSession::HandleQueryInspectAchievements(WorldPacket& p_RecvData)

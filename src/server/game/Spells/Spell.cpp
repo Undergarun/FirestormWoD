@@ -846,7 +846,7 @@ void Spell::SelectSpellTargets()
 
         if (m_spellInfo->IsChanneled())
         {
-            uint8 mask = (1 << i);
+            uint32 mask = (1 << i);
             for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             {
                 if (ihit->effectMask & mask)
@@ -867,8 +867,8 @@ void Spell::SelectSpellTargets()
                     // Do not check for selfcast
                     if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
                     {
-                         m_UniqueTargetInfo.erase(ihit++);
-                         continue;
+                        ihit = m_UniqueTargetInfo.erase(ihit);
+                        continue;
                     }
                 }
                 ++ihit;
@@ -3213,7 +3213,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
                 //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
                 if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
-                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131369);
+                    unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH, 0, NULL, 131361);
             }
             if (m_spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_BINARY) && !m_spellInfo->IsChanneled())
                 if (m_originalCaster && m_originalCaster->IsSpellResisted(unit, m_spellSchoolMask, m_spellInfo))
@@ -3681,6 +3681,10 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
     m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
+
+    // Unstable Afflication (30108) with Soulborn: Soul Swap (141931)
+    if (m_spellInfo && m_spellInfo->Id == 30108 && _triggeredCastFlags == TRIGGERED_FULL_MASK)
+        m_casttime = 0;
 
     // If spell not channeled and was stolen he have no cast time
     if (isStolen && !m_spellInfo->IsChanneled() && m_spellInfo->Id != 605)
@@ -4290,6 +4294,8 @@ void Spell::SendSpellCooldown()
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
+        if (!_player->isInCombat())
+            _player->UpdatePotionCooldown();
         return;
     }
 
@@ -5210,7 +5216,7 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    if (m_effectExecuteData.size() <= 0)
+    if (m_effectExecuteData.empty())
         return;
 
     WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);

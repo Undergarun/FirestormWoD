@@ -67,7 +67,22 @@ struct AreaTriggerTemplate
 {
     AreaTriggerTemplate()
     {
-        memset(this, 0, sizeof(AreaTriggerTemplate));
+        m_SpellID       = 0;
+        m_EffIndex      = 0;
+        m_Entry         = 0;
+        m_Type          = 0;
+        m_ScaleX        = 0.f;
+        m_ScaleY        = 0.f;
+        m_MoveCurveID   = 0;
+        m_ScaleCurveID  = 0;
+        m_MorphCurveID  = 0;
+        m_FacingCurveID = 0;
+
+        m_ScriptId              = 0;
+        m_CreatureVisualEntry   = 0;
+
+        for (uint32 l_I = 0; l_I < MAX_AREATRIGGER_DATA; l_I++)
+            m_Raw.m_Data[l_I] = 0;
     }
 
     uint32 m_SpellID;
@@ -90,7 +105,7 @@ struct AreaTriggerTemplate
         // Not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
-            float m_Data[MAX_AREATRIGGER_DATA];
+            uint32 m_Data[MAX_AREATRIGGER_DATA];
         } m_Raw;
 
         // AREATRIGGER_TYPE_POLYGON

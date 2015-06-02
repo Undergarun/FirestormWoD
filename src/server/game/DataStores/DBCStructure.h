@@ -29,6 +29,8 @@
 #include <set>
 #include <vector>
 
+class Player;
+
 // Structures using to access raw DBC data and required packing to portability
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
@@ -63,6 +65,14 @@ struct AchievementCategoryEntry
     int32   parentCategory;                                 // 1        m_parent                -1 for main category
     //char*     name;                                       // 2        m_name_mang
     //uint32    sortOrder;                                  // 3        m_ui_order
+};
+
+struct AnimKitEntry
+{
+    uint32      ID;                                         // 0
+    //uint32      OneShotDuration;                          // 1
+    //uint32      OneShotStopAnimKitID;                     // 2
+    //uint32      LowDefAnimKitID;                          // 3
 };
 
 struct AreaTableEntry
@@ -2337,6 +2347,20 @@ struct SpellProcsPerMinuteEntry
     uint32 Id;                                              // 0        m_ID
     float  ProcsPerMinute;                                  // 1        m_procsPerMinute
     //bool unk;                                             // 2
+};
+
+struct WorldStateEntry
+{
+    uint32 ID;                                              // 0
+};
+
+struct WorldStateExpressionEntry
+{
+    uint32 ID;                                              // 0
+    char*  Expression;                                      // 1
+
+    /// Eval a worldstate expression
+    bool Eval(Player* p_Player) const;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

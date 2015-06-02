@@ -170,6 +170,8 @@ enum Opcodes
         SMSG_PRE_RESURRECT                          = 0x058D, ///< 6.1.2 19783
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0FB6, ///< 6.1.2 19783
         SMSG_SET_AI_ANIM_KIT                        = 0x1295, ///< 6.1.2 19783
+        SMSG_SET_MELEE_ANIM_KIT                     = 0x0BB5, ///< 6.1.2 19783
+        SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x0D25, ///< 6.1.2 19783
         SMSG_PLAYER_BOUND                           = 0x1935, ///< 6.1.2 19783
         SMSG_OVERRIDE_LIGHT                         = 0x0936, ///< 6.1.2 19783
         SMSG_PRINT_NOTIFICATION                     = 0x0F3D, ///< 6.1.2 19783
@@ -501,7 +503,7 @@ enum Opcodes
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x1976, ///< 6.1.2 19783
-        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< (NYI)
+        SMSG_CHALLENGE_MODE_MAP_STATS_UPDATE                    = 0x07C0, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD                   = 0x1232, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_ALL_MAP_STATS                       = 0x0D22, ///< 6.1.2 19783
         SMSG_CHALLENGE_MODE_START                               = 0x0000, ///< This opcode is wrong and not existing
@@ -939,6 +941,7 @@ enum Opcodes
         SMSG_GARRISON_OPEN_ARCHITECT                                    = 0x0000,
         SMSG_GARRISON_OPEN_MISSION_NPC                                  = 0x0988, ///< 6.1.2 19783
         SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT                        = 0x01A8, ///< 6.1.2 19783
+        SMSG_GARRISON_OPEN_TRADESKILL_NPC                               = 0x018F, ///< 6.1.2 19783
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1831,8 +1834,6 @@ enum Opcodes
     SMSG_SERVER_INFO_QUERY_RESPONSE                     = 0x0000,
     SMSG_PROFILE_DATA_RESPONSE                          = 0x0000,
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                   = 0x0000,
-    SMSG_SET_MELEE_ANIM_KIT                             = 0x0000,
-    SMSG_SET_MOVEMENT_ANIM_KIT                          = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                         = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                            = 0x0000,
     SMSG_SHOW_ZONES_CHEAT_RESULT                        = 0x0000,

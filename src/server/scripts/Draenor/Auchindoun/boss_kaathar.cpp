@@ -1,4 +1,4 @@
-
+#include "GridNotifiers.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -374,8 +374,8 @@ public:
                                    }
                                 }
                                 // Hostile near Two corpses
-                                Creature* Magus = tuulina->SummonCreature(CREATURE_SARGEREI_MAGUS, MagusAndDefenderHostile[1], TEMPSUMMON_MANUAL_DESPAWN);
-                                Creature* Defender = tuulina->SummonCreature(CREATURE_SARGEREI_DEFENDER, MagusAndDefenderHostile[2], TEMPSUMMON_MANUAL_DESPAWN);
+                                Creature* Magus = tuulina->SummonCreature(CREATURE_SARGEREI_MAGUS, MagusAndDefenderHostile[0], TEMPSUMMON_MANUAL_DESPAWN);
+                                Creature* Defender = tuulina->SummonCreature(CREATURE_SARGEREI_DEFENDER, MagusAndDefenderHostile[1], TEMPSUMMON_MANUAL_DESPAWN);
                                 if (Magus)
                                 {
                                     Magus->CastSpell(Magus, 157794);
@@ -430,9 +430,9 @@ public:
                                 }
                                 // Pack of arbitrer and magus and defender.
                                 //tuulina->SummonCreature(CREATURE_);
-                                Creature* spiteful_arbitrer = tuulina->SummonCreature(CREATURE_SPITEFUL_ARBITRER_TRASH, ThreeHostileArbitrerMagusSoulPriest[1], TEMPSUMMON_MANUAL_DESPAWN);
-                                Creature* saregeri_magus = tuulina->SummonCreature(CREATURE_SARGEREI_MAGUS, ThreeHostileArbitrerMagusSoulPriest[2], TEMPSUMMON_MANUAL_DESPAWN);
-                                Creature* sargerei_soul = tuulina->SummonCreature(CREATURE_SARGERI_SOUL_PRIEST, ThreeHostileArbitrerMagusSoulPriest[3], TEMPSUMMON_MANUAL_DESPAWN);
+                                Creature* spiteful_arbitrer = tuulina->SummonCreature(CREATURE_SPITEFUL_ARBITRER_TRASH, ThreeHostileArbitrerMagusSoulPriest[0], TEMPSUMMON_MANUAL_DESPAWN);
+                                Creature* saregeri_magus = tuulina->SummonCreature(CREATURE_SARGEREI_MAGUS, ThreeHostileArbitrerMagusSoulPriest[1], TEMPSUMMON_MANUAL_DESPAWN);
+                                Creature* sargerei_soul = tuulina->SummonCreature(CREATURE_SARGERI_SOUL_PRIEST, ThreeHostileArbitrerMagusSoulPriest[2], TEMPSUMMON_MANUAL_DESPAWN);
 
                                 dispeonsor.push_back(spiteful_arbitrer);
                                 dispeonsor.push_back(saregeri_magus);

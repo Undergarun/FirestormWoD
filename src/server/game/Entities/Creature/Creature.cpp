@@ -2458,7 +2458,7 @@ bool Creature::LoadCreaturesAddon()
     }
 
     if (l_CreatureAddon->AnimKit != 0)
-        SetAIAnimKit(l_CreatureAddon->AnimKit);
+        SetAIAnimKitId(l_CreatureAddon->AnimKit);
 
     return true;
 }

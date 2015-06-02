@@ -700,6 +700,17 @@ class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
             }
         }
 
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            auto l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster == nullptr)
+                return;
+
+            if ((uint32)p_AreaTrigger->GetDuration() < p_Time)
+                l_AreaTriggerCaster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), 135920, true);
+        }
+
         AreaTriggerEntityScript* GetAI() const
         {
             return new spell_at_monk_healing_sphere();

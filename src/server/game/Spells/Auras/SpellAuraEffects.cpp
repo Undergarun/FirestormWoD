@@ -523,7 +523,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT
     &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
-    &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
+    &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNoImmediateEffect,                         //469 SPELL_AURA_TRIGGER_BONUS_LOOT_2
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
@@ -1277,9 +1277,22 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
-        /// Apply Versatility absorb bonus
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
+        {
+            /// Apply Versatility absorb bonus
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+            
+            /// Apply Mastery: Discipline Shield
+            if (caster->HasAura(77584))
+            {
+                float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                amount += CalculatePct(amount, l_Mastery);
+            }
+
+            /// Check if is crit
+            if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+                amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+        }
     }
 
     amount *= GetBase()->GetStackAmount();
@@ -8503,6 +8516,35 @@ void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_M
 
     l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
     l_Player->UpdateArmor();
+}
+
+void AuraEffect::HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+
+    if (GetMiscValue() < -1 || GetMiscValue() > 4)
+    {
+        sLog->outWarn(LOG_FILTER_SPELLS_AURAS, "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
+        return;
+    }
+
+    /// Only players have base stats
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    for (int32 l_I = STAT_STRENGTH; l_I < MAX_STATS; ++l_I)
+    {
+        if (GetMiscValue() == l_I || GetMiscValue() == -1)
+        {
+            l_Target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + l_I), BASE_PCT_EXCLUDE_CREATE, float(m_amount), p_Apply);
+
+            if (l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->ToCreature()->isPet())
+                l_Target->ApplyStatPercentBuffMod(Stats(l_I), float(m_amount), p_Apply);
+        }
+    }
 }
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

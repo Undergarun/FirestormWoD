@@ -32,13 +32,14 @@ namespace SpiresOfArakEvents
 {
     enum
     {
-        EventLooseQuills    = 1,
-        EventSharpBeak      = 2,
-        EventSolarBreath    = 3,
-        EventBlazeOfGlory   = 4,
-        EventBloodFeather   = 5,
-        EventSolarRadiation = 6,
-        EventMoveToPlayer   = 7
+        EventLooseQuills      = 1,
+        EventSharpBeak        = 2,
+        EventSolarBreath      = 3,
+        EventBlazeOfGlory     = 4,
+        EventBloodFeather     = 5,
+        EventSolarRadiation   = 6,
+        EventMoveToPlayer     = 7,
+        EventTurnPhoenixToAsh = 8
     };
 }
 
@@ -53,6 +54,7 @@ namespace SpiresOfArakActions
 {
     enum
     {
+        ActionMoveDownToward = 1
     };
 }
 

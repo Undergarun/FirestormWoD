@@ -25,6 +25,7 @@
 const char Achievementfmt[]                   = "niiissiiiiisiii";
 const std::string CustomAchievementfmt        = "pppaaaapapaappa";
 const std::string CustomAchievementIndex      = "ID";
+char const AnimKitfmt[] = "nxxx";
 const char AchievementCriteriafmt[]           = "niiiixiiiisiiiiixxiiiii";
 const char AreaTableEntryfmt[]                = "iiinixxxxxxxisiiiiixxxxxxxxxx";
 const char AreaGroupEntryfmt[]                = "niiiiiii";
@@ -177,5 +178,7 @@ const char WorldSafeLocsEntryfmt[]            = "niffffx";
 const char GtBattlePetTypeDamageModfmt[]      = "xf";
 const char GtBattlePetXPfmt[]                 = "xf";
 const char SpellProcsPerMinuteEntryfmt[]      = "nfx";
+const char WorldStateEntryfmt[]               = "n";
+const char WorldStateExpressionEntryfmt[]     = "ns";
 
 #endif

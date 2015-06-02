@@ -459,6 +459,10 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
     if (!IS_PLAYER_GUID(GetOwnerGUID()))
         return;
 
+    /// Primal Elementalist - don't need to save pet to database, so mark it like stampeded
+    if (GetEntry() == 61029 || GetEntry() == 61056 || GetEntry() == 77942)
+        return;
+
     Player* owner = (Player*)GetOwner();
     if (!owner)
         return;

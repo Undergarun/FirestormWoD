@@ -828,7 +828,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
-                //sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             }
@@ -836,7 +835,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             // first 4 bytes become the opcode (2 dropped)
             case CMSG_HANDSHAKE:
             {
-                //sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 std::string str;
                 *new_pct >> str;
@@ -846,7 +844,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             }
             case CMSG_ENABLE_NAGLE:
             {
-                //sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
             }

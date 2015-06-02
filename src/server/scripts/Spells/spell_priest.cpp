@@ -1203,12 +1203,6 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                    p_Amount += CalculatePct(p_Amount, l_Mastery);
-                }
-
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
@@ -1378,8 +1372,9 @@ class spell_pri_lightwell_renew: public SpellScriptLoader
         }
 };
 
-// Called by Smite - 585, Holy Fire - 14914 and Penance - 47666
-// Atonement - 81749
+/// Last Update 6.1.2
+/// Called by Smite - 585, Holy Fire - 14914, Penance - 47666 and Power Word: Solace - 129250
+/// Atonement - 81749
 class spell_pri_atonement: public SpellScriptLoader
 {
     public:
@@ -1847,7 +1842,7 @@ class spell_pri_cascade_second: public SpellScriptLoader
                         }
 
                         // ... or if there are no targets reachable
-                        if (targetList.size() == 0)
+                        if (targetList.empty())
                             return;
 
                         // Each bound hit twice more targets up to 8 for the same bound
@@ -2661,7 +2656,7 @@ public:
     }
 };
 
-/// Last Update 6.1.2
+/// Last Update 6.1.2 19802
 /// Clarity of will - 152118
 class spell_pri_clarity_of_will: public SpellScriptLoader
 {
@@ -2695,7 +2690,8 @@ public:
 
             if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
             {
-                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.0f);
+                int32 l_Bp = m_AmountPreviousShield + l_Shield->GetAmount();
+
                 int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
 
                 if (l_Bp > l_MaxStackAmount)
@@ -2711,6 +2707,31 @@ public:
             AfterHit += SpellHitFn(spell_pri_clarity_of_will_SpellScript::HandleAfterHit);
         }
     };
+
+    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            amount = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f);
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_clarity_of_will_AuraScript();
+    }
 
     SpellScript* GetSpellScript() const
     {

@@ -36,12 +36,12 @@ namespace MS { namespace Garrison
 
             /// Alliance
             if (p_Player->HasQuest(Quests::QUEST_KEEPING_IT_TOGETHER) && p_GameObject)
-                p_Player->QuestObjectiveSatisfy(41327, 1, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
+                p_Player->QuestObjectiveSatisfy(41327, 1, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_GameObject->GetGUID());
 
             /// Horde
             if (p_Player->HasQuest(Quests::QUEST_WHAT_WE_GOT) && p_GameObject)
             {
-                p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA, p_GameObject->GetGUID());
+                p_Player->QuestObjectiveSatisfy(41325, 2, QUEST_OBJECTIVE_TYPE_CRITERIA_TREE, p_GameObject->GetGUID());
 
                 Creature * l_Creature = p_Player->FindNearestCreature(NPCs::NPC_LADY_SENA, 15);
 

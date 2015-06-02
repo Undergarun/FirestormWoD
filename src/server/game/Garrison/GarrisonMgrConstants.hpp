@@ -205,7 +205,8 @@ namespace MS { namespace Garrison
             Builder         = 10000,
             PeonWorking     = 10001,
             BuildingID      = 10002,
-            PlotInstanceID  = 10003
+            PlotInstanceID  = 10003,
+            HasRecipe       = 0x40000000
         };
     }
 
@@ -238,20 +239,26 @@ namespace MS { namespace Garrison
             TradingPost__TradingPost_Level2             = 144,
             TradingPost__TradingPost_Level3             = 145,
             TailoringEmporium_TailoringEmporium_Level1  = 94,
-            TailoringEmporium_TailoringEmporium_Level2  = 127,
-            TailoringEmporium_TailoringEmporium_Level3  = 128,
+            TailoringEmporium__TailoringEmporium_Level2 = 127,
+            TailoringEmporium__TailoringEmporium_Level3 = 128,
             AlchemyLab__AlchemyLab_Level1               = 76,
             AlchemyLab__AlchemyLab_Level2               = 119,
             AlchemyLab__AlchemyLab_Level3               = 120,
             TheTannery_TheTannery_Level1                = 90,
-            TheTannery_TheTannery_Level2                = 121,
-            TheTannery_TheTannery_Level3                = 122,
+            TheTannery__TheTannery_Level2               = 121,
+            TheTannery__TheTannery_Level3               = 122,
             EnchanterStudy_EnchanterStudy_Level1        = 93,
             EnchanterStudy_EnchanterStudy_Level2        = 125,
             EnchanterStudy_EnchanterStudy_Level3        = 126,
             GemBoutique_GemBoutique_Level1              = 96,
-            GemBoutique_GemBoutique_Level2              = 131,
-            GemBoutique_GemBoutique_Level3              = 132 
+            GemBoutique__GemBoutique_Level2             = 131,
+            GemBoutique__GemBoutique_Level3             = 132,
+            EngineeringWorks__EngineeringWorks_Level1   = 91,
+            EngineeringWorks__EngineeringWorks_Level2   = 123,
+            EngineeringWorks__EngineeringWorks_Level3   = 124,
+            ScribesQuarters__ScribesQuarters_Level1     = 95,
+            ScribesQuarters__ScribesQuarters_Level2     = 129,
+            ScribesQuarters__ScribesQuarters_Level3     = 130
         };
     }
 

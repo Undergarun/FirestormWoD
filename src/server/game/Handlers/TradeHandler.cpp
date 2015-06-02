@@ -141,8 +141,6 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             // A roll back is not possible after we stored it
             if (myItems[i])
             {
-                // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUIDLow());
                 if (!AccountMgr::IsPlayerAccount(m_Player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(m_Player->GetSession()->GetAccountId(), "", m_Player->GetGUIDLow(), m_Player->GetName(),
@@ -166,8 +164,6 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             }
             if (hisItems[i])
             {
-                // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
                 if (!AccountMgr::IsPlayerAccount(trader->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "", trader->GetGUIDLow(), trader->GetName(),
@@ -229,7 +225,6 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -237,7 +232,6 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }

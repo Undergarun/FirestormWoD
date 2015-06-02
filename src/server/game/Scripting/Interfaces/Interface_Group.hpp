@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_GROUP
-#define SCRIPTING_INTERFACES_GROUP
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_GROUP_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_GROUP_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -65,4 +71,4 @@ class GroupScript : public ScriptObjectImpl<false>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_GROUP
+#endif  ///< SCRIPTING_INTERFACES_GROUP_HPP_INCLUDED

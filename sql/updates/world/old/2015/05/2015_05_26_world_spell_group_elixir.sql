@@ -1,0 +1,8 @@
+INSERT INTO `spell_group` VALUES (2, 156070);
+INSERT INTO `spell_group` VALUES (2, 156073);
+INSERT INTO `spell_group` VALUES (2, 156077);
+INSERT INTO `spell_group` VALUES (2, 156071);
+INSERT INTO `spell_group` VALUES (2, 156064);
+INSERT INTO `spell_group` VALUES (2, 156079);
+INSERT INTO `spell_group` VALUES (2, 156084);
+INSERT INTO `spell_group` VALUES (2, 156080);

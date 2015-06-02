@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_TRANSPORT
-#define SCRIPTING_INTERFACES_TRANSPORT
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_TRANSPORT_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_TRANSPORT_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -58,4 +64,4 @@ class TransportScript : public ScriptObjectImpl<true>, public UpdatableScript<Tr
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_TRANSPORT
+#endif  ///< SCRIPTING_INTERFACES_TRANSPORT_HPP_INCLUDED

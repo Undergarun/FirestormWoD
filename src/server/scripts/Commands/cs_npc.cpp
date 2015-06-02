@@ -1690,7 +1690,7 @@ public:
 
         WorldDatabase.Execute(l_Statement);
 
-        l_Target->SetAIAnimKit(l_ID);
+        l_Target->SetAIAnimKitId(l_ID);
         return true;
     }
 
