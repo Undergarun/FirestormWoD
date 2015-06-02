@@ -1472,6 +1472,7 @@ class spell_sha_bloodlust: public SpellScriptLoader
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
 
@@ -1526,6 +1527,7 @@ class spell_sha_heroism: public SpellScriptLoader
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_EXHAUSTION));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, HUNTER_SPELL_INSANITY));
+                p_Targets.remove_if(JadeCore::UnitAuraCheck(true, SHAMAN_SPELL_SATED));
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, MAGE_SPELL_TEMPORAL_DISPLACEMENT));
             }
 
