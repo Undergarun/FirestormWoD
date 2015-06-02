@@ -1,0 +1,6 @@
+-- spirit healers
+insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`) values('80724','1280','7107','7107','1','4294967295','0','0','2652.29','617.455','56.1943','3.3016','300','0','0','978540','24164','0','0','0','0','0','0','0','0','0');
+insert into `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`) values('80723','1280','7107','7107','1','4294967295','0','0','1938','1006','23','3.52151','300','0','0','978540','24164','0','0','0','0','0','0','0','0','0');
+
+-- outdoor pvp template
+REPLACE INTO outdoorpvp_template (TypeId, ScriptName, COMMENT) VALUES (7, "OutdoorPvP_TarrenMillFun", "Tarren Mill fun");
