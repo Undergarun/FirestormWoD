@@ -62,6 +62,8 @@ void StartGuardians(Creature* p_Source, Unit* p_Target)
 }
 
 /// Tectus <The Living Mountain> - 78948
+/// Shard of Tectus <Shard of the Mountain> - 80551
+/// Mote of Tectus <Mote of the Mountain> - 80557
 class boss_tectus : public CreatureScript
 {
     public:
@@ -76,6 +78,8 @@ class boss_tectus : public CreatureScript
             EncounterEvent              = 181089,   ///< Don't know why, maybe useful
             MidsizeTectusDamageReduct   = 178193,   ///< -30% damage done
             MoteOfTectusDamageReduct    = 178194,   ///< -60% damage done
+            EarthFurySpawnDustCloud     = 169949,
+            Grow                        = 166306,
             /// Energy Management
             ZeroPowerZeroRegen          = 118357,
             /// Periodic dummy of 1s
@@ -113,20 +117,25 @@ class boss_tectus : public CreatureScript
         {
             GuardianDead,
             ScheduleEarthenPillar,
-            ScheduleTectonicUpheaval
+            ScheduleTectonicUpheaval,
+            MoteKilled
         };
 
         enum eAnimKits
         {
-            AnimRise = 6961,
-            AnimFall = 6918
+            AnimRise    = 6961,
+            AnimRise2   = 6958,
+            AnimFall    = 6918,
+            AnimWounded = 2156
         };
 
         enum eCreatures
         {
             EarthenPillarStalker    = 80476,
             ShardOfTectus           = 80551,
-            MoteOfTectus            = 80557
+            MoteOfTectus            = 80557,
+            NightTwistedBerserker   = 80822,
+            NightTwistedEarthwarper = 80599
         };
 
         enum eTalks
@@ -144,7 +153,8 @@ class boss_tectus : public CreatureScript
         enum eMiscs
         {
             ShardSpawnCount = 2,
-            MotesSpawnCount = 4
+            MotesSpawnCount = 4,
+            InvisDisplay    = 11686
         };
 
         struct boss_tectusAI : public BossAI
@@ -162,6 +172,10 @@ class boss_tectus : public CreatureScript
             Position m_FirstCrystalline;
             Position m_SecondCrystalline;
 
+            bool m_TectonicScheduled;
+
+            uint8 m_MoteKilled;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -169,6 +183,8 @@ class boss_tectus : public CreatureScript
                 _Reset();
 
                 me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
+
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 switch (me->GetEntry())
                 {
@@ -194,11 +210,27 @@ class boss_tectus : public CreatureScript
                         break;
                     }
                     case eCreatures::ShardOfTectus:
+                    {
                         me->CastSpell(me, eSpells::ShardOfTheMountain, true);
+                        me->CastSpell(me, eSpells::Grow, true);
+                        me->SetDisplayId(eMiscs::InvisDisplay);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION | eUnitFlags::UNIT_FLAG_DISARMED);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         break;
+                    }
                     case eCreatures::MoteOfTectus:
+                    {
                         me->CastSpell(me, eSpells::MoteOfTheMountain, true);
+                        me->CastSpell(me, eSpells::Grow, true);
+                        me->SetDisplayId(eMiscs::InvisDisplay);
+                        me->SetReactState(ReactStates::REACT_PASSIVE);
+                        me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_PREPARATION | eUnitFlags::UNIT_FLAG_DISARMED);
+                        me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                        me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -206,8 +238,6 @@ class boss_tectus : public CreatureScript
                 me->RemoveAura(eHighmaulSpells::Berserker);
 
                 me->RemoveAllAreasTrigger();
-
-                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 me->SetPower(Powers::POWER_ENERGY, 0);
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
@@ -217,6 +247,10 @@ class boss_tectus : public CreatureScript
 
                 m_FirstCrystalline = Position();
                 m_SecondCrystalline = Position();
+
+                m_TectonicScheduled = false;
+
+                m_MoteKilled = 0;
             }
 
             void JustReachedHome() override
@@ -254,7 +288,7 @@ class boss_tectus : public CreatureScript
                         AddTimedDelayedOperation(4500, [this]() -> void
                         {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         });
 
                         break;
@@ -263,14 +297,40 @@ class boss_tectus : public CreatureScript
                     {
                         if (m_Events.HasEvent(eEvents::EventEarthenPillar))
                             break;
-                        ///m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 100);
+                        m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 100);
                         break;
                     }
                     case eActions::ScheduleTectonicUpheaval:
                     {
-                        if (m_Events.HasEvent(eEvents::EventTectonicUpheaval))
+                        if (m_TectonicScheduled || me->HasAura(eSpells::SpellTectonicUpheaval))
                             break;
+                        m_TectonicScheduled = true;
                         m_Events.ScheduleEvent(eEvents::EventTectonicUpheaval, 100);
+                        break;
+                    }
+                    case eActions::MoteKilled:
+                    {
+                        ++m_MoteKilled;
+
+                        if (m_MoteKilled >= (eMiscs::MotesSpawnCount * 2))
+                        {
+                            me->SetAIAnimKitId(0);
+                            me->PlayOneShotAnimKit(eAnimKits::AnimRise);
+
+                            AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->SetAIAnimKitId(eAnimKits::AnimWounded);
+                                Talk(eTalks::Death);
+                            });
+
+                            AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                            {
+                                me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                                if (Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource())
+                                    l_Player->CastSpell(me, eSpells::SuicideNoBloodNoLogging, true);
+                            });
+                        }
+
                         break;
                     }
                     default:
@@ -282,9 +342,9 @@ class boss_tectus : public CreatureScript
             {
                 _EnterCombat();
 
-                ///m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCrystallineBarrage, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventFracture, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventAccretion, 5 * TimeConstants::IN_MILLISECONDS);
 
                 switch (me->GetEntry())
                 {
@@ -319,16 +379,7 @@ class boss_tectus : public CreatureScript
 
             void JustDied(Unit* p_Killer) override
             {
-                if (me->GetEntry() != eHighmaulCreatures::Tectus && m_Instance)
-                {
-                    m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-                    me->RemoveAllAreasTrigger();
-                    return;
-                }
-
                 _JustDied();
-
-                Talk(eTalks::Death);
 
                 me->RemoveAllAreasTrigger();
 
@@ -337,12 +388,45 @@ class boss_tectus : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SpellCrystallineBarrage);
 
+                    Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
+                    if (l_PlayerList.isEmpty())
+                        return;
+
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            /// Hacky but don't know why combat doesn't stop
+                            if (!l_Player->isAttackingPlayer())
+                                l_Player->CombatStop();
+                        }
+                    }
+
                     if (IsLFR())
                     {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        Player* l_Player = l_PlayerList.begin()->getSource();
                         if (l_Player && l_Player->GetGroup())
                             sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                     }
+                }
+
+                std::list<Creature*> l_Creatures;
+                me->GetCreatureListWithEntryInGrid(l_Creatures, eCreatures::MoteOfTectus, 150.0f);
+
+                for (Creature* l_Creature : l_Creatures)
+                {
+                    me->Kill(l_Creature);
+                    l_Creature->DespawnOrUnsummon();
+                }
+
+                l_Creatures.clear();
+
+                me->GetCreatureListWithEntryInGrid(l_Creatures, eCreatures::EarthenPillarStalker, 150.0f);
+
+                for (Creature* l_Creature : l_Creatures)
+                {
+                    me->Kill(l_Creature);
+                    l_Creature->DespawnOrUnsummon();
                 }
             }
 
@@ -356,6 +440,17 @@ class boss_tectus : public CreatureScript
                 {
                     m_Instance->SetBossState(eHighmaulDatas::BossTectus, EncounterState::FAIL);
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+                }
+
+                std::list<Creature*> l_Motes;
+                me->GetCreatureListWithEntryInGrid(l_Motes, eCreatures::MoteOfTectus, 150.0f);
+
+                for (Creature* l_Creature : l_Motes)
+                {
+                    if (l_Creature->IsAIEnabled)
+                        l_Creature->AI()->Reset();
+
+                    l_Creature->DespawnOrUnsummon();
                 }
             }
 
@@ -371,7 +466,34 @@ class boss_tectus : public CreatureScript
                         break;
                     case eSpells::Petrification:
                         Talk(eTalks::TectonicUpheavalCompleted);
+                        if (me->GetEntry() == eHighmaulCreatures::Tectus)
+                            me->CastSpell(me, eSpells::TheLivingMountain, true);
+                        else if (me->GetEntry() == eCreatures::ShardOfTectus)
+                            me->CastSpell(me, eSpells::ShardOfTheMountain, true);
                         break;
+                    case eSpells::SpellTectonicUpheaval:
+                        m_TectonicScheduled = false;
+                        break;
+                    case eSpells::SpawnTectusShards:
+                    {
+                        p_Target->PlayOneShotAnimKit(eAnimKits::AnimRise2);
+                        p_Target->RestoreDisplayId();
+
+                        uint64 l_Guid = p_Target->GetGUID();
+                        AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        {
+                            if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                l_Target->CastSpell(l_Target, eSpells::EarthFurySpawnDustCloud, true);
+                        });
+
+                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
+                        {
+                            if (Unit* l_Target = Unit::GetUnit(*me, l_Guid))
+                                l_Target->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -383,8 +505,15 @@ class boss_tectus : public CreatureScript
                 if (p_Attacker == me)
                     return;
 
+                /// Prevent boss from dying too soon
+                if (me->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE))
+                {
+                    p_Damage = 0;
+                    return;
+                }
+
                 /// This buff cause Tectus to be unkillable, although he can still be damaged during this time.
-                if (me->HealthBelowPctDamaged(1, p_Damage))
+                if (p_Damage > me->GetHealth())
                 {
                     if (me->HasAura(eSpells::TheLivingMountain) || me->HasAura(eSpells::ShardOfTheMountain))
                     {
@@ -392,23 +521,28 @@ class boss_tectus : public CreatureScript
                         p_Damage = 0;
                         return;
                     }
-                    /// The Motes of Tectus can be killed outright.
-                    else if (me->GetEntry() != eCreatures::MoteOfTectus)
+                    else
                     {
                         m_Events.Reset();
 
+                        me->RemoveAllAuras();
                         me->InterruptNonMeleeSpells(true);
+                        me->RemoveAllAreasTrigger();
                         me->SetHealth(1);
                         p_Damage = 0;
 
                         me->CastSpell(me, eSpells::EncounterEvent, true);
                         me->CastSpell(me, eSpells::BreakPlayerTargetting, true);
+                        me->CastSpell(me, eSpells::ZeroPowerZeroRegen, true);
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
 
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
                         me->SetAIAnimKitId(eAnimKits::AnimFall);
+
+                        if (m_Instance)
+                            m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
                         if (me->GetEntry() == eHighmaulCreatures::Tectus)
                         {
@@ -417,6 +551,11 @@ class boss_tectus : public CreatureScript
                         }
                         else if (me->GetEntry() == eCreatures::ShardOfTectus)
                             SpawnMotes();
+                        else
+                        {
+                            if (Creature* l_Tectus = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Tectus)))
+                                l_Tectus->AI()->DoAction(eActions::MoteKilled);
+                        }
                     }
                 }
             }
@@ -445,26 +584,30 @@ class boss_tectus : public CreatureScript
                     {
                         me->CastSpell(me, eHighmaulSpells::Berserker, true);
 
-                        std::list<Creature*> l_Shards;
-                        me->GetCreatureListWithEntryInGrid(l_Shards, eCreatures::ShardOfTectus, 150.0f);
+                        std::list<Creature*> l_Creature;
+                        me->GetCreatureListWithEntryInGrid(l_Creature, eCreatures::ShardOfTectus, 150.0f);
 
-                        for (Creature* l_Shard : l_Shards)
+                        for (Creature* l_Shard : l_Creature)
                             l_Shard->CastSpell(l_Shard, eHighmaulSpells::Berserker, true);
 
-                        std::list<Creature*> l_Motes;
-                        me->GetCreatureListWithEntryInGrid(l_Motes, eCreatures::MoteOfTectus, 150.0f);
+                        l_Creature.clear();
+                        me->GetCreatureListWithEntryInGrid(l_Creature, eCreatures::MoteOfTectus, 150.0f);
 
-                        for (Creature* l_Mote : l_Motes)
+                        for (Creature* l_Mote : l_Creature)
                             l_Mote->CastSpell(l_Mote, eHighmaulSpells::Berserker, true);
 
                         break;
                     }
                     case eEvents::EventSpawnBersererk:
                     {
+                        SpawnAdd(eCreatures::NightTwistedBerserker);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnBersererk, 40 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventSpawnEarthwarper:
                     {
+                        SpawnAdd(eCreatures::NightTwistedEarthwarper);
+                        m_Events.ScheduleEvent(eEvents::EventSpawnEarthwarper, 40 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventCrystallineBarrage:
@@ -553,7 +696,11 @@ class boss_tectus : public CreatureScript
                     case eEvents::EventEarthenPillar:
                     {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
-                            me->SummonCreature(eCreatures::EarthenPillarStalker, *l_Target);
+                        {
+                            float l_X = l_Target->GetPositionX();
+                            float l_Y = l_Target->GetPositionY();
+                            me->SummonCreature(eCreatures::EarthenPillarStalker, l_X, l_Y, me->GetPositionZ());
+                        }
 
                         if (!m_Events.HasEvent(eEvents::EventEarthenPillar))
                             m_Events.ScheduleEvent(eEvents::EventEarthenPillar, 60 * TimeConstants::IN_MILLISECONDS);
@@ -572,6 +719,7 @@ class boss_tectus : public CreatureScript
                         /// If Tectus's health is depleted during Tectonic Upheaval, he will Shatter.
                         Talk(eTalks::TectonicUpheaval);
                         me->RemoveAura(eSpells::TheLivingMountain);
+                        me->RemoveAura(eSpells::ShardOfTheMountain);
                         me->CastSpell(me, eSpells::SpellTectonicUpheaval, false);
                         break;
                     }
@@ -622,15 +770,7 @@ class boss_tectus : public CreatureScript
                     float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
 
                     if (Creature* l_Shard = me->SummonCreature(eCreatures::ShardOfTectus, l_X, l_Y, l_Z))
-                    {
                         me->CastSpell(l_Shard, eSpells::SpawnTectusShards, true);
-
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                        {
-                            if (l_Shard->IsAIEnabled)
-                                l_Shard->AI()->AttackStart(l_Target);
-                        }
-                    }
                 }
             }
 
@@ -648,14 +788,25 @@ class boss_tectus : public CreatureScript
                     float l_Y = l_OrigY + (l_Range * sin(l_Orientation));
 
                     if (Creature* l_Mote = me->SummonCreature(eCreatures::MoteOfTectus, l_X, l_Y, l_Z))
-                    {
                         me->CastSpell(l_Mote, eSpells::SpawnTectusShards, true);
+                }
+            }
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                        {
-                            if (l_Mote->IsAIEnabled)
-                                l_Mote->AI()->AttackStart(l_Target);
-                        }
+            void SpawnAdd(uint32 p_Entry)
+            {
+                uint32 l_RefGoB = urand(eHighmaulGameobjects::Earthwall1, eHighmaulGameobjects::Earthwall4);
+                if (GameObject* l_Wall = me->FindNearestGameObject(l_RefGoB, 200.0f))
+                {
+                    float l_Orientation = l_Wall->GetAngle(me);
+                    float l_Range = 7.0f;
+
+                    float l_X = l_Wall->GetPositionX() + (l_Range * cos(l_Orientation));
+                    float l_Y = l_Wall->GetPositionY() + (l_Range * sin(l_Orientation));
+
+                    if (Creature* l_Add = me->SummonCreature(p_Entry, l_X, l_Y, me->GetPositionZ()))
+                    {
+                        if (l_Add->IsAIEnabled && me->getVictim())
+                            l_Add->AI()->AttackStart(me->getVictim());
                     }
                 }
             }
@@ -1108,6 +1259,158 @@ class npc_highmaul_earthen_pillar_stalker : public CreatureScript
         }
 };
 
+/// Night-Twisted Berserker - 80822
+class npc_highmaul_night_twisted_berserker : public CreatureScript
+{
+    public:
+        npc_highmaul_night_twisted_berserker() : CreatureScript("npc_highmaul_night_twisted_berserker") { }
+
+        struct npc_highmaul_night_twisted_berserkerAI : public ScriptedAI
+        {
+            npc_highmaul_night_twisted_berserkerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EncounterSpawn  = 181113,
+                RavingAssault   = 163312
+            };
+
+            enum eEvent
+            {
+                EventRavingAssault = 1
+            };
+
+            enum eTalk
+            {
+                Aggro
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::EncounterSpawn, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                Talk(eTalk::Aggro);
+
+                m_Events.ScheduleEvent(eEvent::EventRavingAssault, 8 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvent::EventRavingAssault:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, eSpells::RavingAssault, false);
+                        m_Events.ScheduleEvent(eEvent::EventRavingAssault, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_night_twisted_berserkerAI(p_Creature);
+        }
+};
+
+/// Night-Twisted Earthwarper - 80599
+class npc_highmaul_night_twisted_earthwarper : public CreatureScript
+{
+    public:
+        npc_highmaul_night_twisted_earthwarper() : CreatureScript("npc_highmaul_night_twisted_earthwarper") { }
+
+        struct npc_highmaul_night_twisted_earthwarperAI : public ScriptedAI
+        {
+            npc_highmaul_night_twisted_earthwarperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            enum eSpells
+            {
+                EncounterSpawn      = 181113,
+                GiftOfEarth         = 162894,
+                EarthenFlechettes   = 162968
+            };
+
+            enum eEvents
+            {
+                EventEarthenFlechettes = 1,
+                EventGiftOfEarth
+            };
+
+            enum eTalk
+            {
+                Aggro
+            };
+
+            EventMap m_Events;
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpells::EncounterSpawn, true);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                Talk(eTalk::Aggro);
+
+                m_Events.ScheduleEvent(eEvents::EventEarthenFlechettes, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventGiftOfEarth, 12 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventEarthenFlechettes:
+                        me->CastSpell(me, eSpells::EarthenFlechettes, false);
+                        m_Events.ScheduleEvent(eEvents::EventEarthenFlechettes, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventGiftOfEarth:
+                        me->CastSpell(me, eSpells::GiftOfEarth, false);
+                        m_Events.ScheduleEvent(eEvents::EventGiftOfEarth, 25 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_night_twisted_earthwarperAI(p_Creature);
+        }
+};
+
 /// Meteoric Earthspire - 172073
 class spell_highmaul_meteoric_earthspire : public SpellScriptLoader
 {
@@ -1197,6 +1500,7 @@ class spell_highmaul_stonebolt_volley : public SpellScriptLoader
 
 /// The Living Mountain - 162287
 /// Shard of the Mountain - 162658
+/// Mote of the Mountain - 162674
 class spell_highmaul_tectus_energy_gain : public SpellScriptLoader
 {
     public:
@@ -1320,44 +1624,6 @@ class spell_highmaul_accretion : public SpellScriptLoader
         }
 };
 
-/// Crystalline Barrage - 162370
-class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
-{
-    public:
-        areatrigger_highmaul_crystalline_barrage() : AreaTriggerEntityScript("areatrigger_highmaul_crystalline_barrage") { }
-
-        enum eSpell
-        {
-            CrystallineBarrage = 162370
-        };
-
-        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
-        {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
-            {
-                std::list<Unit*> l_TargetList;
-                float l_Radius = 4.0f;
-
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
-                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
-
-                for (Unit* l_Unit : l_TargetList)
-                {
-                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.0f)
-                        l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
-                    else
-                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
-                }
-            }
-        }
-
-        AreaTriggerEntityScript* GetAI() const override
-        {
-            return new areatrigger_highmaul_crystalline_barrage();
-        }
-};
-
 /// Tectonic Upheaval - 162475
 class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
 {
@@ -1404,6 +1670,286 @@ class spell_highmaul_tectonic_upheaval : public SpellScriptLoader
         }
 };
 
+/// Highmaul Raid - Earth Fury - Spawn Dust Cloud - 169949
+class spell_highmaul_spawn_dust_cloud : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_spawn_dust_cloud() : SpellScriptLoader("spell_highmaul_spawn_dust_cloud") { }
+
+        class spell_highmaul_spawn_dust_cloud_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_spawn_dust_cloud_AuraScript);
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (GetTarget() == nullptr)
+                    return;
+
+                if (Creature* l_Target = GetTarget()->ToCreature())
+                {
+                    l_Target->SetReactState(ReactStates::REACT_AGGRESSIVE);
+                    l_Target->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_spawn_dust_cloud_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_spawn_dust_cloud_AuraScript();
+        }
+};
+
+/// Earthen Flechettes - 162968
+class spell_highmaul_earthen_flechettes : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_earthen_flechettes() : SpellScriptLoader("spell_highmaul_earthen_flechettes") { }
+
+        class spell_highmaul_earthen_flechettes_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_highmaul_earthen_flechettes_SpellScript);
+
+            enum eSpell
+            {
+                TargetRestrict = 22531
+            };
+
+            void CorrectTargets(std::list<WorldObject*>& p_Targets)
+            {
+                if (p_Targets.empty())
+                    return;
+
+                SpellTargetRestrictionsEntry const* l_Restriction = sSpellTargetRestrictionsStore.LookupEntry(eSpell::TargetRestrict);
+                if (l_Restriction == nullptr)
+                    return;
+
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                float l_Angle = 2 * M_PI / 360 * l_Restriction->ConeAngle;
+                p_Targets.remove_if([l_Caster, l_Angle](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr)
+                        return true;
+
+                    if (!p_Object->isInFront(l_Caster, l_Angle))
+                        return true;
+
+                    return false;
+                });
+            }
+
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthen_flechettes_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_highmaul_earthen_flechettes_SpellScript();
+        }
+};
+
+/// Petrification - 162892
+class spell_highmaul_petrification : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_petrification() : SpellScriptLoader("spell_highmaul_petrification") { }
+
+        class spell_highmaul_petrification_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_petrification_AuraScript);
+
+            enum eSpell
+            {
+                Petrification = 163809
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (Unit* l_Attacker = p_EventInfo.GetActor())
+                    {
+                        if (l_Attacker->GetEntry() != eHighmaulCreatures::Tectus)
+                            return;
+
+                        l_Attacker->CastSpell(l_Attacker, eSpell::Petrification, true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_highmaul_petrification_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_petrification_AuraScript();
+        }
+};
+
+/// Raving Assault - 163312
+class spell_highmaul_raving_assault : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_raving_assault() : SpellScriptLoader("spell_highmaul_raving_assault") { }
+
+        class spell_highmaul_raving_assault_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_raving_assault_AuraScript);
+
+            enum eSpell
+            {
+                RavingAssaultDamage = 163318
+            };
+
+            uint32 m_DamageTimer;
+
+            bool Load()
+            {
+                m_DamageTimer = 500;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (m_DamageTimer)
+                {
+                    if (m_DamageTimer <= p_Diff)
+                    {
+                        if (Unit* l_Caster = GetCaster())
+                        {
+                            std::list<Unit*> l_TargetList;
+                            float l_Radius = 1.0f;
+
+                            JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                            JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
+                            l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                            for (Unit* l_Iter : l_TargetList)
+                                l_Caster->CastSpell(l_Iter, eSpell::RavingAssaultDamage, true);
+                        }
+
+                        m_DamageTimer = 500;
+                    }
+                    else
+                        m_DamageTimer -= p_Diff;
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_highmaul_raving_assault_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_raving_assault_AuraScript();
+        }
+};
+
+/// Crystalline Barrage - 162370
+class areatrigger_highmaul_crystalline_barrage : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_crystalline_barrage() : AreaTriggerEntityScript("areatrigger_highmaul_crystalline_barrage") { }
+
+        enum eSpell
+        {
+            CrystallineBarrage = 162370
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                std::list<Unit*> l_TargetList;
+                float l_Radius = 4.0f;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->GetDistance(p_AreaTrigger) <= 2.0f)
+                        l_Caster->CastSpell(l_Unit, eSpell::CrystallineBarrage, true);
+                    else
+                        l_Unit->RemoveAura(eSpell::CrystallineBarrage);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_crystalline_barrage();
+        }
+};
+
+/// Gift of Earth - 162894
+class areatrigger_highmaul_gift_of_earth : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_gift_of_earth() : AreaTriggerEntityScript("areatrigger_highmaul_gift_of_earth") { }
+
+        enum eSpells
+        {
+            Accretion       = 162288,
+            Petrification   = 162892
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        {
+            if (p_Caster == nullptr)
+                return;
+
+            if (Unit* l_Tectus = p_Caster->FindNearestCreature(eHighmaulCreatures::Tectus, 200.0f))
+                p_DestinationPosition = *l_Tectus;
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                if (Player* l_Target = p_AreaTrigger->FindNearestPlayer(1.0f))
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::Petrification, true);
+                    p_AreaTrigger->SetDuration(1);
+                }
+                else if (Creature* l_Tectus = p_AreaTrigger->FindNearestCreature(eHighmaulCreatures::Tectus, 1.0f))
+                {
+                    p_AreaTrigger->SetDuration(1);
+
+                    if (AuraPtr l_Accretion = l_Tectus->GetAura(eSpells::Accretion) ? l_Tectus->GetAura(eSpells::Accretion) : l_Tectus->AddAura(eSpells::Accretion, l_Tectus))
+                    {
+                        l_Accretion->ModStackAmount(10);
+                        l_Accretion->RefreshDuration();
+                    }
+                }
+                else if (Creature* l_Tectus = p_AreaTrigger->FindNearestCreature(eHighmaulCreatures::Tectus, 100.0f))
+                    p_AreaTrigger->SetDestination(*l_Tectus);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_gift_of_earth();
+        }
+};
+
 void AddSC_boss_tectus()
 {
     /// Boss
@@ -1414,6 +1960,8 @@ void AddSC_boss_tectus()
     new npc_highmaul_rokka_and_lokk();
     new npc_highmaul_oro();
     new npc_highmaul_earthen_pillar_stalker();
+    new npc_highmaul_night_twisted_berserker();
+    new npc_highmaul_night_twisted_earthwarper();
 
     /// Spells
     new spell_highmaul_meteoric_earthspire();
@@ -1422,7 +1970,12 @@ void AddSC_boss_tectus()
     new spell_highmaul_earthen_pillar_timer();
     new spell_highmaul_accretion();
     new spell_highmaul_tectonic_upheaval();
+    new spell_highmaul_spawn_dust_cloud();
+    new spell_highmaul_earthen_flechettes();
+    new spell_highmaul_petrification();
+    new spell_highmaul_raving_assault();
 
     /// AreaTriggers
     new areatrigger_highmaul_crystalline_barrage();
+    new areatrigger_highmaul_gift_of_earth();
 }

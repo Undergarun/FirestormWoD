@@ -3544,6 +3544,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163208:///< Fracture - Missile (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
+            case 117624:///< Suicide No Blood No Logging (Tectus)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

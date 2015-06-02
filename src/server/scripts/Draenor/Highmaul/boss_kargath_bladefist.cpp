@@ -3580,6 +3580,9 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
+                    if (l_Unit->GetPositionZ() > (g_ArenaFloor + 5.0f))
+                        continue;
+
                     /// Don't add DoT on targets in vehicle (Chain Hurl or Impale)
                     if (l_Caster->GetDistance(l_Unit) <= 7.0f && !l_Unit->IsOnVehicle())
                         l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
