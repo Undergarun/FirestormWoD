@@ -59,6 +59,12 @@ namespace BNet2 {
             case BNet2::BATTLENET2_MODULE_TYPE_AUTH:
                 return "auth";
                 break;
+            case BNet2::BATTLENET2_MODULE_TYPE_XML:
+                return "xml";
+                break;
+            case BNet2::BATTLENET2_MODULE_TYPE_PFTY:
+                return "pfty";
+                break;
 
             default:
                 break;

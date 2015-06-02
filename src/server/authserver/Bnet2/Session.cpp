@@ -18,6 +18,32 @@
 
 //#include <Reporting/Reporter.hpp>
 
+void ToByteArray(const std::string & p_Str, uint8_t * p_Dest)
+{
+    char * l_Str = const_cast<char*>(p_Str.c_str());
+
+    for (unsigned int l_I = 0; l_I < p_Str.size(); l_I += 2)
+    {
+        char l_Buffer[3] = { *(l_Str + l_I), *(l_Str + l_I + 1), '\0' };
+        p_Dest[l_I / 2] = strtol(l_Buffer, NULL, 16);
+    }
+}
+
+BigNumber MakeBigNumber(const std::string & p_Str)
+{
+    uint8_t * l_Buffer = new uint8_t[(p_Str.size() / 2) + 1];
+
+    ToByteArray(p_Str, l_Buffer);
+    l_Buffer[p_Str.size() / 2] = 0;
+
+    BigNumber l_Result;
+    l_Result.SetBinary(l_Buffer, (p_Str.size() / 2) + 1);
+
+    delete[] l_Buffer;
+
+    return l_Result;
+}
+
 namespace BNet2 {
 
     typedef struct AuthHandler
@@ -25,20 +51,52 @@ namespace BNet2 {
         uint32_t Opcode;
         uint32_t Channel;
         bool (Session::*Handler)(BNet2::Packet*);
+        char const* Name;
     } AuthHandler;
 
     const AuthHandler OpcodeTable[] =
     {
-        { OPCODE_ID(CMSG_INFORMATION_REQUEST),    OPCODE_CHANNEL(CMSG_INFORMATION_REQUEST),    &Session::None_Handle_InformationRequest    },
-        { OPCODE_ID(CMSG_PROOF_RESPONSE),         OPCODE_CHANNEL(CMSG_PROOF_RESPONSE),         &Session::None_Handle_ProofResponse         },
-        { OPCODE_ID(CMSG_PING),                   OPCODE_CHANNEL(CMSG_PING),                   &Session::Creep_Handle_Ping                 },
-        { OPCODE_ID(CMSG_DISCONNECT),             OPCODE_CHANNEL(CMSG_DISCONNECT),             &Session::Creep_Handle_Disconnect           },
-        { OPCODE_ID(CMSG_REALM_UPDATE),           OPCODE_CHANNEL(CMSG_REALM_UPDATE),           &Session::WoW_Handle_RealmUpdate            },
-        { OPCODE_ID(CMSG_JOIN_REQUEST),           OPCODE_CHANNEL(CMSG_JOIN_REQUEST),           &Session::WoW_Handle_JoinRequest            },
-        { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2), OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2), &Session::WoW_Handle_MultiLogonRequest      },
+        /// BATTLENET2_CHANNEL_AUTHENTICATION
+        { OPCODE_ID(CMSG_LOGON_REQUEST),                            OPCODE_CHANNEL(CMSG_LOGON_REQUEST),                             &Session::HandleNullPacket,                     "Authentication::CMSG_LOGON_REQUEST"                            },
+        { OPCODE_ID(CMSG_RESUME_REQUEST),                           OPCODE_CHANNEL(CMSG_RESUME_REQUEST),                            &Session::Authentication_Handle_ResumeRequest,  "Authentication::CMSG_RESUME_REQUEST"                           },
+        { OPCODE_ID(CMSG_PROOF_RESPONSE),                           OPCODE_CHANNEL(CMSG_PROOF_RESPONSE),                            &Session::Authentication_Handle_ProofResponse,  "Authentication::CMSG_PROOF_RESPONSE"                           },
+        { OPCODE_ID(CMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2),  OPCODE_CHANNEL(CMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2),   &Session::HandleNullPacket,                     "Authentication::CMSG_GENERATE_SINGLE_SIGN_ON_TOKEN_REQUEST_2"  },
+        { OPCODE_ID(CMSG_LOGON_REQUEST_3),                          OPCODE_CHANNEL(CMSG_LOGON_REQUEST_3),                           &Session::Authentication_Handle_LogonRequest3,  "Authentication::CMSG_LOGON_REQUEST_3"                          },
+        { OPCODE_ID(CMSG_SINGLE_SIGN_ON_REQUEST_3),                 OPCODE_CHANNEL(CMSG_SINGLE_SIGN_ON_REQUEST_3),                  &Session::HandleNullPacket,                     "Authentication::CMSG_SINGLE_SIGN_ON_REQUEST_3"                 },
+
+        /// BATTLENET2_CHANNEL_CONNECTION
+        { OPCODE_ID(CMSG_PING),                                     OPCODE_CHANNEL(CMSG_PING),                                      &Session::Connection_Handle_Ping,               "Connection::CMSG_PING"                                         },
+        { OPCODE_ID(CMSG_ENABLE_ENCRYPTION),                        OPCODE_CHANNEL(CMSG_ENABLE_ENCRYPTION),                         &Session::Connection_Handle_EnableEncryption,   "Connection::CMSG_ENABLE_ENCRYPTION"                            },
+        { OPCODE_ID(CMSG_LOGOUT_REQUEST),                           OPCODE_CHANNEL(CMSG_LOGOUT_REQUEST),                            &Session::Connection_Handle_LogoutRequest,      "Connection::CMSG_LOGOUT_REQUEST"                               },
+        { OPCODE_ID(CMSG_DISCONNECT_REQUEST),                       OPCODE_CHANNEL(CMSG_DISCONNECT_REQUEST),                        &Session::Connection_Handle_DisconnectRequest,  "Connection::CMSG_DISCONNECT_REQUEST"                           },
+        { OPCODE_ID(CMSG_CONNECTION_CLOSING),                       OPCODE_CHANNEL(CMSG_CONNECTION_CLOSING),                        &Session::Connection_Handle_ConnectionClosing,  "Connection::CMSG_CONNECTION_CLOSING"                           },
+
+        /// BATTLENET2_CHANNEL_WOWREALM
+        { OPCODE_ID(CMSG_LIST_SUBSCRIBE_REQUEST),                   OPCODE_CHANNEL(CMSG_LIST_SUBSCRIBE_REQUEST),                    &Session::WoWRealm_Handle_RealmUpdate,          "WoWRealm::CMSG_LIST_SUBSCRIBE_REQUEST"                         },
+        { OPCODE_ID(CMSG_LIST_UNSUBSCRIBE),                         OPCODE_CHANNEL(CMSG_LIST_UNSUBSCRIBE),                          &Session::HandleNullPacket,                     "WoWRealm::CMSG_LIST_UNSUBSCRIBE"                               },
+        { OPCODE_ID(CMSG_JOIN_REQUEST_V2),                          OPCODE_CHANNEL(CMSG_JOIN_REQUEST_V2),                           &Session::WoW_Handle_JoinRequest,               "WoWRealm::CMSG_JOIN_REQUEST_V2"                                },
+        { OPCODE_ID(CMSG_MULTI_LOGON_REQUEST_V2),                   OPCODE_CHANNEL(CMSG_MULTI_LOGON_REQUEST_V2),                    &Session::HandleNullPacket,                     "WoWRealm::CMSG_MULTI_LOGON_REQUEST_V2"                         },
+
+        /// BATTLENET2_CHANNEL_FRIENDS
+
+        /// BATTLENET2_CHANNEL_PRESENCE
+
+        /// BATTLENET2_CHANNEL_CHAT
+
+        /// BATTLENET2_CHANNEL_SUPPORT
+
+        /// BATTLENET2_CHANNEL_ACHIEVEMENT
+
+        /// BATTLENET2_CHANNEL_CACHE
+        { OPCODE_ID(CMSG_GATEWAY_LOOKUP_REQUEST),                   OPCODE_CHANNEL(CMSG_GATEWAY_LOOKUP_REQUEST),                    &Session::HandleNullPacket,                     "Cache::CMSG_GATEWAY_LOOKUP_REQUEST"                            },
+        { OPCODE_ID(CMSG_CONNECT_REQUEST),                          OPCODE_CHANNEL(CMSG_CONNECT_REQUEST),                           &Session::HandleNullPacket,                     "Cache::CMSG_CONNECT_REQUEST"                                   },
+        { OPCODE_ID(CMSG_DATA_CHUNK),                               OPCODE_CHANNEL(CMSG_DATA_CHUNK),                                &Session::HandleNullPacket,                     "Cache::CMSG_DATA_CHUNK"                                        },
+        { OPCODE_ID(CMSG_GET_STREAM_ITEMS_REQUEST),                 OPCODE_CHANNEL(CMSG_GET_STREAM_ITEMS_REQUEST),                  &Session::Cache_Handle_GetStreamItemsRequest,   "Cache::CMSG_GET_STREAM_ITEMS_REQUEST"                          },
+
+
     };
 
-    #define AUTH_TOTAL_COMMANDS 7
+    #define AUTH_TOTAL_COMMANDS (sizeof(OpcodeTable) / sizeof(OpcodeTable[0]))
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -75,16 +133,16 @@ namespace BNet2 {
                 return;
             }
 
-            if (m_SRP && !m_BNet2Crypt.IsInitialized() && l_Buffer[0] == 0x45 && l_Buffer[1] == 0x01)
+            if (l_Buffer[0] == 0x45 && l_Buffer[1] == 0x01)
             {
-                m_BNet2Crypt.Init(&m_SRP->SessionKey);
+                Connection_Handle_EnableEncryption(nullptr);
 
                 if (l_Size > 2)
                 {
                     uint8_t* l_SecondBuffer = new uint8_t[l_Size - 2];
                     memcpy(l_SecondBuffer, l_Buffer + 2, l_Size - 2);
 
-					delete[] l_Buffer;
+                    delete[] l_Buffer;
                     l_Buffer = l_SecondBuffer;
                     l_Size -= 2;
                 }
@@ -104,7 +162,7 @@ namespace BNet2 {
 
                 delete[] l_Buffer;
 
-                uint32_t l_Opcode  = l_Packet.GetOpcode();
+                uint32_t l_Opcode = l_Packet.GetOpcode();
                 uint32_t l_Channel = l_Packet.GetChannel();
                 uint32_t l_I;
 
@@ -112,13 +170,13 @@ namespace BNet2 {
                 {
                     if ((uint8)OpcodeTable[l_I].Opcode == l_Opcode && (uint8)OpcodeTable[l_I].Channel == l_Channel)
                     {
-                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+                        sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got data for opcode %s channel %u", OpcodeTable[l_I].Name, l_Channel);
 
                         m_CurrentPacket = &l_Packet;
 
                         if (!(*this.*OpcodeTable[l_I].Handler)(&l_Packet))
                         {
-                            sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %u channel %u recv length %u", l_Opcode, l_Channel, l_Size);
+                            sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Command handler failed for opcode %s channel %u", OpcodeTable[l_I].Name, l_Channel);
                             GetSocket().shutdown();
                             m_CurrentPacket = NULL;
                             return;
@@ -130,8 +188,8 @@ namespace BNet2 {
                 // Report unknown packets in the error log
                 if (l_I == AUTH_TOTAL_COMMANDS)
                 {
-                    sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u size %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel, l_Size);
-					m_CurrentPacket = NULL;
+                    sLog->outError(LOG_FILTER_AUTHSERVER, "BNet2::Session::OnRead Got unknown packet from '%s' opcode %u channel %u", GetSocket().getRemoteAddress().c_str(), l_Opcode, l_Channel);
+                    m_CurrentPacket = NULL;
                     return;
                 }
 
@@ -213,24 +271,6 @@ namespace BNet2 {
 
     //////////////////////////////////////////////////////////////////////////
 
-    /// Wait N bytes and append it to the current packet
-    void Session::WaitBytes(uint32_t p_Count)
-    {
-        char * l_Buffer = new char[p_Count];
-
-        GetSocket().recv(l_Buffer, p_Count);
-
-        if (m_BNet2Crypt.IsInitialized())
-            m_BNet2Crypt.Decrypt((uint8_t*)l_Buffer, p_Count);
-
-        if (m_CurrentPacket)
-            m_CurrentPacket->AppendToStorage(l_Buffer, p_Count);
-
-        delete[] l_Buffer;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-
     RealmSocket & Session::GetSocket(void)
     {
         return m_Socket;
@@ -241,7 +281,7 @@ namespace BNet2 {
     /// Send auth result
     void Session::SendAuthResult(BNet2::AuthResult p_Result, bool p_Failed)
     {
-        BNet2::Packet l_Result(BNet2::SMSG_AUTH_COMPLETE);
+        BNet2::Packet l_Result(BNet2::SMSG_LOGON_RESPONSE);
 
         l_Result.WriteBits(p_Failed, 1);
 
@@ -295,8 +335,8 @@ namespace BNet2 {
 
     //////////////////////////////////////////////////////////////////////////
 
-    /// Authentication informations client request
-    bool Session::None_Handle_InformationRequest(BNet2::Packet * p_Packet)
+    /// Authentication resume request
+    bool Session::Authentication_Handle_ResumeRequest(BNet2::Packet * p_Packet)
     {
         std::string l_Program   = p_Packet->ReadFourCC();
         std::string l_Platform  = p_Packet->ReadFourCC();
@@ -320,12 +360,55 @@ namespace BNet2 {
                 SendAuthResult(l_Result);
                 sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Component(%s %s %u) not allowed, error code => %u", l_Component.Program.c_str(), l_Component.Platform.c_str(), l_Component.Build, l_Result);
 
-                return true;
+                return false;
             }
         }
 
+        std::string l_AccountName       = p_Packet->ReadString(p_Packet->ReadBits<uint32_t>(9) + 3);
+        uint8_t     l_Region            = p_Packet->ReadBits<uint8_t>(8);
+        std::string l_GameAccountName   = p_Packet->ReadString(p_Packet->ReadBits<uint32_t>(5) + 1);
+
+        ///@TODO
+        return true;
+    }
+    /// Authentication informations client request
+    bool Session::Authentication_Handle_LogonRequest3(BNet2::Packet * p_Packet)
+    {
+        std::string l_Program   = p_Packet->ReadFourCC();
+        std::string l_Platform  = p_Packet->ReadFourCC();
+        std::string l_Locale    = p_Packet->ReadFourCC();
+
+        SetClientPlatform(l_Platform);
+
+        uint32_t l_ComponentCount = p_Packet->ReadBits<uint32_t>(6);
+
+        for (uint32_t l_I = 0; l_I < l_ComponentCount; ++l_I)
+        {
+            AuthComponent l_Component;
+            l_Component.Program     = p_Packet->ReadFourCC();
+            l_Component.Platform    = p_Packet->ReadFourCC();
+            l_Component.Build       = p_Packet->ReadBits<uint32>(32);
+
+            BNet2::AuthResult l_Result = AuthComponentManager::GetSingleton()->Check(l_Component);
+
+            if (l_Result != BNet2::BATTLENET2_AUTH_OK)
+            {
+                SendAuthResult(l_Result);
+                sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest Component(%s %s %u) not allowed, error code => %u", l_Component.Program.c_str(), l_Component.Platform.c_str(), l_Component.Build, l_Result);
+
+                return false;
+            }
+        }
+
+        std::string l_AccountName = "";
         /// Have login
         if (p_Packet->ReadBits<bool>(1))
+            l_AccountName = p_Packet->ReadString(p_Packet->ReadBits<uint32_t>(9) + 3);
+
+        uint64 l_Compatibility = p_Packet->ReadBits<uint32_t>(64);
+
+        /// Have login
+        if (!l_AccountName.empty())
         {
             std::string const & l_IPAddress = GetSocket().getRemoteAddress();
 
@@ -338,10 +421,8 @@ namespace BNet2 {
             {
                 SendAuthResult(BNet2::BATTLENET2_AUTH_ACCOUNT_TEMP_BANNED);
                 sLog->outDebug(LOG_FILTER_AUTHSERVER, "BNet2::Session::None_Handle_InformationRequest '%s:%d' Banned ip tries to login!", GetSocket().getRemoteAddress().c_str(), GetSocket().getRemotePort());
-                return true;
+                return false;
             }
-
-            std::string l_AccountName = p_Packet->ReadString(p_Packet->ReadBits<uint32_t>(9) + 3);
 
             l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
             l_Stmt->setString(0, l_AccountName);
@@ -444,7 +525,7 @@ namespace BNet2 {
         return true;
     }
     /// Authentication client request
-    bool Session::None_Handle_ProofResponse(BNet2::Packet * p_Packet)
+    bool Session::Authentication_Handle_ProofResponse(BNet2::Packet * p_Packet)
     {
         uint32_t l_ModuleCount = p_Packet->ReadBits<uint32_t>(3);
 
@@ -529,19 +610,31 @@ namespace BNet2 {
     //////////////////////////////////////////////////////////////////////////
 
     /// Ping request
-    bool Session::Creep_Handle_Ping(BNet2::Packet * p_Packet)
+    bool Session::Connection_Handle_Ping(BNet2::Packet * p_Packet)
     {
         BNet2::Packet l_Pong(BNet2::SMSG_PONG);
         Send(&l_Pong);
 
-        WoW_Handle_RealmUpdate(p_Packet);
+        /// @TODO temp hack
+        WoWRealm_Handle_RealmUpdate(p_Packet);
 
         return true;
     }
-    /// Disconnect notify
-    bool Session::Creep_Handle_Disconnect(BNet2::Packet * p_Packet)
+    /// Enable encryption
+    bool Session::Connection_Handle_EnableEncryption(BNet2::Packet * p_Packet)
     {
-        // Clear session key
+        if (m_SRP && !m_BNet2Crypt.IsInitialized())
+        {
+            m_BNet2Crypt.Init(&m_SRP->SessionKey);
+            return true;
+        }
+
+        return false;
+    }
+    /// Disconnect notify
+    bool Session::Connection_Handle_LogoutRequest(BNet2::Packet * p_Packet)
+    {
+        /// Clear session key
         PreparedStatement * l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         l_Stmt->setString(0, "");
         l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
@@ -569,27 +662,112 @@ namespace BNet2 {
 
         return true;
     }
+    /// Disconnect request
+    bool Session::Connection_Handle_DisconnectRequest(BNet2::Packet * p_Packet)
+    {
+        uint16 l_Timeout    = p_Packet->ReadBits<uint16>(16);
+        uint32 l_Tick       = p_Packet->ReadBits<uint32>(32);
+
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "Connection::DisconnectRequest[Timeout: %u, Tick: %u]", l_Timeout, l_Tick);
+
+        return true;
+    }
+    /// Connection closing
+    bool Session::Connection_Handle_ConnectionClosing(BNet2::Packet * p_Packet)
+    {
+        std::string ClosingReason[] =
+        {
+            "PACKET_TOO_LARGE",
+            "PACKET_CORRUPT",
+            "PACKET_INVALID",
+            "PACKET_INCORRECT",
+            "HEADER_CORRUPT",
+            "HEADER_IGNORED",
+            "HEADER_INCORRECT",
+            "PACKET_REJECTED",
+            "CHANNEL_UNHANDLED",
+            "COMMAND_UNHANDLED",
+            "COMMAND_BAD_PERMISSIONS",
+            "DIRECT_CALL",
+            "TIMEOUT",
+        };
+
+        uint32_t l_PacketCount = p_Packet->ReadBits<uint32_t>(6);
+
+        for (uint32_t l_I = 0; l_I < l_PacketCount; ++l_I)
+        {
+            std::string l_CommandName   = p_Packet->ReadFourCC();
+            uint32      l_Timestamp     = p_Packet->ReadBits<uint32>(32);
+            uint16      l_Size          = p_Packet->ReadBits<uint16>(16);
+            std::string l_Channel       = p_Packet->ReadFourCC();
+            uint16      l_LayerID       = p_Packet->ReadBits<uint16>(16);
+
+            sLog->outDebug(LOG_FILTER_AUTHSERVER, "Connection::ConnectionClosing[Command: %s, Channel: %s, Size: %u, LayerID: %u, Timestamp: %u]", l_CommandName.c_str(), l_Channel.c_str(), l_Size, l_LayerID, l_Timestamp);
+        }
+
+        uint8 l_ClosingReasonID = p_Packet->ReadBits<uint8>(4);
+
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "Connection::ConnectionClosing[Reason: %s]", ClosingReason[l_ClosingReasonID].c_str());
+
+        p_Packet->SkipBytes(p_Packet->ReadBits<uint8>(8));          ///< BadData
+
+        if (p_Packet->ReadBits<bool>(1))                            ///< Has header
+        {
+            uint8 l_Opcode  = p_Packet->ReadBits<uint8>(6);
+            uint8 l_Channel = 0;
+
+            if (p_Packet->ReadBits<bool>(1))
+                l_Channel = p_Packet->ReadBits<uint8>(8);
+
+            sLog->outDebug(LOG_FILTER_AUTHSERVER, "Connection::ConnectionClosing[ErroredPacketOpcode: %u, ErroredPacketChannel: %u]", l_Opcode, l_Channel);
+        }
+
+        time_t l_Now = p_Packet->ReadBits<time_t>(32);
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "Connection::ConnectionClosing[Now: %u]", l_Now);
+
+        return true;
+    }
 
     //////////////////////////////////////////////////////////////////////////
 
     /// Realm list client request
-    bool Session::WoW_Handle_RealmUpdate(BNet2::Packet * p_Packet)
+    bool Session::WoWRealm_Handle_RealmUpdate(BNet2::Packet * p_Packet)
     {
         // Update realm list if need
         sRealmList->UpdateIfNeed();
 
-        BNet2::Packet l_Packet(BNet2::SMSG_REALM_AUTH_OK);
+        {
+            bool l_Success = true;
 
-        l_Packet.FlushBits();
-        l_Packet.WriteBits(0, 8);
+            BNet2::Packet l_Packet(BNet2::SMSG_LIST_SUBSCRIBE_RESPONSE);
+            l_Packet.WriteBits(!l_Success, 1);
 
-        ACE_INET_Addr l_ClientAddress;
-        GetSocket().peer().get_remote_addr(l_ClientAddress);
+            if (l_Success)
+            {
+                uint32 l_CharacterCount = 0;
+
+                l_Packet.WriteBits(l_CharacterCount, 7);
+
+                for (uint32 l_I = 0; l_I < l_CharacterCount; ++l_I)
+                {
+                    l_Packet.WriteBits(0, 8);   ///< Region
+                    l_Packet.WriteBits(0, 12);  ///< ?
+                    l_Packet.WriteBits(0, 8);   ///< Battleground
+                    l_Packet.WriteBits(0, 32);  ///< Realm ID
+                    l_Packet.WriteBits(0, 16);  ///< Character count
+                }
+            }
+            else
+                l_Packet.WriteBits(26, 8);  ///< Responce code
+
+            Send(&l_Packet);
+        }
 
         for (RealmList::RealmMap::const_iterator l_It = sRealmList->begin(); l_It != sRealmList->end(); ++l_It)
         {
             const Realm & l_Realm = l_It->second;
             uint8 l_LockStatus = (l_Realm.allowedSecurityLevel > m_AccountSecurityLevel) ? 1 : 0;
+
             if (l_LockStatus)
                 continue;
 
@@ -597,22 +775,22 @@ namespace BNet2 {
             std::string l_Name      = l_It->first;
             bool        l_Version   = false;
 
-            BNet2::Packet l_Buffer(BNet2::SMSG_REALM_UPDATE);
+            BNet2::Packet l_Packet(BNet2::SMSG_LIST_UPDATE);
 
-            l_Buffer.WriteBits(true, 1);
-            l_Buffer.WriteBits(l_It->second.timezone, 32);                      ///< Timezone
-            l_Buffer.WriteBits<float>(l_It->second.populationLevel, 32);        ///< Population
-            l_Buffer.WriteBits(l_LockStatus, 8);                                ///< Lock
-            l_Buffer.WriteBits(0, 19);                                          ///< Unk
-            l_Buffer.WriteBits(0x80000000 + l_Realm.icon, 32);                  ///< type (maybe icon ?)
-            l_Buffer.WriteString(l_Name, 10, false);                            ///< name
-            l_Buffer.WriteBits(l_Version, 1);                                   ///< Version ? send id/port
+            l_Packet.WriteBits(true, 1);
+            l_Packet.WriteBits(l_It->second.timezone, 32);                      ///< Timezone
+            l_Packet.WriteBits<float>(l_It->second.populationLevel, 32);        ///< Population
+            l_Packet.WriteBits(l_LockStatus, 8);                                ///< Lock
+            l_Packet.WriteBits(0, 19);                                          ///< Unk
+            l_Packet.WriteBits(0x80000000 + l_Realm.icon, 32);                  ///< type (maybe icon ?)
+            l_Packet.WriteString(l_Name, 10, false);                            ///< name
+            l_Packet.WriteBits(l_Version, 1);                                   ///< Version ? send id/port
 
             // Version block
             if (l_Version)
             {
                 std::string l_Version = g_VersionStrByBuild[l_It->second.gamebuild];
-                l_Buffer.WriteString(l_Version, 5);
+                l_Packet.WriteString(l_Version, 5);
 
                 ACE_INET_Addr l_Address;
                 l_Address.string_to_addr(l_Realm.address.c_str());
@@ -624,66 +802,27 @@ namespace BNet2 {
                 uint32_t l_IpAddress = l_Address.get_ip_address();
                 EndianConvertReverse(l_IpAddress);
 
-                l_Buffer.Write(l_IpAddress);
-                l_Buffer.AppendByteArray(l_Port, sizeof(l_Port));
+                l_Packet.Write(l_IpAddress);
+                l_Packet.AppendByteArray(l_Port, sizeof(l_Port));
             }
 
-            l_Buffer.WriteBits(l_It->second.flag, 8);                      ///< Flags
-            l_Buffer.WriteBits(0, 8);                                      ///< Region
-            l_Buffer.WriteBits(0, 12);                                     ///< unk
-            l_Buffer.WriteBits(0, 8);                                      ///< Battle group
-            l_Buffer.WriteBits(l_It->second.m_ID, 32);                     ///< Index
+            l_Packet.WriteBits(l_It->second.flag, 8);                      ///< Flags
 
-            l_Buffer.FlushBits();
+            l_Packet.WriteBits(0, 8);                                      ///< Region
+            l_Packet.WriteBits(0, 12);                                     ///< unk
+            l_Packet.WriteBits(0, 8);                                      ///< Battle group
+            l_Packet.WriteBits(l_It->second.m_ID, 32);                     ///< Index
 
-
-            l_Packet.AppendByteArray(l_Buffer.GetData(), l_Buffer.GetSize());
+            Send(&l_Packet);
         }
 
-        /// SMSG_LIST_COMPLETE
         {
-            l_Packet.Write<uint8_t>(0x43);
-            l_Packet.Write<uint8_t>(0x02);
+            BNet2::Packet l_Packet(BNet2::SMSG_LIST_COMPLETE);
+            Send(&l_Packet);
         }
-
-        Send(&l_Packet);
 
         return true;
     }
-
-    void ToByteArray(const std::string & p_Str, uint8_t * p_Dest)
-    {
-        char * l_Str = const_cast<char*>(p_Str.c_str());
-
-        for (unsigned int l_I = 0; l_I < p_Str.size(); l_I += 2)
-        {
-            char l_Buffer[3] = { *(l_Str + l_I), *(l_Str + l_I + 1), '\0' };
-            p_Dest[l_I / 2] = strtol(l_Buffer, NULL, 16);
-        }
-    }
-
-    BigNumber MakeBigNumber(const std::string & p_Str)
-    {
-        uint8_t * l_Buffer = new uint8_t[(p_Str.size() / 2) + 1];
-
-        ToByteArray(p_Str, l_Buffer);
-        l_Buffer[p_Str.size() / 2] = 0;
-
-        BigNumber l_Result;
-        l_Result.SetBinary(l_Buffer, (p_Str.size() / 2) + 1);
-
-        delete[] l_Buffer;
-
-        return l_Result;
-    }
-
-    bool Session::WoW_Handle_MultiLogonRequest(BNet2::Packet * p_Packet)
-    {
-        //@TODO: Reverse it ...
-
-        return true;
-    }
-
     /// Realm connection client request
     bool Session::WoW_Handle_JoinRequest(BNet2::Packet * p_Packet)
     {
@@ -818,4 +957,50 @@ namespace BNet2 {
         Send(&l_Buffer);
         return true;
     }
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Get stream items
+    bool Session::Cache_Handle_GetStreamItemsRequest(BNet2::Packet * p_Packet)
+    {
+        p_Packet->ReadBits<uint32>(31);
+        uint32      l_Index             = p_Packet->ReadBits<uint32>(32);
+        int32       l_ReferenceTime     = p_Packet->ReadBits<int32>(32) - std::numeric_limits<int32>::min();
+        bool        l_StreamDirection   = p_Packet->ReadBits<bool>(1);    ///< StreamDirection
+        uint8       l_ModuleCount       = p_Packet->ReadBits<uint8>(6);   ///< Module count, always 0
+        std::string l_Locale            = p_Packet->ReadFourCC();
+
+        sLog->outDebug(LOG_FILTER_AUTHSERVER, "Cache::GetStreamItemsRequest[Index: %u, ReferenceTime: %d, Locale: %s, ModuleCount: %u, StreamDirection : %u]", l_Index, l_ReferenceTime, l_Locale.c_str(), l_StreamDirection, l_ModuleCount);
+
+        if (p_Packet->ReadBits<bool>(1))
+        {
+            std::string l_ItemName  = p_Packet->ReadFourCC();
+            std::string l_Channel   = p_Packet->ReadFourCC();
+
+            sLog->outDebug(LOG_FILTER_AUTHSERVER, "Cache::GetStreamItemsRequest[ItemName: %s, Channel: %s]", l_ItemName.c_str(), l_Channel.c_str());
+
+            BNet2::Packet l_Response(BNet2::SMSG_JOIN_RESPONSE);
+            l_Response.WriteBits<uint16>(0, 16);
+            l_Response.WriteBits<uint16>(1, 16);
+            l_Response.WriteBits<uint32>(l_Index, 32);
+            l_Response.WriteBits<uint32>(1, 6);             ///< Module count
+            Send(&l_Response);
+        }
+        else
+            p_Packet->ReadBits<uint16>(16);
+
+        return true;
+    }
+
+
 }

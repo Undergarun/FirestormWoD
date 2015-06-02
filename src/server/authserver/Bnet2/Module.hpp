@@ -15,6 +15,8 @@ namespace BNet2 {
     enum ModuleType
     {
         BATTLENET2_MODULE_TYPE_AUTH = 0x01,
+        BATTLENET2_MODULE_TYPE_PFTY = 0x02,
+        BATTLENET2_MODULE_TYPE_XML  = 0x03,
     };
 
     class Session;

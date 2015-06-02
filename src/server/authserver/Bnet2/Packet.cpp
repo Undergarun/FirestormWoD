@@ -15,7 +15,7 @@ namespace BNet2 {
         if (ReadBits<bool>(1))
             m_Channel = ReadBits<uint8_t>(4);
         else
-            m_Channel = BNet2::BATTLENET2_CHANNEL_NONE;
+            m_Channel = BNet2::BATTLENET2_CHANNEL_AUTHENTICATION;
     }
     /// Constructor
     Packet::Packet(uint32 p_Opcode)
@@ -25,9 +25,9 @@ namespace BNet2 {
         m_Channel   = OPCODE_CHANNEL(p_Opcode);
 
         WriteBits(m_Opcode, 6);
-        WriteBits(m_Channel != BNet2::BATTLENET2_CHANNEL_NONE, 1);
+        WriteBits(m_Channel != BNet2::BATTLENET2_CHANNEL_AUTHENTICATION, 1);
 
-        if (m_Channel != BNet2::BATTLENET2_CHANNEL_NONE)
+        if (m_Channel != BNet2::BATTLENET2_CHANNEL_AUTHENTICATION)
             WriteBits(m_Channel, 4);
     }
 
@@ -93,6 +93,12 @@ namespace BNet2 {
     {
         for (uint32_t l_I = 0; l_I < p_Count; ++l_I)
             p_Dest[l_I] = Read<uint8_t>();
+    }
+    /// Skip bytes
+    void Packet::SkipBytes(uint32_t p_Count)
+    {
+        for (uint32_t l_I = 0; l_I < p_Count; ++l_I)
+            Read<uint8_t>();
     }
 
     //////////////////////////////////////////////////////////////////////////
