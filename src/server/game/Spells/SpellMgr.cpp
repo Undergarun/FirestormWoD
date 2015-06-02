@@ -3414,6 +3414,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176172:///< Ancient Inferno: Molten Firestorm
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
                 break;
+            case 117032:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_DEST_RANDOM;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(29); ///< 6 yards
+                break;
             case 175093:///< Alliance Reward (Ashran events)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;

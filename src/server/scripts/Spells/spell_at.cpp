@@ -694,7 +694,7 @@ class spell_at_monk_afterlife_healing_sphere : public AreaTriggerEntityScript
                 if (!l_Target)
                     p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
 
-                if (l_Target != nullptr)
+                if (l_Target != nullptr && l_Target->GetGUID() == l_AreaTriggerCaster->GetGUID())
                 {
                     l_AreaTriggerCaster->CastSpell(l_Target, eAfterlife::SpellHealingSphere, true);
                     p_AreaTrigger->Remove(0);
