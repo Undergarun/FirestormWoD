@@ -4895,6 +4895,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 85673: ///< Word of Glory
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 20066: ///< Repentance
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 114163: ///< Eternal Flame
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5310,9 +5314,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52042: ///< Healing Stream - Totem
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
-                break;
-            case 116740: ///< Tigereye Brew
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
             case 117993: ///< Chi Torpedo : Heal
             case 124040: ///< Chi Torpedo : Damage
@@ -6179,6 +6180,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake
                 case 152280:///< Defile
                 case 109248:///< Binding Shot

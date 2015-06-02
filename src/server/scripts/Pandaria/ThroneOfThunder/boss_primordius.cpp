@@ -377,7 +377,7 @@ class boss_primordius : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 20000);
                         break;
                     case EVENT_SUMMON_LIVING_FLUID:
-                        for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
+                        for (uint8 l_Index = 0; l_Index < 10; l_Index++)
                             me->SummonCreature(NPC_LIVING_FLUID, gSpawnPositions[l_Index]);
 
                         m_Events.ScheduleEvent(EVENT_SUMMON_LIVING_FLUID, 12000);

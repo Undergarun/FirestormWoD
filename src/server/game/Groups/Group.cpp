@@ -1686,7 +1686,8 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         roll->getLoot()->UnlootedCount--;
                         AllowedLooterSet looters = item->GetAllowedLooters();
                         Item* l_Item = player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
-                        l_Item->AddItemBonuses(item->itemBonuses);
+                        if (l_Item)
+                            l_Item->AddItemBonuses(item->itemBonuses);
                     }
                     else
                     {

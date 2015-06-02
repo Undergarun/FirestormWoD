@@ -1842,7 +1842,7 @@ class spell_pri_cascade_second: public SpellScriptLoader
                         }
 
                         // ... or if there are no targets reachable
-                        if (targetList.size() == 0)
+                        if (targetList.empty())
                             return;
 
                         // Each bound hit twice more targets up to 8 for the same bound

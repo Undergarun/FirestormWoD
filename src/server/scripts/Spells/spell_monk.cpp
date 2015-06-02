@@ -4579,7 +4579,7 @@ class spell_monk_chi_explosion_heal: public SpellScriptLoader
 
                 if (l_SpellValues->EffectBasePoints[EFFECT_1])
                 {
-                    if (!p_Targets.size())
+                    if (p_Targets.empty())
                         return;
 
                     Unit* l_MainTarget = (*p_Targets.begin())->ToUnit();

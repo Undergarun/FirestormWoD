@@ -750,7 +750,7 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
     /// Item modifications
     if (l_Modifications.size() != 0)
     {
-        p_Datas << uint32(l_Modifications.size());
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
         for (auto l_Modifier : l_Modifications)
             p_Datas << uint32(l_Modifier);
     }
@@ -791,7 +791,7 @@ void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item)
     /// Item modifications
     if (l_Modifications.size() != 0)
     {
-        p_Datas << uint32(l_Modifications.size());
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
         for (auto l_Modifier : l_Modifications)
             p_Datas << uint32(l_Modifier);
     }
@@ -802,9 +802,19 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_I
     p_Datas << uint32(p_Item.ItemEntry);            ///< Item ID
     p_Datas << uint32(p_Item.ItemSuffixFactor);     ///< Random Properties Seed
     p_Datas << uint32(p_Item.ItemRandomPropertyId); ///< Random Properties ID
-    p_Datas.WriteBit(false);                        ///< Has Item Bonuses
+    p_Datas.WriteBit(p_Item.Bonuses.size() != 0);   ///< Has Item Bonuses
     p_Datas.WriteBit(false);                        ///< Has Modifications
     p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_Item.Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_Item.Bonuses.size());
+
+        for (auto& l_BonusId : p_Item.Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
 }
 
 void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item)

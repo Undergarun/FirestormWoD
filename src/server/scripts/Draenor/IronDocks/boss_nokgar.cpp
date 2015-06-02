@@ -390,7 +390,7 @@ public:
         }
         void SummonArchers()
         {
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Creature* flameslinger = me->SummonCreature(NPC_GROMKAR_FLAMESLINGER, archers[i], TEMPSUMMON_MANUAL_DESPAWN);
                 // if (flameslinger && flameslinger->IsInWorld())

@@ -34,53 +34,34 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
+        char ScriptName[] = "npc_CostanHighwall_Garr";
 
-    /// Constructor
-    npc_CostanHighwall::npc_CostanHighwall()
-        : CreatureScript("npc_CostanHighwall_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_CostanHighwall::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (!p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstJewelcraftingWorkOrder, 4);
-
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_CostanHighwall::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        p_Player->CLOSE_GOSSIP_MENU();
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_CostanHighwall::GetAI(Creature * p_Creature) const
-    {
-        return new npc_CostanHighwallAI(p_Creature);
+        std::vector<SkillNPC_RecipeEntry> Recipes
+        {
+            { 170701, 28179 },
+            { 170706,     0 },
+            { 170705,     0 },
+            { 170704,     0 },
+            { 170709,     0 },
+            { 170708,     0 },
+            { 170707,     0 },
+            { 170712,     0 },
+            { 170711,     0 },
+            { 170710,     0 },
+            { 170724, 28179 },
+            { 170723, 28179 },
+            { 170722, 28179 },
+            { 170721, 28179 },
+            { 170720, 28179 },
+            { 170719, 28179 },
+            { 170715, 28180 },
+            { 170714, 28180 },
+            { 170713, 28180 },
+            { 170718, 28180 },
+            { 170717, 28180 },
+            { 170716, 28180 }
+        };
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -102,57 +83,8 @@ namespace MS { namespace Garrison
         {
 
         };
-    }
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_KayaSolasen::npc_KayaSolasen()
-        : CreatureScript("npc_KayaSolasen_Garr")
-    {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_KayaSolasen::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Alliance_YourFirstJewelcraftingWorkOrder, 4);
-
-        if (p_Player->HasQuest(Quests::Alliance_YourFirstJewelcraftingWorkOrder) || p_Player->IsQuestRewarded(Quests::Alliance_YourFirstJewelcraftingWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_KayaSolasen::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_KayaSolasen::GetAI(Creature * p_Creature) const
-    {
-        return new npc_KayaSolasenAI(p_Creature);
+        char ScriptName[] = "npc_KayaSolasen_Garr";
     }
 
 }   ///< namespace Garrison

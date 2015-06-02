@@ -1466,7 +1466,7 @@ public:
                 std::list<Creature*> l_AmberCallerList;
                 GetCreatureListWithEntryInGrid(l_AmberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
 
-                if (l_AmberCallerList.size())
+                if (!l_AmberCallerList.empty())
                 {
                     std::list<Creature*>::iterator l_Iter = l_AmberCallerList.begin();
 
@@ -1616,7 +1616,7 @@ public:
                 std::list<Player*> playerList;
                 GetPlayerListInGrid(playerList, me, 100.0f);
 
-                if (playerList.size())
+                if (!playerList.empty())
                 {
                     // Picking a random player to attack
                     std::list<Player*>::iterator itr = playerList.begin();

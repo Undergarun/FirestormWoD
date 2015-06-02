@@ -230,12 +230,13 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
         m_spellImmune[i].clear();
 
-    for (uint8 i = 0; i < UNIT_MOD_END; ++i)
+    for (uint8 l_I = 0; l_I < UNIT_MOD_END; ++l_I)
     {
-        m_auraModifiersGroup[i][BASE_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][BASE_PCT] = 1.0f;
-        m_auraModifiersGroup[i][TOTAL_VALUE] = 0.0f;
-        m_auraModifiersGroup[i][TOTAL_PCT] = 1.0f;
+        m_auraModifiersGroup[l_I][BASE_VALUE]               = 0.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT_EXCLUDE_CREATE]  = 100.0f;
+        m_auraModifiersGroup[l_I][BASE_PCT]                 = 1.0f;
+        m_auraModifiersGroup[l_I][TOTAL_VALUE]              = 0.0f;
+        m_auraModifiersGroup[l_I][TOTAL_PCT]                = 1.0f;
     }
                                                             // implement 50% base damage from offhand
     m_auraModifiersGroup[UNIT_MOD_DAMAGE_OFFHAND][TOTAL_PCT] = 0.5f;
@@ -1560,11 +1561,28 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            // If crit add critical bonus
+            /// Magic Damage can be block only by Paladin Proteccion
+            if (HasAura(152261)) ///< Holy Shield
+            {
+                /// Get blocked status
+                blocked = isSpellBlocked(victim, spellInfo, attackType);
+            }
+
+            /// If crit add critical bonus
             if (crit)
             {
                 damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
                 damage = SpellCriticalDamageBonus(spellInfo, damage, victim);
+            }
+
+            if (blocked)
+            {
+                // double blocked amount if block is critical
+                uint32 value = victim->GetBlockPercent();
+                if (victim->isBlockCritical())
+                    value *= 2; // double blocked percent
+                damageInfo->blocked = CalculatePct(damage, value);
+                damage -= damageInfo->blocked;
             }
 
             if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
@@ -1575,6 +1593,8 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             break;
     }
 
+    if (blocked && victim->GetTypeId() == TYPEID_PLAYER)
+        sScriptMgr->OnPlayerBlock(victim->ToPlayer(), this);
     // Calculate absorb resist
     if (damage > 0)
     {
@@ -2510,7 +2530,7 @@ void Unit::HandleProcExtraAttackFor(Unit* victim)
     }
 }
 
-MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackType attType) const
+MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType attType)
 {
     // This is only wrapper
 
@@ -2527,7 +2547,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     return RollMeleeOutcomeAgainst(victim, attType, int32(crit_chance*100), int32(miss_chance*100), int32(dodge_chance*100), int32(parry_chance*100), int32(block_chance*100));
 }
 
-MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance) const
+MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance)
 {
     if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
         return MELEE_HIT_MISS;
@@ -2608,7 +2628,11 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
         {
             tmp = block_chance;
             if (tmp > 0 && roll < (sum += tmp))
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    sScriptMgr->OnPlayerBlock(victim->ToPlayer(), this);
                 return MELEE_HIT_BLOCK;
+            }
         }
     }
 
@@ -7970,8 +7994,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (AuraPtr l_BeaconOfInsight = triggeredByAura->GetBase())
                     {
-                        l_BeaconOfInsight->Remove();
-                        return true;
+                        if (victim->GetHealthPct() >= 90.0f)
+                        {
+                            l_BeaconOfInsight->Remove();
+                            return true;
+                        }
                     }
 
                     break;
@@ -15577,6 +15604,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
     switch (modifierType)
     {
         case BASE_VALUE:
+        case BASE_PCT_EXCLUDE_CREATE:
         case TOTAL_VALUE:
             m_auraModifiersGroup[unitMod][modifierType] += apply ? amount : -amount;
             break;
@@ -15668,8 +15696,7 @@ float Unit::GetTotalStatValue(Stats stat, bool l_IncludeCreateStat /*= true*/) c
         return 0.0f;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
-    float value  = m_auraModifiersGroup[unitMod][BASE_VALUE];
-
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
     value += GetCreateStat(stat);
 
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
@@ -15690,7 +15717,8 @@ float Unit::GetTotalAuraModValue(UnitMods unitMod) const
     if (m_auraModifiersGroup[unitMod][TOTAL_PCT] <= 0.0f)
         return 0.0f;
 
-    float value = m_auraModifiersGroup[unitMod][BASE_VALUE];
+    float value = CalculatePct(m_auraModifiersGroup[unitMod][BASE_VALUE], std::max(m_auraModifiersGroup[unitMod][BASE_PCT_EXCLUDE_CREATE], -100.0f));
+
     value *= m_auraModifiersGroup[unitMod][BASE_PCT];
     value += m_auraModifiersGroup[unitMod][TOTAL_VALUE];
     value *= m_auraModifiersGroup[unitMod][TOTAL_PCT];
@@ -19597,7 +19625,7 @@ void Unit::SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_D
     l_Data << uint32(p_KitRecID);             ///< SpellVisualKit.dbc index
     l_Data << uint32(p_KitType);
     l_Data << uint32(p_Duration);
-    SendMessageToSet(&l_Data, false);
+    SendMessageToSet(&l_Data, true);
 }
 
 void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
@@ -19605,7 +19633,7 @@ void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
     WorldPacket l_Data(Opcodes::SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 2 + 4);
     l_Data.appendPackGUID(GetGUID());
     l_Data << int32(p_SpellVisualKitID);
-    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), true);
 }
 
 void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)

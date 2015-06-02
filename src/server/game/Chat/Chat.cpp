@@ -397,8 +397,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // some commands have custom error messages. Don't send the default one in these cases.
         else if (!HasSentErrorMessage())
         {
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
             else
                 SendSysMessage(LANG_CMD_SYNTAX);
         }
@@ -448,7 +448,13 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
             sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
-        table[i].Help          = help;
+
+        char * l_NewHelp = new char[help.size() + 1];
+        sprintf(l_NewHelp, "%s", help.c_str());
+        l_NewHelp[help.size()] = '\0';
+
+        table[i].Help = (char const*)l_NewHelp;
+
         return true;
     }
 
@@ -624,14 +630,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
                     return true;
             }
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd ? subcmd : ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return table[i].Help && strlen(table[i].Help);
         }
     }
     else
@@ -645,14 +651,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
             if (strlen(table[i].Name))
                 continue;
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, "", ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return (table[i].Help && strlen(table[i].Help));
         }
     }
 

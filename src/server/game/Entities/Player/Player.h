@@ -718,15 +718,6 @@ class Item;
 class WorldSession;
 class BattlePet;
 
-enum PlayerSlots
-{
-    // first slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_START           = 0,
-    // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 184,
-    PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
-};
-
 #define INVENTORY_SLOT_BAG_0    255
 
 enum EquipmentSlots                                         // 19 slots
@@ -796,6 +787,15 @@ enum EquipmentSetUpdateState
     EQUIPMENT_SET_CHANGED   = 1,
     EQUIPMENT_SET_NEW       = 2,
     EQUIPMENT_SET_DELETED   = 3
+};
+
+enum PlayerSlots
+{
+    // first slot for item stored (in any way in player m_items data)
+    PLAYER_SLOT_START           = EQUIPMENT_SLOT_START,
+    // last+1 slot for item stored (in any way in player m_items data)
+    PLAYER_SLOT_END             = REAGENT_BANK_SLOT_BAG_END,
+    PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
 struct EquipmentSet
@@ -1294,13 +1294,14 @@ struct VoidStorageItem
         ItemSuffixFactor = 0;
     }
 
-    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor)
+    VoidStorageItem(uint64 id, uint32 entry, uint32 creator, uint32 randomPropertyId, uint32 suffixFactor, std::vector<uint32> const& bonuses)
     {
         ItemId = id;
         ItemEntry = entry;
         CreatorGuid = creator;
         ItemRandomPropertyId = randomPropertyId;
         ItemSuffixFactor = suffixFactor;
+        Bonuses = bonuses;
     }
 
     uint64 ItemId;
@@ -1308,6 +1309,7 @@ struct VoidStorageItem
     uint32 CreatorGuid;
     uint32 ItemRandomPropertyId;
     uint32 ItemSuffixFactor;
+    std::vector<uint32> Bonuses;
 };
 
 class TradeData
@@ -2653,7 +2655,7 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 p_ForcedDifficulty = -1);
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -3786,7 +3788,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_LegacyRaidDifficulty;
-        Difficulty m_raidMapDifficulty;
+        Difficulty m_PrevMapDifficulty;
 
         uint32 m_atLoginFlags;
 

@@ -811,6 +811,11 @@ class ScriptMgr
         /// @p_Damage          : Amount of damage taken
         void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage);
 
+        /// Called when player block attack
+        /// @p_Player : Player instance
+        /// @p_Attacker  : Damage Infos
+        void OnPlayerBlock(Player* p_Player, Unit* p_Attacker);
+
     /// BattlegroundScript
     public:
         /// Should return a fully valid Battleground object for the type ID.
