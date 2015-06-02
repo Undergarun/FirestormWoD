@@ -71,6 +71,15 @@ namespace BNet2 {
         SMSG_RESULT                                     = (BNet2::BATTLENET2_CHANNEL_CACHE << 8) | 0x08,            ///< Not implemented
         SMSG_GET_STREAM_ITEMS_RESPONSE                  = (BNet2::BATTLENET2_CHANNEL_CACHE << 8) | 0x09
 
+
+
+
+
+
+
+
+
+
         /// BATTLENET2_CHANNEL_PROFILE
 
     };
