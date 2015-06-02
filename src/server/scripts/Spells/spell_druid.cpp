@@ -1571,6 +1571,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_Mushroomlist;
+
                 l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
 
                 /// Remove other player mushrooms
@@ -1580,7 +1581,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     if (l_Owner && l_Owner == l_Player && (*i)->isSummon())
                         continue;
 
-                    l_Mushroomlist.remove((*i));
+                    i = l_Mushroomlist.erase(i);
                 }
 
                 if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)

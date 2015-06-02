@@ -1283,7 +1283,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
             
             /// Apply Mastery: Discipline Shield
-            if (caster->HasAura(77584))
+            if (caster->HasAura(77484))
             {
                 float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
                 amount += CalculatePct(amount, l_Mastery);
