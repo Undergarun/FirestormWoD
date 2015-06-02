@@ -2587,7 +2587,7 @@ class spell_pal_denounce : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || !l_Target->ToPlayer())
                     return;
 
                 if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
