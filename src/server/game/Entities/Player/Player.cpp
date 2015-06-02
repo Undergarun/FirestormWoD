@@ -28668,19 +28668,20 @@ bool Player::CanCaptureTowerPoint()
 );
 }
 
-uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
+uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* p_NewFace /* = nullptr */)
 {
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;                               // max level in this dbc
-
+        
+    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+    uint8 l_Face        = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID);
     uint8 hairstyle     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 facialhair    = GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
 
-    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)))
+    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)) && (!p_NewFace || (p_NewFace->Data == l_Face)))
         return 0;
 
     GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
@@ -28701,6 +28702,9 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     if (newSkin && skincolor != newSkin->Data)
         cost += bsc->cost * 0.75f;                          // +5/6 of price
+
+    if (p_NewFace && l_Face != p_NewFace->Data)
+        cost += bsc->cost * 2;                              /// 2x price
 
     return uint32(cost);
 }
