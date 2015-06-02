@@ -24,6 +24,8 @@ class boss_rukhmar : public CreatureScript
     public:
         boss_rukhmar() : CreatureScript("boss_rukhmar") { }
 
+        float m_Bab;
+
         struct boss_rukhmarAI : public ScriptedAI
         {
             boss_rukhmarAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -259,14 +261,16 @@ class npc_energized_phoenix : public CreatureScript
                 m_SummonerGuid = p_Summoner->GetGUID();
 
                 if (!l_PlayerList.empty())
+                {
                     JadeCore::RandomResizeList(l_PlayerList, 1);
 
-                if (Player* l_Player = l_PlayerList.front())
-                {
-                    m_PlayerGuid = l_Player->GetGUID();
-                    me->AddThreat(l_Player, 100000.0f);
-                    me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
-                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                    if (Player* l_Player = l_PlayerList.front())
+                    {
+                        m_PlayerGuid = l_Player->GetGUID();
+                        me->AddThreat(l_Player, 100000.0f);
+                        me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
+                        m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                    }
                 }
             }
 
