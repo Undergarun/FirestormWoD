@@ -123,7 +123,12 @@ enum specialSpells
 
     /// Night-Twisted Berserker - Highmaul
     RavingAssaultCharge                 = 163312,
-    RavingAssaultRemoveAura             = 163323
+    RavingAssaultRemoveAura             = 163323,
+
+    /// Ogron Earthshaker - Highmaul
+    IntimidatingRoarJump                = 166170,
+    IntimidatingRoarFear                = 166171,
+    Squash                              = 166172
 };
 
 template<class T>
@@ -227,6 +232,10 @@ void EffectMovementGenerator::MovementInform(Unit &unit)
             break;
         case specialSpells::RavingAssaultCharge:
             unit.CastSpell(&unit, specialSpells::RavingAssaultRemoveAura, true);
+            break;
+        case specialSpells::IntimidatingRoarJump:
+            unit.CastSpell(&unit, specialSpells::Squash, true);
+            unit.CastSpell(&unit, specialSpells::IntimidatingRoarFear, false);
             break;
         default:
             break;

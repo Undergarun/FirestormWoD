@@ -135,10 +135,12 @@ enum eHighmaulSpells
 
 enum eHighmaulLocs
 {
-    BeachEntrance   = 4780,
-    ExitTarget      = 4782,
-    ArenaCenter     = 4783,
-    KargathDefeated = 4784
+    BeachEntrance       = 4780,
+    ExitTarget          = 4782,
+    ArenaCenter         = 4783,
+    KargathDefeated     = 4784,
+    PalaceFrontGate     = 4785,
+    CityBaseTeleporter  = 4788
 };
 
 #endif
