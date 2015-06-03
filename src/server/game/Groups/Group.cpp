@@ -422,56 +422,53 @@ Player* Group::GetInvited(const std::string& name) const
     return NULL;
 }
 
-bool Group::AddMember(Player* player)
+bool Group::AddMember(Player* p_Player)
 {
     // Get first not-full group
-    uint8 subGroup = 0;
+    uint8 l_SubGroup = 0;
     if (m_subGroupsCounts)
     {
-        bool groupFound = false;
-        for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
+        bool l_GroupFound = false;
+        for (; l_SubGroup < MAX_RAID_SUBGROUPS; ++l_SubGroup)
         {
-            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            if (m_subGroupsCounts[l_SubGroup] < MAXGROUPSIZE)
             {
-                groupFound = true;
+                l_GroupFound = true;
                 break;
             }
         }
         // We are raid group and no one slot is free
-        if (!groupFound)
+        if (!l_GroupFound)
             return false;
     }
 
-    MemberSlot member;
-    member.guid         = player->GetGUID();
-    member.name         = player->GetName();
-    member.group        = subGroup;
-    member.flags        = 0;
-    member.roles        = 0;
-    member.playerClass  = player->getClass();
-    member.specID       = player->GetSpecializationId(player->GetActiveSpec());
-    m_memberSlots.push_back(member);
+    MemberSlot l_Member;
+    l_Member.guid         = p_Player->GetGUID();
+    l_Member.name         = p_Player->GetName();
+    l_Member.group        = l_SubGroup;
+    l_Member.flags        = 0;
+    l_Member.roles        = 0;
+    l_Member.playerClass  = p_Player->getClass();
+    l_Member.specID       = p_Player->GetSpecializationId(p_Player->GetActiveSpec());
+    m_memberSlots.push_back(l_Member);
 
-    SubGroupCounterIncrease(subGroup);
+    SubGroupCounterIncrease(l_SubGroup);
 
-    if (player)
-    {
-        player->SetGroupInvite(0);
-        if (player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-            player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
-        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-            player->SetOriginalGroup(this, subGroup);
-        else //if player is not in group, then call set group
-            player->SetGroup(this, subGroup);
+    p_Player->SetGroupInvite(0);
+    if (p_Player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+        p_Player->SetBattlegroundOrBattlefieldRaid(this, l_SubGroup);
+    else if (p_Player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+        p_Player->SetOriginalGroup(this, l_SubGroup);
+    else //if player is not in group, then call set group
+        p_Player->SetGroup(this, l_SubGroup);
 
-        // if the same group invites the player back, cancel the homebind timer
-        InstanceGroupBind* bind = GetBoundInstance(player);
-        if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
-            player->m_InstanceValid = true;
+    // if the same group invites the player back, cancel the homebind timer
+    InstanceGroupBind* l_Bind = GetBoundInstance(p_Player);
+    if (l_Bind && l_Bind->save->GetInstanceId() == p_Player->GetInstanceId())
+        p_Player->m_InstanceValid = true;
 
-        if (sLFGListMgr->IsGroupQueued(this))
-            sLFGListMgr->PlayerAddedToGroup(player, this);
-    }
+    if (sLFGListMgr->IsGroupQueued(this))
+        sLFGListMgr->PlayerAddedToGroup(p_Player, this);
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
@@ -482,122 +479,125 @@ bool Group::AddMember(Player* player)
     // insert into the table if we're not a battleground group
     if (!isBGGroup() && !isBFGroup())
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GROUP_MEMBER);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_GROUP_MEMBER);
 
-        stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt32(1, GUID_LOPART(member.guid));
-        stmt->setUInt8(2, member.flags);
-        stmt->setUInt8(3, member.group);
-        stmt->setUInt8(4, member.roles);
-        stmt->setUInt8(5, member.playerClass);
-        stmt->setUInt32(6, member.specID);
+        l_Statement->setUInt32(0, m_dbStoreId);
+        l_Statement->setUInt32(1, GUID_LOPART(l_Member.guid));
+        l_Statement->setUInt8(2, l_Member.flags);
+        l_Statement->setUInt8(3, l_Member.group);
+        l_Statement->setUInt8(4, l_Member.roles);
+        l_Statement->setUInt8(5, l_Member.playerClass);
+        l_Statement->setUInt32(6, l_Member.specID);
 
-        CharacterDatabase.Execute(stmt);
+        CharacterDatabase.Execute(l_Statement);
     }
 
     SendUpdate();
-    sScriptMgr->OnGroupAddMember(this, player->GetGUID());
+    sScriptMgr->OnGroupAddMember(this, p_Player->GetGUID());
 
-    WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data, 0);
-
-    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    if (p_Player->IsInWorld() && p_Player->GetMap() != nullptr)
     {
-        Player* member = itr->getSource();
-        if (member && member != player && !member->IsWithinDist(player, member->GetSightRange(), false))
-        {
-            WorldPacket data2;
-            member->GetSession()->BuildPartyMemberStatsChangedPacket(member, &data2, 0);
+        WorldPacket l_Data;
+        p_Player->GetSession()->BuildPartyMemberStatsChangedPacket(p_Player, &l_Data, 0);
 
-            member->GetSession()->SendPacket(&data);
-            player->GetSession()->SendPacket(&data2);
+        for (GroupReference* l_Itr = GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
+        {
+            Player* l_Member = l_Itr->getSource();
+            if (l_Member && l_Member != p_Player && !l_Member->IsWithinDist(p_Player, l_Member->GetSightRange(), false)
+                && l_Member->IsInWorld() && l_Member->GetMap() != nullptr)
+            {
+                WorldPacket l_Data2;
+                l_Member->GetSession()->BuildPartyMemberStatsChangedPacket(l_Member, &l_Data2, 0);
+
+                l_Member->GetSession()->SendPacket(&l_Data);
+                p_Player->GetSession()->SendPacket(&l_Data2);
+            }
         }
     }
 
-    if (player)
+    if (!IsLeader(p_Player->GetGUID()) && !isBGGroup() && !isBFGroup())
     {
-        if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
-        {
-            // reset the new member's instances, unless he is currently in one of them
-            // including raid/heroic instances that they are not permanently bound to!
-            player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, false, false);
-            player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
-            player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
+        // reset the new member's instances, unless he is currently in one of them
+        // including raid/heroic instances that they are not permanently bound to!
+        p_Player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, false, false);
+        p_Player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
+        p_Player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
 
-            if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        if (p_Player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        {
+            if (p_Player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
             {
-                if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
-                {
-                    player->SetDungeonDifficultyID(GetDungeonDifficultyID());
-                    player->SendDungeonDifficulty();
-                }
-                if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
-                {
-                    player->SetRaidDifficultyID(GetRaidDifficultyID());
-                    player->SendRaidDifficulty(false);
-                }
-                if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
-                {
-                    player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
-                    player->SendRaidDifficulty(true);
-                }
+                p_Player->SetDungeonDifficultyID(GetDungeonDifficultyID());
+                p_Player->SendDungeonDifficulty();
+            }
+            if (p_Player->GetRaidDifficultyID() != GetRaidDifficultyID())
+            {
+                p_Player->SetRaidDifficultyID(GetRaidDifficultyID());
+                p_Player->SendRaidDifficulty(false);
+            }
+            if (p_Player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
+            {
+                p_Player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
+                p_Player->SendRaidDifficulty(true);
             }
         }
-        player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        UpdatePlayerOutOfRange(player);
-
-        // quest related GO state dependent from raid membership
-        if (isRaidGroup())
-            player->UpdateForQuestWorldObjects();
-
-        {
-            // Broadcast new player group member fields to rest of the group
-            player->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
-
-            UpdateData groupData(player->GetMapId());
-            WorldPacket groupDataPacket;
-
-            // Broadcast group members' fields to player
-            for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                if (itr->getSource() == player)
-                    continue;
-
-                if (Player* member = itr->getSource())
-                {
-                    if (player->HaveAtClient(member))   // must be on the same map, or shit will break
-                    {
-                        member->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
-                        member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                        member->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
-                    }
-
-                    if (member->HaveAtClient(player))
-                    {
-                        UpdateData newData(player->GetMapId());
-                        WorldPacket newDataPacket;
-                        player->BuildValuesUpdateBlockForPlayer(&newData, member);
-                        if (newData.HasData())
-                        {
-                            if (newData.BuildPacket(&newDataPacket))
-                                member->SendDirectMessage(&newDataPacket);
-                        }
-                    }
-                }
-            }
-
-            if (groupData.HasData())
-                if (groupData.BuildPacket(&groupDataPacket))
-                    player->SendDirectMessage(&groupDataPacket);
-
-                player->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
-        }
-
-        if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
-            m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
     }
 
-    SendTargetIconList(player->GetSession(), 0);
+    p_Player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+    UpdatePlayerOutOfRange(p_Player);
+
+    // quest related GO state dependent from raid membership
+    if (isRaidGroup())
+        p_Player->UpdateForQuestWorldObjects();
+
+    // Broadcast new player group member fields to rest of the group
+    p_Player->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+
+    UpdateData l_GroupData(p_Player->GetMapId());
+    WorldPacket l_GroupDataPacket;
+
+    // Broadcast group members' fields to player
+    for (GroupReference* l_Itr = GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
+    {
+        if (l_Itr->getSource() == p_Player)
+            continue;
+
+        if (Player* l_Member = l_Itr->getSource())
+        {
+            if (p_Player->HaveAtClient(l_Member))   // must be on the same map, or shit will break
+            {
+                l_Member->SetFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+                l_Member->BuildValuesUpdateBlockForPlayer(&l_GroupData, p_Player);
+                l_Member->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+            }
+
+            if (l_Member->HaveAtClient(p_Player))
+            {
+                UpdateData l_NewData(p_Player->GetMapId());
+                WorldPacket l_NewDataPacket;
+                p_Player->BuildValuesUpdateBlockForPlayer(&l_NewData, l_Member);
+
+                if (l_NewData.HasData())
+                {
+                    if (l_NewData.BuildPacket(&l_NewDataPacket))
+                        l_Member->SendDirectMessage(&l_NewDataPacket);
+                }
+            }
+        }
+    }
+
+    if (l_GroupData.HasData())
+    {
+        if (l_GroupData.BuildPacket(&l_GroupDataPacket))
+            p_Player->SendDirectMessage(&l_GroupDataPacket);
+    }
+
+    p_Player->RemoveFieldNotifyFlag(UF_FLAG_UNIT_ALL);
+
+    if (m_maxEnchantingLevel < p_Player->GetSkillValue(SKILL_ENCHANTING))
+        m_maxEnchantingLevel = p_Player->GetSkillValue(SKILL_ENCHANTING);
+
+    SendTargetIconList(p_Player->GetSession(), 0);
 
     return true;
 }

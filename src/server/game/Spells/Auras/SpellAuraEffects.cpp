@@ -1102,12 +1102,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
         case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
         {
+
             switch (GetId())
             {
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 10;
 
                     break;
@@ -1125,7 +1126,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 25;
 
                     break;
@@ -1141,7 +1142,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             switch (GetId())
             {
                 case 6262:  // Healthstone
-                    if (!caster->HasAura(56224)) // Glyph of Healthstone
+                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
                         amount = 0;
                     break;
                 default:
@@ -1157,7 +1158,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 182287: ///< Ignite
                 {
                     /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
-                    if (caster->HasAura(61205))
+                    if (caster && caster->HasAura(61205))
                         amount = -50;
                     break;
                 }
@@ -1267,7 +1268,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     }
 
-    if (DoneActualBenefit != 0.0f)
+    if (DoneActualBenefit != 0.0f && caster)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
@@ -1283,7 +1284,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
             
             /// Apply Mastery: Discipline Shield
-            if (caster->HasAura(77584))
+            if (caster->HasAura(77484))
             {
                 float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
                 amount += CalculatePct(amount, l_Mastery);
