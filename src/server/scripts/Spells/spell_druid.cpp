@@ -3314,7 +3314,9 @@ public:
 enum SpellsBarkskin
 {
     SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA  = 63057,
-    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058
+    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058,
+    SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK_AURA = 159436,
+    SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK = 159438
 };
 
 /// Call by Barkskin - 22812
@@ -3337,6 +3339,8 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
 
                 if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA))
                     l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN, true);
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK_AURA))
+                    l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -4088,8 +4092,36 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
         }
 };
 
+/// Glyph of Enchanted Bark - 159436
+class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_enchanted_bark() : SpellScriptLoader("spell_dru_glyph_of_enchanted_bark") { }
+
+        class spell_dru_glyph_of_enchanted_bark_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_enchanted_bark_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_enchanted_bark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_enchanted_bark_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();
     new spell_dru_lifebloom_final_heal();
     new spell_dru_entangling_energy();
