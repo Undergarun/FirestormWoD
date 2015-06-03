@@ -754,106 +754,15 @@ class npc_tempest_slash_tornado : public CreatureScript
                 {
                     Movement::MoveSplineInit init(*me);
                     // Selecting the center 2.0f yds forward as center of the circle path
-                    Position pos = GetTargetPoint(me, 2.0f);
+                    float l_PosX = me->GetPositionX() + 2.0f * cos(me->GetOrientation());
+                    float l_PosY = me->GetPositionY() + 2.0f * sin(me->GetOrientation());
+                    Position pos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                     // Creating the circle path from the center
                     FillCirclePath(pos, 2.0f, pos.GetPositionZ(), init.Path(), true);
                     init.SetWalk(true);
                     init.SetCyclic();
                     init.Launch();
                 }
-            }
-
-            Position GetTargetPoint(Creature* mob, float dist)
-            {
-                /*
-                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
-                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
-                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
-                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
-                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
-                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
-                 * small.
-                 *
-                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                 */
-
-                float posX = mob->GetPositionX();
-                float posY = mob->GetPositionY();
-                float posZ = mob->GetPositionZ();
-                float orientation = mob->GetOrientation();
-
-                // Retrieving absolute orientation
-                float absOri = orientation;
-                uint8 turn = 0;
-                while (absOri > (M_PI / 2))
-                {
-                    absOri -= (M_PI / 2);
-                    turn = ++turn % 4;
-                }
-
-                // Looking for ratio between X and Y
-                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-                float percentY = 1.0f - percentX;
-
-                // Applying negatives directions according to orientation
-                if (orientation > (M_PI / 2))
-                {
-                    if (orientation > M_PI)
-                        percentY = -percentY;
-
-                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
-                        percentX = -percentX;
-                }
-
-                // if turned, we need to switch X & Y
-                switch (turn)
-                {
-                    // -x / +y / switch
-                    case 1:
-                    {
-                        float tmpVal = percentX;
-                        percentX = -percentY;
-                        percentY = tmpVal;
-                        break;
-                    }
-                    // -x / -y / no switch
-                    case 2:
-                    {
-                        percentX = -percentX;
-                        percentY = -percentY;
-                        break;
-                    }
-                    // +x / -y / switch
-                    case 3:
-                    {
-                        float tmpVal = percentX;
-                        percentX = percentY;
-                        percentY = -tmpVal;
-                        break;
-                    }
-                    // +x / +y / no switch : no change
-                    default:
-                        break;
-                }
-
-                // Calculating reaching point
-                float pointX = posX;
-                float pointY = posY;
-
-                Position reachPoint = {pointX, pointY, posZ, orientation};
-
-                do
-                {
-                    pointX += percentX;
-                    pointY += percentY;
-                    reachPoint.Relocate(pointX, pointY);
-                } while (mob->GetDistance(reachPoint) < dist);
-
-                return reachPoint;
             }
 
             void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)

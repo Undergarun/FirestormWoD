@@ -67,6 +67,7 @@ enum eZorlokEvent
     EVENT_PULL_RAID                 = 12,
     EVENT_SONIC_PULSE               = 13,
     EVENT_SUMMON_LAST_ECHO          = 14,
+    EVENT_SONIC_MOVE                = 15
 };
 
 enum eZorlokActions
@@ -74,13 +75,13 @@ enum eZorlokActions
     ACTION_SONIC_RING           = 2,
     ACTION_INHALE_PHEROMONES    = 3,
     ACTION_WIPE                 = 4,
-    ACTION_SONIC_PULSE          = 5,
+    ACTION_SONIC_PULSE          = 5
 };
 
 enum eZorlokTypes
 {
     TYPE_EXHALE_TARGET  = 1,
-    TYPE_PHASE_ZORLOK   = 2,
+    TYPE_PHASE_ZORLOK   = 2
 };
 
 enum eZorlokAdds
@@ -88,20 +89,20 @@ enum eZorlokAdds
     NPC_SONIC_RING              = 62689,
     NPC_SONIC_PULSE             = 63837,
     NPC_ECHO_OF_ATTENUATION     = 65173,
-    NPC_ECHO_OF_FORCE_AND_VERVE = 65174,
+    NPC_ECHO_OF_FORCE_AND_VERVE = 65174
 };
 
 enum eZorlokPhase
 {
     PHASE_ZORLOK1               = 1,
-    PHASE_ZORLOK2               = 4, // value '4' needed, DON'T CHANGE IT !!!
+    PHASE_ZORLOK2               = 4 // value '4' needed, DON'T CHANGE IT !!!
 };
 
 enum ePlatforms
 {
     PLATFORM_ZORLOK_SW          = 1,    // Platform South-west (Force and verve)
     PLATFORM_ZORLOK_NE          = 2,    // Platform North-east (Attenuation)
-    PLATFORM_ZORLOK_SE          = 3,    // Platform South-east (Convert)
+    PLATFORM_ZORLOK_SE          = 3    // Platform South-east (Convert)
 };
 
 enum eTalk
@@ -128,21 +129,21 @@ enum eTalk
     TALK_EXHALE                 = 20,
     TALK_INHALE                 = 21,
     TALK_CONVERT                = 22,
-    TALK_PITCH                  = 23,   // Echoes of power
+    TALK_PITCH                  = 23    // Echoes of power
 };
 
 Position zorlokPlatforms[3] =
 {
     {-2317.21f,     300.67f,    409.90f,    0.0f},  // SW Platform
     {-2234.36f,     216.88f,    409.90f,    0.0f},  // NE Platform
-    {-2315.77f,     218.20f,    409.90f,    0.0f},  // SE Platform
+    {-2315.77f,     218.20f,    409.90f,    0.0f}   // SE Platform
 };
 
 Position zorlokReachPoints[3] = 
 {
     {-2317.21f,     300.67f,    420.0f,     0.0f},  // NE Platform
     {-2234.36f,     216.88f,    420.0f,     0.0f},  // SW Platform
-    {-2315.77f,     218.20f,    420.0f,     0.0f},  // SE Platform
+    {-2315.77f,     218.20f,    420.0f,     0.0f}   // SE Platform
 };
 
 Position oratiumCenter[2] =
@@ -164,7 +165,7 @@ Position finalPhaseWalls2[3] =
 {
     {-2255.168f, 308.7326f, 406.0f,   0.7853968f},
     {-2240.0f,   294.0f,    406.0f,   0.7853968f},
-    {-2225.753f, 280.1424f, 406.381f, 0.7853968f},
+    {-2225.753f, 280.1424f, 406.381f, 0.7853968f}
 };
 
 float tabCenter[3] = {-2274.8f, 259.187f, 406.5f};
@@ -261,6 +262,7 @@ class boss_zorlok : public CreatureScript
                     if (bossState != DONE && bossState != NOT_STARTED)
                         pInstance->SetBossState(DATA_ZORLOK, NOT_STARTED);
                 }
+
                 numPlat             = 0;
                 phase               = isEcho ? GetZorlok()->AI()->GetData(TYPE_PHASE_ZORLOK) : 0;
                 platformToUse       = 0;
@@ -419,7 +421,10 @@ class boss_zorlok : public CreatureScript
                 summons.DespawnAll();
                 me->RemoveAllAreasTrigger();
 
-                if (isEcho)
+                if (isEcho || !pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_ZORLOK) == DONE)
                     return;
 
                 me->SetCanFly(false);
@@ -428,15 +433,12 @@ class boss_zorlok : public CreatureScript
 
                 Talk(TALK_DEATH);
 
-                if (pInstance)
-                {
-                    pInstance->SetBossState(DATA_ZORLOK, DONE);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                pInstance->SetBossState(DATA_ZORLOK, DONE);
+                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
-                }
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONVERT);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FORCE_AND_VERVE);
+                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_OF_ZEAL);
 
                 if (me->GetMap()->IsLFR())
                 {
@@ -458,7 +460,7 @@ class boss_zorlok : public CreatureScript
 
             void JustReachedHome()
             {
-                if (isEcho)
+                if (isEcho || !isActive)
                     return;
 
                 _JustReachedHome();
@@ -470,6 +472,9 @@ class boss_zorlok : public CreatureScript
 
                 if (pInstance)
                     pInstance->SetBossState(DATA_ZORLOK, FAIL);
+
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             }
 
             void EnterCombat(Unit* attacker)
@@ -683,6 +688,7 @@ class boss_zorlok : public CreatureScript
                             ringOrientation = CorrectAngle(ringOrientation + (clocksideRings ? -M_PI / 6 : M_PI / 6));
                             events.ScheduleEvent(EVENT_SUMMON_RINGS, 1000);
                         }
+
                         break;
                     }
                     case ACTION_SONIC_PULSE:
@@ -745,6 +751,7 @@ class boss_zorlok : public CreatureScript
                             platforms.push_back(PLATFORM_ZORLOK_NE);
                             platforms.push_back(PLATFORM_ZORLOK_SE);
                         }
+
                         numPlat = 0;
                         phase = 0;
                         hasTalk = 0;
@@ -1067,9 +1074,11 @@ class boss_zorlok : public CreatureScript
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 300.0f);
                         for (std::list<Player*>::iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                        {
                             // The point is that if they're on a platform, they'll be blocked by walls, so they have to be pulled
                             if ((*itr)->GetPositionZ() > 408.5f)
                                 (*itr)->CastSpell(me, SPELL_MAGNETIC_PULSE, false);
+                        }
 
                         // Creating Walls for final phase
                         for (uint8 i = 0; i < 3; ++i)
@@ -1107,23 +1116,25 @@ class mob_sonic_ring : public CreatureScript
             }
 
             InstanceScript* pInstance;
-            EventMap events;
+            EventMap m_Events;
+            Position m_TargetPos;
 
             void Reset()
             {
-                me->SetDisplayId(DISPLAYID_INVISIBLE);
-                me->CastSpell(me, SPELL_SONIC_RING_VISUAL, false);
+                me->AddAura(SPELL_SONIC_RING_VISUAL, me);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 // Low speed
                 me->SetSpeed(MOVE_WALK, 0.5f);
                 me->SetSpeed(MOVE_RUN,  0.5f);
 
-                Position targetPoint = GetTargetPoint(me, 50.0f);
-                me->GetMotionMaster()->MovePoint(1, targetPoint);
+                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
+                m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
+
                 // In case the mob is unable to reach the target point
                 me->DespawnOrUnsummon(10000);
-
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -1135,89 +1146,13 @@ class mob_sonic_ring : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            Position GetTargetPoint(Creature* sonic, float dist)
+            void UpdateAI(uint32 const p_Diff)
             {
-                /*
-                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
-                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
-                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
-                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
-                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
-                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
-                 * small.
-                 *
-                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                 */
+                m_Events.Update(p_Diff);
 
-                float posX = sonic->GetPositionX();
-                float posY = sonic->GetPositionY();
-                float posZ = sonic->GetPositionZ();
-                float orientation = sonic->GetOrientation();
-
-                // Retrieving absolute orientation - turn will be used to know in which quarter we are.
-                float absOri = orientation;
-                uint8 turn = 0;
-                while (absOri > (M_PI / 2))
-                {
-                    absOri -= (M_PI / 2);
-                    turn = ++turn % 4;
-                }
-
-                // Looking for ratio between X and Y
-                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-                float percentY = 1.0f - percentX;
-
-                // Applying negatives directions according to orientation
-                switch (turn)
-                {
-                    // -x / +y / switch
-                    case 1:
-                    {
-                        float tmpVal = percentX;
-                        percentX = -percentY;
-                        percentY = tmpVal;
-                        break;
-                    }
-                    // -x / -y / no switch
-                    case 2:
-                    {
-                        percentX = -percentX;
-                        percentY = -percentY;
-                        break;
-                    }
-                    // +x / -y / switch
-                    case 3:
-                    {
-                        float tmpVal = percentX;
-                        percentX = percentY;
-                        percentY = -tmpVal;
-                        break;
-                    }
-                    // +x / +y / no switch : no change
-                    default:
-                        break;
-                }
-
-                // Calculating reaching point
-                float pointX = posX;
-                float pointY = posY;
-
-                Position reachPoint = {pointX, pointY, posZ, orientation};
-
-                do
-                {
-                    pointX += percentX;
-                    pointY += percentY;
-                    reachPoint.Relocate(pointX, pointY);
-                } while (sonic->GetDistance(reachPoint) < dist);
-
-                return reachPoint;
+                if (m_Events.ExecuteEvent() == EVENT_SONIC_MOVE)
+                    me->GetMotionMaster()->MovePoint(1, m_TargetPos);
             }
-
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1239,106 +1174,26 @@ class mob_sonic_pulse : public CreatureScript
                 pInstance = creature->GetInstanceScript();
             }
 
-            EventMap events;
+            EventMap m_Events;
             InstanceScript* pInstance;
+            Position m_TargetPos;
 
             void Reset()
             {
-                me->SetDisplayId(DISPLAYID_INVISIBLE);
-                me->CastSpell(me, SPELL_SONIC_PULSE_VISUAL, false);
+                me->AddAura(SPELL_SONIC_PULSE_VISUAL, me);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 // Low speed
                 me->SetSpeed(MOVE_WALK, 0.3f);
                 me->SetSpeed(MOVE_RUN,  0.3f);
 
-                Position targetPoint = GetTargetPoint(me, 50.0f);
-                me->GetMotionMaster()->MovePoint(1, targetPoint);
+                float l_PosX = me->GetPositionX() + 50.f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 50.f * sin(me->GetOrientation());
+                m_TargetPos = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
+                m_Events.ScheduleEvent(EVENT_SONIC_MOVE, 500);
+
                 // In case the mob is unable to reach the target point
                 me->DespawnOrUnsummon(10000);
-            }
-
-            Position GetTargetPoint(Creature* sonic, float dist)
-            {
-                /*
-                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
-                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
-                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
-                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
-                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
-                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
-                 * small.
-                 *
-                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                 */
-
-                float posX = sonic->GetPositionX();
-                float posY = sonic->GetPositionY();
-                float posZ = sonic->GetPositionZ();
-                float orientation = sonic->GetOrientation();
-
-                // Retrieving absolute orientation - turn will be used to know in which quarter we are.
-                float absOri = orientation;
-                uint8 turn = 0;
-                while (absOri > (M_PI / 2))
-                {
-                    absOri -= (M_PI / 2);
-                    turn = ++turn % 4;
-                }
-
-                // Looking for ratio between X and Y
-                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-                float percentY = 1.0f - percentX;
-
-                // Applying negatives directions according to orientation
-                switch (turn)
-                {
-                    // -x / +y / switch
-                    case 1:
-                    {
-                        float tmpVal = percentX;
-                        percentX = -percentY;
-                        percentY = tmpVal;
-                        break;
-                    }
-                    // -x / -y / no switch
-                    case 2:
-                    {
-                        percentX = -percentX;
-                        percentY = -percentY;
-                        break;
-                    }
-                    // +x / -y / switch
-                    case 3:
-                    {
-                        float tmpVal = percentX;
-                        percentX = percentY;
-                        percentY = -tmpVal;
-                        break;
-                    }
-                    // +x / +y / no switch : no change
-                    default:
-                        break;
-                }
-
-                // Calculating reaching point
-                float pointX = posX;
-                float pointY = posY;
-
-                Position reachPoint = {pointX, pointY, posZ, orientation};
-
-                do
-                {
-                    pointX += percentX;
-                    pointY += percentY;
-                    reachPoint.Relocate(pointX, pointY);
-                } while (sonic->GetDistance(reachPoint) < dist);
-
-                return reachPoint;
             }
 
             void MovementInform(uint8 point, uint8 type)
@@ -1348,6 +1203,14 @@ class mob_sonic_pulse : public CreatureScript
 
                 if (point)
                     me->DespawnOrUnsummon();
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_SONIC_MOVE)
+                    me->GetMotionMaster()->MovePoint(1, m_TargetPos);
             }
         };
 
@@ -1432,8 +1295,10 @@ class spell_force_verve : public SpellScriptLoader
             void ApplyEffect()
             {
                 if (Player* target = GetHitPlayer())
+                {
                     if (target->HasAura(SPELL_NOISE_CANCELLING))
                         SetHitDamage(GetHitDamage() * 0.25);
+                }
             }
 
             void SetReact()
@@ -1485,8 +1350,10 @@ class spell_sonic_ring : public SpellScriptLoader
             void Effect()
             {
                 if (Player* target = GetHitPlayer())
+                {
                     if (target->HasAura(SPELL_NOISE_CANCELLING))
                         SetHitDamage(GetHitDamage() * 0.4);
+                }
             }
 
             void Register()
@@ -1536,8 +1403,10 @@ class spell_sonic_pulse : public SpellScriptLoader
             void Effect()
             {
                 if (Player* target = GetHitPlayer())
+                {
                     if (target->HasAura(SPELL_NOISE_CANCELLING))
                         SetHitDamage(GetHitDamage() * 0.4);
+                }
             }
 
             void Register()
@@ -1619,6 +1488,7 @@ class spell_zorlok_exhale : public SpellScriptLoader
                             target = *itr;
                             searching = false;
                         }
+
                         ++itr;
 
                         if (itr == playerList.end())
@@ -1639,8 +1509,10 @@ class spell_zorlok_exhale : public SpellScriptLoader
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 if (Unit* caster = GetCaster())
+                {
                     if (Player* target = GetHitPlayer())
                         caster->CastSpell(target, SPELL_EXHALE_DMG, true);
+                }
             }
 
             void Register()
@@ -1777,6 +1649,7 @@ class spell_convert : public SpellScriptLoader
                                 targets.push_back(*itr);
                                 playerList.remove(*itr);
                             }
+
                             itr = ++next;
                             if (itr == playerList.end())
                                 itr = playerList.begin();
