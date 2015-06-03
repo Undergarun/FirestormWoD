@@ -121,9 +121,44 @@ class spell_Mark_of_Thunderlord : public SpellScriptLoader
 
 };
 
-void AddSC_generic_spell_scripts()
+class spell_Mark_of_Warsong : public SpellScriptLoader
+{
+    public:
+        spell_Mark_of_Warsong()
+            : SpellScriptLoader("spell_Mark_of_Warsong")
+        {
+
+        }
+
+        class spell_Mark_of_Warsong_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_Mark_of_Warsong_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                if (!GetOwner() || !GetOwner()->ToPlayer())
+                    return;
+
+                GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 159675, TRIGGERED_FULL_MASK);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_Mark_of_Warsong_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_Mark_of_Warsong_AuraScript();
+        }
+
+};
+
+void AddSC_spell_item_enchantment()
 {
     new spell_Mark_of_Bleeding_Hollow();
     new spell_Mark_of_Blackrock();
     new spell_Mark_of_Thunderlord();
+    new spell_Mark_of_Warsong();
 }
