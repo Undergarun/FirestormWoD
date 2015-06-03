@@ -23,7 +23,7 @@ namespace MS { namespace Garrison
     {
         InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            /*p_This->SetAIObstacleManagerEnabled(true);
+            p_This->SetAIObstacleManagerEnabled(true);
             p_This->SetupActionSequence(AuriaIrondreamer_Level1::MovePointLoc, AuriaIrondreamer_Level1::Sequence, sizeof(AuriaIrondreamer_Level1::Sequence), AuriaIrondreamer_Level1::MovePointIDs::ForgeOre);
 
             p_This->m_OnPointReached[AuriaIrondreamer_Level1::MovePointIDs::ForgeOre] = [p_This, p_Me]() -> void
@@ -78,7 +78,7 @@ namespace MS { namespace Garrison
                 p_This->AddTimedDelayedOperation(AuriaIrondreamer_Level1::DestPointDuration::ChestLeft, [p_Me]() -> void { p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
             };
 
-            p_This->DoNextSequenceAction();*/
+            p_This->DoNextSequenceAction();
         };
 
         InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
