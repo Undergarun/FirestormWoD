@@ -892,6 +892,7 @@ void AddSC_AshranQuest();
 
 /// Fun
 void AddSC_TarrenMillFun();
+void AddSC_GameObjectsFun();
 
 // player
 void AddSC_chat_log();
@@ -916,6 +917,7 @@ void AddScripts()
     AddCustomScripts();
     AddSC_DuelReset();
     AddSC_FunScripts();
+    AddSC_GameObjectsFun();
     AddSC_TarrenMillFun();
 #endif
 }
