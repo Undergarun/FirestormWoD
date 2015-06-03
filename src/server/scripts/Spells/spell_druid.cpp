@@ -4023,6 +4023,29 @@ class spell_dru_pulverize : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_pulverize_SpellScript);
 
+            enum eSpells
+            {
+                PulverizeAura = 158792,
+                Lacerate = 33745
+            };
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (!l_Caster || !l_Target)
+                    return SPELL_FAILED_ERROR;
+
+                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                {
+                    if (l_Lacerete->GetStackAmount() >= 3)
+                        return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_ERROR;
+            }
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -4031,16 +4054,16 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Lacerete = l_Target->GetAura(33745, l_Caster->GetGUID()))
+                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
                 {
                     l_Lacerete->ModStackAmount(-3);
+                    l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
                 }
-
-                l_Caster->CastSpell(l_Caster, 158792, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dru_pulverize_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_pulverize_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
