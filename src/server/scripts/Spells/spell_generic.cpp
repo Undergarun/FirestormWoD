@@ -3953,13 +3953,13 @@ class spell_Mark_of_Bleeding_Hollow : public SpellScriptLoader
                 GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 173322, TRIGGERED_FULL_MASK);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_Mark_of_Bleeding_Hollow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_Mark_of_Bleeding_Hollow_AuraScript();
         }
@@ -3987,13 +3987,13 @@ class spell_Mark_of_Blackrock : public SpellScriptLoader
                 GetOwner()->ToPlayer()->CastSpell(GetOwner()->ToPlayer(), 159679, TRIGGERED_FULL_MASK);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_Mark_of_Blackrock_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_Mark_of_Blackrock_AuraScript();
         }

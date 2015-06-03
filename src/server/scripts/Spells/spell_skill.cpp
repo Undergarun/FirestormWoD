@@ -67,7 +67,11 @@ namespace MS { namespace Skill
             SturgeonStew        = 118318,
 
             /// Blacksmithing
-            TruesteelIngot      = 108257
+            TruesteelIngot      = 108257,
+
+            /// Enchantment
+            FracturedTemporalCrystal    = 115504,
+            TemporalCrystal             = 113588
         };
     }
 
@@ -613,6 +617,98 @@ namespace MS { namespace Skill
             }
 
     };
+    
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Temporal Crystal
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_Enchantment_TemporalCrystal : public SpellScriptLoader
+    {
+        public:
+        /// Constructor
+        spell_Skill_Enchantment_TemporalCrystal()
+            : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal")
+        {
+
+        }
+
+        class spell_Skill_Enchantment_TemporalCrystal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_Skill_Enchantment_TemporalCrystal_SpellScript);
+
+            uint32 GetItemID(Player* p_Player)
+            {
+                if (p_Player->GetSkillValue(SKILL_ENCHANTING) >= 600)
+                    return ItemIDs::TemporalCrystal;
+
+                return ItemIDs::FracturedTemporalCrystal;
+            }
+            uint32 GetItemCount(Player* p_Player)
+            {
+                uint32 l_SkillValue     = p_Player->GetSkillValue(SKILL_ENCHANTING);
+                uint32 l_ItemCount      = urand(3, 6);
+
+                if (l_SkillValue < 600)
+                    l_ItemCount = 4;
+
+                return l_ItemCount;
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                if (!l_Caster)
+                    return SPELL_FAILED_ERROR;
+
+                ItemPosCountVec l_Destination;
+                InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                if (l_Message != EQUIP_ERR_OK)
+                {
+                    l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                    return SPELL_FAILED_DONT_REPORT;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void AfterCast()
+            {
+                Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                if (!l_Caster)
+                    return;
+
+                ItemPosCountVec l_Destination;
+                InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                if (l_Message != EQUIP_ERR_OK)
+                    return;
+
+                Item* l_Item = l_Caster->StoreNewItem(l_Destination, GetItemID(l_Caster), true, Item::GenerateItemRandomPropertyId(GetItemID(l_Caster)));
+
+                if (l_Item)
+                    l_Caster->SendNewItem(l_Item, GetItemCount(l_Caster), false, true);
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::CheckCast);
+                OnHit       += SpellHitFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::AfterCast);
+            }
+
+        };
+
+        /// Should return a fully valid SpellScript pointer.
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_Skill_Enchantment_TemporalCrystal_SpellScript();
+        }
+
+    };
 
 }   ///< namespace Skill
 }   ///< namespace MS
@@ -623,4 +719,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Inscription_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
     new MS::Skill::spell_Skill_BlackSmithing_TruesteelIngot();
+    new MS::Skill::spell_Skill_Enchantment_TemporalCrystal();
 }

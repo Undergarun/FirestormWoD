@@ -6118,6 +6118,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 for (auto l_Iter : spellInfo->SpellPowers)
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
+            case 169092: ///< Temporal Crystal
+                spellInfo->Effects[EFFECT_0].ItemType = 0;
+                break;
             default:
                 break;
         }
