@@ -2177,7 +2177,8 @@ enum LeapOfFaithSpells
     LeapOfJump                  = 73325,
     EnhancedLeapOfFaithAura     = 157145,
     EnhancedLeapOfFaith         = 157146,
-    LeapOfFaithJump             = 97817
+    LeapOfFaithJump             = 97817,
+    GlyphOfLeapOfFaith          = 119850
 };
 
 /// Leap of Faith - 73325, Leap of Faith - 159623 (Glyph of Restored Faith)
@@ -2205,6 +2206,9 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
                 if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
                     l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
+
+                if (l_Caster->HasAura(LeapOfFaithSpells::GlyphOfLeapOfFaith))
+                    l_Target->RemoveMovementImpairingAuras();
             }
 
             void Register()
