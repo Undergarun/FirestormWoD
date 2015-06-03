@@ -47,6 +47,7 @@ void AddSC_holiday_spell_scripts();
 void AddSC_spell_skill();
 void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
+void AddSC_generic_spell_scripts();
 
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
@@ -938,6 +939,7 @@ void AddSpellScripts()
     AddSC_spell_skill();
     AddSC_npc_spell_scripts();
     AddSC_areatrigger_spell_scripts();
+    AddSC_generic_spell_scripts();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif

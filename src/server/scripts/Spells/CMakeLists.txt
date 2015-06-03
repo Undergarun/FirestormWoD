@@ -29,6 +29,7 @@ set(scripts_STAT_SRCS
   Spells/spell_skill.cpp
   Spells/spell_npc.cpp
   Spells/spell_at.cpp
+  Spells/spell_item_enchantment.cpp
 )
 
 message("  -> Prepared: Spells")
