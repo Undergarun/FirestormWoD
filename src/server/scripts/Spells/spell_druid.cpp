@@ -1630,12 +1630,13 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* l_Mushroom = GetCaster();
+                Unit* l_Owner = l_Mushroom->GetOwner();
 
-                if (l_Caster == nullptr)
+                if (l_Mushroom == nullptr || l_Owner == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Caster, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
+                l_Owner->CastSpell(l_Mushroom, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
             }
 
             void Register()
