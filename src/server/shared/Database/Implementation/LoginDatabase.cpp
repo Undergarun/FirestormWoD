@@ -135,4 +135,9 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(LOGIN_UPD_USER_REPORTING_STEP, "UPDATE user_reporting SET step = ?, last_ip = ? WHERE account_id = ? AND step < ?", CONNECTION_ASYNC);
     //////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////
+    /// Services
+    PREPARE_STATEMENT(LOGIN_REMOVE_ACCOUNT_SERVICE, "UPDATE account SET service_flags = service_flags &~ ? WHERE id = ?", CONNECTION_ASYNC);
+    //////////////////////////////////////////////////////////////////////////
+
 }

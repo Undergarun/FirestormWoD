@@ -1639,7 +1639,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInGarrison();
         void DeleteGarrison();
 
-        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin=NULL);
+        uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);
 
         PlayerSocial *GetSocial() { return m_social; }
 

@@ -344,7 +344,7 @@ void BattlegroundDG::_UpdateTeamScore(int p_Team, int32 p_Value)
     {
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_ALLIANCE, 1);
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_HORDE, 1);
-        EndBattleground(p_Team);
+        EndBattleground(p_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
     }
 
     if (m_IsInformedNearVictory && m_TeamScores[p_Team] < BG_DG_NEAR_VICTORY_POINTS)
