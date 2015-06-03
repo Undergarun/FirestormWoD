@@ -1617,8 +1617,9 @@ public:
     }
 };
 
-// Called by Fade - 586
-// Phantasm - 108942
+/// last update : 6.1.2 19802
+/// Called by Fade - 586
+/// Phantasm - 108942, Glyph of Shadow Magic - 159628
 class spell_pri_phantasm: public SpellScriptLoader
 {
     public:
@@ -1628,16 +1629,25 @@ class spell_pri_phantasm: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_phantasm_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfShadowMagic  = 159628,
+                ShadowMagic         = 159630,
+                PhantasmAura        = 108942,
+                PhantasmProc        = 114239
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::PhantasmAura))
                 {
-                    if (_player->HasAura(PRIEST_PHANTASM_AURA))
-                    {
-                        _player->CastSpell(_player, PRIEST_PHANTASM_PROC, true);
-                        _player->RemoveMovementImpairingAuras();
-                    }
+                    l_Caster->CastSpell(l_Caster, eSpells::PhantasmProc, true);
+                    l_Caster->RemoveMovementImpairingAuras();
                 }
+                if (l_Caster->HasAura(eSpells::GlyphOfShadowMagic))
+                    l_Caster->CastSpell(l_Caster, eSpells::ShadowMagic, true);
             }
 
             void Register()
