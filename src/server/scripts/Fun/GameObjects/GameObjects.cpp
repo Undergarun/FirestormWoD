@@ -6,10 +6,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class go_tarren_mill_portal : public GameObjectScript
+class go_ashran_portal : public GameObjectScript
 {
 public:
-    go_tarren_mill_portal() : GameObjectScript("go_tarren_mill_portal") { }
+    go_ashran_portal() : GameObjectScript("go_ashran_portal") { }
 
     bool OnGossipHello(Player* p_Player, GameObject* p_Go)
     {
@@ -20,19 +20,20 @@ public:
 
         if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
         {
-            l_PositionX = 1752.77f;
-            l_PositionY = 1063.11f;
-            l_PositionZ = 6.9f;
+            l_PositionX = 3684.13f;
+            l_PositionY = -3839.93f;
+            l_PositionZ = 45.49f;
+            l_Orientation = 3.4f;
         }
         else
         {
-            l_PositionX = 2621.11f;
-            l_PositionY = 636.17;
-            l_PositionZ = 55.97f;
-            l_Orientation = 4.31f;
+            l_PositionX = 5357.f;
+            l_PositionY = -3943.61f;
+            l_PositionZ = 33.29f;
+            l_Orientation = 3.97f;
         }
 
-        p_Player->TeleportTo(1280, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+        p_Player->TeleportTo(1116, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
 
         return true;
     }
@@ -40,5 +41,5 @@ public:
 
 void AddSC_GameObjectsFun()
 {
-    new go_tarren_mill_portal();
+    new go_ashran_portal();
 }
