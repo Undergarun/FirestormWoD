@@ -73,7 +73,9 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
     WorldPacket l_Data(SMSG_AUTH_RESPONSE);
 
     CharacterTemplates const& l_CharacterTemplates = sObjectMgr->GetCharacterTemplates();
+    bool l_PremadeAvailable = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
 
+    uint32 l_PremadeCount               = l_PremadeAvailable ? l_CharacterTemplates.size() : 0;
     uint32 l_VirtualRealmsCount         = 1;
     uint32 l_TimeRemain                 = 0;
     uint32 l_TimeOptions                = 0;
@@ -120,7 +122,7 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
         l_Data << uint32(l_TimeSecondsUntilPCKick);                         ///< Time Seconds Until PC Kick
         l_Data << uint32(l_RealmRaceCount);                                 ///< Available Classes
         l_Data << uint32(l_RealmClassCount);                                ///< Available Races
-        l_Data << uint32(l_CharacterTemplates.size());                      ///< Templates Count
+        l_Data << uint32(l_PremadeCount);                                   ///< Templates Count
         l_Data << uint32(l_CurrencyID);                                     ///< Currency ID
 
         for (uint32 l_I = 0; l_I < l_VirtualRealmsCount; ++l_I)
@@ -157,6 +159,9 @@ void WorldSession::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_
 
         for (auto& l_Itr : l_CharacterTemplates)
         {
+            if (!l_PremadeAvailable)
+                break;
+
             CharacterTemplate const* l_Tempalte = l_Itr.second;
             l_Data << uint32(l_Tempalte->m_ID);                             ///< TemplateSetID
             l_Data << uint32(2);                                            ///< Classes Count
