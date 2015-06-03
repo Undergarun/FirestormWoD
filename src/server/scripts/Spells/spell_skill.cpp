@@ -13,7 +13,6 @@
 
 namespace MS { namespace Skill
 {
-
     namespace SpellIDs
     {
         enum 
@@ -56,16 +55,19 @@ namespace MS { namespace Skill
         enum
         {
             /// Cooking rewards for SpellIDs::SaberfishBroth && SpellIDs::GrilledSaberfish
-            BlackrockHam       = 118311,
-            ClefthoofSausages  = 118315,
-            FatSleeperCakes    = 118319,
-            FieryCalamari      = 118320,
-            GrilledGulper      = 118317,
-            PanSearedTalbuk    = 118312,
-            RylakCrepes        = 118314,
-            SkulkerChowder     = 118321,
-            SteamedScorpion    = 118316,
-            SturgeonStew       = 118318
+            BlackrockHam        = 118311,
+            ClefthoofSausages   = 118315,
+            FatSleeperCakes     = 118319,
+            FieryCalamari       = 118320,
+            GrilledGulper       = 118317,
+            PanSearedTalbuk     = 118312,
+            RylakCrepes         = 118314,
+            SkulkerChowder      = 118321,
+            SteamedScorpion     = 118316,
+            SturgeonStew        = 118318,
+
+            /// Blacksmithing
+            TruesteelIngot      = 108257
         };
     }
 
@@ -377,6 +379,9 @@ namespace MS { namespace Skill
     };
 
     //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
     /// Reset secondary properties spells
     //////////////////////////////////////////////////////////////////////////
     class spell_Skill_ResetSecondaryProperties : public SpellScriptLoader
@@ -506,7 +511,7 @@ namespace MS { namespace Skill
 
                 void Register() override
                 {
-                    OnHit += SpellHitFn(spell_Skill_ResetSecondaryProperties_SpellScript::ResetSecondaryProperties);
+                    OnHit       += SpellHitFn(spell_Skill_ResetSecondaryProperties_SpellScript::ResetSecondaryProperties);
                     OnCheckCast += SpellCheckCastFn(spell_Skill_ResetSecondaryProperties_SpellScript::CheckCast);
                 }
 
@@ -517,8 +522,98 @@ namespace MS { namespace Skill
             {
                 return new spell_Skill_ResetSecondaryProperties_SpellScript();
             }
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Truesteel Ingot
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_BlackSmithing_TruesteelIngot : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_BlackSmithing_TruesteelIngot()
+                : SpellScriptLoader("spell_Skill_BlackSmithing_TruesteelIngot")
+            {
+
+            }
+
+            class spell_Skill_BlackSmithing_TruesteelIngot_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript);
+
+                uint32 GetIngotCount(Player* p_Player)
+                {
+                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_BLACKSMITHING);
+                    uint32 l_IngotsCount = 4;
+
+                    /// http://www.wowhead.com/spell=171690/truesteel-ingot),I#comments
+                    if (l_SkillValue > 600)
+                        l_IngotsCount += 1 + ((l_SkillValue - 600) / 20);
+
+                    return l_IngotsCount;
+                }
+
+                SpellCastResult CheckCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return SPELL_FAILED_ERROR;
+
+                    uint32 l_IngotsCount = GetIngotCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::TruesteelIngot, l_IngotsCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                    {
+                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    return SPELL_CAST_OK;
+                }
+
+                void AfterCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return;
+
+                    uint32 l_IngotsCount = GetIngotCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::TruesteelIngot, l_IngotsCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                        return;
+
+                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::TruesteelIngot, true, Item::GenerateItemRandomPropertyId(ItemIDs::TruesteelIngot));
+
+                    if (l_Item)
+                        l_Caster->SendNewItem(l_Item, l_IngotsCount, false, true);
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript::CheckCast);
+                    OnHit       += SpellHitFn(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript::AfterCast);
+                }
+
+            };
+
+            /// Should return a fully valid SpellScript pointer.
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_BlackSmithing_TruesteelIngot_SpellScript();
+            }
 
     };
+
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -527,4 +622,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
+    new MS::Skill::spell_Skill_BlackSmithing_TruesteelIngot();
 }
