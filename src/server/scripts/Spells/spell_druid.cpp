@@ -3440,7 +3440,8 @@ enum SpellsFerociousBite
 {
     SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
-    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024,
+    SPELL_DRUID_BERSEK = 106951
 };
 
 /// Ferocious Bite - 22568
@@ -3453,12 +3454,23 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
 
+            int32 m_SpellCost = 25;
+
+            void HandleOnPrepare()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SpellsFerociousBite::SPELL_DRUID_BERSEK))
+                    m_SpellCost = 12;
+            }
+
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
+                
                 /// Prevent double call
                 if (l_Damage == 0)
                     return;
@@ -3467,16 +3479,15 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > 25 ? 25 : l_Caster->GetPower(POWER_ENERGY);
-                l_Caster->SetPower(POWER_ENERGY, l_Caster->GetPower(POWER_ENERGY) - l_EnergyConsumed);
-                AddPct(l_Damage, l_EnergyConsumed * 4);
-
+                int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > m_SpellCost ? m_SpellCost : l_Caster->GetPower(POWER_ENERGY);
+                
+                AddPct(l_Damage, l_EnergyConsumed * (100 / m_SpellCost));
                 SetHitDamage(l_Damage);
 
                 /// Glyph of Ferocious Bite
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
-                    l_EnergyConsumed += 25; ///< Add the basic cost of Ferocious Bite to the extra cost;
+                    l_EnergyConsumed += m_SpellCost; ///< Add the basic cost of Ferocious Bite to the extra cost;
                     int l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * floor(l_EnergyConsumed / 10) / 10);
                     l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
                 }
@@ -3489,6 +3500,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_dru_ferocious_bite_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
             }
         };
