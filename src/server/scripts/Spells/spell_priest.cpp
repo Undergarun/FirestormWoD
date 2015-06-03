@@ -2174,12 +2174,13 @@ class spell_pri_halo: public SpellScriptLoader
 
 enum LeapOfFaithSpells
 {
+    LeapOfJump                  = 73325,
     EnhancedLeapOfFaithAura     = 157145,
     EnhancedLeapOfFaith         = 157146,
     LeapOfFaithJump             = 97817
 };
 
-// Leap of Faith - 73325
+/// Leap of Faith - 73325, Leap of Faith - 159623 (Glyph of Restored Faith)
 class spell_pri_leap_of_faith: public SpellScriptLoader
 {
     public:
@@ -2191,18 +2192,19 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                    if (l_Target == nullptr)
-                        return;
+                if (l_Target == nullptr)
+                    return;
 
+                if (GetSpellInfo()->Id == LeapOfFaithSpells::LeapOfJump)
                     l_Target->CastSpell(l_Caster, LeapOfFaithSpells::LeapOfFaithJump, true);
+                else
+                    l_Caster->CastSpell(l_Target, LeapOfFaithSpells::LeapOfFaithJump, true);
 
-                    if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
-                        l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
-                }
+                if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
+                    l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
             }
 
             void Register()
@@ -3707,6 +3709,56 @@ class spell_pri_glyph_of_the_inquisitor : public SpellScriptLoader
         }
 };
 
+/// Glyph of Restored Faith - 159606
+class spell_pri_glyph_of_restored_faith : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_restored_faith() : SpellScriptLoader("spell_pri_glyph_of_restored_faith") { }
+
+        class spell_pri_glyph_of_restored_faith_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_restored_faith_AuraScript);
+
+            enum eSpells
+            {
+                LeapOfFaith = 159623
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::LeapOfFaith, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::LeapOfFaith))
+                    l_Player->removeSpell(eSpells::LeapOfFaith, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_restored_faith_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_restored_faith_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_glyph_of_restored_faith_AuraScript();
+        }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowy_apparition();
@@ -3779,6 +3831,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_binding_heal();
     new spell_pri_saving_grace();
     new spell_pri_glyph_of_the_inquisitor();
+    new spell_pri_glyph_of_restored_faith();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

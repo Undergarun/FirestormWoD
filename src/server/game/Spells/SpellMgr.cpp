@@ -4392,6 +4392,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 0;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 159623: ///< Leap of Faith (Glyph of Restored Faith)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
+                break;
+            case 73325: ///< Leap of Faith
+                spellInfo->OverrideSpellList.push_back(159623); ///< Leap of Faith (Glyph of Restored Faith)
+                break;
             case 688: ///< Summon Imp
                 spellInfo->OverrideSpellList.push_back(112866); ///< Summon Fel Imp
                 break;
