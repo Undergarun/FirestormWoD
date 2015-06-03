@@ -798,6 +798,25 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
+    /// Mastery: Primal Tenacity
+    if (victim->HasSpell(155783) && !victim->HasAura(155783))
+    {
+        if (!spellProto || ((spellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL))
+        {
+            victim->CastSpell(victim, 155783, true);
+            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(155783);
+
+            if (AuraPtr l_PrimalTenacity = victim->GetAura(155783, victim->GetGUID()))
+            {
+                if (AuraEffectPtr l_AuraEffect = l_PrimalTenacity->GetEffect(l_PrimalTenacity->GetEffectIndexByType(SPELL_AURA_SCHOOL_ABSORB)))
+                {
+                    if (l_SpellInfo != nullptr)
+                        l_AuraEffect->SetAmount((int32)(damage * (victim->GetFloatValue(PLAYER_FIELD_MASTERY) * l_SpellInfo->Effects[EFFECT_0].BonusMultiplier)));
+                }
+            }
+        }
+    }
+
     // Temporal Shield - 115610
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->HasAura(115610) && damage != 0)
     {
@@ -1838,16 +1857,6 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         {
             victim->RemoveAura(115176);
             victim->RemoveAura(131523);
-        }
-        /// Mastery: Primal Tenacity
-        if (victim->HasSpell(155783) && !victim->HasAura(155783))
-        {
-            victim->CastSpell(victim, 155783, true);
-            if (AuraPtr l_PrimalTenacity = victim->GetAura(155783, victim->GetGUID()))
-            {
-                if (AuraEffectPtr l_AuraEffect = l_PrimalTenacity->GetEffect(l_PrimalTenacity->GetEffectIndexByType(SPELL_AURA_SCHOOL_ABSORB)))
-                    l_AuraEffect->SetAmount((int32)(damageInfo->damage * (l_PrimalTenacity->GetEffect(0)->GetAmount() / 10)));
-            }
         }
     }
 }
