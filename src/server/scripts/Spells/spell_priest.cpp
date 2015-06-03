@@ -3653,6 +3653,50 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Holy Fire - 14914, Power Word: Solace - 129250
+/// Glyph of the Inquisitor - 159624
+class spell_pri_glyph_of_the_inquisitor : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_the_inquisitor() : SpellScriptLoader("spell_pri_glyph_of_the_inquisitor") { }
+
+        class spell_pri_glyph_of_the_inquisitor_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_glyph_of_the_inquisitor_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfTheInquisitor = 159624,
+                GlyphOfTheInquisitorDamage = 159625
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphOfTheInquisitor))
+                    return;
+
+                if (constAuraEffectPtr l_GlyphOfTheInquisitor = l_Caster->GetAuraEffect(eSpells::GlyphOfTheInquisitor, EFFECT_1))
+                {
+                    int32 l_Damage = CalculatePct(GetHitDamage(), l_GlyphOfTheInquisitor->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfTheInquisitorDamage, &l_Damage, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_glyph_of_the_inquisitor_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_glyph_of_the_inquisitor_SpellScript;
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_shadowy_apparition();
@@ -3724,6 +3768,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_dispersion();
     new spell_pri_binding_heal();
     new spell_pri_saving_grace();
+    new spell_pri_glyph_of_the_inquisitor();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();
