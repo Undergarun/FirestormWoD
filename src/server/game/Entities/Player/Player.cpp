@@ -1304,7 +1304,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
         for (auto l_Spell : l_Template->m_SpellIDs)
-            addSpell(l_Spell, true, true, true, false);
+            learnSpell(l_Spell, false);
 
     // original spells
     learnDefaultSpells();

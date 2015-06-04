@@ -447,8 +447,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     if (l_TemplateSetID)
     {
+        bool l_TemplateAvailable            = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateSetID);
-        if (!l_Template || l_Template->m_PlayerClass != l_CharacterClass)
+
+        if (!l_TemplateAvailable || !l_Template || l_Template->m_PlayerClass != l_CharacterClass)
         {
             l_CreationResponse << (uint8)CHAR_CREATE_ERROR;
             SendPacket(&l_CreationResponse);
@@ -897,6 +899,17 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                 CharacterDatabase.PExecute("UPDATE characters SET currentPetSlot = '0', petSlotUsed = '1' WHERE guid = %u", newChar.GetGUIDLow());
                 newChar.SetTemporaryUnsummonedPetNumber(pet_id);
+            }
+
+            /// Remove premade service flags if we've just create a premade and premade aren't free on that realm.
+            if (createInfo->TemplateId && !sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
+            {
+                PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REMOVE_ACCOUNT_SERVICE);
+                l_Statement->setUInt32(0, ServiceFlags::Premade);
+                l_Statement->setUInt32(1, GetAccountId());
+                LoginDatabase.Execute(l_Statement);
+
+                m_ServiceFlags &= ~ServiceFlags::Premade;
             }
 
             WorldPacket data(SMSG_CREATE_CHAR, 1);

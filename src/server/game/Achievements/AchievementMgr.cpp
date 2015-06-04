@@ -1266,11 +1266,30 @@ CriteriaProgressMap* AchievementMgr<T>::GetCriteriaProgressMap()
  * Called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
  */
 template<class T>
-void AchievementMgr<T>::CheckAllAchievementCriteria(Player* referencePlayer)
+void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
 {
-    // Suppress sending packets
-    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
-        referencePlayer->UpdateAchievementCriteria(AchievementCriteriaTypes(i), 0, 0, 0, referencePlayer);
+    if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
+        return;
+
+    /// Suppress sending packets
+    for (uint32 l_AchievementCriteriaType = 0; l_AchievementCriteriaType < ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++l_AchievementCriteriaType)
+    {
+        AchievementCriteriaUpdateTask l_Task;
+        l_Task.PlayerGUID = p_ReferencePlayer->GetGUID();
+        l_Task.UnitGUID   = 0;
+        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+        {
+            /// Task will be executed async
+            /// We need to ensure the player still exist
+            Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->GetAchievementMgr().UpdateAchievementCriteria((AchievementCriteriaTypes)l_AchievementCriteriaType, 0, 0, 0, nullptr, l_Player);
+        };
+
+        sAchievementMgr->AddCriteriaUpdateTask(l_Task);
+    }
 }
 
 static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = {1057, 1107, 1108};
