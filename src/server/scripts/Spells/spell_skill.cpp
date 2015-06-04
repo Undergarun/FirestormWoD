@@ -72,7 +72,10 @@ namespace MS { namespace Skill
 
             /// Enchantment
             FracturedTemporalCrystal    = 115504,
-            TemporalCrystal             = 113588
+            TemporalCrystal             = 113588,
+
+            /// Inscription
+            WarPaints = 112377
         };
     }
 
@@ -727,6 +730,95 @@ namespace MS { namespace Skill
 
     };
 
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// War Paints
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_Inscription_WarPaints : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_Inscription_WarPaints()
+                : SpellScriptLoader("spell_Skill_Inscription_WarPaints")
+            {
+
+            }
+
+            class spell_Skill_Inscription_WarPaints_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_Inscription_WarPaints_SpellScript);
+
+                uint32 GetPaintCount(Player* p_Player)
+                {
+                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_BLACKSMITHING);
+                    uint32 l_IngotsCount = 4;
+
+                    if (l_SkillValue > 600)
+                        l_IngotsCount += 1 + ((l_SkillValue - 600) / 20);
+
+                    return l_IngotsCount;
+                }
+
+                SpellCastResult CheckCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return SPELL_FAILED_ERROR;
+
+                    uint32 l_IngotsCount = GetPaintCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_IngotsCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                    {
+                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    return SPELL_CAST_OK;
+                }
+
+                void AfterCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return;
+
+                    uint32 l_IngotsCount = GetPaintCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_IngotsCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                        return;
+
+                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::WarPaints, true, Item::GenerateItemRandomPropertyId(ItemIDs::WarPaints));
+
+                    if (l_Item)
+                        l_Caster->SendNewItem(l_Item, l_IngotsCount, false, true);
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_Skill_Inscription_WarPaints_SpellScript::CheckCast);
+                    OnHit       += SpellHitFn(spell_Skill_Inscription_WarPaints_SpellScript::AfterCast);
+                }
+
+            };
+
+            /// Should return a fully valid SpellScript pointer.
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_Inscription_WarPaints_SpellScript();
+            }
+
+    };
+    
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -737,4 +829,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
     new MS::Skill::spell_Skill_BlackSmithing_TruesteelIngot();
     new MS::Skill::spell_Skill_Enchantment_TemporalCrystal();
+    new MS::Skill::spell_Skill_Inscription_WarPaints();
 }
