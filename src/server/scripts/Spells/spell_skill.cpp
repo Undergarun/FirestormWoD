@@ -56,26 +56,29 @@ namespace MS { namespace Skill
         enum
         {
             /// Cooking rewards for SpellIDs::SaberfishBroth && SpellIDs::GrilledSaberfish
-            BlackrockHam        = 118311,
-            ClefthoofSausages   = 118315,
-            FatSleeperCakes     = 118319,
-            FieryCalamari       = 118320,
-            GrilledGulper       = 118317,
-            PanSearedTalbuk     = 118312,
-            RylakCrepes         = 118314,
-            SkulkerChowder      = 118321,
-            SteamedScorpion     = 118316,
-            SturgeonStew        = 118318,
+            BlackrockHam                = 118311,
+            ClefthoofSausages           = 118315,
+            FatSleeperCakes             = 118319,
+            FieryCalamari               = 118320,
+            GrilledGulper               = 118317,
+            PanSearedTalbuk             = 118312,
+            RylakCrepes                 = 118314,
+            SkulkerChowder              = 118321,
+            SteamedScorpion             = 118316,
+            SturgeonStew                = 118318,
 
             /// Blacksmithing
-            TruesteelIngot      = 108257,
+            TruesteelIngot              = 108257,
 
             /// Enchantment
             FracturedTemporalCrystal    = 115504,
             TemporalCrystal             = 113588,
 
             /// Inscription
-            WarPaints = 112377
+            WarPaints                   = 112377,
+
+            /// Tailoring
+            HexweaveCloth               = 111556
         };
     }
 
@@ -752,13 +755,13 @@ namespace MS { namespace Skill
 
                 uint32 GetPaintCount(Player* p_Player)
                 {
-                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_BLACKSMITHING);
-                    uint32 l_IngotsCount = 4;
+                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_INSCRIPTION);
+                    uint32 l_PaintsCount = 4;
 
                     if (l_SkillValue > 600)
-                        l_IngotsCount += 1 + ((l_SkillValue - 600) / 20);
+                        l_PaintsCount += 1 + ((l_SkillValue - 600) / 20);
 
-                    return l_IngotsCount;
+                    return l_PaintsCount;
                 }
 
                 SpellCastResult CheckCast()
@@ -768,10 +771,10 @@ namespace MS { namespace Skill
                     if (!l_Caster)
                         return SPELL_FAILED_ERROR;
 
-                    uint32 l_IngotsCount = GetPaintCount(l_Caster);
+                    uint32 l_PaintsCount = GetPaintCount(l_Caster);
 
                     ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_IngotsCount);
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_PaintsCount);
 
                     if (l_Message != EQUIP_ERR_OK)
                     {
@@ -789,10 +792,10 @@ namespace MS { namespace Skill
                     if (!l_Caster)
                         return;
 
-                    uint32 l_IngotsCount = GetPaintCount(l_Caster);
+                    uint32 l_PaintsCount = GetPaintCount(l_Caster);
 
                     ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_IngotsCount);
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_PaintsCount);
 
                     if (l_Message != EQUIP_ERR_OK)
                         return;
@@ -800,7 +803,7 @@ namespace MS { namespace Skill
                     Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::WarPaints, true, Item::GenerateItemRandomPropertyId(ItemIDs::WarPaints));
 
                     if (l_Item)
-                        l_Caster->SendNewItem(l_Item, l_IngotsCount, false, true);
+                        l_Caster->SendNewItem(l_Item, l_PaintsCount, false, true);
                 }
 
                 void Register() override
@@ -818,6 +821,95 @@ namespace MS { namespace Skill
             }
 
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Hexweave Cloth
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_Tailoring_HexweaveCloth : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_Tailoring_HexweaveCloth()
+                : SpellScriptLoader("spell_Skill_Tailoring_HexweaveCloth")
+            {
+
+            }
+
+            class spell_Skill_Tailoring_HexweaveCloth_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_Tailoring_HexweaveCloth_SpellScript);
+
+                uint32 GetRollCount(Player* p_Player)
+                {
+                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_TAILORING);
+                    uint32 l_RollCount = 4;
+
+                    if (l_SkillValue > 600)
+                        l_RollCount += 1 + ((l_SkillValue - 600) / 20);
+
+                    return l_RollCount;
+                }
+
+                SpellCastResult CheckCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return SPELL_FAILED_ERROR;
+
+                    uint32 l_RollCount = GetRollCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::HexweaveCloth, l_RollCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                    {
+                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    return SPELL_CAST_OK;
+                }
+
+                void AfterCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return;
+
+                    uint32 l_RollCount = GetRollCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::HexweaveCloth, l_RollCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                        return;
+
+                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::HexweaveCloth, true, Item::GenerateItemRandomPropertyId(ItemIDs::HexweaveCloth));
+
+                    if (l_Item)
+                        l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_Skill_Tailoring_HexweaveCloth_SpellScript::CheckCast);
+                    OnHit       += SpellHitFn(spell_Skill_Tailoring_HexweaveCloth_SpellScript::AfterCast);
+                }
+
+            };
+
+            /// Should return a fully valid SpellScript pointer.
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_Tailoring_HexweaveCloth_SpellScript();
+            }
+
+    };
     
 }   ///< namespace Skill
 }   ///< namespace MS
@@ -830,4 +922,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Skill_BlackSmithing_TruesteelIngot();
     new MS::Skill::spell_Skill_Enchantment_TemporalCrystal();
     new MS::Skill::spell_Skill_Inscription_WarPaints();
+    new MS::Skill::spell_Skill_Tailoring_HexweaveCloth();
 }

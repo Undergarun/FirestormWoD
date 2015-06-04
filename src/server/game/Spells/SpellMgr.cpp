@@ -6125,6 +6125,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
             case 169092: ///< Temporal Crystal
+            case 168835: ///< Hexweave Cloth
+            case 169081: ///< War paints
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
             default:
