@@ -78,7 +78,10 @@ namespace MS { namespace Skill
             WarPaints                   = 112377,
 
             /// Tailoring
-            HexweaveCloth               = 111556
+            HexweaveCloth               = 111556,
+
+            /// First Aid
+            AntisepticBandage           = 111603
         };
     }
 
@@ -910,6 +913,95 @@ namespace MS { namespace Skill
             }
 
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    /// Antiseptic Bandage
+    //////////////////////////////////////////////////////////////////////////
+    class spell_Skill_FirstAid_AntisepticBandage : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_FirstAid_AntisepticBandage()
+                : SpellScriptLoader("spell_Skill_FirstAid_AntisepticBandage")
+            {
+
+            }
+
+            class spell_Skill_FirstAid_AntisepticBandage_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_FirstAid_AntisepticBandage_SpellScript);
+
+                uint32 GetBandageCount(Player* p_Player)
+                {
+                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_FIRST_AID);
+                    uint32 l_RollCount = 4;
+
+                    if (l_SkillValue > 600)
+                        l_RollCount += 1 + ((l_SkillValue - 600) / 20);
+
+                    return l_RollCount;
+                }
+
+                SpellCastResult CheckCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return SPELL_FAILED_ERROR;
+
+                    uint32 l_RollCount = GetBandageCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::AntisepticBandage, l_RollCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                    {
+                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    return SPELL_CAST_OK;
+                }
+
+                void AfterCast()
+                {
+                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                    if (!l_Caster)
+                        return;
+
+                    uint32 l_RollCount = GetBandageCount(l_Caster);
+
+                    ItemPosCountVec l_Destination;
+                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::AntisepticBandage, l_RollCount);
+
+                    if (l_Message != EQUIP_ERR_OK)
+                        return;
+
+                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::AntisepticBandage, true, Item::GenerateItemRandomPropertyId(ItemIDs::AntisepticBandage));
+
+                    if (l_Item)
+                        l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+                }
+
+                void Register() override
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_Skill_FirstAid_AntisepticBandage_SpellScript::CheckCast);
+                    OnHit       += SpellHitFn(spell_Skill_FirstAid_AntisepticBandage_SpellScript::AfterCast);
+                }
+
+            };
+
+            /// Should return a fully valid SpellScript pointer.
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_FirstAid_AntisepticBandage_SpellScript();
+            }
+
+    };
     
 }   ///< namespace Skill
 }   ///< namespace MS
@@ -923,4 +1015,5 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Skill_Enchantment_TemporalCrystal();
     new MS::Skill::spell_Skill_Inscription_WarPaints();
     new MS::Skill::spell_Skill_Tailoring_HexweaveCloth();
+    new MS::Skill::spell_Skill_FirstAid_AntisepticBandage();
 }

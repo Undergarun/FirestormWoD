@@ -6127,6 +6127,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169092: ///< Temporal Crystal
             case 168835: ///< Hexweave Cloth
             case 169081: ///< War paints
+            case 172539: ///< Antiseptic Bandage
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
             default:
