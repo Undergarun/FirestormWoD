@@ -662,6 +662,12 @@ class spell_warr_rallying_cry: public SpellScriptLoader
         class spell_warr_rallying_cry_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
+            
+            enum eSpells
+            {
+                GLYPH_OF_RALLYING_CRY = 159754,
+                GLYPH_OF_RALLYING_CRY_BUFF = 159756
+            };
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -683,6 +689,10 @@ class spell_warr_rallying_cry: public SpellScriptLoader
 
                     l_Bp0 = CalculatePct(l_Player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Player->CastCustomSpell(l_Player, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
+
+                    /// Glyph of Rallying Cry
+                    if (l_Player->HasAura(GLYPH_OF_RALLYING_CRY))
+                        l_Player->CastSpell(l_Player, GLYPH_OF_RALLYING_CRY_BUFF, true);
                 }
             }
 
