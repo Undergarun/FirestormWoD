@@ -3551,9 +3551,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 166185:///< Rending Slash (Highmaul Conscript)
+            case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
+            case 158521:///< Double Slash (Phemos - Twin Ogron)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?

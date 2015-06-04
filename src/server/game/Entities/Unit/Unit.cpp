@@ -17012,7 +17012,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
     {
-        SendPlaySpellVisual(33584, target, 6.f);
+        SendPlaySpellVisual(33584, target, 6.f, 0.0f, Position());
         CastSpell(target, 147193, true);
     }
 
@@ -19636,33 +19636,33 @@ void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), true);
 }
 
-void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, float p_Orientation, Position p_Pos, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
 {
     ObjectGuid l_Guid = GetGUID();
     ObjectGuid l_Target = p_Target ? p_Target->GetGUID() : 0;
-    Position l_Pos;
 
     if (p_ThisAsPos)
-        GetPosition(&l_Pos);
+        GetPosition(&p_Pos);
     else if (p_Target)
-        GetPosition(&l_Pos);
-    else
+        GetPosition(&p_Pos);
+    else if (p_Pos.m_positionX == 0.0f && p_Pos.m_positionY == 0.0f && p_Pos.m_positionZ == 0.0f)
     {
-        l_Pos.m_positionX = 0.f;
-        l_Pos.m_positionY = 0.f;
-        l_Pos.m_positionZ = 0.f;
+        p_Pos.m_positionX = 0.f;
+        p_Pos.m_positionY = 0.f;
+        p_Pos.m_positionZ = 0.f;
     }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 16 + 2 + 16 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
-    l_Data << float(l_Pos.m_positionX);
-    l_Data << float(l_Pos.m_positionY);
-    l_Data << float(l_Pos.m_positionZ);
-    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data << float(p_Pos.m_positionX);
+    l_Data << float(p_Pos.m_positionY);
+    l_Data << float(p_Pos.m_positionZ);
+    l_Data << uint32(p_ID);
     l_Data << float(p_Speed);
-    l_Data << uint16(0);            // missReason
-    l_Data << uint16(0);            // reflectStatus
+    l_Data << uint16(0);            ///< MissReason
+    l_Data << uint16(0);            ///< ReflectStatus
+    l_Data << float(p_Orientation);
     l_Data.WriteBit(p_SpeedAsTime);
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())

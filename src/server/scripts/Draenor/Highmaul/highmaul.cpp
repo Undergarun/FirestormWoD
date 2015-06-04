@@ -1846,8 +1846,12 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
 
         struct npc_highmaul_highmaul_conscriptAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_highmaul_conscriptAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_highmaul_conscriptAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
+            InstanceScript* m_Instance;
             EventMap m_Events;
 
             uint64 m_ChargeTarget;
@@ -1878,6 +1882,21 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                 me->RemoveAura(eSpells::AtArms);
                 me->RemoveAura(eSpells::ShieldCharge);
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -1978,8 +1997,12 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
 
         struct npc_highmaul_ogron_earthshakerAI : public MS::AI::CosmeticAI
         {
-            npc_highmaul_ogron_earthshakerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_highmaul_ogron_earthshakerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
+            InstanceScript* m_Instance;
             EventMap m_Events;
 
             float m_Orientation;
@@ -2015,6 +2038,21 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                         {
                             me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
                         });
+                    }
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
                     }
                 }
             }
@@ -2100,8 +2138,12 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
 
         struct npc_highmaul_gorian_arcanistAI : public ScriptedAI
         {
-            npc_highmaul_gorian_arcanistAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_gorian_arcanistAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
+            InstanceScript* m_Instance;
             EventMap m_Events;
 
             void Reset() override
@@ -2136,6 +2178,21 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                         break;
                     default:
                         break;
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
                 }
             }
 
@@ -2196,8 +2253,12 @@ class npc_highmaul_ogron_brute : public CreatureScript
 
         struct npc_highmaul_ogron_bruteAI : public ScriptedAI
         {
-            npc_highmaul_ogron_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+            npc_highmaul_ogron_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
 
+            InstanceScript* m_Instance;
             EventMap m_Events;
 
             void Reset() override
@@ -2208,6 +2269,21 @@ class npc_highmaul_ogron_brute : public CreatureScript
             void EnterCombat(Unit* p_Attacker) override
             {
                 m_Events.ScheduleEvent(eEvent::EventDecimate, 6 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (m_Instance == nullptr)
+                    return;
+
+                if (Creature* l_Phemos = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Phemos)))
+                {
+                    if (l_Phemos->IsAIEnabled)
+                    {
+                        l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
+                        l_Phemos->AI()->DoAction(0);
+                    }
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -2467,7 +2543,7 @@ class spell_highmaul_boars_rush : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_boars_rush_SpellScript();
         }
@@ -2519,7 +2595,7 @@ class spell_highmaul_unstoppable_charge : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_unstoppable_charge_SpellScript();
         }
@@ -2612,7 +2688,7 @@ class spell_highmaul_rending_slash : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_rending_slash_SpellScript();
         }
@@ -2773,7 +2849,7 @@ class spell_highmaul_earthdevastating_slam_dmg : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_earthdevastating_slam_dmg_SpellScript();
         }
@@ -2807,7 +2883,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_arcane_barrage_SpellScript();
         }
@@ -2828,7 +2904,7 @@ class spell_highmaul_arcane_barrage : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_arcane_barrage_AuraScript();
         }
@@ -2864,7 +2940,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_highmaul_decimate_SpellScript();
         }
@@ -2888,7 +2964,7 @@ class spell_highmaul_decimate : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_decimate_AuraScript();
         }
