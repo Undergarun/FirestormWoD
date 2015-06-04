@@ -84,7 +84,10 @@ namespace MS { namespace Skill
             AntisepticBandage           = 111603,
 
             /// Leatherworking
-            BurnishedLeather            = 110611
+            BurnishedLeather            = 110611,
+
+            /// Jewelcrafting
+            TaladiteCrystal             = 115524
         };
     }
 
@@ -679,6 +682,12 @@ namespace MS { namespace Skill
         using spell_Skill_Leatherworking_BurnishedLeather           = spell_Skill_GrowFromSkillLevel<spell_Skill_Leatherworking_BurnishedLeather_Name, SKILL_LEATHERWORKING, ItemIDs::BurnishedLeather>;
 
         //////////////////////////////////////////////////////////////////////////
+        /// 170700 - Taladite Crystal
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Jewelcrafting_TaladiteCrystal_Name[]      = "spell_Skill_Jewelcrafting_TaladiteCrystal";
+        using spell_Skill_Jewelcrafting_TaladiteCrystal             = spell_Skill_GrowFromSkillLevel<spell_Skill_Jewelcrafting_TaladiteCrystal_Name, SKILL_JEWELCRAFTING, ItemIDs::TaladiteCrystal>;
+
+        //////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////
@@ -787,5 +796,6 @@ void AddSC_spell_skill()
     new MS::Skill::DailyMajorSkills::spell_Skill_Tailoring_HexweaveCloth();
     new MS::Skill::DailyMajorSkills::spell_Skill_FirstAid_AntisepticBandage();
     new MS::Skill::DailyMajorSkills::spell_Skill_Leatherworking_BurnishedLeather();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Jewelcrafting_TaladiteCrystal();
     new MS::Skill::DailyMajorSkills::spell_Skill_Enchantment_TemporalCrystal();
 }
