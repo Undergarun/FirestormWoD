@@ -282,8 +282,83 @@ Item::Item()
     _dynamicValuesCount = ITEM_DYNAMIC_END;
 }
 
+bool RemoveItemByDelete(Player* p_Player, Item* p_Item)
+{
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 Item::~Item()
 {
+    // WARNING : THAT CHECK MAY CAUSE LAGS !
+    if (Player * plr = GetOwner())
+    {
+        if (RemoveItemByDelete(plr, this))
+        {
+            ACE_Stack_Trace l_Trace;
+            sLog->outAshran("Item %u on player guid %u is in destructor, and pointer is still referenced in player's data ...", GetEntry(), plr->GetGUIDLow());
+            sLog->outAshran("Stack Trace : %s", l_Trace.c_str());
+        }
+    }
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
@@ -746,11 +821,11 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
         for (auto& l_BonusId : l_Bonuses)
             p_Datas << uint32(l_BonusId);
     }
-
+    
     /// Item modifications
     if (l_Modifications.size() != 0)
     {
-        p_Datas << uint32(l_Modifications.size());
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
         for (auto l_Modifier : l_Modifications)
             p_Datas << uint32(l_Modifier);
     }
@@ -791,7 +866,7 @@ void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item)
     /// Item modifications
     if (l_Modifications.size() != 0)
     {
-        p_Datas << uint32(l_Modifications.size());
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
         for (auto l_Modifier : l_Modifications)
             p_Datas << uint32(l_Modifier);
     }
@@ -802,9 +877,19 @@ void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_I
     p_Datas << uint32(p_Item.ItemEntry);            ///< Item ID
     p_Datas << uint32(p_Item.ItemSuffixFactor);     ///< Random Properties Seed
     p_Datas << uint32(p_Item.ItemRandomPropertyId); ///< Random Properties ID
-    p_Datas.WriteBit(false);                        ///< Has Item Bonuses
+    p_Datas.WriteBit(p_Item.Bonuses.size() != 0);   ///< Has Item Bonuses
     p_Datas.WriteBit(false);                        ///< Has Modifications
     p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_Item.Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_Item.Bonuses.size());
+
+        for (auto& l_BonusId : p_Item.Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
 }
 
 void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item)

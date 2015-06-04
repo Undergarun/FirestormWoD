@@ -1866,16 +1866,16 @@ class spell_ominous_cackle_cast: public SpellScriptLoader
                     // Don't send player to shrine if he is already in one
                     std::list<Creature*> shrineMobs;
                     player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_YANG_GUOSHI, 50.0f);
-                    if (shrineMobs.size() > 0)
+                    if (!shrineMobs.empty())
                         continue;
                     player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_CHENG_KANG, 50.0f);
-                    if (shrineMobs.size() > 0)
+                    if (!shrineMobs.empty())
                         continue;
                     player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_JINLUN_KUN, 50.0f);
-                    if (shrineMobs.size() > 0)
+                    if (!shrineMobs.empty())
                         continue;
                     player->GetCreatureListWithEntryInGrid(shrineMobs, NPC_RETURN_TO_THE_TERRACE, 50.0f);
-                    if (shrineMobs.size() > 0)
+                    if (!shrineMobs.empty())
                         continue;
 
                     if (!tankDone && player->GetRoleForGroup(player->GetSpecializationId(player->GetActiveSpec())) == ROLE_TANK)

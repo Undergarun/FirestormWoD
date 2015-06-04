@@ -1335,13 +1335,13 @@ public:
                     events.ScheduleEvent(EVENT_BLADESTORM, bladestorminterval);
                     break;
                 case EVENT_CHARGING_SLASH:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                         me->CastSpell(random, SPELL_CHARGING_SLASH_JUMP);
 
                     events.ScheduleEvent(EVENT_CHARGING_SLASH, chargingslashinterval);
                     break;
                 case EVENT_CHAIN_DRAG:
-                    if (Player* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true)->ToPlayer())
+                    if (Unit* random = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0F, true))
                     {
                         me->CastSpell(random, SPELL_CHAIN_DRAG);
                         random->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 8.0f, 5.0f, 10.0f);

@@ -4050,7 +4050,9 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
                 EmpoweredMoonkin = 157228
             };
 
-            void HandleAfterCast()
+            bool m_HasAuraBeforeCast = false;
+
+            void HandleOnPrepare()
             {
                 Unit* l_Caster = GetCaster();
 
@@ -4058,11 +4060,23 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
                     return;
 
                 if (l_Caster->HasAura(eSpells::EmpoweredMoonkin))
+                    m_HasAuraBeforeCast = true;
+            }
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(eSpells::EmpoweredMoonkin) && m_HasAuraBeforeCast)
                     l_Caster->RemoveAura(eSpells::EmpoweredMoonkin);
             }
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_dru_empowered_moonkin_SpellScript::HandleOnPrepare);
                 AfterCast += SpellCastFn(spell_dru_empowered_moonkin_SpellScript::HandleAfterCast);
             }
         };

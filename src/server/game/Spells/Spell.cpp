@@ -846,7 +846,7 @@ void Spell::SelectSpellTargets()
 
         if (m_spellInfo->IsChanneled())
         {
-            uint8 mask = (1 << i);
+            uint32 mask = (1 << i);
             for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             {
                 if (ihit->effectMask & mask)
@@ -867,8 +867,8 @@ void Spell::SelectSpellTargets()
                     // Do not check for selfcast
                     if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
                     {
-                         m_UniqueTargetInfo.erase(ihit++);
-                         continue;
+                        ihit = m_UniqueTargetInfo.erase(ihit);
+                        continue;
                     }
                 }
                 ++ihit;
@@ -4294,6 +4294,8 @@ void Spell::SendSpellCooldown()
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
+        if (!_player->isInCombat())
+            _player->UpdatePotionCooldown();
         return;
     }
 
@@ -5214,7 +5216,7 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    if (m_effectExecuteData.size() <= 0)
+    if (m_effectExecuteData.empty())
         return;
 
     WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
