@@ -46,7 +46,8 @@ namespace MS { namespace Skill
             TaladiteRecrystalizer2   = 178351,
             TaladiteRecrystalizer3   = 178381,
             TaladiteRecrystalizer4   = 178382,
-            TaladiteRecrystalizer5   = 178383
+            TaladiteRecrystalizer5   = 178383,
+            UpgradeArmor             = 168865
         };
     }
 
@@ -445,6 +446,7 @@ namespace MS { namespace Skill
                         case SpellIDs::TaladiteRecrystalizer5:
                         case SpellIDs::TruesteelReshaper:
                         case SpellIDs::LeatherRefurbishingKit:
+                        case SpellIDs::UpgradeArmor:
                             l_RequireIlevel = 640;
                             break;
                         default:
