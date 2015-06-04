@@ -140,33 +140,41 @@ namespace MS { namespace Skill
                     if (!roll_chance_i(60))
                         return;
 
-                    if (!l_RewardItems.size())
+                    std::vector<uint32> l_Candidates;
+
+                    for (uint32 l_ItemID : l_RewardItems)
+                    {
+                        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
+
+                        if (!l_ItemTemplate)
+                            return;
+
+                        if (l_ItemTemplate->Spells[0].SpellId == 483 /* Learning */)
+                        {
+                            if (!l_Player->HasSpell(l_ItemTemplate->Spells[1].SpellId))
+                                l_Candidates.push_back(l_ItemID);
+                        }
+                    }
+
+                    if (!l_Candidates.size())
                         return;
 
-                    uint32 l_RewardChance = 100 / l_RewardItems.size();
 
-                    for (uint32 l_I = 0; l_I < l_RewardItems.size(); ++l_I)
+                    auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(l_Candidates.at(0));
+
+                    if (!pProto)
+                        return;
+
+                    ItemPosCountVec l_Dest;
+                    uint32 l_NoSpace = 0;
+
+                    if (l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, pProto->ItemId, 1, &l_NoSpace) == EQUIP_ERR_OK)
                     {
-                        uint32 l_RewardItem = l_RewardItems[l_I];
-
-                        if (roll_chance_i(l_RewardChance))
-                        {
-                            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(l_RewardItem);
-
-                            if (!pProto)
-                                continue;
-
-                            ItemPosCountVec l_Dest;
-                            uint32 l_NoSpace = 0;
-
-                            if (l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardItem, 1, &l_NoSpace) == EQUIP_ERR_OK)
-                            {
-                                Item* pItem = l_Player->StoreNewItem(l_Dest, l_RewardItem, true, Item::GenerateItemRandomPropertyId(l_RewardItem));
-                                l_Player->SendNewItem(pItem, 1, true, false);
-                            }
-
-                            break;
-                        }
+                        Item* pItem = l_Player->StoreNewItem(l_Dest, pProto->ItemId, true, Item::GenerateItemRandomPropertyId(pProto->ItemId));
+                        l_Player->SendNewItem(pItem, 1, true, false);
                     }
                 }
 
