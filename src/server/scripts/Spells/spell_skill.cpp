@@ -261,7 +261,8 @@ namespace MS { namespace Skill
                                  58297, 148272,  71101,  64266,  57215, 148259,
                                  57122,  57242, 112450, 148282, 124459,  58326,
                                  94405,  57271,  56980,  57009, 112264, 148266,
-                                112444,  57240,  58312
+                                112444,  57240,  58312,  57250,  57258,  57202,
+                                 56958,  57014,  56975,  57247,  57191,  95825
                             };
                             break;
                         case SpellIDs::ResearchLionInk:
@@ -270,7 +271,9 @@ namespace MS { namespace Skill
                                 58323,  58322,  57161,  57001, 148271,  57238,
                                 57037, 135561,  58289,  57027, 148280, 112442,
                                 57007, 148269, 112440,  57183, 148257,  58299,
-                                57132, 148281,  57225, 123781,  57209, 124457
+                                57132, 148281,  57225, 123781,  57209, 124457,
+                                57223,  57181,  56999,  57237,  59561,  56954,
+                                57127
                             };
                             break;
                         case SpellIDs::ResearchJadefireInk:
@@ -299,7 +302,8 @@ namespace MS { namespace Skill
                                  57002,  57023,  57032,  57129,  57168,  57198,
                                  57210,  57236,  58320,  58325,  58333,  58336,
                                  58346,  95710, 112466, 119481, 126801, 131152,
-                                148284, 148291, 148489
+                                148284, 148291, 148489,  57211,  57124,  56946,
+                                 57267,  57232, 132167
                             };
                             break;
                         case SpellIDs::ResearchEtherealInk:
@@ -308,7 +312,8 @@ namespace MS { namespace Skill
                                  56978,  56990,  56991,  57005,  57033,  57125,
                                  57265,  57274,  58286,  58315,  58318,  58327,
                                  58330,  58343,  59340,  95215, 112465, 124452,
-                                124455, 148276, 148288, 148290, 148487, 182154
+                                124455, 148276, 148288, 148290, 148487, 182154,
+                                 57207,  57115,  57263,  57164,  57234,  57195
                             };
                             break;
                         case SpellIDs::ResearchInkOfTheSea:
@@ -317,7 +322,8 @@ namespace MS { namespace Skill
                                  56948,  56952,  56972,  56995,  57229, 57230,
                                  57270,  58311,  58317,  58328,  58329, 58342,
                                  94404, 112457, 112464, 112469, 124442, 126153,
-                                148275, 148287, 148289, 182156
+                                148275, 148287, 148289, 182156,  57159, 57233,
+                                 57019,  56988,  57130,  57260,  57193
                             };
                             break;
                         case SpellIDs::ResearchBlackfallowInk:
@@ -326,7 +332,7 @@ namespace MS { namespace Skill
                                  57031,  57154,  57196,  57217,  57228,  57249, 
                                  57257,  58287,  58296,  58324,  58337,  58339, 
                                  64260,  64262,  68166, 112430, 112461, 112462, 
-                                122030, 124466, 126800, 148286
+                                122030, 124466, 126800, 148286,  56986,  55691
                             };
                             break;
                         case SpellIDs::ResearchInkOfDreams:
@@ -336,7 +342,7 @@ namespace MS { namespace Skill
                                  57226,  57227,  57269,  58288,  58301,  58306,
                                  59326,  64258,  64261,  64312, 112266, 112458,
                                 112460, 124461, 126696, 148274, 148285, 182155, 
-                                182158
+                                182158,  57189,  56998,  58375
                             };
                             break;
                     }
@@ -353,20 +359,29 @@ namespace MS { namespace Skill
                     }
 
                     if (!l_Candidates.size())
-                        return;
-
-                    uint32 l_RewardChance = 100 / l_Candidates.size();
-
-                    for (uint32 l_I = 0; l_I < l_Candidates.size(); ++l_I)
                     {
-                        uint32 l_RewardSpell = l_Candidates[l_I];
+                        auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                        std::shuffle(l_RewardSpells.begin(), l_RewardSpells.end(), std::default_random_engine(l_Seed));
 
-                        if (roll_chance_i(l_RewardChance))
-                        {
-                            l_Player->learnSpell(l_RewardSpell, false);
-                            break;
-                        }
+                        uint32 l_SpellID = l_RewardSpells.at(0);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+
+                        if (!l_SpellInfo || l_SpellInfo->Effects[EFFECT_0].Effect != SPELL_EFFECT_CREATE_ITEM)
+                            return;
+
+                        uint32 l_ItemID = l_SpellInfo->Effects[EFFECT_0].ItemType;
+
+                        if (!sObjectMgr->GetItemTemplate(l_ItemID))
+                            return;
+
+                        l_Player->AddItem(l_ItemID, 1);
+                        return;
                     }
+
+                    auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                    l_Player->learnSpell(l_Candidates.at(0), false);
                 }
 
                 void Register() override
