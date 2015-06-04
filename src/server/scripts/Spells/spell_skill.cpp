@@ -81,7 +81,10 @@ namespace MS { namespace Skill
             HexweaveCloth               = 111556,
 
             /// First Aid
-            AntisepticBandage           = 111603
+            AntisepticBandage           = 111603,
+
+            /// Leatherworking
+            BurnishedLeather            = 110611
         };
     }
 
@@ -557,452 +560,218 @@ namespace MS { namespace Skill
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////////////////////////////////////
-    /// Truesteel Ingot
-    //////////////////////////////////////////////////////////////////////////
-    class spell_Skill_BlackSmithing_TruesteelIngot : public SpellScriptLoader
+    namespace DailyMajorSkills
     {
-        public:
-            /// Constructor
-            spell_Skill_BlackSmithing_TruesteelIngot()
-                : SpellScriptLoader("spell_Skill_BlackSmithing_TruesteelIngot")
-            {
-
-            }
-
-            class spell_Skill_BlackSmithing_TruesteelIngot_SpellScript : public SpellScript
-            {
-                PrepareSpellScript(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript);
-
-                uint32 GetIngotCount(Player* p_Player)
+        //////////////////////////////////////////////////////////////////////////
+        /// GENERIC : Recipe who the created items grow with skill level
+        //////////////////////////////////////////////////////////////////////////
+        template<char const* t_Name, int t_SkillID, int t_ItemID> class spell_Skill_GrowFromSkillLevel : public SpellScriptLoader
+        {
+            public:
+                /// Constructor
+                spell_Skill_GrowFromSkillLevel()
+                    : SpellScriptLoader(t_Name)
                 {
-                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_BLACKSMITHING);
-                    uint32 l_IngotsCount = 4;
 
-                    /// http://www.wowhead.com/spell=171690/truesteel-ingot),I#comments
-                    if (l_SkillValue > 600)
-                        l_IngotsCount += 1 + ((l_SkillValue - 600) / 20);
-
-                    return l_IngotsCount;
                 }
 
-                SpellCastResult CheckCast()
+                class spell_Skill_GrowFromSkillLevel_SpellScript : public SpellScript
                 {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                    PrepareSpellScript(spell_Skill_GrowFromSkillLevel_SpellScript);
 
-                    if (!l_Caster)
-                        return SPELL_FAILED_ERROR;
-
-                    uint32 l_IngotsCount = GetIngotCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::TruesteelIngot, l_IngotsCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
+                    uint32 GetItemCount(Player* p_Player)
                     {
-                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                        return SPELL_FAILED_DONT_REPORT;
+                        uint32 l_SkillValue = p_Player->GetSkillValue(t_SkillID);
+                        uint32 l_RollCount = 4;
+
+                        if (l_SkillValue > 600)
+                            l_RollCount += 1 + ((l_SkillValue - 600) / 20);
+
+                        return l_RollCount;
                     }
 
-                    return SPELL_CAST_OK;
-                }
+                    SpellCastResult CheckCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
 
-                void AfterCast()
+                        if (!l_Caster)
+                            return SPELL_FAILED_ERROR;
+
+                        uint32 l_RollCount = GetItemCount(l_Caster);
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, t_ItemID, l_RollCount);
+
+                        if (l_Message != EQUIP_ERR_OK)
+                        {
+                            l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        return SPELL_CAST_OK;
+                    }
+
+                    void AfterCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return;
+
+                        uint32 l_RollCount = GetItemCount(l_Caster);
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, t_ItemID, l_RollCount);
+
+                        if (l_Message != EQUIP_ERR_OK)
+                            return;
+
+                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, t_ItemID, true, Item::GenerateItemRandomPropertyId(t_ItemID));
+
+                        if (l_Item)
+                            l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+                    }
+
+                    void Register() override
+                    {
+                        OnCheckCast += SpellCheckCastFn(spell_Skill_GrowFromSkillLevel_SpellScript::CheckCast);
+                        OnHit       += SpellHitFn(spell_Skill_GrowFromSkillLevel_SpellScript::AfterCast);
+                    }
+
+                };
+
+                /// Should return a fully valid SpellScript pointer.
+                SpellScript* GetSpellScript() const override
                 {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return;
-
-                    uint32 l_IngotsCount = GetIngotCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::TruesteelIngot, l_IngotsCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
-                        return;
-
-                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::TruesteelIngot, true, Item::GenerateItemRandomPropertyId(ItemIDs::TruesteelIngot));
-
-                    if (l_Item)
-                        l_Caster->SendNewItem(l_Item, l_IngotsCount, false, true);
+                    return new spell_Skill_GrowFromSkillLevel_SpellScript();
                 }
-
-                void Register() override
-                {
-                    OnCheckCast += SpellCheckCastFn(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript::CheckCast);
-                    OnHit       += SpellHitFn(spell_Skill_BlackSmithing_TruesteelIngot_SpellScript::AfterCast);
-                }
-
-            };
-
-            /// Should return a fully valid SpellScript pointer.
-            SpellScript* GetSpellScript() const override
-            {
-                return new spell_Skill_BlackSmithing_TruesteelIngot_SpellScript();
-            }
-
-    };
-    
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Temporal Crystal
-    //////////////////////////////////////////////////////////////////////////
-    class spell_Skill_Enchantment_TemporalCrystal : public SpellScriptLoader
-    {
-        public:
-        /// Constructor
-        spell_Skill_Enchantment_TemporalCrystal()
-            : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal")
-        {
-
-        }
-
-        class spell_Skill_Enchantment_TemporalCrystal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_Skill_Enchantment_TemporalCrystal_SpellScript);
-
-            uint32 GetItemID(Player* p_Player)
-            {
-                if (p_Player->GetSkillValue(SKILL_ENCHANTING) >= 600)
-                    return ItemIDs::TemporalCrystal;
-
-                return ItemIDs::FracturedTemporalCrystal;
-            }
-            uint32 GetItemCount(Player* p_Player)
-            {
-                uint32 l_SkillValue     = p_Player->GetSkillValue(SKILL_ENCHANTING);
-                uint32 l_ItemCount      = urand(3, 6);
-
-                if (l_SkillValue < 600)
-                    l_ItemCount = 4;
-
-                return l_ItemCount;
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                if (!l_Caster)
-                    return SPELL_FAILED_ERROR;
-
-                ItemPosCountVec l_Destination;
-                InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
-
-                if (l_Message != EQUIP_ERR_OK)
-                {
-                    l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                    return SPELL_FAILED_DONT_REPORT;
-                }
-
-                return SPELL_CAST_OK;
-            }
-
-            void AfterCast()
-            {
-                Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                if (!l_Caster)
-                    return;
-
-                ItemPosCountVec l_Destination;
-                InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
-
-                if (l_Message != EQUIP_ERR_OK)
-                    return;
-
-                Item* l_Item = l_Caster->StoreNewItem(l_Destination, GetItemID(l_Caster), true, Item::GenerateItemRandomPropertyId(GetItemID(l_Caster)));
-
-                if (l_Item)
-                    l_Caster->SendNewItem(l_Item, GetItemCount(l_Caster), false, true);
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::CheckCast);
-                OnHit       += SpellHitFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::AfterCast);
-            }
 
         };
 
-        /// Should return a fully valid SpellScript pointer.
-        SpellScript* GetSpellScript() const override
+        //////////////////////////////////////////////////////////////////////////
+        /// 171690 - Truesteel Ingot
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_BlackSmithing_TruesteelIngot_Name[]       = "spell_Skill_BlackSmithing_TruesteelIngot";
+        using spell_Skill_BlackSmithing_TruesteelIngot              = spell_Skill_GrowFromSkillLevel<spell_Skill_BlackSmithing_TruesteelIngot_Name, SKILL_BLACKSMITHING, ItemIDs::TruesteelIngot>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 169081 - War Paints
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Inscription_WarPaints_Name[]              = "spell_Skill_Inscription_WarPaints";
+        using spell_Skill_Inscription_WarPaints                     = spell_Skill_GrowFromSkillLevel<spell_Skill_Inscription_WarPaints_Name, SKILL_INSCRIPTION, ItemIDs::WarPaints>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 168835 - Hexweave Cloth
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Tailoring_HexweaveCloth_Name[]            = "spell_Skill_Tailoring_HexweaveCloth";
+        using spell_Skill_Tailoring_HexweaveCloth                   = spell_Skill_GrowFromSkillLevel<spell_Skill_Tailoring_HexweaveCloth_Name, SKILL_TAILORING, ItemIDs::HexweaveCloth>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 172539 - Antiseptic Bandage
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_FirstAid_AntisepticBandage_Name[]         = "spell_Skill_FirstAid_AntisepticBandage";
+        using spell_Skill_FirstAid_AntisepticBandage                = spell_Skill_GrowFromSkillLevel<spell_Skill_FirstAid_AntisepticBandage_Name, SKILL_FIRST_AID, ItemIDs::AntisepticBandage>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 171391 - Burnished Leather
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Leatherworking_BurnishedLeather_Name[]    = "spell_Skill_Leatherworking_BurnishedLeather";
+        using spell_Skill_Leatherworking_BurnishedLeather           = spell_Skill_GrowFromSkillLevel<spell_Skill_Leatherworking_BurnishedLeather_Name, SKILL_LEATHERWORKING, ItemIDs::BurnishedLeather>;
+
+        //////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 169092 - Temporal Crystal
+        //////////////////////////////////////////////////////////////////////////
+        class spell_Skill_Enchantment_TemporalCrystal : public SpellScriptLoader
         {
-            return new spell_Skill_Enchantment_TemporalCrystal_SpellScript();
-        }
-
-    };
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
-    /// War Paints
-    //////////////////////////////////////////////////////////////////////////
-    class spell_Skill_Inscription_WarPaints : public SpellScriptLoader
-    {
-        public:
-            /// Constructor
-            spell_Skill_Inscription_WarPaints()
-                : SpellScriptLoader("spell_Skill_Inscription_WarPaints")
-            {
-
-            }
-
-            class spell_Skill_Inscription_WarPaints_SpellScript : public SpellScript
-            {
-                PrepareSpellScript(spell_Skill_Inscription_WarPaints_SpellScript);
-
-                uint32 GetPaintCount(Player* p_Player)
+            public:
+                /// Constructor
+                spell_Skill_Enchantment_TemporalCrystal()
+                    : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal")
                 {
-                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_INSCRIPTION);
-                    uint32 l_PaintsCount = 4;
 
-                    if (l_SkillValue > 600)
-                        l_PaintsCount += 1 + ((l_SkillValue - 600) / 20);
-
-                    return l_PaintsCount;
                 }
 
-                SpellCastResult CheckCast()
+                class spell_Skill_Enchantment_TemporalCrystal_SpellScript : public SpellScript
                 {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+                    PrepareSpellScript(spell_Skill_Enchantment_TemporalCrystal_SpellScript);
 
-                    if (!l_Caster)
-                        return SPELL_FAILED_ERROR;
-
-                    uint32 l_PaintsCount = GetPaintCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_PaintsCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
+                    uint32 GetItemID(Player* p_Player)
                     {
-                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                        return SPELL_FAILED_DONT_REPORT;
+                        if (p_Player->GetSkillValue(SKILL_ENCHANTING) >= 600)
+                            return ItemIDs::TemporalCrystal;
+
+                        return ItemIDs::FracturedTemporalCrystal;
+                    }
+                    uint32 GetItemCount(Player* p_Player)
+                    {
+                        uint32 l_SkillValue     = p_Player->GetSkillValue(SKILL_ENCHANTING);
+                        uint32 l_ItemCount      = urand(3, 6);
+
+                        if (l_SkillValue < 600)
+                            l_ItemCount = 4;
+
+                        return l_ItemCount;
                     }
 
-                    return SPELL_CAST_OK;
-                }
-
-                void AfterCast()
-                {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return;
-
-                    uint32 l_PaintsCount = GetPaintCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::WarPaints, l_PaintsCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
-                        return;
-
-                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::WarPaints, true, Item::GenerateItemRandomPropertyId(ItemIDs::WarPaints));
-
-                    if (l_Item)
-                        l_Caster->SendNewItem(l_Item, l_PaintsCount, false, true);
-                }
-
-                void Register() override
-                {
-                    OnCheckCast += SpellCheckCastFn(spell_Skill_Inscription_WarPaints_SpellScript::CheckCast);
-                    OnHit       += SpellHitFn(spell_Skill_Inscription_WarPaints_SpellScript::AfterCast);
-                }
-
-            };
-
-            /// Should return a fully valid SpellScript pointer.
-            SpellScript* GetSpellScript() const override
-            {
-                return new spell_Skill_Inscription_WarPaints_SpellScript();
-            }
-
-    };
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Hexweave Cloth
-    //////////////////////////////////////////////////////////////////////////
-    class spell_Skill_Tailoring_HexweaveCloth : public SpellScriptLoader
-    {
-        public:
-            /// Constructor
-            spell_Skill_Tailoring_HexweaveCloth()
-                : SpellScriptLoader("spell_Skill_Tailoring_HexweaveCloth")
-            {
-
-            }
-
-            class spell_Skill_Tailoring_HexweaveCloth_SpellScript : public SpellScript
-            {
-                PrepareSpellScript(spell_Skill_Tailoring_HexweaveCloth_SpellScript);
-
-                uint32 GetRollCount(Player* p_Player)
-                {
-                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_TAILORING);
-                    uint32 l_RollCount = 4;
-
-                    if (l_SkillValue > 600)
-                        l_RollCount += 1 + ((l_SkillValue - 600) / 20);
-
-                    return l_RollCount;
-                }
-
-                SpellCastResult CheckCast()
-                {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return SPELL_FAILED_ERROR;
-
-                    uint32 l_RollCount = GetRollCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::HexweaveCloth, l_RollCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
+                    SpellCastResult CheckCast()
                     {
-                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                        return SPELL_FAILED_DONT_REPORT;
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return SPELL_FAILED_ERROR;
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                        if (l_Message != EQUIP_ERR_OK)
+                        {
+                            l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        return SPELL_CAST_OK;
                     }
 
-                    return SPELL_CAST_OK;
-                }
-
-                void AfterCast()
-                {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return;
-
-                    uint32 l_RollCount = GetRollCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::HexweaveCloth, l_RollCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
-                        return;
-
-                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::HexweaveCloth, true, Item::GenerateItemRandomPropertyId(ItemIDs::HexweaveCloth));
-
-                    if (l_Item)
-                        l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
-                }
-
-                void Register() override
-                {
-                    OnCheckCast += SpellCheckCastFn(spell_Skill_Tailoring_HexweaveCloth_SpellScript::CheckCast);
-                    OnHit       += SpellHitFn(spell_Skill_Tailoring_HexweaveCloth_SpellScript::AfterCast);
-                }
-
-            };
-
-            /// Should return a fully valid SpellScript pointer.
-            SpellScript* GetSpellScript() const override
-            {
-                return new spell_Skill_Tailoring_HexweaveCloth_SpellScript();
-            }
-
-    };
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////
-    /// Antiseptic Bandage
-    //////////////////////////////////////////////////////////////////////////
-    class spell_Skill_FirstAid_AntisepticBandage : public SpellScriptLoader
-    {
-        public:
-            /// Constructor
-            spell_Skill_FirstAid_AntisepticBandage()
-                : SpellScriptLoader("spell_Skill_FirstAid_AntisepticBandage")
-            {
-
-            }
-
-            class spell_Skill_FirstAid_AntisepticBandage_SpellScript : public SpellScript
-            {
-                PrepareSpellScript(spell_Skill_FirstAid_AntisepticBandage_SpellScript);
-
-                uint32 GetBandageCount(Player* p_Player)
-                {
-                    uint32 l_SkillValue = p_Player->GetSkillValue(SKILL_FIRST_AID);
-                    uint32 l_RollCount = 4;
-
-                    if (l_SkillValue > 600)
-                        l_RollCount += 1 + ((l_SkillValue - 600) / 20);
-
-                    return l_RollCount;
-                }
-
-                SpellCastResult CheckCast()
-                {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return SPELL_FAILED_ERROR;
-
-                    uint32 l_RollCount = GetBandageCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::AntisepticBandage, l_RollCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
+                    void AfterCast()
                     {
-                        l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
-                        return SPELL_FAILED_DONT_REPORT;
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return;
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                        if (l_Message != EQUIP_ERR_OK)
+                            return;
+
+                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, GetItemID(l_Caster), true, Item::GenerateItemRandomPropertyId(GetItemID(l_Caster)));
+
+                        if (l_Item)
+                            l_Caster->SendNewItem(l_Item, GetItemCount(l_Caster), false, true);
                     }
 
-                    return SPELL_CAST_OK;
-                }
+                    void Register() override
+                    {
+                        OnCheckCast += SpellCheckCastFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::CheckCast);
+                        OnHit       += SpellHitFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::AfterCast);
+                    }
 
-                void AfterCast()
+                };
+
+                /// Should return a fully valid SpellScript pointer.
+                SpellScript* GetSpellScript() const override
                 {
-                    Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
-
-                    if (!l_Caster)
-                        return;
-
-                    uint32 l_RollCount = GetBandageCount(l_Caster);
-
-                    ItemPosCountVec l_Destination;
-                    InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, ItemIDs::AntisepticBandage, l_RollCount);
-
-                    if (l_Message != EQUIP_ERR_OK)
-                        return;
-
-                    Item* l_Item = l_Caster->StoreNewItem(l_Destination, ItemIDs::AntisepticBandage, true, Item::GenerateItemRandomPropertyId(ItemIDs::AntisepticBandage));
-
-                    if (l_Item)
-                        l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+                    return new spell_Skill_Enchantment_TemporalCrystal_SpellScript();
                 }
 
-                void Register() override
-                {
-                    OnCheckCast += SpellCheckCastFn(spell_Skill_FirstAid_AntisepticBandage_SpellScript::CheckCast);
-                    OnHit       += SpellHitFn(spell_Skill_FirstAid_AntisepticBandage_SpellScript::AfterCast);
-                }
+        };
 
-            };
+    }   ///< namespace DailyMajorSkills
 
-            /// Should return a fully valid SpellScript pointer.
-            SpellScript* GetSpellScript() const override
-            {
-                return new spell_Skill_FirstAid_AntisepticBandage_SpellScript();
-            }
-
-    };
-    
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -1011,9 +780,12 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
-    new MS::Skill::spell_Skill_BlackSmithing_TruesteelIngot();
-    new MS::Skill::spell_Skill_Enchantment_TemporalCrystal();
-    new MS::Skill::spell_Skill_Inscription_WarPaints();
-    new MS::Skill::spell_Skill_Tailoring_HexweaveCloth();
-    new MS::Skill::spell_Skill_FirstAid_AntisepticBandage();
+
+    /// Daily major skills
+    new MS::Skill::DailyMajorSkills::spell_Skill_BlackSmithing_TruesteelIngot();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Inscription_WarPaints();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Tailoring_HexweaveCloth();
+    new MS::Skill::DailyMajorSkills::spell_Skill_FirstAid_AntisepticBandage();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Leatherworking_BurnishedLeather();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Enchantment_TemporalCrystal();
 }

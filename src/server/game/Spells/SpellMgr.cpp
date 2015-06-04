@@ -6124,10 +6124,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 for (auto l_Iter : spellInfo->SpellPowers)
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
-            case 169092: ///< Temporal Crystal
+
+            case 171690: ///< Truesteel Ingot
+            case 169081: ///< War Paints
             case 168835: ///< Hexweave Cloth
-            case 169081: ///< War paints
             case 172539: ///< Antiseptic Bandage
+            case 171391: ///< Burnished Leather
+            case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
             default:
