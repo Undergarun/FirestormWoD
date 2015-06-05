@@ -321,6 +321,8 @@ class instance_heart_of_fear : public InstanceMapScript
 
             void OnPlayerEnter(Player* p_Player) override
             {
+                p_Player->GetMap()->SetObjectVisibility(350.f);
+
                 if (!m_SecondPartInitialized && instance->IsLFR())
                 {
                     uint32 l_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
