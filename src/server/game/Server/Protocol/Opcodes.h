@@ -1270,44 +1270,45 @@ enum Opcodes
     CMSG_ADDON_REGISTERED_PREFIXES              = 0x0000, ///<
 
     /// Chat
-    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x0E12, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_PARTY                     = 0x07BE, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_YELL                      = 0x093D, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_SAY                       = 0x046E, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_OFFICER                   = 0x06FA, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_EMOTE                     = 0x09FE, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_AFK                       = 0x05A9, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_DND                       = 0x0479, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_GUILD                     = 0x0AE9, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_RAID                      = 0x012E, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_WHISPER                   = 0x0BB9, ///< 6.2.0 20061
-    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x01BA, ///< 6.2.0 20061
+    CMSG_CHAT_MESSAGE_RAID_WARNING              = 0x07BE, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_PARTY                     = 0x007D, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_YELL                      = 0x046E, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_SAY                       = 0x0AE9, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_OFFICER                   = 0x02A9, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_EMOTE                     = 0x01BA, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_AFK                       = 0x05A9, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_DND                       = 0x093D, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_GUILD                     = 0x06FA, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_RAID                      = 0x0BB9, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_WHISPER                   = 0x09FE, ///< 6.2.0 20033
+    CMSG_CHAT_MESSAGE_CHANNEL                   = 0x0479, ///< 6.2.0 20033
 
     /// Channel
-    CMSG_JOIN_CHANNEL                           = 0x02FA, ///< 6.2.0 20061
-    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x002D, ///< 6.2.0 20061
-    CMSG_CHANNEL_BAN                            = 0x0ABD, ///< 6.2.0 20061
-    CMSG_CHANNEL_DISPLAY_LIST                   = 0x09ED, ///< 6.2.0 20061
-    CMSG_CHANNEL_INVITE                         = 0x05BE, ///< 6.2.0 20061
-    CMSG_CHANNEL_KICK                           = 0x067E, ///< 6.2.0 20061
-    CMSG_CHANNEL_LIST                           = 0x09ED, ///< 6.2.0 20061
-    CMSG_CHANNEL_MODERATOR                      = 0x016A, ///< 6.2.0 20061
-    CMSG_CHANNEL_MUTE                           = 0x036E, ///< 6.2.0 20061
-    CMSG_CHANNEL_OWNER                          = 0x057E, ///< 6.2.0 20061
-    CMSG_CHANNEL_PASSWORD                       = 0x07BD, ///< 6.2.0 20061
-    CMSG_CHANNEL_SET_OWNER                      = 0x00BE, ///< 6.2.0 20061
-    CMSG_CHANNEL_SILENCE_ALL                    = 0x08A9, ///< 6.2.0 20061
-    CMSG_CHANNEL_SILENCE_VOICE                  = 0x03AA, ///< 6.2.0 20061
-    CMSG_CHANNEL_UNBAN                          = 0x062E, ///< 6.2.0 20061
-    CMSG_CHANNEL_UNMODERATOR                    = 0x07B9, ///< 6.2.0 20061
-    CMSG_CHANNEL_UNMUTE                         = 0x0C6D, ///< 6.2.0 20061
-    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x002F
-    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x07AE, ///< 6.2.0 20061
-    CMSG_CHANNEL_VOICE_OFF                      = 0x04A9, ///< 6.2.0 20061
-    CMSG_CHANNEL_VOICE_ON                       = 0x0C7E, ///< 6.2.0 20061
-    CMSG_DECLINE_CHANNEL_INVITE                 = 0x096E, ///< 6.2.0 20061
-    CMSG_LEAVE_CHANNEL                          = 0x0569, ///< 6.2.0 20061
-    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x0D32, ///< 6.2.0 20061
+    CMSG_JOIN_CHANNEL                           = 0x0829, ///< 6.2.0 20033
+    CMSG_CHANNEL_ANNOUNCEMENTS                  = 0x00BE, ///< 6.2.0 20033
+    CMSG_CHANNEL_BAN                            = 0x0BF9, ///< 6.2.0 20033
+    CMSG_CHANNEL_DISPLAY_LIST                   = 0x0000, ///< 6.2.0 20033
+    CMSG_CHANNEL_INVITE                         = 0x0629, ///< 6.2.0 20033
+    CMSG_CHANNEL_KICK                           = 0x07AE, ///< 6.2.0 20033
+    CMSG_CHANNEL_LIST                           = 0x0ABD, ///< 6.2.0 20033
+    CMSG_CHANNEL_MODERATOR                      = 0x016D, ///< 6.2.0 20033
+    CMSG_CHANNEL_MUTE                           = 0x002D, ///< 6.2.0 20033
+    CMSG_CHANNEL_OWNER                          = 0x05BE, ///< 6.2.0 20033
+    CMSG_CHANNEL_PASSWORD                       = 0x09ED, ///< 6.2.0 20033
+    CMSG_CHANNEL_SET_OWNER                      = 0x016A, ///< 6.2.0 20033
+    CMSG_CHANNEL_SILENCE_ALL                    = 0x062E, ///< 6.2.0 20033
+    CMSG_CHANNEL_SILENCE_VOICE                  = 0x057E, ///< 6.2.0 20033
+    CMSG_CHANNEL_UNBAN                          = 0x03AA, ///< 6.2.0 20033
+    CMSG_CHANNEL_UNMODERATOR                    = 0x08A9, ///< 6.2.0 20033
+    CMSG_CHANNEL_UNMUTE                         = 0x096E, ///< 6.2.0 20033
+    CMSG_CHANNEL_UNSILENCE_ALL                  = 0x02FA, ///< 6.2.0 20033
+    CMSG_CHANNEL_UNSILENCE_VOICE                = 0x07B9, ///< 6.2.0 20033
+    CMSG_CHANNEL_VOICE_OFF                      = 0x07BD, ///< 6.2.0 20033
+    CMSG_CHANNEL_VOICE_ON                       = 0x04A9, ///< 6.2.0 20033
+    CMSG_DECLINE_CHANNEL_INVITE                 = 0x067E, ///< 6.2.0 20033
+    CMSG_LEAVE_CHANNEL                          = 0x03EE, ///< 6.2.0 20033
+    CMSG_SET_ACTIVE_VOICE_CHANNEL               = 0x00D5, ///< 6.2.0 20033
+
 
     //////////////////////////////////////////////////////////////////////////
     /// Movement
