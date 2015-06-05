@@ -3558,6 +3558,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158521:///< Double Slash (Phemos - Twin Ogron)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
+            case 158419:///< Pulverize - Third AoE (Pol - Twin Ogron)
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4); ///< 1s
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

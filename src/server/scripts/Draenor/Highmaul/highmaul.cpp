@@ -2704,7 +2704,7 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
         {
             PrepareAuraScript(spell_highmaul_shield_charge_AuraScript);
 
-            enum eSpell
+            enum eSpells
             {
                 ShieldChargeDamage  = 166180,
                 ShieldChargeBump    = 166181
@@ -2735,8 +2735,8 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
 
                             for (Unit* l_Iter : l_TargetList)
                             {
-                                l_Caster->CastSpell(l_Iter, eSpell::ShieldChargeDamage, true);
-                                l_Iter->CastSpell(l_Iter, eSpell::ShieldChargeBump, true);
+                                l_Caster->CastSpell(l_Iter, eSpells::ShieldChargeDamage, true);
+                                l_Iter->CastSpell(l_Iter, eSpells::ShieldChargeBump, true);
                             }
                         }
 
