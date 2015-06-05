@@ -202,13 +202,13 @@ enum Opcodes
         SMSG_REMOVE_LOSS_OF_CONTROL                 = 0x0883, ///< 6.2.0 20061
 
         /// Reputations
-        SMSG_INITIALIZE_FACTIONS                    = 0x0017, ///< 6.2.0 20061
-        SMSG_FACTION_BONUS_INFO                     = 0x0688, ///< 6.2.0 20061
-        SMSG_SET_FACTION_VISIBLE                    = 0x06A0, ///< 6.2.0 20061
-        SMSG_SET_FACTION_NOT_VISIBLE                = 0x021C, ///< 6.2.0 20061
-        SMSG_SET_FACTION_STANDING                   = 0x0926, ///< 6.2.0 20061
-        SMSG_SET_FACTION_ATWAR                      = 0x025C, ///< 6.2.0 20061
-        SMSG_SET_FORCED_REACTIONS                   = 0x088F, ///< 6.2.0 20061
+        SMSG_INITIALIZE_FACTIONS                    = 0x0C4C, ///< 6.2.0 20061
+        SMSG_FACTION_BONUS_INFO                     = 0x06DF, ///< 6.2.0 20061
+        SMSG_SET_FACTION_VISIBLE                    = 0x0E36, ///< 6.2.0 20061
+        SMSG_SET_FACTION_NOT_VISIBLE                = 0x0017, ///< 6.2.0 20061
+        SMSG_SET_FACTION_STANDING                   = 0x0688, ///< 6.2.0 20061
+        SMSG_SET_FACTION_ATWAR                      = 0x06A0, ///< 6.2.0 20061
+        SMSG_SET_FORCED_REACTIONS                   = 0x021C, ///< 6.2.0 20061
 
         /// Interaction
         SMSG_LOGOUT_RESPONSE                        = 0x0618, ///< 6.2.0 20061
