@@ -165,7 +165,7 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 ),
 (
     78238, 4, 0,
-    'Hé Hé... Nous va bien samuser.',
+    'Hé Hé... Nous va bien s''amuser.',
     'Freu mich schon drauf.',
     'Eh''to será bueno.',
     'Развлечемся.'
