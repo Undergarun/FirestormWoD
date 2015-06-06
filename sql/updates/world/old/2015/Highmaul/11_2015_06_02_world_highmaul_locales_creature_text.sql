@@ -1,4 +1,4 @@
-DELETE FROM locales_creature_text WHERE entry = 78491;
+﻿DELETE FROM locales_creature_text WHERE entry = 78491;
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (78491, 0, 0, "%s commence à canaliser |cFFFF0404|Hspell:159996|h[Spores infestantes]|h|r !", "%s beginnt, |cFFFF0404|Hspell:159996|h[Sporenbefall]|h|r zu kanalisieren!", "¡%s comienza a canalizar |cFFFF0404|Hspell:159996|h[Esporas infectantes]|h|r!", "%s начинает поддерживать заклинание |cFFFF0404|Hspell:159996|h[Заражение спорами]|h|r!");
 DELETE FROM locales_creature_text WHERE entry = 83378;
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUE (83378, 0, 0, "Après ce combat, ce sera plus que de la purée.", "Die werden ausseh'n wie Blutwurst nach dem Kampf.", "Ellos verse como charcos después de esta pelea.", "От них останется только мокрое место.");

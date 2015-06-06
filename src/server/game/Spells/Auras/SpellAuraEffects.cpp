@@ -402,7 +402,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //343 SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET implemented in Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleModAutoAttackDamage,                       //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE implemented in Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
-    &AuraEffect::HandleProgressBar,                               //346 SPELL_AURA_ENABLE_ALT_POWER
+    &AuraEffect::HandleEnableAltPower,                            //346 SPELL_AURA_ENABLE_ALT_POWER
     &AuraEffect::HandleNULL,                                      //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
     &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency (TODO?)
@@ -8157,73 +8157,70 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
     }
 }
 
-void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleEnableAltPower(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Player* target = aurApp->GetTarget()->ToPlayer();
-
-    if (!target)
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
         return;
 
-    if (!apply)
+    if (!p_Apply)
     {
-        target->SetMaxPower(POWER_ALTERNATE_POWER, 0);
-        target->SetPower(POWER_ALTERNATE_POWER, 0);
+        l_Target->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+        l_Target->SetPower(POWER_ALTERNATE_POWER, 0);
         return;
     }
 
-    uint32 startPower = 0;
-    uint32 maxPower = 0;
-
-    // Unknow max misc : 116
+    uint32 l_StartPower = 0;
+    uint32 l_MaxPower = 0;
 
     switch (GetMiscValue())
     {
         case 80:
-            maxPower = 3;
+            l_MaxPower = 3;
             break;
         case 32:
         case 89:
-            maxPower = 4;
+            l_MaxPower = 4;
             break;
         case 30:
         case 34:
         case 90:
-            maxPower = 5;
+            l_MaxPower = 5;
             break;
         case 33:
         case 35:
-            maxPower = 7;
+            l_MaxPower = 7;
             break;
         case 88:
-            maxPower = 10;
+            l_MaxPower = 10;
             break;
         case 117:
-            maxPower = 25;
+            l_MaxPower = 25;
             break;
         case 129:
         case 133:
-            maxPower = 30;
+            l_MaxPower = 30;
             break;
         case 29:
-            maxPower = 34;
+            l_MaxPower = 34;
             break;
         case 114:
         case 203:
-            maxPower = 40;
+            l_MaxPower = 40;
             break;
         case 64:
-            maxPower = 50;
+            l_MaxPower = 50;
             break;
         case 84:
-            maxPower = 60;
+            l_MaxPower = 60;
             break;
         case 137:
         case 149:
         case 195:
-            maxPower = 90;
+            l_MaxPower = 90;
             break;
         case 23:
         case 37:
@@ -8255,50 +8252,49 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
         case 206:
         case 207:
         default:
-            maxPower = 100;
+            l_MaxPower = 100;
             break;
         case 63:
-            maxPower = 105;
+            l_MaxPower = 105;
             break;
         case 87:
-            maxPower = 120;
+            l_MaxPower = 120;
             break;
         case 66:
         case 67:
-            maxPower = 180;
+            l_MaxPower = 180;
             break;
         case 24:
-            maxPower = 250;
+            l_MaxPower = 250;
             break;
         case 26:
-            maxPower = 300;
+            l_MaxPower = 300;
             break;
         case 158:
-            maxPower = 700;
+            l_MaxPower = 700;
             break;
         case 36:
-            maxPower = 35000;
+            l_MaxPower = 35000;
             break;
     }
 
     switch (GetMiscValue())
     {
         case 89:
-            startPower = 4;
+            l_StartPower = 4;
             break;
         case 34:
         case 90:
         case 204:
         case 205:
-        //case 206:
         case 207:
-            startPower = 5;
+            l_StartPower = 5;
             break;
         case 103:
-            startPower = 10;
+            l_StartPower = 10;
             break;
         case 64:
-            startPower = 25;
+            l_StartPower = 25;
             break;
         case 87:
         case 93:
@@ -8306,18 +8302,18 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
         case 151:
         case 176:
         case 183:
-            startPower = 50;
+            l_StartPower = 50;
             break;
         case 178:
-            startPower = 100;
+            l_StartPower = 100;
             break;
         default:
-            startPower = 0;
+            l_StartPower = 0;
             break;
     }
 
-    target->SetMaxPower(POWER_ALTERNATE_POWER, maxPower);
-    target->SetPower(POWER_ALTERNATE_POWER, startPower);
+    l_Target->SetMaxPower(POWER_ALTERNATE_POWER, l_MaxPower);
+    l_Target->SetPower(POWER_ALTERNATE_POWER, l_StartPower);
 }
 
 void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode, bool apply) const

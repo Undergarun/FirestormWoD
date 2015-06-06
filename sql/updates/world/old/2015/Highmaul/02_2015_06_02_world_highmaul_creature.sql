@@ -1840,4 +1840,3 @@ INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras, 
 INSERT INTO creature (id, map, zoneId, areaId, spawnMask, phaseMask, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint, curhealth, curmana, MovementType, npcflag, npcflag2, unit_flags, unit_flags2, unit_flags3, dynamicflags, WorldEffectID, isActive) VALUES (86275, 1228, 6996, 7193, 245760, 3, 0, 1, 3476.71, 7865.01, 67.3274, 3.25361, 120, 0, 0, 3298617, 0, 0, 0, 0, 34816, 35653632, 0, 0, 0, 0);
 INSERT INTO creature_addon (guid, path_id, mount, bytes1, bytes2, emote, auras, animkit) VALUE
 (LAST_INSERT_ID(), 0, 0, 0, 1, 0, '', 2758);
-
