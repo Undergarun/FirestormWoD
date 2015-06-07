@@ -92,7 +92,7 @@ enum Opcodes
         SMSG_UPDATE_CURRENCY                        = 0x0893, ///< 6.2.0 20061
         SMSG_UPDATE_CURRENCY_WEEK_LIMIT             = 0x04D0, ///< 6.2.0 20061
         SMSG_WEEKLY_RESET_CURRENCY                  = 0x0CCF, ///< 6.2.0 20061
-        SMSG_EQUIPMENT_SET_LIST                     = 0x0C4C, ///< 6.2.0 20061
+        SMSG_EQUIPMENT_SET_LIST                     = 0x0926, ///< 6.2.0 20061
         SMSG_BINDER_CONFIRM                         = 0x0A16, ///< 6.2.0 20061
         SMSG_BIND_POINT_UPDATE                      = 0x00C4, ///< 6.2.0 20061
         SMSG_UPDATE_TALENT_DATA                     = 0x0057, ///< 6.2.0 20061
@@ -126,7 +126,7 @@ enum Opcodes
         SMSG_TRIGGER_CINEMATIC                      = 0x02A5, ///< 6.2.0 20061
         SMSG_TOTEM_CREATED                          = 0x0CA0, ///< 6.2.0 20061
         SMSG_RESPEC_WIPE_CONFIRM                    = 0x0E21, ///< 6.2.0 20061
-        SMSG_USE_EQUIPMENT_SET_RESULT               = 0x06DF, ///< 6.2.0 20061
+        SMSG_USE_EQUIPMENT_SET_RESULT               = 0x025C, ///< 6.2.0 20061
         SMSG_TRADE_STATUS                           = 0x0A9C, ///< 6.2.0 20061
         SMSG_TRADE_UPDATED                          = 0x0EA0, ///< 6.2.0 20061
         SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI  = 0x068C, ///< 6.2.0 20061

@@ -4838,8 +4838,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, 0.0f);
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, 0.0f);
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
     for (uint8 i = 0; i < 7; ++i)

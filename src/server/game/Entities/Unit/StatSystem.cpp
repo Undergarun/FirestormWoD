@@ -377,8 +377,8 @@ void Player::UpdateMaxPower(Powers p_Power)
 
 void Player::UpdateItemLevel()
 {
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
-    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, (float)GetAverageItemLevelTotal());
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
