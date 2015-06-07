@@ -14,3 +14,6 @@ INSERT INTO `spell_script_names` VALUES (52410, 'spell_gen_carrying_seaforium');
 -- fix Enrage proc on absorb
 DELETE FROM `spell_proc_event` WHERE `entry`=13046;
 INSERT INTO `spell_proc_event` (`entry`, `procEx`) VALUES (13046, 0x0000002 + 0x0000400);
+
+-- fix Mastery: Master Demonologist
+UPDATE `spell_script_names` SET `spell_id`=104027 WHERE `spell_id`=6353 AND `ScriptName`='spell_mastery_master_demonologist';

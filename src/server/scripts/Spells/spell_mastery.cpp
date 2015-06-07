@@ -1114,7 +1114,7 @@ class spell_mastery_master_demonologist_aura : public SpellScriptLoader
                 /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
                 if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
                 {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
                     p_Amount += CalculatePct(p_Amount, l_MasteryValue);
                 }
             }
@@ -1149,7 +1149,7 @@ class spell_mastery_master_demonologist : public SpellScriptLoader
                 /// Further increases the damage of your Touch of Chaos, Chaos Wave, Doom, Immolation Aura, and Soul Fire while in Metamorphosis by 12%.
                 if (l_Caster->HasAura(SPELL_WARLOCK_METAMORPHIS) && l_Caster->HasAura(SPELL_WARLOCK_MASTER_DEMONOLOGIST))
                 {
-                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
+                    float l_MasteryValue = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.0f;
                     SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_MasteryValue));
                 }
             }
