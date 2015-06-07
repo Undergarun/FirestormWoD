@@ -35,7 +35,8 @@ MapUpdaterTask::MapUpdaterTask(MapUpdater* p_Updater)
 /// Notify that the task is done
 void MapUpdaterTask::UpdateFinished()
 {
-    m_updater->update_finished();
+    if (m_updater != nullptr)
+        m_updater->update_finished();
 }
 
 //////////////////////////////////////////////////////////////////////////

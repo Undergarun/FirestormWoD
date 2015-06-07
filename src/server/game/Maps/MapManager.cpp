@@ -285,7 +285,10 @@ void MapManager::Update(uint32 diff)
     /// - Start Achievement criteria update processing thread
     sAchievementMgr->PrepareCriteriaUpdateTaskThread();
 
-    m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
+    if (m_updater.activated())
+        m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
+    else
+        AchievementCriteriaUpdateRequest(nullptr).call();
 
     /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();
