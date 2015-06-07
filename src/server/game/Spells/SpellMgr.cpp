@@ -4509,7 +4509,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 2600;
                 break;
             case 91107: ///< Unholy Might
-                spellInfo->Effects[0].BasePoints = 35;
                 spellInfo->OverrideSpellList.push_back(109260); ///< Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 break;
             case 24858: ///< Moonkin form - hotfix 5.4.2
