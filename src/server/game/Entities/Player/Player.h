@@ -610,6 +610,15 @@ enum PlayerFieldBytes2Offsets
     PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID  = 2  // uint16!
 };
 
+enum PlayerAvgItemLevelOffsets
+{
+    TotalAvgItemLevel       = 0,
+    EquippedAvgItemLevel    = 1,
+    NonPvPAvgItemLevel      = 2,
+    UnkAvgItemLevel         = 3,
+    MaxAvgItemLevel         = 4
+};
+
 static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID must be aligned to 2 byte boundary");
 
 #define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
