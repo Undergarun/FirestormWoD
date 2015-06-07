@@ -606,9 +606,9 @@ class AchievementMgr
         void LoadFromDB(Player* p_Player, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult = NULL, PreparedQueryResult criteriaAccountResult = NULL);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL, bool p_LoginCheck = false);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
+        void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer, bool p_LoginCheck = false);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver);
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0);
@@ -633,7 +633,7 @@ class AchievementMgr
         CriteriaProgress* GetCriteriaProgress(CriteriaEntry const* entry);
         void SetCriteriaProgress(CriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
-        void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
+        void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer, bool p_LoginCheck = false);
         bool CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedCriteria(CriteriaEntry const* criteria);
         bool IsCompletedCriteriaForAchievement(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);

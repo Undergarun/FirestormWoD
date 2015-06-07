@@ -29665,7 +29665,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
 {
     if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
         return;
@@ -29673,7 +29673,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
     AchievementCriteriaUpdateTask l_Task;
     l_Task.PlayerGUID = GetGUID();
     l_Task.UnitGUID   = p_Unit ? p_Unit->GetGUID() : 0;
-    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, p_LoginCheck](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
     {
         /// Task will be executed async
         /// We need to ensure the player still exist
@@ -29684,7 +29684,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
 
-        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
 
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
@@ -29692,7 +29692,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
             return;
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
-            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -31789,11 +31789,13 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return;
     }
+*/
 
     if (p_Apply)
     {
@@ -31830,22 +31832,62 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     }
 }
 
-void Player::RemoveAllMovementForces()
+void Player::RemoveAllMovementForces(uint32 p_Entry /*=0*/)
 {
-    std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
+    std::set<uint64> l_ActiveMovementForces;
+
+    if (!p_Entry)
+        l_ActiveMovementForces = m_ActiveMovementForces;
+    else
+    {
+        for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+        {
+            if (WorldObject* l_Obj = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+            {
+                if (l_Obj->GetEntry() == p_Entry)
+                    l_ActiveMovementForces.insert(l_Obj->GetGUID());
+            }
+        }
+    }
 
     for (uint64 l_ForceID : l_ActiveMovementForces)
         SendApplyMovementForce(l_ForceID, false, Position());
 }
 
-bool Player::HasMovementForce(uint64 p_Source)
+bool Player::HasMovementForce(uint64 p_Source /*= 0*/, bool p_IsEntry /*=false*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return false;
     }
+*/
+    /// No Guid? Just returns if player has at least one movement force applied
+    if (!p_Source)
+        return !m_ActiveMovementForces.empty();
 
+    /// Entry?
+    if (p_IsEntry)
+    {
+        if (uint32(p_Source) == p_Source)
+        {
+            for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+            {
+                if (WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+                {
+                    if (l_Object->GetEntry() == p_Source)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        /// Not a valid entry
+        return false;
+    }
+
+    /// Guid?
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 

@@ -5988,6 +5988,9 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
 
+    if (m_spellInfo->HasEffect(SPELL_EFFECT_RESURRECT_WITH_AURA) && m_caster->GetInstanceScript() && m_caster->GetInstanceScript()->IsEncounterInProgress())
+        return SPELL_FAILED_TARGET_IN_COMBAT;
+
     // Check cooldowns to prevent cheating
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
     {

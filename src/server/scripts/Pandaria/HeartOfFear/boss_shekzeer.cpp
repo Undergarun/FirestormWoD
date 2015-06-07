@@ -229,7 +229,7 @@ class boss_shekzeer : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
 
                 if (pInstance)
-                    if (CheckTrash() && pInstance->CheckRequiredBosses(DATA_SHEKZEER))
+                    if (CheckTrash() && pInstance->CheckRequiredBosses(DATA_SHEKZEER) && !IsLFR())
                         DoAction(ACTION_COMBAT);
 
                 if (isWipe)
@@ -303,7 +303,7 @@ class boss_shekzeer : public CreatureScript
                 if (fightInProgress || !pInstance)
                     return;
 
-                if (!CheckTrash() || !pInstance->CheckRequiredBosses(DATA_SHEKZEER))
+                if (!CheckTrash() || (!pInstance->CheckRequiredBosses(DATA_SHEKZEER) && !IsLFR()))
                 {
                     EnterEvadeMode();
                     return;
@@ -386,7 +386,7 @@ class boss_shekzeer : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -451,7 +451,7 @@ class boss_shekzeer : public CreatureScript
                 _EnterEvadeMode();
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 if (phase == 3)
                     return;
@@ -542,7 +542,7 @@ class boss_shekzeer : public CreatureScript
                         if (!pInstance)
                             return;
 
-                        if (!pInstance->CheckRequiredBosses(DATA_SHEKZEER))
+                        if (!pInstance->CheckRequiredBosses(DATA_SHEKZEER) && !IsLFR())
                         {
                             EnterEvadeMode();
                             return;
@@ -809,8 +809,8 @@ class boss_shekzeer : public CreatureScript
                                     next = itr;
                                     ++next;
 
-                                    if ((*itr)->GetRoleForGroup() == ROLE_TANK ||
-                                        (*itr)->GetRoleForGroup() == ROLE_DAMAGE  ||
+                                    if ((*itr)->GetRoleForGroup() == Roles::ROLE_TANK   ||
+                                        (*itr)->GetRoleForGroup() == Roles::ROLE_DAMAGE ||
                                         (*itr)->getClass() == CLASS_HUNTER)
                                         playerList.remove(*itr);
                                 }
@@ -1393,7 +1393,7 @@ class mob_dissonance_field : public CreatureScript
             }
 
             // Can't be wounded directly by player attacks
-            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 if (attacker->GetTypeId() == TYPEID_PLAYER || attacker->GetEntry() == me->GetEntry())
                     damage = 0;
@@ -1480,7 +1480,7 @@ class mob_sha_of_fear : public CreatureScript
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 damage = 0;
             }
@@ -1655,7 +1655,7 @@ public:
 };
 
 // 123707 - Eyes of the empress
-class spell_eyes_of_the_empress: public SpellScriptLoader
+class spell_eyes_of_the_empress : public SpellScriptLoader
 {
     public:
         spell_eyes_of_the_empress() : SpellScriptLoader("spell_eyes_of_the_empress") { }
@@ -1695,7 +1695,7 @@ class spell_eyes_of_the_empress: public SpellScriptLoader
 };
 
 // 123713 - Servant of the Empress
-class spell_servant_of_the_empress: public SpellScriptLoader
+class spell_servant_of_the_empress : public SpellScriptLoader
 {
 public:
     spell_servant_of_the_empress() : SpellScriptLoader("spell_servant_of_the_empress") { }
@@ -1724,7 +1724,7 @@ public:
 };
 
 // 123792 - Cry of Terror
-class spell_cry_of_terror: public SpellScriptLoader
+class spell_cry_of_terror : public SpellScriptLoader
 {
     public:
         spell_cry_of_terror() : SpellScriptLoader("spell_cry_of_terror") { }
@@ -1769,7 +1769,7 @@ class spell_cry_of_terror: public SpellScriptLoader
 };
 
 // 124843 - Amassing Darkness
-class spell_amassing_darkness: public SpellScriptLoader
+class spell_amassing_darkness : public SpellScriptLoader
 {
     public:
         spell_amassing_darkness() : SpellScriptLoader("spell_amassing_darkness") { }
@@ -1818,7 +1818,7 @@ class spell_amassing_darkness: public SpellScriptLoader
 };
 
 // 124845 - Calamity
-class spell_calamity: public SpellScriptLoader
+class spell_calamity : public SpellScriptLoader
 {
     public:
         spell_calamity() : SpellScriptLoader("spell_calamity") { }
@@ -1846,7 +1846,7 @@ class spell_calamity: public SpellScriptLoader
 };
 
 // 124862 - Visions of Demise
-class spell_visions_of_demise: public SpellScriptLoader
+class spell_visions_of_demise : public SpellScriptLoader
 {
     public:
         spell_visions_of_demise() : SpellScriptLoader("spell_visions_of_demise") { }
