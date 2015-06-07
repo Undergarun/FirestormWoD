@@ -4080,15 +4080,13 @@ void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
 
 
 AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
-: m_Updater(p_Updater)
+    : MapUpdaterTask(p_Updater)
 {
 
 }
 
-int AchievementCriteriaUpdateRequest::call()
+void AchievementCriteriaUpdateRequest::call()
 {
     sAchievementMgr->ProcessAllCriteriaUpdateTask();
-
-    m_Updater->_update_finished();
-    return 0;
+    UpdateFinished();
 }
