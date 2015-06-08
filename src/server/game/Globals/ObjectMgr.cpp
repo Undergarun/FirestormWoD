@@ -9857,11 +9857,17 @@ void ObjectMgr::LoadCharacterTemplateData()
                     l_TemplateItem.m_Count = l_ItemFields[2].GetUInt32();
                 }
 
-                if (!GetItemTemplate(l_TemplateItem.m_ItemID))
+                ItemTemplate const* l_ItemTemplate = GetItemTemplate(l_TemplateItem.m_ItemID);
+
+                if (!l_ItemTemplate)
                 {
                     sLog->outError(LOG_FILTER_SQL, "ItemID %u defined in `character_template_item` does not exist, ignoring.", l_TemplateItem.m_ItemID);
                     continue;
                 }
+
+                /// Premade items can't be sell
+                if (sWorld->getBoolConfig(CONFIG_FUN_ENABLE))
+                    const_cast<ItemTemplate*>(l_ItemTemplate)->FlagsCu |= ItemFlagsCustom::ITEM_FLAGS_CU_CANT_BE_SELL;
 
                 l_CharacterTemplate->m_TemplateItems.push_back(l_TemplateItem);
             }
