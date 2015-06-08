@@ -31,6 +31,7 @@ enum PaladinSpells
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
     PALADIN_SPELL_TEMPLARS_VERDICT              = 85256,
+    PALADIN_SPELL_FINAL_VERDICT                 = 157048,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED = 87173,
@@ -2027,7 +2028,7 @@ public:
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    l_Target->SetPower(POWER_HOLY_POWER, m_PowerUsed);
+                    l_Caster->SetPower(POWER_HOLY_POWER, m_PowerUsed);
 
                     if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         m_PowerUsed = 3;
@@ -2238,7 +2239,7 @@ public:
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
                     {
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
+                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME || GetSpellInfo()->Id == PALADIN_SPELL_FINAL_VERDICT)
                             l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
                     }
                     else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
