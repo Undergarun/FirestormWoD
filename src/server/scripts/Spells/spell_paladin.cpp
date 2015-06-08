@@ -2585,14 +2585,14 @@ class spell_pal_denounce : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*l_EffIndex*/)
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr || !l_Target->ToPlayer())
+                if (l_Target == nullptr || !l_Target->ToPlayer() || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
-                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
+                if (l_Player->HasAura(eSpells::WoDPvPHoly2PBonusAura))
+                    l_Player->CastSpell(l_Player, eSpells::WoDPvPHoly2PBonus, true);
 
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly2PBonus);
 
@@ -2604,8 +2604,11 @@ class spell_pal_denounce : public SpellScriptLoader
                 if (l_Target->GetTypeId() == TYPEID_PLAYER)
                     l_CritPctOfTarget = l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
+                if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
+                {
                     l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_CritPctOfTarget);
+                    l_Player->UpdateAllSpellCritChances();
+                }
             }
 
             void Register()
