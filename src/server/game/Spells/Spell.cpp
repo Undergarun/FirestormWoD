@@ -5010,7 +5010,7 @@ void Spell::SendSpellGo()
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
     l_Data << uint32(l_CastFlags);
-    l_Data << uint32(m_casttime);
+    l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
     l_Data << uint32(l_MissCount);
     l_Data << uint32(l_MissCount);
