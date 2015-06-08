@@ -2325,6 +2325,103 @@ class spell_dru_eclipse_mod_damage : public SpellScriptLoader
             }
         };
 
+        class spell_dru_eclipse_mod_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_eclipse_mod_damage_AuraScript);
+
+            enum eSpells
+            {
+                Starsurge = 78674,
+                MasteryEclipse = 77492,
+                MoonFireDamage = 164812,
+                SunFireDamage = 164815
+            };
+
+            void CalculateAmount(constAuraEffectPtr p_AurEff, int32& p_Amount, bool& /*canBeRecalculated*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster || l_Caster->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (AuraEffectPtr l_Aura = l_Caster->GetAuraEffect(Eclipse::Spell::Eclipse, EFFECT_0))
+                {
+                    float l_BonusSolarSpells = 0.0f;
+                    float l_BonusLunarSpells = 0.0f;
+                    float l_DamageModPCT = l_Aura->GetAmount();
+
+                    if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(eSpells::MasteryEclipse, EFFECT_1))
+                        l_DamageModPCT += l_Caster->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * (l_AurEff->GetAmount() / 100);
+
+                    float l_Eclipse = Eclipse::g_ElipseMaxValue * std::sin(2 * M_PI * l_Caster->GetPower(Powers::POWER_ECLIPSE) / Eclipse::g_BalanceCycleTime);
+
+                    /// Eclipse amount egal 0, each school have the same bonus
+                    if ((int)l_Eclipse == 0)
+                    {
+                        l_BonusLunarSpells = l_DamageModPCT / 2.0f;
+                        l_BonusSolarSpells = l_DamageModPCT / 2.0f;
+                    }
+                    /// We're in lunar phase
+                    else if (l_Eclipse > 0)
+                    {
+                        l_BonusLunarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, l_Eclipse);
+                        l_BonusSolarSpells = l_DamageModPCT - l_BonusLunarSpells;
+                    }
+                    /// We're in solar phase
+                    else if (l_Eclipse < 0)
+                    {
+                        l_BonusSolarSpells = (l_DamageModPCT / 2.0f) + CalculatePct(l_DamageModPCT / 2.0f, -l_Eclipse);
+                        l_BonusLunarSpells = l_DamageModPCT - l_BonusSolarSpells;
+                    }
+
+                    /// Celestial alignment : All Lunar and Solar spells benefit from your maximum Eclipse bonus.
+                    if (l_Caster->HasAura(Eclipse::Spell::CelestialAlignment))
+                    {
+                        l_BonusSolarSpells = l_DamageModPCT;
+                        l_BonusLunarSpells = l_DamageModPCT;
+                    }
+
+                    int32 l_Damage = p_Amount;
+                    int32 l_BonusDamage = 0;
+
+                    SpellInfo const* l_SpellInfo = GetSpellInfo();
+                    if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_NATURE)
+                        l_BonusDamage += CalculatePct(p_Amount, l_BonusSolarSpells);
+                    else if (l_SpellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
+                        l_BonusDamage += CalculatePct(p_Amount, l_BonusLunarSpells);
+
+                    /// Starsurge has the two schools
+                    if (l_SpellInfo->Id == eSpells::Starsurge)
+                    {
+                        if ((int)l_Eclipse == 0)
+                            l_BonusDamage = CalculatePct(p_Amount, (l_DamageModPCT / 2.0f));
+                        else if (l_Eclipse > 0)
+                            l_BonusDamage = CalculatePct(p_Amount, l_BonusLunarSpells);
+                        else if (l_Eclipse < 0)
+                            l_BonusDamage = CalculatePct(p_Amount, l_BonusSolarSpells);
+                    }
+                    p_Amount = l_Damage + l_BonusDamage;
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::MoonFireDamage:
+                case eSpells::SunFireDamage:
+                    DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_eclipse_mod_damage_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_eclipse_mod_damage_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_eclipse_mod_damage_SpellScript();
