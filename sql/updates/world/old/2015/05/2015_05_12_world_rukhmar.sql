@@ -33,7 +33,7 @@
 
 #167629/167647/Spell - Blaze Of Glory/Loose Quills
 
-	DELETE FROM spell_script_names WHERE spell_id IN (167629, 167647);
+	DELETE FROM spell_script_names WHERE spell_id IN (167629, 167647, 167679);
 	INSERT INTO spell_script_names VALUE (167629, "spell_rukhmar_blaze_of_glory");
 	INSERT INTO spell_script_names VALUE (167647, "spell_rukhmar_loose_quills");
 	INSERT INTO spell_script_names VALUE (167679, "spell_aura_pierced_armor");
