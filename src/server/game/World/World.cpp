@@ -1416,6 +1416,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
 
     m_bool_configs[CONFIG_FUN_ENABLE] = ConfigMgr::GetBoolDefault("Fun.Enable", false);
+    m_int_configs[CONFIG_FIRST_PREMADE_MONEY] = ConfigMgr::GetIntDefault("Fun.FirstPremadeMoney", 0);
+
 
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");

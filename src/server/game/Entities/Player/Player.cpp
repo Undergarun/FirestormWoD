@@ -1196,7 +1196,20 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
     {
-        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Template->m_Money);
+        uint32 l_Money = l_Template->m_Money;
+        uint32 l_FirstPremadeMoney = sWorld->getIntConfig(CONFIG_FIRST_PREMADE_MONEY);
+
+        if (GetSession()->GetFirstPremadeMoney() && l_FirstPremadeMoney)
+        {
+            l_Money += l_FirstPremadeMoney;
+            GetSession()->DisableFirstPremadeMoney();
+
+            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_INS_FIRST_PREMADE_MONEY);
+            l_Statement->setUInt32(0, GetSession()->GetAccountId());
+            CharacterDatabase.Execute(l_Statement);
+        }
+
+        SetUInt64Value(PLAYER_FIELD_COINAGE, l_Money);
         SetUInt32Value(UNIT_FIELD_LEVEL, l_Template->m_Level);
     }
     else
@@ -1333,8 +1346,10 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
 
         for (auto l_Item : l_RemainingTemplates)
+        {
             if (!l_Item->m_Faction || (l_Item->m_Faction == 1 && GetTeam() == ALLIANCE) || (l_Item->m_Faction == 2 && GetTeam() == HORDE))
                 StoreNewItemInBestSlots(l_Item->m_ItemID, l_Item->m_Count);
+        }
     }
     else
     {
@@ -1498,7 +1513,17 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     InventoryResult msg = CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, titem_id, titem_amount);
     if (msg == EQUIP_ERR_OK)
     {
-        StoreNewItem(sDest, titem_id, true, Item::GenerateItemRandomPropertyId(titem_id));
+        Item* l_Item = StoreNewItem(sDest, titem_id, true, Item::GenerateItemRandomPropertyId(titem_id));
+
+        if (l_Item != nullptr)
+        {
+            std::vector<uint32> l_Bonus;
+            Item::GenerateItemBonus(titem_id, ItemContext::None, l_Bonus);
+
+            for (auto l_BonusId : l_Bonus)
+                l_Item->AddItemBonus(l_BonusId);
+        }
+
         return true;                                        // stored
     }
 

@@ -467,6 +467,10 @@ class WorldSession
         void SetClientBuild(uint16 p_ClientBuild) { m_ClientBuild = p_ClientBuild; }
         uint16 GetClientBuild() const { return m_ClientBuild; }
 
+        void DisableFirstPremadeMoney() { m_FirstPremadeMoney = false; }
+        void SetFirstPremadeMoney() { m_FirstPremadeMoney = true; }
+        bool GetFirstPremadeMoney() const { return m_FirstPremadeMoney; }
+
         /// Return join date as unix timestamp
         uint32 GetAccountJoinDate() const { return m_AccountJoinDate; }
 
@@ -1199,6 +1203,8 @@ class WorldSession
         uint16 m_ClientBuild;
 
         uint32 m_AccountJoinDate;
+
+        bool m_FirstPremadeMoney;
 
         //////////////////////////////////////////////////////////////////////////
         /// Premium

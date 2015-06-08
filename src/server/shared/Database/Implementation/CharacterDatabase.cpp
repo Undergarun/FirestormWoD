@@ -729,4 +729,6 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_SEL_WORLD_STATES, "SELECT `worldstate`, `value` FROM character_worldstates WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_REP_WORLD_STATES, "REPLACE INTO `character_worldstates` (`guid`, `worldstate`, `value`) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_INS_FIRST_PREMADE_MONEY, "INSERT INTO `first_premade_money` (account) VALUES (?)", CONNECTION_ASYNC);
 }
