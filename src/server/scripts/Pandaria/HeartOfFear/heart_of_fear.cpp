@@ -1339,15 +1339,27 @@ class mob_zephyr : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
+            EventMap m_Events;
+
             void Reset()
             {
+                m_Events.Reset();
                 me->CastSpell(me, SPELL_ZEPHYR, false);
                 me->DespawnOrUnsummon(30000);
+                m_Events.ScheduleEvent(EVENT_ZEPHYR_MOVE, 500);
+            }
 
-                float l_PosX = me->GetPositionX() + 100.f * cos(me->GetOrientation());
-                float l_PosY = me->GetPositionY() + 100.f * sin(me->GetOrientation());
-                Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
-                me->GetMotionMaster()->MovePoint(0, targetPoint);
+            void UpdateAI(uint32 const p_Diff)
+            {
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_ZEPHYR_MOVE)
+                {
+                    float l_PosX = me->GetPositionX() + 100.f * cos(me->GetOrientation());
+                    float l_PosY = me->GetPositionY() + 100.f * sin(me->GetOrientation());
+                    Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
+                    me->GetMotionMaster()->MovePoint(0, targetPoint);
+                }
             }
         };
 
@@ -1612,6 +1624,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TAYAK_MELJARAK);
             point = me->GetPositionY() < 460.0f ? 0 : 1;
             direction = -1;
+            me->SetWalk(true);
             if (me->isAlive())
                 me->GetMotionMaster()->MovePoint(point + 1, atriumPath[point]);
             walkTimer = 0;
