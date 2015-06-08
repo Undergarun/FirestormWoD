@@ -1495,7 +1495,8 @@ enum FaerieSwarmSpells
 {
     SPELL_DRUID_FAERIE_DECREASE_SPEED       = 102354,
     SPELL_DRUID_GLYPH_OF_FAE_SILENCE        = 114237,
-    SPELL_DRUID_FAE_SILENCE                 = 114238
+    SPELL_DRUID_FAE_SILENCE                 = 114238,
+    SPELL_DRUID_FAERIE_SWARM                = 102355
 };
 
 /// Faerie Swarm - 102355
@@ -1535,6 +1536,37 @@ class spell_dru_faerie_swarm: public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_faerie_swarm_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Faerie Swarm (decrease speed aura) - 102354
+class spell_dru_faerie_swarm_speed_aura : public SpellScriptLoader
+{
+    public:
+        spell_dru_faerie_swarm_speed_aura() : SpellScriptLoader("spell_dru_faerie_swarm_speed_aura") { }
+
+        class spell_dru_faerie_swarm_speed_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_faerie_swarm_speed_aura_AuraScript);
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(FaerieSwarmSpells::SPELL_DRUID_FAERIE_SWARM))
+                    l_Target->RemoveAura(FaerieSwarmSpells::SPELL_DRUID_FAERIE_SWARM);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_faerie_swarm_speed_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_faerie_swarm_speed_aura_AuraScript();
         }
 };
 
@@ -4283,6 +4315,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_cat_form();
     new spell_dru_skull_bash();
     new spell_dru_faerie_swarm();
+    new spell_dru_faerie_swarm_speed_aura();
     new spell_dru_wild_mushroom();
     new spell_dru_stampeding_roar();
     new spell_dru_lacerate();

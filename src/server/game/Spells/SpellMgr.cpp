@@ -225,8 +225,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
                 return DIMINISHING_ROOT;
 
-            // Faerie Fire -- 770, 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            // Faerie Fire -- 770, Faerie Swarm -- 102355, 20 seconds in PvP (6.0)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return DIMINISHING_LIMITONLY;
 
             // Nature's Grasp
@@ -446,7 +446,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return 20 * IN_MILLISECONDS;
             break;
         }
