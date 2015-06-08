@@ -28,6 +28,11 @@ Position const g_PhemosJumpPos = { 4028.90f, 8485.51f, 322.226f, 5.63415f };
 
 float g_GorthenonFloor = 330.0f;
 
+Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
+
+float g_CircleToCenterDist = 25.0f;
+float g_BlazeDistToCenter = 136.0f;
+
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
     return;
@@ -62,6 +67,7 @@ class boss_twin_ogron_pol : public CreatureScript
             WarmingUp               = 173425,
             AggressiveDisposition   = 157951,
             Disposition             = 154172,
+            VenomshadeCopyDmgAura   = 154349,
             /// Pulverize
             PulverizeAura           = 158385,
             PulverizeFirstAoE       = 157952,
@@ -163,6 +169,9 @@ class boss_twin_ogron_pol : public CreatureScript
                 me->CancelSpellVisual(eVisuals::BigPulverize);
                 me->CancelSpellVisual(eVisuals::PulverizeVisual);
                 me->CancelSpellVisualKit(eVisuals::PulverizeLast);
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
+                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
@@ -446,9 +455,12 @@ class boss_twin_ogron_phemos : public CreatureScript
             WarmingUp               = 173425,
             AggressiveDisposition   = 157951,
             Disposition             = 154172,
+            VenomshadeCopyDmgAura   = 154349,
+            DespawnAreaTriggers     = 115905,
             /// Quake
             SpellQuake              = 158200,
             BlazeWeaponVisual       = 158206,
+            BlazeFirstSpawn         = 162901,
             /// Enfeebling Roar
             SpellEnfeeblingRoar     = 158057,
             EnfeeblingRoarDebuff    = 158026,
@@ -464,7 +476,8 @@ class boss_twin_ogron_phemos : public CreatureScript
         {
             EventCheckPlayer = 1,
             EventBerserker,
-            EventDoubleSlash
+            EventDoubleSlash,
+            EventSpawnBlaze
         };
 
         enum eActions
@@ -507,9 +520,11 @@ class boss_twin_ogron_phemos : public CreatureScript
             QuakeSpellVisual    = 37816
         };
 
-        enum eMisc
+        enum eMiscs
         {
-            EnfeeblingCounter
+            EnfeeblingCounter,
+            BlazeFirstSpawnCounter = 3,
+            BlazeWaveSpawnCounter = 5
         };
 
         struct boss_twin_ogron_phemosAI : public BossAI
@@ -534,6 +549,8 @@ class boss_twin_ogron_phemos : public CreatureScript
 
             uint32 m_EnfeeblingRoarCounter;
 
+            Position m_SecondBlazePos;
+
             void Reset() override
             {
                 if (!m_HomeChanged)
@@ -547,6 +564,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                 me->SetPower(Powers::POWER_ENERGY, 98);
                 me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_REGENERATE_POWER);
 
+                me->CastSpell(me, eSpells::DespawnAreaTriggers, true);
                 me->CastSpell(me, eSpells::AggressiveDisposition, true);
                 me->CastSpell(me, eSpells::Disposition, true);
 
@@ -594,12 +612,21 @@ class boss_twin_ogron_phemos : public CreatureScript
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
                 }
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
+                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
             {
                 return false;
             }
+
+            /*void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) override
+            {
+                if (p_AreaTrigger->GetSpellId() == eSpells::BlazeWeaponVisual)
+                    p_AreaTrigger->m_orientation = p_AreaTrigger->GetAngle(&g_CenterPos);
+            }*/
 
             void DoAction(int32 const p_Action) override
             {
@@ -620,8 +647,18 @@ class boss_twin_ogron_phemos : public CreatureScript
                         m_EnfeeblingRoarScheduled = false;
                         m_WhirlwindScheduled = false;
 
-                        Position l_Pos;
-                        me->GetRandomNearPosition(l_Pos, 50.0f);
+                        float l_O = frand(0, 2 * M_PI);
+                        Position l_Pos =
+                        {
+                            (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
+                            (g_CenterPos.m_positionY + (g_CircleToCenterDist * sin(l_O))),
+                            g_CenterPos.m_positionZ,
+                            0.0f
+                        };
+
+                        l_Pos.m_orientation = l_Pos.GetAngle(&g_CenterPos);
+
+                        SpawnBlazeWave(l_Pos);
 
                         me->CastSpell(l_Pos, eSpells::BlazeWeaponVisual, true);
                         me->SendPlaySpellVisualKit(eVisuals::QuakeVisualID, 0, 0);
@@ -631,7 +668,19 @@ class boss_twin_ogron_phemos : public CreatureScript
                             me->SendPlaySpellVisual(eVisuals::QuakeSpellVisual, nullptr, 0.75f, 0.0f, l_Pos, false, true);
                         });
 
-                        me->GetRandomNearPosition(l_Pos, 50.0f);
+                        l_O += M_PI;
+                        l_Pos =
+                        {
+                            (g_CenterPos.m_positionX + (g_CircleToCenterDist * cos(l_O))),
+                            (g_CenterPos.m_positionY + (g_CircleToCenterDist * sin(l_O))),
+                            g_CenterPos.m_positionZ,
+                            0.0f
+                        };
+
+                        l_Pos.m_orientation = l_Pos.GetAngle(&g_CenterPos);
+
+                        m_SecondBlazePos = l_Pos;
+                        m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnBlaze, 1500);
 
                         AddTimedDelayedOperation(1500, [this, l_Pos]() -> void
                         {
@@ -813,6 +862,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                             m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
+                    case eEvents::EventSpawnBlaze:
+                        SpawnBlazeWave(m_SecondBlazePos);
+                        break;
                     default:
                         break;
                 }
@@ -860,7 +912,7 @@ class boss_twin_ogron_phemos : public CreatureScript
 
             uint32 GetData(uint32 p_ID) override
             {
-                if (p_ID == eMisc::EnfeeblingCounter)
+                if (p_ID == eMiscs::EnfeeblingCounter)
                     return m_EnfeeblingRoarCounter;
 
                 return 0;
@@ -901,6 +953,57 @@ class boss_twin_ogron_phemos : public CreatureScript
                 {
                     if (Creature* l_Pol = Creature::GetCreature(*me, m_Instance->GetData64(eHighmaulCreatures::Pol)))
                         l_Pol->GetMotionMaster()->MoveJump(g_PolJumpPos, 30.0f, 20.0f, eMoves::MoveJump);
+                }
+            }
+
+            void SpawnBlazeWave(Position p_Pos)
+            {
+                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BlazeFirstSpawn))
+                {
+                    float l_OStep = (p_Pos.m_orientation - (M_PI / 2.0f)) + frand(0.0f, (M_PI / 3.0f));
+
+                    for (uint8 l_I = 0; l_I < eMiscs::BlazeFirstSpawnCounter; ++l_I)
+                    {
+                        uint32 l_Timer = 0;
+                        float l_Orientation = l_OStep;
+
+                        for (uint8 l_J = 0; l_J < eMiscs::BlazeWaveSpawnCounter; ++l_J)
+                        {
+                            Position l_Dest;
+                            l_Dest.m_positionX = p_Pos.m_positionX + (g_BlazeDistToCenter * cos(l_Orientation));
+                            l_Dest.m_positionY = p_Pos.m_positionY + (g_BlazeDistToCenter * sin(l_Orientation));
+
+                            if (l_Timer)
+                            {
+                                AddTimedDelayedOperation(l_Timer, [this, p_Pos, l_Dest]() -> void
+                                {
+                                    if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::BlazeFirstSpawn))
+                                    {
+                                        AreaTrigger* l_AreaTrigger = new AreaTrigger;
+                                        if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_AREATRIGGER), me, l_SpellInfo, 0, p_Pos, l_Dest))
+                                            delete l_AreaTrigger;
+                                        else
+                                            l_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                AreaTrigger* l_AreaTrigger = new AreaTrigger;
+                                if (!l_AreaTrigger->CreateAreaTriggerFromSpell(sObjectMgr->GenerateLowGuid(HighGuid::HIGHGUID_AREATRIGGER), me, l_SpellInfo, 0, p_Pos, l_Dest))
+                                    delete l_AreaTrigger;
+                                else
+                                    l_AreaTrigger->SetTimeToTarget(30 * TimeConstants::IN_MILLISECONDS);
+                            }
+
+                            /// Is it enough?
+                            l_Orientation += 0.05f;
+
+                            l_Timer += 500;
+                        }
+
+                        l_OStep += M_PI / 3.0f;
+                    }
                 }
             }
         };
@@ -1363,6 +1466,55 @@ class spell_highmaul_phemos_whirlwind : public SpellScriptLoader
         }
 };
 
+/// Blaze - 162901
+/// Blaze - 168374
+class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_phemos_blaze() : AreaTriggerEntityScript("areatrigger_highmaul_phemos_blaze")
+        {
+            m_UpdateTimer = 500;
+        }
+
+        enum eSpell
+        {
+            BlazeDoT = 158241
+        };
+
+        uint32 m_UpdateTimer;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (m_UpdateTimer)
+            {
+                if (m_UpdateTimer <= p_Time)
+                {
+                    if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                    {
+                        std::list<Unit*> l_TargetList;
+                        float l_Radius = 2.0f;
+
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                        for (Unit* l_Unit : l_TargetList)
+                            l_Caster->CastSpell(l_Unit, eSpell::BlazeDoT, true);
+                    }
+
+                    m_UpdateTimer = 500;
+                }
+                else
+                    m_UpdateTimer -= p_Time;
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_phemos_blaze();
+        }
+};
+
 void AddSC_boss_twin_ogron()
 {
     /// Bosses
@@ -1377,4 +1529,7 @@ void AddSC_boss_twin_ogron()
     new spell_highmaul_twin_ogron_dispositions();
     new spell_highmaul_pulverize_third_wave();
     new spell_highmaul_phemos_whirlwind();
+
+    /// AreaTrigger
+    new areatrigger_highmaul_phemos_blaze();
 }

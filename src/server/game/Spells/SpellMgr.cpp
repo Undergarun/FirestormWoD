@@ -3561,6 +3561,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 158419:///< Pulverize - Third AoE (Pol - Twin Ogron)
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4); ///< 1s
                 break;
+            case 158241:///< Blaze - DoT (Phemos - Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);

@@ -207,3 +207,8 @@ INSERT INTO creature_equip_template VALUES
 UPDATE creature_template SET minlevel = 103, maxlevel = 103, faction = 16, rank = 3, dmg_multiplier = 10, unit_class = 4, mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry IN (78238, 78237);
 UPDATE creature_template SET ScriptName = 'boss_twin_ogron_pol' WHERE entry = 78238;
 UPDATE creature_template SET ScriptName = 'boss_twin_ogron_phemos' WHERE entry = 78237;
+
+DELETE FROM areatrigger_template WHERE spell_id IN (162901, 168374);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, scale_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
+(162901, 0, 6987, 1, 1, 8258, 1203, 29473, 2, 6, 6, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_phemos_blaze'),
+(168374, 0, 6197, 1, 1, 16450, 1195, 28000, 0, 0, 0, 0, 0, 0, 0, 'areatrigger_highmaul_phemos_blaze');
