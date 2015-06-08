@@ -3932,6 +3932,7 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         }
 };
 
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();

@@ -1,5 +1,3 @@
-#include "ScriptMgr.h"
-#include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "auchindon.h"
 
@@ -204,6 +202,8 @@ public:
             me->CastSpell(me, 149133); // demonic circle
             me->AddAura(SPELL_TERONOGOR_SHIELD, me);
 
+            DespawnCreaturesInArea(CREATURE_FELBORNE_ABYSSAL, me);
+
             if (Creature* nearest = me->FindNearestCreature(60975, 300.0f, true))
             {
                 me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
@@ -276,7 +276,7 @@ public:
 
                     if (Creature* nearest = me->FindNearestCreature(CREATURE_DUREM, 100.0f, true))
                     {
-                        me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
+                        //me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
                       //  me->SetReactState(REACT_PASSIVE);
                         events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
@@ -295,7 +295,7 @@ public:
                     {
                        // me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
                        // me->SetReactState(REACT_PASSIVE);
-                      //  events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
+                        events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
 
                     me->CastSpell(me, SPELL_DESTRUCTION_TRANSFORM);
@@ -311,9 +311,9 @@ public:
 
                     if (Creature* nearest = me->FindNearestCreature(CREATURE_IRUUN, 100.0f, true))
                     {
-                        me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
+                        //me->CastSpell(nearest, SPELL_DRAIN_SOUL_VISUAL);
                        // me->SetReactState(REACT_PASSIVE);
-                       // events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
+                        events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 4000);
                     }
 
                     me->CastSpell(me, SPELL_DEMONOLOGY_TRANSFORM);
@@ -329,8 +329,12 @@ public:
             Talk(TERONGOR_AGGRO_01);
 
             //me->CastSpell(me, SPELL_SUMMON_ABYSSAL_DUMMY);
-            me->SummonCreature(TRIGGER_SUMMON_ABYSSAl, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
-
+            if (me->GetMap()->IsHeroic())
+            {
+                Position pos;
+                me->GetRandomNearPosition(pos, 10.0f);
+                me->SummonCreature(TRIGGER_SUMMON_ABYSSAl, pos, TEMPSUMMON_MANUAL_DESPAWN);
+            }
             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 16000));
             events.ScheduleEvent(EVENT_CORRUPTION, urand(10000, 12000));
             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 21000);
@@ -359,6 +363,8 @@ public:
             if (instance)
                 instance->SetBossState(DATA_KATHAAR, DONE);
 
+            DespawnCreaturesInArea(CREATURE_FELBORNE_ABYSSAL, me);
+
             me->Respawn(true);
             me->setFaction(35);
             me->SetReactState(REACT_PASSIVE);
@@ -366,6 +372,9 @@ public:
             me->SetCanFly(true);
             me->GetMotionMaster()->MoveTakeoff(0, me->GetPositionX(), me->GetPositionY(), 21.261f);
             me->DespawnOrUnsummon(4000);
+
+
+            me->SummonGameObject(GAMEOBJECT_CHEST_AUCHENI, 1891.84f, 2973.80f, 16.844f, 5.664811f, 0,0,0,0,0);
         }
         void UpdateAI(uint32 const diff)
         {
@@ -385,20 +394,10 @@ public:
                     {
                         if (Creature * trigger = me->SummonCreature(60975, trigger_position_drain, TEMPSUMMON_MANUAL_DESPAWN))
                         {
-                            me->CastSpell(trigger, SPELL_DRAIN_LIFE);
-                            me->SetReactState(REACT_PASSIVE);
-                            trigger->DespawnOrUnsummon(6000);
-
                             DoAction(ACTION_CHOOSE_POWER);
                         }
 
                         events.ScheduleEvent(EVENT_TRANSFORM_REMOVE_PASSIVE, 5000);
-                        break;
-                    }
-                    case EVENT_TRANSFORM_REMOVE_PASSIVE:
-                    {
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->CastStop();
                         break;
                     }
                     case EVENT_SHADOW_BOLT:
@@ -546,6 +545,8 @@ public:
         InstanceScript* instance;
         void Reset()
         {
+            events.Reset();
+
             if (Creature* zipteq = me->FindNearestCreature(CREATURE_ZIPTEQ, 20.0f, true))
                 zipteq->Respawn(true);
 
@@ -563,8 +564,10 @@ public:
 
         void EnterCombat(Unit* attacker)
         {
+            me->CastSpell(me, 159021);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(8000, 16000));
             events.ScheduleEvent(EVENT_CORRUPTION, urand(10000, 14000));
+            events.ScheduleEvent(EVENT_CHAOS_WAVE, urand(8000, 10000));
         }
         void UpdateAI(const uint32 diff)
         {
@@ -591,7 +594,6 @@ public:
                 events.ScheduleEvent(EVENT_CHAOS_WAVE, urand(8000, 10000));
                 break;
             }
-            DoMeleeAttackIfReady();
         }
     };
     CreatureAI* GetAI(Creature* creature) const
@@ -657,7 +659,6 @@ public:
                 events.ScheduleEvent(EVENT_DRAIN_LIFE, 16000);
                 break;
             }
-            DoMeleeAttackIfReady();
         }
     };
     CreatureAI* GetAI(Creature* creature) const
@@ -728,6 +729,8 @@ public:
         InstanceScript* instance;
         void Reset()
         {
+            events.Reset();
+
             if (Creature* teronogor = instance->instance->GetCreature(instance->GetData64(DATA_TERONOGOR)))
             {
                 if (Creature* trigger = me->SummonCreature(60975, teronogor->GetPositionX(), teronogor->GetPositionY(), teronogor->GetPositionZ(), teronogor->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN))
@@ -781,7 +784,6 @@ public:
                     break;
                 }
             }
-            DoMeleeAttackIfReady();
         }
     };
     CreatureAI* GetAI(Creature* creature) const

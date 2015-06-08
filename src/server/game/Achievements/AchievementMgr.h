@@ -28,6 +28,7 @@
 #include "DBCEnums.h"
 #include "DBCStores.h"
 #include <LockedMap.h>
+#include "MapUpdater.h"
 
 typedef std::vector<CriteriaEntry const*>            AchievementCriteriaEntryList;
 typedef std::vector<AchievementEntry const*>         AchievementEntryList;
@@ -820,14 +821,11 @@ class AchievementGlobalMgr
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
 
 class MapUpdater;
-class AchievementCriteriaUpdateRequest : public ACE_Method_Request
+class AchievementCriteriaUpdateRequest : public MapUpdaterTask
 {
-    private:
-        MapUpdater* m_Updater;
-
     public:
         AchievementCriteriaUpdateRequest(MapUpdater* p_Updater);
-        virtual int call() override;
+        virtual void call() override;
 
 };
 
