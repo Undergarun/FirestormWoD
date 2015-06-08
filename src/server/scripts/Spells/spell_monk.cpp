@@ -967,11 +967,21 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_item_s12_4p_mistweaver_SpellScript);
 
+            enum eSpells
+            {
+                GlyphofZenFocusAura = 159545,
+                GlyphofZenFocus = 159546
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(SPELL_MONK_ITEM_4_S12_MISTWEAVER))
-                        _player->CastSpell(_player, SPELL_MONK_ZEN_FOCUS, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_4_S12_MISTWEAVER))
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_ZEN_FOCUS, true);
+
+                if (l_Caster->HasAura(eSpells::GlyphofZenFocusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofZenFocus, true);
             }
 
             void Register()
