@@ -52,7 +52,7 @@ class mob_kor_thik_slicer : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_4);
             }
 
-            void DamageTaken(Unit* killer, uint32& damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* killer, uint32& damage, const SpellInfo* p_SpellInfo)
             {
                 if(!eventScheduled)
                 {
@@ -474,8 +474,10 @@ class mob_set_thik_tempest : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -487,7 +489,7 @@ class mob_set_thik_tempest : public CreatureScript
 
                 while (uint32 id = events.ExecuteEvent())
                 {
-                    if ((id = EVENT_WIND_SLASH))
+                    if (id = EVENT_WIND_SLASH)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_WIND_SLASH, true);
@@ -596,10 +598,16 @@ class mob_set_thik_zephyrian : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f))
+                {
                     if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_GUSTWING, 200.0f))
+                    {
                         if (pInstance)
+                        {
                             if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
                                 garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
+                        }
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -656,8 +664,10 @@ class mob_set_thik_gale_slicer : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -714,8 +724,10 @@ class mob_instructor_kli_thak : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -778,8 +790,10 @@ class mob_instructor_tak_thok : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -836,8 +850,10 @@ class mob_instructor_maltik : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -900,8 +916,10 @@ class mob_instructor_zarik : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -921,6 +939,8 @@ class mob_instructor_zarik : public CreatureScript
                             events.ScheduleEvent(EVENT_TRASH_TEMPEST_SLASH, 22000);
                             break;
                         }
+                        default:
+                            break;
                     }
                 }
             }
@@ -1020,8 +1040,10 @@ class mob_kor_thik_swarmer : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -1080,10 +1102,16 @@ class mob_set_thik_gustwing : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (!GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f))
+                {
                     if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_ZEPHYRIAN, 200.0f))
+                    {
                         if (pInstance)
+                        {
                             if (Creature* garalon = pInstance->instance->GetCreature(pInstance->GetData64(NPC_GARALON)))
                                 garalon->AI()->DoAction(ACTION_GARALON_VISIBLE);
+                        }
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -1257,8 +1285,10 @@ class mob_kor_thik_silentwing : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (pInstance)
+                {
                     if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                         tayak->AI()->DoAction(ACTION_TAYAK_TALK_TRASH);
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -1314,101 +1344,10 @@ class mob_zephyr : public CreatureScript
                 me->CastSpell(me, SPELL_ZEPHYR, false);
                 me->DespawnOrUnsummon(30000);
 
-                Position targetPoint = GetTargetPoint(me, 100.0f);
+                float l_PosX = me->GetPositionX() + 100.f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 100.f * sin(me->GetOrientation());
+                Position targetPoint = { l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation() };
                 me->GetMotionMaster()->MovePoint(0, targetPoint);
-            }
-
-            Position GetTargetPoint(Creature* mob, float dist)
-            {
-                /*
-                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
-                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
-                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
-                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
-                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
-                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
-                 * small.
-                 *
-                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                 */
-
-                float posX = mob->GetPositionX();
-                float posY = mob->GetPositionY();
-                float posZ = mob->GetPositionZ();
-                float orientation = mob->GetOrientation();
-
-                // Retrieving absolute orientation
-                float absOri = orientation;
-                uint8 turn = 0;
-                while (absOri > (M_PI / 2))
-                {
-                    absOri -= (M_PI / 2);
-                    turn = ++turn % 4;
-                }
-
-                // Looking for ratio between X and Y
-                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-                float percentY = 1.0f - percentX;
-
-                // Applying negatives directions according to orientation
-                if (orientation > (M_PI / 2))
-                {
-                    if (orientation > M_PI)
-                        percentY = -percentY;
-
-                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
-                        percentX = -percentX;
-                }
-
-                // if turned, we need to switch X & Y
-                switch (turn)
-                {
-                    // -x / +y / switch
-                    case 1:
-                    {
-                        float tmpVal = percentX;
-                        percentX = -percentY;
-                        percentY = tmpVal;
-                        break;
-                    }
-                    // -x / -y / no switch
-                    case 2:
-                    {
-                        percentX = -percentX;
-                        percentY = -percentY;
-                        break;
-                    }
-                    // +x / -y / switch
-                    case 3:
-                    {
-                        float tmpVal = percentX;
-                        percentX = percentY;
-                        percentY = -tmpVal;
-                        break;
-                    }
-                    // +x / +y / no switch : no change
-                    default:
-                        break;
-                }
-
-                // Calculating reaching point
-                float pointX = posX;
-                float pointY = posY;
-
-                Position reachPoint = {pointX, pointY, posZ, orientation};
-
-                do
-                {
-                    pointX += percentX;
-                    pointY += percentY;
-                    reachPoint.Relocate(pointX, pointY);
-                } while (mob->GetDistance(reachPoint) < dist);
-
-                return reachPoint;
             }
         };
 
@@ -1416,6 +1355,12 @@ class mob_zephyr : public CreatureScript
         {
             return new mob_zephyrAI(creature);
         }
+};
+
+enum eSwarmGuardType
+{
+    TYPE_SWARM_LOWGUID = 1,
+    TYPE_AMBER_USED,
 };
 
 // 64916 - Kor'thik Swarmguard
@@ -1432,7 +1377,8 @@ public:
         }
 
         EventMap events;
-        uint64 protectedAmberCallerGuid;
+        uint32 protectedAmberCallerLowGuid;
+        uint64 protectedAmberGuid;
         InstanceScript* pInstance;
         bool inCombat;
         bool isProtecting;
@@ -1442,76 +1388,59 @@ public:
             events.Reset();
             me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_7);
             me->SetReactState(REACT_AGGRESSIVE);
-            protectedAmberCallerGuid = 0;
+            protectedAmberCallerLowGuid = 0;
+            protectedAmberGuid = 0;
             inCombat = false;
             isProtecting = false;
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            protectedAmberCallerGuid = 0;
+            protectedAmberCallerLowGuid = 0;
             inCombat = false;
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void DamageTaken(Unit* p_Attacker, uint32& /*p_Damage*/, const SpellInfo* p_SpellInfo)
+        {
+            if (!inCombat)
+                EnterCombat(p_Attacker);
+        }
+
+        void EnterCombat(Unit* attacker)
         {
             if (!inCombat)
             {
                 events.ScheduleEvent(EVENT_CARAPACE, 2000);
+                inCombat = true;
 
                 if (isProtecting)
                     return;
 
-                /// Retreiving list of ambercallers (maximum: 2 if all is alright)
-                std::list<Creature*> l_AmberCallerList;
-                GetCreatureListWithEntryInGrid(l_AmberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+                // Retreiving list of ambercallers (maximum: 2 if all is alright)
+                std::list<Creature*> amberCallerList;
+                GetCreatureListWithEntryInGrid(amberCallerList, me, NPC_SRATHIK_AMBERCALLER, 50.0f);
+                amberCallerList.sort(JadeCore::DistanceCompareOrderPred(me));
 
-                if (!l_AmberCallerList.empty())
+                if (amberCallerList.size() > 1)
                 {
-                    std::list<Creature*>::iterator l_Iter = l_AmberCallerList.begin();
-
-                    /// Trying to bind to the first amber caller
-                    Creature* l_AmberCaller = *l_Iter;
-
-                    /// Need to get the the other Kor'thik SwarmGuard
-                    std::list<Creature*> l_MeList;
-                    GetCreatureListWithEntryInGrid(l_MeList, me, me->GetEntry(), 50.0f);
-                    std::list<Creature*>::iterator l_MeIter = l_MeList.begin();
-                    Creature* l_OtherMe = *l_MeIter;
-
-                    /// Should not be me (that's why we get the list)!
-                    if (l_OtherMe == me)
-                        l_OtherMe = *(++l_MeIter);
-
-                    /// Other SwarmGuard could be invalid (if dead, for instance)
-                    if (l_OtherMe && l_OtherMe->IsAIEnabled)
+                    for (std::list<Creature*>::iterator itr = amberCallerList.begin(); itr != amberCallerList.end(); ++itr)
                     {
-                        /// Checking if the ambercaller we picked isn't already bind to the other SwarmGuard, and if so, picking the next amberCaller in the list
-                        if (mob_korthik_swarmguardAI* l_AI = CAST_AI(mob_korthik_swarmguard::mob_korthik_swarmguardAI, l_OtherMe->AI()))
-                        {
-                            uint64 l_AlreadyProtected = l_AI->protectedAmberCallerGuid;
+                        Creature* amberCaller = *itr;
 
-                            if (l_AmberCaller->GetGUID() == l_AlreadyProtected)
+                        if (amberCaller)
+                        {
+                            if (!amberCaller->AI()->GetData(TYPE_AMBER_USED))
                             {
-                                l_AmberCaller = *(++l_Iter);
-                                uint64 amberGuid = l_AmberCaller->GetGUID();
+                                protectedAmberGuid = amberCaller->GetGUID();
+                                isProtecting = true;
+                                DoCast(amberCaller, SPELL_SWARMGUARDS_AEGIS);
+                                amberCaller->AI()->SetData(TYPE_AMBER_USED, 1);
+                                amberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
+                                return;
                             }
                         }
                     }
-
-                    /// amberCaller could be not valid
-                    if (l_AmberCaller)
-                    {
-                        protectedAmberCallerGuid = l_AmberCaller->GetGUID();
-                        isProtecting = true;
-                        DoCast(l_AmberCaller, SPELL_SWARMGUARDS_AEGIS);
-
-                        if (l_AmberCaller->IsAIEnabled)
-                            l_AmberCaller->AI()->DoAction(ACTION_AMBER_VOLLEY);
-                    }
                 }
-
-                inCombat = true;
             }
         }
 
@@ -1535,7 +1464,11 @@ public:
             events.Update(diff);
 
             // Looking for Sra'thik Ambercaller to protect
-            Creature* amberCaller = ObjectAccessor::FindUnit(protectedAmberCallerGuid)->ToCreature();
+            Creature* amberCaller = nullptr;
+
+            if (protectedAmberGuid)
+                amberCaller = Creature::GetCreature(*me, protectedAmberGuid);
+
             // Ambercaller not found, dead or too far
             if (!amberCaller || !amberCaller->isAlive() || me->GetDistance(amberCaller) > 30.0f)
             {
@@ -1579,12 +1512,14 @@ public:
 
         EventMap events;
         InstanceScript* pInstance;
+        bool isProtected;
 
         void Reset()
         {
             events.Reset();
             me->SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID, EQUIP_TRASH_9);
             me->SetReactState(REACT_PASSIVE);
+            isProtected = false;
         }
 
         void DoAction(int32 const action)
@@ -1592,8 +1527,17 @@ public:
             if (action == ACTION_AMBER_VOLLEY)
             {
                 DoCast(SPELL_AMBER_VOLLEY);
+                isProtected = true;
                 events.ScheduleEvent(EVENT_AMBER_VOLLEY, 2000);
             }
+        }
+
+        uint32 GetData(uint32 p_Type)
+        {
+            if (p_Type == TYPE_AMBER_USED)
+                return isProtected ? 1 : 0;
+
+            return 0;
         }
 
         void UpdateAI(const uint32 diff)
@@ -1618,30 +1562,10 @@ public:
 
                 if (!playerList.empty())
                 {
-                    // Picking a random player to attack
-                    std::list<Player*>::iterator itr = playerList.begin();
-                    bool search = true;
-
-                    while (search)
-                    {
-                        if (urand(0, 1))
-                        {
-                            me->CastSpell(*itr, SPELL_AMBER_VOLLEY_MISSILE, true);
-                            search = false;
-                            break;
-                        }
-
-                        ++itr;
-                        if (itr == playerList.end())
-                            itr = playerList.begin();
-                    }
-
-                    // Rescheduling
-                    if (pInstance)
-                    {
-                        uint32 mode = pInstance->instance->GetSpawnMode();
-                        events.ScheduleEvent(EVENT_AMBER_VOLLEY, IsLFR() ? 3000 : Is25ManRaid() ? 2000 : 5000);
-                    }
+                    // Pick a random player to target
+                    JadeCore::RandomResizeList(playerList, 1);
+                    me->CastSpell(playerList.front(), SPELL_AMBER_VOLLEY_MISSILE, true);
+                    events.ScheduleEvent(EVENT_AMBER_VOLLEY, IsLFR() ? 3000 : Is25ManRaid() ? 2000 : 5000);
                 }
             }
             // No melee attack
@@ -1656,15 +1580,15 @@ public:
 
 Position atriumPath[9] =
 {
-    {-2429.16f, 431.90f, 554.52f, 0.0f},
-    {-2417.22f, 456.37f, 554.52f, 0.0f},
-    {-2417.60f, 498.18f, 554.52f, 0.0f},
-    {-2436.80f, 524.51f, 554.52f, 0.0f},
-    {-2451.77f, 531.64f, 554.52f, 0.0f},
-    {-2504.65f, 534.39f, 554.52f, 0.0f},
-    {-2538.70f, 508.50f, 554.52f, 0.0f},
-    {-2543.00f, 454.06f, 554.52f, 0.0f},
-    {-2528.75f, 432.90f, 554.52f, 0.0f},
+    { -2429.16f, 431.90f, 554.52f, 0.0f },
+    { -2417.22f, 456.37f, 554.52f, 0.0f },
+    { -2417.60f, 498.18f, 554.52f, 0.0f },
+    { -2436.80f, 524.51f, 554.52f, 0.0f },
+    { -2451.77f, 531.64f, 554.52f, 0.0f },
+    { -2504.65f, 534.39f, 554.52f, 0.0f },
+    { -2538.70f, 508.50f, 554.52f, 0.0f },
+    { -2543.00f, 454.06f, 554.52f, 0.0f },
+    { -2528.75f, 432.90f, 554.52f, 0.0f },
 };
 
 // 64902 - Kor'thik Fleshrender
@@ -1974,9 +1898,13 @@ void ShekZeerTrashBuff(Creature* me)
 bool ShekZeerCheckTrash(Creature* me)
 {
     if (!GetClosestCreatureWithEntry(me, NPC_ZARTHIK_AUGURER, 200.0f))
+    {
         if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_WINDBLADE_TRASH, 200.0f))
+        {
             if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_WARSINGER, 200.0f))
                 return true;
+        }
+    }
 
     return false;
 }
@@ -2012,9 +1940,13 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (ShekZeerCheckTrash(me))
+            {
                 if (pInstance)
+                {
                     if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                         Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+                }
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -2091,9 +2023,13 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (ShekZeerCheckTrash(me))
+            {
                 if (pInstance)
+                {
                     if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                         Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+                }
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -2168,9 +2104,13 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (ShekZeerCheckTrash(me))
+            {
                 if (pInstance)
+                {
                     if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                         Shekzeer->AI()->DoAction(ACTION_SHEKZEER_COMBAT);
+                }
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -2216,7 +2156,7 @@ public:
 };
 
 // 123421 - Vital Strikes
-class spell_vital_strikes: public SpellScriptLoader
+class spell_vital_strikes : public SpellScriptLoader
 {
     public:
         spell_vital_strikes() : SpellScriptLoader("spell_vital_strikes") { }
@@ -2235,8 +2175,10 @@ class spell_vital_strikes: public SpellScriptLoader
                 int32 bp = (eventInfo.GetDamageInfo()->GetDamage() / 2) / 6;
 
                 if (Unit* victim = eventInfo.GetProcTarget())
+                {
                     if (!victim->HasAura(SPELL_ARTERIAL_SPIRIT))
                         GetCaster()->CastCustomSpell(victim, SPELL_ARTERIAL_SPIRIT, &bp, NULL, NULL, true);
+                }
             }
 
             void Register()

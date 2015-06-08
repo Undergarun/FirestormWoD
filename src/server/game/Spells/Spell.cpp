@@ -5010,7 +5010,7 @@ void Spell::SendSpellGo()
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
     l_Data << uint32(l_CastFlags);
-    l_Data << uint32(m_casttime);
+    l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
     l_Data << uint32(l_MissCount);
     l_Data << uint32(l_MissCount);
@@ -5987,6 +5987,9 @@ SpellCastResult Spell::CheckCast(bool strict)
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
+
+    if (m_spellInfo->HasEffect(SPELL_EFFECT_RESURRECT_WITH_AURA) && m_caster->GetInstanceScript() && m_caster->GetInstanceScript()->IsEncounterInProgress())
+        return SPELL_FAILED_TARGET_IN_COMBAT;
 
     // Check cooldowns to prevent cheating
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE))

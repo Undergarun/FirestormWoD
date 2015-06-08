@@ -3414,6 +3414,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176172:///< Ancient Inferno: Molten Firestorm
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
                 break;
+            case 117032:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_DEST_RANDOM;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(29); ///< 6 yards
+                break;
             case 175093:///< Alliance Reward (Ashran events)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -3539,14 +3544,22 @@ void SpellMgr::LoadSpellCustomAttr()
             case 160446:///< Spore Shooter - summon (Brackenspore)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
                 break;
+            case 162346:///< Crystalline Barrage (Tectus)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 162371:///< Crystalling Barrage - Summon (Tectus)
+            case 163208:///< Fracture - Missile (Tectus)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                break;
+            case 117624:///< Suicide No Blood No Logging (Tectus)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
                 spellInfo->Effects[0].TargetA = SELECT_TARGET_SELF;
                 spellInfo->ExplicitTargetMask = spellInfo->_GetExplicitTargetMask();
-                break;
-            case 175915:///< Acid Breath (Drov the Ruiner)
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 165096:///< Ogreic Landing
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -3555,6 +3568,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TargetA = TARGET_DEST_DEST;
                 break;
             case 164850:///< Nature Channeling (Cosmetic)
+            case 175581:///< Void Touch
+            case 175915:///< Acid Breath (Drov the Ruiner)
+            case 139550:///< Torment
+            case 138742:///< Chocking Sands
+            case 99212: ///< Stormfire, Item - Shaman T12 Enhancement 4P Bonus
+            case 116000:///< Voodoo Dolls
+            case 38112: ///< Magic Barrier, Lady Vashj
+            case 70602: ///< Corruption
+            case 48278: ///< Paralyze
+            case 65584: ///< Growth of Nature (Freya)
+            case 64381: ///< Strength of the Pack (Auriaya)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 20167: ///< Seal of Insight
@@ -3841,10 +3865,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 136797: ///< Dino Mending
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_ANY;
-                break;
-            case 139550: ///< Torment
-            case 138742: ///< Chocking Sands
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 139900: ///< Stormcloud
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -4137,6 +4157,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163140:///< Mind Fungus
             case 163590:///< Creeping Moss (damage)
             case 165494:///< Creeping Moss (healing)
+            case 162370:///< Crystalline Barrage (DoT)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
@@ -4243,6 +4264,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 107439: ///< Twilight Barrage
             case 106401: ///< Twilight Onslaught
             case 155152: ///< Prismatic Crystal damage
+            case 172073: ///< Meteoric Earthspire (Rokka & Lokk)
                 /// ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
@@ -4370,6 +4392,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 0;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 159623: ///< Leap of Faith (Glyph of Restored Faith)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
+                break;
+            case 73325: ///< Leap of Faith
+                spellInfo->OverrideSpellList.push_back(159623); ///< Leap of Faith (Glyph of Restored Faith)
+                break;
             case 688: ///< Summon Imp
                 spellInfo->OverrideSpellList.push_back(112866); ///< Summon Fel Imp
                 break;
@@ -4426,9 +4454,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
                 spellInfo->ProcChance = 100;
                 spellInfo->ProcFlags = 16;
-                break;
-            case 99212: ///< Stormfire, Item - Shaman T12 Enhancement 4P Bonus
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 99206: ///< Item - Shaman T12 Elemental 4P Bonus
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
@@ -4895,6 +4920,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 85673: ///< Word of Glory
                 spellInfo->OverrideSpellList.push_back(114163); ///< Replace World of glory by Eternal Flame
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 20066: ///< Repentance
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 114163: ///< Eternal Flame
                 spellInfo->Effects[2].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -5344,10 +5373,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 40;
                 spellInfo->Effects[1].MiscValue = 100;
                 break;
-            case 121253: ///< Keg Smash
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                spellInfo->MaxAffectedTargets = 3;
-                break;
             case 115308: ///< Elusive Brew
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
@@ -5467,9 +5492,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             }
             /// Mogu'shan Vault
-            case 116000: ///< Voodoo Dolls
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                break;
             case 116161: ///< Crossed Over
                 spellInfo->Effects[EFFECT_1].MiscValue = 2; ///< Set Phase to 2
                 spellInfo->Effects[EFFECT_3].Effect    = 0; ///< No need to summon
@@ -5531,9 +5553,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 147362: ///< Counter Shot
                 spellInfo->Speed = 0;
-                break;
-            case 38112: ///< Magic Barrier, Lady Vashj
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 36819: ///< Pyroblast (Kael'thas)
                 spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
@@ -5762,10 +5781,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 14;
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK;
                 spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
-                break;
-            case 70602: ///< Corruption
-            case 48278: ///< Paralyze
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 70715: ///< Column of Frost (visual marker)
                 spellInfo->SetDurationIndex(32); ///< 6 seconds (missing)
@@ -5996,10 +6011,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 63342: ///< Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
                 break;
-            case 65584: ///< Growth of Nature (Freya)
-            case 64381: ///< Strength of the Pack (Auriaya)
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                break;
             case 63018: ///< Searing Light (XT-002)
             case 65121: ///< Searing Light (25m) (XT-002)
             case 63024: ///< Gravity Bomb (XT-002)
@@ -6113,6 +6124,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 for (auto l_Iter : spellInfo->SpellPowers)
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
+
+            case 171690: ///< Truesteel Ingot
+            case 169081: ///< War Paints
+            case 168835: ///< Hexweave Cloth
+            case 172539: ///< Antiseptic Bandage
+            case 171391: ///< Burnished Leather
+            case 169092: ///< Temporal Crystal
+                spellInfo->Effects[EFFECT_0].ItemType = 0;
+                break;
             default:
                 break;
         }
@@ -6176,6 +6196,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake
                 case 152280:///< Defile
                 case 109248:///< Binding Shot

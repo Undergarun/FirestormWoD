@@ -995,7 +995,7 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                        // Client have map coords swapped
 }
 
-MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID)
+MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* p_Difficulty /*= nullptr*/)
 {
     auto l_It = sMapDifficultyMap.find(p_MapID);
     if (l_It == sMapDifficultyMap.end())
@@ -1006,13 +1006,21 @@ MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID)
 
     for (auto& l_Pair : l_It->second)
     {
-        DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(l_Pair.first);
-        if (!l_Difficulty)
+        DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Pair.first);
+        if (!l_DifficultyEntry)
             continue;
 
-        if (l_Difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+        if (l_DifficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
+        {
+            if (p_Difficulty)
+                *p_Difficulty = Difficulty(l_Pair.first);
+
             return &l_Pair.second;
+        }
     }
+
+    if (p_Difficulty)
+        *p_Difficulty = Difficulty(l_It->second.begin()->first);
 
     return &l_It->second.begin()->second;
 }
@@ -1035,7 +1043,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Difficulty);
     if (!l_DifficultyEntry)
-        return GetDefaultMapDifficulty(mapId);
+        return GetDefaultMapDifficulty(mapId, &l_Difficulty);
 
     uint32 l_TempDifficulty = l_Difficulty;
     MapDifficulty const* l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty));
@@ -1046,7 +1054,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
         l_DifficultyEntry = sDifficultyStore.LookupEntry(l_TempDifficulty);
 
         if (!l_DifficultyEntry)
-            return GetDefaultMapDifficulty(mapId);
+            return GetDefaultMapDifficulty(mapId, &l_Difficulty);
 
         // pull new data
         l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty)); // we are 10 normal or 25 normal

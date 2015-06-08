@@ -48,6 +48,7 @@ void AddSC_holiday_spell_scripts();
 void AddSC_spell_skill();
 void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
+void AddSC_spell_item_enchantment();
 
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
@@ -862,6 +863,9 @@ void AddSC_highmaul();
 void AddSC_boss_kargath_bladefist();
 void AddSC_boss_the_butcher();
 void AddSC_boss_brackenspore();
+void AddSC_boss_tectus();
+void AddSC_boss_twin_ogron();
+void AddSC_boss_koragh();
 
 /// Auchindon
 void AddSC_instance_auchindon();
@@ -943,6 +947,7 @@ void AddSpellScripts()
     AddSC_spell_skill();
     AddSC_npc_spell_scripts();
     AddSC_areatrigger_spell_scripts();
+    AddSC_spell_item_enchantment();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif
@@ -1786,6 +1791,9 @@ void AddDraenorScripts()
     AddSC_boss_kargath_bladefist();
     AddSC_boss_the_butcher();
     AddSC_boss_brackenspore();
+    AddSC_boss_tectus();
+    AddSC_boss_twin_ogron();
+    AddSC_boss_koragh();
 
     /// Auchindoun
     AddSC_instance_auchindon();

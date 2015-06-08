@@ -54,7 +54,9 @@ enum eHighmaulDatas
     HighmaulSweeperMovesCount = 9,
     /// Brackenspore
     MaxCreepingMoss = 16,
-    MaxFleshEaterPos = 2
+    MaxFleshEaterPos = 2,
+    /// The Market
+    MaxTectusGuardians = 3
 };
 
 enum eHighmaulCreatures
@@ -78,7 +80,12 @@ enum eHighmaulCreatures
     TheButcher          = 77404,
     /// Gorian Strands
     Brackenspore        = 78491,
-    BFC9000             = 81403
+    BFC9000             = 81403,
+    /// The Market
+    Tectus              = 78948,
+    Rokka               = 86071,
+    Oro                 = 86072,
+    Lokk                = 86073
 };
 
 enum eHighmaulGameobjects
@@ -99,7 +106,13 @@ enum eHighmaulGameobjects
     RaidGrate1      = 232368,
     RaidGrate2      = 232369,
     RaidGrate3      = 232370,
-    RaidGrate4      = 232371
+    RaidGrate4      = 232371,
+
+    /// Tectus's Doors
+    Earthwall1      = 237777,
+    Earthwall2      = 237778,
+    Earthwall3      = 237779,
+    Earthwall4      = 237780
 };
 
 enum eHighmaulWorldStates
@@ -116,7 +129,8 @@ enum eHighmaulWorldStates
 enum eHighmaulSpells
 {
     PlayChogallScene    = 178333,
-    ChogallNight        = 163661
+    ChogallNight        = 163661,
+    Berserker           = 26662
 };
 
 enum eHighmaulLocs
