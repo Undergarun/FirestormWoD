@@ -770,7 +770,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
 
     _resurrectionData = NULL;
 
-    memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
+    memset(m_items, 0, sizeof(Item*) * PLAYER_SLOTS_COUNT);
 
     m_social = NULL;
 
@@ -1317,7 +1317,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
         for (auto l_Spell : l_Template->m_SpellIDs)
-            addSpell(l_Spell, true, true, true, false);
+            learnSpell(l_Spell, false);
 
     // original spells
     learnDefaultSpells();
@@ -5693,7 +5693,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     /// Remove areatrigger
     std::list<AreaTrigger*> l_AreaTriggerList;
     GetAreaTriggerList(l_AreaTriggerList, spell_id);
-    if (l_AreaTriggerList.size() > 0)
+    if (!l_AreaTriggerList.empty())
     {
         for (auto l_Itr : l_AreaTriggerList)
             l_Itr->RemoveFromWorld();
@@ -10647,8 +10647,8 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                 if (GetPrimaryStat() != STAT_AGILITY && GetSpecializationId(GetActiveSpec()))
                     break;
 
-                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_AGILITY, float(val), applyStats);
+                HandleStatModifier(UNIT_MOD_STAT_AGILITY, BASE_VALUE, float(val), applyStats); 
+                ApplyStatBuffMod(STAT_AGILITY, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_AGILITY, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_STRENGTH:
@@ -10657,7 +10657,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_STRENGTH, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_STRENGTH, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STRENGTH, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_STRENGTH, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_INTELLECT:
@@ -10666,7 +10666,7 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_INTELLECT, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_INTELLECT, float(val), applyStats);
+                ApplyStatBuffMod(STAT_INTELLECT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_INTELLECT, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_SPIRIT:
@@ -10675,12 +10675,12 @@ void Player::_ApplyItemBonuses(Item const* item, uint8 slot, bool apply, uint32 
                     break;
 
                 HandleStatModifier(UNIT_MOD_STAT_SPIRIT, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_SPIRIT, float(val), applyStats);
+                ApplyStatBuffMod(STAT_SPIRIT, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_SPIRIT, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             }
             case ITEM_MOD_STAMINA:
                 HandleStatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(val), applyStats);
-                ApplyStatBuffMod(STAT_STAMINA, float(val), applyStats);
+                ApplyStatBuffMod(STAT_STAMINA, CalculatePct(val, GetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_PCT_EXCLUDE_CREATE)), apply);
                 break;
             case ITEM_MOD_DODGE_RATING:
                 ApplyRatingMod(CR_DODGE, int32(val), applyStats);
@@ -13445,15 +13445,15 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 Item* Player::GetItemByGuid(uint64 guid) const
 {
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (pItem->GetGUID() == guid)
-                return pItem;
-
-    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
-        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            if (pItem->GetGUID() == guid)
-                return pItem;
-
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)		
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
     for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
@@ -13489,6 +13489,7 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
         return m_items[slot];
     else if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
+
     return NULL;
 }
 
@@ -18206,7 +18207,7 @@ bool Player::CanCompleteQuest(uint32 p_QuestID)
 
             for (QuestObjective l_Objective : l_Quest->QuestObjectives)
             {
-                if (l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+                if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
                 {
 
                 }
@@ -18434,7 +18435,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_FACTION_REP2
             || l_Objective.Type == QUEST_OBJECTIVE_TYPE_MONEY
-            || l_Objective.Type == QUEST_OBJECTIVE_AREATRIGGER)
+            || l_Objective.Type == QUEST_OBJECTIVE_TYPE_AREATRIGGER)
             continue;
 
         m_questObjectiveStatus.insert(std::make_pair(l_Objective.ID, uint32(0)));
@@ -19547,6 +19548,26 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
     return 0;
 }
 
+void Player::AreaExploredOrEventHappens(uint32 questId)
+{
+    if (questId)
+    {
+        uint16 log_slot = FindQuestSlot(questId);
+        if (log_slot < MAX_QUEST_LOG_SIZE)
+        {
+            QuestStatusData& q_status = m_QuestStatus[questId];
+
+            if (!q_status.Explored)
+            {
+                q_status.Explored = true;
+                m_QuestStatusSave[questId] = true;
+            }
+        }
+        if (CanCompleteQuest(questId))
+            CompleteQuest(questId);
+    }
+}
+
 void Player::AdjustQuestReqItemCount(Quest const* quest)
 {
     if (!quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))
@@ -19569,26 +19590,6 @@ uint16 Player::FindQuestSlot(uint32 quest_id) const
             return i;
 
     return MAX_QUEST_LOG_SIZE;
-}
-
-void Player::AreaExploredOrEventHappens(uint32 questId)
-{
-    if (questId)
-    {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
-        {
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
-            {
-                q_status.Explored = true;
-                m_QuestStatusSave[questId] = true;
-            }
-        }
-        if (CanCompleteQuest(questId))
-            CompleteQuest(questId);
-    }
 }
 
 //not used in Trinityd, function for external script library
@@ -20131,7 +20132,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
 
     switch (p_Objective.Type)
     {
-        case QUEST_OBJECTIVE_TYPE_CRITERIA:
+        case QUEST_OBJECTIVE_TYPE_CRITERIA_TREE:
         {
             WorldPacket data(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, (4 * 4 + 8));
             data << uint32(p_Quest->GetQuestId());
@@ -20156,7 +20157,7 @@ void Player::SendQuestUpdateAddCredit(Quest const* p_Quest, const QuestObjective
         case QUEST_OBJECTIVE_TYPE_FACTION_REP2:
         case QUEST_OBJECTIVE_TYPE_MONEY:
         case QUEST_OBJECTIVE_TYPE_PLAYER:
-        case QUEST_OBJECTIVE_AREATRIGGER:
+        case QUEST_OBJECTIVE_TYPE_AREATRIGGER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_TAMER:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_ELITE:
         case QUEST_OBJECTIVE_TYPE_PET_BATTLE_PVP:
@@ -21627,6 +21628,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 creatorGuid = fields[3].GetUInt32();
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
+        Tokenizer l_BonusToken(fields[6].GetString(), ' ');
 
         if (!itemId)
         {
@@ -21646,10 +21648,14 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
+        std::vector<uint32> l_Bonuses;
+        for (uint8 l_I = 0; l_I < l_BonusToken.size(); ++l_I)
+            l_Bonuses.push_back(atoi(l_BonusToken[l_I]));
+
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid))
             creatorGuid = 0;
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, l_Bonuses);
     }
     while (result->NextRow());
 }
@@ -22015,7 +22021,7 @@ void Player::_LoadQuestObjectiveStatus(PreparedQueryResult result)
                 SetQuestSlotCounter(i, objective->Index, amount);
                 m_questObjectiveStatus.insert(std::make_pair(objectiveId, amount));
 
-                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA && (uint32)objective->Amount == amount)
+                if (objective->Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE && (uint32)objective->Amount == amount)
                     SetQuestSlotState(i, QUEST_STATE_OBJ_0_COMPLETE << objective->Index);
 
                 break;
@@ -23334,6 +23340,17 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(4, _voidStorageItems[i]->CreatorGuid);
             stmt->setUInt32(5, _voidStorageItems[i]->ItemRandomPropertyId);
             stmt->setUInt32(6, _voidStorageItems[i]->ItemSuffixFactor);
+
+            std::ostringstream l_Bonuses;
+
+            for (uint32 l_I = 0; l_I < _voidStorageItems[i]->Bonuses.size(); l_I++)
+            {
+                if (_voidStorageItems[i])
+                    l_Bonuses << _voidStorageItems[i]->Bonuses[l_I] << ' ';
+            }
+
+            stmt->setString(7, l_Bonuses.str());
+
         }
 
         trans->Append(stmt);
@@ -26321,8 +26338,6 @@ void Player::UpdatePotionCooldown(Spell* spell)
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
     else
         SendCooldownEvent(spell->m_spellInfo, m_lastPotionId, spell);
-
-    m_lastPotionId = 0;
 }
                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
@@ -26790,15 +26805,6 @@ void Player::UpdateTriggerVisibility()
 void Player::SendInitialVisiblePackets(Unit* p_Target)
 {
     SendAurasForTarget(p_Target);
-
-    if (Creature* l_Creature = p_Target->ToCreature())
-    {
-        if (CreatureAddon const* l_CreatureAddon = l_Creature->GetCreatureAddon())
-        {
-            if (l_CreatureAddon->AnimKit)
-                l_Creature->SetAIAnimKit(l_CreatureAddon->AnimKit);
-        }
-    }
 
     if (p_Target->isAlive())
     {
@@ -28710,19 +28716,20 @@ bool Player::CanCaptureTowerPoint()
 );
 }
 
-uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
+uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* p_NewFace /* = nullptr */)
 {
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;                               // max level in this dbc
-
+        
+    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+    uint8 l_Face        = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID);
     uint8 hairstyle     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 facialhair    = GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
 
-    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)))
+    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)) && (!p_NewFace || (p_NewFace->Data == l_Face)))
         return 0;
 
     GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
@@ -28743,6 +28750,9 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     if (newSkin && skincolor != newSkin->Data)
         cost += bsc->cost * 0.75f;                          // +5/6 of price
+
+    if (p_NewFace && l_Face != p_NewFace->Data)
+        cost += bsc->cost * 2;                              /// 2x price
 
     return uint32(cost);
 }
@@ -31124,16 +31134,16 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
 
 uint8 Player::AddVoidStorageItem(const VoidStorageItem& item)
 {
-    int8 slot = GetNextVoidStorageFreeSlot();
+    uint8 slot = GetNextVoidStorageFreeSlot();
 
-    if (slot >= VOID_STORAGE_MAX_SLOT)  // @todo : Comparison of constant 160 with expression of type 'int8' (aka 'signed char') is always false
+    if (slot >= VOID_STORAGE_MAX_SLOT)
     {
         GetSession()->SendVoidStorageTransferResult(VOID_TRANSFER_ERROR_FULL);
         return 255;
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemEntry,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, item.Bonuses);
     return slot;
 }
 
@@ -31153,7 +31163,7 @@ void Player::AddVoidStorageItemAtSlot(uint8 slot, const VoidStorageItem& item)
     }
 
     _voidStorageItems[slot] = new VoidStorageItem(item.ItemId, item.ItemId,
-        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor);
+        item.CreatorGuid, item.ItemRandomPropertyId, item.ItemSuffixFactor, item.Bonuses);
 }
 
 void Player::DeleteVoidStorageItem(uint8 slot)

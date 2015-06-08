@@ -1431,7 +1431,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                         me->PlayOneShotAnimKit(eData::AnimKit1);
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKit(eData::AnimKit2); });
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKitId(eData::AnimKit2); });
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::FlameJet, true); });
 
                         if (me->GetMap()->IsMythic())
@@ -1491,7 +1491,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                 me->RemoveAllAreasTrigger();
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                 me->RemoveAllAuras();
-                me->SetAIAnimKit(0);
+                me->SetAIAnimKitId(0);
                 me->PlayOneShotAnimKit(eData::AnimKit3);
                 me->RemoveAura(eSpells::FlameGoutPeriodic);
             }
@@ -3482,7 +3482,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Obscured));
 
-                if (GetSpellInfo()->Id == eSpells::BerserkerRush && p_Targets.size() > 0)
+                if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
                     p_Targets.remove_if([this](WorldObject* p_Object) -> bool
                     {

@@ -63,6 +63,7 @@ static AreaFlagByMapID                    sAreaFlagByMapID;                    /
 static WMOAreaInfoByTripple               sWMOAreaInfoByTripple;
 
 DBCStorage <AchievementEntry>             sAchievementStore(Achievementfmt);
+DBCStorage <AnimKitEntry>                 sAnimKitStore(AnimKitfmt);
 DBCStorage <AreaTriggerEntry>             sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <ArmorLocationEntry>           sArmorLocationStore(ArmorLocationfmt);
 DBCStorage <AuctionHouseEntry>            sAuctionHouseStore(AuctionHouseEntryfmt);
@@ -333,6 +334,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);  // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");                                                      // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");                                                  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");                                                    // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAuctionHouseStore,           dbcPath, "AuctionHouse.dbc");                                                 // 17399

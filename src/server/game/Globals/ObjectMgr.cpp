@@ -178,10 +178,8 @@ bool checkMailText(std::string _text)
     std::string temp_str(_text);
     std::transform(temp_str.begin(), temp_str.end(), temp_str.begin(), tolower);
 
-    bool bOk = true;
-
     // Check for special symbols
-    bOk = (temp_str.find("|tinterface") == std::string::npos);
+    bool bOk = (temp_str.find("|tinterface") == std::string::npos);
 
     return bOk;
 }
@@ -9791,12 +9789,6 @@ void ObjectMgr::LoadGuildChallengeRewardInfo()
 
 void ObjectMgr::LoadCharacterTemplateData()
 {
-    if (!sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 character templates because they were disabled in the config.");
-        return;
-    }
-
     uint32 l_OldMSTime = getMSTime();
     QueryResult l_Result = WorldDatabase.Query("SELECT id, class, name, description, level, money, alianceX, alianceY, alianceZ, alianceO, alianceMap, hordeX, hordeY, hordeZ, hordeO, hordeMap FROM character_template WHERE disabled = 0");
     uint32 l_Count = 0;

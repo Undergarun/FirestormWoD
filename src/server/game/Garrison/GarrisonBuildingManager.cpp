@@ -28,6 +28,8 @@ namespace MS { namespace Garrison
         m_AllowedBluePrints.push_back(Buildings::AlchemyLab__AlchemyLab_Level1);
         m_AllowedBluePrints.push_back(Buildings::EnchanterStudy_EnchanterStudy_Level1);
         m_AllowedBluePrints.push_back(Buildings::EngineeringWorks__EngineeringWorks_Level1);
+        m_AllowedBluePrints.push_back(Buildings::GemBoutique_GemBoutique_Level1);
+        m_AllowedBluePrints.push_back(Buildings::ScribesQuarters__ScribesQuarters_Level1);
     }
 
     /// Destructor

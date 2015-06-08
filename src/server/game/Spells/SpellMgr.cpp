@@ -3342,6 +3342,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 167615: ///< Pierced Armor
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
             case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
                 spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
                 break;
@@ -5308,9 +5311,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_HEAL;
                 spellInfo->Effects[0].BasePoints = 31;
                 break;
-            case 116740: ///< Tigereye Brew
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
-                break;
             case 117993: ///< Chi Torpedo : Heal
             case 124040: ///< Chi Torpedo : Damage
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(9);
@@ -5418,6 +5418,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 106334: ///< Wash Away
                 spellInfo->AttributesEx3 &= ~ SPELL_ATTR3_ONLY_TARGET_PLAYERS;
                 break;
+            case 124974: ///< Nature's Vigil
+                spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
             case 120552: ///< Mantid Munition Explosion
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(16);
                 break;

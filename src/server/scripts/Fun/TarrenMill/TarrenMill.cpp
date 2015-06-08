@@ -318,7 +318,7 @@ class go_tarren_mill_portal : public GameObjectScript
             else
             {
                 l_PositionX = 2621.11f;
-                l_PositionY = 636.17;
+                l_PositionY = 636.17f;
                 l_PositionZ = 55.97f;
                 l_Orientation = 4.31f;
             }

@@ -697,21 +697,35 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
 
 void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp)
 {
-    ASSERT(target);
+    /*ASSERT(target);
     ASSERT(auraApp->GetRemoveMode());
-    ASSERT(auraApp);
+    ASSERT(auraApp);*/
+
+    if (!target)
+        sLog->outAshran("Aura::_UnapplyForTarget no target[%u]", GetId());
+
+    if (!auraApp)
+        sLog->outAshran("Aura::_UnapplyForTarget no aura app[%u]", GetId());
+
+    if (!auraApp->GetRemoveMode())
+        sLog->outAshran("Aura::_UnapplyForTarget no aura app remove mode[%u]", GetId());
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
 
     // TODO: Figure out why this happens
     if (itr == m_applications.end())
     {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
+        sLog->outAshran("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
         ASSERT(false);
     }
 
     // aura has to be already applied
+
+
+    if (itr->second != auraApp)
+        sLog->outAshran("Aura::_UnapplyForTarget itr->second != auraApp [%u]", GetId());
+
     ASSERT(itr->second == auraApp);
     m_applications.erase(itr);
 
@@ -1008,10 +1022,6 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
     if (IsPassive() && !m_spellInfo->DurationEntry)
         maxDuration = -1;
-
-    // Hack fix Duration for Tigereye Brew
-    if (m_spellInfo->Id == 116740)
-        maxDuration = 15000;
 
     // IsPermanent() checks max duration (which we are supposed to calculate here)
     if (maxDuration != -1 && modOwner)

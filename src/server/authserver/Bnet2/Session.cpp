@@ -782,6 +782,12 @@ namespace BNet2 {
 //             m_Locale                        ///< ClientLang
 //         ));
 
+
+        l_Stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_IP);
+        l_Stmt->setUInt32(0, m_AccountID);
+        l_Stmt->setString(1, GetSocket().getRemoteAddress().c_str());
+        LoginDatabase.Execute(l_Stmt);
+
         /// User reporting
         /// Step Login (5)
         /// We havn't script system in battle.net ...
