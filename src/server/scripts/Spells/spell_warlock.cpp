@@ -3285,6 +3285,40 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Fel Firebolt - 104318
+class spell_warl_fel_firebolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_fel_firebolt() : SpellScriptLoader("spell_warl_fel_firebolt") { }
+
+        class spell_warl_fel_firebolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_fel_firebolt_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                SetHitDamage(GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_fel_firebolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_fel_firebolt_SpellScript();
+        }
+};
+
 enum WoDPvPDemonology2PBonusSpells
 {
     WoDPvPDemonology2PBonusAura = 171393,
@@ -3381,6 +3415,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
+    new spell_warl_fel_firebolt();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }
