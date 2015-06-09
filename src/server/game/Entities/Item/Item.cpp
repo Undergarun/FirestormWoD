@@ -282,8 +282,83 @@ Item::Item()
     _dynamicValuesCount = ITEM_DYNAMIC_END;
 }
 
+bool RemoveItemByDelete(Player* p_Player, Item* p_Item)
+{
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 Item::~Item()
 {
+    // WARNING : THAT CHECK MAY CAUSE LAGS !
+    if (Player * plr = GetOwner())
+    {
+        if (RemoveItemByDelete(plr, this))
+        {
+            ACE_Stack_Trace l_Trace;
+            sLog->outAshran("Item %u on player guid %u is in destructor, and pointer is still referenced in player's data ...", GetEntry(), plr->GetGUIDLow());
+            sLog->outAshran("Stack Trace : %s", l_Trace.c_str());
+        }
+    }
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)

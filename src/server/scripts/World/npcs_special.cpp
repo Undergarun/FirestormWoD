@@ -4735,6 +4735,203 @@ class npc_army_of_the_dead : public CreatureScript
         }
 };
 
+/// Training Dummy <Healing> - 88835
+/// Training Dummy <Healing> - 89321
+/// Training Dummy <Healing> - 88289
+/// Training Dummy <Healing> - 87321
+/// Training Dummy <Healing> - 88316
+class npc_training_dummy_healing : public CreatureScript
+{
+    public:
+        npc_training_dummy_healing() : CreatureScript("npc_training_dummy_healing") { }
+
+        struct npc_training_dummy_healingAI : Scripted_NoMovementAI
+        {
+            npc_training_dummy_healingAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+
+            uint32 m_ResetTimer;
+
+            void Reset() override
+            {
+                m_ResetTimer = 0;
+
+                if (!me->isAlive())
+                    me->Respawn(true);
+
+                me->SetHealth(1);
+                me->DisableHealthRegen();
+                me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+            }
+
+            void HealReceived(Unit* p_Healer, uint32& p_HealAmount) override
+            {
+                m_ResetTimer = 20 * TimeConstants::IN_MILLISECONDS;
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                p_Damage = 0;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (m_ResetTimer)
+                {
+                    if (m_ResetTimer <= p_Diff)
+                        Reset();
+                    else
+                        m_ResetTimer -= p_Diff;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_training_dummy_healingAI(p_Creature);
+        }
+};
+
+/// Training Dummy <Damage> - 87760
+/// Training Dummy <Damage> - 87317
+/// Training Dummy <Damage> - 87320
+/// Training Dummy <Damage> - 87761
+/// Training Dummy <Damage> - 87318
+/// Training Dummy <Damage> - 87762
+class npc_training_dummy_damage : public CreatureScript
+{
+    public:
+        npc_training_dummy_damage() : CreatureScript("npc_training_dummy_damage") { }
+
+        struct npc_training_dummy_damageAI : Scripted_NoMovementAI
+        {
+            npc_training_dummy_damageAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+
+            uint32 m_ResetTimer;
+
+            void Reset() override
+            {
+                m_ResetTimer = 0;
+
+                if (!me->isAlive())
+                    me->Respawn(true);
+
+                me->SetFullHealth();
+                me->ReenableHealthRegen();
+
+                me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);        ///< Immune to knock aways like blast wave
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (!_EnterEvadeMode())
+                    return;
+
+                Reset();
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                m_ResetTimer = 10 * TimeConstants::IN_MILLISECONDS;
+                p_Damage = 0;
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!me->HasUnitState(UnitState::UNIT_STATE_STUNNED))
+                    me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
+
+                if (m_ResetTimer)
+                {
+                    if (m_ResetTimer <= p_Diff)
+                        EnterEvadeMode();
+                    else
+                        m_ResetTimer -= p_Diff;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_training_dummy_damageAI(p_Creature);
+        }
+};
+
+/// Training Dummy <Tanking> - 87329
+/// Training Dummy <Tanking> - 88288
+/// Training Dummy <Tanking> - 88836
+/// Training Dummy <Tanking> - 87322
+/// Training Dummy <Tanking> - 88837
+/// Training Dummy <Tanking> - 88314
+class npc_training_dummy_tanking : public CreatureScript
+{
+    public:
+        npc_training_dummy_tanking() : CreatureScript("npc_training_dummy_tanking") { }
+
+        struct npc_training_dummy_tankingAI : Scripted_NoMovementAI
+        {
+            npc_training_dummy_tankingAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+
+            uint32 m_ResetTimer;
+
+            void Reset() override
+            {
+                m_ResetTimer = 0;
+
+                if (!me->isAlive())
+                    me->Respawn(true);
+
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);        ///< Immune to knock aways like blast wave
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);   ///< Immune to knock back effects like Whiplash
+            }
+
+            void DamageDealt(Unit* p_Victim, uint32& p_Damage, DamageEffectType p_DamageType) override
+            {
+                m_ResetTimer = 10 * TimeConstants::IN_MILLISECONDS;
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (!_EnterEvadeMode())
+                    return;
+
+                Reset();
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (!me->HasUnitState(UnitState::UNIT_STATE_ROOT))
+                    me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                if (m_ResetTimer)
+                {
+                    if (m_ResetTimer <= p_Diff)
+                        EnterEvadeMode();
+                    else
+                        m_ResetTimer -= p_Diff;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_training_dummy_tankingAI(p_Creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -4786,4 +4983,7 @@ void AddSC_npcs_special()
     new npc_monk_spirit();
     new npc_rogue_decoy();
     new npc_army_of_the_dead();
+    new npc_training_dummy_healing();
+    new npc_training_dummy_damage();
+    new npc_training_dummy_tanking();
 }

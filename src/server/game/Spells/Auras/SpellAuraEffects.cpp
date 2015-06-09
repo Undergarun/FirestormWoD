@@ -127,7 +127,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModStalked,                            // 68 SPELL_AURA_MOD_STALKED
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS clientside
-    &AuraEffect::HandleModSpellCritChanceShool,                   // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
+    &AuraEffect::HandleModSpellCritChanceSchool,                  // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     &AuraEffect::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
@@ -1102,12 +1102,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
         case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
         {
+
             switch (GetId())
             {
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 10;
 
                     break;
@@ -1125,7 +1126,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 25;
 
                     break;
@@ -1141,7 +1142,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             switch (GetId())
             {
                 case 6262:  // Healthstone
-                    if (!caster->HasAura(56224)) // Glyph of Healthstone
+                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
                         amount = 0;
                     break;
                 default:
@@ -1157,7 +1158,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 182287: ///< Ignite
                 {
                     /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
-                    if (caster->HasAura(61205))
+                    if (caster && caster->HasAura(61205))
                         amount = -50;
                     break;
                 }
@@ -1267,7 +1268,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     }
 
-    if (DoneActualBenefit != 0.0f)
+    if (DoneActualBenefit != 0.0f && caster)
     {
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
@@ -5376,7 +5377,7 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
 }
 
-void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModSpellCritChanceSchool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;

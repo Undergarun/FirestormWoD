@@ -1304,7 +1304,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
         for (auto l_Spell : l_Template->m_SpellIDs)
-            addSpell(l_Spell, true, true, true, false);
+            learnSpell(l_Spell, false);
 
     // original spells
     learnDefaultSpells();
@@ -13406,7 +13406,17 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 
 Item* Player::GetItemByGuid(uint64 guid) const
 {
-    for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)		
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
+    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
                 return pItem;
@@ -28677,19 +28687,20 @@ bool Player::CanCaptureTowerPoint()
 );
 }
 
-uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
+uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin, BarberShopStyleEntry const* p_NewFace /* = nullptr */)
 {
     uint8 level = getLevel();
 
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;                               // max level in this dbc
-
+        
+    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
+    uint8 l_Face        = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID);
     uint8 hairstyle     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID);
     uint8 haircolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
-    uint8 skincolor     = GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID);
     uint8 facialhair    = GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE);
 
-    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)))
+    if ((hairstyle == newhairstyle) && (haircolor == newhaircolor) && (facialhair == newfacialhair) && (!newSkin || (newSkin->Data == skincolor)) && (!p_NewFace || (p_NewFace->Data == l_Face)))
         return 0;
 
     GtBarberShopCostBaseEntry const* bsc = sGtBarberShopCostBaseStore.LookupEntry(level - 1);
@@ -28710,6 +28721,9 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
 
     if (newSkin && skincolor != newSkin->Data)
         cost += bsc->cost * 0.75f;                          // +5/6 of price
+
+    if (p_NewFace && l_Face != p_NewFace->Data)
+        cost += bsc->cost * 2;                              /// 2x price
 
     return uint32(cost);
 }
@@ -29651,7 +29665,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
 {
     if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
         return;
@@ -29659,7 +29673,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
     AchievementCriteriaUpdateTask l_Task;
     l_Task.PlayerGUID = GetGUID();
     l_Task.UnitGUID   = p_Unit ? p_Unit->GetGUID() : 0;
-    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, p_LoginCheck](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
     {
         /// Task will be executed async
         /// We need to ensure the player still exist
@@ -29670,7 +29684,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
 
-        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
 
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
@@ -29678,7 +29692,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
             return;
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
-            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -31775,11 +31789,13 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return;
     }
+*/
 
     if (p_Apply)
     {
@@ -31816,22 +31832,62 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     }
 }
 
-void Player::RemoveAllMovementForces()
+void Player::RemoveAllMovementForces(uint32 p_Entry /*=0*/)
 {
-    std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
+    std::set<uint64> l_ActiveMovementForces;
+
+    if (!p_Entry)
+        l_ActiveMovementForces = m_ActiveMovementForces;
+    else
+    {
+        for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+        {
+            if (WorldObject* l_Obj = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+            {
+                if (l_Obj->GetEntry() == p_Entry)
+                    l_ActiveMovementForces.insert(l_Obj->GetGUID());
+            }
+        }
+    }
 
     for (uint64 l_ForceID : l_ActiveMovementForces)
         SendApplyMovementForce(l_ForceID, false, Position());
 }
 
-bool Player::HasMovementForce(uint64 p_Source)
+bool Player::HasMovementForce(uint64 p_Source /*= 0*/, bool p_IsEntry /*=false*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return false;
     }
+*/
+    /// No Guid? Just returns if player has at least one movement force applied
+    if (!p_Source)
+        return !m_ActiveMovementForces.empty();
 
+    /// Entry?
+    if (p_IsEntry)
+    {
+        if (uint32(p_Source) == p_Source)
+        {
+            for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+            {
+                if (WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+                {
+                    if (l_Object->GetEntry() == p_Source)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        /// Not a valid entry
+        return false;
+    }
+
+    /// Guid?
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 

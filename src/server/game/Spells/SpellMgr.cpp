@@ -156,7 +156,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
-            if (spellproto->SpellFamilyFlags[1] & 0x400)
+            if (spellproto->SpellFamilyFlags[1] & 0x400 && spellproto->Id != 5782)
                 return DIMINISHING_DISORIENT;
             // Howl of Terror -- 5484
             if (spellproto->SpellFamilyFlags[1] & 0x8)
@@ -225,8 +225,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
                 return DIMINISHING_ROOT;
 
-            // Faerie Fire -- 770, 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            // Faerie Fire -- 770, Faerie Swarm -- 102355, 20 seconds in PvP (6.0)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return DIMINISHING_LIMITONLY;
 
             // Nature's Grasp
@@ -446,7 +446,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return 20 * IN_MILLISECONDS;
             break;
         }
@@ -3414,6 +3414,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 176172:///< Ancient Inferno: Molten Firestorm
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST_RANDOM;
                 break;
+            case 117032:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_TARGET_ANY;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_DEST_RANDOM;
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(29); ///< 6 yards
+                break;
             case 175093:///< Alliance Reward (Ashran events)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
@@ -4402,6 +4407,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].TriggerSpell = 0;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 159623: ///< Leap of Faith (Glyph of Restored Faith)
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_TARGET_RAID;
+                break;
+            case 73325: ///< Leap of Faith
+                spellInfo->OverrideSpellList.push_back(159623); ///< Leap of Faith (Glyph of Restored Faith)
+                break;
             case 688: ///< Summon Imp
                 spellInfo->OverrideSpellList.push_back(112866); ///< Summon Fel Imp
                 break;
@@ -5377,10 +5388,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].BasePoints = 40;
                 spellInfo->Effects[1].MiscValue = 100;
                 break;
-            case 121253: ///< Keg Smash
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                spellInfo->MaxAffectedTargets = 3;
-                break;
             case 115308: ///< Elusive Brew
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                 break;
@@ -6132,6 +6139,15 @@ void SpellMgr::LoadSpellCustomAttr()
                 for (auto l_Iter : spellInfo->SpellPowers)
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
+
+            case 171690: ///< Truesteel Ingot
+            case 169081: ///< War Paints
+            case 168835: ///< Hexweave Cloth
+            case 172539: ///< Antiseptic Bandage
+            case 171391: ///< Burnished Leather
+            case 169092: ///< Temporal Crystal
+                spellInfo->Effects[EFFECT_0].ItemType = 0;
+                break;
             default:
                 break;
         }
