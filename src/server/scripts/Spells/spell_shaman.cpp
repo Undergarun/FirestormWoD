@@ -2696,6 +2696,45 @@ class spell_sha_cloudburst: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Call Lightning - 157348
+class spell_sha_call_lightning : public SpellScriptLoader
+{
+    public:
+        spell_sha_call_lightning() : SpellScriptLoader("spell_sha_call_lightning") { }
+
+        class spell_sha_call_lightning_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_call_lightning_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                int32 l_Damage = int32(l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_call_lightning_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_call_lightning_SpellScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_unleashed_fury();
@@ -2747,4 +2786,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_maelstrom_weapon();
     new spell_sha_cloudburst_totem();
     new spell_sha_cloudburst();
+    new spell_sha_call_lightning();
 }
