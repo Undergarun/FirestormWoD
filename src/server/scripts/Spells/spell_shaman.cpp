@@ -2697,7 +2697,7 @@ class spell_sha_cloudburst: public SpellScriptLoader
 };
 
 /// last update : 6.1.2 19802
-/// Call Lightning - 157348
+/// Call Lightning - 157348, Wind Gust - 157331
 class spell_sha_call_lightning : public SpellScriptLoader
 {
     public:
@@ -2732,6 +2732,45 @@ class spell_sha_call_lightning : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_call_lightning_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Soothing Winds - 157333
+class spell_sha_soothing_wind : public SpellScriptLoader
+{
+    public:
+        spell_sha_soothing_wind() : SpellScriptLoader("spell_sha_soothing_wind") { }
+
+        class spell_sha_soothing_wind_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_soothing_wind_SpellScript);
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                if (l_Owner->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                int32 l_Heal = int32(l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL) * GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier);
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_soothing_wind_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_soothing_wind_SpellScript();
         }
 };
 
@@ -2787,4 +2826,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_cloudburst_totem();
     new spell_sha_cloudburst();
     new spell_sha_call_lightning();
+    new spell_sha_soothing_wind();
 }
