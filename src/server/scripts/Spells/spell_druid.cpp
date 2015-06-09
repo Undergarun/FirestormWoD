@@ -1423,7 +1423,8 @@ enum CatFormSpells
     SPELL_DRUID_GLYPH_OF_CAT_FORM = 47180
 };
 
-/// Cat Form - 768
+/// last update : 6.1.2 19802
+/// Cat Form - 768, Claws of Shirvallah - 171745
 class spell_dru_cat_form: public SpellScriptLoader
 {
     public:
@@ -1438,8 +1439,8 @@ class spell_dru_cat_form: public SpellScriptLoader
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     l_Player->RemoveMovementImpairingAuras();
-
                     /// Glyph of Cat Form
+                    /// Some form has this aura apply without having the glyph
                     if (!l_Player->HasGlyph(SPELL_DRUID_GLYPH_OF_CAT_FORM))
                         l_Player->RemoveAura(SPELL_DRUID_GLYPH_OF_CAT_FORM);
                 }
