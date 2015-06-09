@@ -91,6 +91,8 @@ enum Events
     EVENT_SUMMON_TORNADOES,
 
     EVENT_TAYAK_BERSERK,            // Enrage at 8 minutes, or, more precisely, 490 seconds.
+    EVENT_STORM_MOVE,
+    EVENT_STORM_REMOVE
 };
 
 enum TayakPhases
@@ -217,11 +219,13 @@ class boss_tayak : public CreatureScript
                         std::list<Player*> playerList;
                         GetPlayerListInGrid(playerList, me, 200.0f);
 
-                        Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
+                        Position pos = { me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f };
 
                         for (Player* player : playerList)
+                        {
                             if (player->isAlive() && !player->HasMovementForce(me->GetGUID()))
                                 player->SendApplyMovementForce(me->GetGUID(), true, pos, 3.0f);
+                        }
 
                         // Won't reach the event until 6-7 secs as Ta'yak has UNIT_STATE_CASTING
                         events.ScheduleEvent(EVENT_TAYAK_BT_END, 100);
@@ -250,6 +254,58 @@ class boss_tayak : public CreatureScript
                     return false;
 
                 return true;
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* /*p_SpellInfo*/)
+            {
+                /// P2 first part
+                if (me->HealthBelowPctDamaged(20, p_Damage) && Phase == PHASE_NORMAL)
+                {
+                    // Set phase
+                    Phase = PHASE_STORM_UNLEASHED;
+
+                    // Intensify
+                    me->RemoveAura(SPELL_INTENSIFY_NORMAL);
+                    me->AddAura(SPELL_INTENSIFY_TORNADO, me);
+
+                    Talk(SAY_STORM_UNLEASHED);
+
+                    // Cancel the P1 events except intensify
+                    events.CancelEvent(EVENT_TEMPEST_SLASH);
+                    events.CancelEvent(EVENT_UNSEEN_STRIKE);
+                    events.CancelEvent(EVENT_TAYAK_WIND_STEP);
+                    events.CancelEvent(EVENT_OVERWHELMING_ASS);
+                    if (IsHeroic())
+                        events.CancelEvent(EVENT_BLADE_TEMPEST);
+
+                    me->SetReactState(REACT_PASSIVE);
+
+                    // Teleport players and move to P2 first point.
+                    me->SetSpeed(MOVE_RUN, 20.0f, true);
+                    me->SetSpeed(MOVE_WALK, 20.0f, true);
+                    me->SetSpeed(MOVE_FLIGHT, 20.0f, true);
+                    me->GetMotionMaster()->MovePoint(2, PlayerTelePos);
+
+                    DoCast(me, SPELL_STORM_UNLEASHED_D);
+                    me->AddAura(SPELL_SU_DMG_AURA, me);
+                }
+
+                // Storm Unleashed 10 - 0%.
+                if (me->HealthBelowPctDamaged(10, p_Damage) && Phase == PHASE_STORM_UNLEASHED && !storm1Done)
+                {
+                    storm1Done = true;
+                    ActivateGaleWinds();
+
+                    Talk(SAY_STORM_UNLEASHED);
+
+                    events.CancelEvent(EVENT_SUMMON_TORNADOES);
+
+                    // Move to P2 second point.
+                    me->SetSpeed(MOVE_RUN, 20.0f, true);
+                    me->SetSpeed(MOVE_WALK, 20.0f, true);
+                    me->SetSpeed(MOVE_FLIGHT, 20.0f, true);
+                    me->GetMotionMaster()->MovePoint(3, TayakStormPoints[1]);
+                }
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -331,6 +387,12 @@ class boss_tayak : public CreatureScript
 
             void EnterEvadeMode()
             {
+                if (!pInstance)
+                    return;
+
+                if (pInstance->GetBossState(DATA_TAYAK) != IN_PROGRESS)
+                    return;
+
                 me->RemoveAllAuras();
                 Reset();
                 me->DeleteThreatList();
@@ -386,7 +448,7 @@ class boss_tayak : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -404,16 +466,28 @@ class boss_tayak : public CreatureScript
             {
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                {
                     if (Player* playr = i->getSource())
+                    {
                         if (playr->isAlive())
                             playr->TeleportTo(me->GetMapId(), PlayerTelePos.GetPositionX(), PlayerTelePos.GetPositionY(), PlayerTelePos.GetPositionZ(), PlayerTelePos.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+                    }
+                }
             }
 
             void ActivateGaleWinds()
             {
+                /// Remove Gale Winds movement force (in case we're in the 10%-0% phase)
+                Map::PlayerList const &l_PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                {
+                    if (Player* l_Player = l_Itr->getSource())
+                        l_Player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
+                }
+
                 std::list<Creature*> GWStalkersList;
                 GetCreatureListWithEntryInGrid(GWStalkersList, me, NPC_GALE_WINDS_STALKER, 300.0f);
-                for (auto stalker : GWStalkersList)
+                for (Creature* stalker : GWStalkersList)
                     stalker->AI()->DoAction(ACTION_WIND);
             }
 
@@ -465,55 +539,6 @@ class boss_tayak : public CreatureScript
 
                 if ((!UpdateVictim() && !unseenReturn) || me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                // Storm Unleashed 20 - 10%.
-                if (me->HealthBelowPct(20) && Phase == PHASE_NORMAL)
-                {
-                    // Set phase
-                    Phase = PHASE_STORM_UNLEASHED;
-
-                    // Intensify
-                    me->RemoveAura(SPELL_INTENSIFY_NORMAL);
-                    me->AddAura(SPELL_INTENSIFY_TORNADO, me);
-
-                    Talk(SAY_STORM_UNLEASHED);
-
-                    // Cancel the P1 events except intensify
-                    events.CancelEvent(EVENT_TEMPEST_SLASH);
-                    events.CancelEvent(EVENT_UNSEEN_STRIKE);
-                    events.CancelEvent(EVENT_TAYAK_WIND_STEP);
-                    events.CancelEvent(EVENT_OVERWHELMING_ASS);
-                    if (IsHeroic())
-                        events.CancelEvent(EVENT_BLADE_TEMPEST);
-
-                    me->SetReactState(REACT_PASSIVE);
-
-                    // Teleport players and move to P2 first point.
-                    me->SetSpeed(MOVE_RUN, 20.0f, true);
-                    me->SetSpeed(MOVE_WALK, 20.0f, true);
-                    me->SetSpeed(MOVE_FLIGHT, 20.0f, true);
-                    me->GetMotionMaster()->MovePoint(2, PlayerTelePos);
-
-                    DoCast(me, SPELL_STORM_UNLEASHED_D);
-                    me->AddAura(SPELL_SU_DMG_AURA, me);
-                }
-
-                // Storm Unleashed 10 - 0%.
-                if (me->HealthBelowPct(10) && Phase == PHASE_STORM_UNLEASHED && !storm1Done)
-                {
-                    storm1Done = true;
-                    ActivateGaleWinds();
-
-                    Talk(SAY_STORM_UNLEASHED);
-
-                    events.CancelEvent(EVENT_SUMMON_TORNADOES);
-
-                    // Move to P2 second point.
-                    me->SetSpeed(MOVE_RUN, 20.0f, true);
-                    me->SetSpeed(MOVE_WALK, 20.0f, true);
-                    me->SetSpeed(MOVE_FLIGHT, 20.0f, true);
-                    me->GetMotionMaster()->MovePoint(3, TayakStormPoints[1]);
-                }
 
                 events.Update(diff);
 
@@ -609,11 +634,13 @@ class boss_tayak : public CreatureScript
                             std::list<Player*> playerList;
                             GetPlayerListInGrid(playerList, me, 200.0f);
 
-                            Position pos = {me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f};
+                            Position pos = { me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f };
 
                             for (Player* player : playerList)
+                            {
                                 if (player->HasMovementForce(me->GetGUID()))
-                                    player->SendApplyMovementForce(me->GetGUID(), false, pos);
+                                    player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
+                            }
 
                             break;
                         }
@@ -724,9 +751,6 @@ class npc_tempest_slash_tornado : public CreatureScript
 
                 if (summoner)
                 {
-                    // Replacing at 5.0f on the right of Ta'yak (summoner)
-                    float leftOri = (me->GetOrientation() + M_PI * 0.5f > M_PI * 2.0f) ? me->GetOrientation() - 1.5f * M_PI : me->GetOrientation() + M_PI * 0.5f;
-
                     // Random orientation in front of Ta'yak
                     float ori = summoner->GetOrientation() + ((urand(0, 1) ? 1 : -1) * frand(M_PI/3, M_PI/2));
                     me->SetOrientation(ori);
@@ -738,11 +762,8 @@ class npc_tempest_slash_tornado : public CreatureScript
 
                     me->AddAura(SPELL_TEMP_SLASH_AURA, me);     // Visual aura
 
-                    float x, y, z;
-                    me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
-                    me->GetMotionMaster()->MovePoint(8, x, y, z);
+                    events.ScheduleEvent(EVENT_STORM_MOVE, 500);
                 }
-
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -750,135 +771,44 @@ class npc_tempest_slash_tornado : public CreatureScript
                 if (!id || type != POINT_MOTION_TYPE)
                     return;
 
+                float l_NewAngle = 0.f;
+
+                if (id == 7)
+                    /// In circle loop : just change the orientation from 1/16 of circle (that is 2 * Pi / 16, so Pi / 8)
+                    float l_NewAngle = Position::NormalizeOrientation(me->GetOrientation() + M_PI / 8);
+
                 if (id == 8)
-                {
-                    Movement::MoveSplineInit init(*me);
-                    // Selecting the center 2.0f yds forward as center of the circle path
-                    Position pos = GetTargetPoint(me, 2.0f);
-                    // Creating the circle path from the center
-                    FillCirclePath(pos, 2.0f, pos.GetPositionZ(), init.Path(), true);
-                    init.SetWalk(true);
-                    init.SetCyclic();
-                    init.Launch();
-                }
-            }
+                    /// New angle = turning right to start cirle, so if we consider orientation = 0.0f, new orientation is 3 Pi / 2
+                    /// And we also add the orientation for the circle. As we have 16 points, the orientation change at each point
+                    /// is (2 * Pi) / 16, so Pi / 8. And (3 Pi / 2) + (Pi / 8) = (12 Pi / 8) + (Pi / 8), so : 13 Pi / 8.
+                    float l_NewAngle = Position::NormalizeOrientation(me->GetOrientation() + 13 * M_PI / 8);
 
-            Position GetTargetPoint(Creature* mob, float dist)
-            {
-                /*
-                 * The main idea is : a circle has 4 quarters; the principle is to define a point at the specified distance forward according the orientation,
-                 * and use this point as a destination for MovePoint(). To calculate this point, we use the orientation to get a ratio between X and Y in the
-                 * main "quarter" (both positive x and y): the point is that "ratio x" is a proportion of orientation/(pi/2), that is: if orientation = 0,
-                 * orientation/(pi/2) = 0 and so ratio-x = 0%. If orientation = pi/2, then orientation/(pi/2) = (pi/2)/(pi/2) = 1, ratio-x = 100%. And
-                 * ratio-y = 100% - ratio-x. So if ratio-x = 60%, ratio-y = 40%. That means that when you walk 1 yd in the orientation direction, you'll
-                 * made 0.6yd forward and 0.4yd sidewards (more or less). To be precise, we should use pythagorean theorem, but the difference would be
-                 * small.
-                 *
-                 * The range orientation from 0 to pi/2 represents a quarter circle where x and y will be both positives, and we use this quarter circle
-                 * to determine general ratio between x and y. Then, we just have to "rotate" to apply this to the right orientation. According to this
-                 * initial orientation, we may need to switch x and y ratio (when turned on left or right, moving forward is moving on y-axis, and not
-                 * on x-axis, for instance), and/or to apply negatives values (if orientation is pi, we're moving backwards, so the x-value decreases,
-                 * while if orientation is 0.0, we're moving forwards, and so, the x-value increases, but we're still on the same axis).
-                 */
-
-                float posX = mob->GetPositionX();
-                float posY = mob->GetPositionY();
-                float posZ = mob->GetPositionZ();
-                float orientation = mob->GetOrientation();
-
-                // Retrieving absolute orientation
-                float absOri = orientation;
-                uint8 turn = 0;
-                while (absOri > (M_PI / 2))
-                {
-                    absOri -= (M_PI / 2);
-                    turn = ++turn % 4;
-                }
-
-                // Looking for ratio between X and Y
-                float percentX = ((M_PI / 2) - absOri) / (M_PI / 2);
-                float percentY = 1.0f - percentX;
-
-                // Applying negatives directions according to orientation
-                if (orientation > (M_PI / 2))
-                {
-                    if (orientation > M_PI)
-                        percentY = -percentY;
-
-                    if (orientation > (M_PI / 2) && orientation < (1.5f * M_PI))
-                        percentX = -percentX;
-                }
-
-                // if turned, we need to switch X & Y
-                switch (turn)
-                {
-                    // -x / +y / switch
-                    case 1:
-                    {
-                        float tmpVal = percentX;
-                        percentX = -percentY;
-                        percentY = tmpVal;
-                        break;
-                    }
-                    // -x / -y / no switch
-                    case 2:
-                    {
-                        percentX = -percentX;
-                        percentY = -percentY;
-                        break;
-                    }
-                    // +x / -y / switch
-                    case 3:
-                    {
-                        float tmpVal = percentX;
-                        percentX = percentY;
-                        percentY = -tmpVal;
-                        break;
-                    }
-                    // +x / +y / no switch : no change
-                    default:
-                        break;
-                }
-
-                // Calculating reaching point
-                float pointX = posX;
-                float pointY = posY;
-
-                Position reachPoint = {pointX, pointY, posZ, orientation};
-
-                do
-                {
-                    pointX += percentX;
-                    pointY += percentY;
-                    reachPoint.Relocate(pointX, pointY);
-                } while (mob->GetDistance(reachPoint) < dist);
-
-                return reachPoint;
-            }
-
-            void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
-            {
-                float step = clockwise ? -M_PI / 8.0f : M_PI / 8.0f;
-                float angle = centerPos.GetAngle(me->GetPositionX(), me->GetPositionY());
-
-                for (uint8 i = 0; i < 16; angle += step, ++i)
-                {
-                    G3D::Vector3 point;
-                    point.x = centerPos.GetPositionX() + radius * cosf(angle);
-                    point.y = centerPos.GetPositionY() + radius * sinf(angle);
-                    point.z = me->GetMap()->GetHeight(me->GetPhaseMask(), point.x, point.y, z + 5.0f);
-                    path.push_back(point);
-                }
+                me->SetOrientation(l_NewAngle);
+                me->SetFacingTo(l_NewAngle);
+                /// As we supposed our circle will have a radius of 2yd, its perimeter is about 2 * Pi * 2 = 12.566371, and as
+                /// we have 16 points, there's about 12.566371 / 16 = 0.7854 yd between two points.
+                float l_PosX = me->GetPositionX() + 0.7854f * cos(me->GetOrientation());
+                float l_PosY = me->GetPositionY() + 0.7854f * sin(me->GetOrientation());
+                me->GetMotionMaster()->MovePoint(7, l_PosX, l_PosY, me->GetPositionZ());
             }
 
             void UpdateAI(const uint32 diff)
             {
                 // Despawn on Ta'yak's phase 2
                 if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
+                {
                     if (tayak->AI()->GetData(TYPE_PHASE_TAYAK) == PHASE_STORM_UNLEASHED)
                         me->DespawnOrUnsummon();
+                }
 
                 events.Update(diff);
+
+                if (events.ExecuteEvent() == EVENT_STORM_MOVE)
+                {
+                    float x, y, z;
+                    me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
+                    me->GetMotionMaster()->MovePoint(8, x, y, z);
+                }
             }
         };
 
@@ -904,21 +834,22 @@ class npc_storm_unleashed_tornado : public CreatureScript
 
             Vehicle* vehicle;
             InstanceScript* pInstance;
+            EventMap m_Events;
             bool storm1;
+            Position m_ReachPoint;
 
-            void Reset()
+            void IsSummonedBy(Unit* p_Summoner)
             {
+                m_Events.Reset();
                 storm1 = true;
-                me->AddAura(SPELL_SU_AURA, me);         // Control vehicle aura.
                 me->AddAura(SPELL_SU_DUMMY_VIS, me);    // Visual aura.
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
 
                 me->SetSpeed(MOVE_WALK, 1.1f, true);
                 me->SetSpeed(MOVE_RUN, 1.1f, true);
-                Movement::MoveSplineInit init(*me);
-                init.SetOrientationFixed(true);
-                init.Launch();
+
+                m_Events.ScheduleEvent(EVENT_STORM_REMOVE, 24000);
             }
 
             void Eject()
@@ -946,8 +877,9 @@ class npc_storm_unleashed_tornado : public CreatureScript
                 if (type == TYPE_STORM_POINT)
                 {
                     storm1 = value < 3 ? true : false;
-                    Position reachPoint = (value < 3 ? Tornado2[2 - value] : Tornado1[5 - value]);
-                    me->GetMotionMaster()->MovePoint(2, reachPoint);
+                    m_ReachPoint = (value < 3 ? Tornado2[2 - value] : Tornado1[5 - value]);
+
+                    m_Events.ScheduleEvent(EVENT_STORM_MOVE, 500);
                 }
             }
 
@@ -969,11 +901,28 @@ class npc_storm_unleashed_tornado : public CreatureScript
 
                 // Removing storm from the 1st storm phase (20-10%) when switching on 2nd storm phase (10-0%)
                 if (storm1)
+                {
                     if (pInstance)
+                    {
                         if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
-                            if (tayak->AI()->GetData(TYPE_STORM_PHASE))
+                        {
+                            if (tayak->AI()->GetData(TYPE_STORM_PHASE) == 1)
                                 Eject();
+                        }
+                    }
+                }
 
+                m_Events.Update(diff);
+
+                uint32 m_EventId = m_Events.ExecuteEvent();
+                if (m_EventId == EVENT_STORM_MOVE)
+                {
+                    me->AddAura(SPELL_SU_AURA, me);         // Control vehicle aura.
+                    me->GetMotionMaster()->MovePoint(2, m_ReachPoint);
+                }
+
+                if (m_EventId == EVENT_STORM_REMOVE)
+                    Eject();
             }
         };
 
@@ -1004,8 +953,6 @@ class mob_gale_winds_stalker : public CreatureScript
             {
                 isActive  = false;
                 firstWind = false;
-                if (me->GetOrientation() < 3)
-                    firstWind = true;
             }
 
             void DoAction(const int32 action)
@@ -1014,19 +961,29 @@ class mob_gale_winds_stalker : public CreatureScript
                 {
                     case ACTION_WIND:
                     {
+                        if (me->HasAura(SPELL_SU_WIND_GALE))
+                            me->RemoveAura(SPELL_SU_WIND_GALE);
+
                         if (pInstance)
                         {
                             if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                             {
-                                bool firstPos = tayak->AI()->GetData(TYPE_STORM_PHASE);
+                                bool firstPos = tayak->AI()->GetData(TYPE_STORM_PHASE) == 1 ? true : false;
+                                if (me->GetOrientation() < 3 && !firstWind)
+                                    firstWind = true;
+
                                 if ((firstPos && firstWind) || (!firstPos && !firstWind))
                                 {
                                     DoCast(SPELL_SU_WIND_GALE);
                                     tayak->CastSpell(me, SPELL_SU_DUMMY_CRAP, false);
+                                    me->SetDisplayId(1126);
                                 }
                                 else
+                                {
                                     if (me->HasAura(SPELL_SU_WIND_GALE))
                                         me->RemoveAura(SPELL_SU_WIND_GALE);
+                                    me->SetDisplayId(11686);
+                                }
 
                                 if (!isActive)
                                     isActive = true;
@@ -1048,9 +1005,11 @@ class mob_gale_winds_stalker : public CreatureScript
                                 std::list<Player*> playerList;
                                 GetPlayerListInGrid(playerList, me, 500.0f);
 
-                                for (auto player : playerList)
-                                    if (player->HasMovementForce(me->GetGUID()))
-                                        player->SendApplyMovementForce(me->GetGUID(), false, pos);    ///< Use creature entry has force ID
+                                for (Player* player : playerList)
+                                {
+                                    if (player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
+                                        player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
+                                }
                             }
 
                             isActive = false;
@@ -1070,26 +1029,29 @@ class mob_gale_winds_stalker : public CreatureScript
 
                 if (Creature* tayak = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TAYAK)))
                 {
-                    Position pos = {tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f};
+                    Position pos = { tayak->GetPositionX(), tayak->GetPositionY(), tayak->GetPositionZ(), 0.0f };
 
                     std::list<Player*> playerList;
                     GetPlayerListInGrid(playerList, me, 20.0f);
 
-                    for (auto player : playerList)
+                    for (Player* player : playerList)
                     {
                         // if player is in wind gale
                         if (player->GetPositionX() > -2109.51f || player->GetPositionX() < -2129.05f)
                         {
                             // Player doesn't have forcedMovement
-                            if (player->isAlive() && !player->HasMovementForce(me->GetGUID()))
-                                player->SendApplyMovementForce(me->GetGUID(), true, pos, -7.0f);
+                            if (player->isAlive() && !player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
+                                player->SendApplyMovementForce(me->GetGUID(), true, pos, 7.f);
                             // Dead player has forcedMovement
-                            else if (!player->isAlive() && player->HasMovementForce(me->GetGUID()))
-                                player->SendApplyMovementForce(me->GetGUID(), false, pos);
+                            else if (!player->isAlive() && player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
+                                player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
                         }
                         // player not in wind gale
-                        else if (player->HasMovementForce(me->GetGUID()))
-                            player->SendApplyMovementForce(me->GetGUID(), false, pos);
+                        else
+                        {
+                            if (player->HasMovementForce(NPC_GALE_WINDS_STALKER, true))
+                                player->RemoveAllMovementForces(NPC_GALE_WINDS_STALKER);
+                        }
                     }
                 }
             }
@@ -1102,7 +1064,7 @@ class mob_gale_winds_stalker : public CreatureScript
 };
 
 // 123175 - Wind Step
-class spell_wind_step: public SpellScriptLoader
+class spell_wind_step : public SpellScriptLoader
 {
     public:
         spell_wind_step() : SpellScriptLoader("spell_wind_step") { }
@@ -1166,7 +1128,7 @@ class spell_tayak_wind_step: public SpellScriptLoader
 };
 
 // 122982 - Unseen Strike
-class spell_unseen_strike_aura: public SpellScriptLoader
+class spell_unseen_strike_aura : public SpellScriptLoader
 {
     public:
         spell_unseen_strike_aura() : SpellScriptLoader("spell_unseen_strike") { }
@@ -1195,7 +1157,7 @@ class spell_unseen_strike_aura: public SpellScriptLoader
 };
 
 // 122994 - Unseen Strike
-class spell_unseen_strike_dmg: public SpellScriptLoader
+class spell_unseen_strike_dmg : public SpellScriptLoader
 {
     public :
         spell_unseen_strike_dmg() : SpellScriptLoader("spell_unseen_strike_dmg") { }
@@ -1313,7 +1275,7 @@ class spell_tayak_storm_unleashed_dmg: public SpellScriptLoader
 };
 
 // 122853 - Tempest Slash (damage aura)
-class spell_tempest_slash: public SpellScriptLoader
+class spell_tempest_slash : public SpellScriptLoader
 {
     public :
         spell_tempest_slash() : SpellScriptLoader("spell_tempest_slash") { }
@@ -1341,7 +1303,7 @@ class spell_tempest_slash: public SpellScriptLoader
 };
 
 // 123814 - Storm unleashed - Boss visual effect
-class spell_tayak_su_visual: public SpellScriptLoader
+class spell_tayak_su_visual : public SpellScriptLoader
 {
     public:
         spell_tayak_su_visual() : SpellScriptLoader("spell_tayak_su_visual") { }
@@ -1369,7 +1331,7 @@ class spell_tayak_su_visual: public SpellScriptLoader
 };
 
 // 124024 - Storm unleashed dummy visual
-class spell_su_dummy_visual: public SpellScriptLoader
+class spell_su_dummy_visual : public SpellScriptLoader
 {
     public:
         spell_su_dummy_visual() : SpellScriptLoader("spell_su_dummy_visual") { }
@@ -1397,7 +1359,7 @@ class spell_su_dummy_visual: public SpellScriptLoader
 };
 
 // 123633 - Gale Winds
-class spell_gale_winds: public SpellScriptLoader
+class spell_gale_winds : public SpellScriptLoader
 {
     public:
         spell_gale_winds() : SpellScriptLoader("spell_gale_winds") { }
@@ -1425,7 +1387,7 @@ class spell_gale_winds: public SpellScriptLoader
 };
 
 // 123600 - Storm unleashed
-class spell_su_dummy: public SpellScriptLoader
+class spell_su_dummy : public SpellScriptLoader
 {
     public:
         spell_su_dummy() : SpellScriptLoader("spell_su_dummy") { }
@@ -1459,7 +1421,7 @@ class spell_su_dummy: public SpellScriptLoader
 };
 
 // 123616 - Storm unleashed
-class spell_su_dumaura: public SpellScriptLoader
+class spell_su_dumaura : public SpellScriptLoader
 {
     public:
         spell_su_dumaura() : SpellScriptLoader("spell_su_dumaura") { }
@@ -1493,7 +1455,7 @@ class spell_su_dumaura: public SpellScriptLoader
 };
 
 // 125310
-class spell_blade_tempest: public SpellScriptLoader
+class spell_blade_tempest : public SpellScriptLoader
 {
     public:
         spell_blade_tempest() : SpellScriptLoader("spell_blade_tempest") { }
@@ -1505,8 +1467,10 @@ class spell_blade_tempest: public SpellScriptLoader
             void PullRaid()
             {
                 if (Unit* Tayak = GetCaster())
+                {
                     if (Tayak->GetEntry() == NPC_TAYAK)
                         Tayak->GetAI()->DoAction(ACTION_TAYAK_BT_PULL);
+                }
             }
 
             void Register()

@@ -869,7 +869,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_dungeonDifficulty = DifficultyNormal;
     m_raidDifficulty = DifficultyRaidNormal;
     m_LegacyRaidDifficulty = Difficulty10N;
-    m_raidMapDifficulty = DifficultyRaidNormal;
+    m_PrevMapDifficulty = DifficultyRaidNormal;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -23939,10 +23939,10 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendDungeonDifficulty()
+void Player::SendDungeonDifficulty(int32 p_ForcedDifficulty /*= -1*/)
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << uint32(GetDungeonDifficultyID());
+    data << uint32(p_ForcedDifficulty == -1 ? GetDungeonDifficultyID() : p_ForcedDifficulty);
     GetSession()->SendPacket(&data);
 }
 
@@ -27067,11 +27067,20 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (GetMap()->IsRaid())
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
-        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, GetMap()->GetDifficultyID());
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_PrevMapDifficulty);
     }
     else if (GetMap()->IsNonRaidDungeon())
-        SendDungeonDifficulty();
+    {
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        SendDungeonDifficulty(m_PrevMapDifficulty);
+    }
+    else if (!GetMap()->Instanceable())
+    {
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
+    }
 
     GetSession()->SendPetBattleJournal();
 
@@ -31780,11 +31789,13 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return;
     }
+*/
 
     if (p_Apply)
     {
@@ -31821,22 +31832,62 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     }
 }
 
-void Player::RemoveAllMovementForces()
+void Player::RemoveAllMovementForces(uint32 p_Entry /*=0*/)
 {
-    std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
+    std::set<uint64> l_ActiveMovementForces;
+
+    if (!p_Entry)
+        l_ActiveMovementForces = m_ActiveMovementForces;
+    else
+    {
+        for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+        {
+            if (WorldObject* l_Obj = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+            {
+                if (l_Obj->GetEntry() == p_Entry)
+                    l_ActiveMovementForces.insert(l_Obj->GetGUID());
+            }
+        }
+    }
 
     for (uint64 l_ForceID : l_ActiveMovementForces)
         SendApplyMovementForce(l_ForceID, false, Position());
 }
 
-bool Player::HasMovementForce(uint64 p_Source)
+bool Player::HasMovementForce(uint64 p_Source /*= 0*/, bool p_IsEntry /*=false*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return false;
     }
+*/
+    /// No Guid? Just returns if player has at least one movement force applied
+    if (!p_Source)
+        return !m_ActiveMovementForces.empty();
 
+    /// Entry?
+    if (p_IsEntry)
+    {
+        if (uint32(p_Source) == p_Source)
+        {
+            for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+            {
+                if (WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+                {
+                    if (l_Object->GetEntry() == p_Source)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        /// Not a valid entry
+        return false;
+    }
+
+    /// Guid?
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 

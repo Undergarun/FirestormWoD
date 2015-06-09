@@ -1571,6 +1571,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_Mushroomlist;
+
                 l_Player->GetCreatureListWithEntryInGrid(l_Mushroomlist, WildMushroomSpells::DruidNpcWildMushroom, 500.0f);
 
                 /// Remove other player mushrooms
@@ -1580,7 +1581,7 @@ class spell_dru_wild_mushroom: public SpellScriptLoader
                     if (l_Owner && l_Owner == l_Player && (*i)->isSummon())
                         continue;
 
-                    l_Mushroomlist.remove((*i));
+                    i = l_Mushroomlist.erase(i);
                 }
 
                 if (static_cast<int32>(l_Mushroomlist.size()) >= GetSpellInfo()->Effects[p_EffIndex].BasePoints)
@@ -1629,12 +1630,13 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr /*aurEff*/)
             {
-                Unit* l_Caster = GetCaster();
+                Unit* l_Mushroom = GetCaster();
+                Unit* l_Owner = l_Mushroom->GetOwner();
 
-                if (l_Caster == nullptr)
+                if (l_Mushroom == nullptr || l_Owner == nullptr)
                     return;
 
-                l_Caster->CastSpell(l_Caster, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
+                l_Owner->CastSpell(l_Mushroom, WildMushroomSpells::SpellDruidWildMushroomHeal, true);
             }
 
             void Register()
@@ -3313,7 +3315,9 @@ public:
 enum SpellsBarkskin
 {
     SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA  = 63057,
-    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058
+    SPELL_DRUID_GLYPH_OF_BARKSKIN       = 63058,
+    SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK_AURA = 159436,
+    SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK = 159438
 };
 
 /// Call by Barkskin - 22812
@@ -3336,6 +3340,8 @@ class spell_dru_glyph_of_barkskin : public SpellScriptLoader
 
                 if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN_AURA))
                     l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_BARKSKIN, true);
+                if (l_Caster->HasAura(SpellsBarkskin::SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK_AURA))
+                    l_Caster->CastSpell(l_Caster, SpellsBarkskin::SPELL_DRUID_GLYPH_OF_ENCHANTED_BARK, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3434,7 +3440,8 @@ enum SpellsFerociousBite
 {
     SPELL_DRUID_RAKE_TRIGGERED = 155722,
     SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE = 67598,
-    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024
+    SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL = 101024,
+    SPELL_DRUID_BERSEK = 106951
 };
 
 /// Ferocious Bite - 22568
@@ -3447,12 +3454,23 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_ferocious_bite_SpellScript);
 
+            int32 m_SpellCost = 25;
+
+            void HandleOnPrepare()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SpellsFerociousBite::SPELL_DRUID_BERSEK))
+                    m_SpellCost = 12;
+            }
+
             void HandleOnHit()
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
                 int32 l_Damage = GetHitDamage();
 
+                
                 /// Prevent double call
                 if (l_Damage == 0)
                     return;
@@ -3461,16 +3479,15 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
                     l_Damage = (l_Damage / 5) * l_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
                 /// converts each extra point of energy ( up to 25 energy ) into additional damage
-                int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > 25 ? 25 : l_Caster->GetPower(POWER_ENERGY);
-                l_Caster->SetPower(POWER_ENERGY, l_Caster->GetPower(POWER_ENERGY) - l_EnergyConsumed);
-                AddPct(l_Damage, l_EnergyConsumed * 4);
-
+                int32 l_EnergyConsumed = l_Caster->GetPower(POWER_ENERGY) > m_SpellCost ? m_SpellCost : l_Caster->GetPower(POWER_ENERGY);
+                
+                AddPct(l_Damage, l_EnergyConsumed * (100 / m_SpellCost));
                 SetHitDamage(l_Damage);
 
                 /// Glyph of Ferocious Bite
                 if (AuraPtr l_GlyphOfFerociousBite = l_Caster->GetAura(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE))
                 {
-                    l_EnergyConsumed += 25; ///< Add the basic cost of Ferocious Bite to the extra cost;
+                    l_EnergyConsumed += m_SpellCost; ///< Add the basic cost of Ferocious Bite to the extra cost;
                     int l_HealPct = (l_GlyphOfFerociousBite->GetEffect(EFFECT_0)->GetAmount() * floor(l_EnergyConsumed / 10) / 10);
                     l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE_HEAL, &l_HealPct, 0, 0, true);
                 }
@@ -3483,6 +3500,7 @@ class spell_dru_ferocious_bite: public SpellScriptLoader
 
             void Register()
             {
+                OnPrepare += SpellOnPrepareFn(spell_dru_ferocious_bite_SpellScript::HandleOnPrepare);
                 OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
             }
         };
@@ -4005,6 +4023,29 @@ class spell_dru_pulverize : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_pulverize_SpellScript);
 
+            enum eSpells
+            {
+                PulverizeAura = 158792,
+                Lacerate = 33745
+            };
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (!l_Caster || !l_Target)
+                    return SPELL_FAILED_ERROR;
+
+                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                {
+                    if (l_Lacerete->GetStackAmount() >= 3)
+                        return SPELL_CAST_OK;
+                }
+
+                return SPELL_FAILED_ERROR;
+            }
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -4013,16 +4054,16 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Lacerete = l_Target->GetAura(33745, l_Caster->GetGUID()))
+                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
                 {
                     l_Lacerete->ModStackAmount(-3);
+                    l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
                 }
-
-                l_Caster->CastSpell(l_Caster, 158792, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dru_pulverize_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_pulverize_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
             }
         };
@@ -4087,8 +4128,36 @@ class spell_dru_empowered_moonkin : public SpellScriptLoader
         }
 };
 
+/// Glyph of Enchanted Bark - 159436
+class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
+{
+    public:
+        spell_dru_glyph_of_enchanted_bark() : SpellScriptLoader("spell_dru_glyph_of_enchanted_bark") { }
+
+        class spell_dru_glyph_of_enchanted_bark_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_glyph_of_enchanted_bark_AuraScript);
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_glyph_of_enchanted_bark_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_glyph_of_enchanted_bark_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();
     new spell_dru_lifebloom_final_heal();
     new spell_dru_entangling_energy();

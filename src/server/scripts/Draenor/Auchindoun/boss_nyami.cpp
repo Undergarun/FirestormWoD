@@ -163,10 +163,10 @@ private:
     int modifier;
     int Event;
 };
-class auchindon_mob_warden : public CreatureScript
+class auchindon_mob_warden_cosmetic : public CreatureScript
 {
 public:
-    auchindon_mob_warden() : CreatureScript("auchindon_mob_warden") {}
+    auchindon_mob_warden_cosmetic() : CreatureScript("auchindon_mob_warden_cosmetic") {}
 
     struct mob_wardenAI : public CreatureAI
     {
@@ -951,7 +951,7 @@ void AddSC_Nyami()
     new auchindon_nyami_malefic_defender();
     new auchindon_nyami_spiteful_arbitrer();
     new auchindon_nyami_twisted_magus();
-    new auchindon_mob_warden();
+    new auchindon_mob_warden_cosmetic();
     new auchindon_nyami_radiant_fury_trigger();
     new auchindon_nyami_bubble_good_aura();
     //new auchindon_nyami_bubble_good_aura(); hacked.
