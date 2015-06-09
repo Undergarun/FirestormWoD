@@ -3555,6 +3555,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117624:///< Suicide No Blood No Logging (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 166185:///< Rending Slash (Highmaul Conscript)
+            case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 166199:///< Arcane Volatility (Gorian Arcanist)
+            case 158521:///< Double Slash (Phemos - Twin Ogron)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 158419:///< Pulverize - Third AoE (Pol - Twin Ogron)
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4); ///< 1s
+                break;
+            case 158241:///< Blaze - DoT (Phemos - Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3579,6 +3593,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48278: ///< Paralyze
             case 65584: ///< Growth of Nature (Freya)
             case 64381: ///< Strength of the Pack (Auriaya)
+            case 166289:///< Arcane Force (Gorian Arcanist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 20167: ///< Seal of Insight

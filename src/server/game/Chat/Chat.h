@@ -105,6 +105,7 @@ class ChatHandler
         WorldObject* getSelectedObject();
 
         char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
+        uint32    GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32>& p_Bonuses, char** p_Something = NULL);
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
 
         // if args have single value then it return in arg2 and arg1 == NULL
