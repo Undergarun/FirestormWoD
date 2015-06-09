@@ -1562,13 +1562,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                         l_Power = POWER_HEALTH;
                         break;
                 }
-                if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
-                {
-                    l_MaxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
-                    l_Power = POWER_HEALTH;
-                }
-                else
-                    break;
 
                 // Remove targets outside caster's raid
                 for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)

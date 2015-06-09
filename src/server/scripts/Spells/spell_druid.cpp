@@ -1106,6 +1106,40 @@ class spell_dru_wild_growth : public SpellScriptLoader
     public:
         spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
 
+        class spell_dru_wild_growth_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_wild_growth_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfWildGrowth = 62970,
+                TreeOfLife = 33891
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+
+                SpellInfo const* l_GlyphOfWildGrowth = sSpellMgr->GetSpellInfo(eSpells::GlyphOfWildGrowth);
+
+                if (l_Caster->HasAura(eSpells::GlyphOfWildGrowth) && l_GlyphOfWildGrowth != nullptr)
+                    l_MaxTargets += l_GlyphOfWildGrowth->Effects[EFFECT_0].BasePoints;
+
+                if (l_Caster->HasAura(eSpells::TreeOfLife))
+                    l_MaxTargets += 2;
+
+                if (p_Targets.size() > l_MaxTargets)
+                    p_Targets.resize(l_MaxTargets);
+            }
+            
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
         class spell_dru_wild_growth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_wild_growth_AuraScript);
@@ -1128,6 +1162,13 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
+
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_wild_growth_SpellScript();
+        }
+
 
         AuraScript* GetAuraScript() const
         {
