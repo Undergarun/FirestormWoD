@@ -26,12 +26,12 @@ Position const g_PhemosMovePos[3] =
 
 Position const g_PhemosJumpPos = { 4028.90f, 8485.51f, 322.226f, 5.63415f };
 
-float g_GorthenonFloor = 330.0f;
+float const g_GorthenonFloor = 330.0f;
 
 Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
 
-float g_CircleToCenterDist = 25.0f;
-float g_BlazeDistToCenter = 136.0f;
+float const g_CircleToCenterDist = 25.0f;
+float const g_BlazeDistToCenter = 136.0f;
 
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
