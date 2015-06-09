@@ -210,5 +210,28 @@ UPDATE creature_template SET ScriptName = 'boss_twin_ogron_phemos' WHERE entry =
 
 DELETE FROM areatrigger_template WHERE spell_id IN (162901, 168374);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, scale_x, scale_y, flags, scale_curve_id, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
-(162901, 0, 6987, 1, 1, 8258, 1203, 29473, 2, 6, 6, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_phemos_blaze'),
-(168374, 0, 6197, 1, 1, 16450, 1195, 28000, 0, 0, 0, 0, 0, 0, 0, 'areatrigger_highmaul_phemos_blaze');
+(162901, 0, 6987, 1, 1, 8258, 1203, 2, 2, 6, 6, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_phemos_blaze'),
+(168374, 0, 6197, 1, 1, 16450, 1195, 1, 1, 0, 0, 0, 0, 0, 0, 'areatrigger_highmaul_phemos_blaze');
+
+SET @REF_POL_NHM = 78238;
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_POL_NHM;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_POL_NHM, 113666, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113667, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113826, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113827, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113828, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113829, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113830, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113831, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113832, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113833, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113834, 0, 1, 1, 1, 1),
+(@REF_POL_NHM, 113835, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_POL_NHM WHERE `entry`= @REF_POL_NHM;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_POL_NHM;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_POL_NHM, 1, 100, 1, 0, -@REF_POL_NHM, 6);

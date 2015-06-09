@@ -35,7 +35,6 @@ float g_BlazeDistToCenter = 136.0f;
 
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
-    return;
     if (p_Source == nullptr || p_Instance == nullptr)
         return;
 
@@ -48,7 +47,6 @@ void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 
 void StartOgrons(Creature* p_Source, Unit* p_Target)
 {
-    return;
     if (p_Source == nullptr || p_Target == nullptr)
         return;
 
@@ -477,7 +475,8 @@ class boss_twin_ogron_phemos : public CreatureScript
             EventCheckPlayer = 1,
             EventBerserker,
             EventDoubleSlash,
-            EventSpawnBlaze
+            EventSpawnFirstBlaze,
+            EventSpawnSecondBlaze
         };
 
         enum eActions
@@ -523,8 +522,9 @@ class boss_twin_ogron_phemos : public CreatureScript
         enum eMiscs
         {
             EnfeeblingCounter,
-            BlazeFirstSpawnCounter = 3,
-            BlazeWaveSpawnCounter = 5
+            BlazeFirstSpawnCounter  = 3,
+            BlazeWaveSpawnCounter   = 6,
+            BlazeTotalWaveCount     = 5
         };
 
         struct boss_twin_ogron_phemosAI : public BossAI
@@ -549,7 +549,10 @@ class boss_twin_ogron_phemos : public CreatureScript
 
             uint32 m_EnfeeblingRoarCounter;
 
+            Position m_FirstBlazePos;
+            uint8 m_FirstWaveCounter;
             Position m_SecondBlazePos;
+            uint8 m_SecondWaveCounter;
 
             void Reset() override
             {
@@ -604,6 +607,11 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                 m_EnfeeblingRoarCounter = 0;
 
+                m_FirstBlazePos = Position();
+                m_FirstWaveCounter = 0;
+                m_SecondBlazePos = Position();
+                m_SecondWaveCounter = 0;
+
                 me->CancelSpellVisual(eVisuals::QuakeSpellVisual);
                 me->CancelSpellVisualKit(eVisuals::QuakeVisualID);
 
@@ -621,12 +629,6 @@ class boss_twin_ogron_phemos : public CreatureScript
             {
                 return false;
             }
-
-            /*void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) override
-            {
-                if (p_AreaTrigger->GetSpellId() == eSpells::BlazeWeaponVisual)
-                    p_AreaTrigger->m_orientation = p_AreaTrigger->GetAngle(&g_CenterPos);
-            }*/
 
             void DoAction(int32 const p_Action) override
             {
@@ -657,8 +659,14 @@ class boss_twin_ogron_phemos : public CreatureScript
                         };
 
                         l_Pos.m_orientation = l_Pos.GetAngle(&g_CenterPos);
+                        m_FirstBlazePos = l_Pos;
 
+                        /// Total: 4 waves
+                        /// First
+                        ++m_FirstWaveCounter;
                         SpawnBlazeWave(l_Pos);
+                        /// Second, third and fourth
+                        m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnFirstBlaze, 5 * TimeConstants::IN_MILLISECONDS);
 
                         me->CastSpell(l_Pos, eSpells::BlazeWeaponVisual, true);
                         me->SendPlaySpellVisualKit(eVisuals::QuakeVisualID, 0, 0);
@@ -680,7 +688,7 @@ class boss_twin_ogron_phemos : public CreatureScript
                         l_Pos.m_orientation = l_Pos.GetAngle(&g_CenterPos);
 
                         m_SecondBlazePos = l_Pos;
-                        m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnBlaze, 1500);
+                        m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnSecondBlaze, 1500);
 
                         AddTimedDelayedOperation(1500, [this, l_Pos]() -> void
                         {
@@ -760,13 +768,6 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
-
-                    if (IsLFR())
-                    {
-                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                        if (l_Player && l_Player->GetGroup())
-                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                    }
                 }
             }
 
@@ -862,9 +863,22 @@ class boss_twin_ogron_phemos : public CreatureScript
                             m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case eEvents::EventSpawnBlaze:
-                        SpawnBlazeWave(m_SecondBlazePos);
+                    case eEvents::EventSpawnFirstBlaze:
+                    {
+                        ++m_FirstWaveCounter;
+                        SpawnBlazeWave(m_FirstBlazePos);
+                        if (m_FirstWaveCounter <= eMiscs::BlazeTotalWaveCount)
+                            m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnFirstBlaze, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
+                    case eEvents::EventSpawnSecondBlaze:
+                    {
+                        ++m_SecondWaveCounter;
+                        SpawnBlazeWave(m_SecondBlazePos);
+                        if (m_SecondWaveCounter <= eMiscs::BlazeTotalWaveCount)
+                            m_CosmeticEvents.ScheduleEvent(eEvents::EventSpawnSecondBlaze, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -969,7 +983,7 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                         for (uint8 l_J = 0; l_J < eMiscs::BlazeWaveSpawnCounter; ++l_J)
                         {
-                            Position l_Dest;
+                            Position l_Dest = p_Pos;
                             l_Dest.m_positionX = p_Pos.m_positionX + (g_BlazeDistToCenter * cos(l_Orientation));
                             l_Dest.m_positionY = p_Pos.m_positionY + (g_BlazeDistToCenter * sin(l_Orientation));
 
@@ -1492,7 +1506,7 @@ class areatrigger_highmaul_phemos_blaze : public AreaTriggerEntityScript
                     if (Unit* l_Caster = p_AreaTrigger->GetCaster())
                     {
                         std::list<Unit*> l_TargetList;
-                        float l_Radius = 2.0f;
+                        float l_Radius = 1.0f;
 
                         JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
                         JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
