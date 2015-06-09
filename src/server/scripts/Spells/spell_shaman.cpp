@@ -96,7 +96,6 @@ enum ShamanSpells
     SPELL_SHA_FROST_SHOCK                       = 8056,
     SPELL_SHA_LAVA_SURGE_AURA                   = 77756,
     SPELL_SHA_LAVA_BURST                        = 51505,
-    SPELL_SPIRIT_HUNT_HEAL                      = 58879,
     SPELL_SHA_WINDFURY_ATTACK                   = 25504,
     SPELL_SHA_LAMETONGUE_ATTACK                 = 10444,
     SPELL_SHA_PVP_BONUS_WOD_2                   = 166103,
@@ -784,6 +783,7 @@ class spell_sha_earthgrab: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Stone Bulwark - 114889
 class spell_sha_stone_bulwark: public SpellScriptLoader
 {
@@ -796,23 +796,29 @@ class spell_sha_stone_bulwark: public SpellScriptLoader
 
             void OnTick(constAuraEffectPtr p_AurEff)
             {
-                if (Unit* l_Caster = GetCaster())
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Caster == nullptr || l_Owner == nullptr)
+                    return;
+
+                Player* l_Player = l_Owner->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                float spellPower = spellPower = l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
+                int32 l_Amount = 0.875f * spellPower;
+
+                if (AuraPtr aura = l_Player->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
+                    aura->GetEffect(EFFECT_0)->SetAmount(aura->GetEffect(EFFECT_0)->GetAmount() + l_Amount);
+                else if (p_AurEff->GetTickNumber() == 1)
                 {
-                    if (Unit* l_Owner = l_Caster->GetOwner())
-                    {
-                        float spellPower = spellPower = l_Owner->ToPlayer()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_ALL);
-                        int32 l_Amount = 0.875f * spellPower;
-
-                        if (AuraPtr aura = l_Owner->GetAura(SPELL_SHA_STONE_BULWARK_ABSORB))
-                            l_Amount += aura->GetEffect(EFFECT_0)->GetAmount();
-                        else if (p_AurEff->GetTickNumber() == 1)
-                            l_Amount *= 4.f;
-
-                        if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Owner))
-                            aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
-
-                        PreventDefaultAction();
-                    }
+                    l_Amount *= 4.0f;
+                    if (AuraPtr aura = l_Caster->AddAura(SPELL_SHA_STONE_BULWARK_ABSORB, l_Player))
+                        aura->GetEffect(EFFECT_0)->SetAmount(l_Amount);
                 }
 
             }
