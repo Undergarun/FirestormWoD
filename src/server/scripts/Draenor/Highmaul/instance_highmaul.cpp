@@ -63,6 +63,8 @@ class instance_highmaul : public InstanceMapScript
 
                 m_PhemosGuid                = 0;
                 m_PolGuid                   = 0;
+
+                m_KoraghGuid                = 0;
             }
 
             uint64 m_ArenaMasterGuid;
@@ -95,6 +97,9 @@ class instance_highmaul : public InstanceMapScript
             /// The Gorthenon
             uint64 m_PhemosGuid;
             uint64 m_PolGuid;
+
+            /// Chamber of Nullification
+            uint64 m_KoraghGuid;
 
             void Initialize() override
             {
@@ -164,6 +169,9 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulCreatures::Pol:
                         m_PolGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Koragh:
+                        m_KoraghGuid = p_Creature->GetGUID();
                         break;
                     default:
                         break;
@@ -374,6 +382,8 @@ class instance_highmaul : public InstanceMapScript
                         return m_PhemosGuid;
                     case eHighmaulCreatures::Pol:
                         return m_PolGuid;
+                    case eHighmaulCreatures::Koragh:
+                        return m_KoraghGuid;
                     default:
                         break;
                 }

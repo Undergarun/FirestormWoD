@@ -88,7 +88,9 @@ enum eHighmaulCreatures
     Lokk                = 86073,
     /// The Gorthenon
     Phemos              = 78237,
-    Pol                 = 78238
+    Pol                 = 78238,
+    /// Chamber of Nullification
+    Koragh              = 79015
 };
 
 enum eHighmaulGameobjects
