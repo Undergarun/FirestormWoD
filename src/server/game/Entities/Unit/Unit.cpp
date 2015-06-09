@@ -17287,7 +17287,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                             takeCharges = true;
 
                         /// Stealth isn't removed by multistrikes effects
-                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191 || triggeredByAura->GetId() == 5215) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191 || triggeredByAura->GetId() == 5215 || triggeredByAura->GetId() == 158185) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
                             takeCharges = false;
 
                         break;
