@@ -2774,6 +2774,34 @@ class spell_sha_soothing_wind : public SpellScriptLoader
         }
 };
 
+/// WoD PvP Enhancement 2P Bonus - 166103
+class spell_sha_WoDPvPEnhancement2PBonus : public SpellScriptLoader
+{
+    public:
+        spell_sha_WoDPvPEnhancement2PBonus() : SpellScriptLoader("spell_sha_WoDPvPEnhancement2PBonus") { }
+
+        class spell_sha_WoDPvPEnhancement2PBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_WoDPvPEnhancement2PBonus_AuraScript);
+
+            void OnProc(constAuraEffectPtr /*aurEff*/, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_sha_WoDPvPEnhancement2PBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_WoDPvPEnhancement2PBonus_AuraScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_unleashed_fury();
@@ -2827,4 +2855,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_cloudburst();
     new spell_sha_call_lightning();
     new spell_sha_soothing_wind();
+    new spell_sha_WoDPvPEnhancement2PBonus();
 }
