@@ -333,7 +333,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             enum eSpells
             {
-                SpellWindGust       = 157333,
+                SpellWindGust       = 157331,
                 SpellCallLightning  = 157348
             };
 
