@@ -1552,36 +1552,6 @@ class spell_sha_heroism: public SpellScriptLoader
         }
 };
 
-/// 58877 - Spirit Hunt
-class spell_sha_spirit_hunt: public SpellScriptLoader
-{
-    public:
-        spell_sha_spirit_hunt() : SpellScriptLoader("spell_sha_spirit_hunt") { }
-
-        class spell_sha_spirit_hunt_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_spirit_hunt_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 bp0 = eventInfo.GetDamageInfo()->GetDamage();
-                if (Unit* player = GetCaster()->GetOwner())
-                    GetCaster()->CastCustomSpell(player, SPELL_SPIRIT_HUNT_HEAL, &bp0, NULL, NULL, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_spirit_hunt_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_spirit_hunt_AuraScript();
-        }
-};
-
 /// 105792 - Lava Shock Spread
 class spell_sha_lava_lash_spread: public SpellScriptLoader
 {
@@ -2067,6 +2037,7 @@ class spell_sha_pet_spirit_hunt: public SpellScriptLoader
 
                 int32 l_HealAmount = CalculatePct(l_TakenDamage, p_AurEff->GetAmount());
                 l_Caster->CastCustomSpell(l_Owner, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
+                l_Caster->CastCustomSpell(l_Caster, eSpells::SpiritHuntHeal, &l_HealAmount, nullptr, nullptr, true);
             }
 
             void Register()
@@ -2747,7 +2718,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ascendance();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
-    new spell_sha_spirit_hunt();
     new spell_sha_lava_lash_spread();
     new spell_sha_windfury();
     new spell_sha_flametongue();
