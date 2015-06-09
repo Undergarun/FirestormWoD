@@ -7783,8 +7783,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
             damage *= l_Mod;
         }
 
-        damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
-
         if (isAreaAura)
             damage = uint32(float(damage) * caster->SpellHealingPctDone(target, m_spellInfo));
         else
