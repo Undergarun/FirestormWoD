@@ -668,21 +668,14 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 }
             }
 
-            /// Make crash
-            /// https://gist.github.com/Izidor/f0348562477833fe6e03
-            /*std::string const& bgName = GetName();
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
             {
                 if (IsRatedBG())
-                {
-                    sWorld->SendWorldText(LANG_RBG_STARTED_ANNOUNCE_WORLD, bgName.c_str(), GetMinLevel(), GetMaxLevel());
-                }
+                    sWorld->SendWorldText(LANG_RBG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
                 else
-                {
-                    sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, bgName.c_str(), GetMinLevel(), GetMaxLevel());
-                }
-            }*/
+                    sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
+            }
         }
     }
 
