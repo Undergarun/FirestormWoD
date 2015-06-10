@@ -200,6 +200,7 @@ WHERE entry IN (86326, 86329, 86330);
 
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_fel' WHERE entry = 86330;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_fire' WHERE entry = 86329;
+UPDATE creature_template SET ScriptName = 'npc_highmaul_wild_flames' WHERE entry = 86875;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_frost' WHERE entry = 86326;
 
 UPDATE creature_template SET
@@ -214,3 +215,9 @@ ScriptName = 'boss_koragh',
 mechanic_immune_mask = 617299839,
 flags_extra = 0x01
 WHERE entry = 79015;
+
+UPDATE gameobject_template SET ScriptName = 'go_highmaul_chain' WHERE entry = 233127;
+
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_frozen_core');
+INSERT INTO spell_script_names VALUE
+(174404, 'spell_highmaul_frozen_core');

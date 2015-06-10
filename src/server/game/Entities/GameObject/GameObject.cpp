@@ -59,12 +59,14 @@ m_model(NULL), m_goValue(new GameObjectValue), m_AI(NULL)
     m_goData = NULL;
 
     m_DBTableGuid = 0;
-    m_rotation = 0;
+    m_Rotation = 0;
 
     m_lootRecipient = 0;
     m_lootRecipientGroup = 0;
     m_groupLootTimer = 0;
     lootingGroupLowGUID = 0;
+
+    m_CustomFlags = eGoBCustomFlags::CustomFlagNone;
 
     m_AllowAnim = true;
 
@@ -240,10 +242,15 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
         return false;
     }
 
-    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+0, rotation0);
-    SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION+1, rotation1);
+    if (GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
+        SetRotationQuat(rotation0, rotation1, rotation2, rotation3);
+    else
+    {
+        SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 0, rotation0);
+        SetFloatValue(GAMEOBJECT_FIELD_PARENT_ROTATION + 1, rotation1);
 
-    UpdateRotationFields(rotation2, rotation3);              // GAMEOBJECT_FACING, GAMEOBJECT_ROTATION, GAMEOBJECT_PARENTROTATION+2/3
+        UpdateRotationFields(rotation2, rotation3);              // GAMEOBJECT_FACING, GAMEOBJECT_ROTATION, GAMEOBJECT_PARENTROTATION+2/3
+    }
 
     SetObjectScale(goinfo->size);
 
@@ -847,6 +854,7 @@ void GameObject::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.spawnMask = spawnMask;
     data.artKit = GetGoArtKit();
     data.isActive = isActiveObject();
+    data.CustomFlags = GetCustomFlags();
 
     // Update in DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -910,7 +918,10 @@ bool GameObject::LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap)
     uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
-    if (map->GetInstanceId() != 0) guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    m_CustomFlags = data->CustomFlags;
+
+    if (map->GetInstanceId() != 0)
+        guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
     if (!Create(guid, entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
@@ -2006,6 +2017,53 @@ const char* GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     return GetName();
 }
 
+struct QuatCompressed
+{
+    QuatCompressed() : m_Raw(0) { };
+    QuatCompressed(int64 p_Val) : m_Raw(p_Val) { };
+
+    enum : int32
+    {
+        PackYZ = 1 << 20,
+        PackX  = 1 << 21
+    };
+
+    QuatCompressed(G3D::Quat const& p_Quaternion) : m_Raw(0)
+    {
+        int8 l_WSign = (p_Quaternion.w >= 0 ? 1 : -1);
+        int64 l_X = int32(p_Quaternion.x * PackX) * l_WSign & ((1 << 22) - 1);
+        int64 l_Y = int32(p_Quaternion.y * PackYZ) * l_WSign & ((1 << 21) - 1);
+        int64 l_Z = int32(p_Quaternion.z * PackYZ) * l_WSign & ((1 << 21) - 1);
+        m_Raw = l_Z | (l_Y << 21) | (l_X << 42);
+    };
+
+    int64 GetComp() const { return m_Raw; };
+
+    private:
+        int64 m_Raw;
+};
+
+void GameObject::SetRotationQuat(float p_QX, float p_QY, float p_QZ, float p_QW)
+{
+    G3D::Quat l_Quat(p_QX, p_QY, p_QZ, p_QW);
+
+    // Temporary solution for gameobjects that has no rotation data in DB:
+    if (p_QZ == 0 && p_QW == 0)
+        l_Quat = G3D::Quat::fromAxisAngleRotation(G3D::Vector3::unitZ(), GetOrientation());
+
+    m_Rotation = QuatCompressed(l_Quat).GetComp();
+    SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 0, l_Quat.x);
+    SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 1, l_Quat.y);
+    SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 2, l_Quat.z);
+    SetFloatValue(EGameObjectFields::GAMEOBJECT_FIELD_PARENT_ROTATION + 3, l_Quat.w);
+}
+
+void GameObject::SetRotationAngles(float p_ZRot, float p_YRot, float p_XRot)
+{
+    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(p_ZRot, p_YRot, p_XRot));
+    SetRotationQuat(quat.x, quat.y, quat.z, quat.w);
+}
+
 void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3 /*=0.0f*/)
 {
     static double const atan_pow = atan(pow(2.0f, -20.0f));
@@ -2024,7 +2082,7 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
     //int64 i_rot3 = f_rot3 / atan(pow(2.0f, -21.0f));
     //rotation |= (i_rot3 >> 42) & 0x7FFFFC0000000000;
 
-    m_rotation = rotation;
+    m_Rotation = rotation;
 
     if (rotation2 == 0.0f && rotation3 == 0.0f)
     {

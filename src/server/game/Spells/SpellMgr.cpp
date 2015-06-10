@@ -3567,6 +3567,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4); ///< 1s
                 break;
             case 158241:///< Blaze - DoT (Phemos - Twin Ogron)
+            case 174405:///< Frozen Core - DoT (Breaker Ritualist - Frost)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
