@@ -1090,7 +1090,18 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_ENERGY));
+    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+
+    float l_RegenFlatMultiplier = 1.0f;
+    Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (auto l_AuraEffect : l_RegenAura)
+    {
+        if (l_AuraEffect->GetMiscValue() != Powers::POWER_ENERGY)
+            continue;
+
+        l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
+    }
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1168,8 +1179,11 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
-    return l_BaseRegen * l_HastePct;
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+
+    float l_Total = l_BaseRegen * l_HastePct;
+
+    return l_Total * l_Pct;
 }
 
 void Player::_ApplyAllStatBonuses()
