@@ -24,8 +24,6 @@ class boss_rukhmar : public CreatureScript
     public:
         boss_rukhmar() : CreatureScript("boss_rukhmar") { }
 
-        float m_Bab;
-
         struct boss_rukhmarAI : public ScriptedAI
         {
             boss_rukhmarAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
