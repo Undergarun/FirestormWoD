@@ -1310,14 +1310,16 @@ class spell_monk_power_strikes: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
                 {
-                    if (l_Player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
-                    {
-                        if (l_Player->GetPower(POWER_CHI) >= l_Player->GetMaxPower(POWER_CHI))
-                            l_Player->CastSpell(l_Player, SPELL_MONK_CREATE_CHI_SPHERE, true);
-                        l_Player->RemoveAura(SPELL_MONK_POWER_STRIKES_AURA);
-                    }
+                    if (l_Caster->GetPower(POWER_CHI) >= l_Caster->GetMaxPower(POWER_CHI))
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_CREATE_CHI_SPHERE, true);
+                    else
+                        l_Caster->ModifyPower(POWER_CHI, 1);
+
+                    l_Caster->RemoveAura(SPELL_MONK_POWER_STRIKES_AURA);
                 }
             }
 
