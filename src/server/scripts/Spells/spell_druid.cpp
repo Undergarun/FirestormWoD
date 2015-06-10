@@ -36,6 +36,7 @@ enum YseraGiftSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY   = 145110
 };
 
+/// last update : 6.1.2 19802
 /// Ysera's Gift - 145108
 class spell_dru_yseras_gift: public SpellScriptLoader
 {
@@ -59,25 +60,8 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 }
                 else
                 {
-                    std::list<Unit*> l_Party;
-
-                    l_Caster->GetRaidMembers(l_Party);
-
-                    l_Party.remove_if([l_Caster](Unit* p_Unit) {
-                        return (p_Unit->IsFullHealth() || p_Unit->GetDistance(l_Caster) >= 40.0f);
-                    });
-
-                    if (l_Party.empty())
-                        return;
-
-                    if (l_Party.size() > 1)
-                    {
-                        l_Party.sort(JadeCore::HealthPctOrderPred());
-                        l_Party.resize(1); // Just to be sure
-                    }
-
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
                 }
             }
 
@@ -90,6 +74,44 @@ class spell_dru_yseras_gift: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_yseras_gift_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Ysera's Gift (Ally heal) - 145110
+class spell_dru_yseras_gift_ally_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_yseras_gift_ally_proc() : SpellScriptLoader("spell_dru_yseras_gift_ally_proc") { }
+
+        class spell_dru_yseras_gift_ally_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_yseras_gift_ally_proc_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                p_Targets.remove_if([l_Caster](Unit* p_Unit) {
+                    return (p_Unit->IsFullHealth() || p_Unit->GetGUID() == l_Caster->GetGUID());
+                });
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_ally_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_yseras_gift_ally_proc_SpellScript();
         }
 };
 
@@ -4367,6 +4389,7 @@ class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_yseras_gift_ally_proc();
     new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();
     new spell_dru_lifebloom_final_heal();
