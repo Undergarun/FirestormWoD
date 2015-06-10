@@ -152,7 +152,7 @@ void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
     }
 
     if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip]
-        && p_Diff > m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] + eTarrenMillFunDatas::PortalShipDuration * TimeConstants::MINUTE)
+        && p_Diff > m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] + eTarrenMillFunDatas::PortalShipDuration * TimeConstants::IN_MILLISECONDS)
         ResetShipEvent();
 }
 
@@ -200,7 +200,7 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
     l_Value++;
 
     /// TESTING ONLY
-    if (l_Value == 1)
+    if (l_Value >= 1)
         m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = true;
 
     /// Max score reached !
