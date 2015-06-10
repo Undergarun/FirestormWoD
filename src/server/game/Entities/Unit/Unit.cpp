@@ -13603,13 +13603,13 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 l_Data.appendPackGUID(GetGUID());   ///< MoverGUID
                 l_Data << uint32(0);                ///< SequenceIndex
                 l_Data << uint32(VehicleId);        ///< VehicleRecID
-                ToPlayer()->GetSession()->SendPacket(&l_Data);
+                SendMessageToSet(&l_Data, true);
 
                 // Send others that we now have a vehicle
                 l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 16 + 2 + 4);
                 l_Data.appendPackGUID(GetGUID());
                 l_Data << uint32(VehicleId);
-                SendMessageToSet(&l_Data, true);
+                ToPlayer()->GetSession()->SendPacket(&l_Data);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -13661,12 +13661,12 @@ void Unit::Dismount()
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
         l_Data << uint32(0);
-        ToPlayer()->GetSession()->SendPacket(&l_Data);
+        ToPlayer()->SendMessageToSet(&l_Data, true);
 
         l_Data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 4);
         l_Data.appendPackGUID(l_Guid);
         l_Data << uint32(0);
-        ToPlayer()->SendMessageToSet(&l_Data, true);
+        ToPlayer()->GetSession()->SendPacket(&l_Data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);

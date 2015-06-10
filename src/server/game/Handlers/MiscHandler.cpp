@@ -1899,12 +1899,12 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    m_Player->Dismount();
     m_Player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     WorldPacket l_Data(SMSG_DISMOUNT);
     l_Data.appendPackGUID(m_Player->GetGUID());
     m_Player->SendMessageToSet(&l_Data, true);
+
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)

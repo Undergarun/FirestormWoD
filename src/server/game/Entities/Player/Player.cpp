@@ -4839,7 +4839,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
 
-    for (uint8 l_I = 0 ; l_I < PlayerAvgItemLevelOffsets::MaxAvgItemLevel; l_I++)
+    for (uint8 l_I = 0; l_I < PlayerAvgItemLevelOffsets::MaxAvgItemLevel; l_I++)
         SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + l_I, 0.0f);
 
     // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
