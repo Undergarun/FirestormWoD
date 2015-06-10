@@ -92,8 +92,15 @@ class spell_dru_yseras_gift_ally_proc : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                p_Targets.remove_if([l_Caster](Unit* p_Unit) {
-                    return (p_Unit->IsFullHealth() || p_Unit->GetGUID() == l_Caster->GetGUID());
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->ToUnit()->IsFullHealth() || p_Object->GetGUID() == l_Caster->GetGUID())
+                        return true;
+
+                    return false;
                 });
 
                 if (p_Targets.size() > 1)
@@ -4387,6 +4394,52 @@ class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
         }
 };
 
+/// WoD PvP Balance 4P Bonus - 180717
+class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_WodPvpBalance4pBonus() : SpellScriptLoader("spell_dru_WodPvpBalance4pBonus") { }
+
+        class spell_dru_WodPvpBalance4pBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_WodPvpBalance4pBonus_AuraScript);
+
+            enum eSpells
+            {
+                CelestialFury = 180719,
+                Starsurge = 78674
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_SpellInfo->Id != eSpells::Starsurge)
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, eSpells::CelestialFury, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_WodPvpBalance4pBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_WodPvpBalance4pBonus_AuraScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_yseras_gift_ally_proc();
@@ -4465,5 +4518,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom_heal_proc();
     new spell_dru_dream_of_cenarius_feral();
     new spell_dru_wod_pvp_2p_restoration();
+    new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
 }
