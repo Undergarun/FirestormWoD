@@ -950,8 +950,10 @@ struct ItemTemplate
         if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
             return false;
 
-        if (Quality == ITEM_QUALITY_LEGENDARY)
-            return false;
+        /// Custom removed for selling old legendary item
+        /// Ask by Peluche
+        //if (Quality == ITEM_QUALITY_LEGENDARY)
+        //    return false;
 
         if (Class != ITEM_CLASS_ARMOR &&
             Class != ITEM_CLASS_WEAPON)
