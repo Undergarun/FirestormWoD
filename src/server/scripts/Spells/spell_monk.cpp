@@ -1512,7 +1512,9 @@ class spell_monk_eminence_heal : public SpellScriptLoader
 
             for (std::list<WorldObject*>::iterator l_Itr = p_Targets.begin(); l_Itr != p_Targets.end();)
             {
-                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || (*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() || !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
+                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || 
+                    ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
+                    !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
                     l_Itr = p_Targets.erase(l_Itr);
                else
                    l_Itr++;
