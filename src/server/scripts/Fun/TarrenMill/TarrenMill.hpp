@@ -64,6 +64,7 @@ enum eGameObjects
 enum eTarrenMillEvents
 {
     EventPortalShip,
+    EventFinal,
     MaxEvents
 };
 
@@ -122,8 +123,8 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
 
         /// Custom
         void ScheduleEventsUpdate(uint32 p_Diff);
-        void ResetFinalEvent();
-        void LaunchFinalEvent(bool p_AllianceWon, uint32 p_Diff);
+        void ResetShipEvent();
+        void StartShipEvent(bool p_AllianceWon, uint32 p_Diff);
         void RegisterScoresResetTime();
         void InitializeGraveyards();
         void InitializeEvents();

@@ -70,7 +70,7 @@ void OutdoorPvPTarrenMillFun::RegisterScoresResetTime()
     m_ResetScoreTimestamp = l_NextResetTimestamp;
 }
 
-void OutdoorPvPTarrenMillFun::LaunchFinalEvent(bool p_AllianceWon, uint32 p_Diff)
+void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon, uint32 p_Diff)
 {
     /// Spawn portal to ship
 
@@ -86,7 +86,7 @@ void OutdoorPvPTarrenMillFun::LaunchFinalEvent(bool p_AllianceWon, uint32 p_Diff
     /// TODO
 }
 
-void OutdoorPvPTarrenMillFun::ResetFinalEvent()
+void OutdoorPvPTarrenMillFun::ResetShipEvent()
 {
     m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = false;
     DelObject(eTarrenMillEvents::EventPortalShip);
@@ -145,16 +145,22 @@ void OutdoorPvPTarrenMillFun::LoadKillsRewards()
 
 void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
 {
+    if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal])
+    {
+        StartShipEvent(eWorldStates::AllianceScore >= eWorldStates::HordeScore, p_Diff);
+        m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = false;
+    }
+
     if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip]
         && p_Diff > m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] + eTarrenMillFunDatas::PortalShipDuration * TimeConstants::MINUTE)
-        ResetFinalEvent();
+        ResetShipEvent();
 }
 
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
 {
     if (time(nullptr) > m_ResetScoreTimestamp)
     {
-        LaunchFinalEvent(eWorldStates::AllianceScore >= eWorldStates::HordeScore, p_Diff);
+        m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = true;
         ResetScores();
     }
 
@@ -193,9 +199,16 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
+    /// TESTING ONLY
+    if (l_Value == 1)
+        m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = true;
+
     /// Max score reached !
     if (l_Value == eTarrenMillFunDatas::MaxScoreValue)
+    {
         l_Value = 0;
+        m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = true;
+    }
 
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
@@ -351,26 +364,23 @@ class go_tarren_mill_portal : public GameObjectScript
 
         bool OnGossipHello(Player* p_Player, GameObject* p_Go)
         {
-            float l_PositionX   = 0.f;
-            float l_PositionY   = 0.f;
-            float l_PositionZ   = 0.f;
-            float l_Orientation = 0.f;
+            Position l_Position;
 
             if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
             {
-                l_PositionX = 1752.77f;
-                l_PositionY = 1063.11f;
-                l_PositionZ = 6.9f;
+                l_Position.m_positionX = 1752.77f;
+                l_Position.m_positionY = 1063.11f;
+                l_Position.m_positionZ = 6.9f;
             }
             else
             {
-                l_PositionX = 2621.11f;
-                l_PositionY = 636.17f;
-                l_PositionZ = 55.97f;
-                l_Orientation = 4.31f;
+                l_Position.m_positionX = 2621.11f;
+                l_Position.m_positionY = 636.17f;
+                l_Position.m_positionZ = 55.97f;
+                l_Position.m_orientation = 4.31f;
             }
 
-            p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+            p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
             return true;
         }
@@ -383,27 +393,24 @@ public:
 
     bool OnGossipHello(Player* p_Player, GameObject* p_Go)
     {
-        float l_PositionX = 0.f;
-        float l_PositionY = 0.f;
-        float l_PositionZ = 0.f;
-        float l_Orientation = 0.f;
+        Position l_Position;
 
         if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
         {
-            l_PositionX = 1807.79f;
-            l_PositionY = 1025.76f;
-            l_PositionZ = 160.6f;
-            l_Orientation = 1.51f;
+            l_Position.m_positionX = 1807.79f;
+            l_Position.m_positionY = 1025.76f;
+            l_Position.m_positionZ = 160.6f;
+            l_Position.m_orientation = 1.51f;
         }
         else
         {
-            l_PositionX = 2644.08f;
-            l_PositionY = 655.103f;
-            l_PositionZ = 177.64f;
-            l_Orientation = 2.03f;
+            l_Position.m_positionX = 2644.08f;
+            l_Position.m_positionY = 655.103f;
+            l_Position.m_positionZ = 177.64f;
+            l_Position.m_orientation = 2.03f;
         }
 
-        p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+        p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
         return true;
     }

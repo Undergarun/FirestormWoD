@@ -13,27 +13,24 @@ public:
 
     bool OnGossipHello(Player* p_Player, GameObject* p_Go)
     {
-        float l_PositionX = 0.f;
-        float l_PositionY = 0.f;
-        float l_PositionZ = 0.f;
-        float l_Orientation = 0.f;
+        Position l_Position;
 
         if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
         {
-            l_PositionX = 3684.13f;
-            l_PositionY = -3839.93f;
-            l_PositionZ = 45.49f;
-            l_Orientation = 3.4f;
+            l_Position.m_positionX = 3684.13f;
+            l_Position.m_positionY = -3839.93f;
+            l_Position.m_positionZ = 45.49f;
+            l_Position.m_orientation = 3.4f;
         }
         else
         {
-            l_PositionX = 5357.f;
-            l_PositionY = -3943.61f;
-            l_PositionZ = 33.29f;
-            l_Orientation = 3.97f;
+            l_Position.m_positionX = 5357.f;
+            l_Position.m_positionY = -3943.61f;
+            l_Position.m_positionZ = 33.29f;
+            l_Position.m_orientation = 3.97f;
         }
 
-        p_Player->TeleportTo(1116, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+        p_Player->TeleportTo(1116, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
         return true;
     }
