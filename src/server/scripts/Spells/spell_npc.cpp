@@ -352,7 +352,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker)
             {
-                m_Events.ScheduleEvent(eEvents::EventWindGust, 2000);
+                m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
                 m_Events.ScheduleEvent(eEvents::EventCallLightning, 8000);
             }
 
@@ -385,7 +385,7 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                     case eEvents::EventWindGust:
                         if (Unit* l_Target = me->getVictim())
                             me->CastSpell(l_Target, eSpells::SpellWindGust, false);
-                        m_Events.ScheduleEvent(eEvents::EventWindGust, 9000);
+                        m_Events.ScheduleEvent(eEvents::EventWindGust, 500);
                         break;
                     case eEvents::EventCallLightning:
                         if (Unit* l_Target = me->getVictim())
@@ -395,8 +395,6 @@ class spell_npc_sha_storm_elemental : public CreatureScript
                     default:
                         break;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
