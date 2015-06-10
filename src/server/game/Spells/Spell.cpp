@@ -5010,7 +5010,7 @@ void Spell::SendSpellGo()
     l_Data << uint8(m_cast_count);
     l_Data << uint32(m_spellInfo->Id);
     l_Data << uint32(l_CastFlags);
-    l_Data << uint32(m_casttime);
+    l_Data << uint32(getMSTime());
     l_Data << uint32(l_HitCount);
     l_Data << uint32(l_MissCount);
     l_Data << uint32(l_MissCount);
@@ -5980,6 +5980,10 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
+    // Hack fixing Skulloc LOS issue with the bridge sequence
+    if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
+        return SPELL_CAST_OK;
+
     // Custom Spell_failed
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;

@@ -1017,6 +1017,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
+    PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2655,7 +2656,7 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 p_ForcedDifficulty = -1);
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -3414,6 +3415,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
         void HandleStoreTitleCallback(PreparedQueryResult result);
+        void HandleStoreProfessionCallback(PreparedQueryResult p_Result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
@@ -3788,7 +3790,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_LegacyRaidDifficulty;
-        Difficulty m_raidMapDifficulty;
+        Difficulty m_PrevMapDifficulty;
 
         uint32 m_atLoginFlags;
 

@@ -60,8 +60,8 @@ void MapManager::Initialize()
     }
     int num_threads(sWorld->getIntConfig(CONFIG_NUMTHREADS));
     // Start mtmaps if needed.
-    if (num_threads > 0 && m_updater.activate(num_threads) == -1)
-        abort();
+    if (num_threads > 0)
+        m_updater.activate(num_threads);
 }
 
 void MapManager::InitializeVisibilityDistanceInfo()
@@ -285,7 +285,10 @@ void MapManager::Update(uint32 diff)
     /// - Start Achievement criteria update processing thread
     sAchievementMgr->PrepareCriteriaUpdateTaskThread();
 
-    m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
+    if (m_updater.activated())
+        m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
+    else
+        AchievementCriteriaUpdateRequest(nullptr).call();
 
     /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();

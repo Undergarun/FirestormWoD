@@ -1248,9 +1248,6 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
 
 void GameObject::Use(Unit* p_User)
 {
-    if (p_User)
-        sLog->outAshran("Player %u use gameobject entry %u in map %u", p_User->GetGUIDLow(), GetEntry(), GetMapId());
-
     // by default spell caster is user
     Unit* spellCaster = p_User;
     uint32 spellId = 0;

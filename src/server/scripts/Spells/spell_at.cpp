@@ -142,7 +142,9 @@ class spell_at_druid_fungal_growth : public AreaTriggerEntityScript
                     m_Targets.push_back(l_Target->GetGUID());
                 }
             }
-            for (uint64 l_TargetGuid : m_Targets)
+
+            std::list<uint64> l_Targets(m_Targets);
+            for (uint64 l_TargetGuid : l_Targets)
             {
                 Unit* l_Target = ObjectAccessor::GetUnit(*l_AreaTriggerCaster, l_TargetGuid);
 
@@ -665,6 +667,47 @@ class spell_at_mage_meteor_timestamp : public AreaTriggerEntityScript
         }
 };
 
+/// Afterlife (healing sphere) - 117032
+class spell_at_monk_afterlife_healing_sphere : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_monk_afterlife_healing_sphere() : AreaTriggerEntityScript("at_afterlife_healing_sphere") { }
+
+        enum eAfterlife
+        {
+            SpellHealingSphere = 125355
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            SpellInfo const* l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            Unit* l_AreaTriggerCaster = p_AreaTrigger->GetCaster();
+
+            if (l_AreaTriggerCaster && l_CreateSpell)
+            {
+                float l_Radius = 1.0f;
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_AreaTriggerCaster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr && l_Target->GetGUID() == l_AreaTriggerCaster->GetGUID())
+                {
+                    l_AreaTriggerCaster->CastSpell(l_Target, eAfterlife::SpellHealingSphere, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_monk_afterlife_healing_sphere();
+        }
+};
+
 /// Gift of the Serpent (healing sphere) - 119031
 class spell_at_monk_healing_sphere : public AreaTriggerEntityScript
 {
@@ -996,6 +1039,7 @@ void AddSC_areatrigger_spell_scripts()
 
     /// Monk Area Trigger
     new spell_at_monk_healing_sphere();
+    new spell_at_monk_afterlife_healing_sphere();
     new spell_at_monk_chi_sphere_afterlife();
     new spell_at_monk_gift_of_the_ox();
 

@@ -13,7 +13,6 @@
 
 namespace MS { namespace Skill
 {
-
     namespace SpellIDs
     {
         enum 
@@ -47,7 +46,8 @@ namespace MS { namespace Skill
             TaladiteRecrystalizer2   = 178351,
             TaladiteRecrystalizer3   = 178381,
             TaladiteRecrystalizer4   = 178382,
-            TaladiteRecrystalizer5   = 178383
+            TaladiteRecrystalizer5   = 178383,
+            UpgradeArmor             = 168865
         };
     }
 
@@ -56,16 +56,38 @@ namespace MS { namespace Skill
         enum
         {
             /// Cooking rewards for SpellIDs::SaberfishBroth && SpellIDs::GrilledSaberfish
-            BlackrockHam       = 118311,
-            ClefthoofSausages  = 118315,
-            FatSleeperCakes    = 118319,
-            FieryCalamari      = 118320,
-            GrilledGulper      = 118317,
-            PanSearedTalbuk    = 118312,
-            RylakCrepes        = 118314,
-            SkulkerChowder     = 118321,
-            SteamedScorpion    = 118316,
-            SturgeonStew       = 118318
+            BlackrockHam                = 118311,
+            ClefthoofSausages           = 118315,
+            FatSleeperCakes             = 118319,
+            FieryCalamari               = 118320,
+            GrilledGulper               = 118317,
+            PanSearedTalbuk             = 118312,
+            RylakCrepes                 = 118314,
+            SkulkerChowder              = 118321,
+            SteamedScorpion             = 118316,
+            SturgeonStew                = 118318,
+
+            /// Blacksmithing
+            TruesteelIngot              = 108257,
+
+            /// Enchantment
+            FracturedTemporalCrystal    = 115504,
+            TemporalCrystal             = 113588,
+
+            /// Inscription
+            WarPaints                   = 112377,
+
+            /// Tailoring
+            HexweaveCloth               = 111556,
+
+            /// First Aid
+            AntisepticBandage           = 111603,
+
+            /// Leatherworking
+            BurnishedLeather            = 110611,
+
+            /// Jewelcrafting
+            TaladiteCrystal             = 115524
         };
     }
 
@@ -118,33 +140,41 @@ namespace MS { namespace Skill
                     if (!roll_chance_i(60))
                         return;
 
-                    if (!l_RewardItems.size())
+                    std::vector<uint32> l_Candidates;
+
+                    for (uint32 l_ItemID : l_RewardItems)
+                    {
+                        ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_ItemID);
+
+                        if (!l_ItemTemplate)
+                            return;
+
+                        if (l_ItemTemplate->Spells[0].SpellId == 483 /* Learning */)
+                        {
+                            if (!l_Player->HasSpell(l_ItemTemplate->Spells[1].SpellId))
+                                l_Candidates.push_back(l_ItemID);
+                        }
+                    }
+
+                    if (!l_Candidates.size())
                         return;
 
-                    uint32 l_RewardChance = 100 / l_RewardItems.size();
 
-                    for (uint32 l_I = 0; l_I < l_RewardItems.size(); ++l_I)
+                    auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(l_Candidates.at(0));
+
+                    if (!pProto)
+                        return;
+
+                    ItemPosCountVec l_Dest;
+                    uint32 l_NoSpace = 0;
+
+                    if (l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, pProto->ItemId, 1, &l_NoSpace) == EQUIP_ERR_OK)
                     {
-                        uint32 l_RewardItem = l_RewardItems[l_I];
-
-                        if (roll_chance_i(l_RewardChance))
-                        {
-                            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(l_RewardItem);
-
-                            if (!pProto)
-                                continue;
-
-                            ItemPosCountVec l_Dest;
-                            uint32 l_NoSpace = 0;
-
-                            if (l_Player->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Dest, l_RewardItem, 1, &l_NoSpace) == EQUIP_ERR_OK)
-                            {
-                                Item* pItem = l_Player->StoreNewItem(l_Dest, l_RewardItem, true, Item::GenerateItemRandomPropertyId(l_RewardItem));
-                                l_Player->SendNewItem(pItem, 1, true, false);
-                            }
-
-                            break;
-                        }
+                        Item* pItem = l_Player->StoreNewItem(l_Dest, pProto->ItemId, true, Item::GenerateItemRandomPropertyId(pProto->ItemId));
+                        l_Player->SendNewItem(pItem, 1, true, false);
                     }
                 }
 
@@ -254,7 +284,8 @@ namespace MS { namespace Skill
                                  58297, 148272,  71101,  64266,  57215, 148259,
                                  57122,  57242, 112450, 148282, 124459,  58326,
                                  94405,  57271,  56980,  57009, 112264, 148266,
-                                112444,  57240,  58312
+                                112444,  57240,  58312,  57250,  57258,  57202,
+                                 56958,  57014,  56975,  57247,  57191,  95825
                             };
                             break;
                         case SpellIDs::ResearchLionInk:
@@ -263,7 +294,9 @@ namespace MS { namespace Skill
                                 58323,  58322,  57161,  57001, 148271,  57238,
                                 57037, 135561,  58289,  57027, 148280, 112442,
                                 57007, 148269, 112440,  57183, 148257,  58299,
-                                57132, 148281,  57225, 123781,  57209, 124457
+                                57132, 148281,  57225, 123781,  57209, 124457,
+                                57223,  57181,  56999,  57237,  59561,  56954,
+                                57127
                             };
                             break;
                         case SpellIDs::ResearchJadefireInk:
@@ -292,7 +325,8 @@ namespace MS { namespace Skill
                                  57002,  57023,  57032,  57129,  57168,  57198,
                                  57210,  57236,  58320,  58325,  58333,  58336,
                                  58346,  95710, 112466, 119481, 126801, 131152,
-                                148284, 148291, 148489
+                                148284, 148291, 148489,  57211,  57124,  56946,
+                                 57267,  57232, 132167
                             };
                             break;
                         case SpellIDs::ResearchEtherealInk:
@@ -301,7 +335,8 @@ namespace MS { namespace Skill
                                  56978,  56990,  56991,  57005,  57033,  57125,
                                  57265,  57274,  58286,  58315,  58318,  58327,
                                  58330,  58343,  59340,  95215, 112465, 124452,
-                                124455, 148276, 148288, 148290, 148487, 182154
+                                124455, 148276, 148288, 148290, 148487, 182154,
+                                 57207,  57115,  57263,  57164,  57234,  57195
                             };
                             break;
                         case SpellIDs::ResearchInkOfTheSea:
@@ -310,7 +345,8 @@ namespace MS { namespace Skill
                                  56948,  56952,  56972,  56995,  57229, 57230,
                                  57270,  58311,  58317,  58328,  58329, 58342,
                                  94404, 112457, 112464, 112469, 124442, 126153,
-                                148275, 148287, 148289, 182156
+                                148275, 148287, 148289, 182156,  57159, 57233,
+                                 57019,  56988,  57130,  57260,  57193
                             };
                             break;
                         case SpellIDs::ResearchBlackfallowInk:
@@ -319,7 +355,7 @@ namespace MS { namespace Skill
                                  57031,  57154,  57196,  57217,  57228,  57249, 
                                  57257,  58287,  58296,  58324,  58337,  58339, 
                                  64260,  64262,  68166, 112430, 112461, 112462, 
-                                122030, 124466, 126800, 148286
+                                122030, 124466, 126800, 148286,  56986,  55691
                             };
                             break;
                         case SpellIDs::ResearchInkOfDreams:
@@ -329,7 +365,7 @@ namespace MS { namespace Skill
                                  57226,  57227,  57269,  58288,  58301,  58306,
                                  59326,  64258,  64261,  64312, 112266, 112458,
                                 112460, 124461, 126696, 148274, 148285, 182155, 
-                                182158
+                                182158,  57189,  56998,  58375
                             };
                             break;
                     }
@@ -346,20 +382,29 @@ namespace MS { namespace Skill
                     }
 
                     if (!l_Candidates.size())
-                        return;
-
-                    uint32 l_RewardChance = 100 / l_Candidates.size();
-
-                    for (uint32 l_I = 0; l_I < l_Candidates.size(); ++l_I)
                     {
-                        uint32 l_RewardSpell = l_Candidates[l_I];
+                        auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                        std::shuffle(l_RewardSpells.begin(), l_RewardSpells.end(), std::default_random_engine(l_Seed));
 
-                        if (roll_chance_i(l_RewardChance))
-                        {
-                            l_Player->learnSpell(l_RewardSpell, false);
-                            break;
-                        }
+                        uint32 l_SpellID = l_RewardSpells.at(0);
+                        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+
+                        if (!l_SpellInfo || l_SpellInfo->Effects[EFFECT_0].Effect != SPELL_EFFECT_CREATE_ITEM)
+                            return;
+
+                        uint32 l_ItemID = l_SpellInfo->Effects[EFFECT_0].ItemType;
+
+                        if (!sObjectMgr->GetItemTemplate(l_ItemID))
+                            return;
+
+                        l_Player->AddItem(l_ItemID, 1);
+                        return;
                     }
+
+                    auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::shuffle(l_Candidates.begin(), l_Candidates.end(), std::default_random_engine(l_Seed));
+
+                    l_Player->learnSpell(l_Candidates.at(0), false);
                 }
 
                 void Register() override
@@ -375,6 +420,9 @@ namespace MS { namespace Skill
                 return new spell_Inscription_Research_SpellScript();
             }
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     /// Reset secondary properties spells
@@ -436,6 +484,7 @@ namespace MS { namespace Skill
                         case SpellIDs::TaladiteRecrystalizer5:
                         case SpellIDs::TruesteelReshaper:
                         case SpellIDs::LeatherRefurbishingKit:
+                        case SpellIDs::UpgradeArmor:
                             l_RequireIlevel = 640;
                             break;
                         default:
@@ -506,7 +555,7 @@ namespace MS { namespace Skill
 
                 void Register() override
                 {
-                    OnHit += SpellHitFn(spell_Skill_ResetSecondaryProperties_SpellScript::ResetSecondaryProperties);
+                    OnHit       += SpellHitFn(spell_Skill_ResetSecondaryProperties_SpellScript::ResetSecondaryProperties);
                     OnCheckCast += SpellCheckCastFn(spell_Skill_ResetSecondaryProperties_SpellScript::CheckCast);
                 }
 
@@ -517,8 +566,229 @@ namespace MS { namespace Skill
             {
                 return new spell_Skill_ResetSecondaryProperties_SpellScript();
             }
-
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    namespace DailyMajorSkills
+    {
+        //////////////////////////////////////////////////////////////////////////
+        /// GENERIC : Recipe who the created items grow with skill level
+        //////////////////////////////////////////////////////////////////////////
+        template<char const* t_Name, int t_SkillID, int t_ItemID> class spell_Skill_GrowFromSkillLevel : public SpellScriptLoader
+        {
+            public:
+                /// Constructor
+                spell_Skill_GrowFromSkillLevel()
+                    : SpellScriptLoader(t_Name)
+                {
+
+                }
+
+                class spell_Skill_GrowFromSkillLevel_SpellScript : public SpellScript
+                {
+                    PrepareSpellScript(spell_Skill_GrowFromSkillLevel_SpellScript);
+
+                    uint32 GetItemCount(Player* p_Player)
+                    {
+                        uint32 l_SkillValue = p_Player->GetSkillValue(t_SkillID);
+                        uint32 l_RollCount = 4;
+
+                        if (l_SkillValue > 600)
+                            l_RollCount += 1 + ((l_SkillValue - 600) / 20);
+
+                        return l_RollCount;
+                    }
+
+                    SpellCastResult CheckCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return SPELL_FAILED_ERROR;
+
+                        uint32 l_RollCount = GetItemCount(l_Caster);
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, t_ItemID, l_RollCount);
+
+                        if (l_Message != EQUIP_ERR_OK)
+                        {
+                            l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        return SPELL_CAST_OK;
+                    }
+
+                    void AfterCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return;
+
+                        uint32 l_RollCount = GetItemCount(l_Caster);
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, t_ItemID, l_RollCount);
+
+                        if (l_Message != EQUIP_ERR_OK)
+                            return;
+
+                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, t_ItemID, true, Item::GenerateItemRandomPropertyId(t_ItemID));
+
+                        if (l_Item)
+                            l_Caster->SendNewItem(l_Item, l_RollCount, false, true);
+                    }
+
+                    void Register() override
+                    {
+                        OnCheckCast += SpellCheckCastFn(spell_Skill_GrowFromSkillLevel_SpellScript::CheckCast);
+                        OnHit       += SpellHitFn(spell_Skill_GrowFromSkillLevel_SpellScript::AfterCast);
+                    }
+
+                };
+
+                /// Should return a fully valid SpellScript pointer.
+                SpellScript* GetSpellScript() const override
+                {
+                    return new spell_Skill_GrowFromSkillLevel_SpellScript();
+                }
+
+        };
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 171690 - Truesteel Ingot
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_BlackSmithing_TruesteelIngot_Name[]       = "spell_Skill_BlackSmithing_TruesteelIngot";
+        using spell_Skill_BlackSmithing_TruesteelIngot              = spell_Skill_GrowFromSkillLevel<spell_Skill_BlackSmithing_TruesteelIngot_Name, SKILL_BLACKSMITHING, ItemIDs::TruesteelIngot>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 169081 - War Paints
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Inscription_WarPaints_Name[]              = "spell_Skill_Inscription_WarPaints";
+        using spell_Skill_Inscription_WarPaints                     = spell_Skill_GrowFromSkillLevel<spell_Skill_Inscription_WarPaints_Name, SKILL_INSCRIPTION, ItemIDs::WarPaints>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 168835 - Hexweave Cloth
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Tailoring_HexweaveCloth_Name[]            = "spell_Skill_Tailoring_HexweaveCloth";
+        using spell_Skill_Tailoring_HexweaveCloth                   = spell_Skill_GrowFromSkillLevel<spell_Skill_Tailoring_HexweaveCloth_Name, SKILL_TAILORING, ItemIDs::HexweaveCloth>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 172539 - Antiseptic Bandage
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_FirstAid_AntisepticBandage_Name[]         = "spell_Skill_FirstAid_AntisepticBandage";
+        using spell_Skill_FirstAid_AntisepticBandage                = spell_Skill_GrowFromSkillLevel<spell_Skill_FirstAid_AntisepticBandage_Name, SKILL_FIRST_AID, ItemIDs::AntisepticBandage>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 171391 - Burnished Leather
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Leatherworking_BurnishedLeather_Name[]    = "spell_Skill_Leatherworking_BurnishedLeather";
+        using spell_Skill_Leatherworking_BurnishedLeather           = spell_Skill_GrowFromSkillLevel<spell_Skill_Leatherworking_BurnishedLeather_Name, SKILL_LEATHERWORKING, ItemIDs::BurnishedLeather>;
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 170700 - Taladite Crystal
+        //////////////////////////////////////////////////////////////////////////
+        char  spell_Skill_Jewelcrafting_TaladiteCrystal_Name[]      = "spell_Skill_Jewelcrafting_TaladiteCrystal";
+        using spell_Skill_Jewelcrafting_TaladiteCrystal             = spell_Skill_GrowFromSkillLevel<spell_Skill_Jewelcrafting_TaladiteCrystal_Name, SKILL_JEWELCRAFTING, ItemIDs::TaladiteCrystal>;
+
+        //////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        /// 169092 - Temporal Crystal
+        //////////////////////////////////////////////////////////////////////////
+        class spell_Skill_Enchantment_TemporalCrystal : public SpellScriptLoader
+        {
+            public:
+                /// Constructor
+                spell_Skill_Enchantment_TemporalCrystal()
+                    : SpellScriptLoader("spell_Skill_Enchantment_TemporalCrystal")
+                {
+
+                }
+
+                class spell_Skill_Enchantment_TemporalCrystal_SpellScript : public SpellScript
+                {
+                    PrepareSpellScript(spell_Skill_Enchantment_TemporalCrystal_SpellScript);
+
+                    uint32 GetItemID(Player* p_Player)
+                    {
+                        if (p_Player->GetSkillValue(SKILL_ENCHANTING) >= 600)
+                            return ItemIDs::TemporalCrystal;
+
+                        return ItemIDs::FracturedTemporalCrystal;
+                    }
+                    uint32 GetItemCount(Player* p_Player)
+                    {
+                        uint32 l_SkillValue     = p_Player->GetSkillValue(SKILL_ENCHANTING);
+                        uint32 l_ItemCount      = urand(3, 6);
+
+                        if (l_SkillValue < 600)
+                            l_ItemCount = 4;
+
+                        return l_ItemCount;
+                    }
+
+                    SpellCastResult CheckCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return SPELL_FAILED_ERROR;
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                        if (l_Message != EQUIP_ERR_OK)
+                        {
+                            l_Caster->SendEquipError(EQUIP_ERR_INV_FULL, nullptr);
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+
+                        return SPELL_CAST_OK;
+                    }
+
+                    void AfterCast()
+                    {
+                        Player* l_Caster = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
+
+                        if (!l_Caster)
+                            return;
+
+                        ItemPosCountVec l_Destination;
+                        InventoryResult l_Message = l_Caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, l_Destination, GetItemID(l_Caster), GetItemCount(l_Caster));
+
+                        if (l_Message != EQUIP_ERR_OK)
+                            return;
+
+                        Item* l_Item = l_Caster->StoreNewItem(l_Destination, GetItemID(l_Caster), true, Item::GenerateItemRandomPropertyId(GetItemID(l_Caster)));
+
+                        if (l_Item)
+                            l_Caster->SendNewItem(l_Item, GetItemCount(l_Caster), false, true);
+                    }
+
+                    void Register() override
+                    {
+                        OnCheckCast += SpellCheckCastFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::CheckCast);
+                        OnHit       += SpellHitFn(spell_Skill_Enchantment_TemporalCrystal_SpellScript::AfterCast);
+                    }
+
+                };
+
+                /// Should return a fully valid SpellScript pointer.
+                SpellScript* GetSpellScript() const override
+                {
+                    return new spell_Skill_Enchantment_TemporalCrystal_SpellScript();
+                }
+
+        };
+
+    }   ///< namespace DailyMajorSkills
+
 }   ///< namespace Skill
 }   ///< namespace MS
 
@@ -527,4 +797,13 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
+
+    /// Daily major skills
+    new MS::Skill::DailyMajorSkills::spell_Skill_BlackSmithing_TruesteelIngot();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Inscription_WarPaints();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Tailoring_HexweaveCloth();
+    new MS::Skill::DailyMajorSkills::spell_Skill_FirstAid_AntisepticBandage();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Leatherworking_BurnishedLeather();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Jewelcrafting_TaladiteCrystal();
+    new MS::Skill::DailyMajorSkills::spell_Skill_Enchantment_TemporalCrystal();
 }
