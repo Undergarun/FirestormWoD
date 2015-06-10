@@ -2318,9 +2318,6 @@ class spell_rog_evicerate : public SpellScriptLoader
                 uint8 l_ComboPoint = l_Caster->GetPower(Powers::POWER_COMBO_POINT);
                 int32 l_Damage = 0;
 
-                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
-                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
-
                 if (l_ComboPoint)
                 {
                     l_Damage += int32((l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.577f) * 0.88f * l_ComboPoint);
@@ -2330,9 +2327,8 @@ class spell_rog_evicerate : public SpellScriptLoader
                         l_Damage += l_ComboPoint * l_Tier5Bonus2P->GetAmount();
                 }
 
-                /// Because we do all the calculation, need also need to reapply spellmods if any
-                if (Player* l_ModOwner = l_Caster->GetSpellModOwner())
-                    l_ModOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, l_Damage);
+                l_Damage = l_Caster->SpellDamageBonusDone(GetHitUnit(), GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = GetHitUnit()->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Damage);
             }
