@@ -30,9 +30,11 @@ enum eCharacterWorldStates
 
 enum eTarrenMillFunDatas
 {
-    ZoneId        = 7107,
-    MaxScoreValue = 5000,
-    ResetHour     = 2       ///< 2:00 AM
+    ZoneId             = 7107,
+    MapId              = 1280,
+    MaxScoreValue      = 5000,
+    ResetHour          = 2, ///< 2:00 AM
+    PortalShipDuration = 60 ///< minutes
 };
 
 enum eCreatures
@@ -52,6 +54,17 @@ enum eWorldSafeLocs
 {
     TarrenMillAllianceGraveyard = 4850,
     TarrenMillHordeGraveyard    = 4851
+};
+
+enum eGameObjects
+{
+    TarrenMillShipPortal = 696901
+};
+
+enum eTarrenMillEvents
+{
+    EventPortalShip,
+    MaxEvents
 };
 
 
@@ -108,8 +121,12 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
 
 
         /// Custom
+        void ScheduleEventsUpdate(uint32 p_Diff);
+        void ResetFinalEvent();
+        void LaunchFinalEvent(bool p_AllianceWon, uint32 p_Diff);
         void RegisterScoresResetTime();
         void InitializeGraveyards();
+        void InitializeEvents();
         void ResetScores();
         void LoadKillsRewards();
         void CheckKillRewardConditions(Player* p_Player);
@@ -118,7 +135,10 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
 
     private:
 
+        uint32 m_TarrenMillEvents[eTarrenMillEvents::MaxEvents];
+        bool m_TarrenMillEventsActivated[eTarrenMillEvents::MaxEvents];
         time_t m_ResetScoreTimestamp;
+        time_t m_ResetPortalShipEventTimestamp;
         TitleRewards m_KillRewards;
 };
 

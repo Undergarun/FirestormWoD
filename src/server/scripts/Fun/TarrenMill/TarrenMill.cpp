@@ -23,6 +23,7 @@ bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
     LoadKillsRewards();
 
     InitializeGraveyards();
+    InitializeEvents();
 
     return true;
 }
@@ -35,6 +36,15 @@ void OutdoorPvPTarrenMillFun::InitializeGraveyards()
         OutdoorGraveyard* l_Graveyard = new OutdoorGraveyard(this);
         l_Graveyard->Initialize(g_TarenMillGraveyards[l_I].StartTeam, g_TarenMillGraveyards[l_I].ID);
         m_GraveyardList[l_I] = l_Graveyard;
+    }
+}
+
+void OutdoorPvPTarrenMillFun::InitializeEvents()
+{
+    for (uint8 l_I = 0; l_I < eTarrenMillEvents::MaxEvents; ++l_I)
+    {
+        m_TarrenMillEvents[l_I] = 0;
+        m_TarrenMillEventsActivated[l_I] = false;
     }
 }
 
@@ -58,6 +68,31 @@ void OutdoorPvPTarrenMillFun::RegisterScoresResetTime()
     }
 
     m_ResetScoreTimestamp = l_NextResetTimestamp;
+}
+
+void OutdoorPvPTarrenMillFun::LaunchFinalEvent(bool p_AllianceWon, uint32 p_Diff)
+{
+    /// Spawn portal to ship
+
+    if (p_AllianceWon)
+        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 1750.73f, 1061.40f, 6.88f, 0.f, 0.f, 0.f, 0.f, 0.f);
+    else
+        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 2609.18f, 671.74f, 56.18f, 0.f, 0.f, 0.f, 0.f, 0.f);
+
+    m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = p_Diff;
+    m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = true;
+
+    /// Zone announcement
+    /// TODO
+}
+
+void OutdoorPvPTarrenMillFun::ResetFinalEvent()
+{
+    m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = false;
+    DelObject(eTarrenMillEvents::EventPortalShip);
+
+    /// Zone announcement
+    /// TODO
 }
 
 void OutdoorPvPTarrenMillFun::ResetScores()
@@ -108,10 +143,22 @@ void OutdoorPvPTarrenMillFun::LoadKillsRewards()
     });
 }
 
+void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
+{
+    if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip]
+        && p_Diff > m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] + eTarrenMillFunDatas::PortalShipDuration * TimeConstants::MINUTE)
+        ResetFinalEvent();
+}
+
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
 {
     if (time(nullptr) > m_ResetScoreTimestamp)
+    {
+        LaunchFinalEvent(eWorldStates::AllianceScore >= eWorldStates::HordeScore, p_Diff);
         ResetScores();
+    }
+
+    ScheduleEventsUpdate(p_Diff);
 
     OutdoorPvP::Update(p_Diff);
 
@@ -323,14 +370,49 @@ class go_tarren_mill_portal : public GameObjectScript
                 l_Orientation = 4.31f;
             }
 
-            p_Player->TeleportTo(1280, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+            p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
 
             return true;
         }
 };
 
+class go_tarren_mill_ship_portal : public GameObjectScript
+{
+public:
+    go_tarren_mill_ship_portal() : GameObjectScript("go_tarren_mill_ship_portal") { }
+
+    bool OnGossipHello(Player* p_Player, GameObject* p_Go)
+    {
+        float l_PositionX = 0.f;
+        float l_PositionY = 0.f;
+        float l_PositionZ = 0.f;
+        float l_Orientation = 0.f;
+
+        if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+        {
+            l_PositionX = 1807.79f;
+            l_PositionY = 1025.76f;
+            l_PositionZ = 160.6f;
+            l_Orientation = 1.51f;
+        }
+        else
+        {
+            l_PositionX = 2644.08f;
+            l_PositionY = 655.103f;
+            l_PositionZ = 177.64f;
+            l_Orientation = 2.03f;
+        }
+
+        p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_PositionX, l_PositionY, l_PositionZ, l_Orientation);
+
+        return true;
+    }
+};
+
+
 void AddSC_TarrenMillFun()
 {
     new OutdoorPvP_TarrenMillFun();
     new go_tarren_mill_portal();
+    new go_tarren_mill_ship_portal();
 } 
