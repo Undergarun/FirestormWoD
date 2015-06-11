@@ -99,8 +99,6 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
     PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA        = 146955,
-    PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
-    PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
     PALADIN_SPELL_AVENGING_WRATH_HEAL           = 31842,
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
@@ -2460,13 +2458,18 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
 /// Sanctified Wrath - 53376
-/// Called by Avenging Wrath - 31884
+/// Called by Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
+/// last update : 6.1.2 19802
 class spell_pal_sanctified_wrath : public SpellScriptLoader
 {
     public:
         spell_pal_sanctified_wrath() : SpellScriptLoader("spell_pal_sanctified_wrath") { }
+
+        enum eSpells
+        {
+            SanctifiedWrathBonus = 114232
+        };
 
         class spell_pal_sanctified_wrath_AuraScript : public AuraScript
         {
@@ -2475,53 +2478,83 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                Player* l_Player = l_Caster->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->CastSpell(l_Player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
-
-                if (AuraPtr l_SanctifiedWrathAura = l_Player->GetAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                {
-                    l_SanctifiedWrathAura->GetEffect(EFFECT_1)->SetAmount(0);
-                    l_SanctifiedWrathAura->GetEffect(EFFECT_3)->SetAmount(0);
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                    {
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_0)->SetAmount(0);
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_4)->SetAmount(0);
-                    }
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_2)->SetAmount(0);
-                }
-
+                l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                    l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
+                if (l_Caster->HasAura(eSpells::SanctifiedWrathBonus))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::SanctifiedWrathBonus);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                /// Effect 3 is commun to both spells for holy and ret
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_pal_sanctified_wrath_AuraScript();
+        }
+};
+
+/// Sanctified Wrath (bonus) - 114232
+class spell_pal_sanctified_wrath_bonus : public SpellScriptLoader
+{
+    public:
+        spell_pal_sanctified_wrath_bonus() : SpellScriptLoader("spell_pal_sanctified_wrath_bonus") { }
+
+        class spell_pal_sanctified_wrath_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_sanctified_wrath_bonus_SpellScript);
+
+            void HandleApply(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                switch (p_EffIndex)
+                {
+                    case EFFECT_0: //< Mod CD Holy Shock
+                    case EFFECT_4: //< Crit chance
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_HOLY)
+                            PreventHitAura();
+                        break;
+                    case EFFECT_2: //< Mod CD Hammer of Wrath
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+                            PreventHitAura();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_4, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_sanctified_wrath_bonus_SpellScript();
         }
 };
 
@@ -2722,6 +2755,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_righteous_defense();
     new spell_pal_seal_of_justice();
     new spell_pal_sanctified_wrath();
+    new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
 
     // Player Script
