@@ -9492,7 +9492,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
 
-            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id != 5374)
+            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id != 5374 || procSpell->Id != 8676 || procSpell->Id != 111240)
                 return false;
 
             break;

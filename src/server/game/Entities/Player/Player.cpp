@@ -3351,7 +3351,10 @@ void Player::Regenerate(Powers power)
                 break;
             /// Regenerate Energy
             case POWER_ENERGY:
-                addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+                if (HasAura(13877)) ///< -20% for energy regen if player has aura Blade Flurry
+                    addvalue += (((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct) * 0.8f);
+                else
+                    addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
                 break;
             /// Regenerate Runic Power
             case POWER_RUNIC_POWER:
@@ -3572,6 +3575,9 @@ void Player::ResetAllPowers()
             break;
         case POWER_ENERGY:
             SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+            break;
+        case POWER_COMBO_POINT:
+            ClearComboPoints();
             break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
