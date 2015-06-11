@@ -2851,7 +2851,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SendAurasForTarget(Unit* target);
-        void SendCooldownAtLogin();
+        void SendSpellHistory();
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
