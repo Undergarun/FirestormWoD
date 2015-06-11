@@ -117,7 +117,7 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
     );
 
     /// Compute next events start time
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.ComputeNextStartTime();
 }
 
@@ -219,7 +219,7 @@ void OutdoorPvPTarrenMillFun::LoadKillsRewards()
 
 void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
 {
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnUpdate(p_Diff);
 
     /*if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] && !m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip])
@@ -256,13 +256,13 @@ void OutdoorPvPTarrenMillFun::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << (uint32)eWorldStates::HordeScore    << (uint32)sWorld->getWorldState(eWorldStates::HordeScore);
     p_Data << (uint32)eWorldStates::MaxScore      << (uint32)eTarrenMillFunDatas::MaxScoreValue;
 
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnFillInitialWorldStates(p_Data);
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
 {
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnPlayerKilled(p_Player);
 
     bool l_CanUpdateScoreAtSkill = !m_Events[eTarrenMillEvents::EventFFA].IsInProgress();
@@ -400,7 +400,7 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
 
 void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 {
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnPlayerEnter(p_Player);
 
     UpdateRankAura(p_Player);
@@ -408,7 +408,7 @@ void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_Ma
 
 void OutdoorPvPTarrenMillFun::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    for (TarrenMillEvent l_Event : m_Events)
+    for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnPlayerExit(p_Player);
 
     RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
