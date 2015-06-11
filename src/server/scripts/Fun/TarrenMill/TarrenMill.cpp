@@ -181,7 +181,7 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
     );
 
     m_Events[eTarrenMillEvents::EventPortalShip] = TarrenMillShipEvent
-        (
+    (
         eTarrenMillEvents::EventPortalShip,
         eTarrenMillEventStates::NotStarted,
         eTarrenMillEventDurations::EventPortalShipDuration,
@@ -427,8 +427,15 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
+    /// Debug code
     if (l_Value >= 1)
-        m_Events[eTarrenMillEvents::EventPortalShip].Start();
+    {
+        if (!m_Events[eTarrenMillEvents::EventPortalShip].IsInProgress())
+            m_Events[eTarrenMillEvents::EventPortalShip].Start();
+
+        if (!m_Events[eTarrenMillEvents::EventFFA].IsInProgress())
+            m_Events[eTarrenMillEvents::EventFFA].Start();
+    }
 
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
@@ -485,7 +492,7 @@ TarrenMillEvent::TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, 
 
 void TarrenMillEvent::Start()
 {
-        OnStart();
+    OnStart();
 }
 
 void TarrenMillEvent::OnStart()
