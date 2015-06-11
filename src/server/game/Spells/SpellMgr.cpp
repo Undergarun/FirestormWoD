@@ -3342,6 +3342,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
         }
 
+        if (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL)
+        {
+            SkillLineAbilityMapBounds l_SpellBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
+            for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_SpellBounds.first; l_SpellIdx != l_SpellBounds.second; ++l_SpellIdx)
+                m_SkillTradeSpells[l_SpellIdx->second->skillId].push_back(l_SpellIdx->second);
+        }
+
         ///////////////////////////
         //////   END BINARY  //////
         ///////////////////////////

@@ -1,0 +1,1 @@
+INSERT INTO spell_script_names VALUES (159238,'spell_Mark_Of_The_Shattered_Bleed');

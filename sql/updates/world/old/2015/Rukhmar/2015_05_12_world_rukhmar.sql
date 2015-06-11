@@ -18,7 +18,7 @@
 	WHERE `entry` = @RUKHMAR;
 
 	DELETE FROM creature WHERE id = @RUKHMAR;
-	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('83746','1116','6722','6722','1','1','0','0','131.766','2506.42','135.821','2.64288','300','0','0','43331200','0','2','0','0','0','2176','0','0','0','0',NULL);
+	INSERT INTO `creature` (`id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `WorldEffectID`, `isActive`, `protec_anti_doublet`) VALUE ('83746','1116','6722','6722','1','1','0','0','131.766','2506.42','135.821','2.64288','1800','0','0','43331200','0','2','0','0','0','2176','0','0','0','0',NULL);
 	insert into creature_addon (guid, path_id) value ((select distinct guid from creature where id = @RUKHMAR), @RUKHMAR);
 
 
@@ -33,7 +33,7 @@
 
 #167629/167647/Spell - Blaze Of Glory/Loose Quills
 
-	DELETE FROM spell_script_names WHERE spell_id IN (167629, 167647);
+	DELETE FROM spell_script_names WHERE spell_id IN (167629, 167647, 167679);
 	INSERT INTO spell_script_names VALUE (167629, "spell_rukhmar_blaze_of_glory");
 	INSERT INTO spell_script_names VALUE (167647, "spell_rukhmar_loose_quills");
 	INSERT INTO spell_script_names VALUE (167679, "spell_aura_pierced_armor");

@@ -5603,8 +5603,8 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
 
     float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
     float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_NewAmount, false);
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, true);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_NewAmount, true);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5619,8 +5619,8 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
 
     float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
     float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_NewAmount, false);
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, true);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, false);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_NewAmount, true);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
