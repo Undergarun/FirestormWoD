@@ -27057,11 +27057,6 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendMoveRoot(0);
 
     SendSpellHistory();
-
-
-    /// Spell History
-
-
     SendSpellCharges();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
