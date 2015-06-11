@@ -166,9 +166,9 @@ void OutdoorPvPTarrenMillFun::InitializeGraveyards()
 
 void OutdoorPvPTarrenMillFun::InitializeEvents()
 {
-    m_Events.resize(eTarrenMillEvents::MaxEvents);
+    m_Events.resize(eTarrenMillEvents::MaxEvents, nullptr);
 
-    m_Events[eTarrenMillEvents::EventFFA] = TarrenMillFFAEvent
+    m_Events[eTarrenMillEvents::EventFFA] = new TarrenMillFFAEvent
     (
         eTarrenMillEvents::EventFFA,
         eTarrenMillEventStates::NotStarted,
@@ -180,8 +180,8 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
         }
     );
 
-    m_Events[eTarrenMillEvents::EventPortalShip] = TarrenMillShipEvent
-        (
+    m_Events[eTarrenMillEvents::EventPortalShip] = new TarrenMillShipEvent
+    (
         eTarrenMillEvents::EventPortalShip,
         eTarrenMillEventStates::NotStarted,
         eTarrenMillEventDurations::EventPortalShipDuration,
@@ -189,8 +189,8 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
     );
 
     /// Compute next events start time
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.ComputeNextStartTime();
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->ComputeNextStartTime();
 }
 
 void OutdoorPvPTarrenMillFun::RegisterScoresResetTime()
@@ -229,7 +229,7 @@ void OutdoorPvPTarrenMillFun::ResetScores()
     SendUpdateWorldState(eWorldStates::AllianceScore, 0);
     SendUpdateWorldState(eWorldStates::HordeScore, 0);
 
-    m_Events[eTarrenMillEvents::EventPortalShip].Start();
+    m_Events[eTarrenMillEvents::EventPortalShip]->Start();
 }
 
 void OutdoorPvPTarrenMillFun::LoadKillsRewards()
@@ -267,8 +267,8 @@ void OutdoorPvPTarrenMillFun::LoadKillsRewards()
 
 void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
 {
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.OnUpdate(p_Diff);
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->OnUpdate(p_Diff);
 }
 
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
@@ -289,16 +289,16 @@ void OutdoorPvPTarrenMillFun::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << (uint32)eWorldStates::HordeScore    << (uint32)sWorld->getWorldState(eWorldStates::HordeScore);
     p_Data << (uint32)eWorldStates::MaxScore      << (uint32)eTarrenMillFunDatas::MaxScoreValue;
 
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.OnFillInitialWorldStates(p_Data);
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->OnFillInitialWorldStates(p_Data);
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
 {
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.OnPlayerKilled(p_Player);
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->OnPlayerKilled(p_Player);
 
-    bool l_CanUpdateScoreAtSkill = !m_Events[eTarrenMillEvents::EventFFA].IsInProgress();
+    bool l_CanUpdateScoreAtSkill = !m_Events[eTarrenMillEvents::EventFFA]->IsInProgress();
     if (l_CanUpdateScoreAtSkill)
         UpdateScoreAtKill(p_Player);
 }
@@ -433,16 +433,16 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
 
 void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
 {
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.OnPlayerEnter(p_Player);
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->OnPlayerEnter(p_Player);
 
     UpdateRankAura(p_Player);
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
 {
-    for (TarrenMillEvent l_Event : m_Events)
-        l_Event.OnPlayerExit(p_Player);
+    for (TarrenMillEvent* l_Event : m_Events)
+        l_Event->OnPlayerExit(p_Player);
 
     RankInfo l_RankInfo = GetRankAuraAndMissingKills(p_Player);
     p_Player->RemoveAurasDueToSpell(l_RankInfo.first);
@@ -500,7 +500,7 @@ void TarrenMillEvent::OnUpdate(const uint32 p_Diff)
 {
     time_t l_Now = time(nullptr);
 
-    if (State == eTarrenMillEventStates::NotStarted && NextStartTimestamp >= l_Now)
+    if (State == eTarrenMillEventStates::NotStarted && NextStartTimestamp <= l_Now)
         Start();
 
     if (State == eTarrenMillEventStates::Started && l_Now > (NextStartTimestamp + Duration))
@@ -535,6 +535,38 @@ void TarrenMillEvent::ComputeNextStartTime()
             /// Choose random time in the range
             l_StartTimestamp += rand() % l_RangeInSecs;
             break;
+        }
+    }
+
+    /// Can happen if we have past the last event range today.
+    if (l_StartTimestamp <= l_CurTime)
+    {
+        l_LocalTm.tm_hour = 0;
+        l_LocalTm.tm_min  = 0;
+        l_LocalTm.tm_sec  = 0;
+
+        time_t l_Tomorrow = mktime(&l_LocalTm) + DAY;
+        l_LocalTm         = *localtime(&l_Tomorrow);
+
+        for (TarrenMillEvent::TimeRange l_Range : StartRanges)
+        {
+            l_LocalTm.tm_hour = l_Range.first.Hour;
+            l_LocalTm.tm_min = l_Range.first.Minute;
+
+            l_StartTimestamp = mktime(&l_LocalTm);
+            if (l_StartTimestamp > l_CurTime)
+            {
+                /// Get range time
+                l_LocalTm.tm_hour = l_Range.second.Hour;
+                l_LocalTm.tm_min = l_Range.second.Minute;
+
+                time_t l_EndTimestamp = mktime(&l_LocalTm);
+                uint32 l_RangeInSecs = l_EndTimestamp - l_StartTimestamp;
+
+                /// Choose random time in the range
+                l_StartTimestamp += rand() % l_RangeInSecs;
+                break;
+            }
         }
     }
 
