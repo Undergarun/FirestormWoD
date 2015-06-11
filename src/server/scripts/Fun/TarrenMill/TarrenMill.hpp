@@ -69,7 +69,6 @@ enum eTarrenMillEventDurations
 enum eTarrenMillEvents
 {
     EventPortalShip,
-    EventFinal,
     EventFFA,
     MaxEvents
 };
@@ -199,7 +198,7 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
 
     private:
 
-        std::vector<TarrenMillEvent> m_Events;
+        std::vector<TarrenMillEvent*> m_Events;
         time_t m_ResetScoreTimestamp;
         time_t m_ResetPortalShipEventTimestamp;
         TitleRewards m_KillRewards;
