@@ -145,6 +145,11 @@ enum eGaralonDisplayId
     DISPLAY_LEG_ACTIVE = 42852,
 };
 
+enum eGaralonGuids
+{
+    GUID_MENDED_LEG = 1
+};
+
 uint32 legSpells[4] = { SPELL_RIDE_FRONT_RIGHT, SPELL_RIDE_FRONT_LEFT, SPELL_RIDE_BACK_RIGHT, SPELL_RIDE_BACK_LEFT };
 
 // 62164 - Garalon
@@ -165,8 +170,8 @@ public:
         Vehicle* vehicle;
         SummonList summons;
         EventMap events;
-        std::list<uint32> legs;
         std::map<uint64, uint8> legsIndexMap;
+        std::list<uint32> legs;
         uint32 mendedLeg;
         bool damagedHeroic;
         bool castingCrush;
@@ -188,9 +193,6 @@ public:
             mendedLeg       = 0;
             legs.clear();
 
-            // Reset Legs
-            ResetLegs();
-
             // Basic settings
             me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
@@ -207,6 +209,7 @@ public:
         void ResetLegs()
         {
             legsIndexMap.clear();
+
             if (vehicle)
                 vehicle->RemoveAllPassengers(true);
 
@@ -217,14 +220,22 @@ public:
             if (!legList.empty())
             {
                 for (Creature* leg : legList)
-                    legsIndexMap.insert(std::make_pair(leg->GetGUID(), legIndex++));
+                {
+                    if (legIndex < 4)
+                        legsIndexMap.insert(std::make_pair(leg->GetGUID(), legIndex++));
+                }
 
                 if (!legsIndexMap.empty())
                 {
                     for (std::map<uint64, uint8>::iterator itr = legsIndexMap.begin(); itr != legsIndexMap.end(); ++itr)
                     {
-                        if (Creature::GetCreature(*me, itr->first) && itr->second < 4)
-                            Creature::GetCreature(*me, itr->first)->CastSpell(me, legSpells[itr->second], false);
+                        if (Creature* l_Leg = Creature::GetCreature(*me, itr->first))
+                        {
+                            l_Leg->CastSpell(me, legSpells[itr->second], false);
+                            l_Leg->AI()->DoAction(ACTION_MEND_LEG);
+                            if (instance)
+                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, l_Leg);
+                        }
                     }
                 }
             }
@@ -290,20 +301,6 @@ public:
 
             fightInProgress = true;
 
-            // Activate Legs
-            std::list<Creature*> legList;
-            GetCreatureListWithEntryInGrid(legList, me, NPC_GARALON_LEG, 200.0f);
-
-            if (!legList.empty())
-            {
-                for (Creature* leg : legList)
-                {
-                    leg->AI()->EnterCombat(0);
-                    if (instance)
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, leg);
-                }
-            }
-
             // Activation of the walls
             std::list<GameObject*> doorList;
             GetGameObjectListWithEntryInGrid(doorList, me, GOB_GARALON_WALLS, 100.0f);
@@ -339,7 +336,6 @@ public:
             if (instance)
             {
                 instance->SetBossState(DATA_GARALON, FAIL);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me); // Remove
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_AURA); // Remove Pheromones.
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PHEROMONES_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PUNGENCY);
@@ -351,11 +347,7 @@ public:
             if (!legList.empty())
             {
                 for (Creature* leg : legList)
-                {
-                    if (instance)
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, leg);
                     leg->AI()->Reset();
-                }
             }
 
             DespawnCreatures(NPC_PHEROMONE_TRAIL);
@@ -369,6 +361,8 @@ public:
 
             fightInProgress = false;
             _EnterEvadeMode();
+
+            ResetLegs();
         }
 
         void JustDied(Unit* /*killer*/)
@@ -480,11 +474,23 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
+                    // Reset Legs
+                    ResetLegs();
+
                     std::list<Creature*> l_LegList;
                     GetCreatureListWithEntryInGrid(l_LegList, me, NPC_GARALON_LEG, 200.0f);
 
-                    for (Creature* l_Leg : l_LegList)
-                        l_Leg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    if (me->isAlive())
+                    {
+                        if (instance)
+                        {
+                            for (Creature* l_Leg : l_LegList)
+                            {
+                                l_Leg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, l_Leg);
+                            }
+                        }
+                    }
 
                     break;
                 }
@@ -516,7 +522,8 @@ public:
                         events.ScheduleEvent(EVENT_MEND_LEG, 10000);
                     }
                 }
-                me->CastSpell(me, SPELL_BROKEN_LEG, false);
+
+                me->AddAura(SPELL_BROKEN_LEG, me);
                 me->DealDamage(me, me->GetMaxHealth() * 0.03);
             }
         }
@@ -545,6 +552,19 @@ public:
             }
             
             return 0;
+        }
+
+        void SetGUID(uint64 p_Guid, int32 p_Id)
+        {
+            if (p_Id == GUID_MENDED_LEG)
+            {
+                if (Creature* l_Leg = Creature::GetCreature(*me, p_Guid))
+                {
+                    std::map<uint64, uint8>::iterator l_Itr = legsIndexMap.find(p_Guid);
+                    if (l_Itr != legsIndexMap.end())
+                        l_Leg->CastSpell(l_Leg, legSpells[l_Itr->second], true);
+                }
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -682,7 +702,11 @@ public:
                         garalon->AI()->EnterCombat(attacker);
                 }
             }
+        }
 
+        void EnterEvadeMode()
+        {
+            DoAction(ACTION_MEND_LEG);
         }
 
         void DoAction(int32 const action)
@@ -692,8 +716,12 @@ public:
                 case ACTION_LEG_DIED:
                 {
                     died = true;
+                    me->RemoveAllAuras();
                     me->AddAura(SPELL_BROKEN_LEG_VIS, me);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    if (instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
                     if (Creature* Garalon = instance->instance->GetCreature(instance->GetData64(NPC_GARALON)))
                         Garalon->ToCreature()->AI()->SetData(ACTION_LEG_IS_DEAD, me->GetGUIDLow());
                     break;
@@ -702,6 +730,9 @@ public:
                 {
                     me->RemoveAurasDueToSpell(SPELL_BROKEN_LEG_VIS);
                     me->SetFullHealth();
+                    if (instance)
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     died = false;
                     break;
@@ -878,10 +909,7 @@ class spell_garalon_mend_leg: public SpellScriptLoader
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
-            {/*
-                if (targets.empty())
-                    return;
-                    */
+            {
                 targets.clear();
                 if (Unit* Garalon = GetCaster())
                 {
@@ -900,7 +928,9 @@ class spell_garalon_mend_leg: public SpellScriptLoader
                 // Now, once we made sure we are casting on a random broken leg, let's have it "respawn".
                 if (Creature* garalon = GetCaster()->ToCreature())
                 {
-                    if (Creature* leg = garalon->GetMap()->GetCreature(MAKE_NEW_GUID(garalon->AI()->GetData(ACTION_LEG_IS_DEAD), NPC_GARALON_LEG, HIGHGUID_UNIT)))
+                    uint64 l_LegGuid = MAKE_NEW_GUID(garalon->AI()->GetData(ACTION_LEG_IS_DEAD), NPC_GARALON_LEG, HIGHGUID_UNIT);
+                    garalon->AI()->SetGUID(l_LegGuid, GUID_MENDED_LEG);
+                    if (Creature* leg = garalon->GetMap()->GetCreature(l_LegGuid))
                         leg->AI()->DoAction(ACTION_MEND_LEG);
                 }
                 // And remove a stack from Garalon's Broken Leg aura.
