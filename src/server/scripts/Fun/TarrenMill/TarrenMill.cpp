@@ -427,9 +427,6 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
-    if (l_Value >= 1)
-        m_Events[eTarrenMillEvents::EventPortalShip].Start();
-
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
 }
@@ -485,7 +482,7 @@ TarrenMillEvent::TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, 
 
 void TarrenMillEvent::Start()
 {
-        OnStart();
+    OnStart();
 }
 
 void TarrenMillEvent::OnStart()
