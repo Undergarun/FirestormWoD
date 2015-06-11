@@ -283,7 +283,7 @@ class BattlegroundSM : public Battleground
         int32 m_FirstMineCartSummonTimer;
         int32 m_MineCartCheckTimer;
         int32 m_DepotCloseTimer[4];
-        int32 m_MineCartAddPointsTimer;
+        uint32 m_MineCartAddPointsTimer;
         int32 m_TrackSwitchClickTimer[SM_MAX_TRACK_SWITCH];
         bool m_Depot[4]; // 0 = Waterfall, 1 = Lava, 2 = Diamond, 3 = Troll
         bool m_MineCartReachedDepot[SM_MINE_CART_MAX];
