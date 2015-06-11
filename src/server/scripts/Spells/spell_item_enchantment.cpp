@@ -155,10 +155,48 @@ class spell_Mark_of_Warsong : public SpellScriptLoader
 
 };
 
+/// last update : 6.1.2 19865
+/// Shattered Bleed - 159238
+class spell_Mark_Of_The_Shattered_Bleed : public SpellScriptLoader
+{
+    public:
+        spell_Mark_Of_The_Shattered_Bleed() : SpellScriptLoader("spell_Mark_Of_The_Shattered_Bleed") { }
+
+        class spell_Mark_Of_The_Shattered_Bleed_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_Mark_Of_The_Shattered_Bleed_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetExplTargetUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->IsValidAssistTarget(l_Target))
+                    return SPELL_FAILED_DONT_REPORT;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_Mark_Of_The_Shattered_Bleed_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_Mark_Of_The_Shattered_Bleed_SpellScript();
+        }
+};
+
 void AddSC_spell_item_enchantment()
 {
     new spell_Mark_of_Bleeding_Hollow();
     new spell_Mark_of_Blackrock();
     new spell_Mark_of_Thunderlord();
     new spell_Mark_of_Warsong();
+    new spell_Mark_Of_The_Shattered_Bleed();
 }
