@@ -1083,7 +1083,7 @@ class spell_mastery_master_demonologist_aura : public SpellScriptLoader
         }
 };
 
-/// Called by Chaos wave - 124915, Touch of Chao - 103964, Soul Fire - 6353
+/// Called by Chaos wave - 124915, Touch of Chao - 103964, Soul Fire - 6353, Demonbolt - 157695
 /// Mastery: Master Demonologist - 77219
 class spell_mastery_master_demonologist : public SpellScriptLoader
 {
