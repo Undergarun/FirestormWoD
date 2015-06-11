@@ -87,7 +87,7 @@ void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon, uint32 p_Diff)
     else
         AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 2609.18f, 671.74f, 56.18f, 0.f, 0.f, 0.f, 0.f, 0.f);
 
-    m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = eTarrenMillFunDatas::PortalShipDuration * TimeConstants::IN_MILLISECONDS;
+    m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = eTarrenMillFunDatas::PortalShipDuration * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
     m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = true;
 
     /// Zone announcement
@@ -100,7 +100,6 @@ void OutdoorPvPTarrenMillFun::ResetShipEvent()
     
     DelObject(eTarrenMillEvents::EventPortalShip);
 
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Reseting Ship Event, current score %u", GetCurrentScore(TeamId::TEAM_ALLIANCE));
     /// Zone announcement
     /// TODO
 }
