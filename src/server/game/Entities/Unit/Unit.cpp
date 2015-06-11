@@ -11723,7 +11723,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
     {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (isPet())
@@ -11731,7 +11731,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -13302,7 +13302,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
             AddPct(DoneTotalMod, Mastery);
         }
     }
