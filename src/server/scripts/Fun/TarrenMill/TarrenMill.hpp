@@ -122,6 +122,7 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
 
 
         /// Custom
+        uint32 GetCurrentScore(TeamId p_TeamId);
         void ScheduleEventsUpdate(uint32 p_Diff);
         void ResetShipEvent();
         void StartShipEvent(bool p_AllianceWon, uint32 p_Diff);

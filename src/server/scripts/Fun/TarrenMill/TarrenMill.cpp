@@ -15,6 +15,14 @@ OutdoorPvPTarrenMillFun::OutdoorPvPTarrenMillFun()
     m_TypeId = OUTDOOR_PVP_TARRENMILL;
 }
 
+uint32 OutdoorPvPTarrenMillFun::GetCurrentScore(TeamId p_TeamId)
+{
+    if (p_TeamId == TeamId::TEAM_ALLIANCE)
+        return sWorld->getWorldState(eWorldStates::AllianceScore);
+    else
+        return sWorld->getWorldState(eWorldStates::HordeScore);
+}
+
 bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
 {
     RegisterZone(eTarrenMillFunDatas::ZoneId);
@@ -79,7 +87,7 @@ void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon, uint32 p_Diff)
     else
         AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 2609.18f, 671.74f, 56.18f, 0.f, 0.f, 0.f, 0.f, 0.f);
 
-    m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = p_Diff;
+    m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = eTarrenMillFunDatas::PortalShipDuration * TimeConstants::IN_MILLISECONDS;
     m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = true;
 
     /// Zone announcement
@@ -89,8 +97,10 @@ void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon, uint32 p_Diff)
 void OutdoorPvPTarrenMillFun::ResetShipEvent()
 {
     m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = false;
+    
     DelObject(eTarrenMillEvents::EventPortalShip);
 
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Reseting Ship Event, current score %u", GetCurrentScore(TeamId::TEAM_ALLIANCE));
     /// Zone announcement
     /// TODO
 }
@@ -138,22 +148,24 @@ void OutdoorPvPTarrenMillFun::LoadKillsRewards()
     {
         if (p_Reward1.Kills < p_Reward2.Kills)
             return true;
-
+        
         return false;
     });
 }
 
 void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
 {
-    if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal])
+    if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] && !m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip])
     {
-        StartShipEvent(eWorldStates::AllianceScore >= eWorldStates::HordeScore, p_Diff);
+        StartShipEvent(GetCurrentScore(TeamId::TEAM_ALLIANCE) >= GetCurrentScore(TeamId::TEAM_HORDE), p_Diff);
         m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = false;
     }
 
     if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip]
-        && p_Diff > m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] + eTarrenMillFunDatas::PortalShipDuration * TimeConstants::IN_MILLISECONDS)
+        && p_Diff >= m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip])
         ResetShipEvent();
+    else
+        m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] -= p_Diff;
 }
 
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
