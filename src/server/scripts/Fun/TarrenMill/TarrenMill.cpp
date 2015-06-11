@@ -61,6 +61,57 @@ class TarrenMillFFAEvent : public TarrenMillEvent
         }
 };
 
+class TarrenMillShipEvent : public TarrenMillEvent
+{
+public:
+    TarrenMillShipEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, TimeRanges p_StartRange)
+        : TarrenMillEvent(p_ID, p_State, p_Duration, p_StartRange) {}
+
+    void OnStart() override
+    {
+        TarrenMillEvent::OnStart();
+
+        OutdoorPvPTarrenMillFun* l_TarrenMillScript = (OutdoorPvPTarrenMillFun*) GetTarrenZoneScript();
+
+        if (!l_TarrenMillScript)
+            return;
+
+        bool l_AllianceWon = l_TarrenMillScript->GetCurrentScore(TEAM_ALLIANCE) >= l_TarrenMillScript->GetCurrentScore(TEAM_HORDE);
+
+        l_TarrenMillScript->StartShipEvent(l_AllianceWon);
+
+        ApplyOnAllPlayers([this](Player* p_Player)
+        {
+            OutdoorPvPTarrenMillFun* l_TarrenMillScript = (OutdoorPvPTarrenMillFun*) GetTarrenZoneScript();
+
+            if (!l_TarrenMillScript)
+                return;
+
+            if (l_TarrenMillScript->GetCurrentScore(TEAM_ALLIANCE) >= l_TarrenMillScript->GetCurrentScore(TEAM_HORDE))
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Alliance WON! A portal to the ships is available in Alliance town for 1 hour.");
+            else
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Horde WON! A portal to the ships is available in Horde town for 1 hour.");
+        });
+    }
+
+    void OnEnd() override
+    {
+        TarrenMillEvent::OnEnd();
+
+        OutdoorPvPTarrenMillFun* l_TarrenMillScript = (OutdoorPvPTarrenMillFun*) GetTarrenZoneScript();
+
+        if (!l_TarrenMillScript)
+            return;
+
+        l_TarrenMillScript->StopShipEvent();
+
+        ApplyOnAllPlayers([this](Player* p_Player)
+        {
+            ChatHandler(p_Player).SendSysMessage("Tarren Mill: The portal to the ships disapeard.");
+        });
+    }
+};
+
 /// ========================== OutdoorPvPTarrenMillFun ========================== //
 
 OutdoorPvPTarrenMillFun::OutdoorPvPTarrenMillFun()
@@ -87,6 +138,19 @@ bool OutdoorPvPTarrenMillFun::SetupOutdoorPvP()
     InitializeEvents();
 
     return true;
+}
+
+void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon)
+{
+    if (p_AllianceWon)
+        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 1750.73f, 1061.40f, 6.88f, 0.f, 0.f, 0.f, 0.f, 0.f);
+    else
+        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 2609.18f, 671.74f, 56.18f, 0.f, 0.f, 0.f, 0.f, 0.f);
+}
+
+void OutdoorPvPTarrenMillFun::StopShipEvent()
+{
+    DelObject(eTarrenMillEvents::EventPortalShip);
 }
 
 void OutdoorPvPTarrenMillFun::InitializeGraveyards()
@@ -116,6 +180,14 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
         }
     );
 
+    m_Events[eTarrenMillEvents::EventPortalShip] = TarrenMillShipEvent
+        (
+        eTarrenMillEvents::EventPortalShip,
+        eTarrenMillEventStates::NotStarted,
+        eTarrenMillEventDurations::EventPortalShipDuration,
+        {}
+    );
+
     /// Compute next events start time
     for (TarrenMillEvent& l_Event : m_Events)
         l_Event.ComputeNextStartTime();
@@ -143,32 +215,6 @@ void OutdoorPvPTarrenMillFun::RegisterScoresResetTime()
     m_ResetScoreTimestamp = l_NextResetTimestamp;
 }
 
-void OutdoorPvPTarrenMillFun::StartShipEvent(bool p_AllianceWon, uint32 p_Diff)
-{
-    /// Spawn portal to ship
-
-    if (p_AllianceWon)
-        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 1750.73f, 1061.40f, 6.88f, 0.f, 0.f, 0.f, 0.f, 0.f);
-    else
-        AddObject(eTarrenMillEvents::EventPortalShip, eGameObjects::TarrenMillShipPortal, eTarrenMillFunDatas::MapId, 2609.18f, 671.74f, 56.18f, 0.f, 0.f, 0.f, 0.f, 0.f);
-
-    //m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] = eTarrenMillFunDatas::PortalShipDuration * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
-    //m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = true;
-
-    /// Zone announcement
-    /// TODO
-}
-
-void OutdoorPvPTarrenMillFun::ResetShipEvent()
-{
-    //m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip] = false;
-    
-    DelObject(eTarrenMillEvents::EventPortalShip);
-
-    /// Zone announcement
-    /// TODO
-}
-
 void OutdoorPvPTarrenMillFun::ResetScores()
 {
     /// Update next reset time
@@ -182,6 +228,8 @@ void OutdoorPvPTarrenMillFun::ResetScores()
     /// Send update to online players
     SendUpdateWorldState(eWorldStates::AllianceScore, 0);
     SendUpdateWorldState(eWorldStates::HordeScore, 0);
+
+    m_Events[eTarrenMillEvents::EventPortalShip].Start();
 }
 
 void OutdoorPvPTarrenMillFun::LoadKillsRewards()
@@ -221,27 +269,12 @@ void OutdoorPvPTarrenMillFun::ScheduleEventsUpdate(uint32 p_Diff)
 {
     for (TarrenMillEvent& l_Event : m_Events)
         l_Event.OnUpdate(p_Diff);
-
-    /*if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] && !m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip])
-    {
-        StartShipEvent(GetCurrentScore(TeamId::TEAM_ALLIANCE) >= GetCurrentScore(TeamId::TEAM_HORDE), p_Diff);
-        m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = false;
-    }
-
-    if (m_TarrenMillEventsActivated[eTarrenMillEvents::EventPortalShip]
-        && p_Diff >= m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip])
-        ResetShipEvent();
-    else
-        m_TarrenMillEvents[eTarrenMillEvents::EventPortalShip] -= p_Diff;*/
 }
 
 bool OutdoorPvPTarrenMillFun::Update(uint32 p_Diff)
 {
     if (time(nullptr) > m_ResetScoreTimestamp)
-    {
-        //m_TarrenMillEventsActivated[eTarrenMillEvents::EventFinal] = true;
         ResetScores();
-    }
 
     ScheduleEventsUpdate(p_Diff);
 
@@ -394,6 +427,9 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
+    if (l_Value >= 1)
+        m_Events[eTarrenMillEvents::EventPortalShip].Start();
+
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
 }
@@ -434,6 +470,24 @@ void OutdoorPvPTarrenMillFun::OnCreatureCreate(Creature* p_Creature)
 
 /// ============================ TarrenMillEvent ============================ //
 
+TarrenMillEvent::TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, TimeRanges p_StartRange)
+    : ID(p_ID), State(p_State), Duration(p_Duration), StartRanges(p_StartRange)
+{
+    ZoneScript* l_ZoneScript = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(eTarrenMillFunDatas::ZoneId);
+
+    if (!l_ZoneScript)
+        return;
+
+    OutdoorPvPTarrenMillFun* l_TarrenMillScript = (OutdoorPvPTarrenMillFun*)l_ZoneScript;
+
+    m_TarrenZoneScript = l_TarrenMillScript;
+}
+
+void TarrenMillEvent::Start()
+{
+        OnStart();
+}
+
 void TarrenMillEvent::OnStart()
 {
     State = eTarrenMillEventStates::Started;
@@ -450,7 +504,7 @@ void TarrenMillEvent::OnUpdate(const uint32 p_Diff)
     time_t l_Now = time(nullptr);
 
     if (State == eTarrenMillEventStates::NotStarted && NextStartTimestamp >= l_Now)
-        OnStart();
+        Start();
 
     if (State == eTarrenMillEventStates::Started && l_Now > (NextStartTimestamp + Duration))
         OnEnd();
@@ -493,6 +547,11 @@ void TarrenMillEvent::ComputeNextStartTime()
 bool TarrenMillEvent::IsInProgress() const
 {
     return State == eTarrenMillEventStates::Started;
+}
+
+OutdoorPvP* TarrenMillEvent::GetTarrenZoneScript()
+{
+    return m_TarrenZoneScript;
 }
 
 void TarrenMillEvent::ApplyOnAllPlayers(std::function<void(Player*)> p_Lambda)
