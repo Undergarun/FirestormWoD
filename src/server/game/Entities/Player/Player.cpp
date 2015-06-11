@@ -31567,16 +31567,21 @@ namespace ProfessionBookSpells
 {
     enum
     {
-        Alchemy = 156614,
-        Blacksmithing = 169923,
-        Enchanting = 161788,
-        Engineering = 161787,
-        Inscription = 161789,
-        JewelCrafting = 169926,
+        Alchemy        = 156614,
+        Blacksmithing  = 169923,
+        Enchanting     = 161788,
+        Engineering    = 161787,
+        Inscription    = 161789,
+        JewelCrafting  = 169926,
         LeatherWorking = 169925,
-        Tailoring = 169924,
-        FirstAid = 160329,
-        Cooking = 160360
+        Tailoring      = 169924,
+        FirstAid       = 160329,
+        Cooking        = 160360,
+        Herbalism      = 158745,
+        Mining         = 158754,
+        Skinning       = 158756,
+        Archaeology    = 158762,
+        Fishing        = 160326
     };
 }
 
@@ -31596,7 +31601,12 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
         { SkillType::SKILL_LEATHERWORKING, ProfessionBookSpells::LeatherWorking },
         { SkillType::SKILL_TAILORING,      ProfessionBookSpells::Tailoring      },
         { SkillType::SKILL_FIRST_AID,      ProfessionBookSpells::FirstAid       },
-        { SkillType::SKILL_COOKING,        ProfessionBookSpells::Cooking        }
+        { SkillType::SKILL_COOKING,        ProfessionBookSpells::Cooking        },
+        { SkillType::SKILL_HERBALISM,      ProfessionBookSpells::Herbalism      },
+        { SkillType::SKILL_MINING,         ProfessionBookSpells::Mining         },
+        { SkillType::SKILL_SKINNING,       ProfessionBookSpells::Skinning       },
+        { SkillType::SKILL_ARCHAEOLOGY,    ProfessionBookSpells::Archaeology    },
+        { SkillType::SKILL_FISHING,        ProfessionBookSpells::Fishing        }
     };
 
     do 
@@ -31611,7 +31621,7 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
         if (getLevel() < 90)
             continue;
         
-        if (!HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
+        if (IsPrimaryProfessionSkill(l_SkillID) && !HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
             continue;
 
         uint32 l_SpellID = l_SkillLearningSpells[l_SkillID];
@@ -31624,7 +31634,14 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 
         if (l_Recipe)
         {
-            
+            std::list<SkillLineAbilityEntry const*> l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
+            for (auto l_Abilitie : l_Abilities)
+            {
+                if (l_Abilitie->min_value > 600)
+                    continue;
+
+                learnSpell(l_Abilitie->spellId, false);
+            }
         }
 
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);

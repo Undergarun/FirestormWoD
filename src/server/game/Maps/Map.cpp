@@ -3015,6 +3015,9 @@ bool Map::IsHeroic() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
+    if (GetDifficultyID() == Difficulty::DifficultyRaidLFR)
+        return 25;
+
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
         if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
@@ -3041,6 +3044,8 @@ uint32 InstanceMap::GetMaxPlayers() const
                 return 10;
             case Difficulty::Difficulty25N:
             case Difficulty::Difficulty25HC:
+            case Difficulty::DifficultyRaidLFR:
+            case Difficulty::DifficultyRaidTool:
                 return 25;
             case Difficulty::DifficultyRaidNormal:
             case Difficulty::DifficultyRaidHeroic:

@@ -5980,6 +5980,10 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
+    // Hack fixing Skulloc LOS issue with the bridge sequence
+    if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
+        return SPELL_CAST_OK;
+
     // Custom Spell_failed
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
