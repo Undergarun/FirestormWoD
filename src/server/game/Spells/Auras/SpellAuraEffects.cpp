@@ -2479,7 +2479,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_STAG:                                     // 0x03
         case FORM_AQUA:                                     // 0x04
         case FORM_AMBIENT:                                  // 0x06
-        case FORM_STEVES_GHOUL:                             // 0x09
         case FORM_THARONJA_SKELETON:                        // 0x0A
         case FORM_TEST_OF_STRENGTH:                         // 0x0B
         case FORM_BLB_PLAYER:                               // 0x0C
@@ -2488,6 +2487,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_CREATURECAT:                              // 0x0F
         case FORM_GHOSTWOLF:                                // 0x10
             break;
+        case FORM_SPIRITED_CRANE:                           // 0x09
         case FORM_WISE_SERPENT:                             // 0x14
             PowerType = POWER_MANA;
             break;

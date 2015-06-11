@@ -25479,6 +25479,7 @@ void Player::InitDataForForm(bool reapplyMods)
                 setPowerType(POWER_RAGE);
             break;
         }
+        case FORM_SPIRITED_CRANE:
         case FORM_WISE_SERPENT:
         {
             if (getPowerType() != POWER_MANA)
