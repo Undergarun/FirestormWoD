@@ -510,7 +510,7 @@ void TarrenMillEvent::OnUpdate(const uint32 p_Diff)
 {
     time_t l_Now = time(nullptr);
 
-    if (State == eTarrenMillEventStates::NotStarted && NextStartTimestamp >= l_Now)
+    if (State == eTarrenMillEventStates::NotStarted && NextStartTimestamp <= l_Now)
         Start();
 
     if (State == eTarrenMillEventStates::Started && l_Now > (NextStartTimestamp + Duration))
