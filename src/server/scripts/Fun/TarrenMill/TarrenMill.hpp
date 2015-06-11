@@ -34,7 +34,6 @@ enum eTarrenMillFunDatas
     MapId              = 1280,
     MaxScoreValue      = 5000,
     ResetHour          = 2, ///< 2:00 AM
-    PortalShipDuration = 60 ///< minutes
 };
 
 enum eCreatures
@@ -64,6 +63,7 @@ enum eGameObjects
 enum eTarrenMillEventDurations
 {
     EventFFADuration = 30 * MINUTE * IN_MILLISECONDS,
+    EventPortalShipDuration = 60 * MINUTE * IN_MILLISECONDS
 };
 
 enum eTarrenMillEvents
@@ -114,15 +114,18 @@ class TarrenMillEvent
         virtual void OnPlayerKilled(Player* p_Player) {}
         virtual void OnFillInitialWorldStates(ByteBuffer& p_Data) {}
 
-        /// Methrods
-        TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, TimeRanges p_StartRange)
-            : ID(p_ID), State(p_State), Duration(p_Duration), StartRanges(p_StartRange) {}
-
+        /// Methods
+        TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, TimeRanges p_StartRange);
         TarrenMillEvent() {}
 
+        void Start();
+        OutdoorPvP* GetTarrenZoneScript();
         void ComputeNextStartTime();
         void ApplyOnAllPlayers(std::function<void(Player*)> p_Lambda);
         bool IsInProgress() const;
+
+    private:
+        OutdoorPvP* m_TarrenZoneScript;
 };
 
 #define MakeEventTimeRange(hourStart, minuteStart, hourEnd, minuteEnd) std::make_pair(TarrenMillEvent::EventTime(hourStart, minuteStart), TarrenMillEvent::EventTime(hourEnd, minuteEnd))
@@ -182,8 +185,8 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
         /// Custom
         uint32 GetCurrentScore(TeamId p_TeamId);
         void ScheduleEventsUpdate(uint32 p_Diff);
-        void ResetShipEvent();
-        void StartShipEvent(bool p_AllianceWon, uint32 p_Diff);
+        void StopShipEvent();
+        void StartShipEvent(bool p_AllianceWon);
         void RegisterScoresResetTime();
         void InitializeGraveyards();
         void InitializeEvents();
