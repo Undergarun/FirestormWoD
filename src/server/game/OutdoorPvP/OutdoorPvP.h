@@ -285,6 +285,8 @@ class OutdoorPvP : public ZoneScript
 
         uint64 GetCreature(uint32 p_Type);
 
+        GuidSet const& GetPlayers(uint32 p_Team) { return m_Players[p_Team]; }
+
     protected:
 
         // the map of the objectives belonging to this outdoorpvp

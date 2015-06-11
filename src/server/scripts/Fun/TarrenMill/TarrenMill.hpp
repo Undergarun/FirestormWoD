@@ -61,13 +61,71 @@ enum eGameObjects
     TarrenMillShipPortal = 696901
 };
 
+enum eTarrenMillEventDurations
+{
+    EventFFADuration = 30 * MINUTE * IN_MILLISECONDS,
+};
+
 enum eTarrenMillEvents
 {
     EventPortalShip,
     EventFinal,
+    EventFFA,
     MaxEvents
 };
 
+enum eTarrenMillEventStates
+{
+    NotStarted,
+    Started
+};
+
+class TarrenMillEvent
+{
+    public:
+
+        /// Structures
+        struct EventTime
+        {
+            EventTime(uint8 p_Hour, uint8 p_Minute) : Hour(p_Hour), Minute(p_Minute) {}
+
+            uint8 Hour;
+            uint8 Minute;
+        };
+
+        /// Types definitions
+        using TimeRange = std::pair<EventTime, EventTime>;
+        using TimeRanges = std::vector<TimeRange>;
+
+        /// Variables
+        uint32 ID;
+        uint8  State;
+        uint32 Duration;
+        TimeRanges StartRanges;
+        std::vector<uint64> Data;
+        uint32 NextStartTimestamp;
+
+        /// Virtual methods
+        virtual void OnStart();
+        virtual void OnEnd();
+        virtual void OnUpdate(const uint32 p_Diff);
+        virtual void OnPlayerEnter(Player* p_Player) {};
+        virtual void OnPlayerExit(Player* p_Player) {};
+        virtual void OnPlayerKilled(Player* p_Player) {}
+        virtual void OnFillInitialWorldStates(ByteBuffer& p_Data) {}
+
+        /// Methrods
+        TarrenMillEvent(uint32 p_ID, uint8 p_State, uint32 p_Duration, TimeRanges p_StartRange)
+            : ID(p_ID), State(p_State), Duration(p_Duration), StartRanges(p_StartRange) {}
+
+        TarrenMillEvent() {}
+
+        void ComputeNextStartTime();
+        void ApplyOnAllPlayers(std::function<void(Player*)> p_Lambda);
+        bool IsInProgress() const;
+};
+
+#define MakeEventTimeRange(hourStart, minuteStart, hourEnd, minuteEnd) std::make_pair(TarrenMillEvent::EventTime(hourStart, minuteStart), TarrenMillEvent::EventTime(hourEnd, minuteEnd))
 
 struct TarrenMillGraveyard
 {
@@ -134,11 +192,11 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
         void CheckKillRewardConditions(Player* p_Player);
         RankInfo GetRankAuraAndMissingKills(Player* p_Player);
         void UpdateRankAura(Player* p_Player);
+        void UpdateScoreAtKill(Player* p_Player);
 
     private:
 
-        uint32 m_TarrenMillEvents[eTarrenMillEvents::MaxEvents];
-        bool m_TarrenMillEventsActivated[eTarrenMillEvents::MaxEvents];
+        std::vector<TarrenMillEvent> m_Events;
         time_t m_ResetScoreTimestamp;
         time_t m_ResetPortalShipEventTimestamp;
         TitleRewards m_KillRewards;

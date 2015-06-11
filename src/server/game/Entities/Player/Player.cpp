@@ -9923,7 +9923,7 @@ void Player::UpdateArea(uint32 newArea)
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-    pvpInfo.inFFAPvPArea = (area && (area->Flags & AREA_FLAG_ARENA)) || InRatedBattleGround();
+    pvpInfo.inFFAPvPArea = (area && (area->Flags & AREA_FLAG_ARENA)) || InRatedBattleGround() || pvpInfo.forceFFA;
     UpdatePvPState(true);
 
     //Pandaria area update for monk level < 85

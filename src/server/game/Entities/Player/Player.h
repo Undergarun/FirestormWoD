@@ -360,11 +360,12 @@ struct PlayerInfo
 
 struct PvPInfo
 {
-    PvPInfo() : inHostileArea(false), inNoPvPArea(false), inFFAPvPArea(false), endTimer(0) {}
+    PvPInfo() : inHostileArea(false), inNoPvPArea(false), inFFAPvPArea(false), forceFFA(false), endTimer(0) {}
 
     bool inHostileArea;
     bool inNoPvPArea;
     bool inFFAPvPArea;
+    bool forceFFA;
     time_t endTimer;
 };
 
@@ -3501,6 +3502,18 @@ class Player : public Unit, public GridObject<Player>
         bool IsInPvPCombat() const { return m_pvpCombat; }
         void UpdatePvP(uint32 diff);
         void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
+
+        void ForceFFA()
+        {
+            pvpInfo.forceFFA     = true;
+            pvpInfo.inFFAPvPArea = true;
+        }
+
+        void DisableForceFFA()
+        {
+            pvpInfo.forceFFA     = false;
+            pvpInfo.inFFAPvPArea = false;
+        }
 
         uint32 GetQuestObjectiveCounter(uint32 objectiveId) const;
 
