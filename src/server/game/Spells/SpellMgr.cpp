@@ -3557,6 +3557,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 166185:///< Rending Slash (Highmaul Conscript)
             case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
+            case 163134:///< Nullification Barrier - Abosrb (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
@@ -3568,7 +3569,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 158241:///< Blaze - DoT (Phemos - Twin Ogron)
             case 174405:///< Frozen Core - DoT (Breaker Ritualist - Frost)
+            case 173827:///< Wild Flames - DoT (Breaker Ritualist - Fire)
+            case 161242:///< Caustic Energy - DoT (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
+            case 172685:///< Expel Magic: Fire (Ko'ragh)
+            case 162397:///< Expel Magic: Arcane (Ko'ragh)
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
+                break;
+            case 162398:///< Expel Magic: Arcane (Ko'ragh)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

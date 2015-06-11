@@ -90,7 +90,8 @@ enum eHighmaulCreatures
     Phemos              = 78237,
     Pol                 = 78238,
     /// Chamber of Nullification
-    Koragh              = 79015
+    Koragh              = 79015,
+    RuneOfNullification = 79559
 };
 
 enum eHighmaulGameobjects
@@ -156,6 +157,8 @@ enum eHighmaulLocs
     ArenaCenter         = 4783,
     KargathDefeated     = 4784,
     PalaceFrontGate     = 4785,
+    FelBreakerRoom      = 4786,
+    ImperatorsRise      = 4787,
     CityBaseTeleporter  = 4788
 };
 

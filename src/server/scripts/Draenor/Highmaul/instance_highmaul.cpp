@@ -173,6 +173,10 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Koragh:
                         m_KoraghGuid = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::RuneOfNullification:
+                        p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
+                        p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                        break;
                     default:
                         break;
                 }
@@ -433,7 +437,9 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                    if (GetBossState(eHighmaulDatas::BossTwinOgron) == EncounterState::DONE)
+                        p_Player->NearTeleportTo(eHighmaulLocs::PalaceFrontGate);
+                    else if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
                         p_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
                     else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
                         p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);

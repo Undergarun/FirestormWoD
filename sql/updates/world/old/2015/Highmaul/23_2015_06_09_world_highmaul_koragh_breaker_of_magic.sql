@@ -200,7 +200,7 @@ WHERE entry IN (86326, 86329, 86330);
 
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_fel' WHERE entry = 86330;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_fire' WHERE entry = 86329;
-UPDATE creature_template SET ScriptName = 'npc_highmaul_wild_flames' WHERE entry = 86875;
+UPDATE creature_template SET modelid1 = 11686, modelid2 = 0, faction = 16, ScriptName = 'npc_highmaul_wild_flames' WHERE entry = 86875;
 UPDATE creature_template SET ScriptName = 'npc_highmaul_breaker_of_frost' WHERE entry = 86326;
 
 UPDATE creature_template SET
@@ -208,7 +208,7 @@ minlevel = 103,
 maxlevel = 103,
 faction = 16,
 rank = 3,
-dmg_multiplier = 10,
+dmg_multiplier = 15,
 baseattacktime = 1500,
 VehicleId = 2164,
 ScriptName = 'boss_koragh',
@@ -216,8 +216,22 @@ mechanic_immune_mask = 617299839,
 flags_extra = 0x01
 WHERE entry = 79015;
 
+UPDATE creature_model_info SET bounding_radius = 1.5, combat_reach = 9.5 WHERE modelid = 54825;
+
 UPDATE gameobject_template SET ScriptName = 'go_highmaul_chain' WHERE entry = 233127;
 
-DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_frozen_core');
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_frozen_core', 'spell_highmaul_wild_flames_areatrigger', 'spell_highmaul_nullification_barrier', 'spell_highmaul_caustic_energy');
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_caustic_energy_dot', 'spell_highmaul_expel_magic_fire', 'spell_highmaul_expel_magic_arcane');
 INSERT INTO spell_script_names VALUE
-(174404, 'spell_highmaul_frozen_core');
+(174404, 'spell_highmaul_frozen_core'),
+(173616, 'spell_highmaul_wild_flames_areatrigger'),
+(156803, 'spell_highmaul_nullification_barrier'),
+(160720, 'spell_highmaul_caustic_energy'),
+(161242, 'spell_highmaul_caustic_energy_dot'),
+(162185, 'spell_highmaul_expel_magic_fire'),
+(162186, 'spell_highmaul_expel_magic_arcane');
+
+DELETE FROM areatrigger_template WHERE spell_id IN (173824, 160720);
+INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
+(173824, 0, 7913, 3, 1, 1, 4096, 3, 3, 10, 10, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_wild_flames'),
+(160720, 0, 6784, 3, 1, 1, 8196, 9, 9, 10, 10, 0.3, 0.3, 0, 0, '');
