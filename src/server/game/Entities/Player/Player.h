@@ -230,7 +230,7 @@ typedef std::list<uint64> WhisperListContainer;
 struct SpellCooldown
 {
     uint64 end;
-    uint16 itemid;
+    uint32 itemid;
 };
 
 typedef std::map<uint32, SpellCooldown> SpellCooldowns;
