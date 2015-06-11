@@ -878,7 +878,7 @@ uint32 ChatHandler::GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32
 
     /// Return non link case
     if (p_Text[0] != '|')
-        return 0;
+        return atoi(strtok(p_Text, " "));
 
     /// [name] Shift-click form |color|linkType:key|h[name]|h|r
     /// Or
