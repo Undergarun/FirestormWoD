@@ -1929,8 +1929,8 @@ class npc_mirror_image : public CreatureScript
             {
                 if (Unit* l_Owner = me->GetOwner())
                 {
-                    l_Owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                    l_Owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                    l_Owner->CastSpell(me, eSpells::SPELL_INITIALIZE_IMAGES, true);
+                    l_Owner->CastSpell(me, eSpells::SPELL_CLONE_CASTER, true);
                 }
             }
 
@@ -4003,37 +4003,37 @@ class npc_past_self : public CreatureScript
 ## npc_transcendence_spirit -- 54569
 ######*/
 
-enum TranscendenceSpiritSpells
-{
-    SPELL_MEDITATE          = 124416,
-    SPELL_ROOT_FOR_EVER     = 31366,
-    SPELL_VISUAL_SPIRIT     = 119053,
-    SPELL_INITIALIZE_IMAGES = 102284,
-    SPELL_CLONE_CASTER      = 102288
-};
-
-enum transcendenceActions
-{
-    ACTION_TELEPORT = 1
-};
-
 class npc_transcendence_spirit : public CreatureScript
 {
     public:
         npc_transcendence_spirit() : CreatureScript("npc_transcendence_spirit") { }
 
+        enum eActions
+        {
+            ACTION_TELEPORT = 1
+        };
+
+        enum eSpells
+        {
+            SPELL_MEDITATE = 124416,
+            SPELL_ROOT_FOR_EVER = 31366,
+            SPELL_VISUAL_SPIRIT = 119053,
+            SPELL_INITIALIZE_IMAGES = 102284,
+            SPELL_CLONE_CASTER = 102288
+        };
+
         struct npc_transcendence_spiritAI : public Scripted_NoMovementAI
         {
             npc_transcendence_spiritAI(Creature* c) : Scripted_NoMovementAI(c)
             {
-                me->SetReactState(REACT_PASSIVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void Reset()
             {
-                me->CastSpell(me, SPELL_MEDITATE, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
+                me->CastSpell(me, eSpells::SPELL_MEDITATE, true);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS2, eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
             }
 
             void IsSummonedBy(Unit* owner)
@@ -4044,26 +4044,26 @@ class npc_transcendence_spirit : public CreatureScript
                 me->SetMaxHealth(owner->GetMaxHealth() / 2);
                 me->SetHealth(me->GetMaxHealth());
 
-                me->CastSpell(me, SPELL_VISUAL_SPIRIT, true);
-                owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                owner->CastSpell(me, SPELL_CLONE_CASTER, true);
-                owner->AddAura(SPELL_MEDITATE, me);
-                me->AddAura(SPELL_ROOT_FOR_EVER, me);
+                me->CastSpell(me, eSpells::SPELL_VISUAL_SPIRIT, true);
+                owner->CastSpell(me, eSpells::SPELL_INITIALIZE_IMAGES, true);
+                owner->CastSpell(me, eSpells::SPELL_CLONE_CASTER, true);
+                owner->AddAura(eSpells::SPELL_MEDITATE, me);
+                me->AddAura(eSpells::SPELL_ROOT_FOR_EVER, me);
             }
 
             void DoAction(int32 const action)
             {
                 switch (action)
                 {
-                    case ACTION_TELEPORT:
+                    case eActions::ACTION_TELEPORT:
                     {
-                        if (Unit* owner = me->GetOwner())
+                        if (Unit* l_Owner = me->GetOwner())
                         {
-                            Position ownerPos;
-                            owner->GetPosition(&ownerPos);
+                            Position l_OwnerPos;
+                            l_Owner->GetPosition(&l_OwnerPos);
 
-                            owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                            me->NearTeleportTo(ownerPos.m_positionX, ownerPos.m_positionY, ownerPos.m_positionZ, ownerPos.m_orientation);
+                            l_Owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                            me->NearTeleportTo(l_OwnerPos.m_positionX, l_OwnerPos.m_positionY, l_OwnerPos.m_positionZ, l_OwnerPos.m_orientation);
                         }
 
                         break;
