@@ -5291,8 +5291,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 22568: ///< Ferocious Bite
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
-            case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
+            case 47753: ///< Divine Aegis
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
             /// All spells - ProcFlags = 0
