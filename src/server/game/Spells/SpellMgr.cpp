@@ -3867,6 +3867,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 140138: ///< Nether Tear
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
+            case 163294: ///< Darkmoon Card of Draenor
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
+                break;
             case 138652: ///< Eruption
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
