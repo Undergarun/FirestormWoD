@@ -3351,10 +3351,7 @@ void Player::Regenerate(Powers power)
                 break;
             /// Regenerate Energy
             case POWER_ENERGY:
-                if (HasAura(13877)) ///< -20% for energy regen if player has aura Blade Flurry
-                    addvalue += (((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct) * 0.8f);
-                else
-                    addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
+                addvalue += ((0.01f * m_RegenPowerTimer) * sWorld->getRate(RATE_POWER_ENERGY) * HastePct);
                 break;
             /// Regenerate Runic Power
             case POWER_RUNIC_POWER:
