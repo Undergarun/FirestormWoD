@@ -487,11 +487,16 @@ void TarrenMillEvent::Start()
 
 void TarrenMillEvent::OnStart()
 {
+    sLog->outAshran("TarrenMill: Start event [%u]", ID);
+
     State = eTarrenMillEventStates::Started;
+    NextStartTimestamp = time(nullptr);
 }
 
 void TarrenMillEvent::OnEnd()
 {
+    sLog->outAshran("TarrenMill: End event [%u]", ID);
+
     State = eTarrenMillEventStates::NotStarted;
     ComputeNextStartTime();
 }
@@ -571,6 +576,7 @@ void TarrenMillEvent::ComputeNextStartTime()
     }
 
     NextStartTimestamp = l_StartTimestamp;
+    sLog->outAshran("TarrenMill::ComputeNextStartTime: NextStartTimestamp : [%u] for event [%u]", NextStartTimestamp, ID);
 }
 
 bool TarrenMillEvent::IsInProgress() const
