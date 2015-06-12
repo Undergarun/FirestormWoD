@@ -39,7 +39,7 @@ class TarrenMillFFAEvent : public TarrenMillEvent
             ApplyOnAllPlayers([this](Player* p_Player)
             {
                 EnableFFAOnPlayer(p_Player);
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event started for the next 30 minutes!");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event started for the next 5 minutes!");
             });
         }
 
@@ -94,9 +94,9 @@ public:
                 return;
 
             if (l_TarrenMillScript->GetCurrentScore(TEAM_ALLIANCE) >= l_TarrenMillScript->GetCurrentScore(TEAM_HORDE))
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Alliance WON! A portal to the ships is available in Alliance town for 1 hour.");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Alliance WON! A portal to the ships is available in Alliance town for 30 minutes.");
             else
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Horde WON! A portal to the ships is available in Horde town for 1 hour.");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Horde WON! A portal to the ships is available in Horde town for 30 minutes.");
         });
     }
 
@@ -431,7 +431,7 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
-    if (l_Value >= sWorld->getWorldState(eWorldStates::MaxScore))
+    if (l_Value >= eTarrenMillFunDatas::MaxScoreValue)
     {
         m_Events[eTarrenMillEvents::EventPortalShip]->Start();
         ResetScores();
