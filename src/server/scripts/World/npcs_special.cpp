@@ -1827,31 +1827,105 @@ class mob_mojo : public CreatureScript
         }
 };
 
-enum imagesSpells
-{
-    SPELL_MAGE_FROSTBOLT    = 59638,
-    SPELL_MAGE_FIREBALL     = 133,
-    SPELL_MAGE_ARCANE_BLAST = 30451,
-    SPELL_MAGE_GLYPH        = 63093,
-    SPELL_INITIALIZE_IMAGES = 102284,
-    SPELL_CLONE_CASTER      = 102288,
-};
-
 class npc_mirror_image : public CreatureScript
 {
     public:
         npc_mirror_image() : CreatureScript("npc_mirror_image") { }
 
+        enum eSpells
+        {
+            SPELL_MAGE_FROSTBOLT    = 59638,
+            SPELL_MAGE_FIREBALL     = 133,
+            SPELL_MAGE_ARCANE_BLAST = 30451,
+            SPELL_MAGE_GLYPH        = 63093,
+            SPELL_INITIALIZE_IMAGES = 102284,
+            SPELL_CLONE_CASTER      = 102288
+        };
+
         struct npc_mirror_imageAI : CasterAI
         {
-            npc_mirror_imageAI(Creature* creature) : CasterAI(creature) {}
-
-            void InitializeAI()
+            npc_mirror_imageAI(Creature* creature) :
+            CasterAI(creature)
             {
-                CasterAI::InitializeAI();
             }
 
-            void Reset()
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                if (!p_Owner || p_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
+                    return;
+
+                if (!me->HasUnitState(UnitState::UNIT_STATE_FOLLOW))
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveFollow(p_Owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MovementSlot::MOTION_SLOT_ACTIVE);
+                }
+
+                me->SetMaxPower(me->getPowerType(), p_Owner->GetMaxPower(me->getPowerType()));
+                me->SetPower(me->getPowerType(), p_Owner->GetPower(me->getPowerType()));
+                me->SetMaxHealth(p_Owner->GetMaxHealth());
+                me->SetHealth(p_Owner->GetHealth());
+                me->SetReactState(ReactStates::REACT_DEFENSIVE);
+
+                // Inherit Master's Threat List
+                me->CastSpell(p_Owner, 58838, true);
+
+                // here mirror image casts on summoner spell (not present in client dbc) 49866
+                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
+
+                for (uint32 l_AttackType = 0; l_AttackType < WeaponAttackType::MaxAttack; l_AttackType++)
+                {
+                    WeaponAttackType l_AttackTypeEnum = static_cast<WeaponAttackType>(l_AttackType);
+                    me->SetBaseWeaponDamage(l_AttackTypeEnum, WeaponDamageRange::MAXDAMAGE, p_Owner->GetWeaponDamageRange(l_AttackTypeEnum, WeaponDamageRange::MAXDAMAGE));
+                    me->SetBaseWeaponDamage(l_AttackTypeEnum, WeaponDamageRange::MINDAMAGE, p_Owner->GetWeaponDamageRange(l_AttackTypeEnum, WeaponDamageRange::MINDAMAGE));
+                }
+
+                me->UpdateAttackPowerAndDamage();
+            }
+
+            void EnterCombat(Unit* p_Who) override
+            {
+                if (!me->GetOwner())
+                    return;
+
+                Player* l_Owner = me->GetOwner()->ToPlayer();
+                if (!l_Owner)
+                    return;
+
+                eSpells l_Spell = eSpells::SPELL_MAGE_FROSTBOLT;
+                if (l_Owner->HasAura(SPELL_MAGE_GLYPH))
+                {
+                    switch (l_Owner->GetSpecializationId(l_Owner->GetActiveSpec()))
+                    {
+                        case SPEC_MAGE_ARCANE:
+                            l_Spell = eSpells::SPELL_MAGE_ARCANE_BLAST;
+                            break;
+
+                        case SPEC_MAGE_FIRE:
+                            l_Spell = eSpells::SPELL_MAGE_FIREBALL;
+                            break;
+                    }
+                }
+
+                events.ScheduleEvent(l_Spell, 0); ///< Schedule cast
+                me->GetMotionMaster()->Clear(false);
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (me->IsInEvadeMode() || !me->isAlive())
+                    return;
+
+                Unit* l_Owner = me->GetOwner();
+
+                me->CombatStop(true);
+                if (l_Owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
+                {
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveFollow(l_Owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MovementSlot::MOTION_SLOT_ACTIVE);
+                }
+            }
+
+            void Reset() override
             {
                 if (Unit* l_Owner = me->GetOwner())
                 {
@@ -1860,135 +1934,63 @@ class npc_mirror_image : public CreatureScript
                 }
             }
 
-            void IsSummonedBy(Unit* owner)
+            bool CanAIAttack(Unit const* l_Target) const override
             {
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                Player* plrOwner = owner->ToPlayer();
-
-                if (!me->HasUnitState(UNIT_STATE_FOLLOW))
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
-                }
-
-                me->SetMaxPower(me->getPowerType(), owner->GetMaxPower(me->getPowerType()));
-                me->SetPower(me->getPowerType(), owner->GetPower(me->getPowerType()));
-                me->SetMaxHealth(owner->GetMaxHealth());
-                me->SetHealth(owner->GetHealth());
-                me->SetReactState(REACT_DEFENSIVE);
-
-                // Inherit Master's Threat List (not yet implemented)
-                owner->CastSpell(owner, 58838, true);
-                // here mirror image casts on summoner spell (not present in client dbc) 49866
-                // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
-                // Clone Me!
-
-                for (int attackType = 0; attackType < WeaponAttackType::MaxAttack; attackType++)
-                {
-                    me->SetBaseWeaponDamage((WeaponAttackType)attackType, MAXDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MAXDAMAGE));
-                    me->SetBaseWeaponDamage((WeaponAttackType)attackType, MINDAMAGE, owner->GetWeaponDamageRange((WeaponAttackType)attackType, MINDAMAGE));
-                }
-
-                me->UpdateAttackPowerAndDamage();
+                /// Am I supposed to attack this target? (ie. do not attack polymorphed target)
+                return l_Target && !l_Target->HasAuraType(SPELL_AURA_MOD_CONFUSE);
             }
 
-            void EnterCombat(Unit* who)
+            void UpdateAI(const uint32 p_Diff) override
             {
-                Unit* owner = me->GetOwner();
-                if (!owner)
-                    return;
+                events.Update(p_Diff);
 
-                Player* plrOwner = owner->ToPlayer();
-                if (!plrOwner)
-                    return;
-
-                if (!plrOwner->HasAura(SPELL_MAGE_GLYPH))
+                Unit* l_Victim = me->getVictim();
+                if (l_Victim)
                 {
-                    me->CastSpell(who, SPELL_MAGE_FROSTBOLT, false);
-                    uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FROSTBOLT)->realCooldown;
-                    events.ScheduleEvent(SPELL_MAGE_FROSTBOLT, cooldown);
-                    me->GetMotionMaster()->Clear(false);
-                    return;
-                }
+                    if (CanAIAttack(l_Victim))
+                    {
+                        /// If not already casting, cast! ("I'm a cast machine")
+                        if (!me->HasUnitState(UNIT_STATE_CASTING))
+                        {
+                            if (uint32 l_SpellId = events.ExecuteEvent())
+                            {
+                                DoCast(l_SpellId);
+                                uint32 l_CastTime = me->GetCurrentSpellCastTime(l_SpellId);
+                                events.ScheduleEvent(l_SpellId, (l_CastTime ? l_CastTime : 500) + GetAISpellInfo(l_SpellId)->realCooldown);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        /// My victim has changed state, I shouldn't attack it anymore
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            me->CastStop();
 
-                switch (plrOwner->GetSpecializationId(plrOwner->GetActiveSpec()))
-                {
-                    case SPEC_MAGE_ARCANE:
-                    {
-                        me->CastSpell(who, SPELL_MAGE_ARCANE_BLAST, false);
-                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_ARCANE_BLAST)->realCooldown;
-                        events.ScheduleEvent(SPELL_MAGE_ARCANE_BLAST, cooldown);
-                        break;
-                    }
-                    case SPEC_MAGE_FIRE:
-                    {
-                        me->CastSpell(who, SPELL_MAGE_FIREBALL, false);
-                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FIREBALL)->realCooldown;
-                        events.ScheduleEvent(SPELL_MAGE_FIREBALL, cooldown);
-                        break;
-                    }
-                    case SPEC_MAGE_FROST:
-                    default:
-                    {
-                        me->CastSpell(who, SPELL_MAGE_FROSTBOLT, false);
-                        uint32 cooldown = GetAISpellInfo(SPELL_MAGE_FROSTBOLT)->realCooldown;
-                        events.ScheduleEvent(SPELL_MAGE_FROSTBOLT, cooldown);
-                        break;
+                        me->AI()->EnterEvadeMode();
                     }
                 }
-
-                me->GetMotionMaster()->Clear(false);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
+                else
                 {
-                    if (!me->GetOwner() || me->GetOwner()->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    Player* plrOwner = me->GetOwner()->ToPlayer();
-                    if (Unit* target = plrOwner->GetSelectedUnit())
-                        if (me->IsValidAttackTarget(target))
-                            me->AI()->AttackStart(plrOwner->GetSelectedUnit());
-                    return;
-                }
-
-                events.Update(diff);
-
-                bool hasCC = false;
-                if (me->GetCharmerOrOwnerGUID() && me->getVictim())
-                    hasCC = me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
-
-                if (hasCC)
-                {
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        me->CastStop();
-                    me->AI()->EnterEvadeMode();
-                    return;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (uint32 spellId = events.ExecuteEvent())
-                {
-                    if (hasCC)
+                    /// Let's choose a new target
+                    Unit* l_Target = me->SelectVictim();
+                    if (!l_Target)
                     {
-                        events.ScheduleEvent(spellId, 500);
-                        return;
+                        /// No target? Let's see if our owner has a better target for us
+                        if (Unit* l_Owner = me->GetOwner())
+                        {
+                            Unit* l_OwnerVictim = l_Owner->getVictim();
+                            if (l_OwnerVictim && me->canCreatureAttack(l_OwnerVictim))
+                                l_Target = l_OwnerVictim;
+                        }
                     }
-                    DoCast(spellId);
-                    uint32 casttime = me->GetCurrentSpellCastTime(spellId);
-                    events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
-                }
 
+                    if (l_Target)
+                        me->AI()->AttackStart(l_Target);
+                }
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_mirror_imageAI(creature);
         }
@@ -4006,6 +4008,8 @@ enum TranscendenceSpiritSpells
     SPELL_MEDITATE          = 124416,
     SPELL_ROOT_FOR_EVER     = 31366,
     SPELL_VISUAL_SPIRIT     = 119053,
+    SPELL_INITIALIZE_IMAGES = 102284,
+    SPELL_CLONE_CASTER      = 102288
 };
 
 enum transcendenceActions
