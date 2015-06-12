@@ -671,7 +671,7 @@ class go_tarren_mill_portal : public GameObjectScript
                 l_Position.m_orientation = 4.31f;
             }
 
-            p_Player->NearTeleportTo(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
+            p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
             return true;
         }
