@@ -4296,19 +4296,7 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 
 bool SpellInfo::IsAffectedByResilience() const
 {
-    switch (Id)
-    {
-        case 49016: // Unholy Frenzy
-        case 87023: // Cauterize
-        case 110914:// Dark Bargain (DoT)
-        case 113344:// Bloodbath (DoT)
-        case 124280:// Touch of Karma (DoT)
-            return false;
-        default:
-            break;
-    }
-
-    return true;
+    return !HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE);
 }
 
 bool SpellInfo::IsLethalPoison() const

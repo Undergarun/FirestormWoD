@@ -1600,7 +1600,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
+            if (spellInfo->IsAffectedByResilience())
                 ApplyResilience(victim, &damage);
 
             break;
@@ -1633,7 +1633,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
+            if (spellInfo->IsAffectedByResilience())
                 ApplyResilience(victim, &damage);
             break;
         }
