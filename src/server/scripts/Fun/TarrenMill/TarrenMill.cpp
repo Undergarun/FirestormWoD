@@ -431,8 +431,11 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
-    if (l_Value == eWorldStates::MaxScore)
+    if (l_Value >= sWorld->getWorldState(eWorldStates::MaxScore))
+    {
         m_Events[eTarrenMillEvents::EventPortalShip]->Start();
+        ResetScores();
+    }
 
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
