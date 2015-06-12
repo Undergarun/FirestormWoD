@@ -230,7 +230,7 @@ typedef std::list<uint64> WhisperListContainer;
 struct SpellCooldown
 {
     uint64 end;
-    uint16 itemid;
+    uint32 itemid;
 };
 
 typedef std::map<uint32, SpellCooldown> SpellCooldowns;
@@ -1017,6 +1017,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
+    PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2850,7 +2851,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SendAurasForTarget(Unit* target);
-        void SendCooldownAtLogin();
+        void SendSpellHistory();
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
@@ -3414,6 +3415,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
         void HandleStoreTitleCallback(PreparedQueryResult result);
+        void HandleStoreProfessionCallback(PreparedQueryResult p_Result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 

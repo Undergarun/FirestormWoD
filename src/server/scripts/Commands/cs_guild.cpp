@@ -197,12 +197,14 @@ class guild_commandscript: public CommandScript
 
         static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)
         {
-            if (!*_args)
+            if (!*_args || !handler)
                 return false;
 
-            char *args = (char *)_args;
+            char* tailStr = *_args != '"' ? strtok(NULL, "") : (char*)_args;
+            if (!tailStr)
+                return false;
 
-            char const* oldGuildStr = handler->extractQuotedArg(args);
+            char const* oldGuildStr = handler->extractQuotedArg(tailStr);
             if (!oldGuildStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);

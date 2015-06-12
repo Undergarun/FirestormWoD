@@ -1339,12 +1339,12 @@ public:
     {
         npc_amber_prison_meljarakAI(Creature* creature) : ScriptedAI(creature) { }
 
-        Unit* target;
+        uint64 targetGUID;
         uint32 timerChecktarget;
 
         void IsSummonedBy(Unit* summoner)
         {
-            target = summoner;
+            targetGUID = summoner->GetGUID();
             timerChecktarget = 500;
         }
 
@@ -1356,8 +1356,8 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (target)
-                target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
+            if (Unit* l_Target = Unit::GetUnit(*me, targetGUID))
+                l_Target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
             me->CastSpell(killer, SPELL_RESIDUE, false);
         }
 
@@ -1366,11 +1366,16 @@ public:
             if (timerChecktarget <= diff)
             {
                 // Check if the debuff has expired.
-                if (target && !target->HasAura(SPELL_AMBER_PRISON_AURA))
-                    me->DespawnOrUnsummon(100);
+                if (Unit* l_Target = Unit::GetUnit(*me, targetGUID))
+                {
+                    if (l_Target && !l_Target->HasAura(SPELL_AMBER_PRISON_AURA))
+                        me->DespawnOrUnsummon(100);
+                }
 
                 timerChecktarget = 500;
-            } else timerChecktarget -= diff;
+            }
+            else
+                timerChecktarget -= diff;
         }
     };
 
