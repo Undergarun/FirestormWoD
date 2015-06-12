@@ -18,11 +18,17 @@ class TarrenMillFFAEvent : public TarrenMillEvent
 
         void OnPlayerEnter(Player* p_Player) override
         {
+            if (!IsInProgress())
+                return;
+
             EnableFFAOnPlayer(p_Player);
         }
 
         void OnPlayerExit(Player* p_Player) override
         {
+            if (!IsInProgress())
+                return;
+
             DisableFFAOnPlayer(p_Player);
         }
 
