@@ -309,18 +309,28 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
 
 void OutdoorPvPTarrenMillFun::HandleKill(Player* p_Killer, Unit* p_Killed)
 {
-    if (p_Killed->GetTypeId() != TypeID::TYPEID_PLAYER)
-        return;
+//     if (p_Killed->GetTypeId() != TypeID::TYPEID_PLAYER)
+//         return;
+// 
+//     if (p_Killed->ToPlayer()->GetTeamId() == p_Killer->GetTeamId())
+//         return;
+// 
+//     uint32 l_Kills = p_Killer->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+//     l_Kills++;
+// 
+//     p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
+//     UpdateRankAura(p_Killer);
+//     CheckKillRewardConditions(p_Killer);
+}
 
-    if (p_Killed->ToPlayer()->GetTeamId() == p_Killer->GetTeamId())
-        return;
-
-    uint32 l_Kills = p_Killer->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+void OutdoorPvPTarrenMillFun::HandleRewardHonor(Player* p_Player)
+{
+    uint32 l_Kills = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
     l_Kills++;
 
-    p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
-    UpdateRankAura(p_Killer);
-    CheckKillRewardConditions(p_Killer);
+    p_Player->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
+    UpdateRankAura(p_Player);
+    CheckKillRewardConditions(p_Player);
 }
 
 void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)

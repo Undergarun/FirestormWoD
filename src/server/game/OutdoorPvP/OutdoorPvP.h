@@ -254,6 +254,7 @@ class OutdoorPvP : public ZoneScript
         virtual void HandleKill(Player* killer, Unit* killed);
         virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
         virtual void HandlePlayerKilled(Player* p_Player) { }
+        virtual void HandleRewardHonor(Player* p_Player) { }
 
         /// Handle some custom PvP loots
         virtual void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container) { }
