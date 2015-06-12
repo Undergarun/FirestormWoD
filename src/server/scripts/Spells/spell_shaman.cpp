@@ -1203,10 +1203,7 @@ class spell_sha_earthquake: public SpellScriptLoader
                 int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
 
                 if (AuraPtr l_ChainLightning = l_Caster->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
-                {
                     l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetEffect(EFFECT_0)->GetAmount());
-                    l_ChainLightning->Remove();
-                }
 
                 l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
 
