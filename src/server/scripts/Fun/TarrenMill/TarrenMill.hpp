@@ -32,7 +32,7 @@ enum eTarrenMillFunDatas
 {
     ZoneId             = 7107,
     MapId              = 1280,
-    MaxScoreValue      = 5000,
+    MaxScoreValue      = 1500,
     ResetHour          = 2, ///< 2:00 AM
 };
 

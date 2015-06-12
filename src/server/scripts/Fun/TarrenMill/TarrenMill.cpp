@@ -234,8 +234,6 @@ void OutdoorPvPTarrenMillFun::ResetScores()
     /// Send update to online players
     SendUpdateWorldState(eWorldStates::AllianceScore, 0);
     SendUpdateWorldState(eWorldStates::HordeScore, 0);
-
-    m_Events[eTarrenMillEvents::EventPortalShip]->Start();
 }
 
 void OutdoorPvPTarrenMillFun::LoadKillsRewards()
@@ -432,6 +430,9 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
 
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
+
+    if (l_Value == eWorldStates::MaxScore)
+        m_Events[eTarrenMillEvents::EventPortalShip]->Start();
 
     sWorld->setWorldState(l_WorldState, l_Value);
     SendUpdateWorldState(l_WorldState, l_Value);
