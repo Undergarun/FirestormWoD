@@ -969,15 +969,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         Player* l_Player = ToPlayer();
 
-        /// Only Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
-        if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
+        /// Only Druids in Bear form and Warrior Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
+        if (l_Player->GetShapeshiftForm() == FORM_BEAR || l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
         {
             Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
             float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
 
             float l_RageGain = l_WeaponSpeed * 1.75f;
 
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+            {
+                l_RageGain = 5.00f;
+            }
+            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
             {
                 if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE)
                 {
