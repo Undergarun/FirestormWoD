@@ -31619,16 +31619,17 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
         uint32 l_SkillID    = l_Fields[0].GetUInt32();
         bool   l_Recipe     = l_Fields[1].GetBool();
 
-        if (l_SkillLearningSpells.find(l_SkillID) == l_SkillLearningSpells.end())
+        auto it = l_SkillLearningSpells.find(l_SkillID);
+        if (it == l_SkillLearningSpells.end())
             continue;
+
+        uint32 l_SpellID = it->second;
 
         if (getLevel() < 90)
             continue;
         
         if (IsPrimaryProfessionSkill(l_SkillID) && !HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
             continue;
-
-        uint32 l_SpellID = l_SkillLearningSpells[l_SkillID];
 
         /// Learn the skill to dreanor rank
         CastSpell(this, l_SpellID, true);
@@ -31638,7 +31639,7 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 
         if (l_Recipe)
         {
-            std::list<SkillLineAbilityEntry const*> l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
+            const std::list<SkillLineAbilityEntry const*>& l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
             for (auto l_Abilitie : l_Abilities)
             {
                 if (l_Abilitie->min_value > 600)
