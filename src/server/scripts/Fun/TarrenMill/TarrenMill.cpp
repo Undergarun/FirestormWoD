@@ -433,12 +433,15 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
 
     if (l_Value >= eTarrenMillFunDatas::MaxScoreValue)
     {
-        m_Events[eTarrenMillEvents::EventPortalShip]->Start();
+        if (!m_Events[eTarrenMillEvents::EventPortalShip]->IsInProgress())
+            m_Events[eTarrenMillEvents::EventPortalShip]->Start();
         ResetScores();
     }
-
-    sWorld->setWorldState(l_WorldState, l_Value);
-    SendUpdateWorldState(l_WorldState, l_Value);
+    else
+    {
+        sWorld->setWorldState(l_WorldState, l_Value);
+        SendUpdateWorldState(l_WorldState, l_Value);
+    }
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
@@ -658,7 +661,7 @@ class go_tarren_mill_portal : public GameObjectScript
                 l_Position.m_orientation = 4.31f;
             }
 
-            p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
+            p_Player->NearTeleportTo(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
             return true;
         }
@@ -688,7 +691,7 @@ public:
             l_Position.m_orientation = 2.03f;
         }
 
-        p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
+        p_Player->NearTeleportTo(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
         return true;
     }
