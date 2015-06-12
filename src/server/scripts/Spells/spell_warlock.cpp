@@ -1711,7 +1711,20 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
                         }
                     }
+                }
+            }
 
+            void HandleApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                std::list<Unit*> l_TargetList;
+
+                p_AurEff->GetTargetList(l_TargetList);
+                for (auto l_Target : l_TargetList)
+                {
                     /// Associate DoT spells to their damage spells
                     std::list<std::pair<uint32, uint32>> l_DotAurasList;
                     l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
@@ -1753,6 +1766,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
             void Register()
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectApply += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
