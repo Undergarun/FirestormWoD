@@ -30,7 +30,7 @@ public:
             l_Position.m_orientation = 3.97f;
         }
 
-        p_Player->TeleportTo(1116, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
+        p_Player->NearTeleportTo(1280, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
         return true;
     }
