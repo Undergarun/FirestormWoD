@@ -27,10 +27,30 @@ class boss_koragh : public CreatureScript
             NullificationBarrierPower   = 163612,
             NullificationBarrierAbsorb  = 156803,
             BreakersStrength            = 162569,
+            NullificationBarrierAbsorb2 = 163134,   ///< For Players
+            MarkOfNullification         = 172886,
+            VulnerabilityAura           = 160734,
+            KnockbackForRecharge        = 174856,
+            VolatileAnomaliesAura       = 161378,
             /// Expel Magic: Fire
             ExpelMagicFireDoT           = 162185,
             /// Expel Magic: Arcane
-            ExpelMagicArcaneAura        = 162186
+            ExpelMagicArcaneAura        = 162186,
+            /// Expel Magic: Shadow
+            ExpelMagicShadow            = 162184,
+            /// Expel Magic: Frost
+            ExpelMagicFrostSearcher     = 177709,
+            ExpelMagicFrostAreaTrigger  = 172747,
+            ExpelMagicFrostDamage       = 161411,
+            ExpelMagicFrostAura         = 172813,
+            /// Suppression Field
+            SuppressionFieldSearcher    = 161306,
+            SuppressionFieldAura        = 161328,
+            SuppressionFieldMissile     = 161331,   ///< Triggers 161330 (AreaTrigger) and 161358 (Damage)
+            SuppressionFieldDoT         = 161345,
+            SuppressionFieldSilence     = 162595,
+            /// Overflowing Energy
+            OverflowingEnergySpawn      = 161574
         };
 
         enum eEvents
@@ -38,14 +58,15 @@ class boss_koragh : public CreatureScript
             EventExpelMagicFire = 1,
             EventExpelMagicArcane,
             EventExpelMagicFrost,
-            EventExpelMagicShadow
+            EventExpelMagicShadow,
+            EventSuppressionField,
+            EventOverflowingEnergy
         };
 
         enum eCosmeticEvents
         {
             EventBreakersStrength = 1,
-            EventEndOfCharging,
-            EventRechargePower
+            EventEndOfCharging
         };
 
         enum eActions
@@ -139,6 +160,8 @@ class boss_koragh : public CreatureScript
                     me->SetAIAnimKitId(eAnimKit::AnimWaiting);
                 }
 
+                me->RemoveAllAreasTrigger();
+
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (m_RitualistGuids.empty() && !m_Init)
@@ -219,6 +242,8 @@ class boss_koragh : public CreatureScript
                 /// In Raid Finder difficulty, five players may enter the rune per phase of Charging.
                 m_RunicPlayers = IsMythic() ? 2 : (IsLFR() ? 5 : 1);
                 m_RunicPlayersCount = 0;
+
+                m_Charging = false;
             }
 
             void JustReachedHome() override
@@ -272,7 +297,10 @@ class boss_koragh : public CreatureScript
                         me->RemoveAura(eSpells::BreakersStrength);
 
                         /// When the Ko'ragh's Nullification Barrier is removed, he begins to recharge. After 20 sec, the barrier is restored.
+                        Talk(eTalks::BarrierShattered);
                         m_Charging = true;
+
+                        me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMove::MoveToCenter, g_CenterPos);
                         break;
                     }
@@ -283,24 +311,42 @@ class boss_koragh : public CreatureScript
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
-                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
-                    return;
-
                 switch (p_ID)
                 {
                     case eMove::MoveToCenter:
                     {
+                        if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                            break;
+
                         if (Creature* l_Flying = Creature::GetCreature(*me, m_FlyingRune))
                             l_Flying->CastSpell(l_Flying, eSpells::RuneChargingTemporary, true);
 
                         if (Creature* l_Grounding = Creature::GetCreature(*me, m_FloorRune))
+                        {
                             l_Grounding->CastSpell(l_Grounding, eSpells::CausticEnergyAreaTrigger, true);
+                            l_Grounding->CastSpell(l_Grounding, eSpells::VolatileAnomaliesAura, true);
+                        }
 
                         me->SetAIAnimKitId(eAnimKit::AnimWaiting);
                         me->AddUnitState(UnitState::UNIT_STATE_STUNNED);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventRechargePower, 1 * TimeConstants::IN_MILLISECONDS);
+                        me->CastSpell(me, eSpells::KnockbackForRecharge, true);
+                        me->CastSpell(me, eSpells::VulnerabilityAura, true);
+
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eSpells::SuppressionFieldSearcher:
+                    {
+                        me->RemoveAura(eSpells::SuppressionFieldAura);
+                        me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveChase(l_Target);
+                        }
+
                         break;
                     }
                     default:
@@ -315,9 +361,7 @@ class boss_koragh : public CreatureScript
                 Talk(eTalks::Aggro);
 
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
-                }
 
                 if (Creature* l_Flying = Creature::GetCreature(*me, m_FlyingRune))
                     l_Flying->CastSpell(me, eSpells::NullificationRuneEmpowered, true);
@@ -331,10 +375,12 @@ class boss_koragh : public CreatureScript
                 /// This effect stacks. When the barrier expires, Breaker's Strength is removed.
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventBreakersStrength, 10 * TimeConstants::IN_MILLISECONDS);
 
-                m_Events.ScheduleEvent(eEvents::EventExpelMagicFire, 6 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 40 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventExpelMagicShadow, 55 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicFire, 6 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 40 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicShadow, 55 * TimeConstants::IN_MILLISECONDS);
+                ///m_Events.ScheduleEvent(eEvents::EventSuppressionField, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventOverflowingEnergy, 36 * TimeConstants::IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -351,8 +397,32 @@ class boss_koragh : public CreatureScript
                 {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::NullificationBarrierPower);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::NullificationBarrierAbsorb2);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfNullification);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFireDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicArcaneAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicShadow);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuppressionFieldDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuppressionFieldSilence);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFrostAura);
+
                     if (IsLFR())
                     {
+                        Map::PlayerList const& l_PlayerList = m_Instance->instance->GetPlayers();
+                        if (l_PlayerList.isEmpty())
+                            return;
+
+                        for (Map::PlayerList::const_iterator l_Itr = l_PlayerList.begin(); l_Itr != l_PlayerList.end(); ++l_Itr)
+                        {
+                            if (Player* l_Player = l_Itr->getSource())
+                            {
+                                uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                                if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                    sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+                            }
+                        }
+
                         Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                         if (l_Player && l_Player->GetGroup())
                             sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
@@ -371,6 +441,16 @@ class boss_koragh : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossKoragh, EncounterState::FAIL);
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
+
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::NullificationBarrierPower);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::NullificationBarrierAbsorb2);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::MarkOfNullification);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFireDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicArcaneAura);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicShadow);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuppressionFieldDoT);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::SuppressionFieldSilence);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ExpelMagicFrostAura);
                 }
             }
 
@@ -406,11 +486,57 @@ class boss_koragh : public CreatureScript
                 if (p_Target == nullptr)
                     return;
 
-                /*switch (p_SpellInfo->Id)
+                switch (p_SpellInfo->Id)
                 {
+                    case eSpells::ExpelMagicArcaneAura:
+                    {
+                        Talk(eTalks::ExpelMagicArcaneWarn, p_Target->GetGUID());
+                        break;
+                    }
+                    case eSpells::SuppressionFieldSearcher:
+                    {
+                        float l_Distance = me->GetDistance(p_Target);
+
+                        if (l_Distance <= 10.0f)
+                        {
+                            me->SetFacingToObject(p_Target);
+
+                            me->RemoveAura(eSpells::SuppressionFieldAura);
+                            me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
+
+                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            {
+                                me->GetMotionMaster()->Clear();
+                                me->GetMotionMaster()->MoveChase(l_Target);
+                            }
+                        }
+                        else
+                        {
+                            float l_Orientation = me->GetAngle(p_Target);
+                            float l_Radius = me->GetDistance(p_Target) - 10.0f;
+                            float l_X = me->GetPositionX() + (l_Radius * cos(l_Orientation));
+                            float l_Y = me->GetPositionY() + (l_Radius * sin(l_Orientation));
+
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveCharge(l_X, l_Y, me->GetPositionZ(), SPEED_CHARGE, eSpells::SuppressionFieldSearcher);
+                        }
+
+                        break;
+                    }
+                    case eSpells::ExpelMagicFrostSearcher:
+                    {
+                        me->CastSpell(p_Target, eSpells::ExpelMagicFrostAreaTrigger, false);
+
+                        AddTimedDelayedOperation(1500, [this]() -> void
+                        {
+                            me->CastSpell(me, eSpells::ExpelMagicFrostDamage, true);
+                        });
+
+                        break;
+                    }
                     default:
                         break;
-                }*/
+                }
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -437,17 +563,16 @@ class boss_koragh : public CreatureScript
                         me->SetPower(Powers::POWER_ALTERNATE_POWER, 100);
                         me->CastSpell(me, eSpells::NullificationBarrierAbsorb, true);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            AttackStart(l_Target);
+                        me->RemoveAura(eSpells::VulnerabilityAura);
 
-                        m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventRechargePower);
-                        break;
-                    }
-                    case eCosmeticEvents::EventRechargePower:
-                    {
-                        /// +5 power each second during 20s
-                        me->ModifyPower(Powers::POWER_ALTERNATE_POWER, 5);
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventRechargePower, 1 * TimeConstants::IN_MILLISECONDS);
+                        me->GetMotionMaster()->Clear();
+
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->GetMotionMaster()->MoveChase(l_Target);
+
+                        if (Creature* l_Grounding = Creature::GetCreature(*me, m_FloorRune))
+                            l_Grounding->RemoveAura(eSpells::VolatileAnomaliesAura);
+
                         break;
                     }
                     default:
@@ -465,20 +590,48 @@ class boss_koragh : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventExpelMagicFire:
+                    {
                         me->CastSpell(me, eSpells::ExpelMagicFireDoT, false);
+                        Talk(eTalks::ExpelMagic);
                         m_Events.ScheduleEvent(eEvents::EventExpelMagicFire, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventExpelMagicArcane:
+                    {
                         if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             me->CastSpell(l_Target, eSpells::ExpelMagicArcaneAura, false);
-                        m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 30 * TimeConstants::IN_MILLISECONDS);
+                        Talk(eTalks::ExpelMagic);
+                        m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventExpelMagicFrost:
+                    {
+                        me->CastSpell(me, eSpells::ExpelMagicFrostSearcher, true);
+                        Talk(eTalks::ExpelMagic);
                         m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
                     case eEvents::EventExpelMagicShadow:
+                    {
+                        me->CastSpell(me, eSpells::ExpelMagicShadow, false);
+                        Talk(eTalks::ExpelMagic);
                         m_Events.ScheduleEvent(eEvents::EventExpelMagicShadow, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
+                    }
+                    case eEvents::EventSuppressionField:
+                    {
+                        Talk(eTalks::SuppressionField);
+                        me->CastSpell(me, eSpells::SuppressionFieldSearcher, true);
+                        me->CastSpell(me, eSpells::SuppressionFieldAura, true);
+                        m_Events.ScheduleEvent(eEvents::EventSuppressionField, 17 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventOverflowingEnergy:
+                    {
+                        me->CastSpell(me, eSpells::OverflowingEnergySpawn, true);
+                        m_Events.ScheduleEvent(eEvents::EventOverflowingEnergy, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -823,6 +976,52 @@ class npc_highmaul_breaker_of_frost : public CreatureScript
         }
 };
 
+/// Volatile Anomaly - 79956
+class npc_highmaul_volatile_anomaly : public CreatureScript
+{
+    public:
+        npc_highmaul_volatile_anomaly() : CreatureScript("npc_highmaul_volatile_anomaly") { }
+
+        enum eSpells
+        {
+            AlphaFadeOut = 141608,
+            Destabilize  = 163466
+        };
+
+        struct npc_highmaul_volatile_anomalyAI : public ScriptedAI
+        {
+            npc_highmaul_volatile_anomalyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Exploded = false;
+            }
+
+            bool m_Exploded;
+
+            void Reset() override
+            {
+                if (Player* l_Target = me->FindNearestPlayer(30.0f))
+                    AttackStart(l_Target);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            {
+                if (m_Exploded)
+                    return;
+
+                if (p_Damage > me->GetHealth())
+                {
+                    me->CastSpell(me, eSpells::AlphaFadeOut, true);
+                    me->CastSpell(me, eSpells::Destabilize, true);
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_highmaul_volatile_anomalyAI(p_Creature);
+        }
+};
+
 /// Chain - 233127
 class go_highmaul_chain : public GameObjectScript
 {
@@ -1116,6 +1315,11 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                 DataRunicPlayersCount
             };
 
+            enum eTalk
+            {
+                CausticEnergyWarn = 9
+            };
+
             uint32 m_DamageTimer;
 
             bool Load()
@@ -1170,7 +1374,10 @@ class spell_highmaul_caustic_energy : public SpellScriptLoader
                                         l_Iter->CastSpell(l_Iter, eSpell::CausticEnergyDoT, true);
 
                                         if (l_Boss != nullptr && l_Boss->IsAIEnabled)
+                                        {
+                                            l_Boss->MonsterTextEmote(eTalk::CausticEnergyWarn, l_Iter->GetGUID());
                                             l_Boss->AI()->SetData(eDatas::DataRunicPlayersCount, l_ChargingCount + 1);
+                                        }
                                     }
                                 }
                                 else
@@ -1239,14 +1446,6 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 DataRunicPlayersCount = 1
             };
 
-            uint32 m_RegenTimer;
-
-            bool Load()
-            {
-                m_RegenTimer = 1 * TimeConstants::IN_MILLISECONDS;
-                return true;
-            }
-
             void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Target = GetTarget())
@@ -1257,22 +1456,6 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                 }
             }
 
-            void OnUpdate(uint32 p_Diff)
-            {
-                if (m_RegenTimer)
-                {
-                    if (m_RegenTimer <= p_Diff)
-                    {
-                        if (Unit* l_Target = GetUnitOwner())
-                            l_Target->EnergizeBySpell(l_Target, GetSpellInfo()->Id, 5, Powers::POWER_ALTERNATE_POWER);
-
-                        m_RegenTimer = 1 * TimeConstants::IN_MILLISECONDS;
-                    }
-                    else
-                        m_RegenTimer -= p_Diff;
-                }
-            }
-
             void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
             {
                 if (Unit* l_Caster = GetCaster())
@@ -1280,6 +1463,7 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
                     if (Unit* l_Target = GetTarget())
                     {
                         l_Target->CastSpell(l_Target, eSpells::NullificationBarrierAbsorb, true);
+                        l_Target->RemoveAura(eSpells::MarkOfNullification);
 
                         if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
                         {
@@ -1297,11 +1481,13 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
 
                         if (AuraEffectPtr l_Absorb = l_Target->GetAuraEffect(eSpells::NullificationBarrierAbsorb, EFFECT_0))
                         {
+                            /// The Nullification Barrier received by players can absorb up to 15000000 Magic damage.
+                            int32 l_MaxAmount = 15000000;
+
                             int32 l_Pct = l_Target->GetPower(Powers::POWER_ALTERNATE_POWER);
 
                             /// When the rune powers down, the player receives their own Nullification Barrier, proportional to the amount of time spent inside the rune.
-                            /// The Nullification Barrier received by players can absorb up to 15000000 Magic damage.
-                            l_Absorb->ChangeAmount(CalculatePct(l_Absorb->GetAmount(), l_Pct));
+                            l_Absorb->ChangeAmount(CalculatePct(l_MaxAmount, l_Pct));
                         }
                     }
                 }
@@ -1310,7 +1496,6 @@ class spell_highmaul_caustic_energy_dot : public SpellScriptLoader
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_highmaul_caustic_energy_dot_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnAuraUpdate += AuraUpdateFn(spell_highmaul_caustic_energy_dot_AuraScript::OnUpdate);
                 OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_caustic_energy_dot_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1366,13 +1551,13 @@ class spell_highmaul_expel_magic_arcane : public SpellScriptLoader
 
             enum eSpell
             {
-                ExpelMagicArcane = 162398
+                ExpelMagicArcaneMissile = 162398
             };
 
-            void OnTick(constAuraEffectPtr /*p_AurEff*/)
+            void OnTick(constAuraEffectPtr p_AurEff)
             {
                 if (Unit* l_Target = GetTarget())
-                    l_Target->CastSpell(l_Target, eSpell::ExpelMagicArcane, true);
+                    l_Target->CastSpell(l_Target, eSpell::ExpelMagicArcaneMissile, true);
             }
 
             void Register() override
@@ -1384,6 +1569,108 @@ class spell_highmaul_expel_magic_arcane : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_highmaul_expel_magic_arcane_AuraScript();
+        }
+};
+
+/// Nullification Barrier (Absorb) - 163134
+class spell_highmaul_nullification_barrier_player : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_nullification_barrier_player() : SpellScriptLoader("spell_highmaul_nullification_barrier_player") { }
+
+        class spell_highmaul_nullification_barrier_player_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_nullification_barrier_player_AuraScript);
+
+            enum eSpell
+            {
+                NullificationBarrierPower = 163612
+            };
+
+            void OnAbsorb(AuraEffectPtr p_AurEff, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    /// The Nullification Barrier received by players can absorb up to 15000000 Magic damage.
+                    int32 l_MaxAbsorb = 15000000;
+
+                    int32 l_Pct = ((float)p_AurEff->GetAmount() / (float)l_MaxAbsorb) * 100.0f;
+                    l_Target->SetPower(Powers::POWER_ALTERNATE_POWER, l_Pct);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                if (Unit* l_Target = GetUnitOwner())
+                    l_Target->RemoveAura(eSpell::NullificationBarrierPower);
+            }
+
+            void Register() override
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_highmaul_nullification_barrier_player_AuraScript::OnAbsorb, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectRemove += AuraEffectRemoveFn(spell_highmaul_nullification_barrier_player_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_nullification_barrier_player_AuraScript();
+        }
+};
+
+/// Expel Magic: Frost - 172813
+class spell_highmaul_expel_magic_frost_aura : public SpellScriptLoader
+{
+    public:
+        spell_highmaul_expel_magic_frost_aura() : SpellScriptLoader("spell_highmaul_expel_magic_frost_aura") { }
+
+        class spell_highmaul_expel_magic_frost_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_highmaul_expel_magic_frost_aura_AuraScript);
+
+            enum eSpell
+            {
+                ExpelMagicFrostAreaTrigger = 172747
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (Unit* l_Target = GetTarget())
+                {
+                    if (AreaTrigger* l_AreaTrigger = l_Target->FindNearestAreaTrigger(eSpell::ExpelMagicFrostAreaTrigger, 30.0f))
+                    {
+                        float l_Distance = l_Target->GetDistance(l_AreaTrigger);
+                        float l_MinDistance = 5.0f;
+                        if (l_Distance <= l_MinDistance)
+                            return;
+
+                        float l_MaxDistance = 25.0f;
+                        int32 l_MaxAmount = 0;
+
+                        if (AuraEffectPtr l_SpeedEffect = p_AurEff->GetBase()->GetEffect(EFFECT_0))
+                        {
+                            l_MaxAmount = l_SpeedEffect->GetBaseAmount();
+                            if (!l_MaxAmount)
+                                return;
+
+                            int32 l_NewAmount = l_MaxAmount * (l_Distance / l_MaxDistance);
+                            l_SpeedEffect->ChangeAmount(l_NewAmount);
+                        }
+                    }
+                    else
+                        p_AurEff->GetBase()->Remove();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_highmaul_expel_magic_frost_aura_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_highmaul_expel_magic_frost_aura_AuraScript();
         }
 };
 
@@ -1440,6 +1727,194 @@ class areatrigger_highmaul_wild_flames : public AreaTriggerEntityScript
         }
 };
 
+/// Suppression Field - 161330
+class areatrigger_highmaul_suppression_field : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_suppression_field() : AreaTriggerEntityScript("areatrigger_highmaul_suppression_field")
+        {
+            m_DamageTimer = 200;
+        }
+
+        enum eSpells
+        {
+            SuppressionFieldDoT     = 161345,
+            SuppressionFieldSilence = 162595
+        };
+
+        uint32 m_DamageTimer;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (m_DamageTimer)
+            {
+                if (m_DamageTimer <= p_Time)
+                {
+                    if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                    {
+                        std::list<Unit*> l_TargetList;
+                        float l_Radius = 10.0f;
+
+                        JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                        for (Unit* l_Unit : l_TargetList)
+                        {
+                            if (l_Unit->GetDistance(l_Caster) <= 6.0f)
+                            {
+                                if (l_Unit->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
+                                {
+                                    if (!l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                        l_Caster->CastSpell(l_Unit, eSpells::SuppressionFieldSilence, true);
+
+                                    continue;
+                                }
+
+                                if (!l_Unit->HasAura(eSpells::SuppressionFieldDoT))
+                                    l_Caster->CastSpell(l_Unit, eSpells::SuppressionFieldDoT, true);
+
+                                if (!l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                    l_Caster->CastSpell(l_Unit, eSpells::SuppressionFieldSilence, true);
+                            }
+                            else
+                            {
+                                if (l_Unit->GetEntry() == eHighmaulCreatures::VolatileAnomaly)
+                                {
+                                    if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                        l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
+
+                                    continue;
+                                }
+
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldDoT))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldDoT);
+
+                                if (l_Unit->HasAura(eSpells::SuppressionFieldSilence))
+                                    l_Unit->RemoveAura(eSpells::SuppressionFieldSilence);
+                            }
+                        }
+                    }
+
+                    m_DamageTimer = 200;
+                }
+                else
+                    m_DamageTimer -= p_Time;
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_suppression_field();
+        }
+};
+
+/// Expel Magic: Frost - 172747
+class areatrigger_highmaul_expel_magic_frost : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_expel_magic_frost() : AreaTriggerEntityScript("areatrigger_highmaul_expel_magic_frost")
+        {
+            m_DamageTimer = 200;
+        }
+
+        enum eSpell
+        {
+            ExpelMagicFrostAura = 172813
+        };
+
+        uint32 m_DamageTimer;
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (m_DamageTimer)
+            {
+                if (m_DamageTimer <= p_Time)
+                {
+                    if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                    {
+                        std::list<Unit*> l_TargetList;
+                        float l_Radius = 30.0f;
+
+                        JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
+                        JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                        p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                        for (Unit* l_Unit : l_TargetList)
+                            l_Caster->CastSpell(l_Unit, eSpell::ExpelMagicFrostAura, true);
+                    }
+
+                    m_DamageTimer = 200;
+                }
+                else
+                    m_DamageTimer -= p_Time;
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_expel_magic_frost();
+        }
+};
+
+/// Overflowing Energy - 161574
+class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
+{
+    public:
+        areatrigger_highmaul_overflowing_energy() : AreaTriggerEntityScript("areatrigger_highmaul_overflowing_energy") { }
+
+        enum eSpells
+        {
+            GroundMarker            = 173048,
+            OverflowingEnergyAoE    = 161576,
+            OverflowingEnergyDamage = 161612
+        };
+
+        void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
+        {
+            float l_Rotation = frand(0, 2 * M_PI);
+            float l_Range = frand(10.0f, 30.0f);
+            float l_X = g_CenterPos.m_positionX + (l_Range + cos(l_Rotation));
+            float l_Y = g_CenterPos.m_positionY + (l_Range + sin(l_Rotation));
+            float l_Z = g_CenterPos.m_positionZ;
+
+            p_DestinationPosition.m_positionX = l_X;
+            p_DestinationPosition.m_positionY = l_Y;
+            p_DestinationPosition.m_positionZ = l_Z;
+
+            p_AreaTrigger->SetTimeToTarget(10 * TimeConstants::IN_MILLISECONDS);
+
+            if (p_Caster != nullptr)
+                p_Caster->CastSpell(p_DestinationPosition, eSpells::GroundMarker, true);
+        }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                if (Player* l_Target = p_AreaTrigger->FindNearestPlayer(2.0f))
+                {
+                    l_Caster->CastSpell(l_Target, eSpells::OverflowingEnergyDamage, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        void OnDestinationReached(AreaTrigger* p_AreaTrigger) override
+        {
+            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            {
+                l_Caster->CastSpell(*p_AreaTrigger, eSpells::OverflowingEnergyAoE, true);
+                p_AreaTrigger->Remove(0);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const override
+        {
+            return new areatrigger_highmaul_overflowing_energy();
+        }
+};
+
 void AddSC_boss_koragh()
 {
     /// Boss
@@ -1450,6 +1925,7 @@ void AddSC_boss_koragh()
     new npc_highmaul_breaker_of_fire();
     new npc_highmaul_wild_flames();
     new npc_highmaul_breaker_of_frost();
+    new npc_highmaul_volatile_anomaly();
 
     /// GameObjects
     new go_highmaul_chain();
@@ -1462,7 +1938,12 @@ void AddSC_boss_koragh()
     new spell_highmaul_caustic_energy_dot();
     new spell_highmaul_expel_magic_fire();
     new spell_highmaul_expel_magic_arcane();
+    new spell_highmaul_nullification_barrier_player();
+    new spell_highmaul_expel_magic_frost_aura();
 
     /// AreaTriggers
     new areatrigger_highmaul_wild_flames();
+    new areatrigger_highmaul_suppression_field();
+    new areatrigger_highmaul_expel_magic_frost();
+    new areatrigger_highmaul_overflowing_energy();
 }

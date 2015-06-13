@@ -208,7 +208,7 @@ minlevel = 103,
 maxlevel = 103,
 faction = 16,
 rank = 3,
-dmg_multiplier = 15,
+dmg_multiplier = 10,
 baseattacktime = 1500,
 VehicleId = 2164,
 ScriptName = 'boss_koragh',
@@ -216,12 +216,23 @@ mechanic_immune_mask = 617299839,
 flags_extra = 0x01
 WHERE entry = 79015;
 
+UPDATE creature_template SET
+minlevel = 102,
+maxlevel = 102,
+faction = 16,
+unit_class = 2,
+type_flags = 2097224,
+type_flags2 = 128,
+ScriptName = 'npc_highmaul_volatile_anomaly'
+WHERE entry = 79956;
+
 UPDATE creature_model_info SET bounding_radius = 1.5, combat_reach = 9.5 WHERE modelid = 54825;
 
 UPDATE gameobject_template SET ScriptName = 'go_highmaul_chain' WHERE entry = 233127;
 
 DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_frozen_core', 'spell_highmaul_wild_flames_areatrigger', 'spell_highmaul_nullification_barrier', 'spell_highmaul_caustic_energy');
-DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_caustic_energy_dot', 'spell_highmaul_expel_magic_fire', 'spell_highmaul_expel_magic_arcane');
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_caustic_energy_dot', 'spell_highmaul_expel_magic_fire', 'spell_highmaul_expel_magic_arcane', 'spell_highmaul_nullification_barrier_player');
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_expel_magic_frost_aura');
 INSERT INTO spell_script_names VALUE
 (174404, 'spell_highmaul_frozen_core'),
 (173616, 'spell_highmaul_wild_flames_areatrigger'),
@@ -229,9 +240,19 @@ INSERT INTO spell_script_names VALUE
 (160720, 'spell_highmaul_caustic_energy'),
 (161242, 'spell_highmaul_caustic_energy_dot'),
 (162185, 'spell_highmaul_expel_magic_fire'),
-(162186, 'spell_highmaul_expel_magic_arcane');
+(162186, 'spell_highmaul_expel_magic_arcane'),
+(163134, 'spell_highmaul_nullification_barrier_player'),
+(172813, 'spell_highmaul_expel_magic_frost_aura');
 
-DELETE FROM areatrigger_template WHERE spell_id IN (173824, 160720);
+DELETE FROM areatrigger_template WHERE spell_id IN (173824, 160720, 161330, 172747, 161574, 173048);
 INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, scale_y, flags, data0, data1, data2, data3, data4, data5, data6, data7, ScriptName) VALUES
-(173824, 0, 7913, 3, 1, 1, 4096, 3, 3, 10, 10, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_wild_flames'),
-(160720, 0, 6784, 3, 1, 1, 8196, 9, 9, 10, 10, 0.3, 0.3, 0, 0, '');
+(173824, 0, 7913, 3, 1, 1, 8192, 3, 3, 10, 10, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_wild_flames'),
+(160720, 0, 6784, 3, 1, 1, 8196, 9, 9, 10, 10, 0.3, 0.3, 0, 0, ''),
+(161330, 0, 6838, 3, 1, 1, 8192, 8, 8, 4, 4, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_suppression_field'),
+(172747, 0, 7853, 3, 1, 1, 8192, 40, 40, 10, 10, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_expel_magic_frost'),
+(161574, 0, 6863, 3, 1, 1, 8192, 2, 2, 6, 6, 0.3, 0.3, 0, 0, 'areatrigger_highmaul_overflowing_energy'),
+(173048, 0, 7863, 2, 1, 1, 16384, 1, 1, 0, 0, 0, 0, 0, 0, '');
+
+DELETE FROM spell_target_position WHERE id = 161574;
+INSERT INTO spell_target_position VALUE
+(161574, 0, 1228, 3904.2, 8607.48, 397.853, 0);

@@ -130,7 +130,10 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     SetEntry(l_MainTemplate->m_Entry);
     SetDuration(p_SpellInfo->GetDuration());
-    SetTimeToTarget(GetDuration());
+
+    if (GetDuration() != -1)
+        SetTimeToTarget(GetDuration());
+
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_FIELD_CASTER, p_Caster->GetGUID());
@@ -267,7 +270,13 @@ void AreaTrigger::Update(uint32 p_Time)
         if (GetMainTemplate()->m_MoveCurveID != 0 && GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR)
             UpdatePositionWithPathId(m_CreatedTime, this);
         else if (m_Trajectory)
+        {
             GetPositionAtTime(m_CreatedTime, this);
+
+            /// Check if AreaTrigger is arrived to Dest pos
+            if (IsNearPosition(&m_Destination, 0.1f))
+                sScriptMgr->OnDestinationReached(this);
+        }
     }
 }
 

@@ -3484,9 +3484,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 163408:///< Heckle (Kargath)
                 spellInfo->CasterAuraSpell = 0;
                 break;
-            case 175598:///< Devouring Leap (Night-Twisted Devout)
-                spellInfo->Effects[EFFECT_1].Effect = 0;
-                break;
             case 156127:///< Meat Hook (The Butcher)
                 spellInfo->Effects[EFFECT_0].ValueMultiplier = 100.0f;
                 break;
@@ -3500,6 +3497,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[EFFECT_2].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
             case 156171:///< Bounding Cleave (The Butcher)
+            case 162398:///< Expel Magic: Arcane - Missile (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 156172:///< Bounding Cleave (The Butcher)
@@ -3550,6 +3548,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 162371:///< Crystalling Barrage - Summon (Tectus)
             case 163208:///< Fracture - Missile (Tectus)
+            case 174856:///< Knockback (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
                 break;
             case 117624:///< Suicide No Blood No Logging (Tectus)
@@ -3562,6 +3561,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 166199:///< Arcane Volatility (Gorian Arcanist)
             case 158521:///< Double Slash (Phemos - Twin Ogron)
+            case 175598:///< Devouring Leap (Night-Twisted Devout)
+            case 172747:///< Expel Magic: Frost - AreaTrigger (Ko'ragh)
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             case 158419:///< Pulverize - Third AoE (Pol - Twin Ogron)
@@ -3571,15 +3572,29 @@ void SpellMgr::LoadSpellCustomAttr()
             case 174405:///< Frozen Core - DoT (Breaker Ritualist - Frost)
             case 173827:///< Wild Flames - DoT (Breaker Ritualist - Fire)
             case 161242:///< Caustic Energy - DoT (Ko'ragh)
+            case 172813:///< Expel Magic: Frost - Decrease Speed (Ko'ragh)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
                 break;
             case 172685:///< Expel Magic: Fire (Ko'ragh)
-            case 162397:///< Expel Magic: Arcane (Ko'ragh)
                 spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
-            case 162398:///< Expel Magic: Arcane (Ko'ragh)
-                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
-                spellInfo->Effects[EFFECT_0].TargetB = 0;
+            case 162397:///< Expel Magic: Arcane (Ko'ragh)
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ALLY;
+                break;
+            case 161376:///< Volatile Anomalies - Missile 1 (Ko'ragh)
+            case 161380:///< Volatile Anomalies - Missile 2 (Ko'ragh)
+            case 161381:///< Volatile Anomalies - Missile 3 (Ko'ragh)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_DEST_CASTER_RANDOM;
+                break;
+            case 161345:///< Suppression Field - DoT (Ko'ragh)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 162595:///< Suppression Field - Silence (Ko'ragh)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(39); ///< 2s
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:

@@ -91,7 +91,8 @@ enum eHighmaulCreatures
     Pol                 = 78238,
     /// Chamber of Nullification
     Koragh              = 79015,
-    RuneOfNullification = 79559
+    RuneOfNullification = 79559,
+    VolatileAnomaly     = 79956
 };
 
 enum eHighmaulGameobjects
