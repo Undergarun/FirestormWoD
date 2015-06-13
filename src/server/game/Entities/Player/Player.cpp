@@ -21030,10 +21030,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
     // must be before inventory (some items required reputation check)
     m_reputationMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADREPUTATION));
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
+
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADINVENTORY), time_diff);
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADVOIDSTORAGE));
+
+    l_Times.push_back(getMSTime() - l_StartTime);
 
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
