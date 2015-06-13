@@ -62,8 +62,8 @@ enum eGameObjects
 
 enum eTarrenMillEventDurations
 {
-    EventFFADuration = 5 * MINUTE * IN_MILLISECONDS,
-    EventPortalShipDuration = 30 * MINUTE * IN_MILLISECONDS
+    EventFFADuration = 5 * MINUTE,
+    EventPortalShipDuration = 30 * MINUTE
 };
 
 enum eTarrenMillEvents
