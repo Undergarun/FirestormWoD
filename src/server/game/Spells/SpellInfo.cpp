@@ -23,6 +23,7 @@
 #include "DB2Stores.h"
 #include "ConditionMgr.h"
 #include "Vehicle.h"
+#include "Group.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -364,38 +365,40 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty)
 {
-    SpellEffectEntry const* _effect = spellEntry->GetSpellEffect(effIndex, difficulty);
-    SpellEffectScalingEntry const* _effectScaling = GetSpellEffectScalingEntry(_effect ? _effect->Id : 0);
+    auto l_Effect    = spellEntry->GetSpellEffect(effIndex, difficulty);
+    auto l_Scaling   = GetSpellEffectScalingEntry(l_Effect ? l_Effect->Id : 0);
+    auto l_GroupSize = sSpellEffectGroupSizeStore.LookupEntry(l_Effect ? l_Effect->Id : 0);
 
     _spellInfo = spellInfo;
     _effIndex = effIndex;
-    Effect = _effect ? _effect->Effect : 0;
-    ApplyAuraName = _effect ? _effect->EffectApplyAuraName : 0;
-    Amplitude = _effect ? _effect->EffectAmplitude : 0;
-    DieSides = _effect ? _effect->EffectDieSides : 0;
-    RealPointsPerLevel = _effect ? _effect->EffectRealPointsPerLevel : 0.0f;
-    BasePoints = _effect ? _effect->EffectBasePoints : 0;
-    PointsPerComboPoint = _effect ? _effect->EffectPointsPerComboPoint : 0.0f;
-    ValueMultiplier = _effect ? _effect->EffectValueMultiplier : 0.0f;
-    DamageMultiplier = _effect ? _effect->EffectDamageMultiplier : 0.0f;
-    BonusMultiplier = _effect ? _effect->EffectBonusMultiplier : 0.0f;
-    MiscValue = _effect ? _effect->EffectMiscValue : 0;
-    MiscValueB = _effect ? _effect->EffectMiscValueB : 0;
-    Mechanic = Mechanics(_effect ? _effect->EffectMechanic : 0);
-    TargetA = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetA : 0);
-    TargetB = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetB : 0);
-    RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
+    Effect = l_Effect ? l_Effect->Effect : 0;
+    ApplyAuraName = l_Effect ? l_Effect->EffectApplyAuraName : 0;
+    Amplitude = l_Effect ? l_Effect->EffectAmplitude : 0;
+    DieSides = l_Effect ? l_Effect->EffectDieSides : 0;
+    RealPointsPerLevel = l_Effect ? l_Effect->EffectRealPointsPerLevel : 0.0f;
+    BasePoints = l_Effect ? l_Effect->EffectBasePoints : 0;
+    PointsPerComboPoint = l_Effect ? l_Effect->EffectPointsPerComboPoint : 0.0f;
+    ValueMultiplier = l_Effect ? l_Effect->EffectValueMultiplier : 0.0f;
+    DamageMultiplier = l_Effect ? l_Effect->EffectDamageMultiplier : 0.0f;
+    BonusMultiplier = l_Effect ? l_Effect->EffectBonusMultiplier : 0.0f;
+    MiscValue = l_Effect ? l_Effect->EffectMiscValue : 0;
+    MiscValueB = l_Effect ? l_Effect->EffectMiscValueB : 0;
+    Mechanic = Mechanics(l_Effect ? l_Effect->EffectMechanic : 0);
+    TargetA = SpellImplicitTargetInfo(l_Effect ? l_Effect->EffectImplicitTargetA : 0);
+    TargetB = SpellImplicitTargetInfo(l_Effect ? l_Effect->EffectImplicitTargetB : 0);
+    RadiusEntry = l_Effect && l_Effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(l_Effect->EffectRadiusIndex) : NULL;
     if (!RadiusEntry)
-         RadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
-    ChainTarget = _effect ? _effect->EffectChainTarget : 0;
-    ItemType = _effect ? _effect->EffectItemType : 0;
-    TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
-    SpellClassMask = _effect ? _effect->EffectSpellClassMask : flag128(0);
+         RadiusEntry = l_Effect && l_Effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(l_Effect->EffectRadiusMaxIndex) : NULL;
+    ChainTarget = l_Effect ? l_Effect->EffectChainTarget : 0;
+    ItemType = l_Effect ? l_Effect->EffectItemType : 0;
+    TriggerSpell = l_Effect ? l_Effect->EffectTriggerSpell : 0;
+    SpellClassMask = l_Effect ? l_Effect->EffectSpellClassMask : flag128(0);
     ImplicitTargetConditions = NULL;
-    ScalingMultiplier = _effectScaling ? _effectScaling->Multiplier : 0.0f;
-    DeltaScalingMultiplier = _effectScaling ? _effectScaling->RandomMultiplier : 0.0f;
-    ComboScalingMultiplier = _effectScaling ? _effectScaling->OtherMultiplier: 0.0f;
-    AttackPowerMultiplier = _effect ? _effect->BonusCoefficientFromAP : 0.0f;
+    ScalingMultiplier = l_Scaling ? l_Scaling->Multiplier : 0.0f;
+    DeltaScalingMultiplier = l_Scaling ? l_Scaling->RandomMultiplier : 0.0f;
+    ComboScalingMultiplier = l_Scaling ? l_Scaling->OtherMultiplier: 0.0f;
+    AttackPowerMultiplier = l_Effect ? l_Effect->BonusCoefficientFromAP : 0.0f;
+    GroupSizeCoefficient = l_GroupSize ? l_GroupSize->Coefficient : 0.0f;
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -572,13 +575,29 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
 
     float l_Value = float(l_BasePoints);
 
+    /// Apply group size scaling (since MoP 5.4 - SoO)
+    if (GroupSizeCoefficient > 1.0f && p_Caster && p_Caster->GetMap()->IsRaid())
+    {
+        /// Get the group size
+        int32 l_GroupSize = p_Caster->GetMap()->GetPlayersCountExceptGMs();
+
+        /// Apply group size limit (min size is 10, max 30)
+        l_GroupSize = std::min((int32)GroupScalingRange::Max, std::max(l_GroupSize, (int32)GroupScalingRange::Min));
+
+        /// Compute the group size scaling value
+        float l_GroupSizeCoefficient = (GroupSizeCoefficient - 1.0f) / ((int32)GroupScalingRange::Max - (int32)GroupScalingRange::Min);
+        float l_GroupScalingValue    = l_GroupSizeCoefficient * (l_GroupSize - (int32)GroupScalingRange::Min) * l_Value;
+
+        /// Add the group scaling bonus to the value
+        l_Value += l_GroupScalingValue;
+    }
+
     // random damage
     if (p_Caster)
     {
-        // bonus amount from combo points
-        if (p_Caster->m_movedPlayer && l_ComboDamage)
-            if (uint8 comboPoints = p_Caster->m_movedPlayer->GetComboPoints())
-                l_Value += l_ComboDamage * comboPoints;
+        /// Bonus amount from combo points
+        if (p_Caster && l_ComboDamage)
+            l_Value += l_ComboDamage * p_Caster->GetPower(Powers::POWER_COMBO_POINT);
 
         l_Value = p_Caster->ApplyEffectModifiers(_spellInfo, _effIndex, l_Value);
 
@@ -623,6 +642,10 @@ int32 SpellEffectInfo::CalcValue(Unit const* p_Caster, int32 const* p_Bp, Unit c
         }
     }
 
+    /// Don't need to change our value for Arcane Barrage triggered spell and Mangle (bear), it's already calculated
+    if (_spellInfo->Id == 50273 || _spellInfo->Id == 33917)
+        l_Value = float(l_BasePoints);
+
     return int32(l_Value);
 }
 
@@ -642,17 +665,19 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
     return multiplier;
 }
 
-float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
+float SpellEffectInfo::CalcDamageMultiplier(Unit* p_Caster, Spell* p_Spell) const
 {
-    float multiplier = DamageMultiplier;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
-    return multiplier;
+    float l_Multiplier = DamageMultiplier * 100.0f;
+
+    if (Player* l_ModOwner = (p_Caster ? p_Caster->GetSpellModOwner() : nullptr))
+        l_ModOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, l_Multiplier, p_Spell);
+
+    return l_Multiplier / 100.0f;
 }
 
 bool SpellEffectInfo::HasRadius() const
 {
-    return RadiusEntry != NULL;
+    return RadiusEntry != nullptr;
 }
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
@@ -661,7 +686,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         return 0.0f;
 
     float radius = _spellInfo->IsPositive() ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
+    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
         modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
 
     return radius;
@@ -933,7 +958,7 @@ SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 212 SPELL_EFFECT_212
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 213 SPELL_EFFECT_DEATH_GRIP
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 214 SPELL_EFFECT_214
-    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_215
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 216 SPELL_EFFECT_216
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 217 SPELL_EFFECT_217
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT},          //< 218 SPELL_EFFECT_218
@@ -1140,7 +1165,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
     // SpecializationSpellsEntry
-    SpecializationSpellEntry const* specializationInfo = NULL;
+    SpecializationSpellEntry const* specializationInfo = nullptr;
     for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
     {
         specializationInfo = sSpecializationSpellStore.LookupEntry(i);
@@ -1431,6 +1456,26 @@ bool SpellInfo::IsPositive() const
     return !(AttributesCu & SPELL_ATTR0_CU_NEGATIVE);
 }
 
+bool SpellInfo::IsHealingSpell() const
+{
+    return (HasEffect(SPELL_EFFECT_HEALTH_LEECH)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL_MECHANICAL)
+        || HasEffect(SPELL_EFFECT_HEAL_PCT)
+        || HasEffect(SPELL_EFFECT_HEAL_MAX_HEALTH)
+        || HasEffect(SPELL_EFFECT_HEAL)
+        || HasAura(SPELL_AURA_OBS_MOD_HEALTH)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALING)
+        || HasAura(SPELL_AURA_MOD_HEALING_PCT)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE)
+        || HasAura(SPELL_AURA_MOD_HEALING_DONE_PERCENT)
+        || HasAura(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT)
+        || HasAura(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER)
+        || HasAura(SPELL_AURA_MOD_BASE_HEALTH_PCT)
+        || HasAura(SPELL_AURA_PERIODIC_HEAL));
+}
+
 bool SpellInfo::IsPositiveEffect(uint8 effIndex) const
 {
     switch (effIndex)
@@ -1474,7 +1519,6 @@ bool SpellInfo::CanTriggerPoisonAdditional() const
         {
             case 1766:  // Kick
             case 1943:  // Rupture
-            case 51722: // Dismantle
             case 703:   // Garrote
                 return true;
             default:
@@ -1556,8 +1600,7 @@ bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 
     switch (aura->Id)
     {
-        case 94528: // Flare
-        case 76577: // Smoke Bomb
+        case 94528: ///< Flare
             return false;
         default:
             break;
@@ -1606,7 +1649,7 @@ bool SpellInfo::IsSingleTarget() const
 
     switch (GetSpellSpecific())
     {
-        case SPELL_SPECIFIC_JUDGEMENT:
+        case SpellSpecificType::SpellSpecificJudgement:
             return true;
         default:
             break;
@@ -1627,8 +1670,8 @@ bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
     // spell with single target specific types
     switch (spec)
     {
-        case SPELL_SPECIFIC_JUDGEMENT:
-        case SPELL_SPECIFIC_MAGE_POLYMORPH:
+        case SpellSpecificType::SpellSpecificJudgement:
+        case SpellSpecificType::SpellSpecificMagePolymorph:
             if (spellInfo->GetSpellSpecific() == spec)
                 return true;
             break;
@@ -1645,32 +1688,35 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
     SpellSpecificType spellSpec2 = spellInfo->GetSpellSpecific();
     switch (spellSpec1)
     {
-        case SPELL_SPECIFIC_TRACKER:
-        case SPELL_SPECIFIC_WARLOCK_ARMOR:
-        case SPELL_SPECIFIC_MAGE_ARMOR:
-        case SPELL_SPECIFIC_ELEMENTAL_SHIELD:
-        case SPELL_SPECIFIC_MAGE_POLYMORPH:
-        case SPELL_SPECIFIC_PRESENCE:
-        case SPELL_SPECIFIC_CHARM:
-        case SPELL_SPECIFIC_SCROLL:
-        case SPELL_SPECIFIC_WARRIOR_ENRAGE:
-        case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
-        case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
-        case SPELL_SPECIFIC_PRIEST_SANCTUM:
-        case SPELL_SPECIFIC_CHAKRA:
-        case SPELL_SPECIFIC_EXOTIC_MUNITION:
-        case SPELL_SPECIFIC_LONE_WOLF_BUFF:
+        case SpellSpecificType::SpellSpecificTracker:
+        case SpellSpecificType::SpellSpecificWarlockArmor:
+        case SpellSpecificType::SpellSpecificMageArmor:
+        case SpellSpecificType::SpellSpecificElementalShield:
+        case SpellSpecificType::SpellSpecificMagePolymorph:
+        case SpellSpecificType::SpellSpecificPresence:
+        case SpellSpecificType::SpellSpecificCharm:
+        case SpellSpecificType::SpellSpecificScroll:
+        case SpellSpecificType::SpellSpecificWarriorEnrage:
+        case SpellSpecificType::SpellSpecificMageArcaneBrillance:
+        case SpellSpecificType::SpellSpecificPriestDivineSpirit:
+        case SpellSpecificType::SpellSpecificPriestSanctum:
+        case SpellSpecificType::SpellSpecificChakra:
+        case SpellSpecificType::SpellSpecificExocitMunition:
+        case SpellSpecificType::SpellSpecificLoneWolfBuff:
+        case SpellSpecificType::SpellSpecificLethalPoison:
+        case SpellSpecificType::SpellSpecificNonLethalPoison:
+        case SpellSpecificType::SpellSpecificCrowdFavorite:
             return spellSpec1 == spellSpec2;
-        case SPELL_SPECIFIC_FOOD:
-            return spellSpec2 == SPELL_SPECIFIC_FOOD
-                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
-        case SPELL_SPECIFIC_DRINK:
-            return spellSpec2 == SPELL_SPECIFIC_DRINK
-                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
-        case SPELL_SPECIFIC_FOOD_AND_DRINK:
-            return spellSpec2 == SPELL_SPECIFIC_FOOD
-                || spellSpec2 == SPELL_SPECIFIC_DRINK
-                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
+        case SpellSpecificType::SpellSpecificFood:
+            return spellSpec2 == SpellSpecificType::SpellSpecificFood
+                || spellSpec2 == SpellSpecificType::SpellSpecificFoodAndDrink;
+        case SpellSpecificType::SpellSpecificDrink:
+            return spellSpec2 == SpellSpecificType::SpellSpecificDrink
+                || spellSpec2 == SpellSpecificType::SpellSpecificFoodAndDrink;
+        case SpellSpecificType::SpellSpecificFoodAndDrink:
+            return spellSpec2 == SpellSpecificType::SpellSpecificFood
+                || spellSpec2 == SpellSpecificType::SpellSpecificDrink
+                || spellSpec2 == SpellSpecificType::SpellSpecificFoodAndDrink;
         default:
             return false;
     }
@@ -1681,15 +1727,15 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
     SpellSpecificType spellSpec = GetSpellSpecific();
     switch (spellSpec)
     {
-        case SPELL_SPECIFIC_SEAL:
-        case SPELL_SPECIFIC_HAND:
-        case SPELL_SPECIFIC_AURA:
-        case SPELL_SPECIFIC_STING:
-        case SPELL_SPECIFIC_CURSE:
-        case SPELL_SPECIFIC_BANE:
-        case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_JUDGEMENT:
-        case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
+        case SpellSpecificType::SpellSpecificSeal:
+        case SpellSpecificType::SpellSpecificHand:
+        case SpellSpecificType::SpellSpecificAura:
+        case SpellSpecificType::SpellSpecificSting:
+        case SpellSpecificType::SpellSpecificCurse:
+        case SpellSpecificType::SpellSpecificBane:
+        case SpellSpecificType::SpellSpecificAspect:
+        case SpellSpecificType::SpellSpecificJudgement:
+        case SpellSpecificType::SpellSpecificWarlockCorruption:
             return spellSpec == spellInfo->GetSpellSpecific();
         default:
             return false;
@@ -1924,6 +1970,13 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             Battleground* bg = player->GetBattleground();
             return bg && bg->GetStatus() == STATUS_WAIT_JOIN ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
+        case 161862:///< Ascension
+        {
+            if (!player)
+                return SPELL_FAILED_DONT_REPORT;
+
+            return map_id == 1116 ? SPELL_CAST_OK : SPELL_FAILED_INCORRECT_AREA;
+        }
     }
 
     // aura limitations
@@ -1972,7 +2025,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
          return SPELL_FAILED_BAD_TARGETS;
 
      // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131369))
+     if (unitTarget && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
          return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks
@@ -2091,10 +2144,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
             return SPELL_FAILED_TARGET_AURASTATE;
     }
 
-    if (TargetAuraSpell && !unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(TargetAuraSpell, caster)))
+    if (TargetAuraSpell && !unitTarget->HasAura(TargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
-    if (ExcludeTargetAuraSpell && unitTarget->HasAura(sSpellMgr->GetSpellIdForDifficulty(ExcludeTargetAuraSpell, caster)))
+    if (ExcludeTargetAuraSpell && unitTarget->HasAura(ExcludeTargetAuraSpell))
         return SPELL_FAILED_TARGET_AURASTATE;
 
     if (unitTarget->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
@@ -2109,7 +2162,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
-        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK) && Id != 115073 && Id != 6544)
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
             if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
                 return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
@@ -2280,7 +2333,7 @@ uint32 SpellInfo::GetExplicitTargetMask() const
 AuraStateType SpellInfo::GetAuraState() const
 {
     // Seals
-    if (GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
+    if (GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal)
         return AURA_STATE_JUDGEMENT;
 
     // Conflagrate aura state on Immolate and Shadowflame
@@ -2374,14 +2427,14 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                     food = true;
 
                 if (food && drink)
-                    return SPELL_SPECIFIC_FOOD_AND_DRINK;
+                    return SpellSpecificType::SpellSpecificFoodAndDrink;
                 else if (food)
-                    return SPELL_SPECIFIC_FOOD;
+                    return SpellSpecificType::SpellSpecificFood;
                 else if (drink)
-                    return SPELL_SPECIFIC_DRINK;
+                    return SpellSpecificType::SpellSpecificDrink;
             }
             else if ((AttributesEx2 & SPELL_ATTR2_FOOD_BUFF) || SpellIconID == 2560)
-                return SPELL_SPECIFIC_WELL_FED;
+                return SpellSpecificType::SpellSpecificWellFed;
             // scrolls effects
             else
             {
@@ -2394,23 +2447,35 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                     case 8096: // Intellect
                     case 8115: // Agility
                     case 8091: // Armor
-                        return SPELL_SPECIFIC_SCROLL;
+                        return SpellSpecificType::SpellSpecificScroll;
                 }
             }
+
+            switch (Id)
+            {
+                case 163366:    ///< Crowd Favorite - 25%
+                case 163368:    ///< Crowd Favorite - 50%
+                case 163369:    ///< Crowd Favorite - 75%
+                case 163370:    ///< Crowd Favorite - 100%
+                    return SpellSpecificType::SpellSpecificCrowdFavorite;
+                default:
+                    break;
+            }
+
             break;
         }
         case SPELLFAMILY_MAGE:
         {
             // family flags 18(Molten), 25(Frost/Ice), 28(Mage)
             if (SpellFamilyFlags[0] & 0x12040000)
-                return SPELL_SPECIFIC_MAGE_ARMOR;
+                return SpellSpecificType::SpellSpecificMageArmor;
 
             // Arcane brillance and Arcane intelect (normal check fails because of flags difference)
             if (SpellFamilyFlags[0] & 0x400)
-                return SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE;
+                return SpellSpecificType::SpellSpecificMageArcaneBrillance;
 
             if ((SpellFamilyFlags[0] & 0x1000000) && Effects[0].ApplyAuraName == SPELL_AURA_MOD_CONFUSE)
-                return SPELL_SPECIFIC_MAGE_POLYMORPH;
+                return SpellSpecificType::SpellSpecificMagePolymorph;
 
             break;
         }
@@ -2420,7 +2485,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             {
                 case 12880: // Enrage (Enrage)
                 case 57518: // Enrage (Wrecking Crew)
-                    return SPELL_SPECIFIC_WARRIOR_ENRAGE;
+                    return SpellSpecificType::SpellSpecificWarriorEnrage;
                 default:
                     break;
             }
@@ -2430,19 +2495,19 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             // Agony, Doom (Metamorphosis) and Havoc are no longer curses
             if (Id == 980 || Id == 603 || Id == 80240)
-                return SPELL_SPECIFIC_BANE;
+                return SpellSpecificType::SpellSpecificBane;
 
             // only warlock curses have this
             if (Dispel == DISPEL_CURSE)
-                return SPELL_SPECIFIC_CURSE;
+                return SpellSpecificType::SpellSpecificCurse;
 
             // Warlock (Demon Armor | Fel Armor)
             if (SpellFamilyFlags[1] & 0x20000020)
-                return SPELL_SPECIFIC_WARLOCK_ARMOR;
+                return SpellSpecificType::SpellSpecificWarlockArmor;
 
             //seed of corruption and corruption
             if (SpellFamilyFlags[1] & 0x10 || SpellFamilyFlags[0] & 0x2)
-                return SPELL_SPECIFIC_WARLOCK_CORRUPTION;
+                return SpellSpecificType::SpellSpecificWarlockCorruption;
 
             break;
         }
@@ -2452,19 +2517,19 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if ((Attributes & SPELL_ATTR0_CASTABLE_WHILE_SITTING) &&
                 (InterruptFlags & AURA_INTERRUPT_FLAG_MOVE) &&
                 (SpellIconID == 52 || SpellIconID == 79))
-                return SPELL_SPECIFIC_WELL_FED;
+                return SpellSpecificType::SpellSpecificWellFed;
 
             // Divine Spirit and Prayer of Spirit
             if (SpellFamilyFlags[0] & 0x20)
-                return SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT;
+                return SpellSpecificType::SpellSpecificPriestDivineSpirit;
 
             // Priest (Inner Will | Inner Fire)
             if (Id == 588 || Id == 73413)
-                return SPELL_SPECIFIC_PRIEST_SANCTUM;
+                return SpellSpecificType::SpellSpecificPriestSanctum;
 
             // Priest chakras
             if (Id == 81206 || Id == 81208 || Id == 81209)
-                return SPELL_SPECIFIC_CHAKRA;
+                return SpellSpecificType::SpellSpecificChakra;
 
             break;
         }
@@ -2472,18 +2537,18 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         {
             // only hunter stings have this
             if (Dispel == DISPEL_POISON)
-                return SPELL_SPECIFIC_STING;
+                return SpellSpecificType::SpellSpecificSting;
 
             // only hunter aspects have this (but not all aspects in hunter family) and Hack fix for Deterrence - Is not an aspect !
             if (SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010) && Id != 67801)
-                return SPELL_SPECIFIC_ASPECT;
+                return SpellSpecificType::SpellSpecificAspect;
 
             switch (Id)
             {
                 case 162536:///< Incendiary Ammo
                 case 162537:///< Poisoned Ammo
                 case 162539:///< Frozen Ammo
-                    return SPELL_SPECIFIC_EXOTIC_MUNITION;
+                    return SpellSpecificType::SpellSpecificExocitMunition;
                 case 160198:///< Grace of the Cat
                 case 160199:///< Fortitude of the Bear
                 case 160200:///< Ferocity of the Raptor
@@ -2492,7 +2557,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 160206:///< Power of the Primates
                 case 172967:///< Versatility of the Ravager
                 case 172968:///< Quickness of the Dragonhawk
-                    return SPELL_SPECIFIC_LONE_WOLF_BUFF;
+                    return SpellSpecificType::SpellSpecificLoneWolfBuff;
             }
 
             break;
@@ -2500,7 +2565,7 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         case SPELLFAMILY_PALADIN:
         {
             if (SpellFamilyFlags[0] & 0x01000002)
-                return SPELL_SPECIFIC_BLESSING;
+                return SpellSpecificType::SpellSpecificBlessing;
 
             // Collection of all the seal family flags. No other paladin spell has any of those.
             // Collection of all the seal Id.
@@ -2509,18 +2574,18 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 || Id == 31801      // Seal of Truth
                 || Id == 20165      // Seal of Insight
                 || Id == 105361)    // Seal of Command
-                return SPELL_SPECIFIC_SEAL;
+                return SpellSpecificType::SpellSpecificSeal;
 
             if (SpellFamilyFlags[0] & 0x00002190)
-                return SPELL_SPECIFIC_HAND;
+                return SpellSpecificType::SpellSpecificHand;
 
             // Judgement, Judgement of Truth, Judgement of Righteoussness, Judgement of Light
             if (Id == 20271 || Id == 31804 || Id == 20187 || Id == 54158)
-                return SPELL_SPECIFIC_JUDGEMENT;
+                return SpellSpecificType::SpellSpecificJudgement;
 
             // only paladin auras have this (for palaldin class family)
             if (SpellFamilyFlags[2] & 0x00000020)
-                return SPELL_SPECIFIC_AURA;
+                return SpellSpecificType::SpellSpecificAura;
 
             break;
         }
@@ -2530,14 +2595,31 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
             if (SpellFamilyFlags[1] & 0x420
                 || SpellFamilyFlags[0] & 0x00000400
                 || Id == 23552)
-                return SPELL_SPECIFIC_ELEMENTAL_SHIELD;
+                return SpellSpecificType::SpellSpecificElementalShield;
 
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
             if (Id == 48266 || Id == 48263 || Id == 48265)
-                return SPELL_SPECIFIC_PRESENCE;
+                return SpellSpecificType::SpellSpecificPresence;
             break;
+        case SPELLFAMILY_ROGUE:
+        {
+            switch (Id)
+            {
+                case 3408:    ///< Crippling Poison
+                case 108211:  ///< Leeching Poison
+                    return SpellSpecificType::SpellSpecificLethalPoison;
+                case 2823:    ///< Deadly Poison
+                case 8679:    ///< Wound Poison
+                case 157584:  ///< Swift Poison
+                    return SpellSpecificType::SpellSpecificNonLethalPoison;
+                default:
+                    break;
+            }
+
+            break;
+        }
     }
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -2550,16 +2632,16 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case SPELL_AURA_MOD_POSSESS_PET:
                 case SPELL_AURA_MOD_POSSESS:
                 case SPELL_AURA_AOE_CHARM:
-                    return SPELL_SPECIFIC_CHARM;
+                    return SpellSpecificType::SpellSpecificCharm;
                 case SPELL_AURA_TRACK_CREATURES:
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
-                    return SPELL_SPECIFIC_TRACKER;
+                    return SpellSpecificType::SpellSpecificTracker;
             }
         }
     }
 
-    return SPELL_SPECIFIC_NORMAL;
+    return SpellSpecificType::SpellSpecificNormal;
 }
 
 float SpellInfo::GetMinRange(bool positive) const
@@ -2600,55 +2682,65 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(Unit* p_Caster, Spell* p_Spell) const
 {
-    int32 castTime = 0;
+    int32 l_CastTime = 0;
 
     // not all spells have cast time index and this is all is pasiive abilities
-    if (caster && CastTimeMax > 0)
+    if (p_Caster && CastTimeMax > 0)
     {
-        castTime = CastTimeMax;
-        if (CastTimeMaxLevel > int32(caster->getLevel()))
-            castTime = CastTimeMin + int32(caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
+        l_CastTime = CastTimeMax;
+        if (CastTimeMaxLevel > int32(p_Caster->getLevel()))
+            l_CastTime = CastTimeMin + int32(p_Caster->getLevel() - 1) * (CastTimeMax - CastTimeMin) / (CastTimeMaxLevel - 1);
     }
     else if (CastTimeEntry)
-        castTime = CastTimeEntry->CastTime;
+        l_CastTime = CastTimeEntry->CastTime;
 
-    if (!castTime)
+    if (!l_CastTime)
         return 0;
 
-    if (caster)
-        caster->ModSpellCastTime(this, castTime, spell);
+    /// Swift Riding Crop
+    if (p_Caster && p_Caster->HasAura(170495))
+    {
+        if (SpellCategoriesEntry const* l_Cat = GetSpellCategories())
+        {
+            if (l_Cat->Mechanic == MECHANIC_MOUNT) ///< Mount
+                return 0;
+        }
+    }
 
-    // Kil'Jaeden's Cunning
-    if (caster && caster->HasAuraType(SPELL_AURA_KIL_JAEDENS_CUNNING) && caster->isMoving() && !caster->HasAura(119048))
-        castTime += CalculatePct(castTime, 50);
+    if (p_Caster)
+        p_Caster->ModSpellCastTime(this, l_CastTime, p_Spell);
 
-    // Fix Cultivation - with Herb Gathering
-    if (Id == 2366 && caster && caster->HasAura(20552))
-        castTime = 500;
+    /// Fix Cultivation - with Herb Gathering
+    if (Id == 2366 && p_Caster && p_Caster->HasAura(20552))
+        l_CastTime = 500;
 
-    // Glyph of Capacitor Totem
-    if (caster && Id == 118905)
-        if (Unit* owner = caster->GetOwner())
-            if (owner->HasAura(55442))
-                castTime -= 2000;
+    /// Glyph of Capacitor Totem
+    if (p_Caster && Id == 118905)
+    {
+        if (Unit* l_Owner = p_Caster->GetOwner())
+        {
+            if (l_Owner->HasAura(55442))
+                l_CastTime -= 2000;
+        }
+    }
 
-    // Glyph of the Righteous Retreat
-    if (caster && Id == 8690)
-        if (caster->HasAura(115933) && (caster->HasAura(642) || caster->HasAura(110700)))
-            castTime /= 2;
+    /// Glyph of the Righteous Retreat
+    if (p_Caster && Id == 8690)
+    {
+        if (p_Caster->HasAura(115933) && (p_Caster->HasAura(642)))
+            l_CastTime /= 2;
+    }
 
-    // Elegon - Overloaded
-    if (caster && caster->HasAura(117204))
-        if (AuraPtr overloaded = caster->GetAura(117204))
-            castTime -= CalculatePct(castTime, (20 * overloaded->GetStackAmount()));
+    /// Elegon - Overloaded
+    if (p_Caster && p_Caster->HasAura(117204))
+    {
+        if (AuraPtr overloaded = p_Caster->GetAura(117204))
+            l_CastTime -= CalculatePct(l_CastTime, (20 * overloaded->GetStackAmount()));
+    }
 
-    // Glyph of Denounce
-    if (Id == 2812 && caster && caster->HasAura(115654))
-        castTime -= 1000;
-
-    return (castTime > 0) ? uint32(castTime) : 0;
+    return (l_CastTime > 0) ? uint32(l_CastTime) : 0;
 }
 
 uint32 SpellInfo::GetMaxTicks() const
@@ -3002,7 +3094,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_WARLOCK:
             switch (Id)
             {
-                case 111400: // Burning Rush
+                case 111400: ///< Burning Rush
                     return true;
                 default:
                     break;
@@ -3010,28 +3102,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {
-                case 64844: // Divine Hymn
-                case 64904: // Hymn of Hope
-                case 47585: // Dispersion
-                    return true;
-                default:
-                    break;
-            }
-            break;
-        case SPELLFAMILY_HUNTER:
-            // Aspect of the Viper
-            if (Id == 34074)
-                return true;
-            break;
-        case SPELLFAMILY_SHAMAN:
-            if (Id == 30708)
-                return false;
-            break;
-        case SPELLFAMILY_ROGUE:
-            switch (Id)
-            {
-                // Envenom must be considered as a positive effect even though it deals damage
-                case 32645:
+                case 64844: ///< Divine Hymn
+                case 47585: ///< Dispersion
                     return true;
                 default:
                     break;
@@ -3264,7 +3336,7 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 
 SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellTargetRestrictionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3276,7 +3348,7 @@ SpellTargetRestrictionsEntry const* SpellInfo::GetSpellTargetRestrictions() cons
 
 SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellEquippedItemsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3288,7 +3360,7 @@ SpellEquippedItemsEntry const* SpellInfo::GetSpellEquippedItems() const
 
 SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellInterruptsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3300,7 +3372,7 @@ SpellInterruptsEntry const* SpellInfo::GetSpellInterrupts() const
 
 SpellLevelsEntry const* SpellInfo::GetSpellLevels() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellLevelsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3342,7 +3414,7 @@ SpellTotemsEntry const* SpellInfo::GetSpellTotems() const
 
 SpellAuraOptionsEntry const* SpellInfo::GetSpellAuraOptions() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellAuraOptionsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3364,7 +3436,7 @@ SpellCastingRequirementsEntry const* SpellInfo::GetSpellCastingRequirements() co
 
 SpellCategoriesEntry const* SpellInfo::GetSpellCategories() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCategoriesStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3381,7 +3453,7 @@ SpellClassOptionsEntry const* SpellInfo::GetSpellClassOptions() const
 
 SpellCooldownsEntry const* SpellInfo::GetSpellCooldowns() const
 {
-    if (DifficultyID != Difficulty::NONE_DIFFICULTY)
+    if (DifficultyID != Difficulty::DifficultyNone)
     {
         uint32 l_EntryByDifficulty = sSpellMgr->GetDifficultyEntryForDataStore(sSpellCooldownsStore.GetDbcFileName(), Id, DifficultyID);
         if (l_EntryByDifficulty != 0)
@@ -3538,10 +3610,10 @@ bool SpellInfo::IsBreakingCamouflage() const
     // Use it only for hunter camouflage
     switch (GetSpellSpecific())
     {
-        case SPELL_SPECIFIC_FOOD:
-        case SPELL_SPECIFIC_FOOD_AND_DRINK:
-        case SPELL_SPECIFIC_WELL_FED:
-        case SPELL_SPECIFIC_ASPECT:
+        case SpellSpecificType::SpellSpecificFood:
+        case SpellSpecificType::SpellSpecificFoodAndDrink:
+        case SpellSpecificType::SpellSpecificWellFed:
+        case SpellSpecificType::SpellSpecificAspect:
             return false;
     }
 
@@ -3578,7 +3650,6 @@ bool SpellInfo::IsBreakingCamouflage() const
         case 82945: // Immolation Trap Launcher
         case 82948: // Snake Trap launcher
         case 93435: // Roar of Courage (Special Ability)
-        case 109259:// Powershot
             return false;
     }
 
@@ -3590,8 +3661,14 @@ bool SpellInfo::IsIgnoringCombat() const
     if (HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
         return true;
 
+    /// Polymorph spells shouldn't give combat
+    if (Mechanic == MECHANIC_POLYMORPH)
+        return true;
+
     switch (Id)
     {
+        /// Meteor
+        case 153561:
         // Marked for Death
         case 137619:
         // Slice and Dice
@@ -3613,8 +3690,6 @@ bool SpellInfo::IsIgnoringCombat() const
         // Blackjack
         case 79124:
         case 79126:
-        // Redirect
-        case 73981:
         // Venomous Wounds
         case 79136:
         // Master Poisoner
@@ -3717,20 +3792,6 @@ float SpellInfo::GetGiftOfTheSerpentScaling(Unit* caster) const
 
 float SpellInfo::GetCastTimeReduction() const
 {
-    switch (Id)
-    {
-        case 50274: // Spore Cloud
-        case 90315: // Tailspin
-        case 109466:// Curse of Enfeeblement
-        case 109468:// Curse of Enfeeblement (Soulburn)
-        case 116198:// Enfeeblement Aura (Metamorphosis)
-            return 5.f;
-        case 5760:  // Mind-Numbing
-        case 58604: // Lava Breath
-        case 73975: // Necrotic Strike
-            return 2.f;
-    }
-
     return 1.f;
 }
 
@@ -3856,18 +3917,16 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 {
     switch (Id)
     {
-        case 703:   // Garrote
-        case 1943:  // Rupture
-        case 2818:  // Deadly Poison (DoT)
-        case 3409:  // Crippling Poison
-        case 5760:  // Mind-Numbling Poison
-        case 8680:  // Wound Poison
-        case 79136: // Venomous Wound (damage)
-        case 89775: // Hemorrhage (DoT)
-        case 112961:// Leeching Poison
-        case 113780:// Deadly Poison (direct damage)
-        case 113952:// Paralytic Poison
-        case 122233:// Crimson Tempest (DoT)
+        case 703:   ///< Garrote
+        case 1943:  ///< Rupture
+        case 2818:  ///< Deadly Poison (DoT)
+        case 3409:  ///< Crippling Poison
+        case 8680:  ///< Wound Poison
+        case 16511: ///< Hemorrhage (DoT)
+        case 79136: ///< Venomous Wound (damage)
+        case 112961:///< Leeching Poison
+        case 113780:///< Deadly Poison (direct damage)
+        case 122233:///< Crimson Tempest (DoT)
             return true;
         default:
             break;
@@ -3878,51 +3937,62 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
 
 bool SpellInfo::IsCanBeStolen() const
 {
-    // some of the rules for those spells that can be stolen by Dark Simulacrum
-    // spells should use mana
-    if (PowerType != POWER_MANA)
-        return false;
-
-    // and should have mana cost
-    if (!ManaCost && !ManaCostPercentage)
-        return false;
-
-    // special rules
+    /// Special rules, some aren't using mana but can be stolen
     switch (Id)
     {
-        case 633:   // Lay on Hands
-        case 22812: // Barkskin
-        case 24275: // Hammer of Wrath
-        case 31935: // Avenger's Shield
-        case 53563: // Beacon of the Light
-        case 156910: // Beacon of the Faith
+        case 633:   ///< Lay on Hands
+        case 22812: ///< Barkskin
+        case 24275: ///< Hammer of Wrath
+        case 31935: ///< Avenger's Shield
+        case 53563: ///< Beacon of Light
             return false;
+        case 642:   ///< Divine Shield
+        case 5484:  ///< Howl of Terror
+        case 12472: ///< Icy Veins
+        case 51490: ///< Thunderstorm
+        case 64044: ///< Psychic Horror
+            return true;
         default:
             break;
     }
 
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
+    /// Some of the rules for those spells that can be stolen by Dark Simulacrum
+    /// Spells should use mana
+    bool l_UseMana = false;
+    for (auto l_Iter : SpellPowers)
     {
-        switch (Effects[x].Effect)
+        if (l_Iter->PowerType != POWER_MANA)
+            return false;
+
+        /// And should have mana cost
+        if (!l_Iter->Cost && !l_Iter->CostBasePercentage)
+            return false;
+
+        l_UseMana = true;
+        break;
+    }
+
+    if (!l_UseMana)
+        return false;
+
+    for (uint8 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
+    {
+        switch (Effects[l_I].Effect)
         {
             case SPELL_EFFECT_SUMMON:
             case SPELL_EFFECT_SUMMON_PET:
             case SPELL_EFFECT_CAST_BUTTON:
             case SPELL_EFFECT_TAMECREATURE:
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-            case SPELL_EFFECT_KNOCK_BACK:
                 return false;
             case SPELL_EFFECT_SCHOOL_DAMAGE:
                 if (DmgClass == SPELL_DAMAGE_CLASS_MELEE)
                     return false;
                 break;
-            default:
+            case SPELL_EFFECT_APPLY_AURA:
+                if (Effects[l_I].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                    return false;
                 break;
-        }
-        switch (Effects[x].ApplyAuraName)
-        {
-            case SPELL_AURA_MOD_SHAPESHIFT:
-                return false;
             default:
                 break;
         }
@@ -3944,7 +4014,7 @@ bool SpellInfo::IsNeedAdditionalLosChecks() const
         case 23455: // Holy Nova
         case 87204: // Sin and Punishment proc
         case 117418: // Fists of Fury
-        case 120086: // Fists of Fury
+        case 120086: // Fists of Fury (Stun)
             return true;
         default:break;
     }
@@ -3975,7 +4045,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(115192))
         return false;
 
-    // Hearthstone shoudn't call subterfuge effect
+    /// Hearthstone shouldn't call subterfuge effect
     if ((SpellIconID == 776 || SpellFamilyName == SPELLFAMILY_POTION) && m_caster->HasAura(115191))
     {
         m_caster->RemoveAura(115191);
@@ -3984,9 +4054,9 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     switch (GetSpellSpecific())
     {
-        case SPELL_SPECIFIC_FOOD:
-        case SPELL_SPECIFIC_FOOD_AND_DRINK:
-        case SPELL_SPECIFIC_WELL_FED:
+        case SpellSpecificType::SpellSpecificFood:
+        case SpellSpecificType::SpellSpecificFoodAndDrink:
+        case SpellSpecificType::SpellSpecificWellFed:
             return true;
     }
 
@@ -3994,7 +4064,7 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
     if (m_caster->HasAura(108208) && m_caster->HasAura(115191) && !m_caster->HasAura(115192) &&
         !HasAttribute(SPELL_ATTR1_NOT_BREAK_STEALTH) && !m_caster->HasAura(51713))
     {
-        // Mounts shouldn't call subterfuge effect
+        /// Mounts shouldn't call subterfuge effect
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
@@ -4007,18 +4077,21 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
         if (callSubterfuge)
         {
             m_caster->CastSpell(m_caster, 115192, true);
-            return false;
+            return true;
         }
     }
 
     if (m_caster->HasAura(115191))
         return false;
 
-    switch(Id)
+    switch (Id)
     {
-        case 3600:  // Earthbind Totem
-        case 99:    // Demoralizing Roar
-        case 50256:
+        case 99:    ///< Incapaciting Roar
+        case 2643:  ///< Multi-shot
+        case 3600:  ///< Earthbind
+        case 12323: ///< Piercing Howl
+        case 50256: ///< Invigorating Roar (Special Ability)
+        case 64695: ///< Earthgrab
             return false;
         default:
             break;
@@ -4026,8 +4099,8 @@ bool SpellInfo::IsBreakingStealth(Unit* m_caster) const
 
     if (IsTargetingArea())
     {
-        // dispel etc spells
-        switch(Effects[EFFECT_0].Effect)
+        /// Dispel etc spells
+        switch (Effects[EFFECT_0].Effect)
         {
             case SPELL_EFFECT_DISPEL:
             case SPELL_EFFECT_DISPEL_MECHANIC:
@@ -4237,9 +4310,7 @@ bool SpellInfo::IsLethalPoison() const
 {
     switch (Id)
     {
-        case 5760:  // Mind-Numbling Poison
         case 112961:// Leeching Poison
-        case 113952:// Paralytic Poison
             return true;
         default:
             break;

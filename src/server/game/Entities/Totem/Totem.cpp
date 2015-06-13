@@ -42,8 +42,6 @@ void Totem::Update(uint32 time)
 
     if (m_duration <= time)
     {
-        if (m_Properties->Id == 3407) // Capacitor Totem
-          CastSpell(this, 118905, true);
         UnSummon();                                         // remove self
         return;
     }
@@ -65,7 +63,7 @@ void Totem::InitStats(uint32 duration)
         && m_Properties->Slot >= SUMMON_SLOT_TOTEM
         && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
+        WorldPacket data(SMSG_TOTEM_CREATED, 4 + 16 + 2 + 4 + 4);
         data << uint8(m_Properties->Slot - 1);
         data.appendPackGUID(GetGUID());
         data << uint32(duration);
@@ -128,9 +126,6 @@ void Totem::InitStats(uint32 duration)
         if (totemSpell->CalcCastTime())   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
 
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        SetReactState(REACT_AGGRESSIVE);
-
     m_duration = duration;
 
     SetLevel(m_owner->getLevel());
@@ -145,9 +140,6 @@ void Totem::InitStats(uint32 duration)
             break;
     }
 
-    if (m_owner->HasAura(63298))
-        SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(m_owner->GetStat(STAT_STAMINA)) * 0.05f);
-
     if (spellId1)
         m_owner->CastSpell(m_owner, spellId1, true); // Fake Fire Totem
     if (spellId2)
@@ -161,9 +153,7 @@ void Totem::InitStats(uint32 duration)
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
-    {
         CastSpell(this, GetSpell(), true);
-    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
@@ -212,10 +202,6 @@ void Totem::UnSummon(uint32 msTime)
     }
 
     m_owner->RemoveAurasDueToSpell(GetSpell(), GetGUID());
-
-    // Remove Sentry Totem Aura
-    if (GetEntry() == SENTRY_TOTEM_ENTRY)
-        m_owner->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
 
     //remove aura all party members too
     if (Player* owner = m_owner->ToPlayer())

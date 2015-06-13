@@ -66,8 +66,6 @@ void WorldSession::SendPartyResult(PartyCommand p_Command, const std::string& p_
 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE");
-
     time_t l_Now = time(NULL);
     if (l_Now - m_TimeLastGroupInviteCommand < 5)
         return;
@@ -112,6 +110,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
 
+    if (l_Player->GetGUID() == GetPlayer()->GetGUID())
+        return;
+
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->isGameMaster() && l_Player->isGameMaster())
     {
@@ -131,7 +132,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
         return;
     }
     // just ignore us
-    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficulty() != GetPlayer()->GetDungeonDifficulty())
+    if (l_Player->GetInstanceId() != 0 && l_Player->GetDungeonDifficultyID() != GetPlayer()->GetDungeonDifficultyID())
     {
         SendPartyResult(PARTY_CMD_INVITE, l_TargetName, ERR_IGNORING_YOU_S);
         return;
@@ -179,7 +180,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             std::list<uint32> l_LfgSlots;
 
             // tell the player that they were invited but it failed as they were already in a group
-            WorldPacket data(SMSG_PARTY_INVITE, 45);
+            WorldPacket data(SMSG_PARTY_INVITE, 200);
             data.WriteBit(l_CanAccept);
             data.WriteBit(l_MightCRZYou);
             data.WriteBit(l_IsXRealm);
@@ -192,6 +193,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
             data << uint16(l_Unk);
             data << uint32(l_InviterCfgRealmID);
             data.WriteBit(l_IsLocal);
+            data.WriteBit(false);   // UnkBit
             data.WriteBits(l_RealmNameActualSize, 8);
             data.WriteBits(l_NormalizedRealmNameSize, 8);
             data.FlushBits();
@@ -280,7 +282,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
     std::list<uint32> l_LfgSlots;
 
     // tell the player that they were invited but it failed as they were already in a group
-    WorldPacket l_Data(SMSG_PARTY_INVITE, 45);
+    WorldPacket l_Data(SMSG_PARTY_INVITE, 200);
     l_Data.WriteBit(l_CanAccept);
     l_Data.WriteBit(l_MightCRZYou);
     l_Data.WriteBit(l_IsXRealm);
@@ -314,8 +316,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_INVITE_RESPONSE");
-
     uint32 l_RolesDesired;
     uint8  l_PartyIndex;
     bool   l_Accept;
@@ -397,7 +397,7 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
         /// Report
         std::string l_Name = GetPlayer()->GetName();
 
-        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length());
+        WorldPacket l_Data(SMSG_GROUP_DECLINE, l_Name.length() + 1);
         l_Data.WriteBits(l_Name.length(), 6);
         l_Data.FlushBits();
 
@@ -409,8 +409,6 @@ void WorldSession::HandleGroupInviteResponseOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandlePartyUninviteOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PARTY_UNINVITE");
-
     std::string l_Reason;
     uint8       l_PartyIndex;
     size_t      l_ReasonSize;
@@ -456,8 +454,6 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_PARTY_LEADER");
-
     uint64 l_Target;
     uint8  l_PartyIndex;
 
@@ -487,8 +483,6 @@ void WorldSession::HandleSetPartyLeaderOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleSetRoleOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_ROLE");
-
     uint64 l_ChangedUnit;
     uint32 l_Role;
     uint8  l_PartyIndex;
@@ -557,8 +551,6 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LEAVE_GROUP");
-
     uint8 l_PartyIndex = p_RecvData.read<uint8>();
 
     Group* l_Group = GetPlayer()->GetGroup();
@@ -582,8 +574,6 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LOOT_METHOD");
-
     uint8 lootMethod;
     ObjectGuid lootMaster;
     uint32 lootThreshold;
@@ -653,8 +643,6 @@ void WorldSession::HandleLootRoll(WorldPacket& p_RecvData)
 
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MINIMAP_PING");
-
     if (!GetPlayer()->GetGroup())
         return;
 
@@ -676,8 +664,6 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRandomRollOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_RANDOM_ROLL");
-
     int32 l_Min;
     int32 l_Max;
     uint8 l_PartyIndex;
@@ -710,8 +696,6 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPDATE_RAID_TARGET");
-
     Group* l_Group = GetPlayer()->GetGroup();
     if (!l_Group)
         return;
@@ -732,8 +716,6 @@ void WorldSession::HandleUpdateRaidTargetOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONVERT_RAID");
-
     Group* l_Group = GetPlayer()->GetGroup();
 
     if (!l_Group)
@@ -761,8 +743,6 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");
-
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -774,18 +754,11 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
     else
        timeLastChangeSubGroupCommand = now;
 
-    ObjectGuid guid;
+    uint64 guid;
     uint8 groupNr, unk;
 
+    recvData.readPackGUID(guid);
     recvData >> unk >> groupNr;
-
-    uint8 bitsOrder[8] = { 1, 3, 7, 2, 0, 5, 4, 6 };
-    recvData.ReadBitInOrder(guid, bitsOrder);
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 7, 0, 2, 4, 5, 3, 6, 1 };
-    recvData.ReadBytesSeq(guid, bytesOrder);
 
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
@@ -803,51 +776,13 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
     uint8 unk1;
-    ObjectGuid guid1;
-    ObjectGuid guid2;
-    uint8 unk2;
+    uint64 guid1;
+    uint64 guid2;
 
     recvData >> unk1;
-
-    guid1[4] = recvData.ReadBit();
-    guid1[6] = recvData.ReadBit();
-    guid1[5] = recvData.ReadBit();
-    guid1[0] = recvData.ReadBit();
-    guid2[3] = recvData.ReadBit();
-    guid2[4] = recvData.ReadBit();
-    guid1[7] = recvData.ReadBit();
-    guid1[2] = recvData.ReadBit();
-
-    guid2[7] = recvData.ReadBit();
-    guid2[1] = recvData.ReadBit();
-    guid2[5] = recvData.ReadBit();
-    guid2[6] = recvData.ReadBit();
-    guid2[0] = recvData.ReadBit();
-    guid1[3] = recvData.ReadBit();
-    guid2[2] = recvData.ReadBit();
-    guid1[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid2[0]);
-    recvData.ReadByteSeq(guid1[5]);
-    recvData.ReadByteSeq(guid1[0]);
-    recvData.ReadByteSeq(guid2[7]);
-    recvData.ReadByteSeq(guid1[6]);
-    recvData.ReadByteSeq(guid2[1]);
-    recvData.ReadByteSeq(guid2[5]);
-    recvData.ReadByteSeq(guid1[7]);
-
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid1[3]);
-    recvData.ReadByteSeq(guid2[3]);
-    recvData.ReadByteSeq(guid1[1]);
-    recvData.ReadByteSeq(guid1[4]);
-    recvData.ReadByteSeq(guid2[6]);
-    recvData.ReadByteSeq(guid2[2]);
-    recvData.ReadByteSeq(guid2[2]);
-
-    recvData >> unk2;
+    recvData.readPackGUID(guid2);
+    recvData.readPackGUID(guid1);
 }
 
 void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket & p_Packet)
@@ -870,8 +805,6 @@ void WorldSession::HandleGroupEveryoneIsAssistantOpcode(WorldPacket & p_Packet)
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSISTANT_LEADER");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -879,34 +812,19 @@ void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket& recvData)
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    ObjectGuid guid;
-    bool apply;
+    uint64 guid;
     uint8 unk = 0;
+
     recvData >> unk;
-    guid[0] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    apply = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 6, 3, 2, 5, 7, 1, 0, 4 };
-    recvData.ReadBytesSeq(guid, byteOrder);
+    recvData.readPackGUID(guid);
+    bool apply = recvData.ReadBit();
 
     group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
-
     group->SendUpdate();
 }
 
 void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSIGNMENT");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -916,25 +834,13 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
         return;
 
     uint8 assignment, unk;
-    bool apply;
-    ObjectGuid guid;
+    uint64 guid;
 
-    recvData >> assignment >> unk;
-
-    guid[0] = recvData.ReadBit();
-    apply = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
+    recvData >> unk >> assignment;
+    recvData.readPackGUID(guid);
+    bool apply = recvData.ReadBit();
 
     recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 5, 4, 7, 6, 3, 0, 1, 2 };
-    recvData.ReadBytesSeq(guid, byteOrder);
 
     switch (assignment)
     {
@@ -954,8 +860,6 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DO_READY_CHECK");
-
     uint8 l_PartyIndex;
     p_RecvData >> l_PartyIndex;
 
@@ -984,14 +888,10 @@ void WorldSession::HandleRaidLeaderReadyCheck(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_READY_CHECK_RESPONSE");
-
-    uint64 l_PartyGUID;
     uint8 l_PartyIndex;
     bool l_IsIsReady;
 
     p_RecvData >> l_PartyIndex;
-    p_RecvData.readPackGUID(l_PartyGUID);
     l_IsIsReady = p_RecvData.ReadBit();
 
     Group* l_Group = GetPlayer()->GetGroup();
@@ -1022,410 +922,186 @@ void WorldSession::HandleRaidConfirmReadyCheck(WorldPacket& p_RecvData)
     }
 }
 
-void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint16 p_Mask, bool p_FullUpdate)
+void WorldSession::BuildPartyMemberStatsChangedPacket(Player* p_Player, WorldPacket* p_Data, uint32 p_Mask, bool p_Ennemy /*= false*/)
 {
     assert(p_Player && p_Data);
 
-    if (p_FullUpdate)
+    uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
+
+    if (p_Player)
     {
-        uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
+        l_PlayerStatus |= MEMBER_STATUS_ONLINE;
 
-        if (p_Player)
+        if (p_Player->IsPvP())
+            l_PlayerStatus |= MEMBER_STATUS_PVP;
+
+        if (p_Player->isDead())
+            l_PlayerStatus |= MEMBER_STATUS_DEAD;
+
+        if (p_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            l_PlayerStatus |= MEMBER_STATUS_GHOST;
+
+        if (p_Player->isAFK())
+            l_PlayerStatus |= MEMBER_STATUS_AFK;
+
+        if (p_Player->isDND())
+            l_PlayerStatus |= MEMBER_STATUS_DND;
+    }
+
+    p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 1024);
+
+    p_Data->WriteBit(p_Ennemy);                  ///< ForEnemy
+    p_Data->FlushBits();
+    p_Data->appendPackGUID(p_Player->GetGUID());
+    *p_Data << uint8(1);                        ///< Same realms ?
+    *p_Data << uint8(0);                        ///< Unk, maybe "instance" status
+    *p_Data << uint16(l_PlayerStatus);
+    *p_Data << uint8(p_Player->getPowerType());
+    *p_Data << uint16(0);
+    *p_Data << uint32(p_Player->GetHealth());
+    *p_Data << uint32(p_Player->GetMaxHealth());
+    *p_Data << uint16(p_Player->GetPower(p_Player->getPowerType()));
+    *p_Data << uint16(p_Player->GetMaxPower(p_Player->getPowerType()));
+    *p_Data << uint16(p_Player->getLevel());
+    *p_Data << uint16(p_Player->GetSpecializationId(p_Player->GetActiveSpec()));
+    *p_Data << uint16(p_Player->GetZoneId());
+    *p_Data << uint16(0);
+    *p_Data << uint32(0);
+    *p_Data << uint16(p_Player->GetPositionX());
+    *p_Data << uint16(p_Player->GetPositionY());
+    *p_Data << uint16(p_Player->GetPositionZ());
+    *p_Data << uint32(0);
+
+    uint8 l_AuraCount = 0;
+    size_t l_AuraPos = p_Data->wpos();
+    *p_Data << uint32(l_AuraCount);
+
+    *p_Data << uint32(p_Player->GetPhaseMask());
+    *p_Data << uint32(0);
+    p_Data->appendPackGUID(0);
+
+    if (p_Player->GetVisibleAuras()->size())
+    {
+        uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
+
+        for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
         {
-            l_PlayerStatus |= MEMBER_STATUS_ONLINE;
+            if (l_AuraMask & (uint64(1) << l_AuraIT))
+            {
+                AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
+                l_AuraCount++;
 
-            if (p_Player->IsPvP())
-                l_PlayerStatus |= MEMBER_STATUS_PVP;
+                if (!l_AuraApplication)
+                {
+                    *p_Data << uint32(0);
+                    *p_Data << uint8(0);
+                    *p_Data << uint32(0);
+                    *p_Data << uint32(0);
+                    continue;
+                }
 
-            if (p_Player->isDead())
-                l_PlayerStatus |= MEMBER_STATUS_DEAD;
+                uint32 l_EffectCount = 0;
 
-            if (p_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-                l_PlayerStatus |= MEMBER_STATUS_GHOST;
+                if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                {
+                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    {
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            l_EffectCount++;
+                    }
+                }
 
-            if (p_Player->isAFK())
-                l_PlayerStatus |= MEMBER_STATUS_AFK;
+                *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
+                *p_Data << uint8(l_AuraApplication->GetFlags());
+                *p_Data << uint32(0);
+                *p_Data << uint32(l_EffectCount);
 
-            if (p_Player->isDND())
-                l_PlayerStatus |= MEMBER_STATUS_DND;
+                if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                {
+                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    {
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            *p_Data << float(l_Effect->GetAmount());
+                    }
+                }
+            }
         }
 
-        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_FULL, 200);
+        p_Data->put(l_AuraPos, l_AuraCount);
+    }
 
-        p_Data->WriteBit(false);                    ///< ForEnemy
+    if (p_Data->WriteBit(p_Player->GetPet() != 0))
+    {
+        Pet* l_Pet = p_Player->GetPet();
+
         p_Data->FlushBits();
-        p_Data->appendPackGUID(p_Player->GetGUID());
-        *p_Data << uint8(1);                        ///< Same realms ?
-        *p_Data << uint8(0);                        ///< Unk, maybe "instance" status
-        *p_Data << uint16(l_PlayerStatus);
-        *p_Data << uint8(p_Player->getPowerType());
-        *p_Data << uint16(0);
-        *p_Data << uint32(p_Player->GetHealth());
-        *p_Data << uint32(p_Player->GetMaxHealth());
-        *p_Data << uint16(p_Player->GetPower(p_Player->getPowerType()));
-        *p_Data << uint16(p_Player->GetMaxPower(p_Player->getPowerType()));
-        *p_Data << uint16(p_Player->getLevel());
-        *p_Data << uint16(p_Player->GetSpecializationId(p_Player->GetActiveSpec()));
-        *p_Data << uint16(p_Player->GetZoneId());
-        *p_Data << uint16(0);
-        *p_Data << uint32(0);
-        *p_Data << uint16(p_Player->GetPositionX());
-        *p_Data << uint16(p_Player->GetPositionY());
-        *p_Data << uint16(p_Player->GetPositionZ());
-        *p_Data << uint32(0);
+        p_Data->appendPackGUID(l_Pet->GetGUID());
+        *p_Data << uint16(l_Pet->GetDisplayId());
+        *p_Data << uint32(l_Pet->GetHealth());
+        *p_Data << uint32(l_Pet->GetMaxHealth());
 
-        uint8 l_AuraCount = 0;
-        size_t l_AuraPos = p_Data->wpos();
-        *p_Data << uint32(l_AuraCount);
+        uint8 l_PetAuraCount = 0;
+        size_t l_PetAuraPos = p_Data->wpos();
+        *p_Data << uint32(l_PetAuraCount);
 
-        *p_Data << uint32(0);
-        *p_Data << uint32(0);
-        p_Data->appendPackGUID(0);
+        uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
 
-        if (p_Player->GetVisibleAuras()->size())
+        for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
         {
-            uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
-
-            for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
+            if (l_AuraMask & (uint64(1) << l_AuraIT))
             {
-                if (l_AuraMask & (uint64(1) << l_AuraIT))
+                AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
+                l_PetAuraCount++;
+
+                if (!l_AuraApplication)
                 {
-                    AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
-                    l_AuraCount++;
-
-                    if (!l_AuraApplication)
-                    {
-                        *p_Data << uint32(0);
-                        *p_Data << uint8(0);
-                        *p_Data << uint32(0);
-                        *p_Data << uint32(0);
-                        continue;
-                    }
-
-                    uint32 l_EffectCount = 0;
-
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                l_EffectCount++;
-
-                    *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
-                    *p_Data << uint8(l_AuraApplication->GetFlags());
                     *p_Data << uint32(0);
-                    *p_Data << uint32(l_EffectCount);
+                    *p_Data << uint8(0);
+                    *p_Data << uint32(0);
+                    *p_Data << uint32(0);
+                    continue;
+                }
 
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                *p_Data << float(l_Effect->GetAmount());
+                uint32 l_EffectCount = 0;
+
+                if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                {
+                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    {
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            l_EffectCount++;
+                    }
+                }
+
+                *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
+                *p_Data << uint8(l_AuraApplication->GetFlags());
+                *p_Data << uint32(0);
+                *p_Data << uint32(l_EffectCount);
+
+                if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+                {
+                    for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
+                    {
+                        if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
+                            *p_Data << float(l_Effect->GetAmount());
+                    }
                 }
             }
-
-            p_Data->put(l_AuraPos, l_AuraCount);
         }
 
-        if (p_Data->WriteBit(p_Player->GetPet() != 0))
-        {
-            Pet * l_Pet = p_Player->GetPet();
+        p_Data->put(l_PetAuraPos, l_PetAuraCount);
+        p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
 
-            p_Data->FlushBits();
-            p_Data->appendPackGUID(l_Pet->GetGUID());
-            *p_Data << uint16(l_Pet->GetDisplayId());
-            *p_Data << uint32(l_Pet->GetHealth());
-            *p_Data << uint32(l_Pet->GetMaxHealth());
-
-            uint8 l_PetAuraCount = 0;
-            size_t l_PetAuraPos = p_Data->wpos();
-            *p_Data << uint32(l_PetAuraCount);
-
-            uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
-
-            for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
-            {
-                if (l_AuraMask & (uint64(1) << l_AuraIT))
-                {
-                    AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
-                    l_PetAuraCount++;
-
-                    if (!l_AuraApplication)
-                    {
-                        *p_Data << uint32(0);
-                        *p_Data << uint8(0);
-                        *p_Data << uint32(0);
-                        *p_Data << uint32(0);
-                        continue;
-                    }
-
-                    uint32 l_EffectCount = 0;
-
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                l_EffectCount++;
-
-                    *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
-                    *p_Data << uint8(l_AuraApplication->GetFlags());
-                    *p_Data << uint32(0);
-                    *p_Data << uint32(l_EffectCount);
-
-                    if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                        for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                            if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                *p_Data << float(l_Effect->GetAmount());
-                }
-            }
-
-            p_Data->put(l_PetAuraPos, l_PetAuraCount);
-            p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
-
-            if (l_Pet->GetName())
-                p_Data->WriteString(l_Pet->GetName());
-        }
-        else
-            p_Data->FlushBits();
+        if (l_Pet->GetName())
+            p_Data->WriteString(l_Pet->GetName());
     }
     else
-    {
-        uint16 l_PlayerStatus = MEMBER_STATUS_OFFLINE;
-
-        if (p_Player)
-        {
-            l_PlayerStatus |= MEMBER_STATUS_ONLINE;
-
-            if (p_Player->IsPvP())
-                l_PlayerStatus |= MEMBER_STATUS_PVP;
-
-            if (p_Player->isDead())
-                l_PlayerStatus |= MEMBER_STATUS_DEAD;
-
-            if (p_Player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-                l_PlayerStatus |= MEMBER_STATUS_GHOST;
-
-            if (p_Player->isAFK())
-                l_PlayerStatus |= MEMBER_STATUS_AFK;
-
-            if (p_Player->isDND())
-                l_PlayerStatus |= MEMBER_STATUS_DND;
-        }
-
-        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)                // if update power type, update current/max power also
-            p_Mask |= (GROUP_UPDATE_FLAG_CUR_POWER | GROUP_UPDATE_FLAG_MAX_POWER | GROUP_UPDATE_FLAG_SPECIALISATION);
-
-        if (p_Mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)            // same for pets
-            p_Mask |= (GROUP_UPDATE_FLAG_PET_CUR_POWER | GROUP_UPDATE_FLAG_PET_MAX_POWER);
-
-        Pet* pet = NULL;
-        if (!p_Player)
-            p_Mask &= ~GROUP_UPDATE_FULL;
-        else
-        {
-            pet = p_Player->GetPet();
-
-            if (!pet)
-                p_Mask &= ~GROUP_UPDATE_PET;
-        }
-
-        bool l_PetInfo = p_Mask & (GROUP_UPDATE_FLAG_PET_GUID | GROUP_UPDATE_FLAG_PET_NAME | GROUP_UPDATE_FLAG_PET_MODEL_ID | GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS);
-
-        p_Data->Initialize(SMSG_PARTY_MEMBER_STATE_PARTIAL, 200);
-
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MOP_UNK);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_STATUS);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE);
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_CUR_HP);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MAX_HP);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_CUR_POWER);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_MAX_POWER);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_LEVEL);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_SPECIALISATION);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_ZONE);
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_POSITION);
-        p_Data->WriteBit(false);
-        p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_AURAS);
-        p_Data->WriteBit(l_PetInfo);
-        p_Data->WriteBit(false);
         p_Data->FlushBits();
-
-        p_Data->appendPackGUID(p_Player->GetGUID());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_MOP_UNK)
-        {
-            *p_Data << uint8(1); // Same realms ?
-            *p_Data << uint8(0); // Unk, maybe "instance" status
-        }
-
-        if (p_Mask & GROUP_UPDATE_FLAG_STATUS)
-            *p_Data << uint16(l_PlayerStatus);
-
-        if (p_Mask & GROUP_UPDATE_FLAG_POWER_TYPE)
-            *p_Data << uint8(p_Player->getPowerType());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_CUR_HP)
-            *p_Data << uint32(p_Player->GetHealth());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_MAX_HP)
-            *p_Data << uint32(p_Player->GetMaxHealth());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_CUR_POWER)
-            *p_Data << uint16(p_Player->GetPower(p_Player->getPowerType()));
-
-        if (p_Mask & GROUP_UPDATE_FLAG_MAX_POWER)
-            *p_Data << uint16(p_Player->GetMaxPower(p_Player->getPowerType()));
-
-        if (p_Mask & GROUP_UPDATE_FLAG_LEVEL)
-            *p_Data << uint16(p_Player->getLevel());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_SPECIALISATION)
-            *p_Data << uint16(p_Player->GetSpecializationId(p_Player->GetActiveSpec()));
-
-        if (p_Mask & GROUP_UPDATE_FLAG_ZONE)
-            *p_Data << uint16(p_Player->GetZoneId());
-
-        if (p_Mask & GROUP_UPDATE_FLAG_POSITION)
-        {
-            *p_Data << uint16(p_Player->GetPositionX());
-            *p_Data << uint16(p_Player->GetPositionY());
-            *p_Data << uint16(p_Player->GetPositionZ());
-        }
-
-        if (p_Mask & GROUP_UPDATE_FLAG_AURAS)
-        {
-            uint8 l_AuraCount = 0;
-            size_t l_AuraPos = p_Data->wpos();
-            *p_Data << uint32(l_AuraCount);
-
-            if (p_Player->GetVisibleAuras()->size())
-            {
-                uint64 l_AuraMask = p_Player->GetAuraUpdateMaskForRaid();
-
-                for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
-                {
-                    if (l_AuraMask & (uint64(1) << l_AuraIT))
-                    {
-                        AuraApplication const* l_AuraApplication = p_Player->GetVisibleAura(l_AuraIT);
-                        l_AuraCount++;
-
-                        if (!l_AuraApplication)
-                        {
-                            *p_Data << uint32(0);
-                            *p_Data << uint8(0);
-                            *p_Data << uint32(0);
-                            *p_Data << uint32(0);
-                            continue;
-                        }
-
-                        uint32 l_EffectCount = 0;
-
-                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                    l_EffectCount++;
-
-                        *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
-                        *p_Data << uint8(l_AuraApplication->GetFlags());
-                        *p_Data << uint32(0);
-                        *p_Data << uint32(l_EffectCount);
-
-                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                    *p_Data << float(l_Effect->GetAmount());
-                    }
-                }
-                p_Data->put(l_AuraPos, l_AuraCount);
-            }
-        }
-
-        if (l_PetInfo)
-        {
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_GUID);
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_NAME);
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_MODEL_ID);
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_CUR_HP);
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_MAX_HP);
-            p_Data->WriteBit(p_Mask & GROUP_UPDATE_FLAG_PET_AURAS);
-            p_Data->FlushBits();
-
-            Pet * l_Pet = p_Player->GetPet();
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_GUID)
-                p_Data->appendPackGUID(l_Pet->GetGUID());
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_NAME)
-            {
-                p_Data->WriteBits(l_Pet->GetName() ? strlen(l_Pet->GetName()) : 0, 8);
-
-                if (l_Pet->GetName())
-                    p_Data->WriteString(l_Pet->GetName());
-            }
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
-                *p_Data << uint16(l_Pet->GetDisplayId());
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
-                *p_Data << uint32(l_Pet->GetHealth());
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
-                *p_Data << uint32(l_Pet->GetMaxHealth());
-
-            if (p_Mask & GROUP_UPDATE_FLAG_PET_AURAS)
-            {
-                uint8 l_PetAuraCount = 0;
-                size_t l_PetAuraPos = p_Data->wpos();
-                *p_Data << uint32(l_PetAuraCount);
-
-                uint64 l_AuraMask = l_Pet->GetAuraUpdateMaskForRaid();
-
-                for (uint32 l_AuraIT = 0; l_AuraIT < MAX_AURAS; ++l_AuraIT)
-                {
-                    if (l_AuraMask & (uint64(1) << l_AuraIT))
-                    {
-                        AuraApplication const* l_AuraApplication = l_Pet->GetVisibleAura(l_AuraIT);
-                        l_PetAuraCount++;
-
-                        if (!l_AuraApplication)
-                        {
-                            *p_Data << uint32(0);
-                            *p_Data << uint8(0);
-                            *p_Data << uint32(0);
-                            *p_Data << uint32(0);
-                            continue;
-                        }
-
-                        uint32 l_EffectCount = 0;
-
-                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                    l_EffectCount++;
-
-                        *p_Data << uint32(l_AuraApplication->GetBase()->GetId());
-                        *p_Data << uint8(l_AuraApplication->GetFlags());
-                        *p_Data << uint32(0);
-                        *p_Data << uint32(l_EffectCount);
-
-                        if (l_AuraApplication->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-                            for (uint32 l_Y = 0; l_Y < MAX_SPELL_EFFECTS; ++l_Y)
-                                if (constAuraEffectPtr l_Effect = l_AuraApplication->GetBase()->GetEffect(l_Y))
-                                    *p_Data << float(l_Effect->GetAmount());
-                    }
-                }
-                p_Data->put(l_PetAuraPos, l_PetAuraCount);
-            }
-        }
-    }
 }
 
 /*this procedure handles clients CMSG_REQUEST_PARTY_MEMBER_STATS request*/
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_REQUEST_PARTY_MEMBER_STATS");
-
     ObjectGuid Guid;
     recvData.read_skip<uint8>();
 
@@ -1455,7 +1131,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket& recvData)
     }
 
     WorldPacket data;
-    BuildPartyMemberStatsChangedPacket(player, &data, mask, true);
+    BuildPartyMemberStatsChangedPacket(player, &data, mask);
     SendPacket(&data);
 }
 
@@ -1467,8 +1143,6 @@ void WorldSession::HandleRequestRaidInfoOpcode(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_OPT_OUT_OF_LOOT");
-
     bool l_OptOutOfLoot = p_RecvData.ReadBit();
 
     // ignore if player not loaded
@@ -1485,8 +1159,6 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRolePollBegin(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ROLE_POLL_BEGIN");
-
     uint8 l_PartyIndex = 0;
 
     p_RecvData >> l_PartyIndex;
@@ -1505,8 +1177,6 @@ void WorldSession::HandleRolePollBegin(WorldPacket& p_RecvData)
 
 void WorldSession::HandleRequestJoinUpdates(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_REQUEST_JOIN_UPDATES");
-
     uint8 unk = 0;
     recvData >> unk;
 
@@ -1525,7 +1195,7 @@ void WorldSession::HandleClearRaidMarkerOpcode(WorldPacket& p_RecvData)
     if (!l_Group)
         return;
 
-    if (l_MarkerID < 5)
+    if (l_MarkerID < eRaidMarkersMisc::MaxRaidMarkers)
         l_Group->RemoveRaidMarker(l_MarkerID);
     else
         l_Group->RemoveAllRaidMarkers();

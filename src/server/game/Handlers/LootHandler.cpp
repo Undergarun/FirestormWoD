@@ -35,8 +35,6 @@
 
 void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_ITEM");
-
     Loot* l_Loot = NULL;
 
     uint64 l_LootGuid = m_Player->GetLootGUID();
@@ -102,7 +100,8 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 
             bool l_IsLootAllowed = l_Creature && l_Creature->isAlive() == (m_Player->getClass() == CLASS_ROGUE && l_Creature->lootForPickPocketed);
 
-            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125048)))
+            /// Check for Glyph of Fetch too
+            if (!l_IsLootAllowed || (!l_Creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050)))
             {
                 m_Player->SendLootRelease(l_LootGuid);
                 return;
@@ -134,8 +133,6 @@ void WorldSession::HandleLootItemOpcode(WorldPacket & p_RecvData)
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
-
     Player* player = GetPlayer();
 
     uint64 guid = player->GetLootGUID();
@@ -162,7 +159,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         {
             Corpse* bones = ObjectAccessor::GetCorpse(*player, guid);
 
-            if (bones && bones->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+            /// Check for Glyph of Fetch too
+            if (bones && (bones->IsWithinDistInMap(player, INTERACTION_DISTANCE) || m_Player->HasSpell(125050)))
             {
                 masterLoot = &bones->loot;
                 shareMoney = false;
@@ -184,7 +182,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
         {
             Creature* creature = player->GetMap()->GetCreature(guid);
             bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-            if (lootAllowed && creature->IsWithinDistInMap(player, INTERACTION_DISTANCE))
+
+            /// Check for Glyph of Fetch too
+            if (lootAllowed && (creature->IsWithinDistInMap(player, INTERACTION_DISTANCE) || m_Player->HasSpell(125050)))
             {
                 masterLoot = &creature->loot;
                 if (creature->isAlive())
@@ -241,20 +241,25 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 if (player->IsWithinDistInMap(member, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                     playersNear.push_back(member);
             }
-             /*@todo: check me for 5.0.5*/
-            uint32 goldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
 
-            loot->NotifyMoneyRemoved(goldPerPlayer);
+            // Gold already has been divided in Unit::Kill & Loot::GenerateMoneyLoot for raids
+            bool l_IsRaid = player->GetMap()->IsRaid();
+            uint32 l_GoldPerPlayer = loot->Gold;
+            if (!l_IsRaid)
+                l_GoldPerPlayer = uint32((loot->Gold) / (playersNear.size()));
+
+            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney(goldPerPlayer);
-                (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
+                (*i)->ModifyMoney(l_GoldPerPlayer);
+                (*i)->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, l_GoldPerPlayer);
 
                 if ((*i)->HasAuraType(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT))
                 {
                     if (Guild* guild = sGuildMgr->GetGuildById((*i)->GetGuildId()))
                     {
-                        uint64 guildGold = uint64(CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
+                        uint64 guildGold = uint64(CalculatePct(l_GoldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)));
                         if (guildGold > MAX_MONEY_AMOUNT)
                             guildGold = MAX_MONEY_AMOUNT;
 
@@ -269,7 +274,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
-                data << uint32(goldPerPlayer);
+                data << uint32(l_GoldPerPlayer);
                 data.WriteBit(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
                 data.FlushBits();
                 (*i)->GetSession()->SendPacket(&data);
@@ -298,7 +303,8 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 }
             }
 
-            loot->NotifyMoneyRemoved(loot->Gold);
+            loot->NotifyMoneyRemoved(linkedLoots.size() > 1);
+
             WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
             data << uint32(loot->Gold);
             data.WriteBit(1);   // "You loot..."
@@ -310,29 +316,24 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootOpcode(WorldPacket& p_RecvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
+    uint64 l_UnitGuid = 0;
+    p_RecvData.readPackGUID(l_UnitGuid);
 
-    uint64 l_UnitGuid;
-
-    recvData.readPackGUID(l_UnitGuid);
-
-    // Check possible cheat
+    /// Check possible cheat
     if (!m_Player->isAlive())
         return;
 
-    GetPlayer()->SendLoot(l_UnitGuid, LOOT_CORPSE);
+    m_Player->SendLoot(l_UnitGuid, LOOT_CORPSE);
 
-    // interrupt cast
-    if (GetPlayer()->IsNonMeleeSpellCasted(false))
-        GetPlayer()->InterruptNonMeleeSpells(false);
+    /// Interrupt cast
+    if (m_Player->IsNonMeleeSpellCasted(false))
+        m_Player->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_RELEASE");
-
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
     uint64 l_ObjectGuid;
@@ -409,7 +410,8 @@ void WorldSession::DoLootRelease(uint64 lguid)
     else if (IS_CORPSE_GUID(lguid))        // ONLY remove insignia at BG
     {
         Corpse* corpse = ObjectAccessor::GetCorpse(*player, lguid);
-        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+        /// Check for Glyph of Fetch too
+        if (!corpse || !corpse->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
             return;
 
         loot = &corpse->loot;
@@ -452,7 +454,9 @@ void WorldSession::DoLootRelease(uint64 lguid)
         Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
         bool lootAllowed = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
-        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE))
+
+        /// Check for Glyph of Fetch too
+        if (!lootAllowed || !creature->IsWithinDistInMap(m_Player, INTERACTION_DISTANCE) && !m_Player->HasSpell(125050))
             return;
 
         loot = &creature->loot;
@@ -561,7 +565,7 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
         l_Loot = &l_GameObject->loot;
     }
 
-    if (!l_Loot || l_Loot->alreadyAskedForRoll)
+    if (!l_Loot)
         return;
 
     if (l_LootListID >= l_Loot->Items.size() + l_Loot->QuestItems.size())
@@ -571,7 +575,10 @@ void WorldSession::HandleDoMasterLootRollOpcode(WorldPacket & p_Packet)
     }
 
     LootItem& l_Item = l_LootListID >= l_Loot->Items.size() ? l_Loot->QuestItems[l_LootListID - l_Loot->Items.size()] : l_Loot->Items[l_LootListID];
-    l_Loot->alreadyAskedForRoll = true;
+    if (l_Item.alreadyAskedForRoll)
+        return;
+
+    l_Item.alreadyAskedForRoll = true;
 
     m_Player->GetGroup()->DoRollForAllMembers(l_ObjectGUID, l_LootListID, m_Player->GetMapId(), l_Loot, l_Item, m_Player);
 }
@@ -602,12 +609,9 @@ void WorldSession::HandleMasterLootItemOpcode(WorldPacket & p_Packet)
         return;
     }
 
-    Player * l_Target = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(l_TargetGUID, 0, HIGHGUID_PLAYER));
-
+    Player * l_Target = ObjectAccessor::FindPlayer(l_TargetGUID);
     if (!l_Target)
         return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_MASTER_LOOT_ITEM, 0x02A3) Target = [%s].", l_Target->GetName());
 
     for (uint32 l_I = 0; l_I < l_LootCount; ++l_I)
     {

@@ -37,13 +37,14 @@ class guild_commandscript: public CommandScript
         {
             static ChatCommand guildCommandTable[] =
             {
-                { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           "", NULL },
-                { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           "", NULL },
-                { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           "", NULL },
-                { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         "", NULL },
-                { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             "", NULL },
-                { "rename",         SEC_GAMEMASTER,     true,  &HandleGuildRenameCommand,           "", NULL },
-                { NULL,             0,                  false, NULL,                                "", NULL }
+                { "create",             SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,            "", NULL },
+                { "delete",             SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,            "", NULL },
+                { "invite",             SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,            "", NULL },
+                { "uninvite",           SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,          "", NULL },
+                { "rank",               SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,              "", NULL },
+                { "rename",             SEC_GAMEMASTER,     true,  &HandleGuildRenameCommand,            "", NULL },
+                { "challengecomplete",  SEC_ADMINISTRATOR,  true,  &HandleGuildChallengeCompleteCommand,   "", NULL },
+                { NULL,                 0,                  false, NULL,                                 "", NULL }
             };
             static ChatCommand commandTable[] =
             {
@@ -196,12 +197,14 @@ class guild_commandscript: public CommandScript
 
         static bool HandleGuildRenameCommand(ChatHandler* handler, char const* _args)
         {
-            if (!*_args)
+            if (!*_args || !handler)
                 return false;
 
-            char *args = (char *)_args;
+            char* tailStr = *_args != '"' ? strtok(NULL, "") : (char*)_args;
+            if (!tailStr)
+                return false;
 
-            char const* oldGuildStr = handler->extractQuotedArg(args);
+            char const* oldGuildStr = handler->extractQuotedArg(tailStr);
             if (!oldGuildStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -241,6 +244,54 @@ class guild_commandscript: public CommandScript
 
             handler->PSendSysMessage(LANG_GUILD_RENAME_DONE, oldGuildStr, newGuildStr);
             return true;
+        }
+
+        static bool HandleGuildChallengeCompleteCommand(ChatHandler* handler, char const* args)
+        {
+            if (!*args)
+                return false;
+
+            char* x = strtok((char*)args, " ");
+
+            uint32 l_ChallengeType = (uint32)atoi(x);
+
+            WorldObject* target = handler->getSelectedObject();
+
+            Player* l_Player = target->ToPlayer();
+            if (!l_Player)
+                return false;
+
+            uint32 guildId = l_Player->GetGuildId();
+            if (!guildId)
+                return false;
+
+            Guild* targetGuild = sGuildMgr->GetGuildById(guildId);
+            if (!targetGuild)
+                return false;
+
+            switch (l_ChallengeType)
+            {
+                case CHALLENGE_NONE:
+                    break;
+                case CHALLENGE_DUNGEON:
+                    targetGuild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
+                    return true;
+                case CHALLENGE_SCENARIO:
+                    break;
+                case CHALLENGE_DUNGEON_CHALLENGE:
+                    targetGuild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                    return true;
+                case CHALLENGE_RAID:
+                    targetGuild->CompleteGuildChallenge(CHALLENGE_RAID);
+                    return true;
+                case CHALLENGE_RATED_BG:
+                    targetGuild->CompleteGuildChallenge(CHALLENGE_RATED_BG);
+                    return true;
+                default:
+                    break;
+            }
+
+            return false;
         }
 };
 

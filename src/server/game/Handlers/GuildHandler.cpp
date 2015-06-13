@@ -67,12 +67,6 @@ void WorldSession::HandleQueryGuildInfoOpcode(WorldPacket& p_Packet)
 
 void WorldSession::HandleGuildInviteByNameOpcode(WorldPacket& p_Packet)
 {
-    time_t l_Now = time(NULL);
-    if (l_Now - m_TimeLastGuildInviteCommand < 5)
-        return;
-    else
-       m_TimeLastGuildInviteCommand = l_Now;
-
     uint32 l_NameLenght = 0;
     std::string l_Name = "";
 
@@ -307,8 +301,7 @@ void WorldSession::HandleGuildBankRemainingWithdrawMoneyQueryOpcode(WorldPacket&
 
 void WorldSession::HandleGuildPermissionsQueryOpcode(WorldPacket& /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_PERMISSIONS_QUERY)");
-if (Guild* l_Guild = _GetPlayerGuild(this))
+    if (Guild* l_Guild = _GetPlayerGuild(this))
         l_Guild->SendPermissions(this);
 }
 
@@ -335,7 +328,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket& p_Packet)
 {
     uint64 l_Banker = 0;
     uint8 l_Tab = 0;
-    bool l_FullUpdate = false;;
+    bool l_FullUpdate = false;
 
     p_Packet.readPackGUID(l_Banker);
     p_Packet >> l_Tab;
@@ -600,19 +593,20 @@ void WorldSession::HandleRequestGuildRewardsListOpcode(WorldPacket& p_Packet)
     {
         std::vector<GuildReward> const& l_Rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket l_Data(SMSG_GUILD_REWARDS_LIST);
+        WorldPacket l_Data(SMSG_GUILD_REWARDS_LIST, 5 * 1024);
 
         l_Data << uint32(time(NULL));
         l_Data << uint32(l_Rewards.size());
 
         for (uint32 l_Iter = 0; l_Iter < l_Rewards.size(); l_Iter++)
         {
-            l_Data << uint32(l_Rewards[l_Iter].Entry);
-            l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);
-            l_Data << uint32(l_Rewards[l_Iter].Racemask);
-            l_Data << uint32(0);
-            l_Data << uint32(l_Rewards[l_Iter].Standing);
-            l_Data << uint64(l_Rewards[l_Iter].Price);
+            l_Data << uint32(l_Rewards[l_Iter].Entry);                      ///<
+            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(l_Rewards[l_Iter].AchievementId > 0 ? 1 : 0);  ///< AchievementsRequired
+            l_Data << uint32(l_Rewards[l_Iter].Racemask);                   ///< RaceMask
+            l_Data << uint32(0);                                            ///<
+            l_Data << uint32(l_Rewards[l_Iter].Standing);                   ///< MinGuildRep
+            l_Data << uint64(l_Rewards[l_Iter].Price);                      ///< Cost
 
             if (l_Rewards[l_Iter].AchievementId)
                 l_Data << uint32(l_Rewards[l_Iter].AchievementId);
@@ -676,7 +670,18 @@ void WorldSession::HandleGuildChallengeUpdateRequest(WorldPacket& /*p_RecvData*/
     WorldPacket l_Data(SMSG_GUILD_CHALLENGE_UPDATED, 5*6*4);
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
-        l_Data << uint32(0);
+    {
+        if (Player* l_Player = GetPlayer())
+        {
+            if (!l_Player->GetGuild())
+                l_Data << uint32(0);
+            else
+            {
+                int32 l_ChallengeAmount = l_Player->GetGuild()->GetChallengeCount(l_I);
+                l_Data << uint32(l_ChallengeAmount);
+            }
+        }
+    }
 
     for (uint8 l_I = 0; l_I < CHALLENGE_MAX; l_I++)
         l_Data << uint32(l_Reward[l_I].ChallengeCount);

@@ -23,7 +23,7 @@
 #include "Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -170,6 +170,28 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
         {
             m_FlagSpellForceTimer = 0; // reset timer.
             m_FlagDebuffState = 0;
+        }
+    }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < -1)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(726, 1556.93f, 333.19f, 1.56f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(726, 2136.87f, 180.76f, 43.65f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
         }
     }
 }
@@ -775,6 +797,7 @@ void BattlegroundTP::Reset()
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
     // For WorldState
     m_LastFlagCaptureTeam               = 0;
+    m_CheatersCheckTimer = 0;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
     if (m_BgCreatures[TP_SPIRIT_ALLIANCE])
@@ -796,8 +819,7 @@ void BattlegroundTP::EndBattleground(uint32 winner)
     // complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
-    
-    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_TP_MAX_TEAM_SCORE, GetOtherTeam(winner));
+
     Battleground::EndBattleground(winner);
 }
 

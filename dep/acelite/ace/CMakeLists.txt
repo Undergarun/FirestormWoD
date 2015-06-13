@@ -348,4 +348,6 @@ if( USE_COREPCH )
   add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
 endif()
 
+set_property(TARGET ace PROPERTY FOLDER "dep")
+
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

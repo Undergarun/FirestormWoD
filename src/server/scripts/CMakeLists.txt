@@ -39,6 +39,7 @@ if(SCRIPTS)
   include(Pandaria/CMakeLists.txt)
   include(PetBattle/CMakeLists.txt)
   include(Draenor/CMakeLists.txt)
+  include(Fun/CMakeLists.txt)
 endif()
 
 MACRO( auto_group ProjectDirectory ProjectSources )
@@ -159,6 +160,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Texts
   ${CMAKE_SOURCE_DIR}/src/server/game/Tickets
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
+  ${CMAKE_SOURCE_DIR}/src/server/game/Vignette
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden/Modules
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
@@ -166,6 +168,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
+  ${CURL_INCLUDE_DIR}
+  ${EASYJSON_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_library(scripts STATIC

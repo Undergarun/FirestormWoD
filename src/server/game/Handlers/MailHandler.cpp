@@ -231,12 +231,13 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             for (uint8 i = 0; i < l_AttachmentsCount; ++i)
             {
                 Item* item = items[i];
-                if (!AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+                bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+                if (l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
                 {
                     sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                     rc_account, "", 0, l_Target.c_str(),
                                     "GM %s (Account: %u) mail item: %s (Entry: %u Count: %u) to player: %s (Account: %u)",
-                                    GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount(), l_Target.c_str(), rc_account);
+                                    GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), item->GetEntry(), item->GetCount(), l_Target.c_str(), rc_account);
                 }
 
                 item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
@@ -250,15 +251,16 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
             }
 
             // if item send to character at another account, then apply item delivery delay
-            needItemDelay = m_Player->GetSession()->GetAccountId() != rc_account;
+            needItemDelay = GetAccountId() != rc_account;
         }
 
-        if (l_SendMoney > 0 && !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+        bool l_MustLog = !AccountMgr::IsPlayerAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE);
+        if (l_SendMoney > 0 && l_MustLog && GetAccountId() != rc_account) ///< It's useless to log self
         {
             //TODO: character guid
             sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                             rc_account, "", 0, l_Target.c_str(),
-                            "GM %s (Account: %u) mail money: %lu to player: %s (Account: %u)",
+                            "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
                             GetPlayerName().c_str(), GetAccountId(), l_SendMoney, l_Target.c_str(), rc_account);
         }
     }
@@ -268,8 +270,10 @@ void WorldSession::HandleSendMail(WorldPacket& p_Packet)
 
     // Guild Mail
     if (receive && receive->GetGuildId() && m_Player->GetGuildId())
+    {
         if (m_Player->HasAura(83951) && (m_Player->GetGuildId() == receive->GetGuildId()))
             deliver_delay = 0;
+    }
 
     // VIP Accounts receive mails instantly
     if (receive && receive->GetSession()->IsPremium())
@@ -465,7 +469,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& p_Packet)
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(),
                                 sender_accId, "", sender_guid, sender_name.c_str(),
                                 "GM %s (Account: %u) receive mail item: %s (Entry: %u Count: %u) and send COD money: %lu to player: %s (Account: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount(), l_Mail->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receive)
                 sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
@@ -554,17 +558,13 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
     Player* player = m_Player;
 
-    //load players mails, and mailed items
-    if (!player->m_mailsLoaded)
-        player->_LoadMail();
-
     // client can't work with packets > max int16 value
     const uint32 maxPacketSize = 32767;
 
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT);
+    WorldPacket l_Data(SMSG_MAIL_LIST_RESULT, 35 * 1024);
     ByteBuffer l_MailsBuffer;
 
     time_t cur_time = time(NULL);
@@ -618,23 +618,6 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
         l_MailsBuffer << uint32((*itr)->messageID);                         // Message ID
         l_MailsBuffer << uint8((*itr)->messageType);                        // Message Type
-
-        if ((*itr)->messageType == MAIL_NORMAL)
-        {
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.WriteBit(true);
-            l_MailsBuffer.FlushBits();
-
-            l_MailsBuffer << uint32(g_RealmID);
-            l_MailsBuffer << uint32(g_RealmID);
-        }
-        else
-        {
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.FlushBits();
-        }
-
         l_MailsBuffer << uint64((*itr)->COD);                               // COD
         l_MailsBuffer << uint32(0);                                         // Package.dbc ID ?
         l_MailsBuffer << uint32((*itr)->stationery);                        // stationery (Stationery.dbc)
@@ -651,13 +634,8 @@ void WorldSession::HandleGetMailList(WorldPacket& p_Packet)
 
             l_MailsBuffer << uint8(l_I);
             l_MailsBuffer << uint32(l_Item ? l_Item->GetGUIDLow() : 0);
-            l_MailsBuffer << uint32(l_Item ? l_Item->GetEntry() : 0);
-            l_MailsBuffer << uint32(l_Item ? l_Item->GetItemSuffixFactor() : 0);
-            l_MailsBuffer << int32(l_Item ? l_Item->GetItemRandomPropertyId() : 0);
 
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.WriteBit(false);
-            l_MailsBuffer.FlushBits();
+            Item::BuildDynamicItemDatas(l_MailsBuffer, l_Item);
 
             for (uint8 l_J = 0; l_J < MAX_INSPECTED_ENCHANTMENT_SLOT; ++l_J)
             {
@@ -773,10 +751,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & p_Packet)
 // TODO Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 {
-    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8);
-
-    if (!m_Player->m_mailsLoaded)
-        m_Player->_LoadMail();
+    WorldPacket l_Data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 400);
 
     if (m_Player->unReadMails > 0)
     {
@@ -804,22 +779,6 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
 
             uint64 l_Guid = MAKE_NEW_GUID(l_Mail->sender, 0, HIGHGUID_PLAYER);
             l_Data.appendPackGUID(l_Mail->messageType == MAIL_NORMAL ? l_Guid : 0);  // player guid
-
-            if (l_Mail->messageType == MAIL_NORMAL)
-            {
-                l_Data.WriteBit(true);
-                l_Data.WriteBit(true);
-                l_Data.FlushBits();
-
-                l_Data << uint32(g_RealmID);
-                l_Data << uint32(g_RealmID);
-            }
-            else
-            {
-                l_Data.WriteBit(false);
-                l_Data.WriteBit(false);
-                l_Data.FlushBits();
-            }
 
             l_Data << float(l_Mail->deliver_time - l_NowTime);
             l_Data << uint32(l_Mail->messageType != MAIL_NORMAL ? l_Mail->sender : 0);  // non-player entries

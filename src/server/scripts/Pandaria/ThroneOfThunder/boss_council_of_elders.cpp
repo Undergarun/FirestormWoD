@@ -503,7 +503,7 @@ class boss_king_malakk : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (!AllBossesDead(me))
@@ -539,7 +539,7 @@ class boss_king_malakk : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!firstPossessSwitched)
                 {
@@ -802,7 +802,7 @@ class boss_kazra_jin : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (!AllBossesDead(me))
@@ -848,7 +848,7 @@ class boss_kazra_jin : public CreatureScript
                     playerGuid = guid;
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (attacker == me)
                     return;
@@ -1226,7 +1226,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (!AllBossesDead(me))
@@ -1265,7 +1265,7 @@ class boss_sul_the_sandcrawler : public CreatureScript
                 Talk(urand(5, 6));
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!firstPossessSwitched)
                 {
@@ -1690,7 +1690,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                 events.ScheduleEvent(EVENT_BLESSED_LOA_SPIRIT_SUMMON, 10000);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (!firstPossessSwitched)
                 {
@@ -1763,7 +1763,7 @@ class boss_high_priestress_mar_li : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (!AllBossesDead(me))
@@ -2009,7 +2009,7 @@ class mob_living_sand : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+            void DamageTaken(Unit* /*attacker*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage > me->GetHealth())
                 {

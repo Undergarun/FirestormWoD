@@ -42,52 +42,46 @@ enum SpellCategories
     SPELLCATEGORY_DRINK            = 59,
 };
 
-//SpellFamilyFlags
+/// SpellFamilyFlags
 enum SpellFamilyFlag
 {
-    // SPELLFAMILYFLAG  = SpellFamilyFlags[0]
-    // SPELLFAMILYFLAG1 = SpellFamilyFlags[1]
-    // SPELLFAMILYFLAG2 = SpellFamilyFlags[2]
-
-    // Rogue
+    /// Rogue
     SPELLFAMILYFLAG_ROGUE_VANISH            = 0x00000800,
-    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,    // Vanish, Evasion, Sprint
-    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,    // Cold Blood, Shadowstep
-    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   // Kick
-    SPELLFAMILYFLAG1_ROGUE_DISMANTLE        = 0x00100000,   // Dismantle
-    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   // Blade Flurry
-    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   // Blade Flurry
+    SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT   = 0x00000860,   ///< Vanish, Evasion, Sprint
+    SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP = 0x00000240,   ///< Cold Blood, Shadowstep
+    SPELLFAMILYFLAG_ROGUE_KICK              = 0x00000010,   ///< Kick
+    SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY      = 0x40000000,   ///< Blade Flurry
+    SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY     = 0x00000800,   ///< Blade Flurry
 
-    // Warrior
+    /// Warrior
     SPELLFAMILYFLAG_WARRIOR_CHARGE          = 0x00000001,
     SPELLFAMILYFLAG_WARRIOR_SLAM            = 0x00200000,
     SPELLFAMILYFLAG_WARRIOR_EXECUTE         = 0x20000000,
     SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW = 0x04000000,
 
-    // Warlock
+    /// Warlock
     SPELLFAMILYFLAG_WARLOCK_LIFETAP         = 0x00040000,
 
-    // Druid
+    /// Druid
     SPELLFAMILYFLAG2_DRUID_STARFALL         = 0x00000100,
 
-    // Paladin
+    /// Paladin
     SPELLFAMILYFLAG1_PALADIN_DIVINESTORM    = 0x00020000,
 
-    // Shaman
+    /// Shaman
     SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK      = 0x80000000,
     SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM   = 0x00002000,
     SPELLFAMILYFLAG_SHAMAN_MANA_SPRING      = 0x00004000,
     SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH       = 0x00000004,
     SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA        = 0x28000000,
 
-    // Deathknight
+    /// Deathknight
     SPELLFAMILYFLAG_DK_DEATH_STRIKE         = 0x00000010,
     SPELLFAMILYFLAG_DK_DEATH_COIL           = 0x00002000,
 
-    // TODO: Figure out a more accurate name for the following familyflag(s)
-    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000,  // Seems to be linked to most totems and some totem effects
+    /// TODO: Figure out a more accurate name for the following familyflag(s)
+    SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000  ///< Seems to be linked to most totems and some totem effects
 };
-
 
 #define SPELL_LINKED_MAX_SPELLS  200000
 
@@ -98,7 +92,6 @@ enum SpellLinkedType
     SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_REMOVE   = 0,
 };
-
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
@@ -588,7 +581,7 @@ bool IsPrimaryProfessionSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY;
+    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID || skill == SKILL_ARCHAEOLOGY || skill == SKILL_WAY_OF_GRILL || skill == SKILL_WAY_OF_WOK || skill == SKILL_WAY_OF_POT || skill == SKILL_WAY_OF_STEAMER || skill == SKILL_WAY_OF_OVEN || skill == SKILL_WAY_OF_BREW;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
@@ -599,11 +592,10 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
 // spell diminishing returns
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto, bool triggered);
+DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
-int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const* spellproto);
-bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
+int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
 typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::map<uint32, std::set<MinorTalentEntry const*> > SpecializatioPerkMap;
@@ -614,6 +606,9 @@ typedef std::vector<std::list<uint32> > SpellPowerVector;
 typedef std::map<uint32, std::set<uint32>> AvaiableDifficultySpell;
 typedef std::map<std::pair<uint32, uint32>, uint32> DataStoreMapPair;
 typedef std::map<std::string, DataStoreMapPair> DatastoreDifficultyKey;
+
+using ItemSourceSkills = std::map<uint32, std::vector<uint32>>;
+using TradeSpellSkills = std::map<uint32, std::list<SkillLineAbilityEntry const*>>;
 
 class SpellMgr
 {
@@ -632,7 +627,6 @@ class SpellMgr
         // Spell difficulty
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
-        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
         SpellInfo const* GetSpellForDifficulty(uint32 p_SpellId, Difficulty p_Difficulty) const;
         SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
@@ -709,8 +703,8 @@ class SpellMgr
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
 
         // SpellInfo object management
-        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = NONE_DIFFICULTY) const;
-        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[NONE_DIFFICULTY].size(); }
+        SpellInfo const* GetSpellInfo(uint32 spellId, Difficulty difficulty = DifficultyNone) const;
+        uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap[DifficultyNone].size(); }
         std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         TalentsPlaceHoldersSpell GetTalentPlaceHoldersSpell() const { return mPlaceHolderSpells; }
@@ -733,6 +727,20 @@ class SpellMgr
                 return 0;
 
             return l_Itr2->second;
+        }
+
+        std::vector<uint32> const* GetItemSourceSkills(uint32 p_ItemEntry) const
+        {
+            auto l_Itr = m_ItemSourceSkills.find(p_ItemEntry);
+            if (l_Itr == m_ItemSourceSkills.end())
+                return nullptr;
+
+            return &l_Itr->second;
+        }
+
+        std::list<SkillLineAbilityEntry const*> const& GetTradeSpellFromSkill(uint32 p_Skill) const
+        {
+            return m_SkillTradeSpells.at(p_Skill);
         }
 
     // Modifiers
@@ -800,7 +808,7 @@ class SpellMgr
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
-        SpellInfoMap               mSpellInfoMap[MAX_DIFFICULTY];
+        SpellInfoMap               mSpellInfoMap[Difficulty::MaxDifficulties];
         SpellClassList             mSpellClassInfo;
         SpecializatioPerkMap       mSpecializationPerks;
         TalentSpellSet             mTalentSpellInfo;
@@ -810,8 +818,12 @@ class SpellMgr
         ItemUpgradeDatas           mItemUpgradeDatas;
         AvaiableDifficultySpell    mAvaiableDifficultyBySpell;
         DatastoreDifficultyKey     mDatastoreSpellDifficultyKey;
+        ItemSourceSkills           m_ItemSourceSkills;
+        TradeSpellSkills           m_SkillTradeSpells;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()
+
+bool IsCCSpell(SpellInfo const* p_SpellProto);
 
 #endif

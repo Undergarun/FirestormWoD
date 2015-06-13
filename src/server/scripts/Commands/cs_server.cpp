@@ -102,36 +102,34 @@ public:
         return true;
     }
 
-    static bool HandleServerInfoCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleServerInfoCommand(ChatHandler* p_Handler, char const* /*args*/)
     {
-        uint32 activeClientsNum     = sWorld->GetActiveSessionCount();
-        uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
-        uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
-        uint32 maxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
-        std::string uptime          = secsToTimeString(sWorld->GetUptime());
-        uint32 updateTime           = sWorld->GetUpdateTime();
+        uint32 l_ActiveClientsNum     = sWorld->GetActiveSessionCount();
+        uint32 l_QueuedClientsNum     = sWorld->GetQueuedSessionCount();
+        uint32 l_MaxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
+        uint32 l_MaxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
+        std::string l_Uptime          = secsToTimeString(sWorld->GetUptime());
+        uint32 l_UpdateTime           = sWorld->GetUpdateTime();
 
-        handler->PSendSysMessage("AshranCore 6.0.3 19116 beta");
-        handler->PSendSysMessage("Last Update: 12/11/2014");
-        handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
-        handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
-        handler->PSendSysMessage("Server delay: %u ms", updateTime);
+        p_Handler->PSendSysMessage("Ashran 6.1.2");
+        p_Handler->PSendSysMessage(LANG_CONNECTED_USERS, l_ActiveClientsNum, l_MaxActiveClientsNum, l_QueuedClientsNum, l_MaxQueuedClientsNum);
+        p_Handler->PSendSysMessage(LANG_UPTIME, l_Uptime.c_str());
+        p_Handler->PSendSysMessage("Server delay: %u ms", l_UpdateTime);
 
-        // Bypass player/VIP
-        /*if (handler->GetSession() && handler->GetSession()->GetSecurity() > 1)
+        if (l_UpdateTime > 100)
         {
-            handler->PSendSysMessage("Map diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
-            handler->PSendSysMessage("Battleground diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEGROUND));
-            handler->PSendSysMessage("Session diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_SESSION));
-            handler->PSendSysMessage("Battlefield diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEFIELD));
-            handler->PSendSysMessage("Outdoor PVP diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_OUTDOORPVP));
-            handler->PSendSysMessage("LFG Mgr diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_LFG));
-            handler->PSendSysMessage("Callback diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_CALLBACK));
-        }*/
+            p_Handler->PSendSysMessage("Map diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_MAP));
+            p_Handler->PSendSysMessage("Battleground diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEGROUND));
+            p_Handler->PSendSysMessage("Session diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_SESSION));
+            p_Handler->PSendSysMessage("Battlefield diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_BATTLEFIELD));
+            p_Handler->PSendSysMessage("Outdoor PVP diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_OUTDOORPVP));
+            p_Handler->PSendSysMessage("LFG Mgr diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_LFG));
+            p_Handler->PSendSysMessage("Callback diff : %u ms", sWorld->GetRecordDiff(RECORD_DIFF_CALLBACK));
+        }
 
         // Can't use sWorld->ShutdownMsg here in case of console command
         if (sWorld->IsShuttingDown())
-            handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
+            p_Handler->PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
 
         return true;
     }

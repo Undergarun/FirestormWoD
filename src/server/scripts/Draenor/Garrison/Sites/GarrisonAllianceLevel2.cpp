@@ -71,7 +71,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Owner instance
     void InstanceScript_GarrisonAllianceLevel2::OnOwnerEnter(Player * p_Owner)
     {
-
+        /// Achievement "More Plots" alliance side
+        if (p_Owner->GetTeamId() == TEAM_ALLIANCE && !p_Owner->GetAchievementMgr().HasAchieved(9100))
+            p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9100), nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -119,6 +121,27 @@ namespace MS { namespace Garrison { namespace Sites
     bool InstanceScript_GarrisonAllianceLevel2::CanUseGarrisonCache(Player * p_Owner)
     {
         return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Can upgrade the garrison
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonAllianceLevel2::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    {
+        if (p_CurrentGarrisonLevel != 2)
+            return false;
+
+        return false;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonAllianceLevel2::OnUpgrade(Player * p_Owner)
+    {
+
     }
 
     //////////////////////////////////////////////////////////////////////////

@@ -301,6 +301,25 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
         if (ChatHandler(this).ParseCommands(l_Text.c_str()) > 0)
             return;
 
+        if (sWorld->getBoolConfig(CONFIG_LEXICS_CUTTER_ENABLE))
+        {
+            switch (l_Type)
+            {
+                case CHAT_MSG_SAY:
+                case CHAT_MSG_WHISPER:
+                case CHAT_MSG_CHANNEL:
+                case CHAT_MSG_YELL:
+                case CHAT_MSG_EMOTE:
+                {
+                    if (sWorld->ModerateMessage(l_Text))
+                    {
+                        SendNotification(GetTrinityString(LANG_LEXICS_CUTTER_NOTIFY));
+                        return;
+                    }
+                }
+            }
+        }
+
         if (!processChatmessageFurtherAfterSecurityChecks(l_Text, l_Language))
             return;
 
@@ -436,8 +455,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& p_RecvData)
 
             if (!l_Group)
             {
-                l_Group = GetPlayer()->GetGroup();
-                if (!l_Group || l_Group->isBGGroup() || !l_Group->isRaidGroup())
+                l_Group = m_Player->GetGroup();
+
+                if (!l_Group || (!l_Group->isRaidGroup() && !l_Group->isBGGroup()))
                     return;
             }
 
@@ -577,7 +597,7 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& p_RecvData)
 
     switch (p_RecvData.GetOpcode())
     {
-        case CMSG_CHAT_ADDON_MESSAGE_BATTLEGROUND:
+        case CMSG_CHAT_ADDON_MESSAGE_INSTANCE_CHAT:
             l_Type = CHAT_MSG_INSTANCE_CHAT;
             break;
         case CMSG_CHAT_ADDON_MESSAGE_GUILD:
@@ -734,7 +754,7 @@ namespace JadeCore
     {
         public:
             EmoteChatBuilder(const Player & p_Player, uint32 p_TextEmote, uint32 p_EmoteNum, const Unit * p_Target)
-                : m_Player(p_Player), m_TextEmote(p_TextEmote), m_EmoteNum(p_EmoteNum), m_Target(p_Target) 
+                : m_Player(p_Player), m_TextEmote(p_TextEmote), m_EmoteNum(p_EmoteNum), m_Target(p_Target)
             {
 
             }
@@ -780,7 +800,6 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
     p_RecvData.readPackGUID(l_Target);
     p_RecvData >> l_Emote;
     p_RecvData >> l_SoundIndex;
-
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), l_Emote, l_SoundIndex, l_Target);
 
     const EmotesTextEntry * l_EmoteTextEntry = sEmotesTextStore.LookupEntry(l_Emote);
@@ -826,31 +845,6 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & p_RecvData)
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), l_Emote);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    uint8 unk;
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_CHAT_IGNORED");
-
-    recvData >> unk;                                       // probably related to spam reporting
-
-    uint8 bitOrder[8] = { 7, 1, 5, 3, 2, 6, 0, 4 };
-    recvData.ReadBitInOrder(guid, bitOrder);
-
-    recvData.FlushBits();
-
-    uint8 byteOrder[8] = { 5, 0, 1, 2, 3, 6, 4, 7 };
-    recvData.ReadBytesSeq(guid, byteOrder);
-
-    Player* player = ObjectAccessor::FindPlayer(guid);
-    if (!player || !player->GetSession())
-        return;
-
-    WorldPacket data;
-    ChatHandler::FillMessageData(&data, this, CHAT_MSG_IGNORED, LANG_UNIVERSAL, NULL, GetPlayer()->GetGUID(), GetPlayer()->GetName(), NULL);
-    player->GetSession()->SendPacket(&data);
-}
-
 void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", p_Packet.GetOpcode());
@@ -858,9 +852,8 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket & p_Packet)
 
 void WorldSession::SendPlayerNotFoundNotice(std::string p_Name)
 {
-    WorldPacket l_Data(SMSG_CHAT_PLAYER_NOTFOUND, p_Name.size()+1);
-    l_Data.WriteBits(p_Name.size() / 2, 8);
-    l_Data.WriteBit(p_Name.size() % 2);
+    WorldPacket l_Data(SMSG_CHAT_PLAYER_NOTFOUND, p_Name.size()+3);
+    l_Data.WriteBits(p_Name.size(), 9);
     l_Data.FlushBits();
     l_Data.WriteString(p_Name);
     SendPacket(&l_Data);

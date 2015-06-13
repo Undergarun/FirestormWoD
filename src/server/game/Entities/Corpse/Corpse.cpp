@@ -69,9 +69,8 @@ bool Corpse::Create(uint32 guidlow, Map* map)
     SetMap(map);
     Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
 
-    auto l_MapDifficulty = map->GetMapDifficulty();
-    if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : map->GetDifficulty();
+    loot.SetSource(GetGUID());
+    loot.Context = map->GetLootItemContext();
 
     return true;
 }
@@ -98,11 +97,11 @@ bool Corpse::Create(uint32 guidlow, Player* owner)
     SetObjectScale(1);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
 
+    loot.SetSource(GetGUID());
+
     _gridCoord = JadeCore::ComputeGridCoord(GetPositionX(), GetPositionY());
 
-    auto l_MapDifficulty = GetMap()->GetMapDifficulty();
-    if (l_MapDifficulty != nullptr)
-        loot.ItemBonusDifficulty = l_MapDifficulty->ItemBonusTreeDifficulty ? l_MapDifficulty->ItemBonusTreeDifficulty : GetMap()->GetDifficulty();
+    loot.Context = GetMap()->GetLootItemContext();
 
     return true;
 }
@@ -184,7 +183,7 @@ bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
-    _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEMS, EQUIPMENT_SLOT_END);
+    _LoadIntoDataField(fields[6].GetCString(), CORPSE_FIELD_ITEMS, EQUIPMENT_SLOT_END, false);
     SetUInt32Value(CORPSE_FIELD_SKIN_ID, fields[7].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FACIAL_HAIR_STYLE_ID, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());

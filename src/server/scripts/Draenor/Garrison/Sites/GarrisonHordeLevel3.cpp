@@ -71,7 +71,9 @@ namespace MS { namespace Garrison { namespace Sites
     /// @p_Owner : Owner instance
     void InstanceScript_GarrisonHordeLevel3::OnOwnerEnter(Player * p_Owner)
     {
-
+        /// Achievement "Even More Plots" horde side
+        if (p_Owner->GetTeamId() == TEAM_HORDE && !p_Owner->GetAchievementMgr().HasAchieved(9546))
+            p_Owner->GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(9546), nullptr);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -119,6 +121,27 @@ namespace MS { namespace Garrison { namespace Sites
     bool InstanceScript_GarrisonHordeLevel3::CanUseGarrisonCache(Player * p_Owner)
     {
         return true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Can upgrade the garrison
+    /// @p_Owner                : Garrison owner
+    /// @p_CurrentGarrisonLevel : Current garrison level
+    bool InstanceScript_GarrisonHordeLevel3::CanUpgrade(Player * p_Owner, uint32 p_CurrentGarrisonLevel)
+    {
+        if (p_CurrentGarrisonLevel != 3)
+            return false;
+
+        return false;
+    }
+
+    /// On upgrade the garrison
+    /// @p_Owner : Garrison owner
+    void InstanceScript_GarrisonHordeLevel3::OnUpgrade(Player * p_Owner)
+    {
+
     }
 
     //////////////////////////////////////////////////////////////////////////

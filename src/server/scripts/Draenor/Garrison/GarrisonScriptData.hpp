@@ -38,22 +38,44 @@ namespace MS { namespace Garrison
         SPELL_LEFT_ROPE                        = 164400,
         SPELL_RIGHT_ROPE                       = 164422,
         SPELL_COMESTIC_SLEEP                   = 162907,
-        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329
+        SPELL_GARRISON_ORC_MALE_CARRYNG_LUMBER = 161329,
+        MultiShot   = 18651,
+        Disengage   = 82707,
+        Shoot       = 6660
     };
 
     /// Garrison Quests
     enum Quests
     {
         /// Alliance
-        QUEST_ETABLISH_YOUR_GARRISON_A  = 34586,
-        QUEST_KEEPING_IT_TOGETHER       = 35176,
-        QUEST_SHIP_SALVAGE              = 35166,
-        QUEST_PALE_MOONLIGHT            = 35174,
+        QUEST_ETABLISH_YOUR_GARRISON_A              = 34586,
+        QUEST_KEEPING_IT_TOGETHER                   = 35176,
+        QUEST_SHIP_SALVAGE                          = 35166,
+        QUEST_PALE_MOONLIGHT                        = 35174,
+        Alliance_LostInTransition                   = 37087,
+        Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
+        Alliance_BiggerIsBetter                     = 36592,
+        Alliance_YourFirstAlchemyWorkOrder          = 36641,
+        Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
+        Alliance_YourFirstEnchantingWorkOrder       = 36645,
+        Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
+        Alliance_YourFirstEngineeringWorkOrder      = 36646,
+        Alliance_YourFirstInscriptionWorkOrder      = 36647,
 
         /// Horde
-        QUEST_ETABLISH_YOUR_GARRISON_H  = 34378,
-        QUEST_WHAT_WE_GOT               = 34824,
-        QUEST_BUILD_YOUR_BARRACKS       = 34461
+        QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
+        QUEST_WHAT_WE_GOT                         = 34824,
+        QUEST_BUILD_YOUR_BARRACKS                 = 34461,
+        Horde_LostInTransition                    = 37060,
+        Horde_YourFirstBlacksmithingWorkOrder     = 37569,
+        Horde_BiggerIsBetter                      = 36567,
+        Horde_YourFirstTailoringWorkOrder         = 37575,
+        Horde_YourFirstAlchemyWorkOrder           = 37568,
+        Horde_YourFirstLeatherworkingWorkOrder    = 37574,
+        Horde_YourFirstEnchantingWorkOrder        = 37570,
+        Horde_YourFirstJewelcraftingWorkOrder     = 37573,
+        Horde_YourFirstEngineeringWorkOrder       = 37571,
+        Horde_YourFirstInscriptionWorkOrder       = 37572
     };
 
     /// Garrison achievement related
@@ -70,9 +92,12 @@ namespace MS { namespace Garrison
         NPC_GARRISON_ALLIANCE_HORSE                     = 81633,
         NPC_SENIOR_PEON_II                              = 86775,
         NPC_FROSTWALL_PEON_DYNAMIC                      = 79605,
+        NPC_FROSTWALL_GRUNT                             = 79781,
         NPC_GASLOWE                                     = 78466,
         NPC_ASSISTANT_BRIGHTSTONE                       = 84455,
-        NPC_SKAGGIT                                     = 80225
+        NPC_SKAGGIT                                     = 80225,
+        NPC_ARCHER                                      = 87518,
+        Marksman                                        = 88391
     };
 
     /// NPC texts id
@@ -85,7 +110,7 @@ namespace MS { namespace Garrison
         NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
         NPC_TEXT_LADY_SENA                           = 82232,
         NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
-        NPC_TEXT_SENIOR_PEON_II                      = 88704
+        NPC_TEXT_SENIOR_PEON_II                      = 88704,
     };
 
     /// Creature text index
@@ -127,12 +152,6 @@ namespace MS { namespace Garrison
         MOVE_POINT_GAZLOWE_BARRACK_A = 0
     };
 
-    /// Buildings IDs
-    enum Buildings
-    {
-        BUILDING_BARRACK = 26
-    };
-
     /// Garrison creation coords
     static const float gGarrisonCreationCoords[][4] =
     {
@@ -144,13 +163,28 @@ namespace MS { namespace Garrison
     static const float gGarrisonHearthStoneTeleportCoord[][4] =
     {
         /// Horde
-        { 5561.15f,  4508.785f, 132.70f,    3.406f   }, ///< Horde Level 1
-        {    0.f,       0.f,      0.f,      0.000f   }, ///< Horde Level 2
+        { 5561.15f,  4508.785f, 132.70000f, 3.406f   }, ///< Horde Level 1
+        { 5565.86f,  4593.500f, 140.89300f, 0.000f   }, ///< Horde Level 2
         { 5563.70f,  4599.920f, 141.71100f, 0.000f   }, ///< Horde Level 3
         /// Alliance
         { 1850.71f,   254.430f,  78.08300f, 1.76f    }, ///< Alliance Level 1
         { 1947.08f,   324.883f,  90.28076f, 0.00f    }, ///< Alliance Level 2
         {    0.f,       0.f,      0.f,      0.00f    }  ///< Alliance Level 3
+    };
+
+    /// Creature that follow garrison owner level
+    static const uint32 gGarrisonLevelUpdateCreatures[] =
+    {
+        /// Alliance
+        79953,  ///< Lientenant Thorn
+        77370,  ///< Lunarfall Footman
+        85312,  ///< Lunarfall Rifleman
+        88223,  ///< SergeantCrowler
+        /// Horde
+        79781,  ///< Frostwall grunt
+        80299,  ///< Frostwakk Axe thrower
+        88228,  ///< Sergent Grinjaw
+        80572   ///< Frostwall wolf
     };
 
     namespace HordePeonData 

@@ -184,8 +184,9 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
    pkt = &buff;
    }*/
 
-    if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
-        sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
+    /// Remove log for latency
+    ///if (pkt->GetOpcode() != SMSG_MONSTER_MOVE)
+    ///     sLog->outInfo(LOG_FILTER_OPCODES, "S->C: %s", GetOpcodeNameForLogging(pkt->GetOpcode(), WOW_SERVER_TO_CLIENT).c_str());
 
 #   ifdef WIN32
         switch (pct.GetOpcode())
@@ -783,8 +784,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
 {
     ACE_ASSERT (new_pct);
 
-    gReceivedBytes += new_pct->size() + 2;
-
     // manage memory ;)
     ACE_Auto_Ptr<WorldPacket> aptr(new_pct);
 
@@ -797,10 +796,11 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
-    std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
 
-    if (opcode != CMSG_MOVE_START_FORWARD)
-        sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
+    /// Remove log for latency
+    ///std::string opcodeName = GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER);
+    ///if (opcode != CMSG_MOVE_START_FORWARD)
+    ///    sLog->outInfo(LOG_FILTER_OPCODES, "C->S: %s", opcodeName.c_str());
 
     try
     {
@@ -819,16 +819,15 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession(*new_pct);
             }
-            case CMSG_KEEP_ALIVE:
+            /*case CMSG_KEEP_ALIVE:
             {
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            }
+            }*/
             case CMSG_LOG_DISCONNECT:
             {
                 new_pct->rfinish(); // contains uint32 disconnectReason;
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             }
@@ -836,7 +835,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             // first 4 bytes become the opcode (2 dropped)
             case CMSG_HANDSHAKE:
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 std::string str;
                 *new_pct >> str;
@@ -846,7 +844,6 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             }
             case CMSG_ENABLE_NAGLE:
             {
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return m_Session ? m_Session->HandleEnableNagleAlgorithm() : -1;
             }
@@ -886,7 +883,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     catch (ByteBufferException &)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet %s from client %s, accountid=%i. Disconnected client.",
-            opcodeName.c_str(), GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
+            GetOpcodeNameForLogging(opcode, WOW_CLIENT_TO_SERVER).c_str(), GetRemoteAddress().c_str(), m_Session ? int32(m_Session->GetAccountId()) : -1);
         new_pct->hexlike();
         return -1;
     }
@@ -914,7 +911,6 @@ void WorldSocket::SendAuthResponse(uint8 p_AuthResult, bool p_Queued, uint32 p_Q
 
     uint32 l_RealmRaceCount = 15;
     uint32 l_RealmClassCount = 11;
-
 
     l_Data << uint8(p_AuthResult);
     l_Data.WriteBit(p_AuthResult == AUTH_OK);
@@ -1150,8 +1146,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
         return -1;
     }
 
-    //                                                    0       1          2       3    4  5      6          7       8         9      10    11
-    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username FROM account  WHERE id = %u", l_AccountID);
+    //                                                    0       1          2       3    4  5      6          7       8         9      10    11       12                           13
+    QueryResult l_Result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os, username, UNIX_TIMESTAMP(joindate), service_flags FROM account  WHERE id = %u", l_AccountID);
 
     /// Stop if the account is not found
     if (!l_Result)
@@ -1169,6 +1165,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
 
     uint32 l_AccountExpansion   = l_Fields[6].GetUInt8();
     uint32 l_ServerExpansion    = sWorld->getIntConfig(CONFIG_EXPANSION);
+    uint32 l_JoinDateTimestamp  = l_Fields[12].GetUInt32();
+    uint32 l_ServiceFlags       = l_Fields[13].GetUInt32();
 
     if (l_AccountExpansion > l_ServerExpansion)
         l_AccountExpansion = l_ServerExpansion;
@@ -1299,13 +1297,15 @@ int WorldSocket::HandleAuthSession(WorldPacket& p_RecvPacket)
     LoginDatabase.PExecute("UPDATE account SET last_ip = '%s' WHERE username = '%s'", l_SessionIP.c_str(), l_EscapedAccountName.c_str());
 
     /// NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(l_AccountID, this, AccountTypes(l_AccountGMLevel), l_AccountIsPremium, l_AccountPremiumType, l_AccountExpansion, l_MuteTime, l_AccountLocale, l_Recruiter, l_AccountIsRecruiter, l_VoteRemainingTime, l_ServiceFlags), -1);
 
     m_Crypt.Init(&l_SessionKey);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(l_AddonsCompressedData);
+    m_Session->SetClientBuild(l_ClientBuild);
+    m_Session->SetAccountJoinDate(l_JoinDateTimestamp);
 
     /// Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
@@ -1366,7 +1366,10 @@ int WorldSocket::HandlePing(WorldPacket& recvPacket)
         ACE_GUARD_RETURN(LockType, Guard, m_SessionLock, -1);
 
         if (m_Session)
-            m_Session->SetLatency (latency);
+        {
+            m_Session->SetLatency(latency);
+            m_Session->ResetClientTimeDelay();
+        }
         else
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: peer sent CMSG_PING, "

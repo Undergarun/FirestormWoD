@@ -1580,6 +1580,10 @@ class BattlegroundAV : public Battleground
 
         uint32 GetTeamQuestStatus(uint8 p_Team, uint8 p_Index) const { return m_Team_QuestStatus[p_Team][p_Index]; }
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_AV_SCORE_INITIAL_POINTS; }
+        bool IsScoreIncremental() const { return false; }
+
     private:
         virtual void PostUpdateImpl(uint32 diff);
 
@@ -1629,7 +1633,7 @@ class BattlegroundAV : public Battleground
 
         uint8 m_MaxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
         bool m_IsInformedNearVictory[2];
-
+        int32 m_CheatersCheckTimer;
 };
 
 #endif

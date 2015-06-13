@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 #include "GuildMgr.h"
 #include "WorldSession.h"
+#include "WowTime.hpp"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 {
@@ -36,10 +37,10 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
     uint64 l_Guid = m_Player->GetGUID();
     uint32 l_Now = time(NULL);
 
-    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR);
+    WorldPacket l_Data(SMSG_CALENDAR_SEND_CALENDAR, 10 * 1024);
     l_Data << uint32(l_Now);
-    l_Data << uint32(secsToTimeBitFields(l_Now));
-    l_Data << uint32(1135753200);
+    l_Data << uint32(MS::Utilities::WowTime::Encode(l_Now));
+    l_Data << uint32(sWorld->GetServerRegionID());
 
     CalendarInviteStore l_Invites = sCalendarMgr->GetPlayerInvites(l_Guid);
     CalendarEventStore l_Events = sCalendarMgr->GetPlayerEvents(l_Guid);
@@ -48,7 +49,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 
     uint32 l_RaidLockoutCount = 0;
 
-    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
+    for (uint8 l_Iter = 0; l_Iter < Difficulty::MaxDifficulties; ++l_Iter)
     {
         for (Player::BoundInstancesMap::const_iterator l_Itr = m_Player->m_boundInstances[l_Iter].begin(); l_Itr != m_Player->m_boundInstances[l_Iter].end(); ++l_Itr)
         {
@@ -101,7 +102,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
 
         l_Data << uint64(l_CalendarEvent->GetEventId());
         l_Data << uint8(l_CalendarEvent->GetType());
-        l_Data << uint32(secsToTimeBitFields(l_CalendarEvent->GetEventTime()));
+        l_Data << uint32(MS::Utilities::WowTime::Encode(l_CalendarEvent->GetEventTime()));
         l_Data << uint32(l_CalendarEvent->GetFlags());
         l_Data << uint32(l_CalendarEvent->GetDungeonId());
         l_Data.appendPackGUID(l_GuildGUID);
@@ -111,7 +112,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
         l_Data.WriteString(l_Title);
     }
 
-    for (uint8 l_Iter = 0; l_Iter < MAX_DIFFICULTY; ++l_Iter)
+    for (uint8 l_Iter = 0; l_Iter < Difficulty::MaxDifficulties; ++l_Iter)
     {
         for (Player::BoundInstancesMap::const_iterator l_Itr = m_Player->m_boundInstances[l_Iter].begin(); l_Itr != m_Player->m_boundInstances[l_Iter].end(); ++l_Itr)
         {
@@ -120,7 +121,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*p_RecvData*/)
                 InstanceSave* l_Save = l_Itr->second.save;
                 l_Data << uint64(l_Save->GetInstanceId());
                 l_Data << uint32(l_Save->GetMapId());
-                l_Data << uint32(l_Save->GetDifficulty());
+                l_Data << uint32(l_Save->GetDifficultyID());
                 l_Data << uint32(l_Save->GetResetTime());
             }
         }

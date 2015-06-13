@@ -110,6 +110,9 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
+        int32 GetCrowdControlDamage() const { return m_CrowdControlDamage; }
+        void SetCrowdControlDamage(int32 p_Amount) { m_CrowdControlDamage = p_Amount; }
+
     private:
         constAuraPtr m_base;
 
@@ -118,6 +121,8 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
 
         int32 m_amount;
         float m_donePct;
+        int32 m_CrowdControlDamage;
+
 
         SpellModifier* m_spellmod;
 
@@ -252,7 +257,10 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraMultistrike(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraLeech(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleAuraIncreaseDualWieldDamage(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -273,7 +281,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModSpellCritChanceSchool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResiliencePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack speed
@@ -325,7 +333,6 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraResetCooldowns(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         // aura effect periodic tick handlers
@@ -349,6 +356,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         void HandleChangeSpellVisualEffect(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraAdaptation(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 };
 
 namespace JadeCore

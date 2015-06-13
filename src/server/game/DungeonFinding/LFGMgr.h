@@ -98,25 +98,25 @@ enum LfgJoinResult : uint8
 {
     // 3 = No client reaction | 18 = "Rolecheck failed"
     //44, 28 - leads to rolecheck has failed
-    LFG_JOIN_OK                                  = 0,      // Joined (no client msg)
-    LFG_JOIN_FAILED                              = 28,     // RoleCheck Failed
-    LFG_JOIN_GROUPFULL                           = 29,     // Your group is full
-    LFG_JOIN_INTERNAL_ERROR                      = 31,     // Internal LFG Error
-    LFG_JOIN_NOT_MEET_REQS                       = 32,     // You do not meet the requirements for the chosen dungeons
-    LFG_JOIN_PARTY_NOT_MEET_REQS                 = 6,      // One or more party members do not meet the requirements for the chosen dungeons
-    LFG_JOIN_MIXED_RAID_DUNGEON                  = 33,     // You cannot mix dungeons, raids, and random when picking dungeons
-    LFG_JOIN_MULTI_REALM                         = 34,     // The dungeon you chose does not support players from multiple realms
-    LFG_JOIN_DISCONNECTED                        = 35,     // One or more party members are pending invites or disconnected
-    LFG_JOIN_PARTY_INFO_FAILED                   = 36,     // Could not retrieve information about some party members
-    LFG_JOIN_DUNGEON_INVALID                     = 37,     // One or more dungeons was not valid
-    LFG_JOIN_DESERTER                            = 38,     // You can not queue for dungeons until your deserter debuff wears off
-    LFG_JOIN_PARTY_DESERTER                      = 39,     // One or more party members has a deserter debuff
-    LFG_JOIN_RANDOM_COOLDOWN                     = 40,     // You can not queue for random dungeons while on random dungeon cooldown
-    LFG_JOIN_PARTY_RANDOM_COOLDOWN               = 41,     // One or more party members are on random dungeon cooldown
-    LFG_JOIN_TOO_MUCH_MEMBERS                    = 42,     // You can not enter dungeons with more that 5 party members
-    LFG_JOIN_NOT_ENOUGH_MEMBERS                  = 50,     // You do not have enough group members to queue for that
-    LFG_JOIN_USING_BG_SYSTEM                     = 43,     // You can not use the dungeon system while in BG or arenas
-    LFG_JOIN_QUEUED_TO_MANY_INSTANCES            = 51,     // You are queued for too many instances
+    LFG_JOIN_OK                                  = 0x00,      // Joined (no client msg)
+    LFG_JOIN_FAILED                              = 0x20,     // RoleCheck Failed
+    LFG_JOIN_GROUPFULL                           = 0x1E,     // Your group is full
+    LFG_JOIN_INTERNAL_ERROR                      = 0x20,     // Internal LFG Error
+    LFG_JOIN_NOT_MEET_REQS                       = 0x21,     // You do not meet the requirements for the chosen dungeons
+    LFG_JOIN_PARTY_NOT_MEET_REQS                 = 0x22,      // One or more party members do not meet the requirements for the chosen dungeons
+    LFG_JOIN_MIXED_RAID_DUNGEON                  = 0x20,     // You cannot mix dungeons, raids, and random when picking dungeons
+    LFG_JOIN_MULTI_REALM                         = 0x23,     // The dungeon you chose does not support players from multiple realms
+    LFG_JOIN_DISCONNECTED                        = 0x24,     // One or more party members are pending invites or disconnected
+    LFG_JOIN_PARTY_INFO_FAILED                   = 0x25,     // Could not retrieve information about some party members
+    LFG_JOIN_DUNGEON_INVALID                     = 0x26,     // One or more dungeons was not valid
+    LFG_JOIN_DESERTER                            = 0x27,     // You can not queue for dungeons until your deserter debuff wears off
+    LFG_JOIN_PARTY_DESERTER                      = 0x28,     // One or more party members has a deserter debuff
+    LFG_JOIN_RANDOM_COOLDOWN                     = 0x29,     // You can not queue for random dungeons while on random dungeon cooldown
+    LFG_JOIN_PARTY_RANDOM_COOLDOWN               = 0x2A,     // One or more party members are on random dungeon cooldown
+    LFG_JOIN_TOO_MUCH_MEMBERS                    = 0x2B,     // You can not enter dungeons with more that 5 party members
+    LFG_JOIN_NOT_ENOUGH_MEMBERS                  = 0x33,     // You do not have enough group members to queue for that
+    LFG_JOIN_USING_BG_SYSTEM                     = 0x2C,     // You can not use the dungeon system while in BG or arenas
+    LFG_JOIN_QUEUED_TO_MANY_INSTANCES            = 0x34,     // You are queued for too many instances
 };
 
 /// Role check states
@@ -154,8 +154,7 @@ typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint8, LfgGuidList> LfgGuidListMap;
 typedef std::set<Player*> PlayerSet;
 typedef std::list<Player*> LfgPlayerList;
-typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
-typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
+typedef std::map<uint32, LfgReward const*> LfgRewardMap;
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
 typedef std::map<uint64, uint8> LfgRolesMap;
@@ -354,8 +353,14 @@ class LFGMgr
         /////////////////////////////////////////////
         /// LFR
         /////////////////////////////////////////////
+        /// This function automatically send personal items to players
+        void AutomaticLootDistribution(Creature* p_Creature, Group* p_Group);
+        /// This function automatically add personal loots of players on the creature
         void AutomaticLootAssignation(Creature* p_Creature, Group* p_Group);
-        const ItemTemplate* GetDefaultAutomaticLootItem(Creature* p_Creature);
+        /// This function returns ItemTemplate corresponding to the default Mop LFR loot
+        ItemTemplate const* GetDefaultAutomaticLootItem(Creature* p_Creature);
+        /// This function returns ItemID corresponding to the WoD LFR runes
+        uint32 GetAugmentRuneID(Player const* p_Player) const;
 
     private:
 

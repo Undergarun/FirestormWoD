@@ -315,7 +315,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         }
         else
         {
-            SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
+            if (savedhealth > GetMaxHealth())
+                savedhealth = GetMaxHealth();
+            else if (savedhealth < 1)
+                savedhealth = 1;
+            SetHealth(savedhealth);
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             SetPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
         }
@@ -381,9 +385,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             m_declinedname = new DeclinedName;
             Field* fields2 = result->Fetch();
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            {
                 m_declinedname->name[i] = fields2[i].GetString();
-            }
         }
     }
 
@@ -392,6 +394,51 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
+
+    if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && getPetType() == HUNTER_PET)
+    {
+        uint32 l_SpecializationID = GetSpecializationId();
+        if (owner->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
+        {
+            switch (l_SpecializationID)
+            {
+                case SpecIndex::SPEC_PET_FEROCITY:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_CUNNING:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                    break;
+                case SpecIndex::SPEC_PET_TENACITY:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            switch (l_SpecializationID)
+            {
+                case SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_FEROCITY;
+                    break;
+                case SpecIndex::SPEC_ROGUE_CUNNING_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_CUNNING;
+                    break;
+                case SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT:
+                    l_SpecializationID = (uint32)SpecIndex::SPEC_PET_TENACITY;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        UnlearnSpecializationSpell();
+
+        SetSpecializationId(l_SpecializationID);
+        LearnSpecializationSpell();
+        owner->ToPlayer()->SendTalentsInfoData(true);
+    }
 
     return true;
 }
@@ -410,6 +457,10 @@ void Pet::SavePetToDB(PetSlot mode, bool stampeded)
 
     // not save not player pets
     if (!IS_PLAYER_GUID(GetOwnerGUID()))
+        return;
+
+    /// Primal Elementalist - don't need to save pet to database, so mark it like stampeded
+    if (GetEntry() == 61029 || GetEntry() == 61056 || GetEntry() == 77942)
         return;
 
     Player* owner = (Player*)GetOwner();
@@ -878,10 +929,6 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
     for (uint8 l_I = SPELL_SCHOOL_HOLY; l_I < MAX_SPELL_SCHOOL; ++l_I)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + l_I), BASE_VALUE, float(l_CreatureTemplate->resistance[l_I]));
 
-    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
-    SetFullHealth();
-
     Powers l_PetPower    = l_PetStat->m_Power;
     uint32 l_CreatePower = 0;
 
@@ -912,8 +959,17 @@ bool Guardian::InitStatsForLevel(uint8 p_PetLevel)
 
     UpdateAllStats();
 
+    SetCreateHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetMaxHealth(m_owner->GetMaxHealth() * l_PetStat->m_HealthCoef);
+    SetFullHealth();
+
     if (IsWarlockPet())
         CastSpell(this, 123746, true);  ///< Fel Energy
+
+    if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(58640))           ///< Glyph of the Geist
+        CastSpell(this, 121916, true);
+    else if (GetEntry() == ENTRY_GHOUL && m_owner->HasAura(146652))     ///< Glyph of the Skeleton
+        CastSpell(this, 147157, true);
 
     return true;
 }
@@ -989,7 +1045,7 @@ void Pet::_LoadSpellCooldowns(PreparedQueryResult resultCooldown, bool login)
             if (db_time <= curTime)
                 continue;
 
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(petGuid);
             data << uint8(1);
             data << uint32(1);
@@ -1092,6 +1148,11 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 
                 break;
             case PETSPELL_NEW:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_SPELL_BY_SPELL);
+                stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+                stmt->setUInt32(1, itr->first);
+                trans->Append(stmt);
+
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_SPELL);
                 stmt->setUInt32(0, m_charmInfo->GetPetNumber());
                 stmt->setUInt32(1, itr->first);
@@ -1291,23 +1352,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
-    {
-        // do pet spell book cleanup
-        if (state == PETSPELL_UNCHANGED)                    // spell load case
-        {
-            sLog->outError(LOG_FILTER_PETS, "Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spellId);
-
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
-
-            stmt->setUInt32(0, spellId);
-
-            CharacterDatabase.Execute(stmt);
-        }
-        else
-            sLog->outError(LOG_FILTER_PETS, "Pet::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
-
         return false;
-    }
 
     PetSpellMap::iterator itr = m_spells.find(spellId);
     if (itr != m_spells.end())
@@ -1400,7 +1445,7 @@ bool Pet::learnSpell(uint32 p_SpellID)
 
     if (!m_loading)
     {
-        WorldPacket l_Data(SMSG_PET_LEARNED_SPELLS, 4);
+        WorldPacket l_Data(SMSG_PET_LEARNED_SPELLS, 4 + 4);
         l_Data << uint32(1);            ///< Count
         l_Data << uint32(p_SpellID);    ///< SpellID
         m_owner->GetSession()->SendPacket(&l_Data);
@@ -1459,7 +1504,7 @@ bool Pet::unlearnSpell(uint32 p_SpellID, bool p_LearnPrev, bool p_ClearAb)
     {
         if (!m_loading)
         {
-            WorldPacket l_Data(SMSG_PET_UNLEARNED_SPELLS, 4);
+            WorldPacket l_Data(SMSG_PET_UNLEARNED_SPELLS, 4 + 4);
             l_Data << uint32(1);            ///< count
             l_Data << uint32(p_SpellID);    ///< SpellID
             m_owner->GetSession()->SendPacket(&l_Data);
@@ -1783,12 +1828,12 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
         if (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             continue;
 
-        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+        if ((spellInfo->PreventionType & (SpellPreventionMask::Silence)) == 0)
             continue;
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && GetCreatureSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            WorldPacket data(SMSG_SPELL_COOLDOWN, 12);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
             data.appendPackGUID(GetGUID());
             data << uint8(1);
             data << uint32(1);

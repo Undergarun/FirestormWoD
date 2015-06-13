@@ -421,11 +421,11 @@ class boss_horridon : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (jalakSpawned)
                     return;
@@ -1399,7 +1399,7 @@ class mob_zandalari_dinomancer : public CreatureScript
                 canEnterCombat = value != 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (transformed)
                     return;

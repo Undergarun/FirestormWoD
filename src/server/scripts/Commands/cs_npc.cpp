@@ -169,6 +169,7 @@ public:
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
+            { "animkit",        SEC_GAMEMASTER,     false, &HandleNpcSetAnimKitCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand npcCommandTable[] =
@@ -187,6 +188,7 @@ public:
             { "delete",         SEC_GAMEMASTER,     false, NULL,              "", npcDeleteCommandTable },
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
+            { "groupscaling",   SEC_GAMEMASTER,     false, &HandleNpcGroupScaling,             "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -317,7 +319,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1->Get(handler->GetSessionDbcLocale()), maxcount, incrtime, extendedcost);
         return true;
     }
 
@@ -539,7 +541,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->Name1.c_str());
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->Name1->Get(handler->GetSessionDbcLocale()));
         return true;
     }
 
@@ -825,13 +827,13 @@ public:
                 const_cast<CreatureData*>(data)->posZ = z;
                 const_cast<CreatureData*>(data)->orientation = o;
             }
-            creature->SetPosition(x, y, z, o);
-            creature->GetMotionMaster()->Initialize();
 
-            Position oldPos;
-            creature->GetPosition(&oldPos);
+            creature->SetPosition(x, y, z, o);
             creature->Relocate(x, y, z, o);
-            creature->SendTeleportPacket(oldPos);
+
+            Position l_NewPosition;
+            creature->GetPosition(&l_NewPosition);
+            creature->SendTeleportPacket(l_NewPosition);
 
             if (creature->isAlive())                            // dead creature will reset movement generator at respawn
             {
@@ -1639,6 +1641,52 @@ public:
         return true;
     }
 
+    static bool HandleNpcSetAnimKitCommand(ChatHandler* p_Handler, char const* p_Args)
+    {
+        if (!*p_Args)
+            return false;
+
+        uint32 l_ID = atoi((char*)p_Args);
+        Creature* l_Target = p_Handler->getSelectedCreature();
+        if (!l_Target)
+        {
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (l_Target->GetEntry() == 1)
+        {
+            p_Handler->PSendSysMessage("%s%s|r", "|cffff33ff", "You want to load path to a waypoint? Aren't you?");
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 l_GuidLow = l_Target->GetDBTableGUIDLow();
+
+        PreparedStatement* l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_SEL_CREATURE_ADDON_BY_GUID);
+        l_Statement->setUInt32(0, l_GuidLow);
+
+        PreparedQueryResult l_Result = WorldDatabase.Query(l_Statement);
+        if (l_Result)
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_UPD_CREATURE_ADDON_ANIMKIT);
+            l_Statement->setUInt32(0, l_ID);
+            l_Statement->setUInt32(1, l_GuidLow);
+        }
+        else
+        {
+            l_Statement = WorldDatabase.GetPreparedStatement(WorldDatabaseStatements::WORLD_INS_CREATURE_ADDON_BY_ANIMKIT);
+            l_Statement->setUInt32(0, l_GuidLow);
+            l_Statement->setUInt32(1, l_ID);
+        }
+
+        WorldDatabase.Execute(l_Statement);
+
+        l_Target->SetAIAnimKitId(l_ID);
+        return true;
+    }
+
     static bool HandleNpcActivateCommand(ChatHandler* handler, const char* args)
     {
         Creature* unit = NULL;
@@ -1722,6 +1770,38 @@ public:
         }
 
         handler->PSendSysMessage(LANG_COMMAND_NEAROBJMESSAGE, distance, count);
+        return true;
+    }
+
+    static bool HandleNpcGroupScaling(ChatHandler* p_Handler, char const* p_Args)
+    {
+        Creature* l_Creature = NULL;
+
+        if (*p_Args)
+        {
+            // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
+            char* l_CreatureID = p_Handler->extractKeyFromLink((char*)p_Args, "Hcreature");
+            if (!l_CreatureID)
+                return false;
+
+            uint32 l_LowGUID = atoi(l_CreatureID);
+            if (!l_LowGUID)
+                return false;
+
+            if (CreatureData const* l_CreatureData = sObjectMgr->GetCreatureData(l_LowGUID))
+                l_Creature = p_Handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(l_LowGUID, l_CreatureData->id, HIGHGUID_UNIT));
+        }
+        else
+            l_Creature = p_Handler->getSelectedCreature();
+
+        if (!l_Creature || l_Creature->isPet() || l_Creature->isTotem())
+        {
+            p_Handler->SendSysMessage(LANG_SELECT_CREATURE);
+            p_Handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        l_Creature->UpdateGroupSizeStats();
         return true;
     }
 };

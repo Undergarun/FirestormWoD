@@ -29,6 +29,8 @@
 #include <set>
 #include <vector>
 
+class Player;
+
 // Structures using to access raw DBC data and required packing to portability
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
@@ -63,6 +65,14 @@ struct AchievementCategoryEntry
     int32   parentCategory;                                 // 1        m_parent                -1 for main category
     //char*     name;                                       // 2        m_name_mang
     //uint32    sortOrder;                                  // 3        m_ui_order
+};
+
+struct AnimKitEntry
+{
+    uint32      ID;                                         // 0
+    //uint32      OneShotDuration;                          // 1
+    //uint32      OneShotStopAnimKitID;                     // 2
+    //uint32      LowDefAnimKitID;                          // 3
 };
 
 struct AreaTableEntry
@@ -232,7 +242,7 @@ struct ChrClassesEntry
     uint32  AttackPowerPerStrength;                         // 10       m_AttackPowerPerStrength        Attack Power bonus per point of strength
     uint32  AttackPowerPerAgility;                          // 11       m_AttackPowerPerAgility         Attack Power bonus per point of agility
     uint32  RangedAttackPowerPerAgility;                    // 12       m_RangedAttackPowerPerAgility   Ranged Attack Power bonus per point of agility
-    //uint32    m_DefaultSpec;                              // 13       m_DefaultSpec
+    uint32  m_DefaultSpec;                                  // 13       m_DefaultSpec
     //uint32    m_CreateScreenFileDataID;                   // 14       m_CreateScreenFileDataID
     //uint32    m_SelectScreenFileDataID;                   // 15       m_SelectScreenFileDataID
     //uint32    m_LowResScreenFileDataID;                   // 16       m_LowResScreenFileDataID
@@ -315,7 +325,7 @@ struct CinematicCameraEntry
 {
     uint32      id;                                         // 0 index
     char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
+    uint32      soundid;                                    // 2 in SoundEntries.db2 or 0
     float       EndPosX;                                    // 3
     float       EndPosY;                                    // 4
     float       EndPosZ;                                    // 5
@@ -325,8 +335,8 @@ struct CinematicCameraEntry
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
-    //uint32      unk1;                                     // 1 always 0
-    uint32      cinematicCamera;                            // 2 id in CinematicCamera.dbc                                                        // 3-9 always 0
+    //uint32      SoundID;                                  // 1
+    uint32      cinematicCamera;                            // 2-9
 };
 
 struct CreatureDisplayInfoEntry
@@ -443,27 +453,6 @@ struct CurrencyCategoryEntry
 };
 */
 
-// @issue : #284
-struct CurrencyTypesEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint32  Category;                                       // 1        m_CategoryID
-    //char*     m_NameLang;                                 // 2        m_NameLang
-    //char*     m_InventoryIcon;                            // 3        m_InventoryIcon
-    //char*     m_InventoryIcon2;                           // 4        m_InventoryIcon2
-    //uint32    m_SpellWeight;                              // 5        m_SpellWeight
-    //uint32    m_SpellCategory;                            // 6        m_SpellCategory
-    uint32  TotalCap;                                       // 7        m_MaxQty
-    uint32  WeekCap;                                        // 8        m_MaxEarnablePerWeek
-    uint32  Flags;                                          // 9        m_Flags
-    //uint32    m_Quality                                   // 10       m_Quality
-    //char*     m_DescriptionLang;                          // 11       m_DescriptionLang
-
-    bool HasPrecision() const   { return Flags & CURRENCY_FLAG_HIGH_PRECISION; }
-    bool HasSeasonCount() const { return Flags & CURRENCY_FLAG_HAS_SEASON_COUNT; }
-    float GetPrecision() const  { return HasPrecision() ? 100.0f : 1.0f; }
-};
-
 struct DestructibleModelDataEntry
 {
     uint32  Id;                                             // 0        m_ID
@@ -506,7 +495,7 @@ struct DifficultyEntry
     uint32 GroupSizeDmgCurveID;
     uint32 GroupSizeSpellPointsCurveID;
     char*  NameLang;
-    uint32 Unknow1;
+    uint32 ItemBonusTreeModID;
 };
 
 struct DungeonEncounterEntry
@@ -536,15 +525,26 @@ struct DurabilityQualityEntry
 
 struct EmotesEntry
 {
-    uint32  Id;                                             // 0        m_ID
-    //char*     EmoteSlashCommand;                          // 1        EmoteSlashCommand
-    //uint32    m_AnimID;                                   // 2        m_AnimID
-    uint32  Flags;                                          // 3        m_EmoteFlags
-    uint32  EmoteType;                                      // 4        m_EmoteSpecProc
-    uint32  UnitStandState;                                 // 5        m_EmoteSpecProcParam
-    //uint32    m_EventSoundID;                             // 6        m_EventSoundID
-    //uint32    SpellVisualKitID;                           // 7        m_SpellVisualKitID
+    uint32  Id;                                         // 0        m_ID
+    char*   EmoteSlashCommand;                          // 1        EmoteSlashCommand
+    uint32  m_AnimID;                                   // 2        m_AnimID
+    uint32  Flags;                                      // 3        m_EmoteFlags
+    uint32  EmoteType;                                  // 4        m_EmoteSpecProc
+    uint32  UnitStandState;                             // 5        m_EmoteSpecProcParam
+    uint32  m_EventSoundID;                             // 6        m_EventSoundID
+    uint32  SpellVisualKitID;                           // 7        m_SpellVisualKitID
 };
+
+/// @see EmoteType in EmotesEntry
+namespace EmoteTypes
+{
+    enum
+    {
+        OneStep,
+        EmoteLoop,
+        StateLoop       ///< Also related to m_EventSoundID, client play the sound only when EmoteType == StateLoop
+    };
+}
 
 struct EmotesTextEntry
 {
@@ -677,7 +677,7 @@ struct GemPropertiesEntry
     //uint32    m_MaxcountInv                               // 2        m_MaxcountInv
     //uint32    m_MaxcountItem                              // 3        m_maxcount_item
     uint32      color;                                      // 4        m_type
-    //uint32    m_MinItemLevel                              // 5        m_MinItemLevel
+    uint32      requiredILvl;                               // 5        m_requiredItemLevel
 };
 
 struct GlyphPropertiesEntry
@@ -897,22 +897,18 @@ struct gtItemSocketCostPerLevelEntry
     float cost;
 };
 
-// we have no data in 6.0.1 18612
 struct ItemDisplayInfoEntry
 {
-    uint32  ID;                                             // 0        m_ID
-    //char*                                                 // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // ?
-    //uint32                                                // 22
+    uint32      ID;                                         // 0
+    //char*     ModelName[2];                               // 1-2
+    //char*     ModelTexture[2];                            // 3-4
+    //uint32    GeoSetGroup[3];                             // 5-7
+    //uint32    Flags;                                      // 8
+    //uint32    SpellVisualID;                              // 9
+    //uint32    HelmetGeosetVis[2];                         // 10-11
+    //char*     Texture[9];                                 // 12-20
+    //uint32    ItemVisual;                                 // 21
+    //uint32    ParticleColorID;                            // 22
 };
 
 struct ItemDisenchantLootEntry
@@ -1075,14 +1071,6 @@ struct MailTemplateEntry
     char*   content;                                        // 2        m_body_lang
 };
 
-enum MapFlags : uint32
-{
-    MAP_FLAG_CAN_CHANGE_DIFFICULTY  = 0x00000001,
-    MAP_FLAG_DEV                    = 0x00000002,
-    MAP_FLAG_OVERRIDE_FAR_CLIP      = 0x00010000,
-    MAP_FLAG_CAN_GET_GARRISON_INFO  = 0x04000000
-};
-
 struct MapEntry
 {
     uint32  MapID;                                          // 0        m_ID
@@ -1136,17 +1124,19 @@ struct MapEntry
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571 || MapID == 860 || MapID == 870 || MapID == 1116;
     }
+
+    bool IsDynamicDifficultyMap() const { return (Flags & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
 };
 
 struct MapDifficultyEntry
 {
-    //uint32    Id;                                         // 0        m_ID
+    uint32    Id;                                           // 0        m_ID
     uint32  MapId;                                          // 1        m_MapID
     uint32  Difficulty;                                     // 2        m_DifficultyID          (for arenas: arena slot)
     char*   AreaTriggerText;                                // 3        m_message_lang          (text showed when transfer to map failed)
     uint32  ResetTime;                                      // 4        m_raidDuration          in secs, 0 if no fixed reset time
     uint32  MaxPlayers;                                     // 5        m_maxPlayers            some heroic versions have 0 when expected same amount as in normal version
-    //uint32    LockID;                                     // 6        m_LockID
+    uint32  LockID;                                         // 6        m_LockID
     uint32  ItemBonusTreeDifficulty;                        // 7
 };
 
@@ -1184,7 +1174,7 @@ struct MovieEntry
     //uint32    Volume;                                     // 1        m_Volume
     //uint32    KeyID;                                      // 2        m_KeyID
     //uint32    AudioFileDataID;                            // 3        m_AudioFileDataID
-    //uint32    unk3m_SubtitleFileDataID;                   // 4        m_SubtitleFileDataID
+    //uint32    m_SubtitleFileDataID;                       // 4        m_SubtitleFileDataID
 };
 
 struct NameGenEntry
@@ -1214,7 +1204,7 @@ struct PvPDifficultyEntry
     uint32  maxLevel;                                       // 4        m_MaxLevel
 
     // helpers
-    BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(bracketId); }
+    uint32 GetBracketId() const { return bracketId; }
 };
 
 struct QuestSortEntry
@@ -1365,7 +1355,7 @@ struct SkillLineEntry
     uint32  spellIcon;                                      // 4        m_spellIconID
     //char*     alternateVerb;                              // 5        m_alternateVerb_lang
     uint32  canLink;                                        // 6        m_canLink (prof. with recipes)
-    //uint32    m_ParentSkillLineID;                        // 7        m_ParentSkillLineID
+    uint32 parentSkillLineID;                               // 7        m_parentSkillLineID
     uint32  m_Flags;                                        // 8        m_Flags
 };
 
@@ -1384,28 +1374,6 @@ struct SkillLineAbilityEntry
     uint32  skill_gain;                                     // 10       m_NumSkillUps
     //uint32    m_UniqueBit;                                // 11       m_UniqueBit
     //uint32    m_TradeSkillCategoryID;                     // 12       m_TradeSkillCategoryID
-};
-
-struct SoundEntriesEntry
-{
-    uint32  Id;                                             // 0        m_ID
-    //uint32    Type;                                       // 1        m_SoundType
-    //char*     InternalName;                               // 2        m_Name
-    //uint32    m_FileDataID[20];                           // 3-22     m_FileDataID
-    //uint32    m_Freq[20];                                 // 23-42    m_Freq
-    //float     m_volumeFloat;                              // 43       m_VolumeFloat
-    //uint32    m_Flags;                                    // 44       m_Flags
-    //float     m_MinDistance;                              // 45       m_MinDistance
-    //float     m_DistanceCutoff;                           // 46       m_DistanceCutoff
-    //uint32    m_EAXDef;                                   // 47       m_EAXDef
-    //uint32    m_SoundEntriesAdvancedID;                   // 48       m_SoundEntriesAdvancedID
-    //float     m_Volumevariationplus;                      // 49       m_Volumevariationplus
-    //float     m_Volumevariationminus;                     // 50       m_Volumevariationminus
-    //float     m_Pitchvariationplus;                       // 51       m_Pitchvariationplus
-    //float     m_Pitchvariationminus;                      // 52       m_Pitchvariationminus
-    //float     m_PitchAdjust;                              // 53       m_PitchAdjust
-    //uint32    m_Dialogtype;                               // 54       m_Dialogtype
-    //uint32    m_BusOverwriteID;                           // 55       m_BusOverwriteID
 };
 
 struct SpecializationSpellEntry
@@ -1641,7 +1609,7 @@ struct SpellTargetRestrictionsEntry
     uint32  Id;                                             // 0        m_ID
     uint32  SpellId;                                        // 1        m_spellId
     uint32  DifficultyID;                                   // 2        m_DifficultyID
-    float   MaxTargetRadius;                                // 3        m_ConeAngle
+    float   ConeAngle;                                      // 3        m_ConeAngle
     float   Width;                                          // 4        m_Width
     uint32  MaxAffectedTargets;                             // 5        m_maxTargets
     uint32  MaxTargetLevel;                                 // 6        m_maxTargetLevel
@@ -1685,12 +1653,11 @@ struct SpellItemEnchantmentEntry
     uint32  requiredSkill;                                  // 16       m_requiredSkillID
     uint32  requiredSkillValue;                             // 17       m_requiredSkillRank
     uint32  requiredLevel;                                  // 18       m_MinLevel
-    //uint32    m_MaxLevel;                                 // 19       m_MaxLevel
-    // uint32   m_ItemLevel;                                // 20       m_ItemLevel
-    // int32    m_ScalingClass;                             // 21       m_ScalingClass
-    // int32    m_ScalingClassRestricted                    // 22       m_ScalingClassRestricted
-    // float    m_EffectScalingPoints[3]                    // 23 -25   m_EffectScalingPoints
-
+    uint32  m_MaxLevel;                                     // 19       m_MaxLevel
+    uint32  m_ItemLevel;                                    // 20       m_ItemLevel
+    int32   m_ScalingClass;                                 // 21       m_ScalingClass
+    int32   m_ScalingClassRestricted;                       // 22       m_ScalingClassRestricted
+    float   m_EffectScalingPoints[3];                       // 23 -25   m_EffectScalingPoints
 };
 
 //@todo
@@ -1728,21 +1695,6 @@ struct TalentEntry
     uint32  ClassID;            // 8
     uint32  OverridesSpellID;   // 9
     char*   DescriptionLang;    // 10
-};
-
-struct TaxiNodesEntry
-{
-    uint32  ID;                                             // 0        m_ID
-    uint32  map_id;                                         // 1        m_ContinentID
-    float   x;                                              // 2        m_x
-    float   y;                                              // 3        m_y
-    float   z;                                              // 4        m_z
-    char*   name;                                           // 5        m_Name_lang
-    uint32  MountCreatureID[2];                             // 6-7      m_MountCreatureID[2]
-    //uint32    m_ConditionID                               // 8        m_ConditionID
-    //uint32    m_Flags                                     // 9        m_Flags
-    //float     m_MapOffset                                 // 10       m_MapOffset
-    //float     m_MapOffset                                 // 11       m_MapOffset
 };
 
 struct TaxiPathEntry
@@ -2354,6 +2306,12 @@ struct CriteriaEntry
             uint32 RequiredLevel;
         } BattlePetLevelUp;
 
+        /// ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER
+        struct
+        {
+            uint32 EncounterID;
+        } DefeatEncounter;
+
         struct
         {
             uint32 criteriaArg1;
@@ -2391,6 +2349,20 @@ struct SpellProcsPerMinuteEntry
     //bool unk;                                             // 2
 };
 
+struct WorldStateEntry
+{
+    uint32 ID;                                              // 0
+};
+
+struct WorldStateExpressionEntry
+{
+    uint32 ID;                                              // 0
+    char*  Expression;                                      // 1
+
+    /// Eval a worldstate expression
+    bool Eval(Player* p_Player) const;
+};
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
@@ -2408,16 +2380,20 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : ResetTime(0), MaxPlayers(0), HasErrorMessage(false), ItemBonusTreeDifficulty(0)
-    {}
+    MapDifficulty()
+        : DifficultyID(0), ResetTime(0), MaxPlayers(0), HasErrorMessage(false), Context(0)
+    {
+    }
 
-    MapDifficulty(uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
-        : ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), ItemBonusTreeDifficulty(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
-    {}
+    MapDifficulty(uint32 p_DifficultyID, uint32 p_ResetTime, uint32 p_MaxPlayers, uint32 p_ItemBonusTreeDifficulty, bool p_HasErrorMessage)
+        : DifficultyID(p_DifficultyID), ResetTime(p_ResetTime), MaxPlayers(p_MaxPlayers), Context(p_ItemBonusTreeDifficulty), HasErrorMessage(p_HasErrorMessage)
+    {
+    }
 
+    uint32 DifficultyID;
     uint32 ResetTime;
     uint32 MaxPlayers;
-    uint32 ItemBonusTreeDifficulty;
+    uint32 Context;
     bool   HasErrorMessage;
 };
 
@@ -2436,7 +2412,7 @@ struct SpellEffect
 {
     SpellEffect()
     {
-        for (int i = 0; i < MAX_DIFFICULTY; i++)
+        for (int i = 0; i < Difficulty::MaxDifficulties; i++)
         {
             for (int y = 0; y < MAX_SPELL_EFFECTS; y++)
             {
@@ -2444,22 +2420,9 @@ struct SpellEffect
             }
         }
     }
-    SpellEffectEntry const* effects[MAX_DIFFICULTY][32];
+    SpellEffectEntry const* effects[Difficulty::MaxDifficulties][32];
 };
 
 typedef std::map<uint32, SpellEffect> SpellEffectMap;
 
-struct TaxiPathBySourceAndDestination
-{
-    TaxiPathBySourceAndDestination() : ID(0), price(0) {}
-    TaxiPathBySourceAndDestination(uint32 _id, uint32 _price) : ID(_id), price(_price) {}
-
-    uint32    ID;
-    uint32    price;
-};
-typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
-typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
-
-#define TaxiMaskSize 198
-typedef uint8 TaxiMask[TaxiMaskSize];
 #endif

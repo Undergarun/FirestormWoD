@@ -66,6 +66,8 @@ public:
         {
             { "auctions",                     SEC_ADMINISTRATOR, true,  &HandleReloadAuctionsCommand,                   "", NULL },
             { "access_requirement",           SEC_ADMINISTRATOR, true,  &HandleReloadAccessRequirementCommand,          "", NULL },
+            { "lfr_access_requirement",       SEC_ADMINISTRATOR, true,  &HandleReloadLFRAccessRequirementCommand,       "", NULL },
+            { "lfg_entrances",                SEC_ADMINISTRATOR, true,  &HandleReloadLFGEntrancesCommand,               "", NULL },
             { "achievement_criteria_data",    SEC_ADMINISTRATOR, true,  &HandleReloadAchievementCriteriaDataCommand,    "", NULL },
             { "achievement_reward",           SEC_ADMINISTRATOR, true,  &HandleReloadAchievementRewardCommand,          "", NULL },
             { "all",                          SEC_ADMINISTRATOR, true,  NULL,                          "", reloadAllCommandTable },
@@ -79,11 +81,11 @@ public:
             { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "", NULL },
             { "creature_area",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureArea,                      "", NULL },
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_involvedrelation",    SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestInvRelationsCommand,  "", NULL },
+            { "creature_questender",          SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestEnderCommand,         "", NULL },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reputation",   SEC_ADMINISTRATOR, true,  &HandleReloadOnKillReputationCommand,           "", NULL },
-            { "creature_questrelation",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestRelationsCommand,     "", NULL },
+            { "creature_queststarter",        SEC_ADMINISTRATOR, true,  &HandleReloadLoadCreatureQuestStartersCommand,  "", NULL },
             { "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
             //{ "db_script_string",             SEC_ADMINISTRATOR, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
             { "disables",                     SEC_ADMINISTRATOR, true,  &HandleReloadDisablesCommand,                   "", NULL },
@@ -92,9 +94,9 @@ public:
             { "fishing_loot_template",        SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesFishingCommand,       "", NULL },
             { "game_graveyard_zone",          SEC_ADMINISTRATOR, true,  &HandleReloadGameGraveyardZoneCommand,          "", NULL },
             { "game_tele",                    SEC_ADMINISTRATOR, true,  &HandleReloadGameTeleCommand,                   "", NULL },
-            { "gameobject_involvedrelation",  SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestInvRelationsCommand,        "", NULL },
+            { "gameobject_questender",        SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestInvRelationsCommand,        "", NULL },
             { "gameobject_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesGameobjectCommand,    "", NULL },
-            { "gameobject_questrelation",     SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestRelationsCommand,           "", NULL },
+            { "gameobject_queststarter",      SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestRelationsCommand,           "", NULL },
             { "gameobject_scripts",           SEC_ADMINISTRATOR, true,  &HandleReloadGameObjectScriptsCommand,          "", NULL },
             { "gm_tickets",                   SEC_ADMINISTRATOR, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
             { "gossip_menu",                  SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
@@ -108,7 +110,6 @@ public:
             { "locales_creature_text",        SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureTextCommand,        "", NULL },
             { "locales_gameobject",           SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
-            { "locales_item",                 SEC_ADMINISTRATOR, true,  &HandleReloadLocalesItemCommand,                "", NULL },
             { "locales_npc_text",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
             { "locales_page_text",            SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
             { "locales_points_of_interest",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
@@ -261,7 +262,7 @@ public:
 
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Quests Relations...");
         sObjectMgr->LoadQuestRelations();
-        handler->SendGlobalGMSysMessage("DB tables `*_questrelation` and `*_involvedrelation` reloaded.");
+        handler->SendGlobalGMSysMessage("DB tables `*_queststarter` and `*_questender` reloaded.");
         return true;
     }
 
@@ -329,7 +330,6 @@ public:
         HandleReloadLocalesCreatureTextCommand(handler, "a");
         HandleReloadLocalesGameobjectCommand(handler, "a");
         HandleReloadLocalesGossipMenuOptionCommand(handler, "a");
-        HandleReloadLocalesItemCommand(handler, "a");
         HandleReloadLocalesNpcTextCommand(handler, "a");
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
@@ -351,6 +351,22 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Access Requirement definitions...");
         sObjectMgr->LoadAccessRequirements();
         handler->SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLFRAccessRequirementCommand(ChatHandler* p_Handler, const char* /*args*/)
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading LFR Access Requirement definitions...");
+        sObjectMgr->LoadLFRAccessRequirements();
+        p_Handler->SendGlobalGMSysMessage("DB table `lfr_access_requirement` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLFGEntrancesCommand(ChatHandler* p_Handler, const char* /*args*/)
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading LFG Entrances definitions...");
+        sLFGMgr->LoadEntrancePositions();
+        p_Handler->SendGlobalGMSysMessage("DB table `lfg_entrances` reloaded.");
         return true;
     }
 
@@ -531,11 +547,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureQuestRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadLoadCreatureQuestStartersCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_questrelation`)");
-        sObjectMgr->LoadCreatureQuestRelations();
-        handler->SendGlobalGMSysMessage("DB table `creature_questrelation` (creature quest givers) reloaded.");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_queststarter`)");
+        sObjectMgr->LoadCreatureQuestStarters();
+        handler->SendGlobalGMSysMessage("DB table `creature_queststarter` reloaded.");
         return true;
     }
 
@@ -547,11 +563,11 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureQuestInvRelationsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadCreatureQuestEnderCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_involvedrelation`)");
-        sObjectMgr->LoadCreatureInvolvedRelations();
-        handler->SendGlobalGMSysMessage("DB table `creature_involvedrelation` (creature quest takers) reloaded.");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`creature_questender`)");
+        sObjectMgr->LoadCreatureQuestEnders();
+        handler->SendGlobalGMSysMessage("DB table `creature_questender` reloaded.");
         return true;
     }
 
@@ -583,17 +599,17 @@ public:
 
     static bool HandleReloadGOQuestRelationsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_questrelation`)");
-        sObjectMgr->LoadGameobjectQuestRelations();
-        handler->SendGlobalGMSysMessage("DB table `gameobject_questrelation` (gameobject quest givers) reloaded.");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_queststarter`)");
+        sObjectMgr->LoadGameobjectQuestStarters();
+        handler->SendGlobalGMSysMessage("DB table `gameobject_queststarter` reloaded.");
         return true;
     }
 
     static bool HandleReloadGOQuestInvRelationsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_involvedrelation`)");
-        sObjectMgr->LoadGameobjectInvolvedRelations();
-        handler->SendGlobalGMSysMessage("DB table `gameobject_involvedrelation` (gameobject quest takers) reloaded.");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Loading Quests Relations... (`gameobject_questender`)");
+        sObjectMgr->LoadGameobjectQuestEnders();
+        handler->SendGlobalGMSysMessage("DB table `gameobject_questender` reloaded.");
         return true;
     }
 
@@ -1178,14 +1194,6 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales Gossip Menu Option ... ");
         sObjectMgr->LoadGossipMenuItemsLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_gossip_menu_option` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadLocalesItemCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales Item ... ");
-        sObjectMgr->LoadItemLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
         return true;
     }
 

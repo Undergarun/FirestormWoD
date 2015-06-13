@@ -57,6 +57,8 @@ enum SharedSpells
     // The Lich King
     SPELL_ARTHAS_TELEPORTER_CEREMONY    = 72915,
     SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
+
+    SPELL_UNSATED_CRAVING               = 71168,
 };
 
 enum TeleporterSpells

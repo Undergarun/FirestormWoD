@@ -296,7 +296,7 @@ class boss_primordius : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
             }
 
@@ -377,7 +377,7 @@ class boss_primordius : public CreatureScript
                         m_Events.ScheduleEvent(EVENT_MALFORMED_BLOOD, 20000);
                         break;
                     case EVENT_SUMMON_LIVING_FLUID:
-                        for (uint8 l_Index = 0; l_Index <= 10; l_Index++)
+                        for (uint8 l_Index = 0; l_Index < 10; l_Index++)
                             me->SummonCreature(NPC_LIVING_FLUID, gSpawnPositions[l_Index]);
 
                         m_Events.ScheduleEvent(EVENT_SUMMON_LIVING_FLUID, 12000);
@@ -548,7 +548,7 @@ class mob_living_fluid : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_Damage >= me->GetHealth())
                 {

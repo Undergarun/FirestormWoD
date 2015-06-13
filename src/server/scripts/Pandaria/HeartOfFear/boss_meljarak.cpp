@@ -234,7 +234,7 @@ bool StartPack(InstanceScript* pInstance, Creature* launcher, Unit* attacker)
         return false;
 
     // Previous boss must have been done
-    if (!pInstance->CheckRequiredBosses(DATA_MELJARAK))
+    if (!pInstance->CheckRequiredBosses(DATA_MELJARAK) && !pInstance->instance->IsLFR())
     {
         if (!Meljarak->IsInEvadeMode())
             Meljarak->AI()->EnterEvadeMode();
@@ -333,7 +333,7 @@ public:
                 EnterCombat(who);
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
         {
             if (instance && !inCombat)
             {
@@ -344,7 +344,7 @@ public:
                     return;
                 }
 
-                if (!instance->CheckRequiredBosses(DATA_MELJARAK))
+                if (!instance->CheckRequiredBosses(DATA_MELJARAK) && !IsLFR())
                 {
                     if (!me->IsInEvadeMode())
                         EnterEvadeMode();
@@ -367,6 +367,11 @@ public:
             inCombat = true;
 
             Talk(SAY_AGGRO);
+            std::list<GameObject*> l_DoorList;
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+
+            for (GameObject* l_Door : l_DoorList)
+                l_Door->SetGoState(GO_STATE_READY);
 
             // Normal events.
             events.ScheduleEvent(EVENT_WHIRLING_BLADE, 36000);
@@ -447,6 +452,12 @@ public:
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_IMPALING_SPEAR);
             }
 
+            std::list<GameObject*> l_DoorList;
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+
+            for (GameObject* l_Door : l_DoorList)
+                l_Door->SetGoState(GO_STATE_ACTIVE);
+
             me->GetMotionMaster()->MoveTargetedHome();
             _EnterEvadeMode();
         }
@@ -486,6 +497,12 @@ public:
             }
 
             _JustDied();
+
+            std::list<GameObject*> l_DoorList;
+            GetGameObjectListWithEntryInGrid(l_DoorList, me, GOB_DOOR_TO_MELJARAK, 500.0f);
+
+            for (GameObject* l_Door : l_DoorList)
+                l_Door->SetGoState(GO_STATE_ACTIVE);
 
             Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
@@ -601,14 +618,14 @@ public:
 
         void UpdateAI(uint32 const diff)
         {
-            //if (instance)
-            //{
-            //    if (instance->IsWipe() && !me->IsInEvadeMode())
-            //    {
-            //        EnterEvadeMode();
-            //        return;
-            //    }
-            //}
+            if (instance)
+            {
+                if (instance->IsWipe() && !me->IsInEvadeMode())
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+            }
 
             if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -765,7 +782,7 @@ public:
 };
 
 // Korthik Elite Blademaster: 62402 - handled in boss script, script here only used for life sharing
-class npc_korthik_elite_blademaster : public CreatureScript
+class npc_korthik_elite_blademaster: public CreatureScript
 {
 public:
     npc_korthik_elite_blademaster() : CreatureScript("npc_korthik_elite_blademaster") { }
@@ -847,7 +864,7 @@ public:
             AttackStart(attacker);
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -901,7 +918,7 @@ struct NonAlreadyAmberPrisoner : public std::unary_function<Unit*, bool>
 };
 
 // Srathik Amber Trapper: 62405.
-class npc_srathik_amber_trapper : public CreatureScript 
+class npc_srathik_amber_trapper: public CreatureScript 
 {
 public:
     npc_srathik_amber_trapper() : CreatureScript("npc_srathik_amber_trapper") { }
@@ -992,7 +1009,7 @@ public:
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1062,7 +1079,7 @@ public:
 };
 
 // Zarthik Battle Mender: 62408.
-class npc_zarthik_battle_mender : public CreatureScript 
+class npc_zarthik_battle_mender: public CreatureScript 
 {
 public:
     npc_zarthik_battle_mender() : CreatureScript("npc_zarthik_battle_mender") { }
@@ -1153,7 +1170,7 @@ public:
                 respawn = false;
         }
 
-        void DamageTaken(Unit* killer, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage, const SpellInfo* p_SpellInfo)
         {
             if (killer->GetEntry() == me->GetEntry())
                 return;
@@ -1322,16 +1339,16 @@ public:
     {
         npc_amber_prison_meljarakAI(Creature* creature) : ScriptedAI(creature) { }
 
-        Unit* target;
+        uint64 targetGUID;
         uint32 timerChecktarget;
 
         void IsSummonedBy(Unit* summoner)
         {
-            target = summoner;
+            targetGUID = summoner->GetGUID();
             timerChecktarget = 500;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, const SpellInfo* p_SpellInfo)
         {
             if (attacker->HasAura(SPELL_RESIDUE))
                 damage = 0;
@@ -1339,8 +1356,8 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (target)
-                target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
+            if (Unit* l_Target = Unit::GetUnit(*me, targetGUID))
+                l_Target->RemoveAurasDueToSpell(SPELL_AMBER_PRISON_AURA);
             me->CastSpell(killer, SPELL_RESIDUE, false);
         }
 
@@ -1349,11 +1366,16 @@ public:
             if (timerChecktarget <= diff)
             {
                 // Check if the debuff has expired.
-                if (target && !target->HasAura(SPELL_AMBER_PRISON_AURA))
-                    me->DespawnOrUnsummon(100);
+                if (Unit* l_Target = Unit::GetUnit(*me, targetGUID))
+                {
+                    if (l_Target && !l_Target->HasAura(SPELL_AMBER_PRISON_AURA))
+                        me->DespawnOrUnsummon(100);
+                }
 
                 timerChecktarget = 500;
-            } else timerChecktarget -= diff;
+            }
+            else
+                timerChecktarget -= diff;
         }
     };
 
@@ -1431,7 +1453,7 @@ public:
 };
 
 // Corrosive Resin: 122064.
-class spell_meljarak_corrosive_resin: public SpellScriptLoader
+class spell_meljarak_corrosive_resin : public SpellScriptLoader
 {
     public:
         spell_meljarak_corrosive_resin() : SpellScriptLoader("spell_meljarak_corrosive_resin") { }
@@ -1477,7 +1499,7 @@ class spell_meljarak_corrosive_resin: public SpellScriptLoader
 };
 
 // mending - 122147
-class spell_mending: public SpellScriptLoader
+class spell_mending : public SpellScriptLoader
 {
 public:
     spell_mending() : SpellScriptLoader("spell_mending") { }
@@ -1537,7 +1559,7 @@ public:
 };
 
 // 121897 - Whirling Blade - Flying Sword
-class spell_whirling_blade_sword: public SpellScriptLoader
+class spell_whirling_blade_sword : public SpellScriptLoader
 {
 public:
     spell_whirling_blade_sword() : SpellScriptLoader("spell_whirling_blade_sword") { }
@@ -1579,7 +1601,7 @@ public:
 };
 
 // 121898 - Wirling Blade - Damages
-class spell_whirling_blade_damages: public SpellScriptLoader
+class spell_whirling_blade_damages : public SpellScriptLoader
 {
 public:
     spell_whirling_blade_damages() : SpellScriptLoader("spell_whirling_blade_damages") { }

@@ -29,9 +29,6 @@ enum TotemType
 };
 
 // Some Totems cast spells that are not in creature DB
-#define SENTRY_TOTEM_SPELLID  6495
-
-#define SENTRY_TOTEM_ENTRY    3968
 #define STONECLAW_TOTEM_ENTRY 59712
 #define HEALING_TIDE_TOTEM_ENTRY 59764
 
@@ -56,7 +53,7 @@ class Totem : public Minion
         void UpdateMaxHealth() {}
         void UpdateMaxPower(Powers /*power*/) {}
         void UpdateAttackPowerAndDamage(bool /*ranged*/) {}
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/) {}
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/, bool l_IsNoLongerDualWielding = false) {}
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
 

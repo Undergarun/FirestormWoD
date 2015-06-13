@@ -176,13 +176,13 @@ const uint32 GILNEAS_BG_TickIntervals[4] = { 0, 12000, 6000, 1000 };
 const uint32 GILNEAS_BG_TickPoints[4]    = { 0, 10, 10, 30 };
 
 // Light, Water, Mine, Ally, Horde
-const uint32 GILNEAS_BG_GraveyardIds[GILNEAS_BG_ALL_NODES_COUNT] = { 1736, 1735, 1738, 1740, 1739 };
+const uint32 GILNEAS_BG_GraveyardIds[GILNEAS_BG_ALL_NODES_COUNT] = { 1736, 1738, 1735, 1740, 1739 };
 
 const float GILNEAS_BG_SpiritGuidePos[GILNEAS_BG_ALL_NODES_COUNT][4] =
 {
     { 1034.82f, 1335.58f, 12.0095f, 5.15f },     // Lighthouse
-    { 1252.23f, 836.547f, 27.7895f, 1.60f },     // Mine
     { 887.578f, 937.337f, 23.7737f, 0.45f },     // Waterworks
+    { 1252.23f, 836.547f, 27.7895f, 1.60f },     // Mine
     { 908.274f, 1338.60f, 27.6449f, 5.95f },     // Alliance
     { 1401.38f, 977.125f, 7.44215f, 3.04f },     // Horde
 };
@@ -233,6 +233,10 @@ class BattlegroundBFG : public Battleground
         bool IsAllNodesControlledByTeam(uint32 team) const;
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return GILNEAS_BG_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
     private:
         virtual void PostUpdateImpl(uint32 diff);
 
@@ -262,14 +266,14 @@ class BattlegroundBFG : public Battleground
         uint8                      m_prevNodes[GILNEAS_BG_DYNAMIC_NODES_COUNT];
         uint32                     m_NodeTimers[GILNEAS_BG_DYNAMIC_NODES_COUNT];
 
-        uint32                     m_lastTick[BG_TEAMS_COUNT];
-        uint32                     m_HonorScoreTicks[BG_TEAMS_COUNT];
-        uint32                     m_ReputationScoreTicks[BG_TEAMS_COUNT];
+        uint32                     m_lastTick[MS::Battlegrounds::TeamsCount::Value];
+        uint32                     m_HonorScoreTicks[MS::Battlegrounds::TeamsCount::Value];
+        uint32                     m_ReputationScoreTicks[MS::Battlegrounds::TeamsCount::Value];
 
         bool                       m_IsInformedNearVictory;
         uint32                     m_HonorTicks;
         uint32                     m_ReputationTicks;
-        bool                       m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                       m_TeamScores500Disadvantage[MS::Battlegrounds::TeamsCount::Value];
 };
 
 #endif

@@ -8,10 +8,20 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+file(GLOB_RECURSE sources_Garrison Draenor/Garrison/*.hpp Draenor/Garrison/*.cpp Draenor/Garrison/*.hxx)
+file(GLOB_RECURSE sources_Highmaul Draenor/Highmaul/*.hpp Draenor/Highmaul/*.cpp Draenor/Highmaul/*.hxx)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${sources_Garrison}
+  ${sources_Highmaul}
   Draenor/tanaan_jungle.cpp
   Draenor/tanaan_jungle.h
+  Draenor/frostfire_ridge.cpp
+  Draenor/frostfire_ridge.h
+  Draenor/spires_of_arak.cpp
+  Draenor/spires_of_arak.h
+  Draenor/gorgrond.cpp
   Draenor/item_strongboxes.cpp
   Draenor/Skyreach/instance_skyreach.h
   Draenor/Skyreach/instance_skyreach.cpp
@@ -27,31 +37,23 @@ set(scripts_STAT_SRCS
   Draenor/BloodmaulSlagMines/spell_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/areatrigger_bloodmaul.cpp
   Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
-  Draenor/Garrison/GarrisonNPC.cpp
-  Draenor/Garrison/GarrisonNPC_Horde.cpp
-  Draenor/Garrison/GarrisonNPC_Alliance.cpp
-  Draenor/Garrison/GarrisonQuest.cpp
-  Draenor/Garrison/GarrisonSpell.cpp
-  Draenor/Garrison/GarrisonGO.cpp
-  Draenor/Garrison/GarrisonScriptData.hpp
-  Draenor/Garrison/GarrisonNPC.hpp
-  Draenor/Garrison/GarrisonQuest.hpp
-  Draenor/Garrison/GarrisonSpell.hpp
-  Draenor/Garrison/GarrisonGO.hpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel1.cpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel1.hpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel2.cpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel2.hpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel3.cpp
-  Draenor/Garrison/Sites/GarrisonAllianceLevel3.hpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel1.hpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel1.cpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel2.hpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel2.cpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel3.hpp
-  Draenor/Garrison/Sites/GarrisonHordeLevel3.cpp
-  Draenor/Garrison/Sites/GarrisonSiteBase.hpp
-  Draenor/Garrison/Sites/GarrisonSiteBase.cpp
+  Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
+  Draenor/BloodmaulSlagMines/boss_roltall.cpp
+  Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
+  Draenor/IronDocks/boss_girmrail.cpp
+  Draenor/IronDocks/boss_nokgar.cpp
+  Draenor/IronDocks/boss_oshir.cpp
+  Draenor/IronDocks/instance_iron_docks.cpp
+  Draenor/IronDocks/iron_docks.cpp
+  Draenor/IronDocks/iron_docks.h
+  Draenor/IronDocks/skulloc.cpp
+  Draenor/Auchindoun/auchindon.cpp
+  Draenor/Auchindoun/auchindon.h
+  Draenor/Auchindoun/boss_azakael.cpp
+  Draenor/Auchindoun/boss_kaathar.cpp
+  Draenor/Auchindoun/boss_nyami.cpp
+  Draenor/Auchindoun/boss_teronogor.cpp
+  Draenor/Auchindoun/instance_auchindon.cpp
 )
 
 message("  -> Prepared: Draenor")

@@ -103,7 +103,7 @@ void WorldSession::SendAuctionBidderNotification(AuctionEntry* p_Auction,uint64 
     }
     else
     {
-        WorldPacket l_Data(SMSG_AUCTION_BIDDER_NOTIFICATION);
+        WorldPacket l_Data(SMSG_AUCTION_BIDDER_NOTIFICATION, 2048);
         l_Data << uint32(p_Auction->Id);
         l_Data.appendPackGUID(l_BidderGuid);
         p_Auction->BuildAuctionInfo(l_Data);
@@ -116,7 +116,7 @@ void WorldSession::SendAuctionBidderNotification(AuctionEntry* p_Auction,uint64 
 // This void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* p_Auction)
 {
-    WorldPacket l_Data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 40);
+    WorldPacket l_Data(SMSG_AUCTION_OWNER_BID_NOTIFICATION, 400);
     l_Data << uint32(p_Auction->itemEntry);
     l_Data << uint64(p_Auction->bid);
     p_Auction->BuildAuctionInfo(l_Data);
@@ -267,7 +267,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             {
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(), 0, "", 0, "",
                                 "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount());
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount());
             }
 
             l_AHEntry->itemGUIDLow = l_Item->GetGUIDLow();
@@ -282,7 +282,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             l_AHEntry->deposit = l_Deposit;
             l_AHEntry->auctionHouseEntry = l_AuctionHouse;
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetGUIDLow(), l_AHEntry->auctioneer, l_Item->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetGUIDLow(), l_AHEntry->auctioneer, l_Item->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
             sAuctionMgr->AddAItem(l_Item);
             l_AuctionHouseObj->AddAuction(l_AHEntry);
 
@@ -314,7 +314,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             {
                 sLog->outCommand(GetAccountId(), "", GetPlayer()->GetGUIDLow(), GetPlayer()->GetName(), 0, "", 0, "",
                                 "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1.c_str(), l_Item->GetEntry(), l_Item->GetCount());
+                                GetPlayerName().c_str(), GetAccountId(), l_Item->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_Item->GetEntry(), l_Item->GetCount());
             }
 
             l_AHEntry->itemGUIDLow = l_NewItem->GetGUIDLow();
@@ -329,7 +329,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& p_RecvData)
             l_AHEntry->deposit = l_Deposit;
             l_AHEntry->auctionHouseEntry = l_AuctionHouse;
 
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_NewItem->GetTemplate()->Name1.c_str(), l_NewItem->GetEntry(), l_NewItem->GetGUIDLow(), l_AHEntry->auctioneer, l_NewItem->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "CMSG_AUCTION_SELL_ITEM: Player %s (guid %d) is selling item %s entry %u (guid %d) to auctioneer %u with count %u with initial bid %lu with buyout %lu and with time %u (in sec) in auctionhouse %u", m_Player->GetName(), m_Player->GetGUIDLow(), l_NewItem->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), l_NewItem->GetEntry(), l_NewItem->GetGUIDLow(), l_AHEntry->auctioneer, l_NewItem->GetCount(), l_Bid, l_Buyout, l_AuctionTime, l_AHEntry->GetHouseId());
             sAuctionMgr->AddAItem(l_NewItem);
             l_AuctionHouseObj->AddAuction(l_AHEntry);
 
@@ -578,7 +578,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
+    WorldPacket l_Data(SMSG_AUCTION_BIDDER_LIST_RESULT, 10 * 1024);
     uint32 l_Count = 0;
     uint32 l_TotalCount = 0;
 
@@ -618,7 +618,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_OWNER_LIST_RESULT, (4 + 4 + 4));
+    WorldPacket l_Data(SMSG_AUCTION_OWNER_LIST_RESULT, 100 * 1024);
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // Count place holder
@@ -676,13 +676,13 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 
     AuctionHouseObject* l_AuctionHouse = sAuctionMgr->GetAuctionsMap(l_Auctioneer->getFaction());
 
-    WorldPacket l_Data(SMSG_AUCTION_LIST_RESULT, (4+4+4));
+    WorldPacket l_Data(SMSG_AUCTION_LIST_RESULT, 2 * 1024);
 
     size_t l_CountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // Count place holder
-    l_Data << uint32(300);                                  // Desired Delay
     size_t l_TotalCountPos = l_Data.wpos();
     l_Data << uint32(0);                                    // TotalCount place holder
+    l_Data << uint32(300);                                  // Desired Delay
 
     uint32 l_Count = 0;
     uint32 l_TotalCount = 0;
@@ -701,6 +701,11 @@ void WorldSession::HandleAuctionListItems(WorldPacket& p_RecvData)
 
     l_Data.put<uint32>(l_CountPos, l_Count);
     l_Data.put<uint32>(l_TotalCountPos, l_TotalCount);
+
+    l_Data.FlushBits();
+    l_Data.WriteBit(l_Usable);  ///< OnlyUsable
+    l_Data.FlushBits();
+
     SendPacket(&l_Data);
 }
 

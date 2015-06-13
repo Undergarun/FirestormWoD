@@ -265,7 +265,6 @@ public:
                 {
                     if (pHadronox->isAlive())
                     {
-                        pHadronox->AI()->EnterEvadeMode();
                         pHadronox->setFaction(35);
                         pHadronox->SetVisible(false);
                     }

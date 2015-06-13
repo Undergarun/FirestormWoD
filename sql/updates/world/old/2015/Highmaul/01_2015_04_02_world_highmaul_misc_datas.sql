@@ -1,0 +1,2 @@
+ALTER TABLE `creature_addon` ADD COLUMN `animkit` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `auras`;
+ALTER TABLE `creature_template_addon` ADD COLUMN `animkit` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `auras`;

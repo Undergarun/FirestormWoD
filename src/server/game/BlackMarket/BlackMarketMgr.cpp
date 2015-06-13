@@ -263,7 +263,7 @@ void BlackMarketMgr::CreateAuctions(uint32 number, SQLTransaction& trans)
 void BlackMarketMgr::BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 p_GuidLow)
 {
     uint32 l_ItemCount = 0;
-    ByteBuffer l_Datas;
+    ByteBuffer l_Datas(2 * 1024);
 
     for (BMAuctionEntryMap::const_iterator l_Iter = GetAuctionsBegin(); l_Iter != GetAuctionsEnd(); ++l_Iter)
     {
@@ -279,18 +279,7 @@ void BlackMarketMgr::BuildBlackMarketAuctionsPacket(WorldPacket& p_Data, uint32 
             l_Datas << int32(l_Auction->id);
             l_Datas << int32(l_Auction->bm_template->seller);
 
-            ///< ItemStruct
-            {
-                l_Datas << int32(l_Auction->bm_template->itemEntry);
-                l_Datas << int32(0);    ///< RandomPropertiesSeed
-                l_Datas << int32(0);    ///< RandomPropertiesID
-
-                l_Datas.WriteBit(true);     ///< HasBonus
-                l_Datas.WriteBit(false);    ///< HasModifiers
-
-                l_Datas << uint8(15);   ///< UnkByte for Bonuses
-                l_Datas << uint32(0);   ///< BonusCount
-            }
+            Item::BuildDynamicItemDatas(l_Datas, l_Auction->bm_template->itemEntry);
 
             l_Datas << int32(l_Auction->bm_template->itemCount);
             l_Datas << uint64(l_MinBid);
@@ -352,18 +341,10 @@ void BlackMarketMgr::SendAuctionOutbidded(BMAuctionEntry* p_Auction, uint64 p_Ne
 
     if (l_Bidder)
     {
-        WorldPacket l_Data(SMSG_BLACK_MARKET_OUTBID, 12);
+        WorldPacket l_Data(SMSG_BLACK_MARKET_OUTBID, 200);
         l_Data << int32(0); ///< MarketID
 
-        ///< ItemStruct
-        {
-            l_Data << uint32(l_ItemTemplate->ItemId);
-            l_Data << uint32(0);   ///< RandomPropertiesSeed
-            l_Data << int32(0);    ///< RandomPropertiesID
-
-            l_Data.WriteBit(false);    ///< HasBonus
-            l_Data.WriteBit(false);    ///< HasModifiers
-        }
+        Item::BuildDynamicItemDatas(l_Data, l_ItemTemplate->ItemId);
 
         l_Data << uint32(l_ItemTemplate->RandomProperty);
         l_Bidder->GetSession()->SendPacket(&l_Data);
@@ -387,15 +368,7 @@ void BlackMarketMgr::SendAuctionWon(BMAuctionEntry* p_Auction, SQLTransaction& p
         WorldPacket l_Data(SMSG_BLACK_MARKET_WON, 12);
         l_Data << int32(0); ///< MarketID
 
-        ///< ItemStruct
-        {
-            l_Data << uint32(l_ItemTemplate->ItemId);
-            l_Data << uint32(0);   ///< RandomPropertiesSeed
-            l_Data << int32(0);    ///< RandomPropertiesID
-
-            l_Data.WriteBit(false);    ///< HasBonus
-            l_Data.WriteBit(false);    ///< HasModifiers
-        }
+        Item::BuildDynamicItemDatas(l_Data, l_ItemTemplate->ItemId);
 
         l_Data << uint32(l_ItemTemplate->RandomProperty);
         l_Bidder->GetSession()->SendPacket(&l_Data);

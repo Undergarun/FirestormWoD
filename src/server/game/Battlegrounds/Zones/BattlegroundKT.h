@@ -19,6 +19,7 @@
 #define __BattleGroundKT_H
 
 #include "Battleground.h"
+#include "ObjectAccessor.h"
 
 enum BG_KT_NPC
 {
@@ -222,7 +223,10 @@ class BattlegroundKT : public Battleground
         virtual void FillInitialWorldStates(ByteBuffer& p_Data);
 
         /* Scorekeeping */
-        uint32 GetTeamScore(Team team) const            { return m_TeamScores[GetTeamIndexByTeamId(team)]; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_KT_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
         void AddPoint(Team team, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
         void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
@@ -263,6 +267,7 @@ class BattlegroundKT : public Battleground
         uint32 m_HonorEndKills;
         uint32 m_UpdatePointsTimer;
         Team   m_LastCapturedOrbTeam;
+        int32 m_CheatersCheckTimer;
 };
 
 #endif

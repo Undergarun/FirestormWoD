@@ -97,12 +97,12 @@ int ThreadPriority::getPriority(Priority p) const
 
 #define THREADFLAG (THR_NEW_LWP | THR_SCHED_DEFAULT| THR_JOINABLE)
 
-Thread::Thread(): m_iThreadId(0), m_hThreadHandle(0), m_task(0)
+Thread::Thread(const std::string & p_Name) : m_iThreadId(0), m_hThreadHandle(0), m_task(0), m_Name(p_Name)
 {
 
 }
 
-Thread::Thread(Runnable* instance): m_iThreadId(0), m_hThreadHandle(0), m_task(instance)
+Thread::Thread(Runnable* instance, const std::string & p_Name) : m_iThreadId(0), m_hThreadHandle(0), m_task(instance), m_Name(p_Name)
 {
     // register reference to m_task to prevent it deeltion until destructor
     if (m_task)
@@ -130,7 +130,7 @@ bool Thread::start()
     if (m_task == 0 || m_iThreadId != 0)
         return false;
 
-    bool res = (ACE_Thread::spawn(&Thread::ThreadTask, (void*)m_task, THREADFLAG, &m_iThreadId, &m_hThreadHandle) == 0);
+    bool res = (ACE_Thread::spawn(&Thread::ThreadTask, (void*)new std::pair<Runnable*, std::string>(m_task, m_Name), THREADFLAG, &m_iThreadId, &m_hThreadHandle, 0) == 0);
 
     if (res)
         m_task->incReference();
@@ -179,7 +179,12 @@ void Thread::resume()
 
 ACE_THR_FUNC_RETURN Thread::ThreadTask(void * param)
 {
-    Runnable* _task = (Runnable*)param;
+    std::pair<Runnable*, std::string> * l_Params = reinterpret_cast<std::pair<Runnable*, std::string>*>(param);
+    Thread::current()->setName((char*)l_Params->second.c_str());
+    Runnable* _task = l_Params->first;
+
+    delete l_Params;
+
     _task->run();
 
     // task execution complete, free referecne added at
@@ -224,6 +229,43 @@ void Thread::setPriority(Priority type)
     int _ok = ACE_Thread::setprio(m_hThreadHandle, _priority);
     //remove this ASSERT in case you don't want to know is thread priority change was successful or not
     ASSERT (_ok == 0);
+}
+void Thread::setName(char* p_Name)
+{
+#ifdef _MSC_VER
+    typedef struct tagTHREADNAME_INFO
+    {
+        DWORD dwType; // must be 0x1000
+        LPCSTR szName; // pointer to name (in user addr space)
+        DWORD dwThreadID; // thread ID (-1=caller thread)
+        DWORD dwFlags; // reserved for future use, must be zero
+    } THREADNAME_INFO;
+
+    auto _SetName = [](char* p_Name)
+    {
+        THREADNAME_INFO l_Info;
+        {
+            l_Info.dwType = 0x1000;
+            l_Info.szName = p_Name;
+            l_Info.dwThreadID = GetCurrentThreadId();
+            l_Info.dwFlags = 0;
+        }
+        __try
+        {
+            RaiseException(0x406D1388, 0, sizeof(l_Info) / sizeof(DWORD), (ULONG_PTR*)&l_Info);
+        }
+        __except (EXCEPTION_CONTINUE_EXECUTION)
+        {
+        }
+    };
+
+    _SetName(p_Name);
+#elif PLATFORM == PLATEFORM_UNIX
+    pthread_setname_np(pthread_self(), p_Name);
+#elif PLATFORM == PLATFORM_APPLE
+    pthread_setname_np(p_Name);
+#endif // _DEBUG
+
 }
 
 void Thread::Sleep(unsigned long msecs)

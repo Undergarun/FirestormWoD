@@ -37,39 +37,70 @@ class ByteBuffer;
 
 enum SpellCastFlags
 {
-    CAST_FLAG_NONE = 0x00000000,
-    CAST_FLAG_PENDING = 0x00000001,              // aoe combat log?
-    CAST_FLAG_HAS_TRAJECTORY = 0x00000002,
-    CAST_FLAG_UNKNOWN_3 = 0x00000004,
-    CAST_FLAG_UNKNOWN_4 = 0x00000008,              // ignore AOE visual
-    CAST_FLAG_UNKNOWN_5 = 0x00000010,
-    CAST_FLAG_PROJECTILE = 0x00000020,
-    CAST_FLAG_UNKNOWN_7 = 0x00000040,
-    CAST_FLAG_UNKNOWN_8 = 0x00000080,
-    CAST_FLAG_UNKNOWN_9 = 0x00000100,
-    CAST_FLAG_UNKNOWN_10 = 0x00000200,
-    CAST_FLAG_UNKNOWN_11 = 0x00000400,
-    CAST_FLAG_POWER_LEFT_SELF = 0x00000800,
-    CAST_FLAG_UNKNOWN_13 = 0x00001000,
-    CAST_FLAG_UNKNOWN_14 = 0x00002000,
-    CAST_FLAG_UNKNOWN_15 = 0x00004000,
-    CAST_FLAG_UNKNOWN_16 = 0x00008000,
-    CAST_FLAG_UNKNOWN_17 = 0x00010000,
-    CAST_FLAG_ADJUST_MISSILE = 0x00020000,
-    CAST_FLAG_UNKNOWN_19 = 0x00040000,
-    CAST_FLAG_VISUAL_CHAIN = 0x00080000,
-    CAST_FLAG_UNKNOWN_21 = 0x00100000,
-    CAST_FLAG_RUNE_LIST = 0x00200000,
-    CAST_FLAG_UNKNOWN_23 = 0x00400000,
-    CAST_FLAG_UNKNOWN_24 = 0x00800000,
-    CAST_FLAG_UNKNOWN_25 = 0x01000000,
-    CAST_FLAG_UNKNOWN_26 = 0x02000000,
-    CAST_FLAG_IMMUNITY = 0x04000000,
-    CAST_FLAG_UNKNOWN_28 = 0x08000000,
-    CAST_FLAG_UNKNOWN_29 = 0x10000000,
-    CAST_FLAG_UNKNOWN_30 = 0x20000000,
-    CAST_FLAG_HEAL_PREDICTION = 0x40000000,
-    CAST_FLAG_UNKNOWN_32 = 0x80000000,
+    CAST_FLAG_NONE              = 0x00000000,
+    CAST_FLAG_PENDING           = 0x00000001,   ///< AOE combat log?
+    CAST_FLAG_HAS_TRAJECTORY    = 0x00000002,
+    CAST_FLAG_UNKNOWN_3         = 0x00000004,
+    CAST_FLAG_UNKNOWN_4         = 0x00000008,   ///< ignore AOE visual
+    CAST_FLAG_UNKNOWN_5         = 0x00000010,
+    CAST_FLAG_PROJECTILE        = 0x00000020,
+    CAST_FLAG_UNKNOWN_7         = 0x00000040,
+    CAST_FLAG_UNKNOWN_8         = 0x00000080,
+    CAST_FLAG_UNKNOWN_9         = 0x00000100,
+    CAST_FLAG_UNKNOWN_10        = 0x00000200,
+    CAST_FLAG_UNKNOWN_11        = 0x00000400,
+    CAST_FLAG_POWER_LEFT_SELF   = 0x00000800,
+    CAST_FLAG_UNKNOWN_13        = 0x00001000,
+    CAST_FLAG_UNKNOWN_14        = 0x00002000,
+    CAST_FLAG_UNKNOWN_15        = 0x00004000,
+    CAST_FLAG_UNKNOWN_16        = 0x00008000,
+    CAST_FLAG_UNKNOWN_17        = 0x00010000,
+    CAST_FLAG_ADJUST_MISSILE    = 0x00020000,
+    CAST_FLAG_NO_GCD            = 0x00040000,   ///< No GCD for spells casted by charm/summon (vehicle spells is an example)
+    CAST_FLAG_VISUAL_CHAIN      = 0x00080000,
+    CAST_FLAG_UNKNOWN_21        = 0x00100000,
+    CAST_FLAG_RUNE_LIST         = 0x00200000,
+    CAST_FLAG_UNKNOWN_23        = 0x00400000,
+    CAST_FLAG_UNKNOWN_24        = 0x00800000,
+    CAST_FLAG_UNKNOWN_25        = 0x01000000,
+    CAST_FLAG_UNKNOWN_26        = 0x02000000,
+    CAST_FLAG_IMMUNITY          = 0x04000000,
+    CAST_FLAG_UNKNOWN_28        = 0x08000000,
+    CAST_FLAG_UNKNOWN_29        = 0x10000000,
+    CAST_FLAG_UNKNOWN_30        = 0x20000000,
+    CAST_FLAG_HEAL_PREDICTION   = 0x40000000,
+    CAST_FLAG_UNKNOWN_32        = 0x80000000
+};
+
+/// Only on 18 bits yet
+enum CastFlagsEx
+{
+    CAST_FLAG_EX_NONE         = 0x00000000,
+    CAST_FLAG_EX_UNK_1        = 0x00000001,
+    CAST_FLAG_EX_UNK_2        = 0x00000002,
+    CAST_FLAG_EX_UNK_3        = 0x00000004,
+    CAST_FLAG_EX_UNK_4        = 0x00000008,
+    CAST_FLAG_EX_UNK_5        = 0x00000010,
+    CAST_FLAG_EX_UNK_6        = 0x00000020,
+    CAST_FLAG_EX_UNK_7        = 0x00000040,
+    CAST_FLAG_EX_UNK_8        = 0x00000080,
+    CAST_FLAG_EX_UNK_9        = 0x00000100,
+    CAST_FLAG_EX_UNK_10       = 0x00000200,
+    CAST_FLAG_EX_UNK_11       = 0x00000400,
+    CAST_FLAG_EX_UNK_12       = 0x00000800,
+    CAST_FLAG_EX_UNK_13       = 0x00001000,
+    CAST_FLAG_EX_UNK_14       = 0x00002000,
+    CAST_FLAG_EX_UNK_15       = 0x00004000,
+    CAST_FLAG_EX_TOY_COOLDOWN = 0x00008000,
+    CAST_FLAG_EX_UNK_17       = 0x00010000,
+    CAST_FLAG_EX_UNK_18       = 0x00020000
+};
+
+enum PredictionType
+{
+    PredictionHealth    = -2,
+    PredictionPower     = 2,
+    PredictionRunes     = 5
 };
 
 enum SpellRangeFlag
@@ -96,20 +127,37 @@ struct SpellLog_EnergyzeHelper
     uint32 Value;
     float Multiplier;
     uint8 PowerType;
-    ObjectGuid Guid;
+    uint64 Guid;
+};
+
+struct SpellLog_ExtraAttack
+{
+    uint64 Victim;
+    uint32 NumAttacks;
+};
+
+struct SpellLog_DurabilityDamage
+{
+    uint64 Victim;
+    uint32 ItemID;
+    uint32 Amount;
 };
 
 struct SpellLogHelper
 {
-    std::list<ObjectGuid> Targets; // Guid3
-    std::list<SpellLog_EnergyzeHelper> Energizes; // Guid4
-    std::list<uint32> CreatedItems;
-
+    std::list<uint64>                       Targets;
+    std::list<SpellLog_EnergyzeHelper>      Energizes;
+    std::list<uint32>                       CreatedItems;
+    std::list<SpellLog_DurabilityDamage>    DurabilityDamages;
+    std::list<SpellLog_ExtraAttack>         ExtraAttacks;
+    
     SpellLogHelper()
     {
         Targets.clear();
         Energizes.clear();
         CreatedItems.clear();
+        DurabilityDamages.clear();
+        ExtraAttacks.clear();
     }
 
     void AddTarget(ObjectGuid guid)
@@ -127,15 +175,34 @@ struct SpellLogHelper
         Energizes.push_back(energize);
     }
 
-    void AddEnergize(ObjectGuid guid, float mult, uint32 val, uint8 type)
+    void AddEnergize(uint64 guid, float mult, uint32 val, uint8 type)
     {
         SpellLog_EnergyzeHelper helper;
-        helper.Value = val;
-        helper.PowerType = type;
-        helper.Guid = guid;
-        helper.Multiplier = mult;
+        helper.Value        = val;
+        helper.PowerType    = type;
+        helper.Guid         = guid;
+        helper.Multiplier   = mult;
 
         AddEnergize(helper);
+    }
+
+    void AddDurabilityDamage(uint64 p_Victim, uint32 p_ItemID, uint32 p_Amount)
+    {
+        SpellLog_DurabilityDamage l_Data;
+        l_Data.Victim = p_Victim;
+        l_Data.ItemID = p_ItemID;
+        l_Data.Amount = p_Amount;
+
+        DurabilityDamages.push_back(l_Data);
+    }
+
+    void AddExtraAttack(uint64 p_Victim, uint32 p_NumAttacks)
+    {
+        SpellLog_ExtraAttack l_Data;
+        l_Data.Victim       = p_Victim;
+        l_Data.NumAttacks   = p_NumAttacks;
+
+        ExtraAttacks.push_back(l_Data);
     }
 };
 
@@ -444,6 +511,7 @@ public:
     void EffectGarrisonFinalize(SpellEffIndex p_EffIndex);
     void EffectObtainFollower(SpellEffIndex p_EffIndex);
     void EffectUpgradeFolloweriLvl(SpellEffIndex p_EffIndex);
+    void EffectGiveExperience(SpellEffIndex p_EffIndex);
     void EffectResurectPetBattles(SpellEffIndex effIndex);
     void EffectUncagePetBattle(SpellEffIndex effIndex);
     void EffectCanPetBattle(SpellEffIndex effIndex);
@@ -453,6 +521,9 @@ public:
     void EffectDespawnAreaTrigger(SpellEffIndex p_EffIndex);
     void EffectRandomizeArchaeologyDigsites(SpellEffIndex p_EffIndex);
     void EffectStampede(SpellEffIndex p_EffIndex);
+    void EffectCreateHeirloom(SpellEffIndex p_EffIndex);
+    void EffectUpgradeHeirloom(SpellEffIndex p_EffIndex);
+    void EffectChangeItemBonus(SpellEffIndex p_EffIndex);
 
     typedef std::set<AuraPtr> UsedSpellMods;
 
@@ -516,7 +587,11 @@ public:
     SpellCastResult CheckCasterAuras() const;
     SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-    int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem); }
+    int32 CalculateDamage(uint8 i, Unit const* target) const
+    {
+        Unit* l_Caster = m_originalCaster ? m_originalCaster : m_caster;
+        return l_Caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], m_CastItem);
+    }
 
     bool HaveTargetsForEffect(uint8 effect) const;
     void Delayed();
@@ -544,7 +619,7 @@ public:
     void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 powerTaken, float gainMultiplier);
     void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 attCount);
     void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId);
-    void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 itemslot, uint32 damage);
+    void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, uint32 p_ItemID, uint32 damage);
     void ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj);
     void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
     void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);
@@ -612,6 +687,8 @@ public:
     void SetPeriodicDamageModifier(float newModifier) { m_periodicDamageModifier = newModifier; }
 
     WorldLocation* GetDestTarget() const { return destTarget; }
+    uint32 GetUnitTargetCount() const { return m_UniqueTargetInfo.size(); }
+
 protected:
     bool HasGlobalCooldown() const;
     void TriggerGlobalCooldown();
@@ -636,6 +713,7 @@ protected:
     WeaponAttackType m_attackType;                      // For weapon based attack
     int32 m_powerCost[MAX_POWERS_COST];                 // Calculated spell cost per power initialized only in Spell::prepare
     int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
+    int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
     bool m_canReflect;                                  // can reflect this spell?
     bool m_autoRepeat;
     uint8 m_runesState;

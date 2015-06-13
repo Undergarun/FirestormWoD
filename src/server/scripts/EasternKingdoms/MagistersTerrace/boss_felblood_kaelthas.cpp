@@ -163,7 +163,7 @@ public:
                     escapeOrb->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (damage > me->GetHealth())
                 RemoveGravityLapse(); // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
@@ -246,6 +246,7 @@ public:
                     // Also needs an exception in spell system.
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, NULLAURA_EFFECT, me->GetGUID());
                     // Use packet hack
+                    /// @todo update me or remove the hack
                     WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                     ObjectGuid guid = unit->GetGUID();
                     uint8 bitOrder[8] = {0, 1, 6, 5, 7, 2, 3, 4};
@@ -534,7 +535,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void DamageTaken(Unit* /*killer*/, uint32 &damage)
+        void DamageTaken(Unit* /*killer*/, uint32 &damage, SpellInfo const* p_SpellInfo)
         {
             if (damage < me->GetHealth())
                 return;

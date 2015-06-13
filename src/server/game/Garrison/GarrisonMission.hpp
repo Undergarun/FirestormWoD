@@ -5,8 +5,8 @@
 //  All Rights Reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef GARRISON_MGR_MISSION_HPP_GARRISON
-#define GARRISON_MGR_MISSION_HPP_GARRISON
+#ifndef GARRISON_MISSION_HPP_GARRISON
+#define GARRISON_MISSION_HPP_GARRISON
 
 #include "GarrisonMgrConstants.hpp"
 
@@ -26,4 +26,4 @@ namespace MS { namespace Garrison
 }   ///< namespace Garrison
 }   ///< namespace MS
 
-#endif  ///< GARRISON_MGR_MISSION_HPP_GARRISON
+#endif  ///< GARRISON_MISSION_HPP_GARRISON

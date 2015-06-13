@@ -885,7 +885,7 @@ uint32 BattlefieldWG::GetData(uint32 data)
 // Method sending worldsate to player
 WorldPacket BattlefieldWG::BuildInitWorldStates()
 {
-    WorldPacket data(SMSG_INIT_WORLD_STATES, (4 + 4 + 4 + 2 + (BuildingsInZone.size() * 8) + (WorkshopsList.size() * 8)));
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 10 * 1024);
 
     data << uint32(m_MapId);
     data << uint32(m_ZoneId);

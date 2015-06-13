@@ -19,7 +19,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundAB.h"
 #include "Creature.h"
@@ -51,7 +51,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        int team_points[BG_TEAMS_COUNT] = { 0, 0 };
+        int team_points[MS::Battlegrounds::TeamsCount::Value] = { 0, 0 };
 
         for (int node = 0; node < BG_AB_DYNAMIC_NODES_COUNT; ++node)
         {
@@ -89,13 +89,13 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                 }
             }
 
-            for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+            for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
                 if (m_Nodes[node] == team + BG_AB_NODE_TYPE_OCCUPIED)
                     ++team_points[team];
         }
 
         // Accumulate points
-        for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+        for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         {
             int points = team_points[team];
             if (!points)
@@ -135,7 +135,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     UpdateWorldState(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
                 // update achievement flags
                 // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
-                uint8 otherTeam = (team + 1) % BG_TEAMS_COUNT;
+                uint8 otherTeam = (team + 1) % MS::Battlegrounds::TeamsCount::Value;
                 if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                     m_TeamScores500Disadvantage[otherTeam] = true;
             }
@@ -147,6 +147,28 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
 
         if (m_TeamScores[BG_TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
             EndBattleground(HORDE);
+    }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < -19)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(529, 685.58f, 683.21f, -12.91f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(529, 1313.90f, 1310.73f, -9.01f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
     }
 }
 
@@ -372,6 +394,9 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 
 void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 {
+    if (node >= BG_AB_DYNAMIC_NODES_COUNT)
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundAB::_NodeOccupied node(%u) > GILNEAS_BG_DYNAMIC_NODES_COUNT(%u)", node, BG_AB_DYNAMIC_NODES_COUNT);
+
     if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
@@ -587,6 +612,7 @@ void BattlegroundAB::Reset()
     m_HonorScoreTics[BG_TEAM_HORDE]         = 0;
     m_ReputationScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_ReputationScoreTics[BG_TEAM_HORDE]    = 0;
+    m_CheatersCheckTimer = 0;
     m_IsInformedNearVictory                 = false;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
@@ -616,8 +642,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
-    
-    AwardTeams(m_TeamScores[GetOtherTeam(winner) == HORDE], BG_AB_MAX_TEAM_SCORE, GetOtherTeam(winner));
+
     Battleground::EndBattleground(winner);
 }
 

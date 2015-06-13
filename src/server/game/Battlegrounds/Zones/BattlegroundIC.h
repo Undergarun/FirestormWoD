@@ -899,6 +899,10 @@ class BattlegroundIC : public Battleground
 
         uint32 GetNodeState(uint8 nodeType) { return (uint8)nodePoint[nodeType].nodeState; }
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return factionReinforcements[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return MAX_REINFORCEMENTS; }
+        bool IsScoreIncremental() const { return false; }
+
         virtual bool IsAllNodesControlledByTeam(uint32 team) const;  // overwrited
     private:
         uint32 closeFortressDoorsTimer;
@@ -909,6 +913,7 @@ class BattlegroundIC : public Battleground
         uint16 factionReinforcements[2];
         BG_IC_GateState GateStatus[6];
         ICNodePoint nodePoint[7];
+        int32 m_CheatersCheckTimer;
 
         Transport* gunshipAlliance;
         Transport* gunshipHorde;

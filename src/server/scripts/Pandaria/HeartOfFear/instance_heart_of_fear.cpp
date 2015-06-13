@@ -30,7 +30,6 @@ DoorData const doorData[] =
     {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,    DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_QUARTERS_DOOR_EXIT,        DATA_TAYAK,     DOOR_TYPE_PASSAGE,  BOUNDARY_W},
     {GOB_STAIRWAYS_DOOR_EXIT,       0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
-    {GOB_DOOR_TO_MELJARAK,          DATA_GARALON,   DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
     {GOB_BALCONY_DOOR_EXIT,         DATA_MELJARAK,  DOOR_TYPE_PASSAGE,  BOUNDARY_S},
     {GOB_ATRIUM_DOOR_ENTRANCE,      0,              DOOR_TYPE_ROOM,     BOUNDARY_N},
     {GOB_ATRIUM_DOOR_EXIT,          0,              DOOR_TYPE_ROOM,     BOUNDARY_W},
@@ -43,6 +42,11 @@ class instance_heart_of_fear : public InstanceMapScript
 {
     public:
         instance_heart_of_fear() : InstanceMapScript("instance_heart_of_fear", 1009) { }
+
+        enum eMisc
+        {
+            HeartOfFearSecondPart = 530
+        };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
@@ -74,6 +78,8 @@ class instance_heart_of_fear : public InstanceMapScript
             uint64 empressChamberGuid;
             uint64 mandidQueenCeilGuid;
 
+            bool m_SecondPartInitialized;
+
             void Initialize()
             {
                 SetBossNumber(DATA_MAX_BOSS_DATA);
@@ -93,6 +99,8 @@ class instance_heart_of_fear : public InstanceMapScript
                 meljarakExitDoorGuid        = 0;
                 unsokEntranceDoorGuid       = 0;
                 shekzeerEntranceDoorGuid    = 0;
+
+                m_SecondPartInitialized = false;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -151,13 +159,6 @@ class instance_heart_of_fear : public InstanceMapScript
                         go->SetGoState(GO_STATE_READY);
                         garalonEntranceDoorGuid = go->GetGUID();
                         break;
-                    case GOB_DOOR_TO_MELJARAK:
-                        AddDoor(go, true);
-                        if (GetBossState(DATA_GARALON) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE);
-                        else
-                            go->SetGoState(GO_STATE_READY);
-                        break;
                     case GOB_BALCONY_DOOR_EXIT:
                         AddDoor(go, true);
                         go->SetGoState(GO_STATE_READY);
@@ -178,6 +179,29 @@ class instance_heart_of_fear : public InstanceMapScript
                         break;
                     case GOB_MANTID_QUEEN_CEIL:
                         mandidQueenCeilGuid = go->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    // Generic doors
+                    case GOB_ANTECHAMBER_DOOR_ENTRANCE:
+                    case GOB_ANTECHAMBER_DOOR_EXIT:
+                    case GOB_ATRIUM_DOOR_ENTRANCE:
+                    case GOB_ATRIUM_DOOR_EXIT:
+                    case GOB_ORATIUM_DOOR_ENTRANCE:
+                    case GOB_QUARTERS_DOOR_ENTRANCE:
+                    case GOB_QUARTERS_DOOR_EXIT:
+                    case GOB_STAIRWAYS_DOOR_EXIT:
+                    case GOB_BALCONY_DOOR_EXIT:
+                    case GOB_SANCTUM_DOOR_ENTRANCE:
+                    case GOB_HEARTOFFEAR_DOOR_ENTRANCE:
+                        AddDoor(go, false);
                         break;
                     default:
                         break;
@@ -293,6 +317,46 @@ class instance_heart_of_fear : public InstanceMapScript
                 }
 
                 return true;
+            }
+
+            void OnPlayerEnter(Player* p_Player) override
+            {
+                p_Player->GetMap()->SetObjectVisibility(350.f);
+
+                if (!m_SecondPartInitialized && instance->IsLFR())
+                {
+                    uint32 l_DungeonID = p_Player->GetGroup() ? sLFGMgr->GetDungeon(p_Player->GetGroup()->GetGUID()) : 0;
+                    if (l_DungeonID == eMisc::HeartOfFearSecondPart)
+                    {
+                        m_SecondPartInitialized = true;
+
+                        if (Creature* l_Garalon = Creature::GetCreature(*p_Player, garalonGuid))
+                        {
+                            std::list<Unit*> l_TrashMobs;
+
+                            JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(l_Garalon, l_Garalon, 50.0f);
+                            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(l_Garalon, l_TrashMobs, l_Check);
+                            l_Garalon->VisitNearbyObject(50.0f, l_Searcher);
+
+                            for (Unit* l_Unit : l_TrashMobs)
+                            {
+                                if (l_Unit->ToCreature() == nullptr)
+                                    continue;
+
+                                /// Basic settings
+                                l_Unit->SetVisible(false);
+                                l_Unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                                l_Unit->ToCreature()->SetReactState(REACT_PASSIVE);
+                            }
+
+                            std::list<GameObject*> l_DoorList;
+                            GetGameObjectListWithEntryInGrid(l_DoorList, l_Garalon, GOB_DOOR_TO_MELJARAK, 500.0f);
+
+                            for (GameObject* l_Door : l_DoorList)
+                                l_Door->SetGoState(GO_STATE_ACTIVE);
+                        }
+                    }
+                }
             }
         };
 };

@@ -24,7 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -37,11 +37,16 @@ EndScriptData */
 #include "LFGMgr.h"
 
 #include <fstream>
+#include <vector>
+#include "BattlegroundPacketFactory.hpp"
 
 class debug_commandscript: public CommandScript
 {
     public:
-        debug_commandscript() : CommandScript("debug_commandscript") { }
+
+        debug_commandscript() : CommandScript("debug_commandscript")
+        {
+        }
 
         ChatCommand* GetCommands() const
         {
@@ -51,6 +56,10 @@ class debug_commandscript: public CommandScript
                 { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
                 { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
                 { "scene",          SEC_ADMINISTRATOR,  false, &HandleDebugPlaySceneCommand,       "", NULL },
+                { "sscene",         SEC_ADMINISTRATOR,  false, &HandleDebugPlaySSceneCommand,      "", NULL },
+                { "oneshotanimkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlayOneShotAnimKit,     "", NULL },
+                { "spellvisualkit", SEC_ADMINISTRATOR,  false, &HandleDebugPlaySpellVisualKit,     "", NULL },
+                { "orphanvisual",   SEC_ADMINISTRATOR,  false, &HandleDebugPlayOrphanSpellVisual,  "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand debugSendCommandTable[] =
@@ -117,6 +126,13 @@ class debug_commandscript: public CommandScript
                 { "moditem",        SEC_ADMINISTRATOR,  false, &HandleDebugModItem,                "", NULL },
                 { "crashtest",      SEC_ADMINISTRATOR,  false, &HandleDebugCrashTest,              "", NULL },
                 { "bgaward",        SEC_ADMINISTRATOR,  false, &HandleDebugBgAward,                "", NULL },
+                { "heirloom",       SEC_ADMINISTRATOR,  false, &HandleDebugHeirloom,               "", NULL },
+                { "vignette",       SEC_ADMINISTRATOR,  false, &HandleDebugVignette,               "", NULL },
+                { "setaianimkit",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAIAnimKit,           "", NULL },
+                { "dumpchartemplate", SEC_CONSOLE,      true,  &HandleDebugDumpCharTemplate,       "", NULL },
+                { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
+                { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
+                { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -161,9 +177,14 @@ class debug_commandscript: public CommandScript
 
             uint32 id = atoi((char*)args);
 
-            if (sSpellMgr->GetSpellInfo(id) != nullptr)
+            if (SpellCategoryEntry const* l_Category = sSpellCategoryStores.LookupEntry(id))
             {
-                handler->GetSession()->GetPlayer()->SendClearSpellCharges(id);
+                if (Player* l_Player = handler->GetSession()->GetPlayer())
+                {
+                    l_Player->m_SpellChargesMap.erase(id);
+                    l_Player->SendClearSpellCharges(id);
+                }
+
                 return true;
             }
             else
@@ -352,6 +373,148 @@ class debug_commandscript: public CommandScript
             return true;
         }
 
+        static bool HandleDebugPlaySSceneCommand(ChatHandler* p_Handler, char const* args)
+        {
+            if (!*args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 id = atoi((char*)args);
+
+            if (!sSceneScriptPackageStore.LookupEntry(id))
+            {
+                p_Handler->PSendSysMessage("Scene %u doesnt exist !", id);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Player * l_Player = p_Handler->GetSession()->GetPlayer();
+
+            Position l_Location;
+            l_Location.m_positionX = l_Player->m_positionX;
+            l_Location.m_positionY = l_Player->m_positionY;
+            l_Location.m_positionZ = l_Player->m_positionZ;
+            l_Location.m_orientation = l_Player->m_orientation;
+
+            p_Handler->PSendSysMessage("Start playing standalone scene %u - %s !", id, sSceneScriptPackageStore.LookupEntry(id)->Name);
+            p_Handler->GetSession()->GetPlayer()->PlayStandaloneScene(id, 16, l_Location);
+
+            return true;
+        }
+
+        static bool HandleDebugPlayOneShotAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->PlayOneShotAnimKit(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->PlayOneShotAnimKit(l_ID);
+
+            return true;
+        }
+
+        static bool HandleDebugSetAIAnimKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = atoi((char*)p_Args);
+            if (!l_ID)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->SetAIAnimKitId(l_ID);
+            else
+                p_Handler->GetSession()->GetPlayer()->SetAIAnimKitId(l_ID);
+
+            return true;
+        }
+
+        static bool HandleDebugPlaySpellVisualKit(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrID = strtok((char*)p_Args, " ");
+            char* l_StrType = strtok(NULL, " ");
+
+            if (!l_StrID || !l_StrType)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            uint32 l_ID = (uint32)atoi(l_StrID);
+            uint32 l_Type = (uint32)atoi(l_StrType);
+            if (!l_ID || !l_Type)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (p_Handler->getSelectedUnit())
+                p_Handler->getSelectedUnit()->SendPlaySpellVisualKit(l_ID, l_Type);
+            else
+                p_Handler->GetSession()->GetPlayer()->SendPlaySpellVisualKit(l_ID, l_Type);
+
+            return true;
+        }
+
+        static bool HandleDebugPlayOrphanSpellVisual(ChatHandler* p_Handler, char const* p_Args)
+        {
+            WorldPacket l_Data(Opcodes::SMSG_PLAY_ORPHAN_SPELL_VISUAL, 100);
+
+            G3D::Vector3 l_Source (3737.686f, 7660.064f, 24.95166f);
+            G3D::Vector3 l_Target (3737.686f, 7660.064f, 25.05166f);
+            G3D::Vector3 l_Orientation (0.0f, 4.035325f, 0.0f);
+
+            l_Data.WriteVector3(l_Source);
+            l_Data.WriteVector3(l_Orientation);
+            l_Data.WriteVector3(l_Target);
+            l_Data.appendPackGUID(0);
+
+            l_Data << int32(37116);
+            l_Data << float(1.0f);
+            l_Data << float(0.0f);
+
+            l_Data.WriteBit(true);
+            l_Data.FlushBits();
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
+            return true;
+        }
+
         static bool HandleJoinRatedBg(ChatHandler* handler, char const* args)
         {
             // ignore if we already in BG or BG queue
@@ -362,7 +525,7 @@ class debug_commandscript: public CommandScript
             uint32 matchmakerRating = 0;
 
             //check existance
-            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_RATED_10_VS_10);
+            Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::BattlegroundType::RatedBg10v10);
             if (!bg)
             {
                 sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: template bg (10 vs 10) not found");
@@ -373,9 +536,9 @@ class debug_commandscript: public CommandScript
                 return false;
 
             BattlegroundTypeId bgTypeId = bg->GetTypeID();
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, 0);
+            MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = MS::Battlegrounds::GetTypeFromId(bgTypeId, 0);
 
-            PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), handler->GetSession()->GetPlayer()->getLevel());
+            MS::Battlegrounds::Bracket const* bracketEntry = MS::Battlegrounds::Brackets::FindForLevel(handler->GetSession()->GetPlayer()->getLevel());
             if (!bracketEntry)
                 return false;
 
@@ -413,7 +576,8 @@ class debug_commandscript: public CommandScript
             if (matchmakerRating <= 0)
                 matchmakerRating = 1;
 
-            BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+            MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
+            MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
             uint32 avgTime = 0;
             GroupQueueInfo* ginfo;
@@ -423,8 +587,8 @@ class debug_commandscript: public CommandScript
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: leader %s queued", handler->GetSession()->GetPlayer()->GetName());
 
-                ginfo = bgQueue.AddGroup(handler->GetSession()->GetPlayer(), grp, bgTypeId, bracketEntry, 0, true, true, personalRating, matchmakerRating);
-                avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+                ginfo = l_Scheduler.AddGroup(handler->GetSession()->GetPlayer(), grp, bgQueueTypeId, nullptr, bracketEntry, ArenaType::None, true, personalRating, matchmakerRating, false);
+                avgTime = l_InvitationsMgr.GetAverageQueueWaitTime(ginfo, bracketEntry->m_Id);
             }
 
             for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -436,7 +600,7 @@ class debug_commandscript: public CommandScript
                 if (err)
                 {
                     WorldPacket data;
-                    sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
+                    MS::Battlegrounds::PacketFactory::StatusFailed(&data, bg, handler->GetSession()->GetPlayer(), 0, err);
                     member->GetSession()->SendPacket(&data);
                     continue;
                 }
@@ -445,16 +609,16 @@ class debug_commandscript: public CommandScript
                 uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);
 
                 // add joined time data
-                member->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);
+                member->AddBattlegroundQueueJoinTime(bgQueueTypeId, ginfo->m_JoinTime);
 
                 WorldPacket data; // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->JoinTime, ginfo->ArenaType);
+                MS::Battlegrounds::PacketFactory::Status(&data, bg, member, queueSlot, STATUS_WAIT_QUEUE, avgTime, ginfo->m_JoinTime, ginfo->m_ArenaType, false);
                 member->GetSession()->SendPacket(&data);
 
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for rated battleground as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
             }
 
-            sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+            //sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, 0, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 
             return true;
         }
@@ -514,7 +678,7 @@ class debug_commandscript: public CommandScript
             if (opcodeId == 0 && *result != '0')
                 return false;
 
-            WorldPacket data(Opcodes(opcodeId), 10);;
+            WorldPacket data(Opcodes(opcodeId), 10);
             ObjectGuid playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
             Player* player = handler->GetSession()->GetPlayer();
 
@@ -537,6 +701,7 @@ class debug_commandscript: public CommandScript
 
                     break;
                 }
+                /// @todo Update me ?
                 case SMSG_SERVER_FIRST_ACHIEVEMENT:
                 {
                     data.WriteBits(1, 21);
@@ -693,6 +858,7 @@ class debug_commandscript: public CommandScript
             {
                 case 0x20:
                 {
+                    ///@todo update me ?
                     // La migration de votre guilde est terminée. Rendez-vous sur [cette page Internet] pour de plus amples informations.
                     Player* player = handler->GetSession()->GetPlayer();
                     WorldPacket data(Opcodes(1346), 20);
@@ -2239,7 +2405,7 @@ class debug_commandscript: public CommandScript
 
            uint32 minDamage, maxDamage;
            proto->CalculateMinMaxDamageScaling(ilvl, minDamage, maxDamage);
-           handler->PSendSysMessage("%s(%i): %i", proto->Name1.c_str(), proto->ItemId, ilvl);
+           handler->PSendSysMessage("%s(%i): %i", proto->Name1->Get(handler->GetSessionDbcLocale()), proto->ItemId, ilvl);
            handler->PSendSysMessage("%i - %i", minDamage, maxDamage);
            handler->PSendSysMessage("Armor: %i", proto->CalculateArmorScaling(ilvl));
            for (int i = 0; i < 10; i++)
@@ -2301,21 +2467,308 @@ class debug_commandscript: public CommandScript
         {
             Battleground* l_Battleground = p_Handler->GetSession()->GetPlayer()->GetBattleground();
 
+            if (!l_Battleground)
+            {
+                p_Handler->PSendSysMessage("You're not in a battleground!");
+                return false;
+            }
+
+            l_Battleground->AwardTeams(l_Battleground->GetOtherTeam(p_Handler->GetSession()->GetPlayer()->GetTeam()));
+            return true;
+        }
+
+        static bool HandleDebugHeirloom(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            Player* l_Player = p_Handler->GetSession()->GetPlayer();
+            char* arg1 = strtok((char*)p_Args, " ");
+            char* arg2 = strtok(NULL, " ");
+
+            if (!arg1 || !arg2)
+                return false;
+                
+            int32 l_ID = atoi(arg1);
+            int32 l_Flags = atoi(arg2);
+
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS).size(), l_ID);
+            l_Player->SetDynamicValue(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS, l_Player->GetDynamicValues(PLAYER_DYNAMIC_FIELD_HEIRLOOMS_FLAGS).size(), l_Flags);
+
+            return true;
+        }
+
+        static bool HandleDebugVignette(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_VignetteIDStr = strtok((char*)p_Args, " ");
+            if (!l_VignetteIDStr)
+                return false;
+
+            Unit* l_SelectedUnit = p_Handler->GetSession()->GetPlayer()->GetSelectedUnit();
+            if (!l_SelectedUnit)
+                return false;
+
+            uint32 l_VignetteID = atoi(l_VignetteIDStr);
+            uint64 l_VignetteGUID = MAKE_NEW_GUID(l_SelectedUnit->GetGUIDLow(), l_VignetteID, HIGHGUID_VIGNETTE);
+
+
+            WorldPacket l_Data(SMSG_VIGNETTE_UPDATE);
+            l_Data.WriteBit(true);                                 ///< ForceUpdate
+            l_Data << uint32(0);                                   ///< RemovedCount
+            
+            //for ()
+            //    l_Data.appendPackGUID(IDs);
+
+            l_Data << uint32(1);                                   ///< Added count
+
+//            for ()
+                l_Data.appendPackGUID(l_VignetteGUID);
+
+            l_Data << uint32(1);
+            {
+                l_Data << float(l_SelectedUnit->GetPositionX());
+                l_Data << float(l_SelectedUnit->GetPositionY());
+                l_Data << float(l_SelectedUnit->GetPositionZ());
+                l_Data.appendPackGUID(l_VignetteGUID);
+                l_Data << uint32(l_VignetteID);
+                l_Data << uint32(0);                               ///< unk
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateCount
+            {
+            }
+
+            l_Data << uint32(0);                                   ///< UpdateDataCount 
+
+            p_Handler->GetSession()->SendPacket(&l_Data);
+            return true;
+        }
+
+        static bool HandleDebugDumpCharTemplate(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            FILE* l_Output = fopen("./templates.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+            l_StrBuilder << "DELETE FROM character_template;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_item;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_spell;" << std::endl;
+            l_StrBuilder << "DELETE FROM character_template_reputation;" << std::endl;
+            
+            bool l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template VALUES";
+            for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+            {
+                ChrClassesEntry const* l_ClassEntry = sChrClassesStore.LookupEntry(l_ClassId);
+                l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_ClassId << " ,\"" << l_ClassEntry->NameLang << " - Level 100\", \"\", 100, " \
+                    << "100000000, -8833.07, 622.778, 93.9317, 0.6771, 0, 1569.97, -4397.41, 16.0472, 0.543025, 1, 0)", l_FirstEntry = false;
+            }
+            
+            l_StrBuilder << ";" << std::endl << std::endl;
+
+            const uint32 l_HordeMask = 0xFE5FFBB2;
+            const uint32 l_AllianceMask = 0xFD7FFC4D;
+            std::string l_SearchString = p_Args; /// Case sensitive search
+            
+            l_FirstEntry = true;
+            l_StrBuilder << "INSERT INTO character_template_item VALUES";
+            ItemTemplateContainer const* l_Store = sObjectMgr->GetItemTemplateStore();
+            for (ItemTemplateContainer::const_iterator l_Iter = l_Store->begin(); l_Iter != l_Store->end(); ++l_Iter)
+            {
+                ItemTemplate const* l_Template = &l_Iter->second;
+                if (std::string(l_Template->Name1->Get(LOCALE_enUS)).find(l_SearchString) != std::string::npos)
+                {
+                    if (l_Template->Class != ITEM_CLASS_ARMOR && l_Template->Class != ITEM_CLASS_WEAPON)
+                        continue;
+
+                    int32 l_TeamIndex = l_Template->AllowableRace == l_HordeMask;
+                    uint32 l_Count = 1;
+
+                    for (int32 l_ClassId = CLASS_WARRIOR; l_ClassId < MAX_CLASSES; l_ClassId++)
+                    {
+                        int32 l_ClassMask = 1 << (l_ClassId - 1);
+                        if (l_Template->AllowableClass & l_ClassMask)
+                        {
+                            if (l_Template->Class == ITEM_CLASS_ARMOR)
+                            {
+                                switch (l_Template->SubClass)
+                                {
+                                    case ITEM_SUBCLASS_ARMOR_CLOTH:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PRIEST:
+                                            case CLASS_MAGE:
+                                            case CLASS_WARLOCK:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_LEATHER:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_ROGUE:
+                                            case CLASS_MONK:
+                                            case CLASS_DRUID:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_MAIL:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_HUNTER:
+                                            case CLASS_SHAMAN:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    case ITEM_SUBCLASS_ARMOR_PLATE:
+                                        switch (l_ClassId)
+                                        {
+                                            case CLASS_PALADIN:
+                                            case CLASS_WARRIOR:
+                                            case CLASS_DEATH_KNIGHT:
+                                                break;
+                                            default:
+                                                continue;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
+                            l_Count = l_Template->IsOneHanded() || (l_Template->IsTwoHandedWeapon() && l_ClassId == CLASS_WARRIOR) ? 2 : 1;
+                            l_StrBuilder << (l_FirstEntry ? "" : ",") << std::endl << "(" << l_ClassId << " ," << l_Template->ItemId << " ," << l_TeamIndex + 1 << " ," << l_Count << ")", l_FirstEntry = false;
+                        }
+                    }
+                }
+            }
+
+
+            l_StrBuilder << ";" << std::endl;
+            std::string l_FinalString = l_StrBuilder.str();
+
+            fwrite(l_FinalString.c_str(), l_FinalString.length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+            return true;
+        }
+
+        static bool HandleDebugPlayerCondition(ChatHandler* p_Handler, char const* p_Args)
+        {
+            char* l_ArgStr = strtok((char*)p_Args, " ");
+            if (!l_ArgStr)
+                return false;
+
+            uint32 l_ConditionID = atoi(l_ArgStr);
+  
+            auto l_Result = p_Handler->GetSession()->GetPlayer()->EvalPlayerCondition(l_ConditionID);
+
+            if (l_Result.first)
+                p_Handler->PSendSysMessage("Condition %u is satisfied", l_ConditionID);
+            else
+                p_Handler->PSendSysMessage("Condition %u failed => %s", l_ConditionID,  l_Result.second.c_str());
+
+            return true;
+        }
+
+        static bool HandleDebugPacketProfiler(ChatHandler* p_Handler, char const* p_Args)
+        {
+            gPacketProfilerMutex.lock();
+            p_Handler->PSendSysMessage("----------------");
+
+            for (auto l_Pair : gPacketProfilerData)
+            {
+                p_Handler->PSendSysMessage("%s => %u", GetOpcodeNameForLogging((Opcodes)l_Pair.first, WOW_SERVER_TO_CLIENT).c_str(), l_Pair.second);
+            }
+
+            p_Handler->PSendSysMessage("----------------");
+            gPacketProfilerMutex.unlock();
+            return true;
+        }
+
+        static bool HandleHotfixOverride(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!p_Args)
+                return false;
+
+            auto l_SendHotfixPacket = [&p_Handler](DB2StorageBase* p_Store, uint32 p_Entry) -> void
+            {
+                ByteBuffer l_ResponseData(2 * 1024);
+                if (p_Store->WriteRecord(p_Entry, l_ResponseData, p_Handler->GetSessionDbLocaleIndex()))
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4 + l_ResponseData.size());
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(p_Entry);
+                    l_Data << uint32(sObjectMgr->GetHotfixDate(p_Entry, p_Store->GetHash()));
+                    l_Data << uint32(l_ResponseData.size());
+                    l_Data.append(l_ResponseData);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+                else
+                {
+                    WorldPacket l_Data(SMSG_DB_REPLY, 4 + 4 + 4 + 4);
+                    l_Data << uint32(p_Store->GetHash());
+                    l_Data << uint32(-int32(p_Entry));
+                    l_Data << uint32(time(NULL));
+                    l_Data << uint32(0);
+
+                    p_Handler->GetSession()->SendPacket(&l_Data);
+                }
+            };
             char* arg1 = strtok((char*)p_Args, " ");
             char* arg2 = strtok(NULL, " ");
 
             if (!arg1 || !arg2)
                 return false;
 
-            int32 l_Team = atoi(arg1) == 1 ? HORDE : ALLIANCE;
-            int32 l_Points = atoi(arg2);
-            if (!l_Battleground)
+            std::string l_HotfixType = arg1;
+            uint32 l_HotfixEntry = atoi(arg2);
+            if (l_HotfixType == "item")
             {
-                p_Handler->PSendSysMessage("You're not in a battleground !");
-                return false;
+                l_SendHotfixPacket(&sItemStore, l_HotfixEntry);
+                l_SendHotfixPacket(&sItemSparseStore, l_HotfixEntry);
+
+                for (uint32 i = 0; i < sItemEffectStore.GetNumRows(); ++i)
+                {
+                    ItemEffectEntry const* l_Entry = sItemEffectStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+                    
+                    l_SendHotfixPacket(&sItemEffectStore, i);
+                }
+
+                std::vector<uint32> l_Appearances;
+                for (uint32 i = 0; i < sItemModifiedAppearanceStore.GetNumRows(); ++i)
+                {
+                    ItemModifiedAppearanceEntry const* l_Entry = sItemModifiedAppearanceStore.LookupEntry(i);
+                    if (!l_Entry || l_Entry->ItemID != l_HotfixEntry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemModifiedAppearanceStore, i);
+                    l_Appearances.push_back(i);
+                }
+
+                for (uint32 l_AppearanceID : l_Appearances)
+                {
+                    ItemAppearanceEntry const* l_Entry = sItemAppearanceStore.LookupEntry(l_AppearanceID);
+                    if (!l_Entry)
+                        continue;
+
+                    l_SendHotfixPacket(&sItemAppearanceStore, l_AppearanceID);
+                }
+
             }
 
-            l_Battleground->AwardTeams(l_Points, 3, l_Team); 
             return true;
         }
 };

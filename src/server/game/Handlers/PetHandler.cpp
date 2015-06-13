@@ -38,8 +38,6 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     uint64 guid;
     recvData >> guid;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
-
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_Player, guid);
 
     if (!pet)
@@ -235,13 +233,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
-                            // Blink Strikes
-                            /*if (pet->HasAura(130392))
-                            {
-                                pet->GetMotionMaster()->Clear();
-                                pet->NearTeleportTo(TargetUnit->GetPositionX(), TargetUnit->GetPositionY(), TargetUnit->GetPositionZ(), TargetUnit->GetOrientation());
-                            }*/
-
                             //10% chance to play special pet attack talk, else growl
                             if (pet->ToCreature()->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
                                 pet->SendPetTalk((uint32)PET_TALK_ATTACK);
@@ -358,6 +349,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
 
             Spell* spell = new Spell(pet, spellInfo, TRIGGERED_NONE);
+            spell->m_targets.SetUnitTarget(unit_target);
 
             SpellCastResult result = spell->CheckPetCast(unit_target);
 
@@ -433,6 +425,8 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             }
             break;
         }
+        case ACT_DECIDE:
+            return;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
     }
@@ -735,7 +729,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags = p_RecvPacket.ReadBits(21);
+    l_TargetFlags = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget = p_RecvPacket.ReadBit();
     l_HasDestinationTarget = p_RecvPacket.ReadBit();
     l_HasUnkFloat = p_RecvPacket.ReadBit();
@@ -792,8 +786,34 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     //////////////////////////////////////////////////////////////////////////
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, castCount: %u, spellId %u, targetFlags %u", l_CastCount, l_SpellID, l_TargetFlags);
+    if (l_SpellWeightCount)
+    {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
 
+        for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
+        {
+            switch (l_SpellWeightType[l_I])
+            {
+                case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        delete[] l_SpellWeightType;
+        delete[] l_SpellWeightID;
+        delete[] l_SpellWeightQuantity;
+    }
+    
+    //////////////////////////////////////////////////////////////////////////
+ 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!m_Player->GetGuardianPet() && !m_Player->GetCharm())
         return;
@@ -911,9 +931,8 @@ void WorldSession::SendPetNameInvalid(uint32 p_Result, const std::string& p_NewN
 
 void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
 {
-
-    uint64 l_PetGUID;
-    uint32 l_SpecGroupIndex;
+    uint64 l_PetGUID = 0;
+    uint32 l_SpecGroupIndex = 0;
 
     p_RecvData.readPackGUID(l_PetGUID);
     p_RecvData >> l_SpecGroupIndex;
@@ -928,8 +947,8 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
         if (l_ChrSpecialization == nullptr)
             continue;
 
-        // Pet specialization are the only one to have flags == 0 & classid == 0
-        if (l_ChrSpecialization->Flags != 0 || l_ChrSpecialization->ClassID != 0)
+        /// Pet specialization are the only one to have flags == 0/32 & classid == 0
+        if ((l_ChrSpecialization->Flags != 0 && l_ChrSpecialization->Flags != 32) || l_ChrSpecialization->ClassID != 0)
             continue;
 
         if (l_SpecGroupIndex != l_ChrSpecialization->PetTalentType)
@@ -941,6 +960,24 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & p_RecvData)
 
     if (!l_PetSpecializationId)
         return;
+
+    if (m_Player->HasAuraType(AuraType::SPELL_AURA_OVERRIDE_PET_SPECS))
+    {
+        switch (l_PetSpecializationId)
+        {
+            case SpecIndex::SPEC_PET_FEROCITY:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_FEROCITY_ADAPT;
+                break;
+            case SpecIndex::SPEC_PET_CUNNING:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_CUNNING_ADAPT;
+                break;
+            case SpecIndex::SPEC_PET_TENACITY:
+                l_PetSpecializationId = (uint32)SpecIndex::SPEC_ROGUE_TENACIOUS_ADAPT;
+                break;
+            default:
+                break;
+        }
+    }
 
     Pet* l_Pet = m_Player->GetPet();
     if (!l_Pet)

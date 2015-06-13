@@ -1,8 +1,6 @@
 #include "ScriptPCH.h"
 #include "deadmines.h"
 
-//todo: реализовать flame wall
-
 enum ScriptTexts
 {
     SAY_DEATH        = 0,

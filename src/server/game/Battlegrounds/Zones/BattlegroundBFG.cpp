@@ -29,7 +29,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "Creature.h"
 #include "Language.h"
@@ -71,7 +71,7 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    int team_points[BG_TEAMS_COUNT] = { 0, 0 };
+    int team_points[MS::Battlegrounds::TeamsCount::Value] = { 0, 0 };
 
     for (int node = 0; node < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++node)
     {
@@ -110,13 +110,13 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
             }
         }
 
-        for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+        for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
             if (m_Nodes[node] == team + GILNEAS_BG_NODE_TYPE_OCCUPIED)
                 ++team_points[team];
     }
 
     // Accumulate points
-    for (int team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
     {
         int points = team_points[team];
         if (!points)
@@ -163,7 +163,7 @@ void BattlegroundBFG::PostUpdateImpl(uint32 diff)
                 UpdateWorldState(GILNEAS_BG_OP_RESOURCES_HORDE, m_TeamScores[team]);
             // update achievement flags
             // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
-            uint8 otherTeam = (team + 1) % BG_TEAMS_COUNT;
+            uint8 otherTeam = (team + 1) % MS::Battlegrounds::TeamsCount::Value;
             if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                 m_TeamScores500Disadvantage[otherTeam] = true;
         }
@@ -284,7 +284,6 @@ void BattlegroundBFG::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex)
     UpdateWorldState(l_Banner->GetGOInfo()->capturePoint.worldState1, (uint8)l_WorldStateValue);
 }
 
-
 int32 BattlegroundBFG::_GetNodeNameId(uint8 node)
 {
     switch (node)
@@ -369,15 +368,11 @@ void BattlegroundBFG::_SendNodeUpdate(uint8 node)
 
 void BattlegroundBFG::_NodeOccupied(uint8 node, Team team)
 {
+    if (node >= GILNEAS_BG_DYNAMIC_NODES_COUNT)
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundBFG::_NodeOccupied node(%u) > GILNEAS_BG_DYNAMIC_NODES_COUNT(%u)", node, GILNEAS_BG_DYNAMIC_NODES_COUNT);
+
     if (!AddSpiritGuide(node, GILNEAS_BG_SpiritGuidePos[node][0], GILNEAS_BG_SpiritGuidePos[node][1], GILNEAS_BG_SpiritGuidePos[node][2], GILNEAS_BG_SpiritGuidePos[node][3], team))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
-
-    uint8 capturedNodes = 0;
-    for (uint8 i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (m_Nodes[node] == GetTeamIndexByTeamId(team) + GILNEAS_BG_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
-            ++capturedNodes;
-    }
 
     if (node >= GILNEAS_BG_DYNAMIC_NODES_COUNT) // only dynamic nodes, no start points
         return;
@@ -651,8 +646,7 @@ void BattlegroundBFG::EndBattleground(uint32 winner)
     // Complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
-    
-    AwardTeams(m_TeamScores[GetOtherTeam(winner) == HORDE], GILNEAS_BG_MAX_TEAM_SCORE, GetOtherTeam(winner));
+
     Battleground::EndBattleground(winner);
 }
 

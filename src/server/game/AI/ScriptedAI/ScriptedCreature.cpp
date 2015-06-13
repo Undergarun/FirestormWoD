@@ -101,7 +101,6 @@ ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     _isCombatMovementAllowed(true)
 
 {
-    _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
 }
 
@@ -401,7 +400,8 @@ enum eNPCs
     NPC_JAN_ALAI    = 23578,
     NPC_SARTHARION  = 28860,
     NPC_BLOOD_QUEEN = 37955,
-    NPC_GARFROST    = 36494
+    NPC_GARFROST    = 36494,
+    NPC_RUKHMAR     = 83746
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -425,6 +425,10 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     switch (me->GetEntry())
     {
+        case NPC_RUKHMAR:
+            if (me->GetZoneId() == 6722)
+                return false;
+            break;
         case NPC_BLOOD_QUEEN:
             if (z > 390.0f)
                 return false;
@@ -539,35 +543,35 @@ bool BossAI::CheckBoundary(Unit* who)
         switch (itr->first)
         {
             case BOUNDARY_N:
-                if (me->GetPositionX() > itr->second)
+                if (who->GetPositionX() > itr->second)
                     return false;
                 break;
             case BOUNDARY_S:
-                if (me->GetPositionX() < itr->second)
+                if (who->GetPositionX() < itr->second)
                     return false;
                 break;
             case BOUNDARY_E:
-                if (me->GetPositionY() < itr->second)
+                if (who->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_W:
-                if (me->GetPositionY() > itr->second)
+                if (who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_NW:
-                if (me->GetPositionX() + me->GetPositionY() > itr->second)
+                if (who->GetPositionX() + who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SE:
-                if (me->GetPositionX() + me->GetPositionY() < itr->second)
+                if (who->GetPositionX() + who->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_NE:
-                if (me->GetPositionX() - me->GetPositionY() > itr->second)
+                if (who->GetPositionX() - who->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SW:
-                if (me->GetPositionX() - me->GetPositionY() < itr->second)
+                if (who->GetPositionX() - who->GetPositionY() < itr->second)
                     return false;
                 break;
             default:
@@ -604,6 +608,42 @@ void BossAI::UpdateAI(uint32 const diff)
         ExecuteEvent(eventId);
 
     DoMeleeAttackIfReady();
+}
+
+void BossAI::UpdateOperations(uint32 const p_Diff)
+{
+    for (auto l_It = m_TimedDelayedOperations.begin(); l_It != m_TimedDelayedOperations.end(); l_It++)
+    {
+        l_It->first -= p_Diff;
+
+        if (l_It->first < 0)
+        {
+            l_It->second();
+            l_It->second = nullptr;
+        }
+    }
+
+    uint32 l_TimedDelayedOperationCountToRemove = std::count_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+    {
+        return p_Pair.second == nullptr;
+    });
+
+    for (uint32 l_I = 0; l_I < l_TimedDelayedOperationCountToRemove; l_I++)
+    {
+        auto l_It = std::find_if(std::begin(m_TimedDelayedOperations), std::end(m_TimedDelayedOperations), [](const std::pair<int32, std::function<void()>> & p_Pair) -> bool
+        {
+            return p_Pair.second == nullptr;
+        });
+
+        if (l_It != std::end(m_TimedDelayedOperations))
+            m_TimedDelayedOperations.erase(l_It);
+    }
+
+    if (m_TimedDelayedOperations.empty() && !m_EmptyWarned)
+    {
+        m_EmptyWarned = true;
+        LastOperationCalled();
+    }
 }
 
 // WorldBossAI - for non-instanced bosses

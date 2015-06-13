@@ -38,7 +38,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        //sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -282,8 +282,83 @@ Item::Item()
     _dynamicValuesCount = ITEM_DYNAMIC_END;
 }
 
+bool RemoveItemByDelete(Player* p_Player, Item* p_Item)
+{
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Item* l_Item = p_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (l_Item == p_Item)
+            {
+                p_Player->RemoveItem(INVENTORY_SLOT_BAG_0, i, false);
+                return true;
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        if (Bag* l_Bag = p_Player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < l_Bag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = l_Bag->GetItemByPos(j))
+                {
+                    if (pItem == p_Item)
+                    {
+                        l_Bag->RemoveItem(j, false);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 Item::~Item()
 {
+    // WARNING : THAT CHECK MAY CAUSE LAGS !
+    if (Player * plr = GetOwner())
+    {
+        if (RemoveItemByDelete(plr, this))
+        {
+            ACE_Stack_Trace l_Trace;
+            sLog->outAshran("Item %u on player guid %u is in destructor, and pointer is still referenced in player's data ...", GetEntry(), plr->GetGUIDLow());
+            sLog->outAshran("Stack Trace : %s", l_Trace.c_str());
+        }
+    }
 }
 
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
@@ -299,6 +374,8 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
         return false;
+
+    loot.SetSource(GetGUID());
 
     // For Item Upgrade
     /*if (CanUpgrade())
@@ -508,7 +585,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     }
 
     std::string enchants = fields[6].GetString();
-    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET, false);
 
     if (uint32 transmogId = fields[8].GetInt32())
     {
@@ -594,15 +671,29 @@ uint32 Item::GetSkill() const
     return GetTemplate()->GetSkill();
 }
 
-void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus)
+void Item::GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus)
 {
+    auto l_ItemTemplate = sObjectMgr->GetItemTemplate(p_ItemId);
+    if (l_ItemTemplate == nullptr)
+        return;
+
+    /// Process item bonus group
+    for (auto l_ItemBonusGroupID : l_ItemTemplate->m_ItemBonusGroups)
+    {
+        auto l_ItemBonusGroup = sObjectMgr->GetItemBonusGroup(l_ItemBonusGroupID);
+        if (l_ItemBonusGroup == nullptr)
+            continue;
+
+        p_ItemBonus.push_back(l_ItemBonusGroup->at(rand() % l_ItemBonusGroup->size()));
+    }
+
     /// Item bonus per item are store in ItemXBonusTree.db2
     if (sItemBonusTreeByID.find(p_ItemId) == sItemBonusTreeByID.end())
         return;
 
     /// Step one : search for generic bonus we can find in DB2 (90, 92, 94, 95, 97, heroic)
     auto& l_ItemBonusTree = sItemBonusTreeByID[p_ItemId];
-    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_ItemBonusDifficulty, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
+    std::for_each(l_ItemBonusTree.begin(), l_ItemBonusTree.end(), [&p_Context, &p_ItemBonus](ItemXBonusTreeEntry const* p_ItemXBonusTree) -> void
     {
         /// Lookup for the right bonus
         for (uint32 l_Index = 0; l_Index < sItemBonusTreeNodeStore.GetNumRows(); l_Index++)
@@ -614,7 +705,7 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
             if (l_ItemBonusTreeNode->Category != p_ItemXBonusTree->ItemBonusTreeCategory)
                 continue;
 
-            if (l_ItemBonusTreeNode->Difficulty != p_ItemBonusDifficulty)
+            if (l_ItemBonusTreeNode->Context != uint32(p_Context))
                 continue;
 
             auto l_BonusId = l_ItemBonusTreeNode->ItemBonusEntry;
@@ -646,15 +737,29 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step two : Roll for stats bonus (Avoidance, Leech & Speed)
     /// Atm, i can't find percentage chance to have stats but it's same pretty low (~ 10%)
     /// Item can have only on stat bonus, and it's only in dungeon/raid
-    if (p_ItemBonusDifficulty != 0)             ///< Only in dungeon & raid
+    if (p_Context == ItemContext::RaidNormal
+        || p_Context == ItemContext::RaidHeroic
+        || p_Context == ItemContext::RaidLfr
+        || p_Context == ItemContext::RaidMythic
+        || p_Context == ItemContext::DungeonLevelUp1
+        || p_Context == ItemContext::DungeonLevelUp2
+        || p_Context == ItemContext::DungeonLevelUp3
+        || p_Context == ItemContext::DungeonLevelUp4
+        || p_Context == ItemContext::DungeonNormal
+        || p_Context == ItemContext::DungeonHeroic)             ///< Only in dungeon & raid
     {
-        /// @TODO: Add Indestructible for raid, need more informations about normal, heroic, mythic & lfr ...
         std::vector<uint32> l_StatsBonus =
         {
             ItemBonus::Stats::Avoidance,
             ItemBonus::Stats::Speed,
             ItemBonus::Stats::Leech
         };
+
+        if (p_Context == ItemContext::RaidNormal ||
+            p_Context == ItemContext::RaidMythic ||
+            p_Context == ItemContext::RaidHeroic ||
+            p_Context == ItemContext::RaidLfr)
+            l_StatsBonus.push_back(ItemBonus::Stats::Indestructible);
 
         if (roll_chance_f(ItemBonus::Chances::Stats))
         { 
@@ -671,14 +776,204 @@ void Item::GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std:
     /// Step tree : Roll for Warforged & Prismatic Socket
     /// That roll happen only in heroic dungeons & raid
     /// Exaclty like stats, we don't know the chance to have that kind of bonus ...
-    /// @TODO: Handle raid case, need more informations about normal, heroic, mythic & lfr ...
-    if (p_ItemBonusDifficulty == Difficulty::HEROIC_5_DIFFICULTY)
+    if (p_Context == ItemContext::DungeonHeroic ||
+        p_Context == ItemContext::RaidNormal ||
+        p_Context == ItemContext::RaidHeroic ||
+        p_Context == ItemContext::RaidMythic ||
+        p_Context == ItemContext::RaidLfr)
     {
         if (roll_chance_f(ItemBonus::Chances::Warforged))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::Warforged);
 
         if (roll_chance_f(ItemBonus::Chances::PrismaticSocket))
             p_ItemBonus.push_back(ItemBonus::HeroicOrRaid::PrismaticSocket);
+    }
+}
+
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item)
+{
+    if (p_Item == nullptr)
+    {
+        p_Datas << uint32(0);                       ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+
+    p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
+    p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
+    p_Datas << uint32(p_Item->GetItemRandomPropertyId());   ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);                ///< Has Item Bonuses
+    p_Datas.WriteBit(l_Modifications.size() != 0);          ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+
+    /// Item modifications
+    if (l_Modifications.size() != 0)
+    {
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
+        for (auto l_Modifier : l_Modifications)
+            p_Datas << uint32(l_Modifier);
+    }
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item)
+{
+    if (p_Item == nullptr)
+    {
+        p_Datas << uint32(0);                       ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    std::vector<uint32> l_Bonuses = p_Item->GetAllItemBonuses();
+    std::vector<uint32> l_Modifications = p_Item->GetDynamicValues(ItemDynamicFields::ITEM_DYNAMIC_FIELD_MODIFIERS);
+
+    p_Datas << uint32(p_Item->GetEntry());                  ///< Item ID
+    p_Datas << uint32(p_Item->GetItemSuffixFactor());       ///< Random Properties Seed
+    p_Datas << uint32(p_Item->GetItemRandomPropertyId());   ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);                ///< Has Item Bonuses
+    p_Datas.WriteBit(l_Modifications.size() != 0);          ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                                ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+
+    /// Item modifications
+    if (l_Modifications.size() != 0)
+    {
+        p_Datas << uint32(p_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
+        for (auto l_Modifier : l_Modifications)
+            p_Datas << uint32(l_Modifier);
+    }
+}
+
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item)
+{
+    p_Datas << uint32(p_Item.ItemEntry);            ///< Item ID
+    p_Datas << uint32(p_Item.ItemSuffixFactor);     ///< Random Properties Seed
+    p_Datas << uint32(p_Item.ItemRandomPropertyId); ///< Random Properties ID
+    p_Datas.WriteBit(p_Item.Bonuses.size() != 0);   ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_Item.Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_Item.Bonuses.size());
+
+        for (auto& l_BonusId : p_Item.Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item)
+{
+    std::vector<uint32> l_Bonuses = p_Item.itemBonuses;
+
+    p_Datas << uint32(p_Item.itemid);               ///< Item ID
+    p_Datas << uint32(p_Item.randomSuffix);         ///< Random Properties Seed
+    p_Datas << uint32(p_Item.randomPropertyId);     ///< Random Properties ID
+    p_Datas.WriteBit(l_Bonuses.size() != 0);        ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (l_Bonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(l_Bonuses.size());
+        for (auto& l_BonusId : l_Bonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+}
+
+void Item::BuildDynamicItemDatas(ByteBuffer& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses)
+{
+    ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(p_Entry);
+    if (l_Template == nullptr)
+    {
+        p_Datas << uint32(p_Entry);                 ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    p_Datas << uint32(p_Entry);                     ///< Item ID
+    p_Datas << uint32(l_Template->RandomProperty);  ///< Random Properties Seed
+    p_Datas << uint32(l_Template->RandomSuffix);    ///< Random Properties ID
+
+    p_Datas.WriteBit(p_ItemBonuses.size() != 0);    ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_ItemBonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_ItemBonuses.size());
+        for (auto& l_BonusId : p_ItemBonuses)
+            p_Datas << uint32(l_BonusId);
+    }
+}
+
+void Item::BuildDynamicItemDatas(WorldPacket& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses)
+{
+    ItemTemplate const* l_Template = sObjectMgr->GetItemTemplate(p_Entry);
+    if (l_Template == nullptr)
+    {
+        p_Datas << uint32(p_Entry);                 ///< Item ID
+        p_Datas << uint32(0);                       ///< Random Properties Seed
+        p_Datas << uint32(0);                       ///< Random Properties ID
+        p_Datas.WriteBit(false);                    ///< Has Item Bonuses
+        p_Datas.WriteBit(false);                    ///< Has Modifications
+        p_Datas.FlushBits();
+        return;
+    }
+
+    p_Datas << uint32(p_Entry);                     ///< Item ID
+    p_Datas << uint32(l_Template->RandomProperty);  ///< Random Properties Seed
+    p_Datas << uint32(l_Template->RandomSuffix);    ///< Random Properties ID
+
+    p_Datas.WriteBit(p_ItemBonuses.size() != 0);    ///< Has Item Bonuses
+    p_Datas.WriteBit(false);                        ///< Has Modifications
+    p_Datas.FlushBits();
+
+    /// Item bonuses
+    if (p_ItemBonuses.size() != 0)
+    {
+        p_Datas << uint8(0);                        ///< Context
+        p_Datas << uint32(p_ItemBonuses.size());
+        for (auto& l_BonusId : p_ItemBonuses)
+            p_Datas << uint32(l_BonusId);
     }
 }
 
@@ -883,7 +1178,7 @@ bool Item::HasEnchantRequiredSkill(const Player* player) const
     // Check all enchants for required skill
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     {
-        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (enchant_slot > ENGINEERING_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
@@ -902,7 +1197,7 @@ uint32 Item::GetEnchantRequiredLevel() const
     // Check all enchants for required level
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     {
-        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (enchant_slot > ENGINEERING_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
@@ -919,7 +1214,7 @@ bool Item::IsBoundByEnchant() const
     // Check all enchants for soulbound
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     {
-        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+        if (enchant_slot > ENGINEERING_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
             continue;
 
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
@@ -1313,168 +1608,116 @@ bool Item::CheckSoulboundTradeExpire()
     return false;
 }
 
-bool Item::CanBeTransmogrified() const
+bool Item::SubclassesCompatible(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
 {
-    ItemTemplate const* proto = GetTemplate();
-
-    if (!proto)
+    ///   Source     Destination
+    if (!p_Transmogrifier || !p_Transmogrified)
         return false;
 
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-        return false;
-
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
-        return false;
-
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
-        return false;
-
-    return true;
-}
-
-bool Item::CanTransmogrify() const
-{
-    ItemTemplate const* proto = GetTemplate();
-
-    if (!proto)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
-        return false;
-
-    if (proto->Quality == ITEM_QUALITY_LEGENDARY)
-        return false;
-
-    if (proto->Class != ITEM_CLASS_ARMOR &&
-        proto->Class != ITEM_CLASS_WEAPON)
-        return false;
-
-    if (proto->Class == ITEM_CLASS_WEAPON && proto->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
-        return false;
-
-    if (proto->Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+    /// Patch 5.2 - Throne of Thunder
+    /// One-Handed
+    /// One-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
         return true;
 
-    return true;
-}
-
-bool Item::SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const
-{
-    //   Source     Destination
-    if (!proto1 || !proto2)
-        return false;
-
-    // Patch 5.2 - Throne of Thunder
-    // One-Handed
-    // One-handed axes, maces, and swords can be Transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD))
+    /// Two-Handed
+    /// Two-handed axes, maces, and swords can be Transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
         return true;
 
-    // Two-Handed
-    // Two-handed axes, maces, and swords can be Transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_AXE2 ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_MACE2 ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_SWORD2))
+    /// Ranged
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
         return true;
 
-    // Ranged
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW))
-        return true;
-
-    // Polearm and Staff
-    // Staves and polearms can be transmogrified to each other.
-    if ((proto1->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        proto1->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
-        (proto2->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
-        proto2->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
+    /// Polearm and Staff
+    /// Staves and polearms can be transmogrified to each other.
+    if ((p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrifier->SubClass == ITEM_SUBCLASS_WEAPON_STAFF) &&
+        (p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM ||
+        p_Transmogrified->SubClass == ITEM_SUBCLASS_WEAPON_STAFF))
         return true;
 
     return false;
 }
 
-bool Item::CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier)
+bool Item::CanTransmogrifyItemWithItem(ItemTemplate const* p_Transmogrifier, ItemTemplate const* p_Transmogrified)
 {
-    if (!transmogrifier || !transmogrified)
+    if (!p_Transmogrified || !p_Transmogrifier)
         return false;
 
-    ItemTemplate const* proto1 = transmogrifier->GetTemplate(); // source
-    ItemTemplate const* proto2 = transmogrified->GetTemplate(); // dest
-
-    if (proto1->ItemId == proto2->ItemId)
+    if (p_Transmogrified->ItemId == p_Transmogrifier->ItemId)
         return false;
 
-    if (!transmogrified->CanTransmogrify() || !transmogrifier->CanBeTransmogrified())
+    if (!p_Transmogrifier->CanTransmogrify() || !p_Transmogrified->CanBeTransmogrified())
         return false;
 
-    if (proto1->InventoryType == INVTYPE_BAG ||
-        proto1->InventoryType == INVTYPE_RELIC ||
-        proto1->InventoryType == INVTYPE_BODY ||
-        proto1->InventoryType == INVTYPE_FINGER ||
-        proto1->InventoryType == INVTYPE_TRINKET ||
-        proto1->InventoryType == INVTYPE_AMMO ||
-        proto1->InventoryType == INVTYPE_QUIVER ||
-        proto1->InventoryType == INVTYPE_NON_EQUIP ||
-        proto1->InventoryType == INVTYPE_TABARD)
+    if (p_Transmogrified->InventoryType == INVTYPE_BAG ||
+        p_Transmogrified->InventoryType == INVTYPE_RELIC ||
+        p_Transmogrified->InventoryType == INVTYPE_BODY ||
+        p_Transmogrified->InventoryType == INVTYPE_FINGER ||
+        p_Transmogrified->InventoryType == INVTYPE_TRINKET ||
+        p_Transmogrified->InventoryType == INVTYPE_AMMO ||
+        p_Transmogrified->InventoryType == INVTYPE_QUIVER ||
+        p_Transmogrified->InventoryType == INVTYPE_NON_EQUIP ||
+        p_Transmogrified->InventoryType == INVTYPE_TABARD)
         return false;
 
-    if (proto2->InventoryType == INVTYPE_BAG ||
-        proto2->InventoryType == INVTYPE_RELIC ||
-        proto2->InventoryType == INVTYPE_BODY ||
-        proto2->InventoryType == INVTYPE_FINGER ||
-        proto2->InventoryType == INVTYPE_TRINKET ||
-        proto2->InventoryType == INVTYPE_AMMO ||
-        proto2->InventoryType == INVTYPE_QUIVER ||
-        proto2->InventoryType == INVTYPE_NON_EQUIP ||
-        proto2->InventoryType == INVTYPE_TABARD)
+    if (p_Transmogrifier->InventoryType == INVTYPE_BAG ||
+        p_Transmogrifier->InventoryType == INVTYPE_RELIC ||
+        p_Transmogrifier->InventoryType == INVTYPE_BODY ||
+        p_Transmogrifier->InventoryType == INVTYPE_FINGER ||
+        p_Transmogrifier->InventoryType == INVTYPE_TRINKET ||
+        p_Transmogrifier->InventoryType == INVTYPE_AMMO ||
+        p_Transmogrifier->InventoryType == INVTYPE_QUIVER ||
+        p_Transmogrifier->InventoryType == INVTYPE_NON_EQUIP ||
+        p_Transmogrifier->InventoryType == INVTYPE_TABARD)
         return false;
 
-    if (proto1->Class != proto2->Class)
+    if (p_Transmogrified->Class != p_Transmogrifier->Class)
         return false;
 
-    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class != ITEM_CLASS_WEAPON || !proto2->IsRangedWeapon() || !proto1->IsRangedWeapon()) &&
-        (proto1->SubClass != proto2->SubClass && !transmogrifier->SubclassesCompatible(proto1, proto2)))
+    if (p_Transmogrified->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (p_Transmogrified->Class != ITEM_CLASS_WEAPON || !p_Transmogrifier->IsRangedWeapon() || !p_Transmogrified->IsRangedWeapon()) &&
+        (p_Transmogrified->SubClass != p_Transmogrifier->SubClass && !Item::SubclassesCompatible(p_Transmogrified, p_Transmogrifier)))
         return false;
 
-    if (proto1->InventoryType != proto2->InventoryType)
+    if (p_Transmogrified->InventoryType != p_Transmogrifier->InventoryType)
     {
-        if (proto1->Class == ITEM_CLASS_WEAPON && proto2->Class == ITEM_CLASS_WEAPON)
+        if (p_Transmogrified->Class == ITEM_CLASS_WEAPON && p_Transmogrifier->Class == ITEM_CLASS_WEAPON)
         {
-            if (!((proto1->InventoryType == INVTYPE_WEAPON || proto1->InventoryType == INVTYPE_WEAPONMAINHAND ||
-                proto1->InventoryType == INVTYPE_WEAPONOFFHAND || proto1->InventoryType == INVTYPE_RANGED || proto1->InventoryType == INVTYPE_RANGEDRIGHT) &&
-                (proto2->InventoryType == INVTYPE_WEAPON || proto2->InventoryType == INVTYPE_WEAPONMAINHAND ||
-                proto2->InventoryType == INVTYPE_WEAPONOFFHAND || proto2->InventoryType == INVTYPE_RANGED || proto2->InventoryType == INVTYPE_RANGEDRIGHT)))
+            if (!((p_Transmogrified->InventoryType == INVTYPE_WEAPON || p_Transmogrified->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                p_Transmogrified->InventoryType == INVTYPE_WEAPONOFFHAND || p_Transmogrified->InventoryType == INVTYPE_RANGED || p_Transmogrified->InventoryType == INVTYPE_RANGEDRIGHT) &&
+                (p_Transmogrifier->InventoryType == INVTYPE_WEAPON || p_Transmogrifier->InventoryType == INVTYPE_WEAPONMAINHAND ||
+                p_Transmogrifier->InventoryType == INVTYPE_WEAPONOFFHAND || p_Transmogrifier->InventoryType == INVTYPE_RANGED || p_Transmogrifier->InventoryType == INVTYPE_RANGEDRIGHT)))
                 return false;
         }
-        else if (proto1->Class == ITEM_CLASS_ARMOR && proto2->Class == ITEM_CLASS_ARMOR)
+        else if (p_Transmogrified->Class == ITEM_CLASS_ARMOR && p_Transmogrifier->Class == ITEM_CLASS_ARMOR)
         {
-            if (!((proto1->InventoryType == INVTYPE_CHEST || proto1->InventoryType == INVTYPE_ROBE) &&
-                (proto2->InventoryType == INVTYPE_CHEST || proto2->InventoryType == INVTYPE_ROBE)))
+            if (!((p_Transmogrified->InventoryType == INVTYPE_CHEST || p_Transmogrified->InventoryType == INVTYPE_ROBE) &&
+                (p_Transmogrifier->InventoryType == INVTYPE_CHEST || p_Transmogrifier->InventoryType == INVTYPE_ROBE)))
                 return false;
         }
     }
 
-    // Check armor types
-    if (proto1->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (proto1->Class == ITEM_CLASS_ARMOR || proto2->Class == ITEM_CLASS_ARMOR))
+    /// Check armor types
+    if (p_Transmogrified->SubClass != ITEM_SUBCLASS_ARMOR_COSMETIC && (p_Transmogrified->Class == ITEM_CLASS_ARMOR || p_Transmogrifier->Class == ITEM_CLASS_ARMOR))
     {
-        uint32 skill1 = proto1->GetSkill();
-        uint32 skill2 = proto2->GetSkill();
+        uint32 skill1 = p_Transmogrified->GetSkill();
+        uint32 skill2 = p_Transmogrifier->GetSkill();
 
         if ((skill1 == SKILL_PLATE_MAIL || skill1 == SKILL_LEATHER ||
             skill1 == SKILL_MAIL || skill1 == SKILL_CLOTH) ||
@@ -2075,11 +2318,12 @@ bool Item::HasItemBonus(uint32 p_ItemBonusId) const
 bool Item::RemoveItemBonus(uint32 p_ItemBonusId)
 {
     std::vector<uint32> const& l_BonusList = GetAllItemBonuses();
+
     for (uint32 i = 0; i < l_BonusList.size(); i++)
     {
         if (l_BonusList[i] == p_ItemBonusId && p_ItemBonusId)
         {
-            SetDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i, 0);
+            RemoveDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, i);
             return true;
         }
     }
@@ -2124,4 +2368,28 @@ uint32 Item::GetItemLevelBonusFromItemBonuses() const
     }
 
     return itemLevel;
+}
+
+uint32 Item::GetAppearanceModID() const
+{
+    uint32 l_Appearance = 0;
+
+    for (uint32 l_Bonus : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
+    {
+        std::vector<ItemBonusEntry const*> const* l_Bonuses = GetItemBonusesByID(l_Bonus);
+        if (l_Bonuses == nullptr)
+            continue;
+
+        for (uint32 l_I = 0; l_I < l_Bonuses->size(); l_I++)
+        {
+            ItemBonusEntry const* l_ItemSubBonus = (*l_Bonuses)[l_I];
+            if (!l_ItemSubBonus)
+                continue;
+
+            if (l_ItemSubBonus->Type == ITEM_BONUS_MODIFY_APPEARANCE && l_ItemSubBonus->Value[0] > l_Appearance)
+                l_Appearance = l_ItemSubBonus->Value[0];
+        }
+    }
+
+    return l_Appearance;
 }

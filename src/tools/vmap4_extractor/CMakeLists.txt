@@ -1,4 +1,5 @@
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
+# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -21,21 +22,23 @@ if( NOT MSVC )
 endif()
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
+  ${CMAKE_SOURCE_DIR}/dep/CascLib/src
 )
 
 add_executable(vmap4extractor ${sources})
 
 target_link_libraries(vmap4extractor
+  casc
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
-  storm
 )
 
-add_dependencies(vmap4extractor storm)
+add_dependencies(vmap4extractor casc)
 
 if( UNIX )
   install(TARGETS vmap4extractor DESTINATION bin)
 elseif( WIN32 )
   install(TARGETS vmap4extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
+
+set_property(TARGET vmap4extractor PROPERTY FOLDER "tools")

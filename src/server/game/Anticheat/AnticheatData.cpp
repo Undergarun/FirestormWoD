@@ -116,3 +116,21 @@ uint32 AnticheatData::GetTempReportsTimer(uint8 type)
 {
     return tempReportsTimer[type];
 }
+
+void AnticheatData::AddReportToHistory()
+{
+    m_ReportsHistory.push_back(time(nullptr));
+}
+
+uint32 AnticheatData::GetReportCountInLastSecs(uint32 p_Secondes)
+{
+    time_t l_Now = time(nullptr);
+
+    return std::count_if(m_ReportsHistory.begin(), m_ReportsHistory.end(), [l_Now, p_Secondes](time_t const& p_Timestamp) -> bool
+    {
+        if ((l_Now - p_Secondes) <= p_Timestamp)
+            return true;
+
+        return false;
+    });
+}

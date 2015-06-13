@@ -173,7 +173,7 @@ class DBCStorage
                                         *((float*)(&sqlDataTable[offset]))= 0.0f;
                                         offset+=4;
                                         break;
-                                    case FT_IND:
+                                    case FT_INDEX:
                                     case FT_INT:
                                         *((uint32*)(&sqlDataTable[offset]))=uint32(0);
                                         offset+=4;
@@ -198,7 +198,7 @@ class DBCStorage
                                         *((float*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetFloat();
                                         offset+=4;
                                         break;
-                                    case FT_IND:
+                                    case FT_INDEX:
                                     case FT_INT:
                                         *((uint32*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetUInt32();
                                         offset+=4;

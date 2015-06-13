@@ -358,7 +358,7 @@ public:
             hasTarget = false;
         }
 
-        void DamageTaken(Unit* doneBy, uint32& damage)
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (doneBy->ToCreature())
                 if (me->GetHealth() <= damage || me->GetHealthPct() <= 80.0f)

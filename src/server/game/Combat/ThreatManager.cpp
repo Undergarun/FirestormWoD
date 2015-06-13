@@ -446,8 +446,6 @@ void ThreatManager::_addThreat(Unit* victim, float threat)
         hostileRef->addThreat(threat); // now we add the real threat
         if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->isGameMaster())
             hostileRef->setOnlineOfflineState(false); // GM is always offline
-        else if (iOwner->GetTypeId() == TYPEID_UNIT && iOwner->IsAIEnabled)
-            iOwner->ToCreature()->AI()->OnHostileReferenceAdded(victim);
     }
 }
 
@@ -561,12 +559,6 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                 iThreatContainer.remove(hostilRef);
             else
                 iThreatOfflineContainer.remove(hostilRef);
-
-            if (iOwner->GetTypeId() == TYPEID_UNIT && iOwner->IsAIEnabled)
-            {
-                if (Unit* l_Ref = sObjectAccessor->FindUnit(hostilRef->getUnitGuid()))
-                    iOwner->ToCreature()->AI()->OnHostileReferenceRemoved(l_Ref);
-            }
             break;
     }
 }
@@ -598,4 +590,19 @@ void ThreatManager::resetAllAggro()
     }
 
     setDirty(true);
+}
+
+bool ThreatManager::HaveInThreatList(uint64 p_Guid) const
+{
+    std::list<HostileReference*> l_ThreatList = GetThreatList();
+    if (l_ThreatList.empty())
+        return false;
+
+    for (HostileReference* l_Iter : l_ThreatList)
+    {
+        if (p_Guid == l_Iter->getUnitGuid())
+            return true;
+    }
+
+    return false;
 }

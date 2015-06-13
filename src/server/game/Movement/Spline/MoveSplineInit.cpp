@@ -83,7 +83,10 @@ namespace Movement
         /// There is a big chance that current position is unknown if current state is not finalized, need compute it
         /// this also allows calculate spline position and update map position in much greater intervals
         /// Don't compute for transport movement if the unit is in a motion between two transports
-        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == (m_Unit.GetTransGUID() != 0))
+        /// If the movement to enter on the vehicle isn't finish and we are exit a vehicle, transport guid will be null but we will still have transport position in unit.movespline
+        /// So we have to check if current movespline is a entervehicle too
+        if (!l_MoveSpline.Finalized() && l_MoveSpline.onTransport == (m_Unit.GetTransGUID() != 0)
+            && !(l_MoveSpline.splineflags.transportEnter && args.flags.transportExit))
             l_RealPosition = l_MoveSpline.ComputePosition();
 
         /// Should i do the things that user should do? - no.
@@ -168,7 +171,7 @@ namespace Movement
 
         Movement::Location  l_Position = l_MoveSpline.spline.getPoint(l_MoveSpline.spline.first());
 
-        WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
+        WorldPacket l_Data(SMSG_MONSTER_MOVE, 2 * 1024);
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(l_Position.x);                                                              ///< Spline current position X
         l_Data << float(l_Position.y);                                                              ///< Spline current position Y
@@ -253,7 +256,10 @@ namespace Movement
         if (l_FinalFacingMode == MonsterMoveFacingAngle)
             l_Data << l_MoveSpline.facing.angle;                                                    ///< Facing angle
         else if (l_FinalFacingMode == MonsterMoveFacingTarget)
+        {
+            l_Data << float(l_MoveSpline.facing.angle);                                             ///< Face direction
             l_Data.appendPackGUID(l_MoveSpline.facing.target);                                      ///< Facing target
+        }
         else if (l_FinalFacingMode == MonsterMoveFacingSpot)
             l_Data << l_MoveSpline.facing.f.x << l_MoveSpline.facing.f.y << l_MoveSpline.facing.f.z;///< Facing position
 
@@ -291,7 +297,7 @@ namespace Movement
         uint8   l_FinalFacingMode   = MonsterMoveStop;
         int8    l_TransportSeat     = m_Unit.GetTransSeat();
 
-        WorldPacket l_Data(SMSG_MONSTER_MOVE, 64);
+        WorldPacket l_Data(SMSG_MONSTER_MOVE, 2 * 1024);
 
         l_Data.appendPackGUID(l_MoverGUID);
         l_Data << float(m_Unit.GetPositionX());                                                     ///< Spline start X

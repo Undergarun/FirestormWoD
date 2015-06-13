@@ -23,7 +23,7 @@
 #include "Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -64,6 +64,28 @@ BattlegroundWS::~BattlegroundWS()
 
 void BattlegroundWS::PostUpdateImpl(uint32 diff)
 {
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < 340)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(489, 933.55f, 1435.95f, 345.53f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(489, 1523.81f, 1481.75f, 351.99f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
+    }
+
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         if (GetElapsedTime() >= 25*MINUTE*IN_MILLISECONDS)
@@ -724,6 +746,7 @@ void BattlegroundWS::Reset()
 
     m_TeamScores[BG_TEAM_ALLIANCE] = 0;
     m_TeamScores[BG_TEAM_HORDE] = 0;
+    m_CheatersCheckTimer = 0;
 
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
@@ -732,6 +755,8 @@ void BattlegroundWS::Reset()
 
     // For WorldState
     _lastFlagCaptureTeam = 0;
+
+    m_CheatersCheckTimer = 0;
 }
 
 void BattlegroundWS::EndBattleground(uint32 winner)
@@ -745,7 +770,6 @@ void BattlegroundWS::EndBattleground(uint32 winner)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
 
-    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_WS_MAX_TEAM_SCORE, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

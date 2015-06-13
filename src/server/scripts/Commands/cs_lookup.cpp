@@ -369,35 +369,32 @@ public:
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.ItemId))
+                if (!std::string((*itr).second.Name1->Get(ulocaleIndex)).empty())
                 {
-                    if (il->Name.size() > ulocaleIndex && !il->Name[ulocaleIndex].empty())
+                    std::string name = (*itr).second.Name1->Get(ulocaleIndex);
+
+                    if (Utf8FitTo(name, wNamePart))
                     {
-                        std::string name = il->Name[ulocaleIndex];
-
-                        if (Utf8FitTo(name, wNamePart))
+                        if (maxResults && count++ == maxResults)
                         {
-                            if (maxResults && count++ == maxResults)
-                            {
-                                handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
-                                return true;
-                            }
-
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
-                            else
-                                handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
-
-                            if (!found)
-                                found = true;
-
-                            continue;
+                            handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
                         }
+
+                        if (handler->GetSession())
+                            handler->PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
+                        else
+                            handler->PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
+
+                        if (!found)
+                            found = true;
+
+                        continue;
                     }
                 }
             }
 
-            std::string name = itr->second.Name1;
+            std::string name = itr->second.Name1->Get(handler->GetSessionDbcLocale());
             if (name.empty())
                 continue;
 
@@ -872,7 +869,7 @@ public:
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
             if (nodeEntry)
             {
-                std::string name = nodeEntry->name;
+                std::string name = nodeEntry->name->Get(handler->GetSessionDbcLocale());
                 if (name.empty())
                     continue;
 

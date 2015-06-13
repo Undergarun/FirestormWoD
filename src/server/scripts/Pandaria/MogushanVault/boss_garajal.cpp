@@ -120,29 +120,29 @@ class boss_garajal : public CreatureScript
         {
             boss_garajalAI(Creature* creature) : BossAI(creature, DATA_GARAJAL)
             {
-                pInstance = creature->GetInstanceScript();
+                m_Instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* m_Instance;
             uint64 voodooTargets[3];
 
             void Reset()
             {
                 _Reset();
 
-                if (pInstance->GetBossState(DATA_GARAJAL) != DONE)
-                    pInstance->SetBossState(DATA_GARAJAL, NOT_STARTED);
+                if (m_Instance->GetBossState(DATA_GARAJAL) != DONE)
+                    m_Instance->SetBossState(DATA_GARAJAL, NOT_STARTED);
 
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLONE_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CROSSED_OVER);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIFE_FRAGILE_THREAD);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CUT_DAMAGE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CUT_SUICIDE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BANISHMENT);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLONE_VISUAL);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CROSSED_OVER);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIFE_FRAGILE_THREAD);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CUT_DAMAGE);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CUT_SUICIDE);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BANISHMENT);
 
                 me->AddAura(SPELL_STRONG_MOJO, me);
                 me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
@@ -151,30 +151,28 @@ class boss_garajal : public CreatureScript
 
             void JustDied(Unit* attacker)
             {
-                pInstance->SetBossState(DATA_GARAJAL, DONE);
+                m_Instance->SetBossState(DATA_GARAJAL, DONE);
                 _JustDied();
                 me->CastSpell(me, SPELL_RELEASE_SPIRIT, false);
 
                 events.Reset();
-                pInstance->SetBossState(DATA_GARAJAL, DONE);
-                pInstance->SaveToDB();
+                m_Instance->SetBossState(DATA_GARAJAL, DONE);
+                m_Instance->SaveToDB();
 
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLONE_VISUAL);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CROSSED_OVER);
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIFE_FRAGILE_THREAD);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLONE_VISUAL);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CROSSED_OVER);
+                m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIFE_FRAGILE_THREAD);
 
                 if (Creature* lorewalkerCho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 200.0f, true))
                 {
                     if (lorewalkerCho->AI())
                     {
-                        {
-                            lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
-                            lorewalkerCho->AI()->DoAction(ACTION_RUN);
-                        }
+                        lorewalkerCho->AI()->DoAction(ACTION_CONTINUE_ESCORT);
+                        lorewalkerCho->AI()->DoAction(ACTION_RUN);
                     }
                 }
 
@@ -185,19 +183,36 @@ class boss_garajal : public CreatureScript
                         me->CastSpell(l_Player, SPELL_GARAJAL_BONUS, true);
                 }
 
-                if (me->GetMap()->IsLFR())
+                if (IsLFR())
                 {
-                    me->SetLootRecipient(NULL);
-                    Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                    if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    me->SetLootRecipient(nullptr);
+
+                    bool l_Assigned = false;
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (!me || l_Player->IsAtGroupRewardDistance(me))
+                                sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
+
+                            if (l_Assigned)
+                                continue;
+
+                            if (Group* l_Group = l_Player->GetGroup())
+                            {
+                                l_Assigned = true;
+                                sLFGMgr->AutomaticLootAssignation(me, l_Group);
+                            }
+                        }
+                    }
                 }
             }
 
             void EnterCombat(Unit* attacker)
             {
                 // Can't be pulled if previous bosses hasn't been done, or if attacker isn't in the battle area
-                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
+                if (!m_Instance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
                 {
                     me->AddAura(SPELL_STRONG_MOJO, me);
                     me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
@@ -207,8 +222,8 @@ class boss_garajal : public CreatureScript
                 }
 
                 me->SetReactState(REACT_AGGRESSIVE);
-                pInstance->SetBossState(DATA_GARAJAL, IN_PROGRESS);
-                pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+                m_Instance->SetBossState(DATA_GARAJAL, IN_PROGRESS);
+                m_Instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 Talk(TALK_AGGRO);
 
                 events.ScheduleEvent(EVENT_SECONDARY_ATTACK,        urand(5000, 10000));
@@ -240,13 +255,13 @@ class boss_garajal : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
-                if (!pInstance)
+                if (!m_Instance)
                     return;
 
                 // Can't be pulled if previous bosses hasn't been done, or if attacker isn't in the battle area
-                if (!pInstance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
+                if (!m_Instance->CheckRequiredBosses(DATA_GARAJAL) || attacker->GetPositionX() < 4240.0f || attacker->GetPositionY() > 1380.0f)
                 {
                     me->AddAura(SPELL_STRONG_MOJO, me);
                     me->CastSpell(me, SPELL_TAP_THE_SPIRIT_WORLD, true);
@@ -309,8 +324,8 @@ class boss_garajal : public CreatureScript
                         }
                         case EVENT_VOODOO_DOLL:
                         {
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                            m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                            m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
                             me->MonsterTextEmote("Gara'jal selects random players to become |cffba2200|Hspell:116000|h[Voodoo Dolls]|h|r !", 0, true);
 
                             int32 mobCount = Is25ManRaid() ? 4 : 3;
@@ -338,7 +353,7 @@ class boss_garajal : public CreatureScript
                                 me->AddAura(SPELL_SOUL_CUT_SUICIDE, target);
                                 me->AddAura(SPELL_SOUL_CUT_DAMAGE,  target);
 
-                                Difficulty difficulty = me->GetMap()->GetDifficulty();
+                                Difficulty difficulty = me->GetMap()->GetDifficultyID();
                                 uint64 viewerGuid = target->GetGUID();
                                 uint8  mobCount   = IsHeroic() ? 3: 1;
 
@@ -354,8 +369,8 @@ class boss_garajal : public CreatureScript
                                 me->getThreatManager().resetAllAggro();
                             }
 
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
-                            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
+                            m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
+                            m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_SHARE);
 
                             events.ScheduleEvent(EVENT_VOODOO_DOLL, 5000);
                             events.ScheduleEvent(EVENT_BANISHMENT, 90000);
@@ -777,7 +792,7 @@ class mob_spirit_totem_intro : public CreatureScript
 };
 
 // Soul Back - 120715
-class spell_soul_back: public SpellScriptLoader
+class spell_soul_back : public SpellScriptLoader
 {
     public:
         spell_soul_back() : SpellScriptLoader("spell_soul_back") { }
@@ -814,7 +829,7 @@ class spell_soul_back: public SpellScriptLoader
 };
 
 // Final Destination - 118469
-class spell_final_destination: public SpellScriptLoader
+class spell_final_destination : public SpellScriptLoader
 {
     public:
         spell_final_destination() : SpellScriptLoader("spell_final_destination") { }
@@ -853,7 +868,7 @@ class spell_final_destination: public SpellScriptLoader
 };
 
 // Voodoo Doll - 122151
-class spell_voodoo_doll: public SpellScriptLoader
+class spell_voodoo_doll : public SpellScriptLoader
 {
     public:
         spell_voodoo_doll() : SpellScriptLoader("spell_voodoo_doll") { }

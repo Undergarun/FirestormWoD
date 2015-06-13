@@ -344,6 +344,7 @@ class npc_iron_construct : public CreatureScript
                 me->AddAura(SPELL_FREEZE_ANIM, me);
                 creature->SetReactState(REACT_PASSIVE);
                 needDamage = Is25ManRaid() ? 3000 : 5000;
+                shattered = false;
             }
 
             void Reset()
@@ -351,10 +352,11 @@ class npc_iron_construct : public CreatureScript
                 _brittled = false;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
-                if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage)
+                if (me->HasAura(SPELL_BRITTLE) && damage >= needDamage && !shattered)
                 {
+                    shattered = true;
                     DoCastAOE(SPELL_SHATTER, true);
                     if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
                         if (ignis->AI())
@@ -404,6 +406,7 @@ class npc_iron_construct : public CreatureScript
             InstanceScript* _instance;
             bool _brittled;
             uint32 needDamage;
+            bool shattered;
 
         };
 

@@ -398,6 +398,28 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                      EventPlayerDestroyedPoint(i);
             }
     }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+        if (m_CheatersCheckTimer <= 0)
+        {
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetPositionZ() < 50)
+                {
+                    if (plr->GetBGTeam() == HORDE)
+                        plr->TeleportTo(30, -1439.26f, -606.68f, 51.23f, plr->GetOrientation(), 0);
+                    else
+                        plr->TeleportTo(30, 871.65f, -491.23f, 96.53f, plr->GetOrientation(), 0);
+                }
+            }
+            m_CheatersCheckTimer = 4000;
+        }
+    }
 }
 
 void BattlegroundAV::StartingEventCloseDoors()
@@ -474,7 +496,6 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     }
 
     //TODO add enterevademode for all attacking creatures
-    AwardTeams(BG_AV_SCORE_INITIAL_POINTS - m_TeamScores[(GetOtherTeam(winner) == HORDE)], BG_AV_SCORE_INITIAL_POINTS, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 
@@ -1458,6 +1479,7 @@ void BattlegroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
 void BattlegroundAV::ResetBGSubclass()
 {
     m_MaxLevel=0;
+    m_CheatersCheckTimer = 0;
     for (uint8 i=0; i<2; i++) //forloop for both teams (it just make 0 == alliance and 1 == horde also for both mines 0=north 1=south
     {
         for (uint8 j=0; j<9; j++)
@@ -1544,7 +1566,6 @@ bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
     return false;
 }
 
-
 #define REGZAR_TEXT_NEED " supplies are needed for the next upgrade!"
 #define REGZAR_TEXT_MAX "You're already at 1500 supplies!"
 
@@ -1556,7 +1577,7 @@ public:
     bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 p_Sender, uint32 p_Action)
     {
         Battleground* l_BattleGround = p_Player->GetBattleground();
-        if (l_BattleGround == nullptr || l_BattleGround->GetTypeID() != BattlegroundTypeId::BATTLEGROUND_AV)
+        if (l_BattleGround == nullptr || l_BattleGround->GetTypeID(true) != BattlegroundTypeId::BATTLEGROUND_AV)
             return false;
 
         BattlegroundAV* l_AlteracBG = (BattlegroundAV*)l_BattleGround;

@@ -26,11 +26,13 @@
 #include "CreatureAI.h"
 #include "Log.h"
 #include "LFGMgr.h"
+#include "Guild.h"
+#include "WowTime.hpp"
 
 InstanceScript::InstanceScript(Map* p_Map)
 {
     instance = p_Map;
-    completedEncounters = 0;
+    m_CompletedEncounters = 0;
     m_ChallengeStarted = false;
     m_ConditionCompleted = false;
     m_StartChallengeTime = 0;
@@ -42,6 +44,7 @@ InstanceScript::InstanceScript(Map* p_Map)
     m_BeginningTime = 0;
     m_ScenarioID = 0;
     m_ScenarioStep = 0;
+    m_EncounterTime = 0;
 }
 
 void InstanceScript::SaveToDB()
@@ -69,7 +72,7 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
 
 bool InstanceScript::IsEncounterInProgress() const
 {
-    for (std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
+    for (std::vector<BossInfo>::const_iterator itr = m_Bosses.begin(); itr != m_Bosses.end(); ++itr)
         if (itr->state == IN_PROGRESS)
             return true;
 
@@ -80,14 +83,21 @@ void InstanceScript::OnPlayerEnter(Player* p_Player)
 {
     SendScenarioState(ScenarioData(m_ScenarioID, m_ScenarioStep), p_Player);
     UpdateCriteriasAfterLoading();
+    UpdateCreatureGroupSizeStats();
+}
+
+void InstanceScript::OnPlayerExit(Player* p_Player)
+{
+    UpdateCreatureGroupSizeStats();
+    p_Player->RemoveAura(eInstanceSpells::SpellDetermination);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
 {
     while (data->entry)
     {
-        if (data->bossId < bosses.size())
-            minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+        if (data->bossId < m_Bosses.size())
+            minions.insert(std::make_pair(data->entry, MinionInfo(&m_Bosses[data->bossId])));
 
         ++data;
     }
@@ -96,7 +106,7 @@ void InstanceScript::LoadMinionData(const MinionData* data)
 
 void InstanceScript::SetBossNumber(uint32 p_Number)
 {
-    bosses.resize(p_Number);
+    m_Bosses.resize(p_Number);
     m_BossesScenarios.resize(p_Number);
 }
 
@@ -104,8 +114,8 @@ void InstanceScript::LoadDoorData(const DoorData* data)
 {
     while (data->entry)
     {
-        if (data->bossId < bosses.size())
-            doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
+        if (data->bossId < m_Bosses.size())
+            doors.insert(std::make_pair(data->entry, DoorInfo(&m_Bosses[data->bossId], data->type, BoundaryType(data->boundary))));
 
         ++data;
     }
@@ -116,7 +126,7 @@ void InstanceScript::LoadScenariosInfos(BossScenarios const* p_Scenarios, uint32
 {
     while (p_Scenarios->m_ScenarioID)
     {
-        if (p_Scenarios->m_BossID < bosses.size())
+        if (p_Scenarios->m_BossID < m_Bosses.size())
             m_BossesScenarios[p_Scenarios->m_BossID] = BossScenarios(p_Scenarios->m_BossID, p_Scenarios->m_ScenarioID);
 
         ++p_Scenarios;
@@ -259,70 +269,128 @@ void InstanceScript::AddMinion(Creature* minion, bool add)
         itr->second.bossInfo->minion.erase(minion);
 }
 
-bool InstanceScript::SetBossState(uint32 id, EncounterState state)
+bool InstanceScript::SetBossState(uint32 p_ID, EncounterState p_State)
 {
-    if (id < bosses.size())
+    if (p_ID < m_Bosses.size())
     {
-        BossInfo* bossInfo = &bosses[id];
-        BossScenarios* l_BossScenario = &m_BossesScenarios[id];
+        BossInfo* l_BossInfos = &m_Bosses[p_ID];
+        BossScenarios* l_BossScenario = &m_BossesScenarios[p_ID];
 
-        if (bossInfo->state == TO_BE_DECIDED) // loading
+        if (l_BossInfos->state == EncounterState::TO_BE_DECIDED) // loading
         {
-            bossInfo->state = state;
+            l_BossInfos->state = p_State;
 
-            if (state == DONE)
+            if (p_State == EncounterState::DONE)
                 SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
 
             return false;
         }
         else
         {
-            if (bossInfo->state == state)
+            if (l_BossInfos->state == p_State)
                 return false;
 
-            if (state == DONE)
+            switch (p_State)
             {
-                for (MinionSet::iterator l_Iter = bossInfo->minion.begin(); l_Iter != bossInfo->minion.end(); ++l_Iter)
+                case EncounterState::DONE:
                 {
-                    if ((*l_Iter)->isWorldBoss() && (*l_Iter)->isAlive())
-                        return false;
-                }
+                    for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
+                    {
+                        if ((*l_Iter)->isWorldBoss() && (*l_Iter)->isAlive())
+                            return false;
+                    }
 
-                SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+                    SendScenarioProgressUpdate(CriteriaProgressData(l_BossScenario->m_ScenarioID, 1, m_InstanceGuid, time(NULL), m_BeginningTime, 0));
+
+                    /// This buff disappears immediately after killing the boss
+                    DoRemoveAurasDueToSpellOnPlayers(eInstanceSpells::SpellDetermination);
+
+                    /// End of challenge
+                    if (p_ID == (m_Bosses.size() - 1))
+                    {
+                        if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+                        {
+                            m_ChallengeStarted = false;
+
+                            SendChallengeNewPlayerRecord();
+                            SendChallengeModeComplete(RewardChallengers());
+                            SendChallengeStopElapsedTimer(1);
+
+                            SaveChallengeDatasIfNeeded();
+
+                            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
+                        }
+
+                        SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+                    }
+
+                    m_EncounterTime = 0;
+                    break;
+                }
+                case EncounterState::IN_PROGRESS:
+                    m_EncounterTime = time(nullptr);
+                    break;
+                case EncounterState::FAIL:
+                {
+                    /// Now you have to fight for at least 3mins to get a stack.
+                    /// It was nerfed due to people intentionally reseting the boss to gain max stack to kill the boss faster.
+                    if (m_EncounterTime && instance->IsLFR() && (time(nullptr) - m_EncounterTime) >= 3 * TimeConstants::MINUTE)
+                        DoCastSpellOnPlayers(eInstanceSpells::SpellDetermination);
+                    break;
+                }
+                default:
+                    break;
             }
 
-            bossInfo->state = state;
+            l_BossInfos->state = p_State;
             SaveToDB();
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
-                UpdateDoorState(*i);
-
-        for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-            UpdateMinionState(*i, state);
-
-        ///< End of challenge
-        if (id == (bosses.size() - 1) && state == DONE)
+        for (uint32 l_Type = 0; l_Type < DoorType::MAX_DOOR_TYPES; ++l_Type)
         {
-            if (instance->IsChallengeMode() && m_ChallengeStarted && m_ConditionCompleted)
+            for (DoorSet::iterator l_Iter = l_BossInfos->door[l_Type].begin(); l_Iter != l_BossInfos->door[l_Type].end(); ++l_Iter)
+                UpdateDoorState(*l_Iter);
+        }
+
+        for (MinionSet::iterator l_Iter = l_BossInfos->minion.begin(); l_Iter != l_BossInfos->minion.end(); ++l_Iter)
+            UpdateMinionState(*l_Iter, p_State);
+
+        /// ADD GUILD REWARDS
+        {
+            InstanceMap::PlayerList const& l_PlayersMap = instance->GetPlayers();
+            for (InstanceMap::PlayerList::const_iterator l_Itr = l_PlayersMap.begin(); l_Itr != l_PlayersMap.end(); ++l_Itr)
             {
-                m_ChallengeStarted = false;
-
-                SendChallengeNewPlayerRecord();
-                SendChallengeModeComplete(RewardChallengers());
-                SendChallengeStopElapsedTimer(1);
-
-                SaveChallengeDatasIfNeeded();
-
-                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_CHALLENGE_DUNGEON, instance->GetId(), m_MedalType);
+                if (Player* l_Player = l_Itr->getSource())
+                {
+                    if (l_Player->GetGroup() && l_Player->GetGroup()->IsGuildGroup(0, true, true))
+                    {
+                        if (Guild* l_Guild = l_Player->GetGuild())
+                        {
+                            if (instance->IsRaid())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_RAID);
+                            else if (instance->IsChallengeMode())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON_CHALLENGE);
+                            else if (instance->IsDungeon())
+                                l_Guild->CompleteGuildChallenge(CHALLENGE_DUNGEON);
+                            break;
+                        }
+                    }
+                }
             }
+        }
 
-            SendScenarioState(ScenarioData(m_ScenarioID, ++m_ScenarioStep));
+        /// Send encounters for Bosses
+        if (instance->IsRaid())
+        {
+            if (p_State == EncounterState::IN_PROGRESS)
+                SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_START);
+            else if (p_State == EncounterState::DONE || p_State == EncounterState::FAIL)
+                SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END);
         }
 
         return true;
     }
+
     return false;
 }
 
@@ -333,7 +401,7 @@ std::string InstanceScript::LoadBossState(const char * data)
     std::istringstream loadStream(data);
     uint32 buff;
     uint32 bossId = 0;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
+    for (std::vector<BossInfo>::iterator i = m_Bosses.begin(); i != m_Bosses.end(); ++i, ++bossId)
     {
         loadStream >> buff;
         if (buff < TO_BE_DECIDED)
@@ -345,7 +413,7 @@ std::string InstanceScript::LoadBossState(const char * data)
 std::string InstanceScript::GetBossSaveData()
 {
     std::ostringstream saveStream;
-    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
+    for (std::vector<BossInfo>::iterator i = m_Bosses.begin(); i != m_Bosses.end(); ++i)
         saveStream << (uint32)i->state << ' ';
     return saveStream.str();
 }
@@ -584,58 +652,59 @@ void InstanceScript::SendEncounterUnit(uint32 p_Type, Unit* p_Unit /*= NULL*/, u
 
     switch (p_Type)
     {
-        case ENCOUNTER_FRAME_ENGAGE:
+        case EncounterFrameType::ENCOUNTER_FRAME_ENGAGE:
             if (!p_Unit)
                 return;
             p_Unit->BuildEncounterFrameData(&l_Data, true, p_Param1);
             break;
-        case ENCOUNTER_FRAME_DISENGAGE:
+        case EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE:
             if (!p_Unit)
                 return;
             p_Unit->BuildEncounterFrameData(&l_Data, false);
             break;
-        case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+        case EncounterFrameType::ENCOUNTER_FRAME_UPDATE_PRIORITY:
             if (!p_Unit)
                 return;
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 8 + 1);
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 8 + 1);
             l_Data.append(p_Unit->GetPackGUID());
             l_Data << uint8(p_Param1);  // TargetFramePriority
             break;
-        case ENCOUNTER_FRAME_START_TIMER:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4);
+        case EncounterFrameType::ENCOUNTER_FRAME_START_TIMER:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4);
             l_Data << int32(0);         // TimeRemaining
             break;
-        case ENCOUNTER_FRAME_START_OBJECTIVE:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4);
+        case EncounterFrameType::ENCOUNTER_FRAME_START_OBJECTIVE:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4);
             l_Data << int32(0);         // ObjectiveID
             break;
-        case ENCOUNTER_FRAME_COMPLETE_OBJECTIVE:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4);
+        case EncounterFrameType::ENCOUNTER_FRAME_COMPLETE_OBJECTIVE:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4);
             l_Data << int32(0);         // ObjectiveID
             break;
-        case ENCOUNTER_FRAME_START:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_START, 4 * 4);
-            l_Data << uint32(0);        // CombatResChargeRecovery
-            l_Data << int32(0);         // MaxInCombatResCount
-            l_Data << int32(0);         // InCombatResCount
-            l_Data << uint32(0);        // NextCombatResChargeTime
+        case EncounterFrameType::ENCOUNTER_FRAME_START:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_START, 4 * 4);
+            /// Sniffed values
+            l_Data << uint32(1);        ///< CombatResChargeRecovery
+            l_Data << int32(9);         ///< MaxInCombatResCount
+            l_Data << int32(216000);    ///< InCombatResCount
+            l_Data << uint32(216000);   ///< NextCombatResChargeTime
             break;
-        case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 * 2);
+        case EncounterFrameType::ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 * 2);
             l_Data << int32(0);         // ProgressAmount
             l_Data << int32(0);         // ObjectiveID
             break;
-        case ENCOUNTER_FRAME_END:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_END, 0);
+        case EncounterFrameType::ENCOUNTER_FRAME_END:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_END, 0);
             break;
-        case ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0);
+        case EncounterFrameType::ENCOUNTER_FRAME_IN_COMBAT_RESURRECTION:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0);
             break;
-        case ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0);
+        case EncounterFrameType::ENCOUNTER_FRAME_PHASE_SHIFT_CHANGED:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0);
             break;
-        case ENCOUNTER_FRAME_GAIN_COMBAT_RESURRECTION_CHARGE:
-            l_Data.Initialize(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 * 2);
+        case EncounterFrameType::ENCOUNTER_FRAME_GAIN_COMBAT_RESURRECTION_CHARGE:
+            l_Data.Initialize(Opcodes::SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 * 2);
             l_Data << int32(0);         // InCombatResCount
             l_Data << uint32(0);        // CombatResChargeRecovery
             break;
@@ -652,7 +721,7 @@ void InstanceScript::SendScenarioState(ScenarioData p_Data, Player* p_Player /*=
 
     l_Data << int32(p_Data.m_ScenarioID);
     l_Data << int32(p_Data.m_StepID);
-    l_Data << uint32(instance->GetDifficulty());
+    l_Data << uint32(instance->GetDifficultyID());
     l_Data << uint32(p_Data.m_WaveCurrent);
     l_Data << uint32(p_Data.m_WaveMax);
     l_Data << uint32(p_Data.m_TimerDuration);
@@ -695,7 +764,7 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
     *p_Data << int32(p_CriteriaProgress.m_ID);
     *p_Data << uint64(p_CriteriaProgress.m_Quantity);
     p_Data->appendPackGUID(p_CriteriaProgress.m_Guid);
-    *p_Data << uint32(secsToTimeBitFields(p_CriteriaProgress.m_Date));
+    *p_Data << uint32(MS::Utilities::WowTime::Encode(p_CriteriaProgress.m_Date));
     *p_Data << int32(p_CriteriaProgress.m_TimeFromStart);
     *p_Data << int32(p_CriteriaProgress.m_TimeFromCreate);
 
@@ -705,9 +774,9 @@ void InstanceScript::BuildCriteriaProgressPacket(WorldPacket* p_Data, CriteriaPr
 
 void InstanceScript::UpdateCriteriasAfterLoading()
 {
-    for (uint8 l_I = 0; l_I < bosses.size(); ++l_I)
+    for (uint8 l_I = 0; l_I < m_Bosses.size(); ++l_I)
     {
-        BossInfo* bossInfo = &bosses[l_I];
+        BossInfo* bossInfo = &m_Bosses[l_I];
         BossScenarios* l_BossScenario = &m_BossesScenarios[l_I];
 
         if (bossInfo->state == DONE)
@@ -803,26 +872,16 @@ void InstanceScript::ScheduleChallengeTimeUpdate(uint32 p_Diff)
         }
     }
 
-    ///< Should not happens
+    /// Should not happens
     if (l_ChallengeEntry == nullptr)
         return;
 
     uint32 l_Times[eChallengeMedals::MedalTypeGold];
-    MapChallengeModeHotfix* l_ChallengeHotfix = sObjectMgr->GetMapChallengeModeHotfix(l_ChallengeEntry->ID);
-    if (l_ChallengeHotfix != nullptr)
-    {
-        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeHotfix->m_BronzeTime;
-        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeHotfix->m_SilverTime;
-        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeHotfix->m_GoldTime;
-    }
-    else
-    {
-        l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
-        l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
-        l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
-    }
+    l_Times[eChallengeMedals::MedalTypeBronze - 1] = l_ChallengeEntry->BronzeTime;
+    l_Times[eChallengeMedals::MedalTypeSilver - 1] = l_ChallengeEntry->SilverTime;
+    l_Times[eChallengeMedals::MedalTypeGold - 1] = l_ChallengeEntry->GoldTime;
 
-    ///< Downgrade Medal if needed
+    /// Downgrade Medal if needed
     switch (m_MedalType)
     {
         case eChallengeMedals::MedalTypeGold:
@@ -859,7 +918,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
             if (l_Player->HasChallengeCompleted(l_MapID))
             {
                 CompletedChallenge* l_Challenge = l_Player->GetCompletedChallenge(l_MapID);
-                ///< Should not happens
+                /// Should not happens
                 if (l_Challenge == nullptr)
                     continue;
 
@@ -886,7 +945,7 @@ void InstanceScript::SendChallengeNewPlayerRecord()
 
                 l_Challenge->m_LastTime = m_ChallengeTime;
 
-                ///< Send new record only for new best time
+                /// Send new record only for new best time
                 if (!l_NewBestTime)
                     continue;
             }
@@ -900,6 +959,15 @@ void InstanceScript::SendChallengeNewPlayerRecord()
                 l_Statement->setUInt8(4, m_MedalType);
                 l_Statement->setUInt32(5, time(NULL));
                 CharacterDatabase.Execute(l_Statement);
+
+                CompletedChallenge l_Challenge;
+                l_Challenge.m_BestMedal = m_MedalType;
+                l_Challenge.m_BestMedalDate = time(NULL);
+                l_Challenge.m_BestTime = m_ChallengeTime;
+                l_Challenge.m_LastTime = m_ChallengeTime;
+
+                l_Player->AddCompletedChallenge(l_MapID, l_Challenge);
+                l_Player->GetSession()->SendChallengeModeMapStatsUpdate(l_MapID);
             }
 
             WorldPacket l_Data(SMSG_CHALLENGE_MODE_NEW_PLAYER_RECORD, 12);
@@ -926,18 +994,7 @@ void InstanceScript::SendChallengeModeComplete(uint32 p_Money)
         ///< ItemReward
         for (uint32 l_I = 0; l_I < l_ItemRewards; ++l_I)
         {
-            ///< ItemStruct
-            {
-                l_Data << int32(0);     ///< ItemEntry
-                l_Data << int32(0);     ///< RandomPropertiesSeed
-                l_Data << int32(0);     ///< RandomPropertiesID
-
-                l_Data.WriteBit(true);  ///< HasBonus
-                l_Data.WriteBit(false); ///< HasModifiers
-
-                l_Data << uint8(15);    ///< UnkByte for Bonuses
-                l_Data << uint32(0);    ///< BonusCount
-            }
+            Item::BuildDynamicItemDatas(l_Data, nullptr);
 
             l_Data << uint32(0);    ///< Quantity
         }
@@ -962,10 +1019,10 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
     RealmCompletedChallenge* l_GroupChallenge = sObjectMgr->GetGroupCompletedChallengeForMap(l_MapID);
     RealmCompletedChallenge* l_GuildChallenge = sObjectMgr->GetGuildCompletedChallengeForMap(l_MapID);
 
-    ///< New best record for a classic group
+    /// New best record for a classic group
     if (l_GroupChallenge == nullptr)
         SaveNewGroupChallenge();
-    ///< Check if update is needed
+    /// Check if update is needed
     else if (l_GroupChallenge->m_CompletionTime > m_ChallengeTime)
     {
         PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_CHALLENGE);
@@ -994,24 +1051,18 @@ void InstanceScript::SaveChallengeDatasIfNeeded()
         }
     }
 
-    ///< New best record for the guild
-    if (l_GuildChallenge == nullptr)
+    /// New best record for the guild
+    if (l_GuildChallenge == nullptr && l_GuildGroup)
+        SaveNewGroupChallenge(l_GuildID);
+    /// Check if update is needed
+    else if (l_GuildChallenge != nullptr && l_GuildChallenge->m_CompletionTime > m_ChallengeTime && l_GuildGroup)
     {
-        if (l_GuildGroup)
-            SaveNewGroupChallenge(l_GuildID);
-    }
-    ///< Check if update is needed
-    else if (l_GuildChallenge->m_CompletionTime > m_ChallengeTime)
-    {
-        if (l_GuildGroup)
-        {
-            PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
-            l_Statement->setUInt32(0, l_MapID);
-            l_Statement->setUInt32(1, l_GuildID);
-            CharacterDatabase.Execute(l_Statement);
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_CHALLENGE);
+        l_Statement->setUInt32(0, l_MapID);
+        l_Statement->setUInt32(1, l_GuildID);
+        CharacterDatabase.Execute(l_Statement);
 
-            SaveNewGroupChallenge(l_GuildID);
-        }
+        SaveNewGroupChallenge(l_GuildID);
     }
 }
 
@@ -1031,23 +1082,30 @@ void InstanceScript::SaveNewGroupChallenge(uint32 p_GuildID /*= 0*/)
 
     Map::PlayerList const& l_PlayerList = instance->GetPlayers();
     uint32 l_Count = 0;
-    l_Index = p_GuildID ? 7 : 6;
+    for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
+    {
+        if (Player* l_Player = l_Iter->getSource())
+            ++l_Count;
+    }
+
+    l_Statement->setUInt8(l_Index++, l_Count);
+
     for (Map::PlayerList::const_iterator l_Iter = l_PlayerList.begin(); l_Iter != l_PlayerList.end(); ++l_Iter)
     {
         if (Player* l_Player = l_Iter->getSource())
         {
             l_Statement->setUInt32(l_Index++, l_Player->GetGUIDLow());
             l_Statement->setUInt32(l_Index++, l_Player->GetSpecializationId(l_Player->GetActiveSpec()));
-            ++l_Count;
         }
     }
 
-    l_Statement->setUInt8(p_GuildID ? 6 : 5, l_Count);
-
-    for (uint8 l_I = 0; l_I < ((p_GuildID ? 6 : 5) - l_Count); ++l_I)
+    if (l_Count < 5)
     {
-        l_Statement->setUInt32(l_Index++, 0);
-        l_Statement->setUInt32(l_Index++, 0);
+        for (uint8 l_I = 0; l_I < (5 - l_Count); ++l_I)
+        {
+            l_Statement->setUInt32(l_Index++, 0);
+            l_Statement->setUInt32(l_Index++, 0);
+        }
     }
 
     CharacterDatabase.Execute(l_Statement);
@@ -1098,26 +1156,26 @@ bool InstanceScript::IsWipe()
     return true;
 }
 
-void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source)
+void InstanceScript::UpdateEncounterState(EncounterCreditType p_Type, uint32 p_CreditEntry, Unit* p_Source)
 {
-    DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficulty());
-    if (!encounters || encounters->empty())
+    DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
+    if (!l_Encounters || l_Encounters->empty() || p_Source == nullptr)
         return;
 
     int32 l_MaxIndex = -100000;
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((*itr)->dbcEntry->OrderIndex > l_MaxIndex && (*itr)->dbcEntry->DifficultyID == NONE_DIFFICULTY)
-            l_MaxIndex = (*itr)->dbcEntry->OrderIndex;
+        if ((*l_Iter)->dbcEntry->OrderIndex > l_MaxIndex && (*l_Iter)->dbcEntry->DifficultyID == Difficulty::DifficultyNone)
+            l_MaxIndex = (*l_Iter)->dbcEntry->OrderIndex;
     }
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
     {
-        if ((source && (*itr)->dbcEntry->CreatureDisplayID == source->GetDisplayId()) || ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry))
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Source->GetDisplayId()) || ((*l_Iter)->creditType == p_Type && (*l_Iter)->creditEntry == p_CreditEntry))
         {
-            completedEncounters |= 1 << (*itr)->dbcEntry->Bit;
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->NameLang);
-            if ((*itr)->dbcEntry->OrderIndex == l_MaxIndex)
+            m_CompletedEncounters |= 1 << (*l_Iter)->dbcEntry->Bit;
+
+            if ((*l_Iter)->dbcEntry->OrderIndex == l_MaxIndex)
             {
                 Map::PlayerList const& l_PlayerList = instance->GetPlayers();
                 if (l_PlayerList.isEmpty())
@@ -1128,14 +1186,64 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                     if (Player* l_Player = l_Itr->getSource())
                     {
                         uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
-                        if (!source || l_Player->IsAtGroupRewardDistance(source))
+                        if (l_Player->IsAtGroupRewardDistance(p_Source))
                             sLFGMgr->RewardDungeonDoneFor(l_DungeonID, l_Player);
                     }
                 }
             }
+
+            SendEncounterEnd((*l_Iter)->dbcEntry->ID, true);
+            SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_END, p_Source->ToUnit());
+
+            WorldPacket l_Data(Opcodes::SMSG_BOSS_KILL_CREDIT, 4);
+            l_Data << int32((*l_Iter)->dbcEntry->ID);
+            instance->SendToPlayers(&l_Data);
+
+            DoUpdateAchievementCriteria(AchievementCriteriaTypes::ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER, (*l_Iter)->dbcEntry->ID);
             return;
         }
     }
+}
+
+void InstanceScript::SendEncounterStart(uint32 p_EncounterID)
+{
+    if (!p_EncounterID)
+        return;
+
+    WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_START);
+    l_Data << uint32(p_EncounterID);
+    l_Data << uint32(instance->GetDifficultyID());
+    l_Data << uint32(instance->GetPlayers().getSize());
+    instance->SendToPlayers(&l_Data);
+}
+
+void InstanceScript::SendEncounterEnd(uint32 p_EncounterID, bool p_Success)
+{
+    if (!p_EncounterID)
+        return;
+
+    WorldPacket l_Data(Opcodes::SMSG_ENCOUNTER_END);
+    l_Data << uint32(p_EncounterID);
+    l_Data << uint32(instance->GetDifficultyID());
+    l_Data << uint32(instance->GetPlayers().getSize());
+    l_Data.WriteBit(p_Success);
+    l_Data.FlushBits();
+    instance->SendToPlayers(&l_Data);
+}
+
+uint32 InstanceScript::GetEncounterIDForBoss(Creature* p_Boss) const
+{
+    DungeonEncounterList const* l_Encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
+    if (!l_Encounters || l_Encounters->empty() || p_Boss == nullptr)
+        return 0;
+
+    for (DungeonEncounterList::const_iterator l_Iter = l_Encounters->begin(); l_Iter != l_Encounters->end(); ++l_Iter)
+    {
+        if (((*l_Iter)->dbcEntry->CreatureDisplayID == p_Boss->GetNativeDisplayId()) || ((*l_Iter)->creditEntry == p_Boss->GetEntry()))
+            return (*l_Iter)->dbcEntry->ID;
+    }
+
+    return 0;
 }
 
 void InstanceScript::UpdatePhasing()
@@ -1147,4 +1255,17 @@ void InstanceScript::UpdatePhasing()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->getSource())
             player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
+}
+
+void InstanceScript::UpdateCreatureGroupSizeStats()
+{
+    auto l_WorldObjects = instance->GetAllWorldObjectOnMap();
+    for (auto l_WorldObject = l_WorldObjects->begin(); l_WorldObject != l_WorldObjects->end(); l_WorldObject++)
+    {
+        if ((*l_WorldObject)->GetTypeId() != TYPEID_UNIT)
+            continue;
+
+        Creature* l_Creature = (*l_WorldObject)->ToCreature();
+        l_Creature->UpdateGroupSizeStats();
+    }
 }

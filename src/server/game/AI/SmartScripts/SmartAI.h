@@ -106,7 +106,7 @@ class SmartAI : public CreatureAI
         void SpellHitTarget(Unit* target, const SpellInfo* spellInfo);
 
         // Called at any Damage from any attacker (before damage apply)
-        void DamageTaken(Unit* doneBy, uint32& damage);
+        void DamageTaken(Unit* doneBy, uint32& damage, SpellInfo const* p_SpellInfo);
 
         // Called when the creature receives heal
         void HealReceived(Unit* doneBy, uint32& addhealth);

@@ -219,7 +219,7 @@ class boss_murozond : public CreatureScript
                 BossAI::JustReachedHome();
             }
 
-            void DamageTaken(Unit* /*who*/, uint32 &damage)
+            void DamageTaken(Unit* /*who*/, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                     damage = 0;

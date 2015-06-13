@@ -159,6 +159,11 @@ enum eChallengeMedals
     MaxMedalType
 };
 
+enum eInstanceSpells
+{
+    SpellDetermination = 139068
+};
+
 class InstanceScript : public ZoneScript
 {
     public:
@@ -190,6 +195,9 @@ class InstanceScript : public ZoneScript
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* p_Player);
+
+        /// Called when a player successfully exits the instance
+        virtual void OnPlayerExit(Player* p_Player);
 
         // Handle open / close objects
         // use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -242,8 +250,8 @@ class InstanceScript : public ZoneScript
         bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
         virtual bool SetBossState(uint32 id, EncounterState state);
-        EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
+        EncounterState GetBossState(uint32 id) const { return id < m_Bosses.size() ? m_Bosses[id].state : TO_BE_DECIDED; }
+        BossBoundaryMap const* GetBossBoundary(uint32 id) const { return id < m_Bosses.size() ? &m_Bosses[id].boundary : NULL; }
 
         // Achievement criteria additional requirements check
         // NOTE: not use this if same can be checked existed requirement types from AchievementCriteriaRequirementType
@@ -255,11 +263,15 @@ class InstanceScript : public ZoneScript
         // Checks encounter state at kill/spellcast
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
+        void SendEncounterStart(uint32 p_EncounterID);
+        void SendEncounterEnd(uint32 p_EncounterID, bool p_Success);
+        uint32 GetEncounterIDForBoss(Creature* p_Boss) const;
+
         // Used only during loading
-        void SetCompletedEncountersMask(uint32 newMask) { completedEncounters = newMask; }
+        void SetCompletedEncountersMask(uint32 newMask) { m_CompletedEncounters = newMask; }
 
         // Returns completed encounters mask for packets
-        uint32 GetCompletedEncounterMask() const { return completedEncounters; }
+        uint32 GetCompletedEncounterMask() const { return m_CompletedEncounters; }
 
         virtual void OnGameObjectRemove(GameObject* p_Go);
 
@@ -430,6 +442,7 @@ class InstanceScript : public ZoneScript
         virtual void FillInitialWorldStates(ByteBuffer& /*data*/) {}
 
         void UpdatePhasing();
+        void UpdateCreatureGroupSizeStats();
 
     protected:
         void SetBossNumber(uint32 p_Number);
@@ -446,10 +459,11 @@ class InstanceScript : public ZoneScript
         std::string LoadBossState(char const* data);
         std::string GetBossSaveData();
     private:
-        std::vector<BossInfo> bosses;
+        std::vector<BossInfo> m_Bosses;
         std::vector<BossScenarios> m_BossesScenarios;
         DoorInfoMap doors;
         MinionInfoMap minions;
-        uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 m_CompletedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        uint32 m_EncounterTime;
 };
 #endif

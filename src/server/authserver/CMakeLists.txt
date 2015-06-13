@@ -71,6 +71,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Reporting
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
@@ -78,6 +79,9 @@ include_directories(
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${EASYJSON_INCLUDE_DIR}
+  ${CURL_INCLUDE_DIR}
+  ${MSFRAMEWORK_INCLUDE_DIR}
 )
 
 add_executable(authserver
@@ -88,11 +92,15 @@ set_property(TARGET authserver PROPERTY FOLDER "server")
 
 add_dependencies(authserver revision.h)
 
+if( UNIX AND NOT NOJEM AND NOT APPLE )
+  set(authserver_LINK_FLAGS "-pthread")
+endif()
+
 if( NOT WIN32 )
-  set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
-  )
- endif()
+   set_target_properties(authserver PROPERTIES
+    LINK_FLAGS "${authserver_LINK_FLAGS}" COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+   )
+endif()
 
 target_link_libraries(authserver
   shared
@@ -100,6 +108,8 @@ target_link_libraries(authserver
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${OSX_LIBS}
+  ${CURL_LIBRARIES}
+  ${MSFRAMEWORK_LIBRARIES}
 )
 
 if( WIN32 )

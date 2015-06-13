@@ -315,6 +315,9 @@ void AuraApplication::ClientUpdate(bool p_Remove)
     if (l_AuraBase->GetSpellInfo()->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE)
         return;
 
+    if (l_AuraBase->GetCaster() == _target)
+        return;
+
     Mechanics l_Mechanic = Mechanics::MECHANIC_NONE;
     SpellEffIndex l_EffectIndex = EFFECT_0;
     LossOfControlType l_Type = LossOfControlType::TypeNone;
@@ -694,21 +697,35 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
 
 void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp)
 {
-    ASSERT(target);
+    /*ASSERT(target);
     ASSERT(auraApp->GetRemoveMode());
-    ASSERT(auraApp);
+    ASSERT(auraApp);*/
+
+    if (!target)
+        sLog->outAshran("Aura::_UnapplyForTarget no target[%u]", GetId());
+
+    if (!auraApp)
+        sLog->outAshran("Aura::_UnapplyForTarget no aura app[%u]", GetId());
+
+    if (!auraApp->GetRemoveMode())
+        sLog->outAshran("Aura::_UnapplyForTarget no aura app remove mode[%u]", GetId());
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
 
     // TODO: Figure out why this happens
     if (itr == m_applications.end())
     {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
+        sLog->outAshran("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
         ASSERT(false);
     }
 
     // aura has to be already applied
+
+
+    if (itr->second != auraApp)
+        sLog->outAshran("Aura::_UnapplyForTarget itr->second != auraApp [%u]", GetId());
+
     ASSERT(itr->second == auraApp);
     m_applications.erase(itr);
 
@@ -985,9 +1002,9 @@ void Aura::Update(uint32 diff, Unit* caster)
         m_duration -= diff;
         if (m_duration < 0)
             m_duration = 0;
-
-        CallScriptAuraUpdateHandlers(diff);
     }
+
+    CallScriptAuraUpdateHandlers(diff);
 }
 
 int32 Aura::CalcMaxDuration(Unit* caster) const
@@ -1005,10 +1022,6 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
     if (IsPassive() && !m_spellInfo->DurationEntry)
         maxDuration = -1;
-
-    // Hack fix Duration for Tigereye Brew
-    if (m_spellInfo->Id == 116740)
-        maxDuration = 15000;
 
     // IsPermanent() checks max duration (which we are supposed to calculate here)
     if (maxDuration != -1 && modOwner)
@@ -1135,7 +1148,7 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
 
         // Hack Fix - Arcane Missiles !
         if (GetId() == 79683)
-            maxCharges = 2;
+            maxCharges = 3;
 
         // limit charges (only on charges increase, charges may be changed manually)
         if ((num > 0) && (charges > int32(maxCharges)))
@@ -1892,7 +1905,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                 }
 
-                if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_PRESENCE)
+                if (GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificPresence)
                 {
                     if (!caster)
                         return;
@@ -1960,12 +1973,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
-                    // Remove Stealth on Subterfuge remove
-                    case 115192:
-                    {
-                        target->RemoveAura(115191);
-                        break;
-                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -2042,7 +2049,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // Remove Vanish on stealth remove
                     case 1784:
                     case 115191:
-                        target->RemoveAurasDueToSpell(131369, target->GetGUID());
+                        target->RemoveAurasDueToSpell(131361, target->GetGUID());
                         break;
                     default:
                         break;
@@ -2205,17 +2212,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
                 }
-                case 22812: // Glyph of Barkskin
-                {
-                    if (apply)
-                    {
-                        if (caster->HasAura(63057))
-                            caster->AddAura(63058, caster);
-                    }
-                    else
-                        caster->RemoveAura(63058);
-                    break;
-                }
                 default:
                     break;
             }
@@ -2232,6 +2228,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (apply)
                     {
                         int32 basepoints0 = aurEff->GetAmount();
+
+                        /// Enhanced Stealth
+                        if (constAuraEffectPtr enhancedStealth = target->GetAuraEffect(157704, 0))
+                            basepoints0 += enhancedStealth->GetAmount();
+
                         target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL , true);
                     }
                     else if (!target->GetAuraEffect(SPELL_AURA_MOD_SHAPESHIFT, SPELLFAMILY_ROGUE, 0x400800, 0, 0))
@@ -2531,7 +2532,7 @@ bool Aura::CanStackWith(constAuraPtr existingAura) const
             return false;
     }
 
-    SpellSpecificType specificTypes[] = {SPELL_SPECIFIC_ASPECT, SPELL_SPECIFIC_WELL_FED};
+    SpellSpecificType specificTypes[] = {SpellSpecificType::SpellSpecificAspect, SpellSpecificType::SpellSpecificWellFed};
     for (uint8 i = 0; i < 2; ++i)
     {
         if (m_spellInfo->GetSpellSpecific() == specificTypes[i] || existingSpellInfo->GetSpellSpecific() == specificTypes[i])
@@ -2700,7 +2701,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
                 else if (attType == WeaponAttackType::OffAttack)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
-                if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
+                if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
                     return false;
             }
         }
@@ -2708,7 +2709,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
         {
             // Check if player is wearing shield
             Item* item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
+            if (!item || item->CantBeUse() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
                 return false;
         }
     }
@@ -3318,40 +3319,18 @@ UnitAura::UnitAura(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
 
 void UnitAura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
-    Aura::_ApplyForTarget(target, caster, aurApp);
-
-    // register aura diminishing on apply
     if (DiminishingGroup group = GetDiminishGroup())
-    {
         target->ApplyDiminishingAura(group, true);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, true);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, true);
-        }
-    }
+
+    Aura::_ApplyForTarget(target, caster, aurApp);
 }
 
 void UnitAura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * aurApp)
 {
-    Aura::_UnapplyForTarget(target, caster, aurApp);
-
-    // unregister aura diminishing (and store last time)
     if (DiminishingGroup group = GetDiminishGroup())
-    {
         target->ApplyDiminishingAura(group, false);
-        if (GetId() == 82691)       // Ring of Frost
-        {
-            target->ApplyDiminishingAura(DIMINISHING_RING_OF_FROST, false);
-        }
-        else if (GetId() == 44572)  // Deep Freeze
-        {
-            target->ApplyDiminishingAura(DIMINISHING_DEEP_FREEZE, false);
-        }
-    }
+
+    Aura::_UnapplyForTarget(target, caster, aurApp);
 }
 
 void UnitAura::Remove(AuraRemoveMode removeMode)

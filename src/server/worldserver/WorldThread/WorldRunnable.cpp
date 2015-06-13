@@ -26,14 +26,14 @@
 #include "WorldSocketMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "ScriptMgr.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "MapManager.h"
 #include "Timer.h"
 #include "WorldRunnable.h"
 #include "OutdoorPvPMgr.h"
 #include "MSSignalHandler.h"
 
-#define WORLD_SLEEP_CONST 25
+#define WORLD_SLEEP_CONST 10
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -89,9 +89,6 @@ void WorldRunnable::run()
 
     sWorld->KickAll();                                       // save and kick all players
     sWorld->UpdateSessions( 1 );                             // real players unload required UpdateSessions call
-
-    // unload battleground templates before different singletons destroyed
-    sBattlegroundMgr->DeleteAllBattlegrounds();
 
     sWorldSocketMgr->StopNetwork();
 

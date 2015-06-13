@@ -5,6 +5,101 @@
 
 #define ACTION_TALK 1
 
+const uint32 g_PandarenQuests[91]
+{
+    29404,
+    29405,
+    29406,
+    29407,
+    29408,
+    29409,
+    29410,
+    29414,
+    29417,
+    29418,
+    29419,
+    29420,
+    29421,
+    29422,
+    29423,
+    29424,
+    29521,
+    29522,
+    29523,
+    29524,
+    29661,
+    29662,
+    29663,
+    29664,
+    29665,
+    29666,
+    29676,
+    29677,
+    29678,
+    29679,
+    29680,
+    29703,
+    29705,
+    29706,
+    29768,
+    29769,
+    29770,
+    29771,
+    29772,
+    29773,
+    29774,
+    29775,
+    29776,
+    29777,
+    29778,
+    29779,
+    29780,
+    29781,
+    29782,
+    29783,
+    29784,
+    29785,
+    29786,
+    29787,
+    29788,
+    29789,
+    29790,
+    29791,
+    29792,
+    29793,
+    29794,
+    29795,
+    29796,
+    29797,
+    29798,
+    29799,
+    29800,
+    30027,
+    30033,
+    30034,
+    30035,
+    30036,
+    30037,
+    30038,
+    30039,
+    30040,
+    30041,
+    30042,
+    30043,
+    30044,
+    30045,
+    30454,
+    30455,
+    30589,
+    30590,
+    30591,
+    30767,
+    30817,
+    30818,
+    31450,
+    32396
+};
+
 class mob_master_shang_xi : public CreatureScript
 {
     public:
@@ -195,7 +290,7 @@ class mob_tushui_trainee : public CreatureScript
                 me->SetFullHealth();
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -327,7 +422,7 @@ public:
             }
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (Player* player = attacker->ToPlayer())
             {
@@ -465,7 +560,7 @@ public:
     {
     	mob_attacker_dimwindAI(Creature* creature) : ScriptedAI(creature) {}
     	
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->GetHealthPct() < 90 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54785)
                 uiDamage = 0;
@@ -509,7 +604,7 @@ public:
             me->HandleEmoteCommand(EMOTE_STATE_READY2H);
         }
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->GetHealthPct() < 25 && pDoneBy && pDoneBy->ToCreature() && pDoneBy->ToCreature()->GetEntry() == 54130)
                 uiDamage = 0;
@@ -733,7 +828,7 @@ public:
             EVENT_END           = 4,
         };
         
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage, SpellInfo const* p_SpellInfo)
         {
             if(me->HealthBelowPctDamaged(5, uiDamage))
             {
@@ -1084,7 +1179,7 @@ public:
             playerGuid = guid;
         }
         
-        void DamageTaken(Unit* attacker, uint32& damage)
+        void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
         {
             if (me->HealthBelowPctDamaged(10, damage))
             {
@@ -1475,7 +1570,7 @@ class mob_huojin_trainee : public CreatureScript
                 isInCombat = false;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(16.67f, damage))
                 {
@@ -1796,6 +1891,32 @@ class mob_brewer_lin : public CreatureScript
         };
 };
 
+class playerScript_pandaren_powerlevel : public PlayerScript
+{
+    public:
+        playerScript_pandaren_powerlevel() : PlayerScript("playerScript_pandaren_powerlevel") { }
+
+        void OnLogin(Player* p_Player)
+        {
+            if (p_Player->getRace() == RACE_PANDAREN_NEUTRAL && p_Player->getLevel() >= 75)
+                p_Player->ShowNeutralPlayerFactionSelectUI();
+        }
+
+        void OnFactionChanged(Player* p_Player)
+        {
+            if (p_Player->getRace() == RACE_PANDAREN_ALLI || p_Player->getRace() == RACE_PANDAREN_HORDE)
+            {
+                for (int l_Itr = 0; l_Itr < MAX_QUEST_LOG_SIZE; l_Itr++)
+                {
+                    uint16 l_Slot = p_Player->FindQuestSlot(l_Itr);
+
+                    p_Player->RemoveActiveQuest(g_PandarenQuests[l_Itr]);
+                    p_Player->SetQuestSlot(l_Slot, 0);
+                }
+            }
+        }
+};
+
 void AddSC_WanderingIsland_North()
 {
     new mob_master_shang_xi();
@@ -1821,4 +1942,5 @@ void AddSC_WanderingIsland_North()
     new mob_brewer_lin();
     new spell_huo_benediction();
     new AreaTrigger_at_temple_entrance();
+    new playerScript_pandaren_powerlevel();
 }

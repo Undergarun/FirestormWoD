@@ -231,7 +231,7 @@ enum BG_DG_GraveyardsIds
     BG_DG_MAX_GRAVEYARD         = 2
 };
 
-const uint32 BG_DG_GraveyardIds[BG_TEAMS_COUNT][BG_DG_MAX_GRAVEYARD] =
+const uint32 BG_DG_GraveyardIds[MS::Battlegrounds::TeamsCount::Value][BG_DG_MAX_GRAVEYARD] =
 {
     { 4546, 4488 },
     { 4489, 4545 }
@@ -315,6 +315,11 @@ class BattlegroundDG : public Battleground
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         void HandleKillPlayer(Player* player, Player* killer);
+        void EventPlayerDroppedFlag(Player* player);
+
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_DG_MAX_VICTORY_POINTS; }
+        bool IsScoreIncremental() const { return true; }
 
     private:
         uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; };
@@ -348,7 +353,6 @@ class BattlegroundDG : public Battleground
         void _postUpdateImpl_Cart(uint32 diff);
         void RespawnFlagAfterDrop(uint32 team);
         void EventPlayerCapturedFlag(Player* player);
-        void EventPlayerDroppedFlag(Player* player);
         int32 _GetNodeNameId(uint8 node);
         void _contestedTime(int node, uint32 diff);
         /* Gameobject spawning/despawning */
@@ -368,8 +372,8 @@ class BattlegroundDG : public Battleground
         uint8               m_Nodes[BG_DG_ALL_NODES_COUNT];
         uint8               m_prevNodes[BG_DG_ALL_NODES_COUNT];
         uint32              m_NodeTimers[BG_DG_ALL_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
+        uint32              m_lastTick[MS::Battlegrounds::TeamsCount::Value];
+        uint32              m_HonorScoreTics[MS::Battlegrounds::TeamsCount::Value];
         bool                m_IsInformedNearVictory;
         uint32              m_HonorTics;
 

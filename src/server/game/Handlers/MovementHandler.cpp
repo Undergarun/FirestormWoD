@@ -32,10 +32,11 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "MovementStructures.h"
+#include "BattlegroundMgr.hpp"
+#include "Battleground.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -116,7 +117,12 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         else if (Battleground* bg = m_Player->GetBattleground())
         {
             if (m_Player->IsInvitedForBattlegroundInstance(m_Player->GetBattlegroundId()))
+            {
                 bg->AddPlayer(m_Player);
+
+                /// Remove battleground queue status from BGmgr
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, MS::Battlegrounds::GetSchedulerType(bg->GetTypeID()));
+            }
         }
     }
 
@@ -125,9 +131,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // Update position client-side to avoid undermap
     WorldPacket data(SMSG_MOVE_UPDATE);
     m_Player->m_movementInfo.time = getMSTime();
-    m_Player->m_movementInfo.pos.m_positionX = loc.m_positionX;
-    m_Player->m_movementInfo.pos.m_positionY = loc.m_positionY;
-    m_Player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
+    m_Player->m_movementInfo.pos.m_positionX = m_Player->m_positionX;
+    m_Player->m_movementInfo.pos.m_positionY = m_Player->m_positionY;
+    m_Player->m_movementInfo.pos.m_positionZ = m_Player->m_positionZ;
     WorldSession::WriteMovementInfo(data, &m_Player->m_movementInfo);
     m_Player->GetSession()->SendPacket(&data);
 
@@ -161,7 +167,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
     {
-        Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
+        Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
             if (mapDiff->ResetTime)
@@ -206,16 +212,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
-
     uint64 l_MoverGUID;
     uint32 l_AckIndex, l_MoveTime;
 
     recvPacket.readPackGUID(l_MoverGUID);
     recvPacket >> l_AckIndex >> l_MoveTime;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Guid " UI64FMTD, uint64(l_MoverGUID));
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "AckIndex %u, MoveTime %u", l_AckIndex, l_MoveTime/IN_MILLISECONDS);
 
     Player* l_MoverPlayer = m_Player->m_mover->ToPlayer();
 
@@ -410,21 +411,27 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
         {
             if (EmotesEntry const* emoteInfo = sEmotesStore.LookupEntry(l_EmoteId))
             {
-                if (emoteInfo->EmoteType != 1)
+                if (emoteInfo->EmoteType != EmoteTypes::EmoteLoop)
                     l_PlayerMover->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
             }
         }
     }
 
-    //if (plrMover)
-    //    sAnticheatMgr->StartHackDetection(plrMover, movementInfo, opcode);
+    if (l_PlayerMover)
+        sAnticheatMgr->StartHackDetection(l_PlayerMover, l_MovementInfo, l_OpCode);
+
     /*----------------------*/
 
     /* process position-change */
     WorldPacket data(SMSG_MOVE_UPDATE, p_Packet.size());
-    l_MovementInfo.Alive32 = l_MovementInfo.time; // hack, but it's work in 505 in this way ...
-    l_MovementInfo.time = getMSTime();
     l_MovementInfo.guid = l_Mover->GetGUID();
+
+    uint32 l_MSTime = getMSTime();
+
+    //if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
+
+    l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
     l_Mover->SendMessageToSet(&data, m_Player);
@@ -444,14 +451,27 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
     {
         l_PlayerMover->UpdateFallInformationIfNeed(l_MovementInfo, l_OpCode);
 
-        //AreaTableEntry const* zone = GetAreaEntryByAreaID(l_PlayerMover->GetAreaId());
-        float depth = -500.0f; //zone ? zone->MaxDepth : -500.0f;
+        float l_MaxDepth = -500.0f;
 
-        // Eye of the Cyclone
+        /// Eye of the Cyclone
         if (l_PlayerMover->GetMapId() == 566)
-            depth = 1000.f;
+            l_MaxDepth = 1000.f;
 
-        if (l_MovementInfo.pos.GetPositionZ() < depth)
+        /// Vash'jir zones
+        switch (l_PlayerMover->GetZoneId())
+        {
+            case 4815:
+            case 4816:
+            case 5144:
+            case 5145:
+            case 5146:
+                l_MaxDepth = -2000.0f;
+                break;
+            default:
+                break;
+        }
+
+        if (l_MovementInfo.pos.GetPositionZ() < l_MaxDepth)
         {
             if (!(l_PlayerMover->GetBattleground() && l_PlayerMover->GetBattleground()->HandlePlayerUnderMap(m_Player)))
             {
@@ -536,16 +556,12 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
 void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& p_RecvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
-
     uint64 l_Guid;
     p_RecvPacket.readPackGUID(l_Guid);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
-
     uint64 old_mover_guid;
     recvData.readPackGUID(old_mover_guid);
 
@@ -566,8 +582,6 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*p_RecvData*/)
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
-
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
 
@@ -579,6 +593,13 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
     m_Player->m_movementInfo = movementInfo;
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
+    uint32 l_MSTime = getMSTime();
+
+    //if (m_clientTimeDelay == 0)
+        m_clientTimeDelay = l_MSTime - m_Player->m_movementInfo.time;
+
+    m_Player->m_movementInfo.time = m_Player->m_movementInfo.time + m_clientTimeDelay;
+
     WriteMovementInfo(data, &m_Player->m_movementInfo);
 
     m_Player->SendMessageToSet(&data, false);
@@ -586,8 +607,6 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
-
     uint64 guid;                                            // guid - unused
     recvData.readPackGUID(guid);
 
@@ -599,32 +618,18 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     recvData.read_skip<uint32>();                          // unk2
 }
 
-void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
+void WorldSession::HandleSummonResponseOpcode(WorldPacket& p_Packet)
 {
     if (!m_Player->isAlive() || m_Player->isInCombat())
         return;
 
-    ObjectGuid summonerGuid;
-    bool agree;
+    uint64 l_SummonerGuid = 0;
+    bool l_Agree = false;
 
-    summonerGuid[7] = recvData.ReadBit();
-    summonerGuid[3] = recvData.ReadBit();
-    summonerGuid[6] = recvData.ReadBit();
+    p_Packet.readPackGUID(l_SummonerGuid);
+    l_Agree = p_Packet.ReadBit();
 
-    agree = recvData.ReadBit();
-
-    summonerGuid[4] = recvData.ReadBit();
-    summonerGuid[5] = recvData.ReadBit();
-    summonerGuid[1] = recvData.ReadBit();
-    summonerGuid[0] = recvData.ReadBit();
-    summonerGuid[2] = recvData.ReadBit();
-
-    recvData.FlushBits();
-
-    uint8 bytesOrder[8] = { 4, 2, 6, 1, 7, 3, 0, 5 };
-    recvData.ReadBytesSeq(summonerGuid, bytesOrder);
-
-    m_Player->SummonIfPossible(agree);
+    m_Player->SummonIfPossible(l_Agree);
 }
 
 void WorldSession::ReadMovementInfo(WorldPacket& p_Data, MovementInfo* p_MovementInformation)

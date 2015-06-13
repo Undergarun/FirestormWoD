@@ -679,9 +679,9 @@ public:
             {
                 if (Unit* victim = me->getVictim())
                 {
-                    DoCast(me->getVictim(), SPELL_TIDAL_SURGE);
+                    DoCast(victim, SPELL_TIDAL_SURGE);
                     // Hacky way to do it - won't trigger elseways
-                    me->getVictim()->CastSpell(me->getVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
+                    victim->CastSpell(victim, SPELL_TIDAL_SURGE_FREEZE, true);
                 }
                 TidalSurge_Timer = 15000+rand()%5000;
             }

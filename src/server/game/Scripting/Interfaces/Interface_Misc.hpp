@@ -1,7 +1,13 @@
-/// Copyright Ashran 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_MISC
-#define SCRIPTING_INTERFACES_MISC
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_MISC_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_MISC_HPP_INCLUDED
 
 #include "InterfaceBase.hpp"
 
@@ -48,14 +54,18 @@ class ServerScript : public ScriptObjectImpl<false>
             UNUSED(p_Socket);
             UNUSED(p_Packet);
         }
+
         /// Called when a (valid) packet is received by a client. The packet object is a copy of the original packet, so reading and modifying it is safe.
-        /// @p_Socket : Socket who received the packet
-        /// @p_Packet : Received packet
-        virtual void OnPacketReceive(WorldSocket * p_Socket, WorldPacket & p_Packet)
+        /// @p_Socket  : Socket who received the packet
+        /// @p_Packet  : Received packet
+        /// @p_Session : Session who received the packet /!\ CAN BE NULLPTR
+        virtual void OnPacketReceive(WorldSocket* p_Socket, WorldPacket& p_Packet, WorldSession* p_Session)
         {
             UNUSED(p_Socket);
             UNUSED(p_Packet);
+            UNUSED(p_Session);
         }
+
         /// Called when an invalid (unknown opcode) packet is received by a client. The packet is a reference to the original packet; not a copy.
         /// This allows you to actually handle unknown packets (for whatever purpose).
         /// @p_Socket : Socket who received the packet
@@ -224,4 +234,4 @@ class AuctionHouseScript : public ScriptObjectImpl<false>
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_MISC
+#endif  ///< SCRIPTING_INTERFACES_MISC_HPP_INCLUDED

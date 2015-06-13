@@ -31,12 +31,14 @@
 #include "ObjectAccessor.h"
 #include "Creature.h"
 #include "Pet.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
 #include "Guild.h"
+
+#include "BattlegroundPacketFactory.hpp"
 
 enum StableResultCode
 {
@@ -148,7 +150,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         return;
     }
 
-    ByteBuffer l_TrainerList;
+    ByteBuffer l_TrainerList(10 * 1024);
 
     // reputation discount
     float l_DiscountMod = m_Player->GetReputationPriceDiscount(l_Unit);
@@ -230,7 +232,7 @@ void WorldSession::SendTrainerList(uint64 p_NpcGUID, const std::string& p_Title)
         ++l_TrainerSpellCount;
     }
 
-    WorldPacket l_Data(SMSG_TRAINER_LIST);
+    WorldPacket l_Data(SMSG_TRAINER_LIST, 16 + 2 + 4 + 4 + 4 + l_TrainerList.size() + 1 + p_Title.size());
 
     l_Data.appendPackGUID(p_NpcGUID);
 
@@ -346,8 +348,6 @@ void WorldSession::SendTrainerService(uint64 p_Guid, uint32 p_SpellID, uint32 p_
 
 void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
-
     uint64 guid;
 
     recvData.readPackGUID(guid);
@@ -378,7 +378,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         if (bg)
         {
             bg->AddPlayerToResurrectQueue(unit->GetGUID(), m_Player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(m_Player, bg, unit->GetGUID());
+            MS::Battlegrounds::PacketFactory::AreaSpiritHealerQuery(m_Player, bg, unit->GetGUID());
             return;
         }
     }
@@ -394,8 +394,6 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
     uint64 l_Healer;
 
     p_Packet.readPackGUID(l_Healer);
@@ -542,7 +540,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
     uint64 l_StableMaster = p_Guid;
     uint32 l_PetsCount    = p_QueryResult ? p_QueryResult->GetRowCount() : 0;
 
-    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 200);
+    WorldPacket l_Data(SMSG_PET_STABLE_LIST, 2 * 1024);
     l_Data.appendPackGUID(l_StableMaster);              ///< StableMaster
     l_Data << uint32(l_PetsCount);                      ///< Pets count 
 
@@ -557,6 +555,8 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult p_QueryResult, uint
             uint32 l_CreatureID      = l_Fields[3].GetUInt32();
             uint32 l_ExperienceLevel = l_Fields[4].GetUInt16();
             uint8  l_PetFlag         = l_Fields[1].GetUInt8() < uint8(PET_SLOT_STABLE_FIRST) ? 1 : 3;
+
+            m_Player->setPetSlotUsed((PetSlot)l_PetSlot, true);
 
             uint32 l_DisplayID = 0;
             if (CreatureTemplate const* l_CreatureInfo = sObjectMgr->GetCreatureTemplate(l_CreatureID))
@@ -631,68 +631,68 @@ void WorldSession::HandleStableSetPetSlot(WorldPacket& p_RecvData)
     _setPetSlotCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult result, uint32 petId)
+void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult p_Result, uint32 l_NewSlot)
 {
     if (!GetPlayer())
         return;
 
-    if (!result)
+    if (!p_Result)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    Field* fields = result->Fetch();
+    Field* fields = p_Result->Fetch();
 
-    uint32 slot         = fields[0].GetUInt8();
-    uint32 petEntry     = fields[1].GetUInt32();
-    uint32 pet_number   = fields[2].GetUInt32();
+    uint32 l_OldSlot   = fields[0].GetUInt8();
+    uint32 l_PetEntry  = fields[1].GetUInt32();
+    uint32 l_PetNumber = fields[2].GetUInt32();
 
-    if (!petEntry)
+    if (!l_PetEntry)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
-    if (!creatureInfo || !creatureInfo->isTameable(m_Player->CanTameExoticPets()))
+    CreatureTemplate const* l_CreatureInfo = sObjectMgr->GetCreatureTemplate(l_PetEntry);
+    if (!l_CreatureInfo || !l_CreatureInfo->isTameable(m_Player->CanTameExoticPets()))
     {
         // if problem in exotic pet
-        if (creatureInfo && creatureInfo->isTameable(true))
+        if (l_CreatureInfo && l_CreatureInfo->isTameable(true))
             SendStableResult(STABLE_ERR_EXOTIC);
         else
             SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SQLTransaction l_Transaction = CharacterDatabase.BeginTransaction();
 
-    auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
+    auto l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER);
     {
-        stmt->setUInt32(0, petId);
-        stmt->setUInt32(1, slot);
-        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(0, l_NewSlot);
+        l_Statement->setUInt32(1, l_OldSlot);
+        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
 
-        trans->Append(stmt);
-    }
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
-    {
-        stmt->setUInt32(0, slot);
-        stmt->setUInt32(1, petId);
-        stmt->setUInt32(2, GetPlayer()->GetGUIDLow());
-        stmt->setUInt32(3, pet_number);
-
-        trans->Append(stmt);
+        l_Transaction->Append(l_Statement);
     }
 
-    CharacterDatabase.CommitTransaction(trans);
-
-    if (petId != 100)
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PET_DATA_OWNER_ID);
     {
-        // We need to remove and add the new pet to there diffrent slots
-        // GetPlayer()->setPetSlotUsed((PetSlot)slot, false);
-        m_Player->setPetSlotUsed((PetSlot)slot, false);
-        m_Player->setPetSlotUsed((PetSlot)petId, true);
+        l_Statement->setUInt32(0, l_OldSlot);
+        l_Statement->setUInt32(1, l_NewSlot);
+        l_Statement->setUInt32(2, GetPlayer()->GetGUIDLow());
+        l_Statement->setUInt32(3, l_PetNumber);
+
+        l_Transaction->Append(l_Statement);
+    }
+
+    CharacterDatabase.CommitTransaction(l_Transaction);
+
+    if (l_NewSlot != PET_SLOT_OTHER_PET)
+    {
+        m_Player->setPetSlotUsed((PetSlot)l_OldSlot, false);
+        m_Player->setPetSlotUsed((PetSlot)l_NewSlot, true);
+
         SendStableResult(STABLE_SUCCESS_UNSTABLE);
     }
     else
@@ -701,8 +701,6 @@ void WorldSession::HandleStableSetPetSlotCallback(PreparedQueryResult result, ui
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REPAIR_ITEM");
-
     uint64 npcGUID, itemGUID;
     bool guildBank;                                        // new in 2.3.2, bool that means from guild bank money
 

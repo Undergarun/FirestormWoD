@@ -33,36 +33,16 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
-
-void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
-{
-    if (castFlags & 0x8)   // Archaeology
-    {
-        uint32 count, entry, usedCount;
-        uint8 type;
-        recvPacket >> count;
-        for (uint32 i = 0; i < count; ++i)
-        {
-            recvPacket >> type;
-            switch (type)
-            {
-                case 2: // Keystones
-                    recvPacket >> entry;        // Item id
-                    recvPacket >> usedCount;    // Item count
-                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, false);
-                    break;
-                case 1: // Fragments
-                    recvPacket >> entry;        // Currency id
-                    recvPacket >> usedCount;    // Currency count
-                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, true);
-                    break;
-            }
-        }
-    }
-}
+#include "GarrisonMgr.hpp"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
+    time_t l_Now = time(nullptr);
+    if (l_Now - m_TimeLastUseItem < 1)
+        return;
+    else
+        m_TimeLastUseItem = l_Now;
+
     // TODO: add targets.read() check
     Player* pUser = m_Player;
 
@@ -118,7 +98,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags           = p_RecvPacket.ReadBits(21);
+    l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();
@@ -177,12 +157,17 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -197,15 +182,15 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
     }
 
     //////////////////////////////////////////////////////////////////////////
-    
-    bool l_IsGarrisonItem = false;
-    
+
+    bool l_IsGlyph = false;
+
     if (sSpellMgr->GetSpellInfo(l_SpellID))
     {
         switch (sSpellMgr->GetSpellInfo(l_SpellID)->Effects[EFFECT_0].Effect)
         {
-            case SPELL_EFFECT_UPGRADE_FOLLOWER_ILVL:
-                l_IsGarrisonItem = true;
+            case SPELL_EFFECT_APPLY_GLYPH:
+                l_IsGlyph = true;
                 break;
 
             default:
@@ -213,7 +198,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         }
     }
 
-    if (!l_IsGarrisonItem && l_Misc >= MAX_GLYPH_SLOT_INDEX)
+    if (l_IsGlyph && l_Misc >= MAX_GLYPH_SLOT_INDEX)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
@@ -231,8 +216,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", l_PackSlot, l_Slot, l_CastCount, l_SpellID, pItem->GetEntry(), l_Misc, (uint32)p_RecvPacket.size());
 
     ItemTemplate const* proto = pItem->GetTemplate();
     if (!proto)
@@ -315,8 +298,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 
 void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_OPEN_ITEM packet, data length = %i", (uint32)p_Packet.size());
-
     /// ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -326,8 +307,6 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& p_Packet)
 
     p_Packet >> l_PackSlot;
     p_Packet >> l_Slot;
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "bagIndex: %u, slot: %u", l_PackSlot, l_Slot);
 
     Item* l_Item = m_Player->GetItemByPos(l_PackSlot, l_Slot);
 
@@ -426,8 +405,6 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(l_GameObjectGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_USE Message [guid=%u]", GUID_LOPART(l_GameObjectGUID));
-
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
         return;
@@ -441,8 +418,6 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     uint64 l_GameObjectGUID;
 
     recvPacket.readPackGUID(l_GameObjectGUID);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJECT_REPORT_USE Message [in game guid: %u]", GUID_LOPART(l_GameObjectGUID));
 
     // ignore for remote control state
     if (m_Player->m_mover != m_Player)
@@ -502,7 +477,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     p_RecvPacket >> l_SpellID;
     p_RecvPacket >> l_Misc;
 
-    l_TargetFlags           = p_RecvPacket.ReadBits(21);
+    l_TargetFlags           = p_RecvPacket.ReadBits(23);
     l_HasSourceTarget       = p_RecvPacket.ReadBit();
     l_HasDestinationTarget  = p_RecvPacket.ReadBit();
     l_HasUnkFloat           = p_RecvPacket.ReadBit();
@@ -562,12 +537,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
 
@@ -598,10 +578,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
     }
 
     // Override spell Id, client send base spell and not the overrided id
-    if (!spellInfo->OverrideSpellList.empty())
+    uint8 l_Count = std::numeric_limits<uint8>::max();
+    while (!spellInfo->OverrideSpellList.empty())
     {
+        if (!l_Count)
+            break;
+
         for (auto itr : spellInfo->OverrideSpellList)
         {
+            if (!l_Count)
+                break;
+
             if (m_Player->HasSpell(itr))
             {
                 SpellInfo const* overrideSpellInfo = sSpellMgr->GetSpellInfo(itr);
@@ -612,6 +599,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
                 }
                 break;
             }
+
+            --l_Count;
         }
     }
 
@@ -657,9 +646,28 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& p_RecvPacket)
         }
         else
         {
+            Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWith(l_UnkGUID, UNIT_NPC_FLAG2_TRADESKILL_NPC);
+
+            if (l_Unit)
+            {
+                uint32 l_ConditionID = l_Unit->AI()->GetData(MS::Garrison::CreatureAIDataIDs::HasRecipe + l_SpellID);
+                if (l_ConditionID == (uint32)-1)
+                {
+                    p_RecvPacket.rfinish();
+                    return;
+                }
+
+                if (l_ConditionID != 0 && !m_Player->EvalPlayerCondition(l_ConditionID).first)
+                {
+                    p_RecvPacket.rfinish();
+                    return;
+                }
+
+                /// All is ok, we continue
+            }
             // not have spell in spellbook
             // cheater? kick? ban?
-            if (!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
+            else if(!spellInfo->IsAbilityOfSkillType(SKILL_ARCHAEOLOGY) && !spellInfo->IsCustomArchaeologySpell())
             {
                 p_RecvPacket.rfinish(); // prevent spam at ignore packet
                 return;
@@ -847,21 +855,19 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
     recvPacket >> slotId;
     recvPacket.readPackGUID(totemGuid);
 
-    if (slotId >= MAX_TOTEM_SLOT)
+    if ((SUMMON_SLOT_TOTEM + slotId) >= MAX_TOTEM_SLOT)
         return;
 
-    if (!m_Player->m_SummonSlot[slotId])
+    if (!m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId])
         return;
 
-    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[slotId]);
+    Creature* totem = GetPlayer()->GetMap()->GetCreature(m_Player->m_SummonSlot[SUMMON_SLOT_TOTEM + slotId]);
     if (totem && totem->isTotem())
         totem->ToTotem()->UnSummon();
 }
 
 void WorldSession::HandleSelfResOpcode(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
-
     if (m_Player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
@@ -893,16 +899,17 @@ void WorldSession::HandleSpellClick(WorldPacket& p_Packet)
     if (!l_Unit->IsInWorld())
         return;
 
+    m_Player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_USE);
+
     l_Unit->HandleSpellClick(m_Player);
 }
 
 void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
-    uint32 displayId = recvData.read<uint32>();
 
     recvData.readPackGUID(guid);
+    uint32 displayId = recvData.read<uint32>();
 
     // Get unit for which data is needed by client
     Unit* unit = ObjectAccessor::GetObjectInWorld(guid, (Unit*)NULL);
@@ -920,7 +927,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     if (creator->GetSimulacrumTarget())
         creator = creator->GetSimulacrumTarget();
 
-    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 68);
+    WorldPacket data(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 76);
 
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
@@ -937,11 +944,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         data << uint8(player->getRace());
         data << uint8(player->getGender());
         data << uint8(player->getClass());
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 0)); // skin
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 1)); // face
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 2)); // hair
-        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, 3)); // haircolor
-        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, 0));     // facialhair
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID)); // skin
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID)); // face
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID)); // hair
+        data << uint8(player->GetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID)); // haircolor
+        data << uint8(player->GetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));     // facialhair
         data.appendPackGUID(guildGuid);
 
         data << uint32(11);
@@ -957,26 +964,20 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             EQUIPMENT_SLOT_FEET,
             EQUIPMENT_SLOT_WRISTS,
             EQUIPMENT_SLOT_HANDS,
-            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_TABARD,
+            EQUIPMENT_SLOT_BACK,
             EQUIPMENT_SLOT_END
         };
 
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &itemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+        for (EquipmentSlots const* itr = itemSlots; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
                 data << uint32(0);
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
-            else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-            {
-                // Display Transmogrifications on player's clone
-                if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0)))
-                    data << uint32(proto->DisplayInfoID);
-                else
-                    data << uint32(item->GetTemplate()->DisplayInfoID);
-            }
+            else if (ItemTemplate const* l_Proto = sObjectMgr->GetItemTemplate(player->GetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + (*itr * 3))))
+                data << uint32(l_Proto->DisplayInfoID);
             else
                 data << uint32(0);
         }
@@ -1081,7 +1082,7 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_SpellID;
     p_RecvData >> l_Misc;
 
-    l_TargetFlags = p_RecvData.ReadBits(21);
+    l_TargetFlags = p_RecvData.ReadBits(23);
     l_HasSourceTarget = p_RecvData.ReadBit();
     l_HasDestinationTarget = p_RecvData.ReadBit();
     l_HasUnkFloat = p_RecvData.ReadBit();
@@ -1141,14 +1142,20 @@ void WorldSession::HandleUseToyOpcode(WorldPacket& p_RecvData)
 
     if (l_SpellWeightCount)
     {
+        GetPlayer()->GetArchaeologyMgr().ClearProjectCost();
+
         for (uint32 l_I = 0; l_I < l_SpellWeightCount; l_I++)
         {
             switch (l_SpellWeightType[l_I])
             {
-                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                 case SPELL_WEIGHT_ARCHEOLOGY_KEYSTONES: // Keystones
+                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], false);
+                    break;
+
+                case SPELL_WEIGHT_ARCHEOLOGY_FRAGMENTS: // Fragments
                     GetPlayer()->GetArchaeologyMgr().AddProjectCost(l_SpellWeightID[l_I], l_SpellWeightQuantity[l_I], true);
                     break;
+
                 default:
                     break;
             }

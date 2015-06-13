@@ -36,14 +36,8 @@
 #include "WildBattlePet.h"
 #include "OutdoorPvPMgr.h"
 
-union u_map_magic
-{
-    char asChar[4];
-    uint32 asUInt;
-};
-
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','3'} };
+u_map_magic MapVersionMagic = { {'v','1','.','5'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -72,6 +66,7 @@ Map::~Map()
         WorldObject* obj = *i_worldObjects.begin();
         ASSERT(obj->IsWorldObject());
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
+        obj->SetZoneScript();
         obj->RemoveFromWorld();
         obj->ResetMap();
     }
@@ -82,9 +77,9 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length()+strlen("maps/%04u%02u%02u.map")+1;
+    int len = sWorld->GetDataPath().length()+strlen("maps/%04u_%02u_%02u.map")+1;
     char* tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u%02u%02u.map").c_str(), mapid, gx, gy);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u_%02u_%02u.map").c_str(), mapid, gx, gy);
 
     bool ret = false;
     FILE* pf=fopen(tmp, "rb");
@@ -96,7 +91,7 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy)
         map_fileheader header;
         if (fread(&header, sizeof(header), 1, pf) == 1)
         {
-            if (header.mapMagic != MapMagic.asUInt || header.versionMagic != MapVersionMagic.asUInt)
+            if (header.mapMagic.asUInt != MapMagic.asUInt || header.versionMagic.asUInt != MapVersionMagic.asUInt)
                 sLog->outError(LOG_FILTER_MAPS, "Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.", tmp);
             else
                 ret = true;
@@ -174,9 +169,9 @@ void Map::LoadMap(int gx, int gy, bool reload)
 
     // map file name
     char *tmp=NULL;
-    int len = sWorld->GetDataPath().length()+strlen("maps/%04u%02u%02u.map")+1;
+    int len = sWorld->GetDataPath().length()+strlen("maps/%04u_%02u_%02u.map")+1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u%02u%02u.map").c_str(), GetId(), gx, gy);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u_%02u_%02u.map").c_str(), GetId(), gx, gy);
     sLog->outInfo(LOG_FILTER_MAPS, "Loading map %s", tmp);
     // loading data
     GridMaps[gx][gy] = new GridMap();
@@ -885,6 +880,7 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
     else
     {
         go->Relocate(x, y, z, orientation);
+        go->UpdateModelPosition();
         go->UpdateObjectVisibility(false);
         RemoveGameObjectFromMoveList(go);
     }
@@ -1010,6 +1006,7 @@ void Map::MoveAllGameObjectsInMoveList()
         {
             // update pos
             go->Relocate(go->_newPosition);
+            go->UpdateModelPosition();
             go->UpdateObjectVisibility(false);
         }
         else
@@ -1361,7 +1358,7 @@ bool GridMap::loadData(char *filename)
         return false;
     }
 
-    if (header.mapMagic == MapMagic.asUInt && header.versionMagic == MapVersionMagic.asUInt)
+    if (header.mapMagic.asUInt == MapMagic.asUInt && header.versionMagic.asUInt == MapVersionMagic.asUInt)
     {
         // loadup area data
         if (header.areaMapOffset && !loadAreaData(in, header.areaMapOffset, header.areaMapSize))
@@ -2607,7 +2604,7 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
 InstanceMap::~InstanceMap()
 {
     delete i_data;
-    i_data = NULL;
+    i_data = nullptr;
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -2718,7 +2715,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                 // cannot enter other instances if bound permanently
                 if (playerBind->save != mapSave)
                 {
-                    sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
+                    sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
                     return false;
                 }
             }
@@ -2730,9 +2727,9 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                     InstanceGroupBind* groupBind = group->GetBoundInstance(this);
                     if (playerBind && playerBind->save != mapSave)
                     {
-                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), GUID_LOPART(group->GetLeaderGUID()), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
+                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), GUID_LOPART(group->GetLeaderGUID()), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
                         if (groupBind)
-                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: the group is bound to the instance %d, %d, %d, %d, %d, %d", groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficulty(), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
+                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: the group is bound to the instance %d, %d, %d, %d, %d, %d", groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID(), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
                         //ASSERT(false);
                         return false;
                     }
@@ -2744,7 +2741,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                         // cannot jump to a different instance without resetting it
                         if (groupBind->save != mapSave)
                         {
-                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d but he is in group %d which is bound to instance %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), GUID_LOPART(group->GetLeaderGUID()), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficulty());
+                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d but he is in group %d which is bound to instance %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), GUID_LOPART(group->GetLeaderGUID()), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID());
                             if (mapSave)
                                 sLog->outError(LOG_FILTER_MAPS, "MapSave players: %d, group count: %d", mapSave->GetPlayerCount(), mapSave->GetGroupCount());
                             else
@@ -2778,7 +2775,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
                         if (LFGDungeonEntry const* randomDungeon = sLFGDungeonStore.LookupEntry(*(sLFGMgr->GetSelectedDungeons(player->GetGUID()).begin())))
-                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == uint32(GetDifficulty()) && randomDungeon->type == uint32(TYPEID_RANDOM_DUNGEON))
+                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == uint32(GetDifficultyID()) && randomDungeon->type == uint32(TYPEID_RANDOM_DUNGEON))
                                 player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
         }
 
@@ -2802,6 +2799,8 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool p_Switched /*= false*/)
     if (i_data)
         i_data->OnPlayerEnter(player);
 
+    SendInstanceGroupSizeChanged();
+
     return true;
 }
 
@@ -2813,15 +2812,21 @@ void InstanceMap::Update(const uint32 t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
+void InstanceMap::RemovePlayerFromMap(Player* p_Player, bool p_Remove)
 {
-    sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
-    //if last player set unload timer
+    /// If last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
-    Map::RemovePlayerFromMap(player, remove);
-    // for normal instances schedule the reset after all players have left
+
+    Map::RemovePlayerFromMap(p_Player, p_Remove);
+
+    /// For normal instances schedule the reset after all players have left
     SetResetSchedule(true);
+
+    if (i_data && !p_Remove)
+        i_data->OnPlayerExit(p_Player);
+
+    SendInstanceGroupSizeChanged();
 }
 
 void InstanceMap::CreateInstanceData(bool load)
@@ -2907,6 +2912,12 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
     if (!IsRaidOrHeroicDungeon())
         return;
 
+    /// Players now don't have an ID in LFR mode
+    /// They can kill bosses any times they want
+    /// But they can loot them only once per week
+    if (IsLFR())
+        return;
+
     InstanceSave* l_Save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!l_Save)
     {
@@ -2923,7 +2934,7 @@ void InstanceMap::PermBindAllPlayers(Player* p_Source)
         Player* l_Player = l_Itr->getSource();
         // players inside an instance cannot be bound to other instances
         // some players may already be permanently bound, in this case nothing happens
-        InstancePlayerBind* l_Bind = l_Player->GetBoundInstance(l_Save->GetMapId(), l_Save->GetDifficulty());
+        InstancePlayerBind* l_Bind = l_Player->GetBoundInstance(l_Save->GetMapId(), l_Save->GetDifficultyID());
         if (!l_Bind || !l_Bind->perm)
         {
             l_Player->BindToInstance(l_Save, true);
@@ -2954,7 +2965,13 @@ void InstanceMap::UnloadAll()
 void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->getSource()->SendRaidInstanceMessage(GetId(), itr->getSource()->GetDifficulty(IsRaid()), timeLeft);
+        itr->getSource()->SendRaidInstanceMessage(GetId(), itr->getSource()->GetDifficultyID(GetEntry()), timeLeft);
+}
+
+void InstanceMap::SendInstanceGroupSizeChanged() const
+{
+    for (MapRefManager::const_iterator l_Iter = m_mapRefManager.begin(); l_Iter != m_mapRefManager.end(); ++l_Iter)
+        l_Iter->getSource()->SendInstanceGroupSizeChanged(m_mapRefManager.getSize());
 }
 
 void InstanceMap::SetResetSchedule(bool on)
@@ -2986,37 +3003,55 @@ void InstanceMap::SetResetSchedule(bool on)
 
 MapDifficulty const* Map::GetMapDifficulty() const
 {
-    return GetMapDifficultyData(GetId(), GetDifficulty());
+    return GetMapDifficultyData(GetId(), GetDifficultyID());
+}
+
+bool Map::IsHeroic() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->Flags & DIFFICULTY_FLAG_HEROIC;
+    return false;
 }
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
+    if (GetDifficultyID() == Difficulty::DifficultyRaidLFR)
+        return 25;
+
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
-        if (mapDiff->MaxPlayers || IsRegularDifficulty())    // Normal case (expect that regular difficulty always have correct maxplayers)
+        if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
             return mapDiff->MaxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_5_DIFFICULTY);
+            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DifficultyNormal);
             return normalDiff ? normalDiff->MaxPlayers : 0;
         }
     }
     else                                                    // I'd rather ASSERT(false);
     {
-        switch (GetDifficulty())
+        switch (GetDifficultyID())
         {
-            case Difficulty::SCENARIO_DIFFICULTY:
-            case Difficulty::SCENARIO_HEROIC_DIFFICULTY:
+            case Difficulty::DifficultyNScenario:
+            case Difficulty::DifficultyHCScenario:
                 return 3;
-            case Difficulty::HEROIC_DIFFICULTY:
-            case Difficulty::CHALLENGE_MODE_DIFFICULTY:
+            case Difficulty::DifficultyNormal:
+            case Difficulty::DifficultyHeroic:
+            case Difficulty::DifficultyChallenge:
                 return 5;
-            case Difficulty::LEGACY_MAN10_DIFFICULTY:
-            case Difficulty::LEGACY_MAN10_HEROIC_DIFFICULTY:
+            case Difficulty::Difficulty10N:
+            case Difficulty::Difficulty10HC:
                 return 10;
-            case Difficulty::LEGACY_MAN25_DIFFICULTY:
-            case Difficulty::LEGACY_MAN25_HEROIC_DIFFICULTY:
+            case Difficulty::Difficulty25N:
+            case Difficulty::Difficulty25HC:
+            case Difficulty::DifficultyRaidLFR:
+            case Difficulty::DifficultyRaidTool:
                 return 25;
+            case Difficulty::DifficultyRaidNormal:
+            case Difficulty::DifficultyRaidHeroic:
+                return 30;
+            case Difficulty::DifficultyRaidMythic:
+                return 20;
             default:
                 break;
         }
@@ -3125,6 +3160,11 @@ Transport* Map::GetTransport(uint64 guid)
 
     GameObject* go = GetGameObject(guid);
     return go ? go->ToTransport() : NULL;
+}
+
+AreaTrigger* Map::GetAreaTrigger(uint64 p_Guid)
+{
+    return ObjectAccessor::GetObjectInMap(p_Guid, this, (AreaTrigger*)nullptr);
 }
 
 void Map::UpdateIteratorBack(Player* player)
@@ -3265,3 +3305,69 @@ time_t Map::GetLinkedRespawnTime(uint64 guid) const
     return time_t(0);
 }
 
+void Map::LoadAllGrids(float p_MinX, float p_MaxX, float p_MinY, float p_MaxY, Player* p_Player)
+{
+    float l_Step = 5.0f;
+    float l_CurrX = p_MinX;
+    float l_CurrY = p_MinY;
+
+    /// Process X axis
+    do
+    {
+        /// Process Y axis
+        do
+        {
+            CellCoord l_CellCoord = JadeCore::ComputeCellCoord(l_CurrX, l_CurrY);
+            Cell l_Cell(l_CellCoord);
+            EnsureGridLoadedForActiveObject(l_Cell, p_Player);
+            l_CurrY += l_Step;
+        }
+        while (l_CurrY < p_MaxY);
+
+        l_CurrY = p_MinY;
+        l_CurrX += l_Step;
+    }
+    while (l_CurrX < p_MaxX);
+}
+
+CriteriaLegacyRaidType Map::GetLegacyRaidType() const
+{
+    switch (GetDifficultyID())
+    {
+        case Difficulty::Difficulty10N:
+            return CriteriaLegacyRaidType::Normal10;
+        case Difficulty::Difficulty25N:
+            return CriteriaLegacyRaidType::Normal25;
+        case Difficulty::Difficulty10HC:
+            return CriteriaLegacyRaidType::Normal10;
+        case Difficulty::Difficulty25HC:
+            return CriteriaLegacyRaidType::Heroic25;
+        default:
+            return CriteriaLegacyRaidType::None;
+    }
+}
+
+ItemContext Map::GetLootItemContext() const
+{
+    auto l_MapDifficulty = GetMapDifficulty();
+    if (l_MapDifficulty && l_MapDifficulty->Context)
+        return ItemContext(l_MapDifficulty->Context);
+
+    switch (GetDifficultyID())
+    {
+        case Difficulty::DifficultyNormal:
+            return ItemContext::DungeonNormal;
+        case Difficulty::DifficultyHeroic:
+            return ItemContext::DungeonHeroic;
+        case Difficulty::DifficultyRaidNormal:
+            return ItemContext::RaidNormal;
+        case Difficulty::DifficultyRaidHeroic:
+            return ItemContext::RaidHeroic;
+        case Difficulty::DifficultyRaidLFR:
+            return ItemContext::RaidLfr;
+        case Difficulty::DifficultyRaidMythic:
+            return ItemContext::RaidMythic;
+        default:
+            return ItemContext::None;
+    }
+}

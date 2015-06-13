@@ -287,18 +287,24 @@ class BattlegroundAB : public Battleground
             3: ally occupied
             4: horde occupied     */
 
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_AB_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
         ArathiBannerWorldState m_BannerWorldState[BG_AB_DYNAMIC_NODES_COUNT];
         uint8                  m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
         uint8                  m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
         uint32                 m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32                 m_lastTick[BG_TEAMS_COUNT];
-        uint32                 m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32                 m_ReputationScoreTics[BG_TEAMS_COUNT];
+        uint32                 m_lastTick[MS::Battlegrounds::TeamsCount::Value];
+        uint32                 m_HonorScoreTics[MS::Battlegrounds::TeamsCount::Value];
+        uint32                 m_ReputationScoreTics[MS::Battlegrounds::TeamsCount::Value];
         bool                   m_IsInformedNearVictory;
         uint32                 m_HonorTics;
         uint32                 m_ReputationTics;
 
         // need for achievements
-        bool                   m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        bool                   m_TeamScores500Disadvantage[MS::Battlegrounds::TeamsCount::Value];
+
+        int32 m_CheatersCheckTimer;
 };
 #endif

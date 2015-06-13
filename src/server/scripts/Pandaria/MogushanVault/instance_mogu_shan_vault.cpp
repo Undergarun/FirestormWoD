@@ -127,7 +127,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
             uint64 janxiGuid;
             uint64 qinxiGuid;
 
-            std::list<uint32> m_AuraToClear;
+            std::list<uint32>   m_AuraToClear;
 
             std::vector<uint64> stoneGuardGUIDs;
             std::vector<uint64> fengStatuesGUIDs;
@@ -207,7 +207,7 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         }
 
                         uint32 difficulty = instance->GetSpawnMode();
-                        bool turnOver = (difficulty == LEGACY_MAN10_DIFFICULTY || difficulty == LEGACY_MAN10_HEROIC_DIFFICULTY || difficulty == RAID_TOOL_DIFFICULTY);
+                        bool turnOver = (difficulty == Difficulty10N || difficulty == Difficulty10HC || difficulty == DifficultyRaidTool);
 
                         // In 10N, 10H or LFR, there are only 3 guardians
                         if (guardianAliveCount >= 4 && GetBossState(DATA_STONE_GUARD) != DONE && turnOver)
@@ -298,6 +298,9 @@ class instance_mogu_shan_vault : public InstanceMapScript
                     case GOB_SPIRIT_KINGS_WIND_WALL:
                     case GOB_SPIRIT_KINGS_EXIT:
                     case GOB_CELESTIAL_DOOR:
+                        /// Don't allow players to reach second part if it's in LFR mode
+                        if (go->GetEntry() == GOB_GARAJAL_EXIT && instance->IsLFR())
+                            break;
                         AddDoor(go, true);
                         break;
                     // Feng
@@ -350,6 +353,28 @@ class instance_mogu_shan_vault : public InstanceMapScript
                         break;
                     case GOB_ANCIENT_CONTROL_CONSOLE:
                         ancientConsoleGuid = go->GetGUID();
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GOB_STONE_GUARD_DOOR_ENTRANCE:
+                    case GOB_FENG_DOOR_FENCE:
+                    case GOB_FENG_DOOR_EXIT:
+                    case GOB_GARAJAL_FENCE:
+                    case GOB_GARAJAL_EXIT:
+                    case GOB_SPIRIT_KINGS_WIND_WALL:
+                    case GOB_SPIRIT_KINGS_EXIT:
+                    case GOB_CELESTIAL_DOOR:
+                    case GOB_STONE_GUARD_DOOR_EXIT:
+                    case GOB_ELEGON_DOOR_ENTRANCE:
+                    case GOB_WILL_OF_EMPEROR_ENTRANCE:
+                        AddDoor(go, false);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -468,8 +493,6 @@ class instance_mogu_shan_vault : public InstanceMapScript
                                 willOfEmperorBossSpawnTimer     = 90000;
                                 willOfEmperorGasPhaseTimer      = 210000; // 120 + 90
                                 woeIsGasPhaseActive             = false;
-                                break;
-                            default:
                                 break;
                         }
                     }

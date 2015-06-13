@@ -127,8 +127,8 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
             uint32 owner_accid = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
 
             sLog->outCommand(bidder_accId, "", 0, bidder_name.c_str(), owner_accid, "", 0, owner_name.c_str(),
-              "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
-              bidder_name.c_str(),bidder_accId,pItem->GetTemplate()->Name1.c_str(),pItem->GetEntry(),pItem->GetCount(),auction->bid,owner_name.c_str(),owner_accid);
+                "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: " UI64FMTD ". Original owner %s (Account: %u)",
+                bidder_name.c_str(), bidder_accId, pItem->GetTemplate()->Name1->Get(sWorld->GetDefaultDbcLocale()), pItem->GetEntry(), pItem->GetCount(), auction->bid, owner_name.c_str(), owner_accid);
         }
     }
 
@@ -175,7 +175,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransa
     // owner exist
     if (owner || owner_accId)
     {
-        uint32 profit = auction->bid + auction->deposit - auction->GetAuctionCut();
+        uint64 profit = auction->bid + auction->deposit - auction->GetAuctionCut();
 
         //FIXME: what do if owner offline
         if (owner)
@@ -557,14 +557,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         // No need to do any of this if no search term was entered
         if (!wsearchedname.empty())
         {
-            std::string name = proto->Name1;
+            std::string name = proto->Name1->Get(loc_idx);
             if (name.empty())
                 continue;
-
-            // local name
-            if (loc_idx >= 0)
-                if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()
@@ -619,34 +614,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& p_Data) const
         return false;
     }
 
-    // Item_Struct
-    {
-        p_Data << uint32(l_Item->GetEntry());
-        p_Data << uint32(l_Item->GetItemSuffixFactor());
-        p_Data << int32(l_Item->GetItemRandomPropertyId());
-
-        bool l_HasBonuses = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS).size() > 0;
-        bool l_HasModifiers = l_Item->GetDynamicValues(ITEM_DYNAMIC_FIELD_MODIFIERS).size() > 0;
-
-        p_Data.WriteBit(l_HasBonuses);
-        p_Data.WriteBit(l_HasModifiers);
-
-        if (l_HasBonuses)
-        {
-            p_Data << uint8(0);     ///< UnkByte
-            p_Data << uint32(0);    ///< Count
-        }
-
-        if (l_HasModifiers)
-        {
-            uint32 l_ModifyMask = l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK);
-
-            p_Data << uint32(l_Item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK));
-
-            if (l_ModifyMask & ITEM_TRANSMOGRIFIED)
-                p_Data << uint32(l_Item->GetDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0));
-        }
-    }
+    Item::BuildDynamicItemDatas(p_Data, l_Item);
 
     p_Data << uint32(l_Item->GetCount());
     p_Data << uint32(l_Item->GetSpellCharges());
@@ -885,15 +853,16 @@ std::string AuctionEntry::BuildAuctionMailSubject(MailAuctionAnswers response) c
 {
     std::ostringstream strm;
     strm << itemEntry << ":0:" << response << ':' << Id << ':' << itemCount;
+    strm << ":0" << ":0" << ":0" << ":0" << ":0";
     return strm.str();
 }
 
-std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut, uint32 deliveryTime)
+std::string AuctionEntry::BuildAuctionMailBody(uint32 lowGuid, uint64 bid, uint64 buyout, uint32 deposit, uint32 cut, uint32 deliveryTime)
 {
     std::ostringstream strm;
     strm.width(16);
     strm << std::right << std::hex << MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER);   // HIGHGUID_PLAYER always present, even for empty guids
     strm << std::dec << ':' << bid << ':' << buyout;
-    strm << ':' << deposit << ':' << cut << ":1:" << secsToTimeBitFields(time(NULL)+ deliveryTime);
+    strm << ':' << deposit << ':' << cut << ":0:";
     return strm.str();
 }

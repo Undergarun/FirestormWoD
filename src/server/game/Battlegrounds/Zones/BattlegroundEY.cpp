@@ -19,7 +19,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 #include "BattlegroundEY.h"
 #include "Creature.h"
@@ -108,15 +108,15 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
                 Player * plr = ObjectAccessor::FindPlayer(itr->first);
                 if (!plr || !plr->IsInWorld())
                     continue;
-                if (plr->GetPositionZ() < 1240.f)
+                if (plr->GetPositionZ() < 1244)
                 {
                     if (plr->GetBGTeam() == HORDE)
-                        plr->TeleportTo(566, 1807.73f, 1539.41f, 1249.19f, plr->GetOrientation());
+                        plr->TeleportTo(566, 1807.98f, 1539.42f, 1247.52f, plr->GetOrientation(), 0);
                     else
-                        plr->TeleportTo(566, 2523.756f, 1596.13f, 1247.7f, plr->GetOrientation());
+                        plr->TeleportTo(566, 2527.18f, 1597.31f, 1248.78f, plr->GetOrientation(), 0);
                 }
             }
-            m_CheatersCheckTimer = 3000;
+            m_CheatersCheckTimer = 4000;
         }
     }
 }
@@ -358,8 +358,7 @@ void BattlegroundEY::EndBattleground(uint32 winner)
     //complete map reward
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-    
-    AwardTeams(GetTeamScore(GetOtherTeam(winner)), BG_EY_MAX_TEAM_SCORE, GetOtherTeam(winner));
+
     Battleground::EndBattleground(winner);
 }
 

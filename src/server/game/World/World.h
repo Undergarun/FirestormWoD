@@ -43,8 +43,7 @@ class WorldSession;
 class Player;
 class WorldSocket;
 class SystemMgr;
-
-extern uint32 gOnlineGameMaster;
+class LexicsCutter;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -94,8 +93,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_REALM_STATS,
     WUPDATE_TRANSFERT,
-    WUPDATE_MONITORING_STATS,
-    WUPDATE_MONITORING_HEARTBEAT,
+    WUPDATE_TRANSFER_MOP,
     WUPDATE_COUNT
 };
 
@@ -145,6 +143,8 @@ enum WorldBoolConfigs
     CONFIG_DIE_COMMAND_MODE,
     CONFIG_DECLINED_NAMES_USED,
     CONFIG_BATTLEGROUND_CAST_DESERTER,
+    CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE,
+    CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY,
     CONFIG_BG_XP_FOR_KILL,
     CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS,
     CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE,
@@ -205,6 +205,10 @@ enum WorldBoolConfigs
     CONFIG_ANTISPAM_ENABLED,
     CONFIG_DISABLE_RESTART,
     CONFIG_TEMPLATES_ENABLED,
+    CONFIG_AOE_LOOT_ENABLED,
+    CONFIG_LEXICS_CUTTER_ENABLE,
+    CONFIG_ACHIEVEMENT_DISABLE,
+    CONFIG_MOP_TRANSFER_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -253,7 +257,6 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
-    CONFIG_HEROIC_CHARACTERS_PER_REALM,
     CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
@@ -267,6 +270,7 @@ enum WorldIntConfigs
     CONFIG_CURRENCY_MAX_HONOR_POINTS,
     CONFIG_CURRENCY_START_CONQUEST_POINTS,
     CONFIG_CURRENCY_CONQUEST_POINTS_WEEK_CAP,
+    CONFIG_CURRENCY_ASHRAN_CONQUEST_POINTS_WEEK_CAP,
     CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD,
     CONFIG_CURRENCY_CONQUEST_POINTS_RATED_BG_REWARD,
     CONFIG_CURRENCY_RESET_HOUR,
@@ -373,6 +377,8 @@ enum WorldIntConfigs
     CONFIG_WARDEN_NUM_OTHER_CHECKS,
     CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION,
     CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT,
+    CONFIG_ANTICHEAT_MAX_REPORTS_BEFORE_BAN,
+    CONFIG_ANTICHEAT_BAN_CHECK_TIME_RANGE,
     CONFIG_ANTICHEAT_DETECTIONS_ENABLED,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
@@ -397,6 +403,7 @@ enum WorldIntConfigs
     CONFIG_PVP_ITEM_LEVEL_MIN,
     CONFIG_PVP_ITEM_LEVEL_MAX,
     CONFIG_CHALLENGE_MODE_ITEM_LEVEL_MAX,
+    CONFIG_LAST_CLIENT_BUILD,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -547,11 +554,13 @@ enum RealmZone
 
 enum WorldStates
 {
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
-    WS_AUTO_SERVER_RESTART_TIME = 20005,                     // Next server restart time
-    WS_DAILY_LOOT_RESET_TIME    = 20006                      // Next daily loot reset time
+    WS_WEEKLY_QUEST_RESET_TIME            = 20002,                     ///< Next weekly reset time
+    WS_BG_DAILY_RESET_TIME                = 20003,                     ///< Next daily BG reset time
+    WS_MONTHLY_QUEST_RESET_TIME           = 20004,                     ///< Next monthly reset time
+    WS_AUTO_SERVER_RESTART_TIME           = 20005,                     ///< Next server restart time
+    WS_DAILY_LOOT_RESET_TIME              = 20006,                     ///< Next daily loot reset time
+    WS_WEEKLY_GUILD_CHALLENGES_RESET_TIME = 20007,                     ///< Next weekly guild challenges reset time
+    WS_WEEKLY_BOSS_LOOTED_RESET_TIME      = 20008                      ///< Next weekly boss looted reset time
 };
 
 // DB scripting commands
@@ -720,6 +729,10 @@ class World
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
         time_t const& GetGameTime() const { return m_gameTime; }
+        /// Get server region ID (used in wow time calculation)
+        uint32 const GetServerRegionID() const { return 1135753200; }
+        /// Get server raid origin (used in wow time calculation)
+        uint32 const GetServerRaidOrigin() const { return 0; }
         /// Uptime (in secs)
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
@@ -735,7 +748,27 @@ class World
         uint16 GetConfigMaxSkillValue() const
         {
             uint8 lvl = uint8(getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-            return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl*5;
+
+            if (lvl >= 1 && lvl < 10)
+                return 75;
+            else if (lvl >= 10 && lvl < 20)
+                return 150;
+            else if (lvl >= 20 && lvl < 35)
+                return 225;
+            else if (lvl >= 35 && lvl < 50)
+                return 300;
+            else if (lvl >= 50 && lvl < 65)
+                return 375;
+            else if (lvl >= 65 && lvl < 75)
+                return 450;
+            else if (lvl >= 75 && lvl < 81)
+                return 525;
+            else if (lvl >= 81 && lvl < 90)
+                return 600;
+            else if (lvl >= 90)
+                return 700;
+
+            return 0;
         }
 
         void SetInitialWorldSettings();
@@ -892,6 +925,8 @@ class World
 
         void ResetCurrencyWeekCap();
         void ResetDailyLoots();
+        void ResetGuildChallenges();
+        void ResetBossLooted();
 
         std::map<Object*, bool> deleteUnits;
         bool isDelete(Object* obj)
@@ -901,6 +936,8 @@ class World
                     return true;
             return false;
         }
+
+        bool ModerateMessage(std::string l_Text);
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -910,14 +947,16 @@ class World
         void InitWeeklyQuestResetTime();
         void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
-        void InitServerAutoRestartTime();
+        //void InitServerAutoRestartTime();
         void InitCurrencyResetTime();
         void InitDailyLootResetTime();
+        void InitGuildChallengesResetTime();
+        void InitBossLootedResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
         void ResetMonthlyQuests();
         void ResetRandomBG();
-        void AutoRestartServer();
+        //void AutoRestartServer();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
@@ -936,6 +975,10 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
+
+        uint32 m_serverDelayTimer;
+        uint32 m_serverDelaySum;
+        uint32 m_serverUpdateCount;
 
         SessionMap m_sessions;
         typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
@@ -983,6 +1026,8 @@ class World
         time_t m_NextRandomBGReset;
         time_t m_NextCurrencyReset;
         time_t m_NextDailyLootReset;
+        time_t m_NextGuildChallengesReset;
+        time_t m_NextBossLootedReset;
         time_t m_NextServerRestart;
 
         //Player Queue
@@ -1006,7 +1051,9 @@ class World
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
         PreparedQueryResultFuture m_transfertsDumpCallbacks;
         PreparedQueryResultFuture m_transfertsLoadCallbacks;
+        PreparedQueryResultFuture m_transferMop;
         uint32 m_recordDiff[RECORD_DIFF_MAX];
+        LexicsCutter *m_lexicsCutter;
 };
 
 extern uint32 g_RealmID;

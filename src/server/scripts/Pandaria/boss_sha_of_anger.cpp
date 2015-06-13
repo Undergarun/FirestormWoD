@@ -155,7 +155,7 @@ class boss_sha_of_anger : public CreatureScript
                 summons.Despawn(summon);
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (p_Damage >= me->GetHealth())
                 {
@@ -425,7 +425,7 @@ class spell_sha_of_anger_aggressive_behaviour: public SpellScriptLoader
  
             void OnUpdate(uint32 diff)
             {
-                if (Unit* target = GetTarget())
+                if (Unit* target = GetUnitOwner())
                 {
                     if (Unit* caster = GetCaster())
                     {

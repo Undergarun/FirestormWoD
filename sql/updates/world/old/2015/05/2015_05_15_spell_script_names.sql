@@ -1,0 +1,12 @@
+DELETE from `spell_script_names` where spell_id IN(166430, 168121, 168864, 173016, 173347, 173353, 173362, 178351, 178381, 178382, 178383) and ScriptName = "spell_Skill_ResetSecondaryProperties";
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (166430, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (168121, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (168864, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (173016, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (173347, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (173353, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (173362, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (178351, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (178381, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (178382, "spell_Skill_ResetSecondaryProperties");
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (178383, "spell_Skill_ResetSecondaryProperties");

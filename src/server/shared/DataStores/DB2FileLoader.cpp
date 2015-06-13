@@ -200,12 +200,12 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
                 recordsize += 4;
                 break;
             case FT_STRING:
-                recordsize += sizeof(char*);
+                recordsize += sizeof(LocalizedString*);
                 break;
             case FT_SORT:
                 i = x;
                 break;
-            case FT_IND:
+            case FT_INDEX:
                 i = x;
                 recordsize += 4;
                 break;
@@ -231,7 +231,7 @@ uint32 DB2FileLoader::GetFormatStringsFields(const char * format)
     return stringfields;
 }
 
-char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable)
+char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, std::set<LocalizedString*> & p_LocalizedString)
 {
 
     typedef char * ptr;
@@ -285,7 +285,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
                     offset += 4;
                     break;
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     *((uint32*)(&dataTable[offset])) = getRecord(y).getUInt(x);
                     offset += 4;
@@ -295,8 +295,9 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += 1;
                     break;
                 case FT_STRING:
-                    *((char**)(&dataTable[offset])) = NULL;   // will be replaces non-empty or "" strings in AutoProduceStrings
-                    offset += sizeof(char*);
+                    *((LocalizedString**)(&dataTable[offset])) = new LocalizedString();   // will be replaces non-empty or "" strings in AutoProduceStrings
+                    p_LocalizedString.emplace(*((LocalizedString**)(&dataTable[offset])));
+                    offset += sizeof(LocalizedString*);
                     break;
             }
         }
@@ -307,7 +308,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
 
 static char const* const nullStr = "";
 
-char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable)
+char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* dataTable, uint32 p_Locale)
 {
     if (strlen(format) != fieldCount)
         return NULL;
@@ -336,7 +337,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
             switch(format[x])
             {
                 case FT_FLOAT:
-                case FT_IND:
+                case FT_INDEX:
                 case FT_INT:
                     offset += 4;
                     break;
@@ -345,11 +346,12 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
                     break;
                 case FT_STRING:
                 {
-                    // init db2 string field slots by pointers to string holders
-                    char const*** slot = (char const***)(&dataTable[offset]);
-                    *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringHolderSize*stringFieldNum]);
+                    LocalizedString ** l_PtrPtr = ((LocalizedString**)(&dataTable[offset]));
+                    char ** l_StrPtrMemoryPos = (char **)(&(*l_PtrPtr)->Str[p_Locale]);
+                    *l_StrPtrMemoryPos = &stringHoldersPool[stringHoldersRecordPoolSize * y + stringHolderSize*stringFieldNum];
+
                     ++stringFieldNum;
-                    offset += sizeof(char*);
+                    offset += sizeof(LocalizedString*);
                     break;
                 }
                 case FT_NA:
@@ -365,7 +367,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     return stringHoldersPool;
 }
 
-char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
+char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 p_Locale)
 {
     if (strlen(format) != fieldCount)
         return NULL;
@@ -381,7 +383,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
             switch(format[x])
         {
             case FT_FLOAT:
-            case FT_IND:
+            case FT_INDEX:
             case FT_INT:
                 offset += 4;
                 break;
@@ -391,14 +393,16 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
             case FT_STRING:
             {
                 // fill only not filled entries
-                char** slot = (char**)(&dataTable[offset]);
-                if (**((char***)slot) == nullStr)
+                LocalizedString ** l_PtrPtr = ((LocalizedString**)(&dataTable[offset]));
+                char ** l_StrPtrMemoryPos = (char **)(&(*l_PtrPtr)->Str[p_Locale]);
+
+                if (*l_StrPtrMemoryPos == nullStr)
                 {
                     const char * st = getRecord(y).getString(x);
-                    *slot=stringPool + (st-(const char*)stringTable);
+                    *l_StrPtrMemoryPos = stringPool + (st - (const char*)stringTable);
                 }
 
-                offset+=sizeof(char*);
+                offset += sizeof(LocalizedString*);
                 break;
             }
         }

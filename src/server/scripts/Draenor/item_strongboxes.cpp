@@ -67,8 +67,13 @@ class item_strongbox : public ItemScript
                 case 118065:///< Gleaming Ashmaul Strongbox (A)
                 case 120151:///< Gleaming Ashmaul Strongbox (H)
                     l_ItemChance = 100;
-                    l_RareChance = 90;
-                    l_EpicChance = 10;
+                    l_RareChance = 100;
+                    l_EpicChance = 0;
+                    break;
+                case 118093:///< Dented Ashmaul Strongbox (H)
+                case 118094:///< Dented Ashmaul Strongbox (A)
+                    l_ItemChance = 100;
+                    l_RareChance = 100;
                     break;
                 default:
                     break;
@@ -93,8 +98,8 @@ class item_strongbox : public ItemScript
             }
         
             /// Remove self first because of inventory space
-            p_Player->DestroyItemCount(p_Item->GetEntry(), 1, true);
-        
+            p_Player->DestroyItem(p_Item->GetBagSlot(), p_Item->GetSlot(), true);
+
             if (l_Items.empty())
                 return true;
 
@@ -150,7 +155,7 @@ class item_strongbox : public ItemScript
                 {
                     int32 l_HonorAmount = urand(l_MinHonor, l_MinHonor + 50) * CURRENCY_PRECISION;
                     p_Player->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount);
-                    p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount  / CURRENCY_PRECISION, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
+                    p_Player->SendDisplayToast(CURRENCY_TYPE_HONOR_POINTS, l_HonorAmount, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
                 }
             }
 

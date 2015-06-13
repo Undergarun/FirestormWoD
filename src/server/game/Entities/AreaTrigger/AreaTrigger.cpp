@@ -45,6 +45,7 @@ AreaTrigger::AreaTrigger()
     _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
     m_CreatedTime = 0;
     m_Flags = 0;
+    m_CreatureVisualGUID = 0;
 
     m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
     m_Templates.clear();
@@ -90,12 +91,12 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_Caster->GetPhaseMask());
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForSpell(p_SpellInfo->Id);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
         {
-            const AreaTriggerTemplate l_AreaTriggerTemplate = *l_Itr;
+            AreaTriggerTemplate const l_AreaTriggerTemplate = *l_Itr;
             if (l_AreaTriggerTemplate.m_EffIndex == p_EffIndex)
                 m_Templates.push_back(l_AreaTriggerTemplate);
         }
@@ -112,10 +113,11 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
+    sScriptMgr->InitScriptEntity(this);
     m_Flags = l_MainTemplate->m_Flags;
 
     if (p_Caster->GetVehicleKit() && m_Flags & AREATRIGGER_FLAG_ATTACHED)
@@ -133,9 +135,18 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, p_SpellInfo->Id);
     SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, p_SpellInfo->SpellVisual[0]);
 
-    SetSource(pos);
-    SetDestination(p_Dest);
-    SetTrajectory(pos != p_Dest ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
+    Position l_SourcePosition;
+    l_SourcePosition.Relocate(pos);
+    Position l_DestinationPosition;
+    l_DestinationPosition.Relocate(p_Dest);
+    std::list<Position> p_PathToDest;
+
+    sScriptMgr->OnSetCreatePositionEntity(this, p_Caster, l_SourcePosition, l_DestinationPosition, p_PathToDest);
+
+    SetSource(l_SourcePosition);
+    SetDestination(l_DestinationPosition);
+    SetPathToLinearDestination(p_PathToDest);
+    SetTrajectory(l_SourcePosition != l_DestinationPosition || p_PathToDest.size()  ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
     SetUpdateTimerInterval(60);
 
     if (p_SpellInfo->GetDuration() != -1)
@@ -146,7 +157,15 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     if (!GetMap()->AddToMap(this))
         return false;
 
+    if (l_MainTemplate->m_CreatureVisualEntry != 0)
+    {
+        Creature* l_CreatureVisual = p_Caster->SummonCreature(l_MainTemplate->m_CreatureVisualEntry, l_DestinationPosition.GetPositionX(), l_DestinationPosition.GetPositionY(), l_DestinationPosition.GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN, p_Caster->GetGUID());
+        m_CreatureVisualGUID = l_CreatureVisual->GetGUID();
+    }
+
     sScriptMgr->OnCreateAreaTriggerEntity(this);
+
+    /// Add npc for visual
 
     return true;
 }
@@ -166,7 +185,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
 
     WorldObject::_Create(p_GuidLow, HIGHGUID_AREATRIGGER, p_PhaseMask);
 
-    const AreaTriggerTemplateList* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
+    AreaTriggerTemplateList const* l_Templates = sObjectMgr->GetAreaTriggerTemplatesForEntry(p_Entry);
     if (l_Templates != nullptr)
     {
         for (AreaTriggerTemplateList::const_iterator l_Itr = l_Templates->begin(); l_Itr != l_Templates->end(); l_Itr++)
@@ -184,7 +203,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 p_Entry, uint32 p_GuidLow, uint32 p_P
         m_Templates.push_back(l_DefaultAreaTriggerTemplate);
     }
 
-    const AreaTriggerTemplate* l_MainTemplate = GetMainTemplate();
+    AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
     if (l_MainTemplate == nullptr)
         return false;
 
@@ -242,15 +261,11 @@ void AreaTrigger::Update(uint32 p_Time)
     {
         m_UpdateTimer.Reset();
 
-        // Calculate new position
-        if (GetMainTemplate()->m_MoveCurveID != 0)
-        {
+        /// Calculate new position
+        if (GetMainTemplate()->m_MoveCurveID != 0 && GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR)
             UpdatePositionWithPathId(m_CreatedTime, this);
-        }
         else if (m_Trajectory)
-        {
             GetPositionAtTime(m_CreatedTime, this);
-        }
     }
 }
 
@@ -267,6 +282,14 @@ void AreaTrigger::Remove(uint32 p_time)
         SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
+
+        if (m_CreatureVisualGUID != 0)
+        {
+            if (Creature* l_CreatureVisual = GetMap()->GetCreature(m_CreatureVisualGUID))
+            {
+                l_CreatureVisual->DespawnOrUnsummon();
+            }
+        }
     }
 }
 
@@ -275,13 +298,27 @@ void AreaTrigger::BindToCaster()
     m_Caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
 
     if (m_Caster)
+    {
         m_Caster->_RegisterAreaTrigger(this);
+
+        if (Creature* l_Creature = m_Caster->ToCreature())
+        {
+            if (l_Creature->IsAIEnabled)
+                l_Creature->AI()->AreaTriggerCreated(this);
+        }
+    }
 }
 
 void AreaTrigger::UnbindFromCaster()
 {
     if (m_Caster)
     {
+        if (Creature* l_Creature = m_Caster->ToCreature())
+        {
+            if (l_Creature->IsAIEnabled)
+                l_Creature->AI()->AreaTriggerDespawned(this);
+        }
+
         m_Caster->_UnregisterAreaTrigger(this);
         m_Caster = NULL;
     }
@@ -301,7 +338,7 @@ void AreaTrigger::SendMovementUpdate()
 
 void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -340,7 +377,7 @@ void AreaTrigger::UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos)
 
 void AreaTrigger::GetPositionFromPathId(uint32 p_PathId, Position* p_OutPos) const
 {
-    const AreaTriggerTemplate* l_template = GetMainTemplate();
+    AreaTriggerTemplate const* l_template = GetMainTemplate();
 
     if (l_template->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE)
     {
@@ -366,18 +403,121 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
 {
     switch (m_Trajectory)
     {
-    case AREATRIGGER_INTERPOLATION_LINEAR:
+        case AREATRIGGER_INTERPOLATION_LINEAR:
+        {
+            if (m_PathToLinearDestination.empty())
+            {
+                AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+                /// Durations get decreased over time so create time + remaining duration = max duration
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
+                p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
+                p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
+                p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
+                p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
+                break;
+            }
+            else
+            {
+                std::vector<Position> l_PathList;
+                l_PathList.resize(2 + m_PathToLinearDestination.size()); // Path + other points
+
+                l_PathList[0] = m_Source;
+                l_PathList[l_PathList.size() - 1] = m_Destination;
+
+                int l_Itr = 1;
+                for (auto& l_Path : m_PathToLinearDestination)
+                    l_PathList[l_Itr++] = l_Path;
+
+                float l_Dist = 0.f;
+                for (int l_I = 1; l_I < l_PathList.size(); l_I++)
+                    l_Dist += l_PathList[l_I].GetExactDist(&l_PathList[l_I - 1]);
+                
+                AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
+                /// Durations get decreased over time so create time + remaining duration = max duration
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
+
+                float l_CurrentDistanceProgress = l_Progress * l_Dist;
+                bool l_Found = false;
+                for (int l_I = 1; l_I < l_PathList.size(); l_I++)
+                {
+                    Position& l_CurrentPosition = l_PathList[l_I - 1];
+                    Position& l_NextPosition = l_PathList[l_I];
+
+                    float l_CurrentDistance = l_NextPosition.GetExactDist(&l_CurrentPosition);
+                    if ((l_CurrentDistanceProgress - l_CurrentDistance) > 0)
+                    {
+                        l_CurrentDistanceProgress -= l_CurrentDistance;
+                        continue;
+                    }
+
+                    float l_Angle = l_CurrentPosition.GetAngle(&l_NextPosition);
+                    float l_CurrentDistancePct = l_CurrentDistanceProgress / l_CurrentDistance;
+
+                    p_OutPos->m_positionX = l_CurrentPosition.m_positionX + (l_CurrentDistanceProgress * cos(l_Angle));
+                    p_OutPos->m_positionY = l_CurrentPosition.m_positionY + (l_CurrentDistanceProgress * sin(l_Angle));
+                    p_OutPos->m_positionZ = l_CurrentPosition.m_positionZ + l_CurrentDistancePct * (l_NextPosition.m_positionZ - l_CurrentPosition.m_positionZ);
+                    p_OutPos->m_orientation = l_Angle;
+                    l_Found = true;
+                    break;
+                }
+
+                if (l_Found)
+                    break;
+            }
+        }
+        default:
+            *p_OutPos = m_Source;
+            break;
+    }
+}
+
+void AreaTrigger::CastSpell(Unit* p_Target, uint32 p_SpellId)
+{
+    SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(p_SpellId);
+    if (!l_SpellInfo)
+        return;
+
+    bool l_Self = false;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        int32 l_Duration = GetDuration();
-        float l_Progress = float(p_Time % l_Duration) / l_Duration;
-        p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
-        p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
-        p_OutPos->m_positionZ = m_Source.m_positionZ + l_Progress * (m_Destination.m_positionZ - m_Source.m_positionZ);
-        p_OutPos->m_orientation = m_Source.m_orientation + l_Progress * (m_Destination.m_orientation - m_Source.m_orientation);
-        break;
+        if (l_SpellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CASTER)
+        {
+            l_Self = true;
+            break;
+        }
     }
-    default:
-        *p_OutPos = m_Source;
-        break;
+
+    if (l_Self)
+    {
+        if (p_Target)
+            p_Target->CastSpell(p_Target, l_SpellInfo, true);
+        return;
     }
+
+    //summon world trigger
+    Creature* l_Trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, l_SpellInfo->CalcCastTime() + 100);
+    if (!l_Trigger)
+        return;
+
+    if (Unit* l_Owner = GetCaster())
+    {
+        l_Trigger->setFaction(l_Owner->getFaction());
+        // needed for GO casts for proper target validation checks
+        l_Trigger->SetGuidValue(UNIT_FIELD_SUMMONED_BY, l_Owner->GetGUID());
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, l_Owner->GetGUID());
+    }
+    else
+    {
+        l_Trigger->setFaction(14);
+        // Set owner guid for target if no owner available - needed by trigger auras
+        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
+        l_Trigger->CastSpell(p_Target ? p_Target : l_Trigger, l_SpellInfo, true, 0, NULLAURA_EFFECT, p_Target ? p_Target->GetGUID() : 0);
+    }
+}
+
+AreaTrigger* AreaTrigger::GetAreaTrigger(WorldObject const& p_Object, uint64 p_Guid)
+{
+    return p_Object.GetMap()->GetAreaTrigger(p_Guid);
 }

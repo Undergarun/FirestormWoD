@@ -78,14 +78,19 @@ enum ItemModType
     ITEM_MOD_NATURE_RESISTANCE        = 55,
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
     ITEM_MOD_PVP_POWER                = 57,
+    ITEM_MOD_CR_AMPLIFY               = 58,
     ITEM_MOD_MULTISTRIKE_RATING       = 59,
     ITEM_MOD_READINESS_RATING         = 60, // Deprecated
     ITEM_MOD_SPEED_RATING             = 61,
     ITEM_MOD_LEECH_RATING             = 62,
     ITEM_MOD_AVOIDANCE_RATING         = 63,
-    ITEM_MOD_INDESTRUCTIBLE           = 64,
-    ITEM_MOD_WOD_5                    = 65,
-    ITEM_MOD_WOD_6                    = 66,
+    ITEM_MOD_CR_STURDINESS            = 64,
+    ITEM_MOD_CR_UNUSED_7              = 65,
+    ITEM_MOD_CR_CLEAVE                = 66,
+    ITEM_MOD_CR_UNUSED_9              = 67,
+    ITEM_MOD_CR_UNUSED_10             = 68,
+    ITEM_MOD_CR_UNUSED_11             = 69,
+    ITEM_MOD_CR_UNUSED_12             = 70,
     ITEM_MOD_DYNAMIC_STAT_AGI_STR_INT = 71,
     ITEM_MOD_DYNAMIC_STAT_AGI_STR     = 72,
     ITEM_MOD_DYNAMIC_STAT_AGI_INT     = 73,
@@ -136,7 +141,7 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_NO_EQUIP_COOLDOWN           = 0x00000080, // No default 30 seconds cooldown when equipped
     ITEM_PROTO_FLAG_UNK3                        = 0x00000100, // ?
     ITEM_PROTO_FLAG_WRAPPER                     = 0x00000200, // Item can wrap other items
-    ITEM_PROTO_FLAG_UNK4                        = 0x00000400, // ?
+    ITEM_PROTO_FLAG_IGNORE_BAG_SPACE            = 0x00000400, ///< ? source: SimulationCraft
     ITEM_PROTO_FLAG_PARTY_LOOT                  = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_PROTO_FLAG_REFUNDABLE                  = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
     ITEM_PROTO_FLAG_CHARTER                     = 0x00002000, // Item is guild or arena charter
@@ -163,10 +168,10 @@ enum ItemProtoFlags
 enum ItemFieldFlags
 {
     ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
-    ITEM_FLAG_UNK1          = 0x00000002, // ?
+    ITEM_FLAG_TRANSLATED    = 0x00000002, // Item text will not read as garbage when player does not know the language
     ITEM_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
     ITEM_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
-    ITEM_FLAG_UNK2          = 0x00000010, // ?
+    ITEM_FLAG_DISABLE       = 0x00000010, // Item is disable (red filter)
     ITEM_FLAG_UNK3          = 0x00000020, // ?
     ITEM_FLAG_UNK4          = 0x00000040, // ?
     ITEM_FLAG_UNK5          = 0x00000080, // ?
@@ -210,13 +215,25 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG      = 0x00200000,
     ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG         = 0x00400000,
     ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000,
+    ITEM_FLAGS_EXTRA_HEROIC                  = 0x40000000,  ///< Source Simulationcraft (MoP Heroic item)
+    ITEM_FLAGS_EXTRA_CRAFTING_REAGENT        = 0x80000000
+};
+
+enum ItemFlags3
+{
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS     = 0x0080,   // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
+    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP    = 0x0100,
+    ITEM_FLAG3_HEIRLOOM_QUALITY             = 0x0200,   // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS  = 0x1000,   // Item is not included in the guild news panel
+    ITEM_FLAG3_WARGAME_ONLY                 = 0x2000,
 };
 
 enum ItemFlagsCustom
 {
-    ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
-    ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   // No quest status will be checked when this item drops
-    ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004,   // Item will always follow group/master/need before greed looting rules
+    ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   ///< Item duration will tick even if player is offline
+    ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   ///< No quest status will be checked when this item drops
+    ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004,   ///< Item will always follow group/master/need before greed looting rules
+    ITEM_FLAGS_CU_CANT_BE_SELL          = 0x0008,   ///< Item can't be sell
 };
 
 enum CurrencyCategory
@@ -279,11 +296,12 @@ enum SocketColor
     SOCKET_COLOR_RED                            = 2,
     SOCKET_COLOR_YELLOW                         = 4,
     SOCKET_COLOR_BLUE                           = 8,
-    SOCKET_COLOR_HYDRAULIC                      = 16, // not used
-    SOCKET_COLOR_COGWHEEL                       = 32,
+    SOCKET_COLOR_PRISMATIC                      = 14,
+    SOCKET_COLOR_SHA_TOUCHED                    = 16,
+    SOCKET_COLOR_COGWHEEL                       = 32
 };
 
-#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_COGWHEEL)
+#define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE | SOCKET_COLOR_PRISMATIC | SOCKET_COLOR_SHA_TOUCHED| SOCKET_COLOR_COGWHEEL)
 
 enum InventoryType
 {
@@ -339,10 +357,11 @@ enum ItemClass
     ITEM_CLASS_PERMANENT                        = 14, // OBSOLETE
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
-    ITEM_CLASS_BATTLE_PET                       = 17
+    ITEM_CLASS_BATTLE_PET                       = 17,
+    ITEM_CLASS_WOW_TOKEN                        = 18  ///< WoW Token system    
 };
 
-#define MAX_ITEM_CLASS                            18
+#define MAX_ITEM_CLASS                            19
 
 enum ItemSubclassConsumable
 {
@@ -599,6 +618,12 @@ enum ItemSubclassBattlePet
 
 #define MAX_ITEM_SUBCLASS_BATTLE_PET              11
 
+enum ItemSubclassWowToken
+{
+    ITEM_SUBCLASS_WOW_TOKEN                     = 1
+};
+
+#define MAX_ITEM_SUBCLASS_WOW_TOKEN              1
 
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
@@ -619,7 +644,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_PERMANENT,
     MAX_ITEM_SUBCLASS_JUNK,
     MAX_ITEM_SUBCLASS_GLYPH,
-    MAX_ITEM_SUBCLASS_BATTLE_PET
+    MAX_ITEM_SUBCLASS_BATTLE_PET,
+    MAX_ITEM_SUBCLASS_WOW_TOKEN
 };
 
 inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
@@ -670,13 +696,18 @@ struct _Socket
 
 typedef std::list<SpecIndex> SpecList;
 
+namespace ItemBonus
+{
+    using GroupIdContainer = std::list<uint32>;
+};
+
 struct ItemTemplate
 {
     uint32 ItemId;
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
     int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
-    std::string Name1;
+    LocalizedString const* Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
     uint32 Flags;
@@ -709,7 +740,7 @@ struct ItemTemplate
     float  RangedModRange;
     _Spell Spells[MAX_ITEM_PROTO_SPELLS];
     uint32 Bonding;
-    std::string Description;
+    LocalizedString const* Description;
     uint32 PageText;
     uint32 LanguageID;
     uint32 PageMaterial;
@@ -753,6 +784,9 @@ struct ItemTemplate
     SpecList specs;
     uint32 PvPScalingLevel;
 
+    /// Item bonus group
+    ItemBonus::GroupIdContainer m_ItemBonusGroups;
+
     // helpers
     bool CanChangeEquipStateInCombat() const
     {
@@ -792,9 +826,6 @@ struct ItemTemplate
             case ITEM_QUALITY_ARTIFACT:
             case ITEM_QUALITY_HEIRLOOM:
                 l_ItemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
-                break;
-            case ITEM_QUALITY_RARE:
-                l_ItemLevel -= 13;
                 break;
             case ITEM_QUALITY_EPIC:
             case ITEM_QUALITY_LEGENDARY:
@@ -895,6 +926,47 @@ struct ItemTemplate
     uint32 CalculateScalingStatDBCValue(uint32 ilvl) const;
     uint32 CalculateArmorScaling(uint32 ilvl) const;
     void CalculateMinMaxDamageScaling(uint32 ilvl, uint32& minDamage, uint32& maxDamage) const;
+
+    bool CanBeTransmogrified() const
+    {
+        //if (Quality == ITEM_QUALITY_LEGENDARY)
+        //    return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_BE_TRANSMOG)
+            return false;
+
+        return true;
+    }
+
+    bool CanTransmogrify() const
+    {
+        if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
+            return false;
+
+        /// Custom removed for selling old legendary item
+        /// Ask by Peluche
+        //if (Quality == ITEM_QUALITY_LEGENDARY)
+        //    return false;
+
+        if (Class != ITEM_CLASS_ARMOR &&
+            Class != ITEM_CLASS_WEAPON)
+            return false;
+
+        if (Class == ITEM_CLASS_WEAPON && SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+            return false;
+
+        if (Flags2 & ITEM_FLAGS_EXTRA_CAN_TRANSMOG)
+            return true;
+
+        return true;
+    }
 };
 
 extern float GetCurveValue(uint32 CurveParameter, float level);

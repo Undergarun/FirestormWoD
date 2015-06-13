@@ -29,6 +29,8 @@ class SpellInfo;
 class Bag;
 class Unit;
 
+struct VoidStorageItem;
+
 struct ItemSetEffect
 {
     uint32 setid;
@@ -43,13 +45,14 @@ enum ItemBonusType
     ITEM_BONUS_MODIFY_ITEM_LEVEL    = 1,
     ITEM_BONUS_ADD_STAT             = 2,
     ITEM_BONUS_OVERRIDE_QUALITY     = 3,
-    ITEM_BONUS_MODIFY_SELLPRICE     = 4,
+    ITEM_BONUS_DESCRIPTION          = 4,
     ITEM_BONUS_ITEM_SUFFIX          = 5,
     ITEM_BONUS_ADD_SOCKET           = 6,
-    ITEM_BONUS_MODIFY_DIFFICULTY    = 7,
+    ITEM_BONUS_MODIFY_APPEARANCE    = 7,
     ITEM_BONUS_MODIFY_REQ_LEVEL     = 8,
     ITEM_BONUS_UNK2                 = 9,
-    ITEM_BONUS_UNK3                 = 10
+    ITEM_BONUS_UNK3                 = 10,
+    ITEM_BONUS_MODIFY_SSD_ID        = 11
 };
 
 enum InventoryResult
@@ -231,9 +234,10 @@ namespace ItemBonus
 {
     enum Stats : uint32
     {
-        Avoidance = 40,
-        Leech     = 41,
-        Speed     = 42
+        Avoidance       = 40,
+        Leech           = 41,
+        Speed           = 42,
+        Indestructible  = 43
     };
 
     namespace Chances
@@ -309,7 +313,9 @@ class Item : public Object
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
         bool IsNotEmptyBag() const;
+        bool CantBeUse() const { return (IsBroken() || IsDisable()); }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAX_DURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
+        bool IsDisable() const { return HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ItemFieldFlags::ITEM_FLAG_DISABLE); }
         bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
@@ -354,7 +360,16 @@ class Item : public Object
         * @param p_MapDifficulty: Information about the current difficulty we are to determine the right bonus to apply
         * @param p_ItemBonus: Vector of bonus to fill
         */
-        static void GenerateItemBonus(uint32 p_ItemId, uint32 p_ItemBonusDifficulty, std::vector<uint32>& p_ItemBonus);
+        static void GenerateItemBonus(uint32 p_ItemId, ItemContext p_Context, std::vector<uint32>& p_ItemBonus);
+
+        static ItemContext GetItemContextFromDifficulty(Difficulty p_Difficulty);
+
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, Item const* p_Item);
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, VoidStorageItem const p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, LootItem const p_Item);
+        static void BuildDynamicItemDatas(ByteBuffer& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses = std::vector<uint32>());
+        static void BuildDynamicItemDatas(WorldPacket& p_Datas, uint32 p_Entry, std::vector<uint32> p_ItemBonuses = std::vector<uint32>());
 
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
@@ -437,10 +452,8 @@ class Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
-        bool CanBeTransmogrified() const;
-        bool CanTransmogrify() const;
-        bool SubclassesCompatible(ItemTemplate const* proto1, ItemTemplate const* proto2) const;
-        static bool CanTransmogrifyItemWithItem(Item* transmogrified, Item* transmogrifier);
+        static bool SubclassesCompatible(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
+        static bool CanTransmogrifyItemWithItem(ItemTemplate const* p_Transmogrified, ItemTemplate const* p_Transmogrifier);
         static uint32 GetSpecialPrice(ItemTemplate const* proto, uint32 minimumPrice = 10000);
         uint32 GetSpecialPrice(uint32 minimumPrice = 10000) const { return Item::GetSpecialPrice(GetTemplate(), minimumPrice); }
 
@@ -467,6 +480,8 @@ class Item : public Object
         void RemoveAllItemBonuses();
         uint32 GetItemLevelBonusFromItemBonuses() const;
         std::vector<uint32> const& GetAllItemBonuses() const;
+
+        uint32 GetAppearanceModID() const;
 
     private:
         std::string m_text;

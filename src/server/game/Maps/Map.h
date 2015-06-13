@@ -63,20 +63,28 @@ struct ScriptAction
     ScriptInfo const* script;                               // pointer to static script data
 };
 
+union u_map_magic
+{
+    char asChar[4];
+    uint32 asUInt;
+};
+
 // ******************************************
 // Map file format defines
 // ******************************************
 struct map_fileheader
 {
-    uint32 mapMagic;
-    uint32 versionMagic;
-    uint32 buildMagic;
+    u_map_magic mapMagic;
+    u_map_magic versionMagic;
+    u_map_magic buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
     uint32 heightMapOffset;
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -368,22 +376,27 @@ class Map : public GridRefManager<NGridType>
         const char* GetMapName() const;
 
         // have meaning only for instanced map (that have set real difficulty)
-        Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
-        bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_5_DIFFICULTY; }
+        Difficulty GetDifficultyID() const { return Difficulty(GetSpawnMode()); }
         MapDifficulty const* GetMapDifficulty() const;
+        CriteriaLegacyRaidType GetLegacyRaidType() const;
+
+        ItemContext GetLootItemContext() const;
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
         bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
+
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
-        bool IsHeroic() const { return (i_spawnMode == HEROIC_5_DIFFICULTY || i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY || i_spawnMode == LEGACY_MAN10_HEROIC_DIFFICULTY || i_spawnMode == HEROIC_DIFFICULTY); }
-        bool IsLFR() const { return i_spawnMode == RAID_TOOL_DIFFICULTY; }
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == LEGACY_MAN25_DIFFICULTY || i_spawnMode == LEGACY_MAN25_HEROIC_DIFFICULTY); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsHeroic() const;
+        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == Difficulty::Difficulty25N || i_spawnMode == Difficulty::Difficulty25HC); }   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsLFR() const { return i_spawnMode == Difficulty::DifficultyRaidTool || i_spawnMode == Difficulty::DifficultyRaidLFR; }
+        bool IsChallengeMode() const { return i_spawnMode == Difficulty::DifficultyChallenge; }
+        bool IsMythic() const { return i_spawnMode == Difficulty::DifficultyRaidMythic; }
+
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
-        bool IsChallengeMode() const { return i_spawnMode == CHALLENGE_MODE_DIFFICULTY; }
 
         uint32 Expansion() const { return i_mapEntry ? i_mapEntry->Expansion() : 0; }
 
@@ -411,6 +424,11 @@ class Map : public GridRefManager<NGridType>
 
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
+
+        std::set<WorldObject*> const* GetAllWorldObjectOnMap() const
+        {
+            return &i_worldObjects;
+        }
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -444,6 +462,7 @@ class Map : public GridRefManager<NGridType>
         GameObject* GetGameObject(uint64 guid);
         Transport* GetTransport(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);
+        AreaTrigger* GetAreaTrigger(uint64 p_Guid);
 
         MapInstanced* ToMapInstanced(){ if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return NULL;  }
         const MapInstanced* ToMapInstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return NULL;  }
@@ -496,6 +515,9 @@ class Map : public GridRefManager<NGridType>
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
+
+        void LoadAllGrids(float p_MinX, float p_MaxX, float p_MinY, float p_MaxY, Player* p_Player);
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -666,6 +688,7 @@ class InstanceMap : public Map
         void UnloadAll();
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
+        void SendInstanceGroupSizeChanged() const;
         void SetResetSchedule(bool on);
 
         uint32 GetMaxPlayers() const;

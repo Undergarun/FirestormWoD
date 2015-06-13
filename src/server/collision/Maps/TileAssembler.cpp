@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,7 +116,7 @@ namespace VMAP
 
             // write map tree file
             std::stringstream mapfilename;
-            mapfilename << iDestDir << '/' << std::setfill('0') << std::setw(3) << map_iter->first << ".vmtree";
+            mapfilename << iDestDir << '/' << std::setfill('0') << std::setw(4) << map_iter->first << ".vmtree";
             FILE* mapfile = fopen(mapfilename.str().c_str(), "wb");
             if (!mapfile)
             {
@@ -157,7 +157,7 @@ namespace VMAP
                 uint32 nSpawns = tileEntries.count(tile->first);
                 std::stringstream tilefilename;
                 tilefilename.fill('0');
-                tilefilename << iDestDir << '/' << std::setw(3) << map_iter->first << '_';
+                tilefilename << iDestDir << '/' << std::setw(4) << map_iter->first << '_';
                 uint32 x, y;
                 StaticMapTree::unpackTileID(tile->first, x, y);
                 tilefilename << std::setw(2) << x << '_' << std::setw(2) << y << ".vmtile";
@@ -236,7 +236,7 @@ namespace VMAP
             MapData::iterator map_iter = mapData.find(mapID);
             if (map_iter == mapData.end())
             {
-                printf("spawning Map %d\n", mapID);
+                printf("spawning Map %u\n", mapID);
                 mapData[mapID] = current = new MapSpawns();
             }
             else current = (*map_iter).second;
@@ -392,6 +392,18 @@ namespace VMAP
                     else
                         bounds.merge(v);
                 }
+            }
+
+            if (bounds.isEmpty())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has empty bounding box" << std::endl;
+                continue;
+            }
+
+            if (!bounds.isFinite())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has invalid bounding box" << std::endl;
+                continue;
             }
 
             fwrite(&displayId, sizeof(uint32), 1, model_list_copy);

@@ -121,13 +121,14 @@ enum CreatureFlagsExtra
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY];
+    uint32  DifficultyEntry[Difficulty::MaxDifficulties];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
     uint32  Modelid3;
     uint32  Modelid4;
     std::string  Name;
+    std::string  FemaleName;
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
@@ -183,6 +184,8 @@ struct CreatureTemplate
     bool    RacialLeader;
     uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
+    uint32  VignetteID;
+    uint32  TrackingQuestID;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
@@ -246,7 +249,7 @@ struct CreatureBaseStats
     {
         return uint32((BaseArmor * info->ModArmor) + 0.5f);
     }
-    
+
     float GenerateBaseDamage(CreatureTemplate const* info) const
     {
        return BaseDamage;
@@ -257,10 +260,35 @@ struct CreatureBaseStats
 
 typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
+#define MAX_GROUP_SCALING 31
+
+struct CreatureGroupSizeStat
+{
+    std::vector<uint32> Healths;
+    std::vector<float>  MinDamage;
+    std::vector<float>  MaxDamage;
+
+    CreatureGroupSizeStat()
+    {
+        Healths.resize(MAX_GROUP_SCALING);
+        MinDamage.resize(MAX_GROUP_SCALING);
+        MaxDamage.resize(MAX_GROUP_SCALING);
+    }
+
+    uint32 GetHealthFor(uint32 p_GroupSize) const
+    {
+        p_GroupSize = std::min(std::max((uint32)10, p_GroupSize), (uint32)MAX_GROUP_SCALING - 1);
+        return Healths[p_GroupSize];
+    }
+};
+
+typedef std::map<uint32/*CreatureEntry*/, std::map<uint32/*Difficulty*/, CreatureGroupSizeStat>> CreatureGroupSizeStatsContainer;
+
 struct CreatureLocale
 {
     StringVector Name;
     StringVector SubName;
+    StringVector l_FemaleName;
 };
 
 struct GossipMenuItemsLocale
@@ -316,15 +344,16 @@ struct CreatureData
     bool dbData;
 };
 
-// `creature_addon` table
+/// `creature_addon` table
 struct CreatureAddon
 {
-    uint32 path_id;
-    uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
-    uint32 emote;
-    std::vector<uint32> auras;
+    uint32 PathID;
+    uint32 Mount;
+    uint32 Bytes1;
+    uint32 Bytes2;
+    uint32 Emote;
+    std::vector<uint32> Auras;
+    uint32 AnimKit;
 };
 
 typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureAddonContainer;
@@ -371,15 +400,15 @@ enum ChatType
 // Vendors
 struct VendorItem
 {
-    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost, uint8 _Type)
-        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), Type(_Type) {}
+    VendorItem(uint32 _item, int32 _maxcount, uint32 _incrtime, uint32 _ExtendedCost, uint8 _Type,  uint32 p_PlayerConditionID)
+        : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost), Type(_Type), PlayerConditionID(p_PlayerConditionID) {}
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
     uint8  Type;
-
+    uint32 PlayerConditionID;                               ///< PlayerCondition
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
 };
@@ -398,9 +427,9 @@ struct VendorItemData
     }
     bool Empty() const { return m_items.empty(); }
     uint32 GetItemCount() const { return m_items.size(); }
-    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type)
+    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, uint32 p_PlayerConditionID)
     {
-        m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost, type));
+        m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost, type, p_PlayerConditionID));
     }
     bool RemoveItem(uint32 item_id, uint8 type);
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const;
@@ -467,7 +496,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
 
-        explicit Creature(bool isWorldObject = false);
+        explicit Creature(bool isWorldObject = true);
         virtual ~Creature();
 
         void AddToWorld();
@@ -478,6 +507,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon();
         void SelectLevel(const CreatureTemplate* cinfo);
+        void UpdateStatsForLevel();
+        void UpdateGroupSizeStats();
         void LoadEquipment(int8 p_ID = 1, bool p_Force = false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
@@ -591,7 +622,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        void UpdateDamagePhysical(WeaponAttackType attType, bool l_IsNoLongerDualWielding = false);
 
         int8 GetOriginalEquipmentId() const { return m_OriginalEquipmentId; }
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }

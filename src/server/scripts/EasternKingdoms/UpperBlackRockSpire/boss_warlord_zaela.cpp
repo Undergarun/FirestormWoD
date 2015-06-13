@@ -328,7 +328,7 @@ class boss_warlord_zaela : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage, SpellInfo const* p_SpellInfo)
             {
                 if (m_Phase == eMisc::PhaseAir)
                 {

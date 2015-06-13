@@ -559,12 +559,8 @@ void BattlegroundSA::TeleportPlayers()
             player->ResetAllPowers();
             player->CombatStopWithPets(true);
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* p = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    p->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
-                    p->CastSpell(p, SPELL_PREPARATION, true);
-                }
+            player->ModifyAuraState(AURA_STATE_PVP_RAID_PREPARE, true);
+            player->CastSpell(player, SPELL_PREPARATION, true);
 
             if (player->GetTeamId() == Attackers)
             {
@@ -988,8 +984,6 @@ void BattlegroundSA::EndBattleground(uint32 winner)
     RewardHonorToTeam(GetBonusHonorFromKill(2), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(2), HORDE);
 
-    // No Clue how to reward this bg, so we give always silver to the looser
-    AwardTeams(2, 3, GetOtherTeam(winner));
     Battleground::EndBattleground(winner);
 }
 

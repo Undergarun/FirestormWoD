@@ -144,10 +144,15 @@ namespace JadeCore
             if (mob_level >= pl_level)
             {
                 uint8 nLevelDiff = mob_level - pl_level;
-                if (nLevelDiff > 4)
-                    nLevelDiff = 4;
+                if (nLevelDiff > 6)
+                    baseGain = 0;
+                else
+                {
+                    if (nLevelDiff > 4)
+                        nLevelDiff = 4;
 
-                baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
+                    baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
+                }
             }
             else
             {

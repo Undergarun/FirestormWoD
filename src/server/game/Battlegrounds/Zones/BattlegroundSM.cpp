@@ -23,7 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "Player.h"
 #include "GossipDef.h"
 
@@ -57,7 +57,6 @@ void BattlegroundSM::Reset()
     bool l_IsBGWeekEnd = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (l_IsBGWeekEnd) ? BG_SM_SMWeekendHonorTicks : BG_SM_NotSMWeekendHonorTicks;
     m_IsInformedNearVictory = false;
-    m_MineCartSpawnTimer = 30 * IN_MILLISECONDS;
     m_MineCartAddPointsTimer = 2000;
     m_FirstMineCartSpawned = false;
     m_WaterfallPathDone = false;
@@ -90,7 +89,9 @@ void BattlegroundSM::PostUpdateImpl(uint32 p_Diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        BattlegroundSM::SummonMineCart(p_Diff);
+        if (m_FirstMineCartSpawned)
+            BattlegroundSM::SummonMineCart(p_Diff);
+
         BattlegroundSM::CheckPlayerNearMineCart(p_Diff);
         BattlegroundSM::CheckMineCartNearDepot();
         BattlegroundSM::EventReopenDepot(p_Diff);
@@ -237,57 +238,19 @@ void BattlegroundSM::CheckTrackSwitch()
 
 void BattlegroundSM::FirstMineCartSummon(uint32 p_Diff)
 {
-    if (m_FirstMineCartSummonTimer <= 0)
+    for (uint32 l_Cart = 0; l_Cart < BG_SM_MINE_CART_3; l_Cart++)
     {
-        m_FirstMineCartSpawned = true;
-
-        if (uint8 l_Cart = urand(BG_SM_MINE_CART_1, BG_SM_MINE_CART_3))
+        if (Creature* l_MineCart = AddCreature(BG_SM_CartIDs[l_Cart], BG_SM_CartTypes[l_Cart], 0, BG_SM_StartPos[l_Cart][0], BG_SM_StartPos[l_Cart][1], BG_SM_StartPos[l_Cart][2], BG_SM_StartPos[l_Cart][3]))
         {
-            switch (l_Cart)
-            {
-                case BG_SM_MINE_CART_1:
-                {
-                    if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_1, NPC_SM_MINE_CART_1, 0, 744.542053f, 183.545883f, 319.658203f, 4.356342f))
-                    {
-                        l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                        l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                        l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                        m_MineCartsProgressBar[BG_SM_MINE_CART_1 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                    }
-                    break;
-                }
-                case BG_SM_MINE_CART_2:
-                {
-                    if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_2, NPC_SM_MINE_CART_2, 0, 739.400330f, 203.598511f, 319.603333f, 2.308198f))
-                    {
-                        l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                        l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                        l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                        m_MineCartsProgressBar[BG_SM_MINE_CART_2 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                    }
-                    break;
-                }
-                case BG_SM_MINE_CART_3:
-                {
-                    if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_3, NPC_SM_MINE_CART_3, 0, 760.184509f, 198.844742f, 319.446655f, 0.351249f))
-                    {
-                        l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                        l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                        l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                        m_MineCartsProgressBar[BG_SM_MINE_CART_3 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
+            l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
+            l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
+            l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
+            m_MineCartsProgressBar[l_Cart] = BG_SM_PROGRESS_BAR_NEUTRAL;
         }
     }
-    else
-        m_FirstMineCartSummonTimer -= p_Diff;
+
+    m_FirstMineCartSpawned = true;
 }
 
 void BattlegroundSM::StartingEventOpenDoors()
@@ -302,116 +265,22 @@ void BattlegroundSM::StartingEventOpenDoors()
 
 void BattlegroundSM::SummonMineCart(uint32 p_Diff)
 {
-    if (m_MineCartSpawnTimer <= 0)
+    for (int l_I = 0; l_I < BG_SM_MINE_CART_3; ++l_I)
     {
-        uint8 l_Cart = 0;
-
-        if (m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-            l_Cart = 0;
-        else if (!m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
+        if (!m_MineCartSpawned[l_I])
         {
-            l_Cart = RAND(BG_SM_MINE_CART_1, BG_SM_MINE_CART_2, BG_SM_MINE_CART_3);
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = RAND(BG_SM_MINE_CART_2, BG_SM_MINE_CART_3);
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (!m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = RAND(BG_SM_MINE_CART_1, BG_SM_MINE_CART_3);
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (!m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = RAND(BG_SM_MINE_CART_1, BG_SM_MINE_CART_2);
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = BG_SM_MINE_CART_3;
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            !m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = BG_SM_MINE_CART_2;
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-        else if (!m_MineCartSpawned[BG_SM_MINE_CART_1 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_2 - 1] &&
-            m_MineCartSpawned[BG_SM_MINE_CART_3 - 1])
-        {
-            l_Cart = BG_SM_MINE_CART_1;
-            SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
-        }
-
-        switch (l_Cart)
-        {
-            case BG_SM_MINE_CART_1:
+            if (Creature* l_MineCart = AddCreature(BG_SM_CartIDs[l_I], BG_SM_CartTypes[l_I], 0, BG_SM_StartPos[l_I][0], BG_SM_StartPos[l_I][1], BG_SM_StartPos[l_I][2], BG_SM_StartPos[l_I][3]))
             {
-                if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_1, NPC_SM_MINE_CART_1, 0, 744.542053f, 183.545883f, 319.658203f, 4.356342f))
-                {
-                    l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                    l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                    l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                    m_MineCartsProgressBar[BG_SM_MINE_CART_1 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                }
-                break;
+                l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
+                l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
+                l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
+                m_MineCartsProgressBar[l_I] = BG_SM_PROGRESS_BAR_NEUTRAL;
+                SendMessageToAll(LANG_BG_SM_MINE_CART_SPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                PlaySoundToAll(BG_SM_SOUND_MINE_CART_SPAWNED);
             }
-            case BG_SM_MINE_CART_2:
-            {
-                if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_2, NPC_SM_MINE_CART_2, 0, 739.400330f, 203.598511f, 319.603333f, 2.308198f))
-                {
-                    l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                    l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                    l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                    m_MineCartsProgressBar[BG_SM_MINE_CART_2 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                }
-                break;
-            }
-            case BG_SM_MINE_CART_3:
-            {
-                if (Creature* l_MineCart = AddCreature(NPC_MINE_CART_3, NPC_SM_MINE_CART_3, 0, 760.184509f, 198.844742f, 319.446655f, 0.351249f))
-                {
-                    l_MineCart->CastSpell(l_MineCart, BG_SM_CONTROL_VISUAL_NEUTRAL, true);
-                    l_MineCart->SetUnitMovementFlags(MOVEMENTFLAG_BACKWARD);
-                    l_MineCart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    l_MineCart->SetSpeed(MOVE_WALK, 0.8f);
-                    m_MineCartsProgressBar[BG_SM_MINE_CART_3 - 1] = BG_SM_PROGRESS_BAR_NEUTRAL;
-                }
-                break;
-            }
-            default:
-                break;
         }
-        m_MineCartSpawnTimer = 30000;
     }
-    else
-        m_MineCartSpawnTimer -= p_Diff;
 }
 
 void BattlegroundSM::CheckPlayerNearMineCart(uint32 p_Diff)
@@ -422,6 +291,9 @@ void BattlegroundSM::CheckPlayerNearMineCart(uint32 p_Diff)
         {
             if (Player* l_Player = ObjectAccessor::FindPlayer(l_Iter->first))
             {
+                if (l_Player->HasAuraType(AuraType::SPELL_AURA_MOD_STEALTH))
+                    continue;
+
                 if (l_Player->isDead()) 
                 {
                     UpdateWorldStateForPlayer(SM_DISPLAY_PROGRESS_BAR, BG_SM_PROGRESS_BAR_DONT_SHOW, l_Player);
@@ -1044,69 +916,27 @@ uint32 BattlegroundSM::GetMineCartTeamKeeper(uint8 p_MineCart)
 
 void BattlegroundSM::MineCartAddPoints(uint32 p_Diff)
 {
-    if (m_MineCartAddPointsTimer <= 0)
+    if (m_MineCartAddPointsTimer <= p_Diff)
     {
-           /* ==================  ALLIANCE  ================== */
-        if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 5);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 2);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 2);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != ALLIANCE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != ALLIANCE)
-            BattlegroundSM::AddPoints(ALLIANCE, 2);
+        uint8 l_AllianceCount = 0;
+        uint8 l_HordeCount = 0;
 
-            /* ==================  HORDE  ================== */
-        if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == HORDE)
-            BattlegroundSM::AddPoints(HORDE, 5);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == HORDE)
-            BattlegroundSM::AddPoints(HORDE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == HORDE)
-            BattlegroundSM::AddPoints(HORDE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != HORDE)
-            BattlegroundSM::AddPoints(HORDE, 3);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) == HORDE)
-            BattlegroundSM::AddPoints(HORDE, 2);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != HORDE)
-            BattlegroundSM::AddPoints(HORDE, 2);
-        else if (GetMineCartTeamKeeper(BG_SM_MINE_CART_1) == HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_2) != HORDE &&
-            GetMineCartTeamKeeper(BG_SM_MINE_CART_3) != HORDE)
-            BattlegroundSM::AddPoints(HORDE, 2);
+        for (uint32 l_I = 1; l_I <= BG_SM_MINE_CART_3; ++l_I)
+        {
+            if (GetMineCartTeamKeeper(l_I) == ALLIANCE)
+                ++l_AllianceCount;
+            else if (GetMineCartTeamKeeper(l_I) == HORDE)
+                ++l_HordeCount;
+        }
 
-        m_MineCartAddPointsTimer = 2000;
+        if (l_AllianceCount)
+            BattlegroundSM::AddPoints(ALLIANCE, l_AllianceCount);
+
+        if (l_HordeCount)
+            BattlegroundSM::AddPoints(HORDE, l_HordeCount);
+            
+
+        m_MineCartAddPointsTimer = 1000;
     }
     else
         m_MineCartAddPointsTimer -= p_Diff;
@@ -1216,16 +1046,15 @@ void BattlegroundSM::AddPoints(uint32 p_Team, uint32 p_Points)
         m_HonorScoreTics[l_TeamIndex] -= m_HonorTics;
     }
 
-    UpdateTeamScore(l_TeamIndex);
+    UpdateTeamScore(p_Team);
 }
 
 void BattlegroundSM::UpdateTeamScore(uint32 p_Team)
 {
     uint32 l_Score = GetTeamScore(p_Team);
-
     if (!m_IsInformedNearVictory && l_Score >= BG_SM_WARNING_NEAR_VICTORY_SCORE)
     {
-        if (p_Team == TEAM_ALLIANCE)
+        if (p_Team == ALLIANCE)
             SendMessageToAll(LANG_BG_SM_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
         else
             SendMessageToAll(LANG_BG_SM_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
@@ -1236,13 +1065,10 @@ void BattlegroundSM::UpdateTeamScore(uint32 p_Team)
     if (l_Score >= BG_SM_MAX_TEAM_SCORE)
     {
         l_Score = BG_SM_MAX_TEAM_SCORE;
-        if (p_Team == TEAM_ALLIANCE)
-            EndBattleground(ALLIANCE);
-        else
-            EndBattleground(HORDE);
+        EndBattleground(p_Team);
     }
 
-    if (p_Team == TEAM_ALLIANCE)
+    if (p_Team ==  ALLIANCE)
         UpdateWorldState(SM_ALLIANCE_RESOURCES, l_Score);
     else
         UpdateWorldState(SM_HORDE_RESOURCES, l_Score);
@@ -1250,7 +1076,6 @@ void BattlegroundSM::UpdateTeamScore(uint32 p_Team)
 
 void BattlegroundSM::EndBattleground(uint32 p_Winner)
 {
-    AwardTeams(GetTeamScore(GetOtherTeam(p_Winner)), BG_SM_MAX_TEAM_SCORE, GetOtherTeam(p_Winner));
     Battleground::EndBattleground(p_Winner);
 
     if (Creature* l_MineCart = GetBGCreature(NPC_SM_MINE_CART_1))
@@ -1261,14 +1086,6 @@ void BattlegroundSM::EndBattleground(uint32 p_Winner)
 
     if (Creature* l_MineCart = GetBGCreature(NPC_SM_MINE_CART_3))
         l_MineCart->DespawnOrUnsummon();
-}
-
-void BattlegroundSM::UpdatePointsCount(uint32 p_Team)
-{
-    if (p_Team == ALLIANCE)
-        UpdateWorldState(SM_ALLIANCE_RESOURCES, m_TeamScores[TEAM_ALLIANCE]);
-    else
-        UpdateWorldState(SM_HORDE_RESOURCES, m_TeamScores[TEAM_HORDE]);
 }
 
 void BattlegroundSM::AddPlayer(Player* p_Player)
@@ -1369,8 +1186,8 @@ void BattlegroundSM::UpdatePlayerScore(Player* p_Player, uint32 p_Type, uint32 p
 void BattlegroundSM::FillInitialWorldStates(ByteBuffer& p_Data)
 {
     p_Data << uint32(SM_MINE_CARTS_DISPLAY) << uint32(DISPLAY_WORLDSTATE);
-    p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);
-    p_Data << uint32(SM_HORDE_RESOURCES) << uint32(m_TeamScores[TEAM_ALLIANCE]);
+    p_Data << uint32(SM_ALLIANCE_RESOURCES) << uint32(m_TeamScores[TEAM_ALLIANCE]);
+    p_Data << uint32(SM_HORDE_RESOURCES) << uint32(m_TeamScores[TEAM_HORDE]);
     p_Data << uint32(SM_MINE_CART_1) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_MINE_CART_2) << uint32(DISPLAY_WORLDSTATE);
     p_Data << uint32(SM_DISPLAY_ALLIANCE_RESSOURCES) << uint32(DISPLAY_WORLDSTATE);

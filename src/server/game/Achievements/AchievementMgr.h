@@ -28,17 +28,20 @@
 #include "DBCEnums.h"
 #include "DBCStores.h"
 #include <LockedMap.h>
+#include "MapUpdater.h"
 
 typedef std::vector<CriteriaEntry const*>            AchievementCriteriaEntryList;
 typedef std::vector<AchievementEntry const*>         AchievementEntryList;
 typedef std::vector<CriteriaTreeEntry const*>        AchievementCriteriaTreeList;
 typedef std::vector<ModifierTreeEntry const*>        ModifierTreeEntryList;
 
-typedef UNORDERED_MAP<uint32, AchievementEntryList>         AchievementListByReferencedId;
-typedef UNORDERED_MAP<uint32, AchievementCriteriaTreeList>  AchievementCriteriaTreeByCriteriaId;
-typedef UNORDERED_MAP<uint32, AchievementEntry const*>      AchievementEntryByCriteriaTree;
-typedef UNORDERED_MAP<uint32, ModifierTreeEntryList>        ModifierTreeEntryByTreeId;
-typedef UNORDERED_MAP<uint32, AchievementCriteriaTreeList>  SubCriteriaTreeListById;
+typedef UNORDERED_MAP<uint32, AchievementEntryList>  AchievementListByReferencedId;
+typedef std::vector<AchievementCriteriaTreeList>     AchievementCriteriaTreeByCriteriaId;
+typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTree;
+typedef std::vector<ModifierTreeEntryList>           ModifierTreeEntryByTreeId;
+typedef std::vector<AchievementCriteriaTreeList>     SubCriteriaTreeListById;
+typedef std::vector<AchievementEntry const*>         AchievementEntryByCriteriaTreeId;
+
 
 struct CriteriaProgress
 {
@@ -115,7 +118,7 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
 };
 
 enum AchievementCriteriaAdditionalCondition
@@ -136,7 +139,7 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_UNK16                                = 16,   // 19116 - NYI - See: http://www.wowhead.com/achievement=1260
     CRITERIA_CONDITION_SOURCE_AREA_OR_ZONE                  = 17,   // 19116
     CRITERIA_CONDITION_TARGET_AREA_OR_ZONE                  = 18,   // 19116
-    CRITERIA_CONDITION_MAP_DIFFICULTY                       = 20,   // 19116
+    CRITERIA_CONDITION_LEGACY_RAID_TYPE                     = 20,   // 19116
     CRITERIA_CONDITION_TARGET_CREATURE_YIELDS_XP            = 21,   // 19116
     CRITERIA_CONDITION_ARENA_TYPE                           = 24,   // 19116
     CRITERIA_CONDITION_SOURCE_RACE                          = 25,   // 19116
@@ -165,8 +168,8 @@ enum AchievementCriteriaAdditionalCondition
     CRITERIA_CONDITION_RATED_BATTLEGROUND                   = 63,   // 19116
     CRITERIA_CONDITION_PROJECT_RARITY                       = 65,   // 19116
     CRITERIA_CONDITION_PROJECT_RACE                         = 66,   // 19116
-    CRITERIA_CONDITION_UNK67                                = 67,   // 19116 - NYI - See: http://www.wowhead.com/achievement=156 - May need hard code
-    CRITERIA_CONDITION_RAID_DIFFICULTY                      = 68,   // 19116
+    CRITERIA_CONDITION_WORLD_STATE_EXPRESSION               = 67,   // 19116
+    CRITERIA_CONDITION_DIFFICULTY                           = 68,   // 19116
     CRITERIA_CONDITION_UNK69                                = 69,   // 19116 - Not used
     CRITERIA_CONDITION_TARGET_MIN_LEVEL                     = 70,   // 19116
     CRITERIA_CONDITION_UNK73                                = 73,   // 19116 - NYI - See: http://www.wowhead.com/achievement=6683 - May need hard code
@@ -413,22 +416,24 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_UNK162                            = 162,  // 19116 - Not used
     ACHIEVEMENT_CRITERIA_TYPE_PLACE_WORK_ORDER                  = 163,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_UNK164                            = 164,  // 19116 - Not used
-    ACHIEVEMENT_CRITERIA_TYPE_UNK165                            = 165,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_DEFEAT_ENCOUNTER                  = 165,  // 19116
     ACHIEVEMENT_CRITERIA_TYPE_UNK167                            = 167,  // 19116 - Not used
     ACHIEVEMENT_CRITERIA_TYPE_UPDATE_BUILDING_LEVEL             = 168,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_BUILD_PRESET_BUILDING             = 169,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_UPDATE_GARRISON_LEVEL             = 170,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_UNK171                            = 171,  // 19116 - Not used
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSIONS        = 173,  // 19116 NYI
-    ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON  = 175,  // 19116 NYI
-    ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS         = 178,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_IN_OWN_GARRISON  = 175,  // 19116
+    ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINTS         = 178,  // 19116
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_WORK_ORDERS              = 182,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_RAISE_FOLLOWER_ILEVEL             = 183,  // 19116 NYI
-    ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS                 = 184,  // 19116 NYI
+    ACHIEVEMENT_CRITERIA_TYPE_LEVELUP_FOLLOWERS                 = 184,  // 19116
     ACHIEVEMENT_CRITERIA_TYPE_COLLECT_TOYS                      = 186,  // 19116 NYI
     ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_FOLLOWER_OF_QUALITY       = 187,  // 19116 NYI
+    // 188 unused
+    ACHIEVEMENT_CRITERIA_TYPE_COLLECT_HEIRLOOMS                 = 189,
     // 0..162 => 163 criteria types total
-    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 188
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL                             = 190
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum
@@ -601,9 +606,9 @@ class AchievementMgr
         void LoadFromDB(Player* p_Player, Guild* p_Guild, PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult, PreparedQueryResult achievementAccountResult = NULL, PreparedQueryResult criteriaAccountResult = NULL);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, bool evenIfCriteriaComplete = false);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit const* unit = NULL, Player* referencePlayer = NULL, bool p_LoginCheck = false);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
+        void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer, bool p_LoginCheck = false);
         void CheckAllAchievementCriteria(Player* referencePlayer);
         void SendAllAchievementData(Player* receiver);
         void SendAchievementInfo(Player* receiver, uint32 achievementId = 0);
@@ -617,16 +622,18 @@ class AchievementMgr
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
         uint32 GetAchievementPoints() const { return _achievementPoints; }
 
+        CompletedAchievementMap const& GetCompletedAchivements() const { return m_completedAchievements; }
+
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement) const;
-        void SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const;
+        void SendCriteriaUpdate(CriteriaEntry const* p_Entry, CriteriaProgress const* p_Progress, uint32 p_TimeElapsed, bool p_TimedCompleted, bool p_UpdateAccount) const;
         CriteriaProgressMap* GetCriteriaProgressMap();
         CriteriaProgress* GetCriteriaProgress(uint32 entry);
         CriteriaProgress* GetCriteriaProgress(CriteriaEntry const* entry);
         void SetCriteriaProgress(CriteriaEntry const* entry, uint64 changeValue, Player* referencePlayer, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(CriteriaEntry const* entry);
-        void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer);
+        void CompletedCriteriaFor(AchievementEntry const* achievement, Player* referencePlayer, bool p_LoginCheck = false);
         bool CanCompleteCriteria(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedCriteria(CriteriaEntry const* criteria);
         bool IsCompletedCriteriaForAchievement(CriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
@@ -636,6 +643,7 @@ class AchievementMgr
         bool ConditionsSatisfied(CriteriaEntry const *criteria, Player* referencePlayer) const;
         bool RequirementsSatisfied(CriteriaEntry const *criteria, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer) const;
         bool AdditionalRequirementsSatisfied(CriteriaEntry const* criteria, uint64 miscValue1, uint64 miscValue2, Unit const* unit, Player* referencePlayer) const;
+        bool RequiresScript(CriteriaEntry const* p_Criteria);
 
         T* _owner;
         CriteriaProgressMap m_criteriaProgress;
@@ -644,6 +652,13 @@ class AchievementMgr
         TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
         uint32 _achievementPoints;
         bool m_NeedDBSync;
+};
+
+struct AchievementCriteriaUpdateTask
+{
+    uint64 PlayerGUID;
+    uint64 UnitGUID;
+    std::function<void(uint64, uint64)> Task;
 };
 
 class AchievementGlobalMgr
@@ -676,10 +691,9 @@ class AchievementGlobalMgr
             return itr != m_AchievementListByReferencedId.end() ? &itr->second : NULL;
         }
 
-        ModifierTreeEntryList const* GetModifierTreeByModifierId(uint32 id) const
+        ModifierTreeEntryList const& GetModifierTreeByModifierId(uint32 id) const
         {
-            ModifierTreeEntryByTreeId::const_iterator iter = m_ModifierTreeEntryByTreeId.find(id);
-            return iter != m_ModifierTreeEntryByTreeId.end() ? &iter->second : NULL;
+            return m_ModifierTreeEntryByTreeId[id];
         }
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
@@ -702,33 +716,44 @@ class AchievementGlobalMgr
 
         AchievementCriteriaTreeList const* GetSubCriteriaTreeById(uint32 p_ID) const
         {
-            SubCriteriaTreeListById::const_iterator l_Iter = m_SubCriteriaTreeListById.find(p_ID);
-            return l_Iter != m_SubCriteriaTreeListById.end() ? &l_Iter->second : NULL;
+            return &m_SubCriteriaTreeListById[p_ID];
         }
 
-        AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
+        AchievementEntry const* _GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
         {
             while (true)
             {
                 if (!p_Criteria->Parent || p_Criteria->Parent == p_Criteria->ID)
-                {
-                    AchievementEntryByCriteriaTree::const_iterator l_Iter = m_AchievementEntryByCriteriaTree.find(p_Criteria->ID);
-                    return l_Iter != m_AchievementEntryByCriteriaTree.end() ? l_Iter->second : NULL;
-                }
+                    return m_AchievementEntryByCriteriaTree[p_Criteria->ID];
 
                 p_Criteria = sCriteriaTreeStore.LookupEntry(p_Criteria->Parent);
             }
             return NULL;
         }
 
-        bool IsRealmCompleted(AchievementEntry const* achievement) const
+        AchievementEntry const* GetAchievementEntryByCriteriaTree(CriteriaTreeEntry const* p_Criteria) const
         {
-            return m_allCompletedAchievements.find(achievement->ID) != m_allCompletedAchievements.end();
+            return m_AchievementEntryByCriteriaTreeId[p_Criteria->ID];
         }
 
-        void SetRealmCompleted(AchievementEntry const* achievement)
+        bool IsRealmCompleted(AchievementEntry const* achievement, uint32 instanceId) const
         {
-            m_allCompletedAchievements.insert(achievement->ID);
+            AllCompletedAchievements::const_iterator itr = m_allCompletedAchievements.find(achievement->ID);
+            if (itr == m_allCompletedAchievements.end())
+                return false;
+
+            if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
+                return itr->second != instanceId;
+
+            return true;
+        }
+
+        void SetRealmCompleted(AchievementEntry const* achievement, uint32 instanceId)
+        {
+            if (IsRealmCompleted(achievement, instanceId))
+                return;
+
+            m_allCompletedAchievements[achievement->ID] = instanceId;
         }
 
         bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
@@ -758,6 +783,14 @@ class AchievementGlobalMgr
         AchievementEntry const* GetAchievement(uint32 achievementId) const;
         CriteriaEntry const* GetAchievementCriteria(uint32 achievementId) const;
 
+        void PrepareCriteriaUpdateTaskThread();
+        void ProcessAllCriteriaUpdateTask();
+
+        void AddCriteriaUpdateTask(AchievementCriteriaUpdateTask const& p_Task)
+        {
+            m_AchievementCriteriaUpdateTaskStoreQueue.add(p_Task);
+        }
+
     private:
         AchievementCriteriaDataMap m_criteriaDataMap;
 
@@ -772,14 +805,28 @@ class AchievementGlobalMgr
         AchievementCriteriaTreeByCriteriaId m_AchievementCriteriaTreeByCriteriaId;
         AchievementEntryByCriteriaTree m_AchievementEntryByCriteriaTree;
         ModifierTreeEntryByTreeId m_ModifierTreeEntryByTreeId;
-        typedef std::set<uint32> AllCompletedAchievements;
+        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
         AllCompletedAchievements m_allCompletedAchievements;
         SubCriteriaTreeListById m_SubCriteriaTreeListById;
 
+        AchievementEntryByCriteriaTreeId m_AchievementEntryByCriteriaTreeId;
+
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
+
+        ACE_Based::LockedQueue<AchievementCriteriaUpdateTask, ACE_Thread_Mutex> m_AchievementCriteriaUpdateTaskStoreQueue;   ///< All criteria update task are first storing here
+        std::queue<AchievementCriteriaUpdateTask> m_AchievementCriteriaUpdateTaskProcessQueue;                               ///< Before thread process, all task stored will be move here
 };
 
 #define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
+
+class MapUpdater;
+class AchievementCriteriaUpdateRequest : public MapUpdaterTask
+{
+    public:
+        AchievementCriteriaUpdateRequest(MapUpdater* p_Updater);
+        virtual void call() override;
+
+};
 
 #endif

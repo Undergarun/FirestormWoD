@@ -246,7 +246,7 @@ class boss_unsok : public CreatureScript
 
             void EnterCombat(Unit* attacker)
             {
-                if (!CheckTrash() || !instance->CheckRequiredBosses(DATA_UNSOK))
+                if (!CheckTrash() || (!instance->CheckRequiredBosses(DATA_UNSOK) && !IsLFR()))
                 {
                     me->SetFullHealth();
                     me->SetReactState(REACT_PASSIVE);
@@ -326,7 +326,7 @@ class boss_unsok : public CreatureScript
                         EnterCombat(who);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, const SpellInfo* p_SpellInfo)
             {
                 if (!fightInProgress)
                     EnterCombat(attacker);
@@ -444,7 +444,7 @@ class boss_unsok : public CreatureScript
                             bool canCast = true;
 
                             // We can't cast if there's no player
-                            if (!playerList.size())
+                            if (playerList.empty())
                                 canCast = false;
                             else
                             {
@@ -456,7 +456,7 @@ class boss_unsok : public CreatureScript
                                 {
                                     if (!(*itr)->HasAura(SPELL_RESHAPE_LIFE))
                                         // In phase 1, can only be casted on tank
-                                        if (phase > 1 || (*itr)->GetRoleForGroup() == ROLE_TANK)
+                                        if (phase > 1 || (*itr)->GetRoleForGroup() == Roles::ROLE_TANK)
                                             canCast = true;
 
                                     ++itr;
@@ -465,14 +465,18 @@ class boss_unsok : public CreatureScript
 
                             if (canCast)
                             {
+                                uint8 l_Count = 0;
                                 do
                                 {
                                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5000.0f, true);
-                                    reshapedGuid = target->GetGUID();
-
-                                } while (!target || target->HasAura(SPELL_RESHAPE_LIFE));
+                                    if (target != nullptr)
+                                        reshapedGuid = target->GetGUID();
+                                    l_Count++;
+                                } while ((!target || target->HasAura(SPELL_RESHAPE_LIFE)) && l_Count < 10);
                                 Talk(TALK_RESHAPE);
-                                me->CastSpell(target, SPELL_RESHAPED, false);
+
+                                if (target)
+                                    me->CastSpell(target, SPELL_RESHAPED, false);
                                 events.ScheduleEvent(EVENT_RESHAPE_ACTIVE, 1800);
                             }
 
@@ -758,12 +762,18 @@ public:
             }
         }
 
-        void DamageTaken(Unit* attacker, uint32 &damage)
+        void DamageTaken(Unit* p_Attacker, uint32 &p_Damage, const SpellInfo* p_SpellInfo)
         {
-            if (damage > me->GetHealth())
+            if (me->HasAura(SPELL_TEMP_FEIGN_DEATH) || me->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+            {
+                p_Damage = 0;
+                return;
+            }
+
+            if (p_Damage > me->GetHealth())
             {
                 // False death
-                damage = me->GetHealth() - 1;
+                p_Damage = me->GetHealth() - 1;
                 me->SetReactState(REACT_PASSIVE);
                 me->RemoveAurasDueToSpell(SPELL_CORROSIVE_AURA);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -863,7 +873,7 @@ class mob_amber_pool_stalker : public CreatureScript
                             GetPlayerListInGrid(playerList, me, 200.0f);
 
                             // No player found
-                            if (!playerList.size())
+                            if (playerList.empty())
                             {
                                 events.ScheduleEvent(EVENT_VOLATILE_AMBER, 3000);
                                 break;
@@ -952,7 +962,7 @@ class mob_amber_globule : public CreatureScript
                 GetPlayerListInGrid(playerList, me, 200.0f);
 
                 // No player found: it's a wipe, so we despawn
-                if (!playerList.size())
+                if (playerList.empty())
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -1115,7 +1125,7 @@ class mob_amber_scalpel : public CreatureScript
 };
 
 // 121995 - Amber Scalpel - Summoning Living Amber
-class spell_amber_scalpel: public SpellScriptLoader
+class spell_amber_scalpel : public SpellScriptLoader
 {
     public:
         spell_amber_scalpel() : SpellScriptLoader("spell_amber_scalpel")  { }
@@ -1150,7 +1160,7 @@ class spell_amber_scalpel: public SpellScriptLoader
 };
 
 // 122395 - Struggle for Control
-class spell_struggle_for_control: public SpellScriptLoader
+class spell_struggle_for_control : public SpellScriptLoader
 {
     public:
         spell_struggle_for_control() : SpellScriptLoader("spell_struggle_for_control") { }
@@ -1179,7 +1189,7 @@ class spell_struggle_for_control: public SpellScriptLoader
 };
 
 // 123156 - Consume Amber
-class spell_consume_amber: public SpellScriptLoader
+class spell_consume_amber : public SpellScriptLoader
 {
     public:
         spell_consume_amber() : SpellScriptLoader("spell_consume_amber") { }
@@ -1248,7 +1258,7 @@ class spell_break_free : SpellScriptLoader
 };
 
 // 122415 - Grab
-class spell_grab: public SpellScriptLoader
+class spell_grab : public SpellScriptLoader
 {
     public:
         spell_grab() : SpellScriptLoader("spell_grab") { }
@@ -1277,7 +1287,7 @@ class spell_grab: public SpellScriptLoader
 };
 
 // 122413 - Fling
-class spell_fling: public SpellScriptLoader
+class spell_fling : public SpellScriptLoader
 {
     public:
         spell_fling() : SpellScriptLoader("spell_fling") { }
@@ -1334,7 +1344,7 @@ class spell_fling: public SpellScriptLoader
 };
 
 // 122420 - Fling, victim thrown
-class spell_fling_thrown: public SpellScriptLoader
+class spell_fling_thrown : public SpellScriptLoader
 {
     public:
         spell_fling_thrown() : SpellScriptLoader("spell_fling_thrown") { }
@@ -1362,7 +1372,7 @@ class spell_fling_thrown: public SpellScriptLoader
 };
 
 // 122547 - Draw Power
-class spell_unsok_draw_power: public SpellScriptLoader
+class spell_unsok_draw_power : public SpellScriptLoader
 {
 public:
     spell_unsok_draw_power() : SpellScriptLoader("spell_unsok_draw_power") { }
@@ -1390,7 +1400,7 @@ public:
 };
 
 // 123014 - Volatile amber
-class spell_volatile_amber: public SpellScriptLoader
+class spell_volatile_amber : public SpellScriptLoader
 {
 public:
     spell_volatile_amber() : SpellScriptLoader("spell_volatile_amber") { }

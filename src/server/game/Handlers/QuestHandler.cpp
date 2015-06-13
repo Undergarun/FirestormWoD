@@ -84,8 +84,6 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 
     recvData.readPackGUID(guid);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_HELLO npc = %u", GUID_LOPART(guid));
-
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
     if (!creature)
     {
@@ -311,7 +309,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
                     {
                         m_Player->ModifyMoney(l_Objective.Amount);
                     }
-                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA)
+                    else if (l_Objective.Type == QUEST_OBJECTIVE_TYPE_CRITERIA_TREE)
                     {
                         m_Player->QuestObjectiveSatisfy(l_Objective.ObjectID, l_Objective.Amount, l_Objective.Type);
                     }
@@ -336,8 +334,6 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& p_RecvData)
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId;
     l_RespondToGiver = p_RecvData.ReadBit();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_QUERY_QUEST npc = %u, quest = %u, RespondToGiver = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RespondToGiver);
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, l_Guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
@@ -383,7 +379,6 @@ void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
 
     uint32 questId;
     recvData >> questId;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_QUERY quest = %u", questId);
 
     if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         m_Player->PlayerTalkClass->SendQuestQueryResponse(quest);
@@ -398,8 +393,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
 
     p_RecvData.readPackGUID(l_Guid);
     p_RecvData >> l_QuestId >> l_RewardEntry;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = %u, quest = %u, reward = %u", uint32(GUID_LOPART(l_Guid)), l_QuestId, l_RewardEntry);
 
     Quest const* l_Quest = sObjectMgr->GetQuestTemplate(l_QuestId);
     if (!l_Quest)
@@ -434,7 +427,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& p_RecvData)
         if (!l_Object || !l_Object->hasInvolvedQuest(l_QuestId))
             return;
 
-        // some kind of WPE protection
+        /// some kind of WPE protection
         if (!m_Player->CanInteractWithQuestGiver(l_Object))
             return;
     }
@@ -519,8 +512,6 @@ void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
     recvData.readPackGUID(guid);
     recvData >> questId;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_REQUEST_REWARD npc = %u, quest = %u", uint32(GUID_LOPART(guid)), questId);
-
     Object* object = ObjectAccessor::GetObjectByTypeMask(*m_Player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
     if (!object || !object->hasInvolvedQuest(questId))
         return;
@@ -544,8 +535,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
     uint8 slot;
     recvData >> slot;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
-
     if (slot < MAX_QUEST_LOG_SIZE)
     {
         if (uint32 questId = m_Player->GetQuestSlotQuestId(slot))
@@ -562,8 +551,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             m_Player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             m_Player->RemoveActiveQuest(questId);
             m_Player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
-
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u abandoned quest %u", m_Player->GetGUIDLow(), questId);
         }
 
         m_Player->SetQuestSlot(slot, 0);
@@ -576,8 +563,6 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
     uint32 questId;
     recvData >> questId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT questId = %u", questId);
 
     if (const Quest* quest = sObjectMgr->GetQuestTemplate(questId))
     {
@@ -619,8 +604,6 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
 
     autoCompleteMode = recvData.ReadBit();
     recvData.FlushBits();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, questId = %u", uint32(GUID_LOPART(l_QuestGiverGUID)), l_QuestID);
 
     if (autoCompleteMode == 0)
     {
@@ -665,20 +648,19 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
             if (quest->GetQuestObjectiveCountType(QUEST_OBJECTIVE_TYPE_ITEM))                  // some items required
                 m_Player->PlayerTalkClass->SendQuestGiverRequestItems(quest, l_QuestGiverGUID, m_Player->CanRewardQuest(quest, false), false);
             else                                            // no items required
+            {
                 m_Player->PlayerTalkClass->SendQuestGiverOfferReward(quest, l_QuestGiverGUID);
+                m_Player->SaveToDB();
+            }
         }
     }
 
-    if (m_Player)
-        m_Player->SaveToDB();
 }
 
 void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 {
     uint32 questId;
     recvPacket >> questId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PUSHQUESTTOPARTY questId = %u", questId);
 
     if (m_Player->GetQuestStatus(questId) == QUEST_STATUS_NONE || m_Player->GetQuestStatus(questId) == QUEST_STATUS_REWARDED)
         return;
@@ -859,10 +841,8 @@ uint32 WorldSession::getDialogStatus(Player* player, Object* questgiver, uint32 
 
 void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY");
-
     uint32 count = 0;
-    for (Player::ClientGUIDs::const_iterator itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
+    for (auto itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
     {
         if (IS_CRE_OR_VEH_OR_PET_GUID(*itr))
         {
@@ -888,11 +868,11 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
         }
     }
 
-    ByteBuffer buff;
-    WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE);
+    ByteBuffer buff(1024);
+    WorldPacket data(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 1024);
     data << uint32(count);
 
-    for (Player::ClientGUIDs::const_iterator itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
+    for (auto itr = m_Player->m_clientGUIDs.begin(); itr != m_Player->m_clientGUIDs.end(); ++itr)
     {
         uint32 questStatus = DIALOG_STATUS_NONE;
         uint32 defstatus = DIALOG_STATUS_NONE;
@@ -951,7 +931,7 @@ void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
         l_Quests.push_back(l_Quest);
     }
 
-    WorldPacket l_Data(SMSG_QUEST_COMPLETION_NPCRESPONSE);
+    WorldPacket l_Data(SMSG_QUEST_COMPLETION_NPCRESPONSE, 1024);
     l_Data << uint32(l_Quests.size());                          ///< Quest size
 
     for (const Quest* l_QuestItr : l_Quests)
@@ -961,30 +941,6 @@ void WorldSession::HandleQueryQuestCompletionNpcs(WorldPacket& p_RecvData)
 
         for (const uint32 l_NpcItr : l_QuestItr->completionsNpcs)
             l_Data << uint32(l_NpcItr);
-    }
-
-    SendPacket(&l_Data);
-}
-
-void WorldSession::SendQuestPackageItemDB2Reply(uint32 p_Entry)
-{
-    QuestPackageItemEntry const* l_QuestPackageItemHotfix = sQuestPackageItemStore.LookupEntry(p_Entry);
-    if (l_QuestPackageItemHotfix == nullptr)
-        return;
-
-    WorldPacket l_Data(SMSG_DB_REPLY, 56);
-    l_Data << uint32(DB2_REPLY_QUEST_PACKAGE_ITEM);
-    l_Data << int32(p_Entry);
-    l_Data << uint32(time(NULL));
-    l_Data << uint32(sizeof(QuestPackageItemEntry));
-
-    // QuestPackageItem.db2
-    {
-        l_Data << uint32(l_QuestPackageItemHotfix->ID);
-        l_Data << uint32(l_QuestPackageItemHotfix->PackageID);
-        l_Data << uint32(l_QuestPackageItemHotfix->ItemId);
-        l_Data << uint32(l_QuestPackageItemHotfix->Count);
-        l_Data << uint32(l_QuestPackageItemHotfix->Type);
     }
 
     SendPacket(&l_Data);

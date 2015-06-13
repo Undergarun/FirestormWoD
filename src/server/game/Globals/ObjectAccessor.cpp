@@ -354,7 +354,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
         bones->SetPhaseMask(corpse->GetPhaseMask(), false);
 
         bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
-        bones->SetGuidValue(CORPSE_FIELD_OWNER, 0);
+        bones->SetGuidValue(CORPSE_FIELD_OWNER, player_guid);
 
         for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         {
@@ -440,3 +440,4 @@ template Corpse* ObjectAccessor::GetObjectInWorld<Corpse>(uint32 mapid, float x,
 template GameObject* ObjectAccessor::GetObjectInWorld<GameObject>(uint32 mapid, float x, float y, uint64 guid, GameObject* /*fake*/);
 template DynamicObject* ObjectAccessor::GetObjectInWorld<DynamicObject>(uint32 mapid, float x, float y, uint64 guid, DynamicObject* /*fake*/);
 template Transport* ObjectAccessor::GetObjectInWorld<Transport>(uint32 mapid, float x, float y, uint64 guid, Transport* /*fake*/);
+template AreaTrigger* ObjectAccessor::GetObjectInWorld<AreaTrigger>(uint32 p_MapID, float p_X, float p_Y, uint64 p_Guid, AreaTrigger* /*p_Fake*/);

@@ -360,6 +360,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
 
             // Disable the command
             table[i].SecurityLevel = (uint32)SpecificSecurityLevel::DisableByFailure;
+
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Crash intercepted => ChatHandler::ExecuteCommandInTable(%p, %s, %s)", table, text, fullcmd.c_str());
         }
         MS::SignalHandler::DisableThrowExceptionAtFailure();
 
@@ -395,8 +397,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // some commands have custom error messages. Don't send the default one in these cases.
         else if (!HasSentErrorMessage())
         {
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
             else
                 SendSysMessage(LANG_CMD_SYNTAX);
         }
@@ -446,7 +448,13 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
             sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
-        table[i].Help          = help;
+
+        char * l_NewHelp = new char[help.size() + 1];
+        sprintf(l_NewHelp, "%s", help.c_str());
+        l_NewHelp[help.size()] = '\0';
+
+        table[i].Help = (char const*)l_NewHelp;
+
         return true;
     }
 
@@ -622,14 +630,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
                     return true;
             }
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd ? subcmd : ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return table[i].Help && strlen(table[i].Help);
         }
     }
     else
@@ -643,14 +651,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
             if (strlen(table[i].Name))
                 continue;
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, "", ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return (table[i].Help && strlen(table[i].Help));
         }
     }
 
@@ -667,8 +675,6 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
         speakerNameLength = strlen(speaker->GetName());
     else if (session)
         speakerNameLength = strlen(session->GetPlayer()->GetName());
-
-    uint32 prefixeLength = addonPrefix ? strlen(addonPrefix) : 0;
 
     uint32 targetLength = 0;
     std::string targetName;
@@ -729,10 +735,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     ObjectGuid targetGuid = target_guid;
 
-    bool bit5264 = false;
-    bool sendRealmId = true;
-
-    data->Initialize(SMSG_CHAT, 100);                   // guess size
+    data->Initialize(SMSG_CHAT, 800);                   // guess size
     *data << uint8(type);
     *data << uint8(language);
     data->appendPackGUID(speakerGuid);
@@ -750,7 +753,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     data->WriteBits(addonPrefix ? strlen(addonPrefix) : 0, 5);
     data->WriteBits(channelName ? strlen(channelName) : 0, 7);
     data->WriteBits(message ? strlen(message) : 0, 12);
-    data->WriteBits(speakerPlayer ? speakerPlayer->GetChatTag() : 0, 10);
+    data->WriteBits(speakerPlayer ? speakerPlayer->GetChatTag() : 0, 11);
     data->WriteBit(false);  ///< hide chat log
     data->WriteBit(false);  ///< Faker sender name
     data->FlushBits();

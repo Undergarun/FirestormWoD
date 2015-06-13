@@ -33,6 +33,7 @@ enum eProtectorsSpells
     SPELL_SHA_MASK                      = 118221,
     SPELL_PROTECTORS_BONUS              = 132200,
     SPELL_PROTECTORS_BONUS_ELITE        = 132204,
+    SPELL_OVERPOWERED                   = 117230,
 
     // Protector Kaolan
     SPELL_TOUCH_OF_SHA                  = 117519,
@@ -85,6 +86,7 @@ enum eProtectorsActions
     ACTION_INIT_MINION_CONTROLLER   = 4,
     ACTION_RESET_MINION_CONTROLLER  = 5,
     ACTION_BOSS_WIPE                = 6,
+    ACTION_BOSS_ENTER_COMBAT        = 7
 };
 
 enum eProtectorsEvents
@@ -157,9 +159,13 @@ uint8 ProtectorsAlive(InstanceScript* instance, Creature* me)
         return count;
 
     for (uint8 i = 0; i < 3; ++i)
+    {
         if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
+        {
             if (protector->isAlive())
                 ++count;
+        }
+    }
 
         return count;
 }
@@ -179,13 +185,13 @@ void RespawnProtectors(InstanceScript* instance, Creature* me)
     }
 }
 
-void StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
+bool StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
 {
     if (!instance)
-        return;
+        return false;
 
     if (instance->GetBossState(DATA_PROTECTORS) == IN_PROGRESS)
-        return; // Prevent recursive calls
+        return false; // Prevent recursive calls
 
     instance->SetBossState(DATA_PROTECTORS, IN_PROGRESS);
 
@@ -193,10 +199,21 @@ void StartProtectors(InstanceScript* instance, Creature* me, Unit* target)
     {
         if (Creature* protector = instance->instance->GetCreature(instance->GetData64(bossEntries[i])))
         {
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, protector);
             protector->AI()->SetData(TYPE_UNSET_WIPE, 0);
-            protector->AI()->EnterCombat(target);
+            protector->AI()->DoAction(ACTION_BOSS_ENTER_COMBAT);
+            protector->AI()->AttackStart(target);
+            protector->SetInCombatWith(target);
         }
     }
+
+    if (instance->instance->IsHeroic())
+    {
+        if (Creature* minionController = instance->instance->GetCreature(instance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
+            minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
+    }
+
+    return true;
 }
 
 bool IntroDone(InstanceScript* instance, Creature* me)
@@ -209,8 +226,10 @@ bool IntroDone(InstanceScript* instance, Creature* me)
 
     bool done = false;
     if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_FEAR, 100.0f))
+    {
         if (!GetClosestCreatureWithEntry(me, NPC_APPARITION_OF_TERROR, 100.0f))
             done = true;
+    }
 
     if (done && instance)
         instance->SetData(INTRO_DONE, 1);
@@ -232,12 +251,22 @@ void ProtectorsWipe(InstanceScript* pInstance)
             protector->GetMotionMaster()->MoveTargetedHome();
             protector->SetFullHealth();
             pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, protector);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_SHA);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHA_CORRUPTION);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERPOWERED);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEFILED_GROUND_STACKS);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OVERWHELMING_CORRUPTION_STACK);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHTNING_PRISON_STUN);
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CORRUPTED_ESSENCE);
         }
     }
 
     if (pInstance->instance->IsHeroic())
+    {
         if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
             minionController->AI()->DoAction(ACTION_RESET_MINION_CONTROLLER);
+    }
 
     pInstance->SetBossState(DATA_PROTECTORS, FAIL);
 }
@@ -269,6 +298,7 @@ class boss_ancient_regail : public CreatureScript
 
                 SetEquipmentSlots(false, REGAIL_ITEMS, REGAIL_ITEMS, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->SetReactState(REACT_DEFENSIVE);
 
 				_Reset();
 				
@@ -282,8 +312,6 @@ class boss_ancient_regail : public CreatureScript
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_OVERWHELMING_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
-                events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 5000);
-                events.ScheduleEvent(EVENT_LIGHTNING_PRISON, 25000);
 				
 				if (pInstance)
                 {
@@ -310,7 +338,7 @@ class boss_ancient_regail : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo* p_SpellInfo)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -320,16 +348,7 @@ class boss_ancient_regail : public CreatureScript
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
-                {
                     StartProtectors(pInstance, me, attacker);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    DoZoneInCombat();
-                    Talk(TALK_REGAIL_AGGRO);
-
-                    if (me->GetMap()->IsHeroic())
-                        if (Creature* minionController = pInstance->instance->GetCreature(pInstance->GetData64(NPC_MINION_OF_FEAR_CONTROLLER)))
-                            minionController->AI()->DoAction(ACTION_INIT_MINION_CONTROLLER);
-                }
             }
 
             void EnterEvadeMode()
@@ -439,12 +458,12 @@ class boss_ancient_regail : public CreatureScript
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
                             }
 
-                            if (me->GetMap()->IsLFR())
+                            if (kaolan && IsLFR())
                             {
                                 me->SetLootRecipient(NULL);
                                 Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                                 if (l_Player && l_Player->GetGroup())
-                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                                    sLFGMgr->AutomaticLootAssignation(kaolan, l_Player->GetGroup());
                             }
 
                             break;
@@ -490,6 +509,10 @@ class boss_ancient_regail : public CreatureScript
                     case ACTION_DESPAWN_SUMMONS:
                         summons.DespawnAll();
                         break;
+                    case ACTION_BOSS_ENTER_COMBAT:
+                        Talk(TALK_REGAIL_AGGRO);
+                        events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 5000);
+                        events.ScheduleEvent(EVENT_LIGHTNING_PRISON, 25000);
                     default:
                         break;
                 }
@@ -622,6 +645,7 @@ class boss_ancient_asani : public CreatureScript
 
                 SetEquipmentSlots(false, ASANI_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->SetReactState(REACT_DEFENSIVE);
 
 				_Reset();
 				
@@ -635,8 +659,6 @@ class boss_ancient_asani : public CreatureScript
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_OVERWHELMING_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
-                events.ScheduleEvent(EVENT_WATER_BOLT, 5000);
-                events.ScheduleEvent(EVENT_CLEANSING_WATERS, 32500);
 				
 				if (pInstance)
                 {
@@ -660,7 +682,7 @@ class boss_ancient_asani : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* attacker, uint32& /*damage*/)
+            void DamageTaken(Unit* attacker, uint32& /*damage*/, const SpellInfo* p_SpellInfo)
             {
                 if (pInstance)
                     if (pInstance->GetBossState(DATA_PROTECTORS) != IN_PROGRESS)
@@ -670,12 +692,7 @@ class boss_ancient_asani : public CreatureScript
 			void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
-                {
                     StartProtectors(pInstance, me, attacker);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    DoZoneInCombat();
-                    Talk(TALK_ASANI_AGGRO);
-                }
             }
 
             void EnterEvadeMode()
@@ -793,12 +810,12 @@ class boss_ancient_asani : public CreatureScript
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
                             }
 
-                            if (me->GetMap()->IsLFR())
+                            if (kaolan && IsLFR())
                             {
                                 me->SetLootRecipient(NULL);
                                 Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                                 if (l_Player && l_Player->GetGroup())
-                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                                    sLFGMgr->AutomaticLootAssignation(kaolan, l_Player->GetGroup());
                             }
 
                             break;
@@ -843,6 +860,11 @@ class boss_ancient_asani : public CreatureScript
                         break;
                     case ACTION_DESPAWN_SUMMONS:
                         summons.DespawnAll();
+                        break;
+                    case ACTION_BOSS_ENTER_COMBAT:
+                        Talk(TALK_ASANI_AGGRO);
+                        events.ScheduleEvent(EVENT_WATER_BOLT, 5000);
+                        events.ScheduleEvent(EVENT_CLEANSING_WATERS, 32500);
                         break;
                     default:
                         break;
@@ -968,7 +990,7 @@ class boss_protector_kaolan : public CreatureScript
             bool secondSpecialEnabled;
             bool isInWipeState;
             bool introDone;
-			
+
             void Reset()
             {
                 if (!pInstance || pInstance->GetBossState(DATA_PROTECTORS) == NOT_STARTED)
@@ -976,6 +998,7 @@ class boss_protector_kaolan : public CreatureScript
 
                 SetEquipmentSlots(false, KAOLAN_MH_ITEM, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                 me->CastSpell(me, SPELL_SHA_MASK, true);
+                me->SetReactState(REACT_DEFENSIVE);
 
                 _Reset();
 				
@@ -989,8 +1012,6 @@ class boss_protector_kaolan : public CreatureScript
                 me->RemoveAura(SPELL_SHA_CORRUPTION);
                 me->RemoveAura(SPELL_SUPERIOR_CORRUPTED_ESSENCE);
 
-                events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
-				
                 if (pInstance)
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1013,7 +1034,7 @@ class boss_protector_kaolan : public CreatureScript
                 Reset();
             }
 
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage)
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, const SpellInfo* p_SpellInfo)
             {
                 if (pInstance)
                 {
@@ -1032,11 +1053,7 @@ class boss_protector_kaolan : public CreatureScript
             void EnterCombat(Unit* attacker)
             {
                 if (pInstance)
-                {
                     StartProtectors(pInstance, me, attacker);
-                    pInstance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    DoZoneInCombat();
-                }
             }
 
             void EnterEvadeMode()
@@ -1156,7 +1173,7 @@ class boss_protector_kaolan : public CreatureScript
                                     me->CastSpell(l_Player, SPELL_PROTECTORS_BONUS, true);
                             }
 
-                            if (me->GetMap()->IsLFR())
+                            if (IsLFR())
                             {
                                 me->SetLootRecipient(NULL);
                                 Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
@@ -1206,6 +1223,9 @@ class boss_protector_kaolan : public CreatureScript
                         break;
                     case ACTION_DESPAWN_SUMMONS:
                         summons.DespawnAll();
+                        break;
+                    case ACTION_BOSS_ENTER_COMBAT:
+                        events.ScheduleEvent(EVENT_TOUCH_OF_SHA, 12000);
                         break;
                     default:
                         break;
@@ -1569,14 +1589,24 @@ class mob_minion_of_fear_controller : public CreatureScript
                 switch (action)
                 {
                     case ACTION_INIT_MINION_CONTROLLER:
+                    {
+                        if (started)
+                            break;
+
                         started = true;
                         events.ScheduleEvent(EVENT_SPAWN_MINION_OF_FEAR, 12000);
                         break;
+                    }
                     case ACTION_RESET_MINION_CONTROLLER:
+                    {
+                        if (!started)
+                            break;
+
                         started = false;
                         events.Reset();
                         summons.DespawnAll();
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1622,7 +1652,7 @@ class mob_minion_of_fear_controller : public CreatureScript
 };
 
 // Defiled Ground (damage) - 117988
-class spell_defiled_ground_damage: public SpellScriptLoader
+class spell_defiled_ground_damage : public SpellScriptLoader
 {
     public:
         spell_defiled_ground_damage() : SpellScriptLoader("spell_defiled_ground_damage") { }
@@ -1657,7 +1687,7 @@ class spell_defiled_ground_damage: public SpellScriptLoader
 };
 
 // Expelled Corruption (triggered) - 117955
-class spell_expelled_corruption: public SpellScriptLoader
+class spell_expelled_corruption : public SpellScriptLoader
 {
     public:
         spell_expelled_corruption() : SpellScriptLoader("spell_expelled_corruption") { }
@@ -1693,7 +1723,7 @@ class spell_expelled_corruption: public SpellScriptLoader
 };
 
 // Lightning Storm - 118064, 118040, 118053, 118054, 118055, 118077
-class spell_lightning_storm_aura: public SpellScriptLoader
+class spell_lightning_storm_aura : public SpellScriptLoader
 {
     public:
         spell_lightning_storm_aura() : SpellScriptLoader("spell_lightning_storm_aura") { }
@@ -1756,7 +1786,7 @@ class spell_lightning_storm_aura: public SpellScriptLoader
 };
 
 // Lightning Storm (damage) - 118004, 118005, 118007, 118008
-class spell_lightning_storm_damage: public SpellScriptLoader
+class spell_lightning_storm_damage : public SpellScriptLoader
 {
     public:
         spell_lightning_storm_damage() : SpellScriptLoader("spell_lightning_storm_damage") { }
@@ -1816,7 +1846,7 @@ class spell_lightning_storm_damage: public SpellScriptLoader
 };
 
 // Lightning Prison - 111850
-class spell_lightning_prison: public SpellScriptLoader
+class spell_lightning_prison : public SpellScriptLoader
 {
     public:
         spell_lightning_prison() : SpellScriptLoader("spell_lightning_prison") { }
@@ -1843,7 +1873,7 @@ class spell_lightning_prison: public SpellScriptLoader
 };
 
 // Corrupted Essence - 118191
-class spell_corrupted_essence: public SpellScriptLoader
+class spell_corrupted_essence : public SpellScriptLoader
 {
     public:
         spell_corrupted_essence() : SpellScriptLoader("spell_corrupted_essence") { }
@@ -1923,7 +1953,7 @@ class spell_corrupted_essence: public SpellScriptLoader
 };
 
 // Superior Corrupted Essence - 117905
-class spell_superior_corrupted_essence: public SpellScriptLoader
+class spell_superior_corrupted_essence : public SpellScriptLoader
 {
     public:
         spell_superior_corrupted_essence() : SpellScriptLoader("spell_superior_corrupted_essence") { }
@@ -1960,7 +1990,7 @@ class spell_superior_corrupted_essence: public SpellScriptLoader
 };
 
 // Cleansing Waters - 117283
-class spell_cleansing_waters_regen: public SpellScriptLoader
+class spell_cleansing_waters_regen : public SpellScriptLoader
 {
     public:
         spell_cleansing_waters_regen() : SpellScriptLoader("spell_cleansing_waters_regen") { }

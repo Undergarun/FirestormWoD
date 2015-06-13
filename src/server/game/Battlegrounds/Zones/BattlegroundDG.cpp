@@ -23,7 +23,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 
 /************************************************************************/
 /*                     STARTING BATTLEGROUND                            */
@@ -344,7 +344,7 @@ void BattlegroundDG::_UpdateTeamScore(int p_Team, int32 p_Value)
     {
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_ALLIANCE, 1);
         UpdateWorldState(WORLDSTATE_DG_CART_STATE_HORDE, 1);
-        EndBattleground(p_Team);
+        EndBattleground(p_Team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
     }
 
     if (m_IsInformedNearVictory && m_TeamScores[p_Team] < BG_DG_NEAR_VICTORY_POINTS)
@@ -576,14 +576,14 @@ void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Source, Unit* p_Flag)
 
 void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
 {
-    int l_TeamPoints[BG_TEAMS_COUNT] = { 0, 0 };
+    int l_TeamPoints[MS::Battlegrounds::TeamsCount::Value] = { 0, 0 };
 
     for (int l_Node = 0; l_Node < BG_DG_ALL_NODES_COUNT; ++l_Node)
     {
         // 1-minute to occupy a node from contested state
         _contestedTime(l_Node, p_Diff);
 
-        for (int l_Team = 0; l_Team < BG_TEAMS_COUNT; ++l_Team)
+        for (int l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
         {
             if (m_Nodes[l_Node] == l_Team + BG_DG_NODE_TYPE_OCCUPIED)
                 ++l_TeamPoints[l_Team];
@@ -591,7 +591,7 @@ void BattlegroundDG::_postUpdateImpl_Flags(uint32 p_Diff)
     }
 
     // Accumulate points
-    for (int l_Team = 0; l_Team < BG_TEAMS_COUNT; ++l_Team)
+    for (int l_Team = 0; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
     {
         int l_Points = l_TeamPoints[l_Team];
         if (!l_Points)
@@ -661,6 +661,9 @@ int32 BattlegroundDG::_GetNodeNameId(uint8 p_Node)
 void BattlegroundDG::EventPlayerClickedOnFlag(Player* p_Player, GameObject* p_GameObject)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    if (!p_Player->CanUseBattlegroundObject())
         return;
 
     int32 l_MessageID = 0;
@@ -1055,7 +1058,6 @@ void BattlegroundDG::RemovePlayer(Player* p_Player, uint64 p_Guid, uint32 p_Team
 
 void BattlegroundDG::EndBattleground(uint32 p_Winner)
 {
-    AwardTeams(m_TeamScores[GetOtherTeam(p_Winner) == HORDE], BG_DG_MAX_VICTORY_POINTS, GetOtherTeam(p_Winner));
     Battleground::EndBattleground(p_Winner);
 }
 

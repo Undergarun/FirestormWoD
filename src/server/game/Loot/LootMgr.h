@@ -76,8 +76,8 @@ enum PermissionTypes
 
 enum LootItemType
 {
-    LOOT_ITEM_TYPE_ITEM     = 0,
-    LOOT_ITEM_TYPE_CURRENCY = 1,
+    LOOT_ITEM_TYPE_CURRENCY = 2, // Guessed ????
+    LOOT_ITEM_TYPE_ITEM     = 3,
 };
 
 enum LootType
@@ -98,12 +98,12 @@ enum LootType
 enum LootItemUiType
 {
     //                                  = 0,
-    LOOT_ITEM_UI_MASTER                 = 1,
+    LOOT_ITEM_UI_NORMAL                 = 1,
     LOOT_ITEM_UI_ONLY_ONE_LOOTER        = 2,
-    //                                  = 3,
+    LOOT_ITEM_UI_MASTER                 = 3,
     LOOT_ITEM_UI_ROLL                   = 4,
     //                                  = 5,
-    LOOT_ITEM_UI_NORMAL                 = 6,
+    LOOT_ITEM_UI_ROLL_PENDING           = 6,
     LOOT_ITEM_UI_LOOK_BUT_DONT_TOUCH    = 7
 };
 
@@ -118,11 +118,11 @@ enum LootListItemType
 // type of Loot Item in Loot View
 enum LootSlotType
 {
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 1,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 3,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 0,                        // item can only be distributed by group loot master.
-    LOOT_SLOT_TYPE_LOCKED       = 4,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 2,                        // ignore binding confirmation and etc, for single player looting
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
+    LOOT_SLOT_TYPE_OWNER        = 4,                        // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;
@@ -138,13 +138,13 @@ struct LootStoreItem
     uint16  lootmode;
     uint8   group       :7;
     bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
-    uint8   maxcount    :8;                                 // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
+    uint32   maxcount;                                      // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
     std::vector<uint32> itemBonuses;                        // item bonuses >= WoD
     std::list<Condition*>  conditions;                               // additional loot condition
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint8 _maxcount, std::vector<uint32> _itemBonuses)
+    LootStoreItem(uint32 _itemid, uint8 _type, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint32 _maxcount, std::vector<uint32> _itemBonuses)
         : itemid(_itemid), type(_type), chance(fabs(_chanceOrQuestChance)), mincountOrRef(_mincountOrRef), lootmode(_lootmode),
         group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), itemBonuses(_itemBonuses)
          {}
@@ -156,8 +156,11 @@ struct LootStoreItem
 
 typedef std::set<uint32> AllowedLooterSet;
 
+struct Loot;
+
 struct LootItem
 {
+    Loot*   currentLoot;
     uint32  itemid;
     uint8   type;                                           // 0 = item, 1 = currency
     uint32  randomSuffix;
@@ -165,7 +168,8 @@ struct LootItem
     std::list<Condition*> conditions;                       // additional loot condition
     std::vector<uint32> itemBonuses;
     AllowedLooterSet allowedGUIDs;
-    uint8   count             : 8;
+    uint32   count;
+    uint64  PersonalLooter;
     bool    currency          : 1;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -174,16 +178,20 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    alreadyAskedForRoll;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
-    explicit LootItem(LootStoreItem const& p_LootItem, uint32 p_ItemBonusDifficulty);
+    explicit LootItem(LootStoreItem const& p_LootItem, ItemContext p_Context, Loot* p_Loot);
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
 
     void AddAllowedLooter(Player const* player);
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
+
+    void SetPersonalLooter(Player const* p_Player);
+    bool IsPersonalLootFor(Player const* p_Player) const;
 };
 
 struct QuestItem
@@ -198,7 +206,6 @@ struct QuestItem
         : index(_index), is_looted(_islooted) {}
 };
 
-struct Loot;
 class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;
@@ -313,6 +320,25 @@ struct LinkedLootInfo
     PermissionTypes permission;
 };
 
+struct InstanceLooters
+{
+    public:
+
+        InstanceLooters() : m_isEnabled(false) {}
+
+        void SetEnabled(bool value) { m_isEnabled = value; }
+        bool IsEnabled() const { return m_isEnabled; }
+
+        void ClearGuids() { playerGuids.clear(); }
+        void AddPlayerGuid(uint64 guid) { playerGuids.insert(guid); }
+        bool HasPlayerGuid(uint64 guid) const { return (playerGuids.find(guid) != playerGuids.end()); }
+
+    private:
+
+        bool m_isEnabled;
+        std::set<uint64> playerGuids;
+};
+
 struct Loot
 {
     friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
@@ -326,19 +352,21 @@ struct Loot
     std::vector<LootItem>            Items;
     std::vector<LootItem>            QuestItems;
 
-    LootType Type;                                           ///< required for achievement system
-
-    uint64 RoundRobinPlayer;                                 ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
+    LootType loot_type;                                     ///< required for achievement system
+    uint64 source;                                          ///< Source guid of loot (gameobject, creature) 
+    LootType Type;                                          ///< required for achievement system
+    uint64 RoundRobinPlayer;                                ///< GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     uint32 MaxLinkedSlot;
     uint32 AdditionalLinkedGold;
     uint32 Gold;
-    uint32 ItemBonusDifficulty;                              ///< Used to find item bonus to apply in dungeon / raid
-
+    ItemContext Context;                                    ///< Used to find item bonus to apply in dungeon / raid
     uint8 UnlootedCount;
-    bool  alreadyAskedForRoll;
+    bool  m_IsAoELoot;
 
-    Loot(uint32 _gold = 0) : alreadyAskedForRoll(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), ItemBonusDifficulty(0) {}
+    Loot(uint32 _gold = 0) : m_IsAoELoot(false), MaxLinkedSlot(0), AdditionalLinkedGold(0), Gold(_gold), UnlootedCount(0), Type(LOOT_CORPSE), Context(ItemContext::None), RoundRobinPlayer(0) {}
     ~Loot() { clear(); }
+
+    void SetSource(uint64 p_Source) { source = p_Source; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -373,6 +401,7 @@ struct Loot
         RoundRobinPlayer = 0;
         AdditionalLinkedGold = 0;
         i_LootValidatorRefManager.clearReferences();
+        m_IsAoELoot = false;
     }
 
     void addLinkedLoot(uint32 slot, uint64 linkedCreature, uint32 linkedSlot, PermissionTypes perm)
@@ -402,15 +431,20 @@ struct Loot
     bool empty() const { return Items.empty() && Gold == 0; }
     bool isLooted() const { return Gold == 0 && UnlootedCount == 0; }
 
-    void NotifyItemRemoved(uint8 lootIndex);
+    void NotifyItemRemoved(uint8 lootIndex, uint64 p_PersonalLooter = 0);
     void NotifyQuestItemRemoved(uint8 questIndex);
-    void NotifyMoneyRemoved(uint64);
+    void NotifyMoneyRemoved(bool p_IsAoE = false);
     void AddLooter(uint64 GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
     bool IsLooter(uint64 GUID) { return PlayersLooting.find(GUID) != PlayersLooting.end(); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    void FillCurrencyLoot(Player* player);
+    void FillFFALoot(Player* player);
+    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    void FillQuestLoot(Player* player);
+    void FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
@@ -420,13 +454,10 @@ struct Loot
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
 
-    private:
-        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        QuestItemList* FillCurrencyLoot(Player* player);
-        QuestItemList* FillFFALoot(Player* player);
-        QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+    // there are players that killed the mob (instance only)
+    InstanceLooters AllowedPlayers;
 
+    private:
         std::set<uint64> PlayersLooting;
         QuestItemMap PlayerCurrencies;
         QuestItemMap PlayerQuestItems;

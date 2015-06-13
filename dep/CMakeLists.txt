@@ -40,5 +40,5 @@ if(SERVERS)
 endif()
 
 if(TOOLS)
-  add_subdirectory(StormLib)
+  add_subdirectory(CascLib)
 endif()

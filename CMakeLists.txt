@@ -9,12 +9,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# Set projectname (must be done AFTER setting configurationtypes)
-project(AshranCore)
-
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
+if(POLICY CMP0053)
+    cmake_policy(SET CMP0053 OLD)
+endif()
+
+# Set projectname (must be done AFTER setting configurationtypes)
+project(AshranCore)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -29,15 +32,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
 # build in Release-mode by default if not explicitly set
 if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
-endif(CMAKE_COMPILER_IS_GNUCXX)
-
-if( APPLE )
-    set (CMAKE_CXX_FLAGS "-std=c++0x -stdlib=libc++ -g3 -Wall -O0")
 endif()
 
 include(CheckCXXSourceRuns)
@@ -58,6 +52,9 @@ include(CheckPlatform)
 find_package(PCHSupport)
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(curl REQUIRED)
+find_package(EasyJSon REQUIRED)
+# FIND_PACKAGE(msFramework REQUIRED)
 if( NOT USE_MYSQL_SOURCES )
   find_package(MySQL REQUIRED)
 endif()

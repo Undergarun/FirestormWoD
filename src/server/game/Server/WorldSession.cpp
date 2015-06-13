@@ -36,7 +36,7 @@
 #include "Guild.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
@@ -45,6 +45,7 @@
 #include "Transport.h"
 #include "WardenWin.h"
 #include "WardenMac.h"
+#include "GarrisonMgr.hpp"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -91,7 +92,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime) :
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, bool ispremium, uint8 premiumType, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, uint32 p_VoteRemainingTime, uint32 p_ServiceFlags) :
 m_muteTime(mute_time), m_timeOutTime(0),
 m_Player(NULL), m_Socket(sock), _security(sec), _accountId(id), m_expansion(expansion),
 _ispremium(ispremium), m_PremiumType(premiumType), m_VoteRemainingTime(p_VoteRemainingTime), m_VoteTimePassed(0), m_VoteSyncTimer(VOTE_SYNC_TIMER), _logoutTime(0), m_inQueue(false),
@@ -103,7 +104,8 @@ m_TimeLastChannelMuteCommand(0), m_TimeLastChannelBanCommand(0), m_TimeLastChann
 m_TimeLastChannelAnnounceCommand(0), m_TimeLastGroupInviteCommand(0), m_TimeLastChannelModerCommand(0),
 m_TimeLastChannelOwnerCommand(0), m_TimeLastChannelSetownerCommand(0), m_TimeLastChannelUnmoderCommand(0),
 m_TimeLastChannelUnmuteCommand(0), m_TimeLastChannelKickCommand(0), timeLastServerCommand(0), timeLastArenaTeamCommand(0),
-timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0)
+timeLastChangeSubGroupCommand(0), m_TimeLastSellItemOpcode(0), m_uiAntispamMailSentCount(0), m_uiAntispamMailSentTimer(0), m_PlayerLoginCounter(0),
+m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
@@ -209,6 +211,8 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 {
     if (!m_Socket)
         return;
+
+    const_cast<WorldPacket*>(packet)->OnSend();
 
     if (packet->GetOpcode() == NULL_OPCODE && !forced)
     {
@@ -451,7 +455,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
                     else if (m_Player->IsInWorld())
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -465,7 +469,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else
                     {
                         // not expected _player or must checked in packet hanlder
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -478,7 +482,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         LogUnexpectedOpcode(packet, "STATUS_TRANSFER", "the player is still in world");
                     else
                     {
-                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
                         (this->*opHandle->handler)(*packet);
                         if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -497,7 +501,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     if (packet->GetOpcode() == CMSG_ENUM_CHARACTERS)
                         m_playerRecentlyLogout = false;
 
-                    sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
+                    sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet), this);
                     (this->*opHandle->handler)(*packet);
                     if (sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE) && packet->rpos() < packet->wpos())
                         LogUnprocessedTail(packet);
@@ -611,6 +615,9 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (m_Player)
     {
+        if (m_Player->IsInGarrison())
+            m_Player->GetGarrison()->OnPlayerLeave();
+
         if (uint64 lguid = m_Player->GetLootGUID())
             DoLootRelease(lguid);
 
@@ -687,11 +694,18 @@ void WorldSession::LogoutPlayer(bool Save)
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
-            if (BattlegroundQueueTypeId bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
+            if (MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId = m_Player->GetBattlegroundQueueTypeId(i))
             {
                 m_Player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(m_Player->GetGUID(), true);
+                sBattlegroundMgr->RemovePlayer(m_Player->GetGUID(), true, bgQueueTypeId);
             }
+        }
+
+        /// If, when the player logout, the battleground pointer of the player is still good, we apply deserter buff.
+        if (Save && m_Player->GetBattleground() != nullptr && m_Player->GetBattleground()->GetStatus() != STATUS_WAIT_LEAVE)
+        {
+            /// We add the Deserter buff, otherwise it can be used bug.
+            m_Player->AddAura(MS::Battlegrounds::Spells::DeserterBuff, m_Player);
         }
 
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
@@ -842,26 +856,22 @@ const char *WorldSession::GetTrinityString(int32 entry) const
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
+    ///sLog->outError(LOG_FILTER_OPCODES, "Received unhandled opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received opcode %s that must be processed in WorldSocket::OnRead from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
+    sLog->outError(LOG_FILTER_OPCODES, "Received server-side opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
-    sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s"
-        , GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
+    ///sLog->outError(LOG_FILTER_OPCODES, "Received deprecated opcode %s from %s", GetOpcodeNameForLogging(recvPacket.GetOpcode(), WOW_CLIENT_TO_SERVER).c_str(), GetPlayerName(false).c_str());
 }
 
 void WorldSession::SendAuthWaitQue(uint32 position)
@@ -944,8 +954,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
 
 void WorldSession::SendAccountDataTimes(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 4+NUM_ACCOUNT_DATA_TYPES*4+4+1);
-
+    WorldPacket l_Data(SMSG_ACCOUNT_DATA_TIMES, 16 + 2 + 4 + (NUM_ACCOUNT_DATA_TYPES * 4));
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(time(NULL));                                           ///< Server time
 
@@ -1101,7 +1110,7 @@ void WorldSession::SendAddonsInfo()
     uint32 l_AllowedAddonCount  = m_addonsList.size();
     uint32 l_BannedAddonCount   = 0;
 
-    WorldPacket l_Data(SMSG_ADDON_INFO, 4000);
+    WorldPacket l_Data(SMSG_ADDON_INFO, 15 * 1024);
 
     l_Data << uint32(l_AllowedAddonCount);                                  ///< Allowed addon count
     l_Data << uint32(l_BannedAddonCount);                                   ///< Banned addon count
@@ -1165,8 +1174,10 @@ void WorldSession::SendFeatureSystemStatus()
     bool l_StoreIsDisabledByParentalControls    = false;
     bool l_StoreIsAvailable                     = true;
     bool l_IsRestrictedAccount                  = false;
-    bool l_IsTutorialEnabled                    = true;
+    bool l_IsTutorialEnabled                    = false;
     bool l_ShowNPETutorial                      = true;
+    bool l_TwitterEnabled                       = true;
+    bool l_CommerceSystemEnabled                = true;
 
     uint32 l_PlayTimeAlertDisplayAlertTime      = 0;
     uint32 l_PlayTimeAlertDisplayAlertDelay     = 0;
@@ -1180,13 +1191,21 @@ void WorldSession::SendFeatureSystemStatus()
 
     uint32 l_ComplainSystemStatus = 2;                              ///< 0 - Disabled | 1 - Calendar & Mail | 2 - Calendar & Mail & Ignoring system
 
-    WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 50);
+    uint32 l_TwitterMsTillCanPost = 20;
+    uint32 l_TokenPollTimeSeconds = 300;
+    uint32 l_TokenRedeemIndex = 0;
+
+    WorldPacket l_Data(SMSG_FEATURE_SYSTEM_STATUS, 100);
 
     l_Data << uint8(l_ComplainSystemStatus);                        ///< Complaints System Status
     l_Data << uint32(l_SORMaxPerDay);                               ///< Max SOR Per day
     l_Data << uint32(l_SORRemaining);                               ///< SOR remaining
     l_Data << uint32(l_ConfigRealmID);                              ///< Config Realm ID
     l_Data << uint32(l_ConfigRealmRecordID);                        ///< Config Realm Record ID (used for url dbc reading)
+    l_Data << uint32(60);                                           ///< Unk 6.1.0
+    l_Data << uint32(l_TwitterMsTillCanPost);                       ///< TwitterMsTillCanPost
+    l_Data << uint32(l_TokenPollTimeSeconds);                       ///< TokenPollTimeSeconds
+    l_Data << uint32(l_TokenRedeemIndex);                           ///< TokenRedeemIndex
 
     l_Data.WriteBit(l_VoiceChatSystemEnabled);                      ///< voice Chat System Status
     l_Data.WriteBit(l_EuropaTicketSystemEnabled);                   ///< Europa Ticket System Enabled
@@ -1202,14 +1221,19 @@ void WorldSession::SendFeatureSystemStatus()
     l_Data.WriteBit(l_IsRestrictedAccount);                         ///< Is restricted account
     l_Data.WriteBit(l_IsTutorialEnabled);                           ///< Is tutorial system enabled
     l_Data.WriteBit(l_ShowNPETutorial);                             ///< Show NPE tutorial
+    l_Data.WriteBit(l_TwitterEnabled);                              ///< Enable ingame twitter interface 
+    l_Data.WriteBit(l_CommerceSystemEnabled);                       ///< Commerce System Enabled (WoWToken)
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796
+    l_Data.WriteBit(1);                                             ///< Unk 6.1.2 19796 WillKickFromWorld (From TC)
+    l_Data.WriteBit(0);                                             ///< Unk 6.1.2 19796 -- unk block
     l_Data.FlushBits();
 
     if (l_EuropaTicketSystemEnabled)
     {
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
-        l_Data.WriteBit(true);                                     ///< Unk bit
+        l_Data.WriteBit(true);                                      ///< TicketsEnabled
+        l_Data.WriteBit(true);                                      ///< BugsEnabled
+        l_Data.WriteBit(true);                                      ///< ComplaintsEnabled
+        l_Data.WriteBit(true);                                      ///< SuggestionsEnabled
         l_Data.FlushBits();
 
         l_Data << uint32(10);                                       ///< Max Tries
@@ -1257,15 +1281,11 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
 
 void WorldSession::HandleUnregisterAddonPrefixesOpcode(WorldPacket& /*recvPacket*/) // empty packet
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UNREGISTER_ALL_ADDON_PREFIXES");
-
     _registeredAddonPrefixes.clear();
 }
 
 void WorldSession::HandleAddonRegisteredPrefixesOpcode(WorldPacket& p_Packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADDON_REGISTERED_PREFIXES");
-
     /// This is always sent after CMSG_UNREGISTER_ALL_ADDON_PREFIXES
     uint32 l_Count = 0;
     
@@ -1312,6 +1332,9 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
+    uint32 l_StartTime = getMSTime();
+    std::vector<uint32> l_Times;
+
     PreparedQueryResult result;
 
     //! Vote
@@ -1360,6 +1383,8 @@ void WorldSession::ProcessQueryCallbacks()
         }
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //! HandleCharEnumOpcode
     if (m_CharEnumCallback.ready())
     {
@@ -1368,6 +1393,8 @@ void WorldSession::ProcessQueryCallbacks()
         m_CharEnumCallback.cancel();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     if (_charCreateCallback.IsReady())
     {
         _charCreateCallback.GetResult(result);
@@ -1375,16 +1402,22 @@ void WorldSession::ProcessQueryCallbacks()
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //! HandlePlayerLoginOpcode
-    if (m_CharacterLoginCallback.ready() && m_AccountSpellCallback.ready())
+    if (m_CharacterLoginCallback.ready() && m_CharacterLoginDBCallback.ready())
     {
-        SQLQueryHolder* param;
-        m_CharacterLoginCallback.get(param);
-        m_AccountSpellCallback.get(result);
-        HandlePlayerLogin((LoginQueryHolder*)param, result);
+        SQLQueryHolder* l_Param;
+        SQLQueryHolder* l_Param2;
+        m_CharacterLoginCallback.get(l_Param);
+        m_CharacterLoginDBCallback.get(l_Param2);
+        HandlePlayerLogin((LoginQueryHolder*)l_Param, (LoginDBQueryHolder*)l_Param2);
         m_CharacterLoginCallback.cancel();
-        m_AccountSpellCallback.cancel();
+        m_CharacterLoginDBCallback.cancel();
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
+
 
     //! HandleAddFriendOpcode
     if (_addFriendCallback.IsReady())
@@ -1395,6 +1428,8 @@ void WorldSession::ProcessQueryCallbacks()
         _addFriendCallback.FreeResult();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //- HandleCharRenameOpcode
     if (_charRenameCallback.IsReady())
     {
@@ -1404,6 +1439,8 @@ void WorldSession::ProcessQueryCallbacks()
         _charRenameCallback.FreeResult();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //- HandleCharAddIgnoreOpcode
     if (m_AddIgnoreCallback.ready())
     {
@@ -1411,6 +1448,8 @@ void WorldSession::ProcessQueryCallbacks()
         HandleAddIgnoreOpcodeCallBack(result);
         m_AddIgnoreCallback.cancel();
     }
+
+    l_Times.push_back(getMSTime() - l_StartTime);
 
     //- SendStabledPet
     if (_sendStabledPetCallback.IsReady())
@@ -1421,6 +1460,8 @@ void WorldSession::ProcessQueryCallbacks()
         _sendStabledPetCallback.FreeResult();
     }
 
+    l_Times.push_back(getMSTime() - l_StartTime);
+
     //- HandleStableSwapPet
     if (_setPetSlotCallback.IsReady())
     {
@@ -1428,6 +1469,20 @@ void WorldSession::ProcessQueryCallbacks()
         _setPetSlotCallback.GetResult(result);
         HandleStableSetPetSlotCallback(result, param);
         _setPetSlotCallback.FreeResult();
+    }
+
+    uint32 l_EndTime = getMSTime() - l_StartTime;
+
+    if (l_EndTime > 80)
+    {
+        sLog->outAshran("ProcessQueryCallbacks take more than 80 ms to execute for account [%u]", GetAccountId());
+
+        uint32 l_Idx = 0;
+        for (auto l_DiffTime : l_Times)
+        {
+            sLog->outAshran("[%u] -----> (%u ms)", l_Idx, l_DiffTime);
+            l_Idx++;
+        }
     }
 }
 

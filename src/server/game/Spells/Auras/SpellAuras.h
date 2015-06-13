@@ -151,6 +151,7 @@ class Aura : public std::enable_shared_from_this<Aura>
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        bool DropStack(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) { return ModStackAmount(-1, removeMode); }
 
         void RefreshSpellMods();
 

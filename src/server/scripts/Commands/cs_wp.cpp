@@ -48,6 +48,7 @@ public:
         static ChatCommand scriptWpCommandTable[] =
         {
             { "add",            SEC_GAMEMASTER,     false, &HandleScriptWpAddCommand,          "", NULL },
+            { NULL,        0,               false,  NULL, "", NULL }
         };
         static ChatCommand commandTable[] =
         {
@@ -252,7 +253,7 @@ public:
 
         if (target->GetCreatureAddon())
         {
-            if (target->GetCreatureAddon()->path_id != 0)
+            if (target->GetCreatureAddon()->PathID != 0)
             {
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
 

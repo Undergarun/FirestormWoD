@@ -46,6 +46,12 @@ struct MapEntry;
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
 
+enum class GroupScalingRange : int32
+{
+    Min = 10,
+    Max = 30
+};
+
 enum RollVote
 {
     PASS              = 0,
@@ -155,14 +161,30 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FULL = GROUP_UPDATE_PLAYER | GROUP_UPDATE_PET // all known flags, except UNK100 and VEHICLE_SEAT
 };
 
-enum GroupRaidMarkersFlags
+enum eRaidMarkersFlags
 {
-    RAID_MARKER_NONE    = 0x00,
-    RAID_MARKER_BLUE    = 0x01,
-    RAID_MARKER_GREEN   = 0x02,
-    RAID_MARKER_PURPLE  = 0x04,
-    RAID_MARKER_RED     = 0x08,
-    RAID_MARKER_YELLOW  = 0x10
+    RaidMarkerNone      = 0x00,
+    RaidMarkerBlue      = 0x01,
+    RaidMarkerGreen     = 0x02,
+    RaidMarkerPurple    = 0x04,
+    RaidMarkerRed       = 0x08,
+    RaidMarkerYellow    = 0x10,
+    RaidMarkerOrange    = 0x20,
+    RaidMarkerSilver    = 0x40,
+    RaidMarkerWhite     = 0x80
+};
+
+enum eRaidMarkersMisc
+{
+    SlotBlue        = 0,
+    SlotGreen       = 1,
+    SlotPurple      = 2,
+    SlotRed         = 3,
+    SlotYellow      = 4,
+    SlotOrange      = 5,
+    SlotSilver      = 6,
+    SlotWhite       = 7,
+    MaxRaidMarkers
 };
 
 #define GROUP_UPDATE_FLAGS_COUNT          20
@@ -182,7 +204,7 @@ class Roll : public LootValidatorRef
         uint32 itemid;
         int32  itemRandomPropId;
         uint32 itemRandomSuffix;
-        uint8 itemCount;
+        uint32 itemCount;
         uint64 lootedGUID;
         typedef std::map<uint64, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)
@@ -192,6 +214,7 @@ class Roll : public LootValidatorRef
         uint8 totalPass;
         uint8 itemSlot;
         uint8 rollVoteMask;
+        std::vector<uint32> m_ItemBonuses;
 };
 
 struct InstanceGroupBind
@@ -215,6 +238,8 @@ class Group
             uint8       group;
             uint8       flags;
             uint8       roles;
+            uint8       playerClass;
+            uint32      specID;
         };
 
         typedef ACE_Based::LockedVector<MemberSlot> MemberSlotList;
@@ -222,14 +247,23 @@ class Group
 
         struct RaidMarker
         {
-            float  posX;
-            float  posY;
-            float  posZ;
-            uint32 mapId;
-            uint32 mask;
-        };
+            RaidMarker()
+            {
+                PosX    = 0.0f;
+                PosY    = PosX;
+                PosZ    = PosX;
+                MapID   = 0;
+                Mask    = eRaidMarkersFlags::RaidMarkerNone;
+                Slot    = 0;
+            }
 
-        typedef std::list<RaidMarker> RaidMarkerList;
+            float  PosX;
+            float  PosY;
+            float  PosZ;
+            uint32 MapID;
+            uint32 Mask;
+            uint8  Slot;
+        };
 
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
@@ -245,7 +279,7 @@ class Group
         // group manipulation methods
         bool   Create(Player* leader);
         void   LoadGroupFromDB(Field* field);
-        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
+        void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles, uint8 playerClass, uint32 specId);
         bool   AddInvite(Player* player);
         void   RemoveInvite(Player* player);
         void   RemoveAllInvites();
@@ -297,10 +331,12 @@ class Group
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
 
-        RaidMarkerList const& GetRaidMarkers() const { return m_raidMarkers; }
+        std::vector<RaidMarker> const& GetRaidMarkers() const { return m_RaidMarkers; }
+        uint32 GetActiveMarkers() const;
+        uint32 CountActiveMarkers() const;
         void SendRaidMarkersUpdate();
-        void AddRaidMarker(uint32 spellId, uint32 mapId, float x, float y, float z);
-        void RemoveRaidMarker(uint8 markerId);
+        void AddRaidMarker(uint8 p_Slot, uint32 p_MapID, float p_X, float p_Y, float p_Z);
+        void RemoveRaidMarker(uint8 p_Slot);
         void RemoveAllRaidMarkers();
 
         uint8 GetMemberGroup(uint64 guid) const;
@@ -312,26 +348,27 @@ class Group
 
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattlefieldGroup(Battlefield* bf);
-        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount);
+        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, MS::Battlegrounds::BattlegroundType::Type bgQueueTypeId, uint32 MinPlayerCount);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
         void ChangeMembersGroup(Player* player, uint8 group);
         void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid, uint8 partyIndex);
         void SetGroupMemberFlag(uint64 guid, bool apply, GroupMemberFlags flag);
         void setGroupMemberRole(uint64 guid, uint32 role);
+        void OnChangeMemberSpec(uint64 p_GUID, uint32 p_SpecId);
         uint32 getGroupMemberRole(uint64 guid);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
-        Difficulty GetDifficulty(bool isRaid) const;
-        Difficulty GetDungeonDifficulty() const;
-        Difficulty GetRaidDifficulty() const;
-        Difficulty GetLegacyRaidDifficulty() const;
-        void SetDungeonDifficulty(Difficulty difficulty);
-        void SetRaidDifficulty(Difficulty difficulty);
-        void SetLegacyRaidDifficulty(Difficulty difficulty);        
+        Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
+        Difficulty GetDungeonDifficultyID() const;
+        Difficulty GetRaidDifficultyID() const;
+        Difficulty GetLegacyRaidDifficultyID() const;
+        void SetDungeonDifficultyID(Difficulty difficulty);
+        void SetRaidDifficultyID(Difficulty difficulty);
+        void SetLegacyRaidDifficultyID(Difficulty difficulty);        
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
-        void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
+        void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
         // -no description-
         //void SendInit(WorldSession* session);
@@ -419,7 +456,6 @@ class Group
         void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply);
 
         MemberSlotList      m_memberSlots;
-        RaidMarkerList      m_raidMarkers;
         GroupRefManager     m_memberMgr;
         mutable ACE_Thread_Mutex    m_inviteesLock;
         InvitesList         m_invitees;
@@ -436,7 +472,7 @@ class Group
         ItemQualities       m_lootThreshold;
         uint64              m_looterGuid;
         Rolls               RollId;
-        BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
+        BoundInstancesMap   m_boundInstances[Difficulty::MaxDifficulties];
         uint8*              m_subGroupsCounts;
         uint64              m_guid;
         uint32              m_UpdateCount;                      // used only in SMSG_PARTY_UPDATE
@@ -445,5 +481,7 @@ class Group
         uint8               m_readyCheckCount;
         uint8               m_membersInInstance;
         bool                m_readyCheck;
+
+        std::vector<RaidMarker> m_RaidMarkers;
 };
 #endif

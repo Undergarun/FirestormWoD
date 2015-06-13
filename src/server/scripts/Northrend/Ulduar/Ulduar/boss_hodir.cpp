@@ -295,7 +295,7 @@ class npc_ice_block : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* who, uint32& /*damage*/)
+            void DamageTaken(Unit* who, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (Creature* Helper = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
@@ -342,10 +342,11 @@ class boss_hodir : public CreatureScript
             void Reset()
             {
                 _Reset();
+
                 me->SetReactState(REACT_DEFENSIVE);
                 _encounterFinished = _encounterFinished || (instance->GetBossState(BOSS_HODIR) == DONE);
 
-                if (!_encounterFinished)
+                if (instance->CheckRequiredBosses(BOSS_HODIR) && !_encounterFinished)
                 {
                     for (uint8 n = 0; n < FRIENDS_COUNT; ++n)
                         if (Creature* FrozenHelper = me->SummonCreature(Entry[n], SummonPositions[n], TEMPSUMMON_MANUAL_DESPAWN))
@@ -416,7 +417,7 @@ class boss_hodir : public CreatureScript
                 return 0;
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (damage >= me->GetHealth())
                 {

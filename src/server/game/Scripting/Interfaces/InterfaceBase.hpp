@@ -1,7 +1,13 @@
-/// Copyright MilleniumStudio 2014-2015
-
-#ifndef SCRIPTING_INTERFACES_INTERFACEBASE
-#define SCRIPTING_INTERFACES_INTERFACEBASE
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED
 
 #include "Common.h"
 #include <ace/Singleton.h>
@@ -150,6 +156,7 @@ class ScriptObject
     private:
         /// Script Name
         const std::string m_Name;
+
 };
 
 template<bool t_DatabaseBound> class ScriptObjectImpl : public ScriptObject
@@ -200,4 +207,4 @@ template<class TObject> class UpdatableScript
 
 };
 
-#endif  ///< SCRIPTING_INTERFACES_INTERFACEBASE
+#endif  ///< SCRIPTING_INTERFACES_INTERFACEBASE_HPP_INCLUDED

@@ -73,6 +73,7 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_AGILITY:
+            UpdateDodgePercentage();
             UpdateAllCritPercentages();
             break;
         case STAT_STAMINA:
@@ -84,6 +85,10 @@ bool Player::UpdateStats(Stats stat)
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
         case STAT_SPIRIT:
+            break;
+        case STAT_STRENGTH:
+            if (getLevel() == MAX_LEVEL && (getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR || getClass() == CLASS_PALADIN))
+                UpdateParryPercentage();
             break;
         default:
             break;
@@ -284,6 +289,17 @@ void Player::UpdateArmor()
     l_Armor += GetModifierValue(l_UnitMod, TOTAL_VALUE);
     l_Armor *= GetModifierValue(l_UnitMod, TOTAL_PCT);
 
+    if (GetRoleForGroup() == ROLE_TANK)
+    {
+        uint32 l_BonusArmor  = GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_VALUE);  ///< base armor (from items)
+        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, BASE_PCT);           ///< armor percent from items
+        l_BonusArmor += GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_VALUE);
+        l_BonusArmor *= GetModifierValue(UNIT_MOD_BONUS_ARMOR, TOTAL_PCT);
+        SetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, l_BonusArmor);
+
+        l_Armor += l_BonusArmor;
+    }
+
     //add dynamic flat mods
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
@@ -291,13 +307,6 @@ void Player::UpdateArmor()
         if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             l_Armor += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
-
-    float l_BonusArmor = 0.0f;
-    l_BonusArmor += GetTotalAuraModifier(SPELL_AURA_MOD_BONUS_ARMOR);
-    l_BonusArmor += CalculatePct(l_Armor, GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT));
-    ApplyModUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR, uint32(l_BonusArmor), true);
-
-    l_Armor += l_BonusArmor;
 
     // Custom MoP Script
     // 77494 - Mastery : Nature's Guardian
@@ -410,8 +419,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
     float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    // 76857 - Mastery : Critical Block - Attack Percentage
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(76857))
+    /// 76857  - Mastery : Critical Block
+    /// 117906 - Mastery: Elusive Brawler
+    /// 77513  - Mastery: Blood Shield
+    /// 155783 - Mastery: Primal Tenacity
+    if (GetTypeId() == TYPEID_PLAYER && (HasAura(76857) || HasAura(117906) || HasAura(77513) || HasAura(155783)))
         attPowerMultiplier += GetFloatValue(PLAYER_FIELD_MASTERY) / 100;
 
     //add dynamic flat mods
@@ -428,7 +440,9 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 attPowerMod -= temp;
         }
     }
-    attPowerMod += CalculatePct(GetFloatValue(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraMultiplier(SPELL_AURA_ADD_AP_PCT_OF_BONUS_ARMOR));
+
+    attPowerMod += CalculatePct(GetUInt32Value(UNIT_FIELD_MOD_BONUS_ARMOR), GetTotalAuraModifier(SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT));
+
     if (HasAuraType(SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT))
     {
         int32 ApBySpellPct = 0;
@@ -477,9 +491,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage)
+void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage, bool l_NoLongerDualWields)
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* l_OffHandItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+    Item* l_UsedWeapon = attType == WeaponAttackType::OffAttack ? l_OffHandItem : mainItem;
 
     UnitMods unitMod;
 
@@ -497,17 +513,28 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
             break;
     }
 
-    float att_speed = GetAPMultiplier(attType, normalized);
-    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
-    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
+    float att_speed = (l_UsedWeapon ? l_UsedWeapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
     float attackPower = GetTotalAttackPowerValue(attType);
 
+    /// If player doesn't have weapons we should calculate damage with this values: min damage = 1 and max damage = 2
+    float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE) == 0 ? 1.0f : GetWeaponDamageRange(attType, MINDAMAGE);
+    float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE) == 0 ? 2.0f : GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    float weapon_with_ap_min = (weapon_mindamage / att_speed) + (attackPower / 3.5f);
-    float weapon_with_ap_max = (weapon_maxdamage / att_speed) + (attackPower / 3.5f);
+    bool dualWield = mainItem && l_OffHandItem && !l_NoLongerDualWields;
+    ///float dualWieldModifier = dualWield ? 0.81f : 1.0f; // Dual Wield Penalty: 19%
+    float dualWieldModifier = 1.0f; ///< I don't know about reducing for 19%. We have checked it on PTR, and damage is the same with dual wield - like without it.
+    if (dualWield && HasAuraType(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE))
+        dualWieldModifier += (float)GetTotalAuraModifier(SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE) / 100.f;
 
-    float weapon_normalized_min = weapon_with_ap_min * att_speed ;
-    float weapon_normalized_max = weapon_with_ap_max * att_speed;
+    float weapon_normalized_min = weapon_mindamage + attackPower / 3.5f * att_speed * dualWieldModifier;
+    float weapon_normalized_max = weapon_maxdamage + attackPower / 3.5f * att_speed * dualWieldModifier;
+
+    /// Special damage calculate for Hunter spells that should deal normalized weapon damage
+    if (getClass() == CLASS_HUNTER && normalized)
+    {
+        weapon_normalized_min = weapon_mindamage + (attackPower / 3.5f * 2.8f);
+        weapon_normalized_max = weapon_maxdamage + (attackPower / 3.5f * 2.8f);
+    }
 
     if (IsInFeralForm())
     {
@@ -517,6 +544,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
         if (GetShapeshiftForm() == FORM_CAT)
         {
+            /// Special cases for Cat form
+            if (weapon_mindamage == 1)
+                weapon_mindamage = 2;
+            if (weapon_maxdamage == 2)
+                weapon_maxdamage = 3;
+
             weapon_normalized_min = ((weapon_mindamage / weaponSpeed) + (attackPower / 3.5f));
             weapon_normalized_max = ((weapon_maxdamage / weaponSpeed) + (attackPower / 3.5f));
         }
@@ -532,6 +565,9 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
+    /// Apply Versatility rating to damage calculation
+    base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
+
     min_damage = ((base_value + weapon_normalized_min) * base_pct + total_value) * total_pct;
     max_damage = ((base_value + weapon_normalized_max) * base_pct + total_value) * total_pct;
 
@@ -540,12 +576,12 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     AddPct(max_damage, autoAttacksPctBonus);
 }
 
-void Player::UpdateDamagePhysical(WeaponAttackType attType)
+void Player::UpdateDamagePhysical(WeaponAttackType attType, bool l_NoLongerDualWields)
 {
     float mindamage;
     float maxdamage;
 
-    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage);
+    CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage, l_NoLongerDualWields);
 
     switch (attType)
     {
@@ -599,6 +635,9 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
 
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(index, value);
+
+    if (HasAuraType(AuraType::SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING))
+        UpdateParryPercentage();
 }
 
 void Player::UpdateAllCritPercentages()
@@ -672,6 +711,10 @@ void Player::UpdateParryPercentage()
 
         // apply diminishing formula to diminishing parry chance
         value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+
+        /// Apply parry from pct of critical strike from gear
+        value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
+
         if (value < 0.0f)
             value = 0.0f;
 
@@ -705,13 +748,25 @@ void Player::UpdateDodgePercentage()
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
 
+    /*
+        3.36 + 1.25 (3.36 + 1.25 from 221 agi) on offi -- enhancement shaman -- ask sovak if you dont understand
+
+        4.61 = 3.36 + (x * 145.5604 / (x + 145.5604 * 0.9880))
+        1.25 = (145.5604x / (x + 143.8136752)
+        1.25x + 179.767094 = 145.5604x
+        144.3104x = 179.767094
+        x = 1.245764057198927
+        221 agi = 1.245764057198927
+        1 agi = 0.0056369414352893
+    */
+
     // Dodge from rating
     diminishing += GetRatingBonusValue(CR_DODGE);
+    diminishing += GetTotalStatValue(STAT_AGILITY, false) * 0.0056369414352893f;
 
     uint32 pClass = getClass() - 1;
-
     // apply diminishing formula to diminishing dodge chance
-    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + dodgeCap[pClass] * k_constant[pClass]));
+    float value = nondiminishing + (diminishing * dodgeCap[pClass] / (diminishing + (dodgeCap[pClass] * k_constant[pClass])));
     if (value < 0.0f)
         value = 0.0f;
 
@@ -814,6 +869,11 @@ void Player::UpdateMasteryPercentage()
         value = value < 0.0f ? 0.0f : value;
     }
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
+
+    /// 117906 - Mastery: Elusive Brawler - Update attack power
+    /// 155783 - Mastery: Primal Tenacity - Update attack power
+    if (HasAura(117906) || HasAura(155783))
+        UpdateAttackPowerAndDamage();
     // Custom MoP Script
     // 76671 - Mastery : Divine Bulwark - Update Block Percentage
     // 76857 - Mastery : Critical Block - Update Block Percentage
@@ -822,6 +882,25 @@ void Player::UpdateMasteryPercentage()
     // 77494 - Mastery : Nature's Guardian - Update Armor
     if (HasAura(77494))
         UpdateArmor();
+
+    /// Update some mastery spells
+    AuraApplicationMap& l_AppliedAuras = GetAppliedAuras();
+    for (auto l_Iter : l_AppliedAuras)
+    {
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter.first);
+        if (l_SpellInfo != nullptr && l_SpellInfo->HasAttribute(SpellAttr8::SPELL_ATTR8_MASTERY_SPECIALIZATION))
+        {
+            AuraPtr l_Aura = l_Iter.second->GetBase();
+            for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+            {
+                if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
+                {
+                    l_AurEff->SetCanBeRecalculated(true);
+                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                }
+            }
+        }
+    }
 }
 
 void Player::UpdatePvPPowerPercentage()
@@ -905,6 +984,12 @@ void Player::UpdateVersatilityPercentage()
 
     SetFloatValue(PLAYER_FIELD_VERSATILITY, valueDone);
     SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, valueBonus);
+
+    /// Update damage after applying versatility rating
+    if (getClass() == CLASS_HUNTER)
+        UpdateDamagePhysical(WeaponAttackType::RangedAttack);
+    else
+        UpdateDamagePhysical(WeaponAttackType::BaseAttack);
 }
 
 void Player::UpdateAvoidancePercentage()
@@ -957,13 +1042,25 @@ void Player::UpdateManaRegen()
         outOfCombatRegen = 0.004f * mana + spiritRegen + (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f);
     }
 
+    /// Warlocks mana regen 5% of maximum mana - blizzlike
+    if (getClass() == CLASS_WARLOCK)
+    {
+        combatRegen *= 2.5f;
+        outOfCombatRegen *= 2.5f;
+    }
+
     if (HasAuraType(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT))
         combatRegen *= 1.5f; // Allows 50% of your mana regeneration from Spirit to continue while in combat.
 
     outOfCombatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
     combatRegen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 
-    // Mana Meditation && Meditation
+    if (HasAuraType(AuraType::SPELL_AURA_MOD_MANA_REGEN_BY_HASTE))
+    {
+        float l_HastePct = 1.0f + GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_HASTE_MELEE) * GetRatingMultiplier(CR_HASTE_MELEE) / 100.0f;
+        outOfCombatRegen *= l_HastePct;
+        combatRegen *= l_HastePct;
+    }
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, combatRegen);
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, outOfCombatRegen);
@@ -1044,16 +1141,16 @@ float Player::GetRegenForPower(Powers p_Power)
             return 0.0f;
     }
 
-    float l_HastePct = 1.0f;
-
+    float l_Pct = 1.0f;
     Unit::AuraEffectList const& l_ModPowerRegenPCT = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModPowerRegenPCT.begin(); l_Iter != l_ModPowerRegenPCT.end(); ++l_Iter)
     {
         if (Powers((*l_Iter)->GetMiscValue()) == p_Power)
-            l_HastePct += (*l_Iter)->GetAmount() / 100.0f;
+            l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    return l_BaseRegen - (l_BaseRegen * l_HastePct);
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
+    return l_BaseRegen * l_HastePct;
 }
 
 void Player::_ApplyAllStatBonuses()
@@ -1166,7 +1263,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     }
 }
 
-void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Creature::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     float l_Variance = 1.f;
     UnitMods l_UnitMod;
@@ -1470,7 +1567,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 {
     if (p_Ranged)
         return;
-    
+
     UnitMods l_UnitMod = UNIT_MOD_ATTACK_POWER;
     float l_BaseValue  = std::max(0.0f, 2 * GetStat(STAT_STRENGTH) - 20.0f);
 
@@ -1519,14 +1616,15 @@ void Guardian::UpdateAttackPowerAndDamage(bool p_Ranged)
 }
 
 // WoD updated
-void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
+void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType, bool l_NoLongerDualWields)
 {
     if (p_AttType > WeaponAttackType::BaseAttack)
         return;
 
     UnitMods l_UnitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float l_AttackSpeed = float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
+    /// For hunter pets damage calculation we don't need take their attack speed time, it's always 2.0f 
+    float l_AttackSpeed = isHunterPet() ? 2.0f : float(GetAttackTime(WeaponAttackType::BaseAttack)) / 1000.0f;
     float l_BaseValue  = GetModifierValue(l_UnitMod, BASE_VALUE);
 
     PetStatInfo const* l_PetStat = GetPetStat();
@@ -1535,15 +1633,23 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType p_AttType)
     else
         l_BaseValue += GetTotalAttackPowerValue(p_AttType) / 14.0f * l_AttackSpeed;
 
+    /// Special calculation for hunter pets - WoD
+    /// Last Update 6.1.2 19802
+    if (isHunterPet())
+        l_BaseValue = GetTotalAttackPowerValue(p_AttType) / 3.5f * l_AttackSpeed;
+
     float l_BasePct    = GetModifierValue(l_UnitMod, BASE_PCT);
     float l_TotalValue = GetModifierValue(l_UnitMod, TOTAL_VALUE);
     float l_TotalPct   = GetModifierValue(l_UnitMod, TOTAL_PCT);
 
-    float l_WeaponMinDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MINDAMAGE);
-    float l_WeaponMaxDamage = GetWeaponDamageRange(WeaponAttackType::BaseAttack, MAXDAMAGE);
+    float l_WeaponMinDamage = 0.0f;
+    float l_WeaponMaxDamage = 1.0f;
 
     float l_MinDamage = ((l_BaseValue + l_WeaponMinDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
     float l_MaxDamage = ((l_BaseValue + l_WeaponMaxDamage) * l_BasePct + l_TotalValue) * l_TotalPct;
+
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MINDAMAGE, l_MinDamage);
+    SetBaseWeaponDamage(WeaponAttackType::BaseAttack, MAXDAMAGE, l_MaxDamage);
 
     SetStatFloatValue(UNIT_FIELD_MIN_DAMAGE, l_MinDamage);
     SetStatFloatValue(UNIT_FIELD_MAX_DAMAGE, l_MaxDamage);

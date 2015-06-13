@@ -94,7 +94,7 @@ class InstanceSave
 
         /* currently it is possible to omit this information from this structure
            but that would depend on a lot of things that can easily change in future */
-        Difficulty GetDifficulty() const { return m_difficulty; }
+        Difficulty GetDifficultyID() const { return m_difficulty; }
         uint32 GetEncounterMask() const;
 
         /* used to flag the InstanceSave as to be deleted, so the caller can delete it */
@@ -142,7 +142,7 @@ class InstanceSaveManager
             uint16 mapid;
             uint16 instanceId;
 
-            InstResetEvent() : type(0), difficulty(REGULAR_5_DIFFICULTY), mapid(0), instanceId(0) {}
+            InstResetEvent() : type(0), difficulty(DifficultyNormal), mapid(0), instanceId(0) {}
             InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
                 : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) {}
             bool operator == (const InstResetEvent& e) const { return e.instanceId == instanceId; }

@@ -237,7 +237,7 @@ class boss_asaad : public CreatureScript
                                 c->DespawnOrUnsummon();
                             bField = false;
                             me->SetCanFly(false);
-                            me->SetDisableGravity(false);;
+                            me->SetDisableGravity(false);
                             me->SetReactState(REACT_AGGRESSIVE);
                             AttackStart(me->getVictim());
                             events.ScheduleEvent(EVENT_FIELD, 45000);

@@ -157,7 +157,7 @@ public:
     uint32* _dynamicValues;
     bool* _dynamicChangedFields;
 
-    const static uint32 Count = sizeof(uint32)*8;;
+    const static uint32 Count = sizeof(uint32)*8;
 };
 
 class Object
@@ -400,7 +400,7 @@ class Object
         void _InitValues();
         void _Create(uint32 guidlow, uint32 entry, HighGuid guidhigh);
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
-        void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
+        void _LoadIntoDataField(const char* p_Data, uint32 p_StartOffset, uint32 p_Count, bool p_Force);
 
         uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
         uint32 GetDynamicUpdateFieldData(Player const* target, uint32*& flags) const;
@@ -862,10 +862,8 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(obj, x, y, z, obj->GetObjectSize(), distance2d, GetAngle(obj));
         }
 
-        float GetObjectSize() const
-        {
-            return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
-        }
+        float GetObjectSize() const;
+
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
@@ -963,6 +961,7 @@ class WorldObject : public Object, public WorldLocation
 
         bool IsInBetween(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
         bool IsInAxe(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
+        bool IsInAxe(WorldObject const* p_Object, float p_Width, float p_Range) const;
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
@@ -1032,7 +1031,8 @@ class WorldObject : public Object, public WorldLocation
             pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0, viewerGuid, viewersList);
         }
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false, bool p_Active = false);
+        GameObject* SummonGameObject(uint32 p_Entry, Position const& p_Pos, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3, uint32 p_RespTime, uint64 p_ViewerGuid = 0, std::list<uint64>* p_ViewerList = nullptr, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false, bool p_Active = false);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>& list);
 
@@ -1091,6 +1091,13 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
+        uint16 GetAIAnimKitId() const { return m_AIAnimKitId; }
+        void SetAIAnimKitId(uint16 animKitId);
+        uint16 GetMovementAnimKitId() const { return m_MovementAnimKitId; }
+        void SetMovementAnimKitId(uint16 animKitId);
+        uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }
+        void SetMeleeAnimKitId(uint16 animKitId);
+
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
         void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
@@ -1140,6 +1147,10 @@ class WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj) const;
+
+        uint16 m_AIAnimKitId;
+        uint16 m_MovementAnimKitId;
+        uint16 m_MeleeAnimKitId;
 };
 
 namespace JadeCore

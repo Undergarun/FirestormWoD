@@ -163,8 +163,8 @@ void GroupMgr::LoadGroups()
         // Delete all members that does not exist
         CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 
-        //                                                    0        1           2            3       4
-        QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
+        //                                                    0        1           2            3       4      5      6
+        QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles, class, specId FROM group_member ORDER BY guid");
         if (!result)
         {
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group members. DB table `group_member` is empty!");
@@ -179,7 +179,7 @@ void GroupMgr::LoadGroups()
             Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
 
             if (group)
-                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
+                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8(), fields[5].GetInt8(), fields[6].GetUInt32());
             else
                 sLog->outError(LOG_FILTER_GENERAL, "GroupMgr::LoadGroups: Consistency failed, can't find group (storage id: %u)", fields[0].GetUInt32());
 
@@ -218,11 +218,9 @@ void GroupMgr::LoadGroups()
             }
 
             uint32 diff = fields[4].GetUInt8();
-            if (diff >= uint32(mapEntry->IsRaid() ? MYTHIC_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
-            {
-                sLog->outError(LOG_FILTER_SQL, "Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
-                diff = 0;                                   // default for both difficaly types
-            }
+            DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(diff);
+            if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->instanceType)
+                continue;
 
             InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt32()), (bool)fields[6].GetUInt64(), true);
             group->BindToInstance(save, fields[3].GetBool(), true);

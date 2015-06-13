@@ -63,19 +63,21 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
-typedef std::map<uint32/*pair32(map, diff)*/, MapDifficulty> MapDifficultyMap;
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
+typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficulty>> MapDifficultyMap;
+MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* p_Difficulty = nullptr);
+MapDifficulty const* GetMapDifficultyData(uint32 p_MapID, Difficulty p_Difficulty);
+MapDifficulty const* GetDownscaledMapDifficultyData(uint32 p_MapID, Difficulty& p_Difficulty);
 
 uint32 GetLiquidFlags(uint32 liquidType);
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
-PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
+/*PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, Bracket::Id id);*/
 
 typedef std::unordered_map<uint32, std::list<ItemSetSpellEntry const*> > ItemSetSpellsByItemID;
 extern ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
+extern DBCStorage <AnimKitEntry>                 sAnimKitStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
 extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
 extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
@@ -99,7 +101,6 @@ extern DBCStorage <CreatureFamilyEntry>          sCreatureFamilyStore;
 extern DBCStorage <CreatureModelDataEntry>       sCreatureModelDataStore;
 extern DBCStorage <CreatureSpellDataEntry>       sCreatureSpellDataStore;
 extern DBCStorage <CreatureTypeEntry>            sCreatureTypeStore;
-extern DBCStorage <CurrencyTypesEntry>           sCurrencyTypesStore;
 extern DBCStorage <CriteriaEntry>                sCriteriaStore;
 extern DBCStorage <CriteriaTreeEntry>            sCriteriaTreeStore;
 extern DBCStorage <ModifierTreeEntry>            sModifierTreeStore;
@@ -190,7 +191,6 @@ extern DBCStorage <ScenarioEntry>                sScenarioStore;
 extern DBCStorage <ScenarioStepEntry>            sScenarioStepStore;
 extern DBCStorage <SkillLineEntry>               sSkillLineStore;
 extern DBCStorage <SkillLineAbilityEntry>        sSkillLineAbilityStore;
-extern DBCStorage <SoundEntriesEntry>            sSoundEntriesStore;
 extern DBCStorage <SpellCastTimesEntry>          sSpellCastTimesStore;
 extern DBCStorage <SpellDurationEntry>           sSpellDurationStore;
 extern DBCStorage <SpellFocusObjectEntry>        sSpellFocusObjectStore;
@@ -219,12 +219,6 @@ extern DBCStorage <SpellScalingEntry>            sSpellScalingStore;
 extern DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore;
 extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
 extern DBCStorage <TalentEntry>                  sTalentStore;
-extern TaxiMask                                  sTaxiNodesMask;
-extern TaxiMask                                  sOldContinentsNodesMask;
-extern TaxiMask                                  sHordeTaxiNodesMask;
-extern TaxiMask                                  sAllianceTaxiNodesMask;
-extern TaxiMask                                  sDeathKnightTaxiNodesMask;
-extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 extern DBCStorage <VehicleEntry>                 sVehicleStore;
 extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
@@ -235,6 +229,8 @@ extern DBCStorage <World_PVP_AreaEntry>          sWorld_PVP_AreaStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 extern DBCStorage <GtBattlePetTypeDamageModEntry> sGtBattlePetTypeDamageModStore;
 extern DBCStorage <GtBattlePetXPEntry>           sGtBattlePetXPStore;
+extern DBCStorage <WorldStateEntry>              sWorldStateStore;
+extern DBCStorage <WorldStateExpressionEntry>    sWorldStateExpressionStore;
 
 void LoadDBCStores(const std::string& dataPath);
 

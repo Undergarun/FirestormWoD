@@ -169,7 +169,7 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 {
-    WorldPacket l_Data(SMSG_GOSSIP_MESSAGE, 100);         // guess size
+    WorldPacket l_Data(SMSG_GOSSIP_MESSAGE, 2 * 1024);
 
     l_Data.appendPackGUID(objectGUID);
 
@@ -265,7 +265,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
         if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(poiId))
             ObjectMgr::GetLocaleString(localeData->IconName, locale, iconText);
 
-    WorldPacket data(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
+    WorldPacket data(SMSG_GOSSIP_POI, 3 + 4 + 4 + 4 + 4 + iconText.size());
     data.WriteBits(poi->flags, 14);
     data.WriteBits(iconText.length(), 6);
     data.FlushBits();
@@ -323,7 +323,7 @@ void QuestMenu::ClearMenu()
 
 void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title, uint64 npcGUID)
 {
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100);    // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 1024);
     data.appendPackGUID(npcGUID);
     data << uint32(eEmote._Emote);                         // NPC emote
     data << uint32(eEmote._Delay);                         // player emote
@@ -375,7 +375,6 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     data.WriteString(Title);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST NPC Guid=%u", GUID_LOPART(npcGUID));
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 p_StatusFlags, uint64 p_QuestGiverGUID) const
@@ -431,7 +430,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) 
     else
         QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
 
-    WorldPacket data(SMSG_QUEST_GIVER_QUEST_DETAILS);
+    WorldPacket data(SMSG_QUEST_GIVER_QUEST_DETAILS, 2 * 1024);
 
     data.appendPackGUID(guid);
     data.appendPackGUID(guid2);
@@ -536,8 +535,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID) 
     data.WriteString(questTurnTargetName);
 
     _session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
@@ -571,7 +568,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
 
     bool l_HideItemReward = p_Quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DYNAMIC_ITEM_REWARD) || p_Quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS);
 
-    WorldPacket l_Data(SMSG_QUERY_QUEST_INFO_RESPONSE, 1500);
+    WorldPacket l_Data(SMSG_QUERY_QUEST_INFO_RESPONSE, 3 * 1024);
     l_Data << uint32(p_Quest->GetQuestId());
     l_Data.WriteBit(1);                                                                         ///< has data
     l_Data.FlushBits();
@@ -590,7 +587,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data << uint32(l_HideItemReward ? 0 : p_Quest->GetRewMoney());                            ///< Reward Money
     l_Data << uint32(p_Quest->GetRewMoneyMaxLevel());                                           ///< Reward Money Difficulty
     l_Data << float(0);                                                                         ///< Unk
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< RewardBonusMoney in TC
     l_Data << uint32(p_Quest->GetRewSpell());                                                   ///< Reward Display Spell, this spell will display (icon) (casted if RewSpellCast == 0)
     l_Data << int32(p_Quest->GetRewSpellCast());                                                ///< Reward Spell
     l_Data << uint32(p_Quest->GetRewHonorAddition());                                           ///< Reward Honor
@@ -664,10 +661,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
 
     l_Data << uint32(p_Quest->GetSoundAccept());                                                ///< Accepted Sound Kit ID
     l_Data << uint32(p_Quest->GetSoundTurnIn());                                                ///< Complete Sound Kit ID
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< AreaGroupID
     l_Data << uint32(p_Quest->GetLimitTime());                                                  ///< Time Allowed
     l_Data << uint32(p_Quest->QuestObjectives.size());                                          ///< Objective Count
-    l_Data << uint32(0);                                                                        ///< Unk
+    l_Data << uint32(0);                                                                        ///< AllowableRaces
 
     for (QuestObjective l_Objective : p_Quest->QuestObjectives)
     {
@@ -719,7 +716,6 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* p_Quest) const
     l_Data.WriteString(l_CompletedText);
 
     _session->SendPacket(&l_Data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", p_Quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* p_Quest, uint64 p_NpcGUID, bool p_EnableNext) const
@@ -767,7 +763,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* p_Quest, uint64 p_NpcGUI
     else
         l_QuestXpRate = sWorld->getRate(RATE_XP_QUEST);
 
-    WorldPacket l_Data(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 50);     // guess size
+    WorldPacket l_Data(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 2 * 1024);
 
     l_Data.appendPackGUID(p_NpcGUID);
     l_Data << uint32(GUID_ENPART(p_NpcGUID));
@@ -917,7 +913,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
 
     ObjectGuid guid = npcGUID;
 
-    WorldPacket data(SMSG_QUEST_GIVER_REQUEST_ITEMS, 50);    // guess size
+    WorldPacket data(SMSG_QUEST_GIVER_REQUEST_ITEMS, 1024);
     data.appendPackGUID(guid);
     data << uint32(GUID_ENPART(guid));
     data << uint32(quest->GetQuestId());
@@ -945,5 +941,4 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data.WriteString(requestItemsText);
 
     _session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }

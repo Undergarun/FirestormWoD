@@ -8,6 +8,7 @@
 #
 #    EXAMPLE CONFIG
 #    CONNECTIONS AND DIRECTORIES
+#    REPORTING SETTINGS
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
@@ -93,7 +94,7 @@ LogsDir = ""
 LoginDatabaseInfo      = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo      = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo  = "127.0.0.1;3306;trinity;trinity;characters"
-MonitoringDatabaseInfo = "127.0.0.1;3306;trinity;trinity;monitoring_realmname"
+HotfixDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;hotfix"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -106,26 +107,28 @@ MonitoringDatabaseInfo = "127.0.0.1;3306;trinity;trinity;monitoring_realmname"
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotfixDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads          = 2
 WorldDatabase.WorkerThreads          = 1
 CharacterDatabase.WorkerThreads      = 4
-MonitoringDatabase.WorkerThreads = 1
+hotfixDatabase.WorkerThreads         = 1
 
 #
 #    LoginDatabase.SynchThreads
 #    WorldDatabase.SynchThreads
 #    CharacterDatabase.SynchThreads
-#    MonitoringDatabase.SynchThreads
+#    HotfixDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotfixDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads      = 4
 WorldDatabase.SynchThreads      = 1
 CharacterDatabase.SynchThreads  = 8
-MonitoringDatabase.SynchThreads = 1
+HotfixDatabase.SynchThreads     = 1
 
 #
 #    MaxPingTime
@@ -147,6 +150,23 @@ WorldServerPort = 8085
 #        Default:     "0.0.0.0" - (Bind to all IPs on the system)
 
 BindIP = "0.0.0.0"
+
+#
+###################################################################################################
+
+###################################################################################################
+# REPORTING SETTINGS
+#
+#   ReporterActivated
+#       Description: Says if the reporter is activated.
+#       Default: "1"
+#
+#   ReporterAddress
+#       Description: HTTP address of the ReportingConnector that will handle reports and insert them in a database.
+#       Default:    "localhost:3000"
+
+ReporterActivated = "1"
+ReporterAddress = "localhost:3000"
 
 #
 ###################################################################################################
@@ -727,14 +747,6 @@ CharactersPerAccount = 50
 CharactersPerRealm = 11
 
 #
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
-#        Range:       1-10
-#        Default:     1
-
-HeroicCharactersPerRealm = 1
-
-#
 #    CharacterCreating.MinLevelForHeroicCharacter
 #        Description: Limit creating heroic characters only for account with another
 #                     character of specific level (ignored for GM accounts)
@@ -841,9 +853,9 @@ StartArenaPoints = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     80
+#        Default:     85
 
-RecruitAFriend.MaxLevel = 80
+RecruitAFriend.MaxLevel = 85
 
 #
 #    RecruitAFriend.MaxDifference
@@ -1189,6 +1201,18 @@ Anticheat.DetectionsEnabled = 31
 #        Default:     70
 
 Anticheat.MaxReportsForDailyReport = 70
+
+#     AntiCheat.MaxReportsBeforeBan
+#     Description: How many reports the player are allowed to have in the check time range before get banned / kick for 10 mins
+#     Default: 200
+
+Anticheat.MaxReportsBeforeBan = 200
+
+#     AntiCheat.BanCheckTimeRange
+#     Description: Range of time (in secondes) to check max reports before get banned.
+#     Default: 120 (2 minutes)
+
+Anticheat.BanCheckTimeRange = 120
 
 #
 ###################################################################################################
@@ -3124,6 +3148,13 @@ Server.Auto.RestartHour = 4
 #                     1 - (Enabled)
 
 DisableRestart = 1
+
+#   LootAoe.Enabled
+#        Description: Enable AOE loot
+#        Default:     1 - (Enable)
+
+LootAoe.Enabled = 1
+LastClientBuild = 19342
 
 ###################################################################################################
 # VIP CONFIG

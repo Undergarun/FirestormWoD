@@ -18,7 +18,7 @@
 
 #ifndef TRINITYCORE_AREATRIGGER_H
 # define TRINITYCORE_AREATRIGGER_H
-  
+
 # include "Object.h"
 # include "Timer.h"
 
@@ -67,7 +67,22 @@ struct AreaTriggerTemplate
 {
     AreaTriggerTemplate()
     {
-        memset(this, 0, sizeof(AreaTriggerTemplate));
+        m_SpellID       = 0;
+        m_EffIndex      = 0;
+        m_Entry         = 0;
+        m_Type          = 0;
+        m_ScaleX        = 0.f;
+        m_ScaleY        = 0.f;
+        m_MoveCurveID   = 0;
+        m_ScaleCurveID  = 0;
+        m_MorphCurveID  = 0;
+        m_FacingCurveID = 0;
+
+        m_ScriptId              = 0;
+        m_CreatureVisualEntry   = 0;
+
+        for (uint32 l_I = 0; l_I < MAX_AREATRIGGER_DATA; l_I++)
+            m_Raw.m_Data[l_I] = 0;
     }
 
     uint32 m_SpellID;
@@ -83,13 +98,14 @@ struct AreaTriggerTemplate
     uint32 m_FacingCurveID;
 
     uint32 m_ScriptId;
+    uint32 m_CreatureVisualEntry;
 
     union
     {
         // Not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
-            float m_Data[MAX_AREATRIGGER_DATA];
+            uint32 m_Data[MAX_AREATRIGGER_DATA];
         } m_Raw;
 
         // AREATRIGGER_TYPE_POLYGON
@@ -208,10 +224,24 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void GetPositionFromPathId(uint32 p_MoveCurveId, Position* p_OutPos) const;
         void UpdatePositionWithPathId(uint32 p_Time, Position* p_OutPos);
 
+        uint64 GetGUIDCreatureVisual() { return m_CreatureVisualGUID; };
+
         void SetSource(Position p_Source) { m_Source = p_Source; }
         void SetDestination(Position p_Dest) { m_Destination = p_Dest; }
         void SetTrajectory(AreatriggerInterpolation p_Trajectory) { m_Trajectory = p_Trajectory; }
         void SetUpdateTimerInterval(uint32 p_Timer) { m_UpdateTimer.SetInterval(p_Timer); }
+        void SetPathToLinearDestination(std::list<Position>& l_List) { m_PathToLinearDestination = l_List; }
+        Position const& GetDestination() const { return m_Destination; };
+
+        static AreaTrigger* GetAreaTrigger(WorldObject const& p_Object, uint64 p_Guid);
+
+        /*
+         * Cast spell by using unit trigger/dummy at areatrigger posiiton
+         * Use areatrigger owner (caster) for ennemies/friends selection
+         * @param p_Target  : Target of the spell we cast
+         * @param p_SpellId : Id of spell to cast
+         */
+        void CastSpell(Unit* p_Target, uint32 p_SpellId);
 
     protected:
         int32 m_Duration;
@@ -225,5 +255,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+
+        uint64 m_CreatureVisualGUID;
+        std::list<Position> m_PathToLinearDestination;
 };
 #endif

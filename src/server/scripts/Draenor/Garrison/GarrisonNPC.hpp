@@ -10,9 +10,175 @@
 
 #include "GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
+#include <map>
+
+#include "ScriptedCosmeticAI.hpp"
 
 namespace MS { namespace Garrison 
 {
+    /// Sequence position structure
+    struct SequencePosition
+    {
+        /// Position
+        float X, Y, Z, O;
+    };
+
+    /// TradeSkill NPC recipes
+    struct SkillNPC_RecipeEntry
+    {
+        uint32 AbilitySpellID;
+        uint32 AbilitySpellIDPlayerCondition;
+    };
+
+    class GarrisonNPCAI : public AI::CosmeticAI
+    {
+        public:
+            /// Constructor
+            GarrisonNPCAI(Creature * p_Creature);
+
+            /// Set to relative position from building
+            /// @p_X : Relative X
+            /// @p_Y : Relative Y
+            /// @p_Z : Relative Z
+            void MoveBuildingRelative(uint32 p_PointID, float p_X, float p_Y, float p_Z);
+            /// Set facing to relative angle from the building
+            /// @p_O : Relative angle
+            void SetFacingBuildingRelative(float p_O);
+
+            /// Set NPC recipes
+            /// @p_Recipes          : Recipes
+            /// @p_RecipesSkillID   : Skill line ID
+            void SetRecipes(std::vector<SkillNPC_RecipeEntry> * p_Recipes, uint32 p_RecipesSkillID);
+
+            /// Show shipment crafter UI
+            void SendShipmentCrafterUI(Player * p_Player);
+            /// Show trade skill crafter UI
+            void SendTradeSkillUI(Player * p_Player);
+
+            /// Get building ID
+            uint32 GetBuildingID();
+
+            /// Setup action sequence
+            /// @p_CoordTable       : Coordinates table
+            /// @p_SequenceTable    : Sequence table
+            /// @p_SequenceSize     : Size of sequence table,
+            /// @p_FirstMovePointID : First move point ID
+            void SetupActionSequence(SequencePosition * p_CoordTable, uint8 * p_SequenceTable, uint32 p_SequenceSize, uint32 p_FirstMovePointID);
+            /// Do next sequence element
+            virtual void DoNextSequenceAction();
+
+        public:
+            /// When the building ID is set
+            /// @p_BuildingID : Set building ID
+            virtual void OnSetBuildingID(uint32 p_BuildingID);
+
+        public:
+            /// Set UInt32 value
+            /// @p_ID    : Value ID
+            /// @p_Value : Value
+            virtual void SetData(uint32 p_ID, uint32 p_Value) override;
+            /// Get UInt32 value
+            /// @p_ID    : Value ID
+            virtual uint32 GetData(uint32 p_ID) override;
+
+        protected:
+            GarrisonPlotInstanceInfoLocation const* m_PlotInstanceLocation; ///< This creature plot
+            G3D::Vector3 m_NonRotatedPlotPosition;                          ///< Cache for coord transformation
+            uint32 m_BuildingID;                                            ///< This creature building ID
+
+        private:
+            SequencePosition * m_CoordTable;
+            uint8 * m_SequenceTable;
+            uint32 m_SequenceSize;
+            uint32 m_FirstMovePointID;
+            uint8 m_SequencePosition;
+
+        private:
+            std::vector<SkillNPC_RecipeEntry> * m_Recipes;
+            uint32 m_RecipesSkillID;
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    /// Sequence initializer function
+    using InitSequenceFunction = std::function<void(GarrisonNPCAI*, Creature*)>;
+
+    /// Creature AI
+    /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
+    /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
+    /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
+    template<InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    struct SimpleSequenceCosmeticScriptAI : public GarrisonNPCAI
+    {
+        /// Constructor
+        SimpleSequenceCosmeticScriptAI(Creature * p_Creature)
+            : GarrisonNPCAI(p_Creature)
+        {
+            SetAIObstacleManagerEnabled(true);
+        }
+
+        /// When the building ID is set
+        /// @p_BuildingID : Set building ID
+        virtual void OnSetBuildingID(uint32 p_BuildingID) override
+        {
+            m_OnPointReached.clear();
+
+            GarrBuildingEntry const* l_BuildingEntry = sGarrBuildingStore.LookupEntry(p_BuildingID);
+
+            if (!l_BuildingEntry)
+                return;
+
+            switch (l_BuildingEntry->BuildingLevel)
+            {
+                case 1:
+                    (*t_SetupLevel1)(this, me);
+                    break;
+
+                case 2:
+                    (*t_SetupLevel2)(this, me);
+                    break;
+
+                case 3:
+                    (*t_SetupLevel3)(this, me);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+    };
+
+    /// Simple sequence cosmetic script, Helper for small cosmetic script
+    /// @t_ScriptName  : Script name
+    /// @t_SetupLevel1 : Function pour initializing sequence for level 1 building
+    /// @t_SetupLevel2 : Function pour initializing sequence for level 2 building
+    /// @t_SetupLevel3 : Function pour initializing sequence for level 3 building
+    template<const char * t_ScriptName, InitSequenceFunction * t_SetupLevel1, InitSequenceFunction * t_SetupLevel2, InitSequenceFunction * t_SetupLevel3>
+    class SimpleSequenceCosmeticScript : public CreatureScript
+    {
+        public:
+            /// Constructor
+            SimpleSequenceCosmeticScript()
+                : CreatureScript(t_ScriptName)
+            {
+
+            }
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            CreatureAI * GetAI(Creature * p_Creature) const override
+            {
+                return new SimpleSequenceCosmeticScriptAI<t_SetupLevel1, t_SetupLevel2, t_SetupLevel3>(p_Creature);
+            }
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
     /// Garrison Ford
     class npc_GarrisonFord : public CreatureScript
     {
@@ -32,6 +198,38 @@ namespace MS { namespace Garrison
             virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
 
     };
+
+    /// 87518 - 87519 - 80258
+    class npc_CallToArms : public CreatureScript
+    {
+        public:
+            /// Constructor
+            npc_CallToArms();
+
+            /// Called when a CreatureAI object is needed for the creature.
+            /// @p_Creature : Target creature instance
+            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
+
+            /// AI Script
+            struct npc_CallToArmsAI : public CreatureAI
+            {
+                /// Constructor
+                npc_CallToArmsAI(Creature * p_Creature);
+
+                /// On reset
+                virtual void Reset() override;
+                /// On AI Update
+                /// @p_Diff : Time since last update
+                virtual void UpdateAI(const uint32 p_Diff) override;
+
+                Player * m_Owner;
+                bool m_Ranged;
+            };
+
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     /// Garrison ROPE owner
     class npc_GarrisonCartRope : public CreatureScript
@@ -169,6 +367,9 @@ namespace MS { namespace Garrison
             };
 
     };
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 
     /// Garrison shelly hamby
     class npc_Skaggit : public CreatureScript

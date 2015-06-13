@@ -146,37 +146,39 @@ enum SpellEffectImplicitTargetTypes
 // Spell clasification
 enum SpellSpecificType
 {
-    SPELL_SPECIFIC_NORMAL                   = 0,
-    SPELL_SPECIFIC_SEAL                     = 1,
-    SPELL_SPECIFIC_BLESSING                 = 2,
-    SPELL_SPECIFIC_AURA                     = 3,
-    SPELL_SPECIFIC_STING                    = 4,
-    SPELL_SPECIFIC_CURSE                    = 5,
-    SPELL_SPECIFIC_ASPECT                   = 6,
-    SPELL_SPECIFIC_TRACKER                  = 7,
-    SPELL_SPECIFIC_WARLOCK_ARMOR            = 8,
-    SPELL_SPECIFIC_MAGE_ARMOR               = 9,
-    SPELL_SPECIFIC_ELEMENTAL_SHIELD         = 10,
-    SPELL_SPECIFIC_MAGE_POLYMORPH           = 11,
-    SPELL_SPECIFIC_JUDGEMENT                = 13,
-    SPELL_SPECIFIC_PRIEST_SANCTUM           = 14,
-    SPELL_SPECIFIC_WARLOCK_CORRUPTION       = 17,
-    SPELL_SPECIFIC_WELL_FED                 = 18,
-    SPELL_SPECIFIC_FOOD                     = 19,
-    SPELL_SPECIFIC_DRINK                    = 20,
-    SPELL_SPECIFIC_FOOD_AND_DRINK           = 21,
-    SPELL_SPECIFIC_PRESENCE                 = 22,
-    SPELL_SPECIFIC_CHARM                    = 23,
-    SPELL_SPECIFIC_SCROLL                   = 24,
-    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE    = 25,
-    SPELL_SPECIFIC_WARRIOR_ENRAGE           = 26,
-    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT     = 27,
-    SPELL_SPECIFIC_HAND                     = 28,
-    SPELL_SPECIFIC_PHASE                    = 29,
-    SPELL_SPECIFIC_BANE                     = 30,
-    SPELL_SPECIFIC_CHAKRA                   = 31,
-    SPELL_SPECIFIC_EXOTIC_MUNITION          = 32,
-    SPELL_SPECIFIC_LONE_WOLF_BUFF           = 33
+    SpellSpecificNormal,
+    SpellSpecificSeal,
+    SpellSpecificBlessing,
+    SpellSpecificAura,
+    SpellSpecificSting,
+    SpellSpecificCurse,
+    SpellSpecificAspect,
+    SpellSpecificTracker,
+    SpellSpecificWarlockArmor,
+    SpellSpecificMageArmor,
+    SpellSpecificElementalShield,
+    SpellSpecificMagePolymorph,
+    SpellSpecificJudgement,
+    SpellSpecificPriestSanctum,
+    SpellSpecificWarlockCorruption,
+    SpellSpecificWellFed,
+    SpellSpecificFood,
+    SpellSpecificDrink,
+    SpellSpecificFoodAndDrink,
+    SpellSpecificPresence,
+    SpellSpecificCharm,
+    SpellSpecificScroll,
+    SpellSpecificMageArcaneBrillance,
+    SpellSpecificWarriorEnrage,
+    SpellSpecificPriestDivineSpirit,
+    SpellSpecificHand,
+    SpellSpecificBane,
+    SpellSpecificChakra,
+    SpellSpecificExocitMunition,
+    SpellSpecificLoneWolfBuff,
+    SpellSpecificLethalPoison,
+    SpellSpecificNonLethalPoison,
+    SpellSpecificCrowdFavorite
 };
 
 enum SpellCustomAttributes
@@ -265,11 +267,15 @@ public:
     uint32    TriggerSpell;
     flag128   SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
-    // SpellScalingEntry
+    
+    /// SpellScalingEntry
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
     float     AttackPowerMultiplier;
+
+    /// SpellEffectGroupSize
+    float     GroupSizeCoefficient;
 
     SpellEffectInfo() {}
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, uint32 difficulty);
@@ -489,6 +495,7 @@ public:
     bool IsAllowingDeadTarget() const;
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
+    bool IsHealingSpell() const;
     bool IsPositiveEffect(uint8 effIndex) const;
     bool IsChanneled() const;
     bool NeedsComboPoints() const;

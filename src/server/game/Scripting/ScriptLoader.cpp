@@ -20,7 +20,11 @@
 
 // Customs
 void AddSC_event_april();
-//void AddSC_DuelReset();
+void AddSC_promotion_new_players();
+void AddSC_first_time_connexion();
+void AddSC_user_reporting();
+void AddSC_warning_update_client();
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -40,6 +44,10 @@ void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
+void AddSC_spell_skill();
+void AddSC_npc_spell_scripts();
+void AddSC_areatrigger_spell_scripts();
+void AddSC_spell_item_enchantment();
 
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
@@ -79,6 +87,7 @@ void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_garrison_commandscript();
+void AddSC_hotfix_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -93,6 +102,7 @@ void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_npc_companions();
 void AddSC_achievement_scripts();
+void AddSC_PlayerConditions();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -803,9 +813,13 @@ void AddSC_timeless_isle();
 
 // Draenor
 void AddSC_tanaan_jungle();
+void AddSC_spires_of_arak();
+void AddSC_frostfire_ridge();
+void AddSC_gorgrond();
 void AddSC_Garrison_GO();
 void AddSC_Garrison_NPC();
 void AddSC_Garrison_Quest();
+void AddSC_Garrison_PlayerConditions();
 void AddSC_Garrison_A1();
 void AddSC_Garrison_A2();
 void AddSC_Garrison_A3();
@@ -830,6 +844,35 @@ void AddSC_mob_Bloodmaul();
 void AddSC_spell_Bloodmaul();
 void AddSC_areatrigger_Bloodmaul();
 void AddSC_boss_SlaveWatcherCrushto();
+void AddSC_boss_forgemaster_gogduh();
+void AddSC_boss_roltall();
+void AddSC_boss_gugrokk();
+
+/* Iron Docks */
+void AddSC_iron_docks_cpp();
+void AddSC_instance_iron_docks();
+void AddSC_boss_nokgar();
+void AddSC_boss_skulloc();
+void AddSC_boss_grimrail();
+void AddSC_boss_oshir();
+
+/// Highmaul
+void AddSC_instance_highmaul();
+void AddSC_highmaul();
+void AddSC_boss_kargath_bladefist();
+void AddSC_boss_the_butcher();
+void AddSC_boss_brackenspore();
+void AddSC_boss_tectus();
+void AddSC_boss_twin_ogron();
+void AddSC_boss_koragh();
+
+/// Auchindon
+void AddSC_instance_auchindon();
+void AddSC_AuchindounNEW();
+void AddSC_kaathar();
+void AddSC_Nyami();
+void AddSC_azzakel();
+void AddSC_teronogoer();
 
 // battlegrounds
 void AddSC_BattlegroundAVcripts();
@@ -842,7 +885,13 @@ void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
 void AddSC_outdoorpvp_tf();
 void AddSC_outdoorpvp_zm();
-void AddSC_OutdoorPvPAshran();
+void AddSC_AshranMgr();
+void AddSC_AshranNPCAlliance();
+void AddSC_AshranNPCHorde();
+void AddSC_AshranSpells();
+void AddSC_AshranAreaTrigger();
+void AddSC_AshranNPCNeutral();
+void AddSC_AshranQuest();
 
 // player
 void AddSC_chat_log();
@@ -865,7 +914,7 @@ void AddScripts()
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
-    //AddSC_DuelReset();
+    AddSC_DuelReset();
 #endif
 }
 
@@ -887,6 +936,10 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_holiday_spell_scripts();
+    AddSC_spell_skill();
+    AddSC_npc_spell_scripts();
+    AddSC_areatrigger_spell_scripts();
+    AddSC_spell_item_enchantment();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif
@@ -928,6 +981,7 @@ void AddCommandScripts()
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
     AddSC_garrison_commandscript();
+    AddSC_hotfix_commandscript();
 }
 
 void AddWorldScripts()
@@ -944,6 +998,7 @@ void AddWorldScripts()
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
     AddSC_chat_log();
+    AddSC_PlayerConditions();
 #endif
 }
 
@@ -1678,9 +1733,15 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_tanaan_jungle();
+    AddSC_spires_of_arak();
+    AddSC_frostfire_ridge();
+    AddSC_gorgrond();
+
+    /// Garrison
     AddSC_Garrison_GO();
     AddSC_Garrison_NPC();
     AddSC_Garrison_Quest();
+    AddSC_Garrison_PlayerConditions();
     AddSC_Garrison_A1();
     AddSC_Garrison_A2();
     AddSC_Garrison_A3();
@@ -1688,7 +1749,8 @@ void AddDraenorScripts()
     AddSC_Garrison_H2();
     AddSC_Garrison_H3();
     AddSC_Garrison();
-    /* Instance Skyreach*/
+
+    /// Instance Skyreach
     AddSC_instance_Skyreach();
     AddSC_mob_instance_skyreach();
     AddSC_spell_instance_skyreach();
@@ -1696,12 +1758,44 @@ void AddDraenorScripts()
     AddSC_boss_Araknath();
     AddSC_boss_Rukhran();
     AddSC_boss_HighSaveViryx();
-    /* Instance Bloodmaul Slag Mines */
+
+    /// Instance Bloodmaul Slag Mines
     AddSC_instance_Bloodmaul();
     AddSC_mob_Bloodmaul();
     AddSC_spell_Bloodmaul();
     AddSC_areatrigger_Bloodmaul();
     AddSC_boss_SlaveWatcherCrushto();
+    AddSC_boss_forgemaster_gogduh();
+    AddSC_boss_roltall();
+    AddSC_boss_gugrokk();
+
+    /// Iron Docks
+    AddSC_iron_docks_cpp();
+    AddSC_instance_iron_docks();
+    AddSC_boss_nokgar();
+    AddSC_boss_skulloc();
+    AddSC_boss_grimrail();
+    AddSC_boss_oshir();
+
+    /// Highmaul
+    AddSC_instance_highmaul();
+    AddSC_highmaul();
+    AddSC_boss_kargath_bladefist();
+    AddSC_boss_the_butcher();
+    AddSC_boss_brackenspore();
+    AddSC_boss_tectus();
+    AddSC_boss_twin_ogron();
+    AddSC_boss_koragh();
+
+    /// Auchindoun
+    AddSC_instance_auchindon();
+    AddSC_AuchindounNEW();
+    AddSC_kaathar();
+    AddSC_Nyami();
+    AddSC_azzakel();
+    AddSC_teronogoer();
+
+    /// Battlegrounds strongbox
     AddSC_item_strongboxes();
 #endif
 }
@@ -1714,7 +1808,13 @@ void AddOutdoorPvPScripts()
     AddSC_outdoorpvp_si();
     AddSC_outdoorpvp_tf();
     AddSC_outdoorpvp_zm();
-    AddSC_OutdoorPvPAshran();
+    AddSC_AshranMgr();
+    AddSC_AshranNPCAlliance();
+    AddSC_AshranNPCHorde();
+    AddSC_AshranSpells();
+    AddSC_AshranAreaTrigger();
+    AddSC_AshranNPCNeutral();
+    AddSC_AshranQuest();
 #endif
 }
 
@@ -1736,5 +1836,9 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_april();
+    AddSC_promotion_new_players();
+    AddSC_first_time_connexion();
+    AddSC_user_reporting();
+    AddSC_warning_update_client();
 #endif
 }

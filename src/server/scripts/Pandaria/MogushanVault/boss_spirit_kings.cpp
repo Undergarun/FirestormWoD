@@ -435,14 +435,6 @@ class boss_spirit_kings_controler : public CreatureScript
                             summons.DespawnEntry(NPC_FLANKING_MOGU);
                             fightInProgress = false;
 
-                            if (me->GetMap()->IsLFR())
-                            {
-                                me->SetLootRecipient(NULL);
-                                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                                if (l_Player && l_Player->GetGroup())
-                                    sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
-                            }
-
                             if (pInstance)
                             {
                                 pInstance->SetBossState(DATA_SPIRIT_KINGS, DONE);
@@ -917,7 +909,7 @@ class boss_spirit_kings : public CreatureScript
                     value = 0;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetEntry() == NPC_QIANG)
                 {
@@ -998,7 +990,7 @@ class boss_spirit_kings : public CreatureScript
 
                 if (AuraPtr aura = me->GetAura(SPELL_COWARDICE))
                 {
-                    int32 percentage = me->GetPower(POWER_RAGE) / me->GetPowerCoeff(POWER_RAGE);
+                    int32 percentage = me->GetPower(POWER_RAGE) / 10;
                     int32 bp = int32(CalculatePct(damage, percentage));
 
                     bp /= 5;
@@ -1007,6 +999,23 @@ class boss_spirit_kings : public CreatureScript
                         bp += attacker->GetRemainingPeriodicAmount(me->GetGUID(), SPELL_COWARDICE_DOT, SPELL_AURA_PERIODIC_DAMAGE);
 
                     me->CastCustomSpell(attacker, SPELL_COWARDICE_DOT, &bp, NULL, NULL, true);
+                }
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                ScriptedAI::JustDied(p_Killer);
+
+                if (IsLFR())
+                {
+                    me->SetLootRecipient(nullptr);
+
+                    if (me->GetEntry() == NPC_QIANG)
+                    {
+                        Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
+                        if (l_Player && l_Player->GetGroup())
+                            sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                    }
                 }
             }
 
@@ -1353,7 +1362,7 @@ class mob_undying_shadow : public CreatureScript
                 phase = PHASE_UNDYING_SHADOW;
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (phase == PHASE_UNDYING_SHADOW)
                 {
@@ -1425,7 +1434,7 @@ class mob_undying_shadow : public CreatureScript
 };
 
 // Massive Attack - 117921
-class spell_massive_attacks: public SpellScriptLoader
+class spell_massive_attacks : public SpellScriptLoader
 {
     public:
         spell_massive_attacks() : SpellScriptLoader("spell_massive_attacks") { }
@@ -1466,7 +1475,7 @@ class spell_massive_attacks: public SpellScriptLoader
 };
 
 // Volley (1) - 118094, Volley (2) - 118105 and Volley (3) - 118106
-class spell_volley: public SpellScriptLoader
+class spell_volley : public SpellScriptLoader
 {
     public:
         spell_volley() : SpellScriptLoader("spell_volley") { }
@@ -1521,7 +1530,7 @@ class spell_volley: public SpellScriptLoader
 };
 
 // Pinned Down - 118145
-class spell_pinned_down: public SpellScriptLoader
+class spell_pinned_down : public SpellScriptLoader
 {
     public:
         spell_pinned_down() : SpellScriptLoader("spell_pinned_down") { }
@@ -1550,7 +1559,7 @@ class spell_pinned_down: public SpellScriptLoader
 };
 
 // Maddening Shout - 117708
-class spell_maddening_shout: public SpellScriptLoader
+class spell_maddening_shout : public SpellScriptLoader
 {
     public:
         spell_maddening_shout() : SpellScriptLoader("spell_maddening_shout") { }
@@ -1589,7 +1598,7 @@ class spell_maddening_shout: public SpellScriptLoader
 };
 
 // Cowardice - 117756 and Crazed - 117737
-class spell_crazed_cowardice: public SpellScriptLoader
+class spell_crazed_cowardice : public SpellScriptLoader
 {
     public:
         spell_crazed_cowardice() : SpellScriptLoader("spell_crazed_cowardice") { }
@@ -1606,19 +1615,19 @@ class spell_crazed_cowardice: public SpellScriptLoader
                 {
                     if (AuraPtr aura = GetAura())
                     {
-                        caster->EnergizeBySpell(caster, aura->GetId(), 10 * caster->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
+                        caster->EnergizeBySpell(caster, aura->GetId(), 10, POWER_RAGE);
 
                         if (aura->GetEffect(1))
                         {
                             if (aura->GetId() == SPELL_CRAZED)
-                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / (caster->GetPowerCoeff(POWER_RAGE) / 2));
+                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / 5);
                             else
-                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / caster->GetPowerCoeff(POWER_RAGE));
+                                aura->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / 10);
 
                             aura->SetNeedClientUpdateForTargets();
                         }
 
-                        if (caster->GetPower(POWER_RAGE) >= 100 * caster->GetPowerCoeff(POWER_RAGE))
+                        if (caster->GetPower(POWER_RAGE) >= 1000)
                         {
                             caster->SetPower(POWER_RAGE, 0);
                             caster->CastSpell(caster, aura->GetId() == SPELL_CRAZED ? SPELL_COWARDICE : SPELL_CRAZED, true);
@@ -1695,7 +1704,7 @@ class spell_crazed_cowardice: public SpellScriptLoader
 };
 
 // Crazy Thought - 117833
-class spell_crazy_thought: public SpellScriptLoader
+class spell_crazy_thought : public SpellScriptLoader
 {
     public:
         spell_crazy_thought() : SpellScriptLoader("spell_crazy_thought") { }
@@ -1708,13 +1717,13 @@ class spell_crazy_thought: public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 10, POWER_RAGE);
+                    caster->EnergizeBySpell(caster, GetSpellInfo()->Id, 100, POWER_RAGE);
 
                     if (AuraPtr cowardice = caster->GetAura(SPELL_COWARDICE))
                     {
                         if (cowardice->GetEffect(1))
                         {
-                            cowardice->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / caster->GetPowerCoeff(POWER_RAGE));
+                            cowardice->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / 10);
                             cowardice->SetNeedClientUpdateForTargets();
                         }
                     }
@@ -1722,7 +1731,7 @@ class spell_crazy_thought: public SpellScriptLoader
                     {
                         if (crazed->GetEffect(1))
                         {
-                            crazed->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / (caster->GetPowerCoeff(POWER_RAGE) / 2));
+                            crazed->GetEffect(1)->ChangeAmount(caster->GetPower(POWER_RAGE) / 5);
                             crazed->SetNeedClientUpdateForTargets();
                         }
                     }
@@ -1742,7 +1751,7 @@ class spell_crazy_thought: public SpellScriptLoader
 };
 
 // Coalescing Shadow - 117558
-class spell_coalescing_shadow: public SpellScriptLoader
+class spell_coalescing_shadow : public SpellScriptLoader
 {
     public:
         spell_coalescing_shadow() : SpellScriptLoader("spell_coalescing_shadow") { }
@@ -1758,11 +1767,11 @@ class spell_coalescing_shadow: public SpellScriptLoader
                 float MaxDist = 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE);
 
                 Map::PlayerList const& players = GetCaster()->GetMap()->GetPlayers();
-                    if (!players.isEmpty())
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if (Player* player = itr->getSource())
-                                if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) < MaxDist)
-                                    targets.push_back(player);
+                if (!players.isEmpty())
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        if (Player* player = itr->getSource())
+                            if (player->GetExactDist2d(GetCaster()->GetPositionX(), GetCaster()->GetPositionY()) < MaxDist)
+                                targets.push_back(player);
             }
 
             void Register()
@@ -1778,7 +1787,7 @@ class spell_coalescing_shadow: public SpellScriptLoader
 };
 
 // 118162 - Sleight of hand
-class spell_sleight_of_hand: public SpellScriptLoader
+class spell_sleight_of_hand : public SpellScriptLoader
 {
     public:
         spell_sleight_of_hand() : SpellScriptLoader("spell_sleight_of_hand") { }
@@ -1813,7 +1822,7 @@ class spell_sleight_of_hand: public SpellScriptLoader
 };
 
 // 117697 - Shield of Darkness
-class spell_shield_of_darkness: public SpellScriptLoader
+class spell_shield_of_darkness : public SpellScriptLoader
 {
     public:
         spell_shield_of_darkness() : SpellScriptLoader("spell_shield_of_darkness") { }

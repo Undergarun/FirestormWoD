@@ -87,7 +87,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
             ++l_ItemCount;
     }
 
-    WorldPacket l_Data(SMSG_VOID_STORAGE_CONTENTS);
+    WorldPacket l_Data(SMSG_VOID_STORAGE_CONTENTS, 5 * 1024);
 
     l_Data.WriteBits(l_ItemCount, 8);
     l_Data.FlushBits();
@@ -106,13 +106,8 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket & p_Packet)
         l_Data.appendPackGUID(l_CreatorGUID);
 
         l_Data << uint32(l_I);
-        l_Data << uint32(l_Item->ItemEntry);
-        l_Data << uint32(l_Item->ItemSuffixFactor);
-        l_Data << uint32(l_Item->ItemRandomPropertyId);
 
-        l_Data.WriteBit(false);
-        l_Data.WriteBit(false);
-        l_Data.FlushBits();
+        Item::BuildDynamicItemDatas(l_Data, l_Item->ItemEntry, l_Item->Bonuses);
     }
 
     SendPacket(&l_Data);
@@ -211,7 +206,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), l_Item->GetEntry(), l_Item->GetGuidValue(ITEM_FIELD_CREATOR), l_Item->GetItemRandomPropertyId(), l_Item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), l_Item->GetEntry(), l_Item->GetGuidValue(ITEM_FIELD_CREATOR), l_Item->GetItemRandomPropertyId(), l_Item->GetItemSuffixFactor(), l_Item->GetAllItemBonuses());
 
         uint8 l_Slot = m_Player->AddVoidStorageItem(itemVS);
 
@@ -250,6 +245,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
         Item * l_Item = m_Player->StoreNewItem(l_Destination, l_VoidStorageItem->ItemEntry, true, l_VoidStorageItem->ItemRandomPropertyId);
         l_Item->SetGuidValue(ITEM_FIELD_CREATOR, MAKE_NEW_GUID(l_VoidStorageItem->CreatorGuid, 0, HIGHGUID_PLAYER));
+        l_Item->AddItemBonuses(l_VoidStorageItem->Bonuses);
         l_Item->SetBinding(true);
         m_Player->SendNewItem(l_Item, 1, false, false, false);
 
@@ -258,7 +254,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
         m_Player->DeleteVoidStorageItem(l_Slot);
     }
 
-    WorldPacket l_Data(SMSG_VOID_STORAGE_TRANSFER_CHANGES);
+    WorldPacket l_Data(SMSG_VOID_STORAGE_TRANSFER_CHANGES, 500);
 
     l_Data.WriteBits(l_DepositCountSecond, 4);
     l_Data.WriteBits(l_WithdrawCountSecond, 4);
@@ -266,27 +262,19 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket & p_Packet)
 
     for (uint8 l_I = 0; l_I < l_DepositCountSecond; ++l_I)
     {
-        uint64 l_ItemGUID       = MAKE_NEW_GUID(l_DepositItemsSecond[l_I].first.ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
-        uint64 l_CreatorGUID    = l_DepositItemsSecond[l_I].first.CreatorGuid;
+        uint64 l_ItemGUID = MAKE_NEW_GUID(l_DepositItemsSecond[l_I].first.ItemId | 0xF0000000, 0, HIGHGUID_ITEM);
+        uint64 l_CreatorGUID = l_DepositItemsSecond[l_I].first.CreatorGuid;
 
         l_Data.appendPackGUID(l_ItemGUID);
         l_Data.appendPackGUID(l_CreatorGUID);
 
         l_Data << uint32(l_DepositItemsSecond[l_I].second);                         ///< Slot
 
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemEntry);                ///< ItemID
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemSuffixFactor);         ///< RandomPropertiesSeed
-        l_Data << uint32(l_DepositItemsSecond[l_I].first.ItemRandomPropertyId);     ///< RandomPropertiesID
-
-        l_Data.WriteBit(false);                                                     ///< Has Item Bonus
-        l_Data.WriteBit(false);                                                     ///< Has modification
-        l_Data.FlushBits();
+        Item::BuildDynamicItemDatas(l_Data, l_DepositItemsSecond[l_I].first);
     }
 
     for (uint8 l_I = 0; l_I < l_WithdrawCountSecond; ++l_I)
-    {
         l_Data.appendPackGUID(l_WithdrawItemsSecond[l_I]);
-    }
 
     SendPacket(&l_Data);
 

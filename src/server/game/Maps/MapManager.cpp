@@ -33,6 +33,7 @@
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
+#include <thread>
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
@@ -59,8 +60,8 @@ void MapManager::Initialize()
     }
     int num_threads(sWorld->getIntConfig(CONFIG_NUMTHREADS));
     // Start mtmaps if needed.
-    if (num_threads > 0 && m_updater.activate(num_threads) == -1)
-        abort();
+    if (num_threads > 0)
+        m_updater.activate(num_threads);
 }
 
 void MapManager::InitializeVisibilityDistanceInfo()
@@ -109,7 +110,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
             map = new MapInstanced(id, i_gridCleanUpDelay);
         else
         {
-            map = new Map(id, i_gridCleanUpDelay, 0, NONE_DIFFICULTY);
+            map = new Map(id, i_gridCleanUpDelay, 0, DifficultyNone);
             map->LoadRespawnTimes();
         }
 
@@ -169,7 +170,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (!instance)
         return false;
 
-    Difficulty targetDifficulty = player->GetDifficulty(entry->IsRaid());
+    Difficulty targetDifficulty = player->GetDifficultyID(entry);
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
     MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)
@@ -177,7 +178,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         // Send aborted message for dungeons
         if (entry->IsNonRaidDungeon())
         {
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficulty());
+            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, player->GetDungeonDifficultyID());
             return false;
         }
         else    // attempt to downscale
@@ -244,7 +245,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             /*
                 This check has to be moved to InstanceMap::CanEnter()
                 // Player permanently bounded to different instance than groups one
-                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid()));
+                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry));
                 if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
                     boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
                 {
@@ -260,7 +261,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instaceIdToCheck = 0;
-        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
+        if (InstanceSave* save = player->GetInstanceSave(mapid))
             instaceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
@@ -281,6 +282,15 @@ void MapManager::Update(uint32 diff)
     if (!i_timer.Passed())
         return;
 
+    /// - Start Achievement criteria update processing thread
+    sAchievementMgr->PrepareCriteriaUpdateTaskThread();
+
+    if (m_updater.activated())
+        m_updater.schedule_specific(new AchievementCriteriaUpdateRequest(&m_updater));
+    else
+        AchievementCriteriaUpdateRequest(nullptr).call();
+
+    /// - Start map updater threads
     MapMapType::iterator iter = i_maps.begin();
     for (; iter != i_maps.end(); ++iter)
     {
@@ -289,6 +299,7 @@ void MapManager::Update(uint32 diff)
         else
             iter->second->Update(uint32(i_timer.GetCurrent()));
     }
+
     if (m_updater.activated())
         m_updater.wait();
 

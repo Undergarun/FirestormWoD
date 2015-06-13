@@ -678,12 +678,12 @@ class spell_ulduar_cancel_stone_grip: public SpellScriptLoader
                 if (!target || !target->GetVehicle())
                     return;
 
-                switch (target->GetMap()->GetDifficulty())
+                switch (target->GetMap()->GetDifficultyID())
                 {
-                    case LEGACY_MAN10_DIFFICULTY:
+                    case Difficulty::Difficulty10N:
                         target->RemoveAura(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                         break;
-                    case LEGACY_MAN25_DIFFICULTY:
+                    case Difficulty::Difficulty25N:
                         target->RemoveAura(GetSpellInfo()->Effects[EFFECT_1].CalcValue());
                         break;
                     default:

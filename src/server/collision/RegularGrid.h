@@ -71,7 +71,7 @@ public:
     }
 
     bool contains(const T& value) const { return memberTable.containsKey(&value); }
-    int size() const { return memberTable.size(); }
+    int size() const { return uint32(memberTable.size()); }
 
     struct Cell
     {
@@ -159,8 +159,8 @@ public:
         //int Cycles = std::max((int)ceilf(max_dist/tMaxX),(int)ceilf(max_dist/tMaxY));
         //int i = 0;
 
-        float tDeltaX = voxel * fabs(kx_inv);
-        float tDeltaY = voxel * fabs(ky_inv);
+        float tDeltaX = voxel * std::fabs(kx_inv);
+        float tDeltaY = voxel * std::fabs(ky_inv);
         do
         {
             if (Node* node = nodes[cell.x][cell.y])

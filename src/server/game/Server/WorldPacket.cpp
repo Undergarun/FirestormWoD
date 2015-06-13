@@ -19,6 +19,9 @@
 #include "WorldPacket.h"
 #include "World.h"
 
+std::mutex gPacketProfilerMutex;
+std::map<uint32, uint32> gPacketProfilerData;
+
 //! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)
 {
@@ -104,4 +107,14 @@ void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src
     }
 
     *dst_size -= _compressionStream->avail_out;
+}
+
+void WorldPacket::OnSend()
+{
+    if (m_opcode != UNKNOWN_OPCODE && _storage.size() > m_BaseSize)
+    {
+        gPacketProfilerMutex.lock();
+        gPacketProfilerData[m_opcode] = std::max((uint32)_storage.size(), (uint32)gPacketProfilerData[m_opcode]);
+        gPacketProfilerMutex.unlock();
+    }
 }

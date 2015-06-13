@@ -369,7 +369,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, SpellInfo const* p_SpellInfo)
             {
                 if (!_isThirdPhase && !HealthAbovePct(35))
                 {
@@ -408,7 +408,7 @@ class boss_sindragosa : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
+                if (uint32 spellId = 70127)
                 {
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -428,7 +428,7 @@ class boss_sindragosa : public CreatureScript
 
                 if (Player* player = target->ToPlayer())
                 {
-                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
+                    if (uint32 spellId = _isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1)
                     {
                         if (spellId == spell->Id)
                         {

@@ -103,7 +103,7 @@ class npc_zulaman_forest_frog : public CreatureScript
                         case 3: cEntry = NPC_LENZO; reward = 1; spellId = SPELL_LENZO_ACHIEVEMENT; break;
                         case 4: cEntry = NPC_MELISSA; reward = 2; spellId = SPELL_MELISSA_ACHIEVEMENT; break;
                         case 5: cEntry = NPC_MAWAGO; reward = 2; spellId = SPELL_MAWAGO_ACHIEVEMENT; break;
-                        case 6: cEntry = NPC_MELASONG; reward = 2; spellId = SPELL_MELASONG_ACHIEVEMENT;; break;
+                        case 6: cEntry = NPC_MELASONG; reward = 2; spellId = SPELL_MELASONG_ACHIEVEMENT; break;
                         case 7: cEntry = NPC_ROSA; reward = 2; spellId = SPELL_ROSA_ACHIEVEMENT; break;
                         case 8: cEntry = NPC_RELISSA; reward = 2; spellId = SPELL_RELISSA_ACHIEVEMENT; break;
                         case 9: cEntry = NPC_TYLLAN; reward = 2; spellId = SPELL_TYLLAN_ACHIEVEMENT; break;
@@ -185,40 +185,40 @@ class npc_amanishi_tempest : public CreatureScript
             return new npc_amanishi_tempestAI(pCreature);
         }
 
-		struct npc_amanishi_tempestAI : public ScriptedAI
-		{
-			npc_amanishi_tempestAI(Creature* pCreature) : ScriptedAI(pCreature)
-			{
+        struct npc_amanishi_tempestAI : public ScriptedAI
+        {
+            npc_amanishi_tempestAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_IMMUNE_TO_PC);
-			}
+            }
 
-			EventMap events;
+            EventMap events;
 
-			void Reset()
-			{
-				events.Reset();
-			}
+            void Reset()
+            {
+                events.Reset();
+            }
 
-			void EnterCombat(Unit* attacker)
-			{
+            void EnterCombat(Unit* attacker)
+            {
                 events.ScheduleEvent(EVENT_THUNDERCLAP, urand(5000, 10000));
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(6000, 12000));
-			}
+            }
 
-			void UpdateAI(const uint32 diff)
-			{
-				if (!UpdateVictim())
-					return;
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
 
-				events.Update(diff);
+                events.Update(diff);
 
-				if (me->HasUnitState(UNIT_STATE_CASTING))
-					return;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-				while (uint32 eventId = events.ExecuteEvent())
-				{
-					switch (eventId)
-					{
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
                         case EVENT_THUNDERCLAP:
                             DoCastAOE(SPELL_THUNDERCLAP);
                             events.ScheduleEvent(EVENT_THUNDERCLAP, urand(14000, 18000));
@@ -228,12 +228,12 @@ class npc_amanishi_tempest : public CreatureScript
                                 DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(10000, 12000));
                             break;
-					}
-				}
+                    }
+                }
 
-				DoMeleeAttackIfReady();
-			}
-	 };
+                DoMeleeAttackIfReady();
+            }
+     };
 };
 
 void AddSC_zulaman()

@@ -462,7 +462,7 @@ class boss_ji_kun : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
                 }
 
                 if (GameObject* l_ExitDoor = m_Instance->instance->GetGameObject(m_Instance->GetData64(GOB_JI_KUN_EXIT_DOOR)))
@@ -903,7 +903,7 @@ class mob_young_egg_of_jikun : public CreatureScript
                 m_Events.ScheduleEvent(EVENT_HATCH, 10000);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &/*damage*/)
+            void DamageTaken(Unit* attacker, uint32 &/*damage*/, SpellInfo const* p_SpellInfo)
             {
                 m_Events.CancelEvent(EVENT_HATCH);
                 DoAction(ACTION_HATCH);

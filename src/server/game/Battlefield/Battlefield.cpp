@@ -228,7 +228,7 @@ void Battlefield::InvitePlayerToQueue(Player* player)
 
 void Battlefield::InvitePlayersInQueueToWar()
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
     {
         for (GuidSet::const_iterator itr = m_PlayersInQueue[team].begin(); itr != m_PlayersInQueue[team].end(); ++itr)
         {
@@ -247,7 +247,7 @@ void Battlefield::InvitePlayersInQueueToWar()
 
 void Battlefield::InvitePlayersInZoneToWar()
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
@@ -309,7 +309,7 @@ void Battlefield::InitStalker(uint32 entry, float x, float y, float z, float o)
 
 void Battlefield::KickAfkPlayers()
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 if (player->isAFK())
@@ -337,7 +337,7 @@ void Battlefield::StartBattle()
     if (m_isActive)
         return;
 
-    for (int team = 0; team < BG_TEAMS_COUNT; team++)
+    for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; team++)
     {
         m_PlayersInWar[team].clear();
         m_Groups[team].clear();
@@ -380,7 +380,7 @@ void Battlefield::EndBattle(bool endByTimer)
 
 void Battlefield::DoPlaySoundToAll(uint32 SoundID)
 {
-    for (int team = 0; team < BG_TEAMS_COUNT; team++)
+    for (int team = 0; team < MS::Battlegrounds::TeamsCount::Value; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->SendPlaySound(SoundID, true);
@@ -449,7 +449,7 @@ void Battlefield::TeamCastSpell(TeamId team, int32 spellId)
 
 void Battlefield::BroadcastPacketToZone(WorldPacket& data) const
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->GetSession()->SendPacket(&data);
@@ -457,7 +457,7 @@ void Battlefield::BroadcastPacketToZone(WorldPacket& data) const
 
 void Battlefield::BroadcastPacketToQueue(WorldPacket& data) const
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         for (GuidSet::const_iterator itr = m_PlayersInQueue[team].begin(); itr != m_PlayersInQueue[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->GetSession()->SendPacket(&data);
@@ -465,7 +465,7 @@ void Battlefield::BroadcastPacketToQueue(WorldPacket& data) const
 
 void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
 {
-    for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
+    for (uint8 team = 0; team < MS::Battlegrounds::TeamsCount::Value; ++team)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->GetSession()->SendPacket(&data);
@@ -510,7 +510,7 @@ void Battlefield::SendWarningToPlayer(Player* player, uint32 entry)
 
 void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)
 {
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint8 i = 0; i < MS::Battlegrounds::TeamsCount::Value; ++i)
         for (GuidSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->SendUpdateWorldState(field, value);

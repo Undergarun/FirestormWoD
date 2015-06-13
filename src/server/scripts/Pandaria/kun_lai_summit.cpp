@@ -963,7 +963,7 @@ class mob_spirit_of_anger : public CreatureScript
                 xuen->AI()->SetData(XUEN_PHASE_3, DONE);
             }
 
-            void DamageTaken(Unit* attacker, uint32 &damage)
+            void DamageTaken(Unit* attacker, uint32 &damage, SpellInfo const* p_SpellInfo)
             {
                 if(me->HealthBelowPctDamaged(20, damage))
                 {
@@ -1223,7 +1223,7 @@ class mob_lun_chi : public CreatureScript
                 events.ScheduleEvent(EVENT_SPINNING_CRANE_KICK, 23000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1385,7 +1385,7 @@ class mob_brewmaster_chani : public CreatureScript
                 events.ScheduleEvent(EVENT_THE_STEAMER, 12000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1543,7 +1543,7 @@ class mob_kang_bramblestaff : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, 20000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1716,7 +1716,7 @@ class mob_clever_ashyo : public CreatureScript
                 events.ScheduleEvent(EVENT_WATER_SPOUT, 12000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -1895,7 +1895,7 @@ class mob_ken_ken : public CreatureScript
                 events.ScheduleEvent(EVENT_KEN_KEN_RAMPAGE, 12000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2064,7 +2064,7 @@ class mob_the_wrestler : public CreatureScript
                 events.ScheduleEvent(EVENT_VULNERABLE, 43000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2226,7 +2226,7 @@ class mob_master_boom_boom : public CreatureScript
                 events.ScheduleEvent(EVENT_TOSS_A_BOOM_BOOM, 12000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2383,7 +2383,7 @@ class mob_master_windfur : public CreatureScript
 //                events.ScheduleEvent(EVENT_WINDFUR_PUNCH, 12000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2563,7 +2563,7 @@ class mob_tankiss : public CreatureScript
                 events.ScheduleEvent(EVENT_GROUND_PUMMEL, 18000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2760,7 +2760,7 @@ class mob_healiss : public CreatureScript
                 events.ScheduleEvent(EVENT_MIND_FLAY, 18000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {
@@ -2957,7 +2957,7 @@ class mob_hackiss : public CreatureScript
                 events.ScheduleEvent(EVENT_MIND_FLAY, 18000);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (Player* player = attacker->ToPlayer())
                 {

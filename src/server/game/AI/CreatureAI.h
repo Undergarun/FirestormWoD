@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "UnitAI.h"
 #include "Common.h"
+#include "InstanceScript.h"
 
 class WorldObject;
 class Unit;
@@ -120,6 +121,12 @@ class CreatureAI : public UnitAI
         virtual void JustSummoned(Creature* /*summon*/) {}
         virtual void IsSummonedBy(Unit* /*summoner*/) {}
 
+        /// Called when the creature summons successfully AreaTriggers
+        virtual void AreaTriggerCreated(AreaTrigger* p_AreaTrigger) { }
+
+        /// Called when an AreaTrigger summoned by the creature despawns
+        virtual void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger) { }
+
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
 
@@ -128,6 +135,9 @@ class CreatureAI : public UnitAI
 
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
+
+        /// Called when spell miss a target
+        virtual void SpellMissTarget(Unit* p_Target, SpellInfo const* p_SpellInfo, SpellMissInfo p_MissInfo) { }
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
@@ -166,12 +176,6 @@ class CreatureAI : public UnitAI
         // Called at any threat added from any attacker (before threat apply)
         virtual void OnAddThreat(Unit* /*victim*/, float& /*fThreat*/, SpellSchoolMask /*schoolMask*/, SpellInfo const* /*threatSpell*/) {}
 
-        /// Called when an hostile reference is added to the threat list
-        virtual void OnHostileReferenceAdded(Unit* p_Ennemy) { }
-
-        /// Called when an hostile reference is removed from the threat list
-        virtual void OnHostileReferenceRemoved(Unit* p_Ennemy) { }
-
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
@@ -202,6 +206,7 @@ class CreatureAI : public UnitAI
         virtual void OnSpellClick(Unit* /*clicker*/) { }
 
         virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
+
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
 

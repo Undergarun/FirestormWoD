@@ -52,7 +52,9 @@ int m_ServiceStatus = -1;
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
-MonitoringDatabaseWorkerPool MonitoringDatabase;            ///< Accessor to the monitoring database
+HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
+LoginMopDatabaseWorkerPool LoginMopDatabase;                ///< Accessor to the mop login database
+
 
 uint32 g_RealmID;                                             ///< Id of the realm
 
@@ -73,6 +75,8 @@ void usage(const char *prog)
 /// Launch the Trinity server
 extern int main(int argc, char **argv)
 {
+    ACE_Based::Thread::current()->setName("MainThread");
+
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_CORE_CONFIG;
     int c = 1;

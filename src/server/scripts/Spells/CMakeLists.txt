@@ -26,6 +26,10 @@ set(scripts_STAT_SRCS
   Spells/spell_holiday.cpp
   Spells/spell_monk.cpp
   Spells/spell_mastery.cpp
+  Spells/spell_skill.cpp
+  Spells/spell_npc.cpp
+  Spells/spell_at.cpp
+  Spells/spell_item_enchantment.cpp
 )
 
 message("  -> Prepared: Spells")

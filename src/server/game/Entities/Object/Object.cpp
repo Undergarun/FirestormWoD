@@ -271,7 +271,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (ToUnit() && ToUnit()->getVictim())
         flags |= UPDATEFLAG_HAS_COMBAT_VICTIM;
 
-    ByteBuffer buf(500);
+    ByteBuffer buf(10 * 1024);
     buf << uint8(updateType);
     buf.append(GetPackGUID());
     buf << uint8(m_objectTypeId);
@@ -297,7 +297,7 @@ void Object::SendUpdateToPlayer(Player* player)
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
-    ByteBuffer buf(500);
+    ByteBuffer buf(5 * 1024);
 
     buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
@@ -321,7 +321,7 @@ void Object::DestroyForPlayer(Player* p_Target, bool p_OnDeath) const
 
     /// SMSG_DESTROY_OBJECT doesn't exist anymore, now blizz use OUT_OF_RANGE block
     /// in SMSG_UPDATE_OBJECT to destroy an WorldObject
-    WorldPacket l_Data(SMSG_UPDATE_OBJECT, 40);
+    WorldPacket l_Data(SMSG_UPDATE_OBJECT);
 
     // Player cannot see creatures from different map ;)
     uint16 l_MapID = p_Target->GetMapId();
@@ -351,7 +351,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE && !l_Unit)
         p_Flags = p_Flags & ~UPDATEFLAG_HAS_VEHICLE_CREATE;
-    
+
+    if (l_WorldObject->GetAIAnimKitId() || l_WorldObject->GetMovementAnimKitId() || l_WorldObject->GetMeleeAnimKitId())
+        p_Flags |= UPDATEFLAG_HAS_ANIMKITS_CREATE;
+
     p_Data->WriteBit(p_Flags & UPDATEFLAG_NO_BIRTH_ANIM);           ///< No birth animation
     p_Data->WriteBit(p_Flags & UPDATEFLAG_ENABLE_PORTALS);          ///< Unk
     p_Data->WriteBit(p_Flags & UPDATEFLAG_PLAY_HOVER_ANIM);         ///< Play hover anim
@@ -618,7 +621,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
         *p_Data << float(l_WorldObject->GetStationaryX());                  ///< Stationary position X
         *p_Data << float(l_WorldObject->GetStationaryY());                  ///< Stationary position Y
         *p_Data << float(l_WorldObject->GetStationaryZ());                  ///< Stationary position Z
-        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O            
+        *p_Data << float(l_WorldObject->GetStationaryO());                  ///< Stationary position O
     }
 
     if (p_Flags & UPDATEFLAG_HAS_COMBAT_VICTIM)
@@ -633,7 +636,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         *p_Data << uint32(l_TransportTime);                                 ///< Transport time
     }
-                                    
+
     if (p_Flags & UPDATEFLAG_HAS_VEHICLE_CREATE)
     {
         *p_Data << uint32(l_Unit->GetVehicleKit()->GetVehicleInfo()->m_ID); ///< Vehicle ID
@@ -642,9 +645,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_ANIMKITS_CREATE)
     {
-        *p_Data << uint16(0);                                               ///< AnimKit1
-        *p_Data << uint16(0);                                               ///< AnimKit2
-        *p_Data << uint16(0);                                               ///< AnimKit3
+        *p_Data << uint16(l_WorldObject->GetAIAnimKitId());                 ///< AnimKit1
+        *p_Data << uint16(l_WorldObject->GetMovementAnimKitId());           ///< AnimKit2
+        *p_Data << uint16(l_WorldObject->GetMeleeAnimKitId());              ///< AnimKit3
     }
 
     if (p_Flags & UPDATEFLAG_HAS_ROTATION)
@@ -719,7 +722,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             *p_Data << float(l_MainTemplate->m_ScaleX);                                  ///< Radius
             *p_Data << float(l_MainTemplate->m_ScaleY);                                  ///< Radius Target
         }
-        
+
         if (l_HasAreaTriggerBox)
         {
             *p_Data << float(l_MainTemplate->m_BoxDatas.m_Extent[0]);                    ///< Extents X
@@ -773,10 +776,8 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasAreaTriggerSpline)
         {
-            uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
-
             AreaTriggerMoveTemplate l_MoveTemplate = sObjectMgr->GetAreaTriggerMoveTemplate(l_MainTemplate->m_MoveCurveID);
-            if (l_MoveTemplate.m_path_size != 0)
+            if (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_LINEAR && l_MoveTemplate.m_path_size != 0)
             {
                 *p_Data << uint32(l_MoveTemplate.m_duration > 0 ? l_MoveTemplate.m_duration : l_AreaTrigger->GetDuration());  ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
@@ -793,7 +794,9 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << uint32(l_MainTemplate->m_SplineDatas.TimeToTarget);               ///< Time To Target
+                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+
+                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
@@ -957,20 +960,20 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
-void Object::_LoadIntoDataField(char const* data, uint32 startOffset, uint32 count)
+void Object::_LoadIntoDataField(char const* p_Data, uint32 p_StartOffset, uint32 p_Count, bool p_Force)
 {
-    if (!data)
+    if (!p_Data)
         return;
 
-    Tokenizer tokens(data, ' ', count);
+    Tokenizer l_Tokens(p_Data, ' ', p_Count);
 
-    if (tokens.size() != count)
+    if (l_Tokens.size() != p_Count && !p_Force)
         return;
 
-    for (uint32 index = 0; index < count; ++index)
+    for (uint32 l_Index = 0; l_Index < l_Tokens.size(); ++l_Index)
     {
-        m_uint32Values[startOffset + index] = atol(tokens[index]);
-        _changesMask.SetBit(startOffset + index);
+        m_uint32Values[p_StartOffset + l_Index] = atol(l_Tokens[l_Index]);
+        _changesMask.SetBit(p_StartOffset + l_Index);
     }
 }
 
@@ -1066,6 +1069,10 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
                 visibleFlag |= UF_FLAG_PARTY_MEMBER;
             break;
         }
+        case TYPEID_GAMEOBJECT:
+            flags = GameObjectDynamicUpdateFieldFlags;
+            visibleFlag |= UF_FLAG_PUBLIC;
+            break;
         default:
             flags = nullptr;
             break;
@@ -1529,10 +1536,20 @@ void Object::AddDynamicValue(uint16 index, uint32 value)
     }
 }
 
-void Object::RemoveDynamicValue(uint16 index, uint32 value)
+void Object::RemoveDynamicValue(uint16 index, uint32 offset)
 {
-    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
-    /// TODO: Research if this is actually needed
+    ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false) || offset < _dynamicValues[index].size());
+
+    _dynamicValues[index].erase(_dynamicValues[index].begin() + offset);
+
+    _dynamicChangesMask.SetBit(index);
+    _dynamicChangesArrayMask[index].SetBit(offset);
+
+    if (m_inWorld && !m_objectUpdated)
+    {
+        sObjectAccessor->AddUpdateObject(this);
+        m_objectUpdated = true;
+    }
 }
 
 void Object::ClearDynamicValue(uint16 index)
@@ -1689,7 +1706,7 @@ void MovementInfo::Normalize()
 WorldObject::WorldObject(bool isWorldObject): WorldLocation(),
  m_zoneScript(NULL), m_name(""), m_isActive(false), m_isWorldObject(isWorldObject),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
-m_phaseMask(PHASEMASK_NORMAL)
+m_phaseMask(PHASEMASK_NORMAL), m_AIAnimKitId(0), m_MovementAnimKitId(0), m_MeleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
@@ -1939,6 +1956,17 @@ bool WorldObject::IsInRange2d(float x, float y, float minRange, float maxRange) 
     return distsq < maxdist * maxdist;
 }
 
+float WorldObject::GetObjectSize() const
+{
+    if (GetTypeId() == TYPEID_GAMEOBJECT)
+    {
+        if (auto l_GameObjectTemplate = ToGameObject()->GetGOInfo())
+            return l_GameObjectTemplate->size;
+    }
+
+    return (m_valuesCount > UNIT_FIELD_COMBAT_REACH) ? m_floatValues[UNIT_FIELD_COMBAT_REACH] : DEFAULT_WORLD_OBJECT_SIZE;
+}
+
 bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float maxRange) const
 {
     float dx = GetPositionX() - x;
@@ -2075,6 +2103,28 @@ bool WorldObject::IsInAxe(const WorldObject* obj1, const WorldObject* obj2, floa
     return (size * size) >= GetExactDist2dSq(obj1->GetPositionX() + cos(angle) * dist, obj1->GetPositionY() + sin(angle) * dist);
 }
 
+bool WorldObject::IsInAxe(WorldObject const* p_Object, float p_Width, float p_Range) const
+{
+    if (p_Object == nullptr)
+        return false;
+
+    float l_Dist = GetExactDist2d(p_Object->GetPositionX(), p_Object->GetPositionY());
+    float l_X = p_Object->GetPositionX() + (p_Range * cos(p_Object->GetOrientation()));
+    float l_Y = p_Object->GetPositionY() + (p_Range * sin(p_Object->GetOrientation()));
+
+    /// Not using sqrt() for performance
+    if ((l_Dist * l_Dist) >= p_Object->GetExactDist2dSq(l_X, l_Y))
+        return false;
+
+    if (!p_Width)
+        p_Width = GetObjectSize() / 2;
+
+    float l_Angle = p_Object->GetAngle(l_X, l_Y);
+
+    /// Not using sqrt() for performance
+    return (p_Width * p_Width) >= GetExactDist2dSq(p_Object->GetPositionX() + cos(l_Angle) * l_Dist, p_Object->GetPositionY() + sin(l_Angle) * l_Dist);
+}
+
 bool WorldObject::isInFront(WorldObject const* target,  float arc) const
 {
     return HasInArc(arc, target);
@@ -2121,7 +2171,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         {
             // non fly unit don't must be in air
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->CanFly())
+            if (!ToCreature()->CanFly() && !ToCreature()->GetMap()->Instanceable())
             {
                 bool canSwim = ToCreature()->isPet() ? true : ToCreature()->canSwim();
                 float ground_z = z;
@@ -2659,7 +2709,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     ObjectGuid receiverGuid = targetGuid;
     ObjectGuid guildGuid = 0;
 
-    data->Initialize(SMSG_CHAT, 200);
+    data->Initialize(SMSG_CHAT, 800);
     *data << uint8(msgtype);
     *data << uint8(language);
     data->appendPackGUID(senderGuid);
@@ -2677,7 +2727,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     data->WriteBits(0, 5);
     data->WriteBits(0, 7);
     data->WriteBits(text ? strlen(text) : 0, 12);
-    data->WriteBits(0, 10);
+    data->WriteBits(0, 11);
     data->WriteBit(false);  ///< hide chat log
     data->WriteBit(false);  ///< Faker sender name
     data->FlushBits();
@@ -2712,7 +2762,7 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
 
 void WorldObject::SendObjectDeSpawnAnim(uint64 p_Guid)
 {
-    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 8);
+    WorldPacket l_Data(SMSG_GAMEOBJECT_DESPAWN, 16 + 2);
     l_Data.appendPackGUID(p_Guid);
     SendMessageToSet(&l_Data, true);
 }
@@ -3114,7 +3164,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                     break;
                 case ENTRY_VOIDWALKER:
                 case ENTRY_VOIDLORD:
-                    bp = 119907;// Disarm
+                    bp = 119907;// Disarm Removed since 6.0.2 please clean me
                     break;
                 case ENTRY_SUCCUBUS:
                     bp = 119909; // Whiplash
@@ -3158,7 +3208,8 @@ void Player::SendStartTimer(uint32 p_Time, uint32 p_MaxTime, uint8 p_Type)
     SendDirectMessage(&l_Data);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid, std::list<uint64>* viewersList, uint32 p_AnimProgress, uint32 p_GoHealth)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid /*= 0*/,
+    std::list<uint64>* viewersList /*= nullptr*/, uint32 p_AnimProgress /*= 100*/, uint32 p_GoHealth /*= 0*/, bool p_GarrisonPlotObject /*= false*/, bool p_Active /*= false*/)
 {
     if (!IsInWorld())
         return NULL;
@@ -3171,13 +3222,22 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, p_AnimProgress, GO_STATE_READY, 0, p_GoHealth))
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3,
+        p_AnimProgress, p_Active ? GO_STATE_ACTIVE : GO_STATE_READY, 0, p_GoHealth))
     {
         delete go;
         return NULL;
     }
 
     go->SetRespawnTime(respawnTime);
+
+    /// ===================== HACK ALERT, THIS IS BAD ================================================ ///
+    /// - Blizzard do like that for some garrison special gameobject but the dynamic update field      ///
+    ///   doesn't exist WTF !!                                                                         ///
+    /// - Need to wait how this thing will elvove to adapt it                                          ///
+    /// ===================== HACK ALERT, THIS IS BAD ===============================================  ///
+    if (p_GarrisonPlotObject)
+        go->SetDynamicValue(GAMEOBJECT_DYNAMIC_UNK, 0, 1);
 
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
         ToUnit()->AddGameObject(go);
@@ -3193,6 +3253,13 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     map->AddToMap(go);
 
     return go;
+}
+
+GameObject* WorldObject::SummonGameObject(uint32 p_Entry, Position const& p_Pos, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3, uint32 p_RespTime, uint64 p_ViewerGuid /*= 0*/,
+    std::list<uint64>* p_ViewerList /*= nullptr*/, uint32 p_AnimProgress /*= 100*/, uint32 p_GoHealth /*= 0*/, bool p_GarrisonPlotObject /*= false*/, bool p_Active /*= false*/)
+{
+    return SummonGameObject(p_Entry, p_Pos.m_positionX, p_Pos.m_positionY, p_Pos.m_positionZ, p_Pos.m_orientation, p_Rot0, p_Rot1, p_Rot2, p_Rot3, p_RespTime,
+        p_ViewerGuid, p_ViewerList, p_AnimProgress, p_GoHealth, p_GarrisonPlotObject, p_Active);
 }
 
 Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint32 duration, CreatureAI* (*GetAI)(Creature*))
@@ -3792,6 +3859,7 @@ void WorldObject::DestroyForNearbyPlayers()
 
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
+        player->GetVignetteMgr().OnWorldObjectDisappear(this);
     }
 }
 
@@ -3900,4 +3968,55 @@ uint64 WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetGUID();
     return 0;
+}
+
+void WorldObject::SetAIAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_AIAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_AIAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_AI_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
+}
+
+void WorldObject::SetMovementAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_MovementAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_MovementAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_MOVEMENT_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
+}
+
+void WorldObject::SetMeleeAnimKitId(uint16 p_AnimKitID)
+{
+    if (m_MeleeAnimKitId == p_AnimKitID)
+        return;
+
+    if (p_AnimKitID && !sAnimKitStore.LookupEntry(p_AnimKitID))
+        return;
+
+    m_MeleeAnimKitId = p_AnimKitID;
+
+    WorldPacket l_Data(SMSG_SET_MELEE_ANIM_KIT, 16 + 2 + 2);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << uint16(p_AnimKitID);
+
+    SendMessageToSet(&l_Data, true);
 }

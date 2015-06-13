@@ -30,9 +30,12 @@
 #include "ace/INET_Addr.h"
 #include "DB2Structure.h"
 #include "DB2Stores.h"
-#include "BattlegroundMgr.h"
+#include "BattlegroundMgr.hpp"
 #include "DisableMgr.h"
 #include <fstream>
+
+#include "BattlegroundPacketFactory.hpp"
+#include "BattlegroundInvitationsMgr.hpp"
 
 class misc_commandscript: public CommandScript
 {
@@ -165,7 +168,7 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            Player* l_SecondLeader = sObjectAccessor->FindPlayerByName(l_SecondName);;
+            Player* l_SecondLeader = sObjectAccessor->FindPlayerByName(l_SecondName);
             if (!l_SecondLeader || l_SecondLeader->getLevel() < 90)
             {
                 p_Handler->PSendSysMessage("Error about player %s.", l_SecondName);
@@ -186,7 +189,7 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            uint8 l_ArenaType = 0;
+            ArenaType l_ArenaType = ArenaType::None;
             switch (l_GroupSize)
             {
             case 2:
@@ -203,7 +206,7 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            Battleground* l_BG = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
+            Battleground* l_BG = sBattlegroundMgr->GetBattlegroundTemplate(MS::Battlegrounds::BattlegroundType::AllArenas);
             if (!l_BG)
             {
                 p_Handler->PSendSysMessage("Battleground: template BG for All Arenas not found.");
@@ -216,18 +219,19 @@ class misc_commandscript: public CommandScript
                 return true;
             }
 
-            BattlegroundQueueTypeId l_BGQueueTypeID = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_AA, l_ArenaType, true);
-            PvPDifficultyEntry const* l_BracketEntry = GetBattlegroundBracketByLevel(l_BG->GetMapId(), 90);
+            MS::Battlegrounds::BattlegroundType::Type l_BGQueueTypeID = MS::Battlegrounds::GetTypeFromId(BATTLEGROUND_AA, l_ArenaType, true);
+            MS::Battlegrounds::Bracket const* l_BracketEntry = MS::Battlegrounds::Brackets::FindForLevel(90);
             if (!l_BracketEntry)
             {
                 p_Handler->PSendSysMessage("Invalid syntax.");
                 return true;
             }
 
-            BattlegroundQueue& l_BGQueue = sBattlegroundMgr->m_BattlegroundQueues[l_BGQueueTypeID];
+            MS::Battlegrounds::BattlegroundScheduler& l_Scheduler = sBattlegroundMgr->GetScheduler();
+            MS::Battlegrounds::BattlegroundInvitationsMgr& l_InvitationsMgr = sBattlegroundMgr->GetInvitationsMgr();
 
-            GroupQueueInfo* l_GInfo = l_BGQueue.AddGroup(l_FirstLeader, l_FirstGroup, BATTLEGROUND_AA, l_BracketEntry, l_ArenaType, false, false, 0, 0, true);
-            uint32 l_AverageTime = l_BGQueue.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->GetBracketId());
+            GroupQueueInfo* l_GInfo = l_Scheduler.AddGroup(l_FirstLeader, l_FirstGroup, MS::Battlegrounds::BattlegroundType::AllArenas, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, true);
+            uint32 l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->m_Id);
 
             for (GroupReference* l_Itr = l_FirstGroup->GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
             {
@@ -241,12 +245,12 @@ class misc_commandscript: public CommandScript
                 uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
                 // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
+                MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
                 l_Member->GetSession()->SendPacket(&l_Data);
             }
 
-            l_GInfo = l_BGQueue.AddGroup(l_SecondLeader, l_SecondGroup, BATTLEGROUND_AA, l_BracketEntry, l_ArenaType, false, false, 0, 0);
-            l_AverageTime = l_BGQueue.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->GetBracketId());
+            l_GInfo = l_Scheduler.AddGroup(l_SecondLeader, l_SecondGroup, MS::Battlegrounds::BattlegroundType::AllArenas, nullptr, l_BracketEntry, l_ArenaType, false, 0, 0, false);
+            l_AverageTime = l_InvitationsMgr.GetAverageQueueWaitTime(l_GInfo, l_BracketEntry->m_Id);
 
             for (GroupReference* l_Itr = l_SecondGroup->GetFirstMember(); l_Itr != NULL; l_Itr = l_Itr->next())
             {
@@ -260,7 +264,7 @@ class misc_commandscript: public CommandScript
                 uint32 l_QueueSlot = l_Member->AddBattlegroundQueueId(l_BGQueueTypeID);
 
                 // send status packet (in queue)
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
+                MS::Battlegrounds::PacketFactory::Status(&l_Data, l_BG, l_Member, l_QueueSlot, STATUS_WAIT_QUEUE, l_AverageTime, 0, l_ArenaType, true);
                 l_Member->GetSession()->SendPacket(&l_Data);
             }
 
@@ -573,7 +577,7 @@ class misc_commandscript: public CommandScript
 
                     // if the player or the player's group is bound to another instance
                     // the player will not be bound to another one
-                    InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(map->IsRaid()));
+                    InstancePlayerBind* bind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficultyID(map->GetEntry()));
                     if (!bind)
                     {
                         Group* group = _player->GetGroup();
@@ -585,9 +589,12 @@ class misc_commandscript: public CommandScript
                     }
 
                     if (map->IsRaid())
-                        _player->SetLegacyRaidDifficulty(target->GetLegacyRaidDifficulty());
+                    {
+                        _player->SetRaidDifficultyID(target->GetRaidDifficultyID());
+                        _player->SetLegacyRaidDifficultyID(target->GetLegacyRaidDifficultyID());
+                    }
                     else
-                        _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
+                        _player->SetDungeonDifficultyID(target->GetDungeonDifficultyID());
                 }
 
                 handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
@@ -699,7 +706,7 @@ class misc_commandscript: public CommandScript
                     Map* map = target->GetMap();
 
                     if (map->Instanceable() && map->GetInstanceId() != map->GetInstanceId())
-                        target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficulty(), true);
+                        target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficultyID(), true);
 
                     // we are in instance, and can summon only player in our group with us as lead
                     if (!handler->GetSession()->GetPlayer()->GetGroup() || !target->GetGroup() ||
@@ -990,42 +997,50 @@ class misc_commandscript: public CommandScript
             return true;
         }
 
-        static bool HandleCooldownCommand(ChatHandler* handler, char const* args)
+        static bool HandleCooldownCommand(ChatHandler* p_Handler, char const* p_Args)
         {
-            Player* target = handler->getSelectedPlayer();
-            if (!target)
+            Player* l_Target = p_Handler->getSelectedPlayer();
+            if (!l_Target)
             {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+                p_Handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                p_Handler->SetSentErrorMessage(true);
                 return false;
             }
 
-            std::string nameLink = handler->GetNameLink(target);
+            std::string l_NameLink = p_Handler->GetNameLink(l_Target);
 
-            if (!*args)
+            if (!*p_Args)
             {
-                target->RemoveAllSpellCooldown();
-                target->SendClearAllSpellCharges();
-                handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, nameLink.c_str());
+                l_Target->RemoveAllSpellCooldown();
+                l_Target->SendClearAllSpellCharges();
+                p_Handler->PSendSysMessage(LANG_REMOVEALL_COOLDOWN, l_NameLink.c_str());
             }
             else
             {
-                // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-                uint32 spellIid = handler->extractSpellIdFromLink((char*)args);
-                if (!spellIid)
+                /// Number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+                uint32 l_SpellID = p_Handler->extractSpellIdFromLink((char*)p_Args);
+                if (!l_SpellID)
                     return false;
 
-                if (sSpellMgr->GetSpellInfo(spellIid) == nullptr)
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
+                if (l_SpellInfo == nullptr)
                 {
-                    handler->PSendSysMessage(LANG_UNKNOWN_SPELL, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
-                    handler->SetSentErrorMessage(true);
+                    p_Handler->PSendSysMessage(LANG_UNKNOWN_SPELL, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
+                    p_Handler->SetSentErrorMessage(true);
                     return false;
                 }
 
-                target->RemoveSpellCooldown(spellIid, true);
-                target->SendClearSpellCharges(spellIid);
-                handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, spellIid, target == handler->GetSession()->GetPlayer() ? handler->GetTrinityString(LANG_YOU) : nameLink.c_str());
+                l_Target->RemoveSpellCooldown(l_SpellID, true);
+
+                if (SpellCategoriesEntry const* l_CatEntry = l_SpellInfo->GetSpellCategories())
+                {
+                    l_Target->SendClearSpellCharges(l_CatEntry->Category);
+                    l_Target->m_SpellChargesMap.erase(l_CatEntry->Category);
+                }
+
+                p_Handler->PSendSysMessage(LANG_REMOVE_COOLDOWN, l_SpellID, l_Target == p_Handler->GetSession()->GetPlayer() ? p_Handler->GetTrinityString(LANG_YOU) : l_NameLink.c_str());
             }
+
             return true;
         }
 
@@ -1378,7 +1393,7 @@ class misc_commandscript: public CommandScript
                     std::string itemName = itemNameStr + 1;
                     WorldDatabase.EscapeString(itemName);
 
-                    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
+                    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(HOTFIX_SEL_ITEM_TEMPLATE_BY_NAME);
                     stmt->setString(0, itemName);
                     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -2391,7 +2406,7 @@ class misc_commandscript: public CommandScript
 
         static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
         {
-            //sArenaTeamMgr->DistributeArenaPoints();
+            sWorld->ResetCurrencyWeekCap();
             return true;
         }
 
@@ -3003,7 +3018,7 @@ class misc_commandscript: public CommandScript
                 return false;
             }
 
-            WorldPacket data(SMSG_PLAY_SOUND, 4 + 8);
+            WorldPacket data(SMSG_PLAY_SOUND, 2 + 16 + 8);
             ObjectGuid guid = handler->GetSession()->GetPlayer()->GetGUID();
             data << uint32(soundId);
             data.appendPackGUID(guid);

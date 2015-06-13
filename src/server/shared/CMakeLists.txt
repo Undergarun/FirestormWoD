@@ -20,8 +20,9 @@ file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic/*.h)
 file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging/*.h)
 file(GLOB_RECURSE sources_Packets Packets/*.cpp Packets/*.h)
-file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h)
-file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h, Utilities/*.hpp)
+file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading/*.h Threading/*.hpp)
+file(GLOB_RECURSE sources_Utilities Utilities/*.cpp Utilities/*.h Utilities/*.hpp)
+file(GLOB_RECURSE sources_Reporting Reporting/*.cpp Reporting/*.hpp Reporting/*.hxx)
 
 file(GLOB sources_localdir *.cpp *.h)
 
@@ -47,6 +48,7 @@ set(shared_STAT_SRCS
   ${sources_Packets}
   ${sources_Threading}
   ${sources_Utilities}
+  ${sources_Reporting}
   ${sources_localdir}
   Debugging/Errors.h
 )
@@ -77,6 +79,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/utf8cpp
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/src/server
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
@@ -89,10 +92,13 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Packets
   ${CMAKE_CURRENT_SOURCE_DIR}/Threading
   ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+  ${CMAKE_CURRENT_SOURCE_DIR}/Reporting
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
+  ${CURL_INCLUDE_DIR}
+  ${EASYJSON_INCLUDE_DIR}
 )
 
 add_library(shared STATIC
@@ -103,6 +109,7 @@ set_property(TARGET shared PROPERTY FOLDER "server")
 
 target_link_libraries(shared
   ${ACE_LIBRARY}
+  ${CURL_LIBRARY}
 )
 
 # Generate precompiled header

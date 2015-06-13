@@ -13,6 +13,8 @@
 #include "Pet.h"
 #include "MapManager.h"
 #include "GarrisonMgr.hpp"
+#include "CreatureAI.h"
+#include "Chat.h"
 
 void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 {
@@ -30,25 +32,29 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<MS::Garrison::GarrisonBuilding>                   l_Buildings         = l_Garrison->GetBuildings();
     std::vector<MS::Garrison::GarrisonFollower>                   l_Followers         = l_Garrison->GetFollowers();
 
+    /// @TODO: Update it to 6.1.2
     if (!m_Player->IsInGarrison())
     {
         WorldPacket l_Data(SMSG_GARRISON_REMOTE_INFO, 200);
 
         l_Data << uint32(1);                                                        ///< @TODO Site Count
 
-        l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
-        l_Data << uint32(l_Buildings.size());                                       ///< Buildings
+        /// For
+        /// {
+            l_Data << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);      ///< Site Level ID
+            l_Data << uint32(l_Buildings.size());                                       ///< Buildings
 
-        for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
-        {
-            l_Data << uint32(l_Buildings[l_I].PlotInstanceID);                      ///< Garr Plot Instance ID
-            l_Data << uint32(l_Buildings[l_I].BuildingID);                          ///< Garr Building ID
-        }
+            for (uint32 l_I = 0; l_I < l_Buildings.size(); ++l_I)
+            {
+                l_Data << uint32(l_Buildings[l_I].PlotInstanceID);                      ///< Garr Plot Instance ID
+                l_Data << uint32(l_Buildings[l_I].BuildingID);                          ///< Garr Building ID
+            }
+        /// }
 
         SendPacket(&l_Data);
     }
 
-    WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 200);
+    WorldPacket l_Infos(SMSG_GET_GARRISON_INFO_RESULT, 5 * 1024);
 
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteID);          ///< Site ID
     l_Infos << int32(l_Garrison->GetGarrisonSiteLevelEntry()->SiteLevelID);     ///< Site Level ID
@@ -118,7 +124,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     std::vector<int32> l_KnownBlueprints        = l_Garrison->GetKnownBlueprints();
     std::vector<int32> l_KnownSpecializations   = l_Garrison->GetKnownSpecializations();
 
-    WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 200);
+    WorldPacket l_Data(SMSG_GARRISON_BLUEPRINT_AND_SPECIALIZATION_DATA, 500);
 
     l_Data << uint32(l_KnownBlueprints.size());
     l_Data << uint32(l_KnownSpecializations.size());
@@ -131,6 +137,7 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
 
     SendPacket(&l_Data);
 }
+
 void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -141,7 +148,7 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
     if (!l_Garrison)
         return;
 
-    bool l_CanUpgrade = false;
+    bool l_CanUpgrade = l_Garrison->CanUpgrade();
 
     WorldPacket l_Data(SMSG_GARRISON_REQUEST_UPGRADEABLE_RESULT, 4);
 
@@ -149,6 +156,38 @@ void WorldSession::HandleRequestGarrisonUpgradeableOpcode(WorldPacket & p_RecvDa
 
     SendPacket(&l_Data);
 }
+
+void WorldSession::HandleUpgradeGarrisonOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison)
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+
+    Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeGarrisonOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    if (!l_Garrison->CanUpgrade())
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeGarrisonOpcode - Can't upgrade");
+        return;
+    }
+
+    l_Garrison->Upgrade();
+}
+
 void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -160,6 +199,7 @@ void WorldSession::HandleRequestLandingPageShipmentInfoOpcode(WorldPacket & p_Re
         return;
 
 }
+
 void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -184,6 +224,7 @@ void WorldSession::HandleGarrisonMissionNPCHelloOpcode(WorldPacket & p_RecvData)
 
     SendGarrisonOpenMissionNpc(l_NpcGUID);
 }
+
 void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -235,6 +276,7 @@ void WorldSession::HandleGarrisonRequestBuildingsOpcode(WorldPacket & p_RecvData
 
     SendPacket(&l_Data);
 }
+
 void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -254,18 +296,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     p_RecvData >> l_PlotInstanceID;
     p_RecvData >> l_BuildingID;
 
-    bool l_CanBuild = false;
-    switch (l_BuildingID)
-    {
-        case 26:    /// Barracks Lvl 1
-        case 51:    /// Storehouse lvl 1
-            l_CanBuild = true;
-            break;
-
-        default:
-            l_CanBuild = m_Player->isGameMaster();
-            break;
-    }
+    sGarrisonBuildingManager->LearnAllowedBuildings(m_Player, l_Garrison);
 
     Creature* l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT);
 
@@ -295,8 +326,33 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
     if (!l_Result)
         l_Result = l_Garrison->CanPurchaseBuilding(l_BuildingID);
 
-    if (!l_CanBuild)
+    if (!sGarrisonBuildingManager->IsBluePrintAllowedForPurchasingBuilding(l_BuildingID, m_Player))
+    {
         l_Result = MS::Garrison::PurchaseBuildingResults::InvalidBuildingID;
+
+        std::string l_Message = "Building not available yet";
+        switch (m_Player->GetSession()->GetSessionDbcLocale())
+        {
+            case LocaleConstant::LOCALE_frFR:
+                l_Message = "Batiment non disponible";
+                break;
+
+            case LocaleConstant::LOCALE_esES:
+            case LocaleConstant::LOCALE_esMX:
+                l_Message = "Edificio no disponible";
+                break;
+
+            default:
+                break;
+        }
+
+        WorldPacket l_Data(SMSG_PRINT_NOTIFICATION, 2 + l_Message.size());
+        l_Data.WriteBits(l_Message.size(), 12);
+        l_Data.FlushBits();
+        l_Data.WriteString(l_Message);
+
+        SendPacket(&l_Data);
+    }
 
     WorldPacket l_PlaceResult(SMSG_GARRISON_PLACE_BUILDING_RESULT, 26);
     l_PlaceResult << uint32(l_Result);
@@ -329,6 +385,7 @@ void WorldSession::HandleGarrisonPurchaseBuildingOpcode(WorldPacket & p_RecvData
 
     SendPacket(&l_PlaceResult);
 }
+
 void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -356,6 +413,7 @@ void WorldSession::HandleGarrisonCancelConstructionOpcode(WorldPacket & p_RecvDa
 
     l_Garrison->CancelConstruction(l_PlotInstanceID);
 }
+
 void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -394,6 +452,7 @@ void WorldSession::HandleGarrisonStartMissionOpcode(WorldPacket & p_RecvData)
 
     l_Garrison->StartMission(l_MissionID, l_Followers);
 }
+
 void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -420,6 +479,7 @@ void WorldSession::HandleGarrisonCompleteMissionOpcode(WorldPacket & p_RecvData)
     
     l_Garrison->CompleteMission(l_MissionID);
 }
+
 void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -446,6 +506,7 @@ void WorldSession::HandleGarrisonMissionBonusRollOpcode(WorldPacket & p_RecvData
 
     l_Garrison->DoMissionBonusRoll(l_MissionID);
 }
+
 void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket & p_RecvData)
 {
     if (!m_Player)
@@ -465,6 +526,261 @@ void WorldSession::HandleGarrisonChangeFollowerActivationStateOpcode(WorldPacket
     l_Garrison->ChangeFollowerActivationState(l_FollowerDBID, !l_Desactivate);
 }
 
+void WorldSession::HandleGarrisonGetShipmentInfoOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !m_Player->IsInGarrison())
+        return;
+
+    uint64 l_NpcGUID = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionNPCHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    uint32 l_ShipmentID     = 0;
+    uint32 l_OrderAvailable = 0;
+    uint32 l_PlotInstanceID = 0;
+
+    l_PlotInstanceID = l_Garrison->GetCreaturePlotInstanceID(l_NpcGUID);
+
+    if (!!l_PlotInstanceID)
+    {
+        l_OrderAvailable = l_Garrison->GetBuildingMaxWorkOrder(l_PlotInstanceID);
+
+        uint32 l_BuildingID = l_Garrison->GetBuilding(l_PlotInstanceID).BuildingID;
+
+        if (l_BuildingID)
+            l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, false);
+    }
+
+    bool l_Success = !!l_ShipmentID && !!l_PlotInstanceID;
+
+    WorldPacket l_Response(SMSG_GET_SHIPMENT_INFO_RESPONSE, 1024);
+    l_Response.WriteBit(l_Success);
+    l_Response.FlushBits();
+
+    if (l_Success)
+    {
+        std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
+
+        uint32 l_PendingWorkOrderCount = std::count_if(l_WorkOrders.begin(), l_WorkOrders.end(), [l_PlotInstanceID](const MS::Garrison::GarrisonWorkOrder & p_Order) -> bool
+        {
+            return p_Order.PlotInstanceID == l_PlotInstanceID;
+        });
+
+        l_Response << uint32(l_ShipmentID);
+        l_Response << uint32(l_OrderAvailable);
+        l_Response << uint32(l_PendingWorkOrderCount);
+        l_Response << uint32(l_PlotInstanceID);
+
+        for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
+        {
+            if (l_WorkOrders[l_I].PlotInstanceID != l_PlotInstanceID)
+                continue;
+
+            uint32 l_Duration = 0;
+        
+            const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
+        
+            if (l_Entry)
+                l_Duration = l_Entry->Duration;
+
+            l_Response << uint32(l_WorkOrders[l_I].ShipmentID);
+            l_Response << uint64(l_WorkOrders[l_I].DatabaseID);
+            l_Response << uint64(0);                                    ///< 6.1.x FollowerID
+            l_Response << uint32(l_WorkOrders[l_I].CreationTime);
+            l_Response << uint32(l_Duration);
+            l_Response << uint32(0);                                    ///< 6.1.x Rewarded XP
+        }
+    }
+    else
+    {
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+        l_Response << uint32(0);
+    }
+
+    SendPacket(&l_Response);
+}
+
+void WorldSession::HandleGarrisonCreateShipmentOpcode(WorldPacket & p_RecvData)
+{
+    std::function<void(const std::string &)> l_OnError = [this](const std::string & p_Message) -> void
+    {
+        if (m_Player->GetSession()->GetSecurity() > SEC_PLAYER)
+            ChatHandler(m_Player).PSendSysMessage("HandleGarrisonCreateShipmentOpcode => %s", p_Message.c_str());
+
+        WorldPacket l_Ack(SMSG_CREATE_SHIPMENT_RESPONSE, 16);
+        l_Ack << uint64(0);
+        l_Ack << uint32(0);
+        l_Ack << uint32(1); ///< 0 = success & 1 = error
+
+        m_Player->SendDirectMessage(&l_Ack);
+    };
+
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !m_Player->IsInGarrison())
+        return;
+
+    uint64 l_NpcGUID = 0;
+    uint32 l_Count = 0;
+
+    p_RecvData.readPackGUID(l_NpcGUID);
+    p_RecvData >> l_Count;
+
+    /// Min 1 work order
+    if (!l_Count)
+        l_Count = 1;
+
+    Creature * l_Unit = GetPlayer()->GetNPCIfCanInteractWithFlag2(l_NpcGUID, UNIT_NPC_FLAG2_GARRISON_SHIPMENT_CRAFTER);
+
+    if (!l_Unit)
+    {
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGarrisonMissionNPCHelloOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(l_NpcGUID)));
+        return;
+    }
+
+    uint32 l_ShipmentID     = 0;
+    uint32 l_OrderMax       = 0;
+    uint32 l_PlotInstanceID = 0;
+
+    l_PlotInstanceID = l_Garrison->GetCreaturePlotInstanceID(l_NpcGUID);
+
+    if (!!l_PlotInstanceID)
+    {
+        l_OrderMax = l_Garrison->GetBuildingMaxWorkOrder(l_PlotInstanceID);
+
+        uint32 l_BuildingID = l_Garrison->GetBuilding(l_PlotInstanceID).BuildingID;
+
+        if (l_BuildingID)
+            l_ShipmentID = sGarrisonShipmentManager->GetShipmentIDForBuilding(l_BuildingID, m_Player, true);
+    }
+
+    if (!l_ShipmentID || !l_PlotInstanceID)
+    {
+        l_OnError("Invalid ShipmentID or PlotInstanceID");
+        return;
+    }
+
+    for (uint32 l_OrderI = 0; l_OrderI < l_Count; ++l_OrderI)
+    {
+        if (((int32)l_OrderMax - (int32)l_Garrison->GetWorkOrderCount(l_PlotInstanceID)) < 1)
+        {
+            l_OnError("Max work order for this building reached");
+            return;
+        }
+
+        const CharShipmentEntry * l_ShipmentEntry = sCharShipmentStore.LookupEntry(l_ShipmentID);
+
+        if (!l_ShipmentEntry)
+        {
+            l_OnError("Shipment entry not found");
+            return;
+        }
+
+        const SpellInfo * l_Spell = sSpellMgr->GetSpellInfo(l_ShipmentEntry->SpellID);
+
+        if (!l_Spell)
+        {
+            l_OnError("Shipment spell not found");
+            return;
+        }
+
+        bool l_HasReagents = true;
+        for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
+        {
+            uint32 l_ItemEntry = l_Spell->Reagent[l_I];
+            uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
+
+            if (!l_ItemEntry || !l_ItemCount)
+                continue;
+
+            if (!m_Player->HasItemCount(l_ItemEntry, l_ItemCount))
+                l_HasReagents = false;
+        }
+
+        if (!l_HasReagents)
+        {
+            l_OnError("Doesn't have reagents");
+            return;
+        }
+
+        for (uint32 l_I = 0; l_I < MAX_SPELL_REAGENTS; ++l_I)
+        {
+            uint32 l_ItemEntry = l_Spell->Reagent[l_I];
+            uint32 l_ItemCount = l_Spell->ReagentCount[l_I];
+
+            if (!l_ItemEntry || !l_ItemCount)
+                continue;
+
+            m_Player->DestroyItemCount(l_ItemEntry, l_ItemCount, true);
+        }
+
+        m_Player->CastSpell(m_Player, l_Spell, TRIGGERED_FULL_MASK);
+
+        uint64 l_DatabaseID = l_Garrison->StartWorkOrder(l_PlotInstanceID, l_ShipmentID);
+
+        WorldPacket l_Ack(SMSG_CREATE_SHIPMENT_RESPONSE, 16);
+        l_Ack << uint64(l_DatabaseID);
+        l_Ack << uint32(l_ShipmentID);
+        l_Ack << uint32(l_DatabaseID != 0);
+
+        m_Player->SendDirectMessage(&l_Ack);
+    }
+}
+
+void WorldSession::HandleGarrisonGetShipmentsOpcode(WorldPacket & p_RecvData)
+{
+    if (!m_Player)
+        return;
+
+    MS::Garrison::Manager * l_Garrison = m_Player->GetGarrison();
+
+    if (!l_Garrison || !l_Garrison->GetGarrisonSiteLevelEntry())
+        return;
+
+    std::vector<MS::Garrison::GarrisonWorkOrder> l_WorkOrders = l_Garrison->GetWorkOrders();
+
+    WorldPacket l_Data(SMSG_GET_SHIPMENTS, 1024);
+    l_Data << uint32(l_WorkOrders.size());
+
+    for (uint32 l_I = 0; l_I < l_WorkOrders.size(); ++l_I)
+    {
+        uint32 l_Duration = 0;
+
+        const CharShipmentEntry * l_Entry = sCharShipmentStore.LookupEntry(l_WorkOrders[l_I].ShipmentID);
+
+        if (l_Entry)
+            l_Duration = l_Entry->Duration;
+
+        /// @TODO http://www.mmo-champion.com/content/4662-Patch-6-1-Iron-Horde-Scrap-Meltdown-Garrison-Vendor-Rush-Orders-Blue-Posts
+        l_Data << uint32(l_WorkOrders[l_I].ShipmentID);
+        l_Data << uint64(l_WorkOrders[l_I].DatabaseID);
+        l_Data << uint64(0);                                    ///< 6.1.x FollowerID
+        l_Data << uint32(l_WorkOrders[l_I].CreationTime);
+        l_Data << uint32(l_Duration);
+        l_Data << uint32(0);                                    ///< 6.1.x Rewarded XP
+    }
+
+    SendPacket(&l_Data);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -476,7 +792,6 @@ void WorldSession::SendGarrisonOpenArchitect(uint64 p_CreatureGUID)
         return;
 
     WorldPacket l_Data(SMSG_GARRISON_OPEN_ARCHITECT, 18);
-
     l_Data.appendPackGUID(p_CreatureGUID);
 
     SendPacket(&l_Data);

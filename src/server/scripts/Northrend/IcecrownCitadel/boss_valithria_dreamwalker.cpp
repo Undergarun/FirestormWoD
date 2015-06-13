@@ -346,6 +346,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _done = true;
                     Talk(SAY_VALITHRIA_SUCCESS);
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    _instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, DONE);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
@@ -367,7 +368,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                 {

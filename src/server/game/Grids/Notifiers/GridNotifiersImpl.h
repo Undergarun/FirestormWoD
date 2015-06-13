@@ -370,6 +370,26 @@ void JadeCore::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaT
     }
 }
 
+template<class Check>
+void JadeCore::AreaTriggerSearcher<Check>::Visit(AreaTriggerMapType& p_AreatriggerMap)
+{
+    // already found
+    if (i_object)
+        return;
+
+    for (AreaTriggerMapType::iterator itr=p_AreatriggerMap.begin(); itr != p_AreatriggerMap.end(); ++itr)
+    {
+        if (!itr->getSource()->InSamePhase(i_phaseMask))
+            continue;
+
+        if (i_check(itr->getSource()))
+        {
+            i_object = itr->getSource();
+            return;
+        }
+    }
+
+}
 /// Gameobject searchers
 
 template<class Check>
@@ -603,7 +623,7 @@ void JadeCore::LocalizedPacketDo<Builder>::operator()(Player* p)
         if (i_data_cache.size() < cache_idx+1)
             i_data_cache.resize(cache_idx+1);
 
-        data = new WorldPacket(SMSG_CHAT, 200);
+        data = new WorldPacket(SMSG_CHAT, 800);
 
         i_builder(*data, loc_idx);
 

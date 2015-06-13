@@ -215,7 +215,10 @@ class BattlegroundWS : public Battleground
         virtual void FillInitialWorldStates(ByteBuffer& data);
 
         /* Scorekeeping */
-        uint32 GetTeamScore(uint32 TeamID) const            { return m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_WS_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
         void RemovePoint(uint32 TeamID, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
@@ -236,6 +239,7 @@ class BattlegroundWS : public Battleground
         uint32 m_EndTimestamp;
 
         virtual void PostUpdateImpl(uint32 diff);
+        int32 m_CheatersCheckTimer;
 };
 #endif
 

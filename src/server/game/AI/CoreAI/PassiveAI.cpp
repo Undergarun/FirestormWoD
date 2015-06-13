@@ -60,7 +60,7 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
+void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&, SpellInfo const*)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);

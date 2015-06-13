@@ -35,14 +35,15 @@ enum LevelLimit
 #define STRONG_MAX_LEVEL 255
 };
 
+/*
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
     BG_BRACKET_ID_LAST           = 16
-};
+};*/
 
 // must be max value in PvPDificulty slot+1
-#define MAX_BATTLEGROUND_BRACKETS  17
+//#define MAX_BATTLEGROUND_BRACKETS  17
 
 enum CurrencyFlags
 {
@@ -83,8 +84,8 @@ enum AreaFlags
     AREA_FLAG_UNK6             = 0x00080000,                // Valgarde and Acherus: The Ebon Hold
     AREA_FLAG_LOWLEVEL         = 0x00100000,                // used for some starting areas with area_level <= 15
     AREA_FLAG_TOWN             = 0x00200000,                // small towns with Inn
-    AREA_FLAG_UNK7             = 0x00400000,                // Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn, Sunreaver Pavilion (Something to do with team?)
-    AREA_FLAG_UNK8             = 0x00800000,                // Valgarde, Acherus: The Ebon Hold, Westguard Inn, Silver Covenant Pavilion (Something to do with team?)
+    AREA_FLAG_REST_ZONE_HORDE  = 0x00400000,                // Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn, Sunreaver Pavilion (Something to do with team?)
+    AREA_FLAG_REST_ZONE_ALLIANCE = 0x00800000,              // Valgarde, Acherus: The Ebon Hold, Westguard Inn, Silver Covenant Pavilion (Something to do with team?)
     AREA_FLAG_WINTERGRASP      = 0x01000000,                // Wintergrasp and it's subzones
     AREA_FLAG_INSIDE           = 0x02000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_OUTSIDE          = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
@@ -101,7 +102,7 @@ enum AreaFlags2
     AREA_FLAG2_UNK4             = 0x00000008,                // OrgrimmarRaid and DraenorAuchindoun
     AREA_FLAG2_UNK5             = 0x00000010,                //
     AREA_FLAG2_UNK6             = 0x00000020,                //
-    AREA_FLAG2_UNK7             = 0x00000040,                //
+    AREA_FLAG2_UNK7             = 0x00000040,                // Garrison
     AREA_FLAG2_UNK8             = 0x00000080,                //
     AREA_FLAG2_UNK9             = 0x00000100,                //
     AREA_FLAG2_UNK10            = 0x00000200,                //
@@ -129,55 +130,79 @@ enum AreaFlags2
 
 enum Difficulty
 {
-    NONE_DIFFICULTY                 = 0,                    // entry
+    DifficultyNone          = 0,  ///< difficulty_entry_0
+    DifficultyNormal        = 1,  ///< difficulty_entry_1
+    DifficultyHeroic        = 2,  ///< difficulty_entry_2
+    Difficulty10N           = 3,  ///< difficulty_entry_3
+    Difficulty25N           = 4,  ///< difficulty_entry_4
+    Difficulty10HC          = 5,  ///< difficulty_entry_5
+    Difficulty25HC          = 6,  ///< difficulty_entry_6
+    DifficultyRaidTool      = 7,  ///< difficulty_entry_7
+    DifficultyChallenge     = 8,  ///< difficulty_entry_8
+    Difficulty40            = 9,  ///< difficulty_entry_9
 
-    REGULAR_5_DIFFICULTY            = 1,                    // difficulty_entry_1
-    HEROIC_5_DIFFICULTY             = 2,                    // difficulty_entry_2
-    LEGACY_MAN10_DIFFICULTY         = 3,                    // difficulty_entry_3
-    LEGACY_MAN25_DIFFICULTY         = 4,                    // difficulty_entry_4
-    LEGACY_MAN10_HEROIC_DIFFICULTY  = 5,                    // difficulty_entry_5
-    LEGACY_MAN25_HEROIC_DIFFICULTY  = 6,                    // difficulty_entry_6
-    RAID_TOOL_DIFFICULTY            = 7,                    // difficulty_entry_7
-    CHALLENGE_MODE_DIFFICULTY       = 8,                    // difficulty_entry_8
-    MAN40_DIFFICULTY                = 9,                    // difficulty_entry_9
-                                                            // difficulty_entry_10
-    SCENARIO_HEROIC_DIFFICULTY      = 11,                   // difficulty_entry_11
-    SCENARIO_DIFFICULTY             = 12,                   // difficulty_entry_12
-    
-    NORMAL_DIFFICULTY               = 14,                   // difficulty_entry_14
-    HEROIC_DIFFICULTY               = 15,                   // difficulty_entry_15
-    MYTHIC_DIFFICULTY               = 16,                   // difficulty_entry_16
-                                                            // difficulty_entry_17
-    EVENT_0_DIFFICULTY              = 18,                   // difficulty_entry_18
-    EVENT_1_DIFFICULTY              = 19,                   // difficulty_entry_19
-    EVENT_SCENARIO                  = 20,                   // difficulty_entry_20
-    MAX_DIFFICULTY,
+    DifficultyHCScenario    = 11, ///< difficulty_entry_11
+    DifficultyNScenario     = 12, ///< difficulty_entry_12
+
+    DifficultyRaidNormal    = 14, ///< difficulty_entry_14
+    DifficultyRaidHeroic    = 15, ///< difficulty_entry_15
+    DifficultyRaidMythic    = 16, ///< difficulty_entry_16
+    DifficultyRaidLFR       = 17, ///< difficulty_entry_17
+    DifficultyEventRaid     = 18, ///< difficulty_entry_18
+    DifficultyEventDungeon  = 19, ///< difficulty_entry_19
+    DifficultyEventScenario = 20, ///< difficulty_entry_20
+
+    MaxDifficulties
 };
 
-#define MAX_DUNGEON_DIFFICULTY     HEROIC_DIFFICULTY+1
-#define MAX_RAID_DIFFICULTY        MAN40_DIFFICULTY+1
+enum DifficultyFlags
+{
+    DIFFICULTY_FLAG_HEROIC          = 0x01,
+    DIFFICULTY_FLAG_DEFAULT         = 0x02,
+    DIFFICULTY_FLAG_CAN_SELECT      = 0x04, ///< Player can select this difficulty in dropdown menu
+    DIFFICULTY_FLAG_CHALLENGE_MODE  = 0x08,
+
+    DIFFICULTY_FLAG_LEGACY          = 0x20,
+    DIFFICULTY_FLAG_DISPLAY_HEROIC  = 0x40, ///< Controls icon displayed on minimap when inside the instance
+    DIFFICULTY_FLAG_DISPLAY_MYTHIC  = 0x80  ///< Controls icon displayed on minimap when inside the instance
+};
 
 enum SpawnMask
 {
-    SPAWNMASK_CONTINENT         = (1 << NONE_DIFFICULTY),   // any maps without spawn modes
+    SpawnMaskContinent          = (1 << Difficulty::DifficultyNone), 
+    SpawnMaskDungeonNormal      = (1 << Difficulty::DifficultyNormal),
+    SpawnMaskDungeonHeroic      = (1 << Difficulty::DifficultyHeroic),
+    SpawnMaskRaid10Normal       = (1 << Difficulty::Difficulty10N ),
+    SpawnMaskRaid25Normal       = (1 << Difficulty::Difficulty25N),
+    SpawnMaskRaid10Heroic       = (1 << Difficulty::Difficulty10HC),
+    SpawnMaskRaid25Heroic       = (1 << Difficulty::Difficulty25HC),
+    SpawnMaskRaidTool           = (1 << Difficulty::DifficultyRaidTool),
+    SpawnMaskChallengeMode      = (1 << Difficulty::DifficultyChallenge),
+    SpawnMaskRaid40Normal       = (1 << Difficulty::Difficulty40),
 
-    SPAWNMASK_DUNGEON_NORMAL    = (1 << REGULAR_5_DIFFICULTY),
-    SPAWNMASK_DUNGEON_HEROIC    = (1 << HEROIC_5_DIFFICULTY),
-    SPAWNMASK_DUNGEON_CHALLENGE = (1 << CHALLENGE_MODE_DIFFICULTY),
-    SPAWNMASK_DUNGEON_ALL       = (SPAWNMASK_DUNGEON_NORMAL | SPAWNMASK_DUNGEON_HEROIC | SPAWNMASK_DUNGEON_CHALLENGE),
+    SpawnMaskScenarioHeroic     = (1 << Difficulty::DifficultyHCScenario),
+    SpawnMaskScenarioNormal     = (1 << Difficulty::DifficultyNScenario),
+    
+    SpawnMaskRaidNormal         = (1 << Difficulty::DifficultyRaidNormal),
+    SpawnMaskRaidHeroic         = (1 << Difficulty::DifficultyRaidHeroic),
+    SpawnMaskRaidMythic         = (1 << Difficulty::DifficultyRaidMythic),
+    SpawnMaskRaidLFR            = (1 << Difficulty::DifficultyRaidLFR),
+    SpawnMaskEventRaid          = (1 << Difficulty::DifficultyEventRaid),
+    SpawnMaskEventDungeon       = (1 << Difficulty::DifficultyEventDungeon),
+    SpawnMaskEventScenario      = (1 << Difficulty::DifficultyEventScenario),
 
-    SPAWNMASK_RAID_10MAN_NORMAL = (1 << LEGACY_MAN10_DIFFICULTY ),
-    SPAWNMASK_RAID_25MAN_NORMAL = (1 << LEGACY_MAN25_DIFFICULTY),
-    SPAWNMASK_RAID_40MAN_NORMAL = (1 << MAN40_DIFFICULTY),
-    SPAWNMASK_RAID_NORMAL_ALL   = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL | SPAWNMASK_RAID_40MAN_NORMAL),
+    SpawnMaskDungeonAll         = (SpawnMask::SpawnMaskDungeonNormal | SpawnMask::SpawnMaskDungeonHeroic | SpawnMask::SpawnMaskChallengeMode),
+    SpawnMaskLegacyNormalAll    = (SpawnMask::SpawnMaskRaid10Normal | SpawnMask::SpawnMaskRaid25Normal | SpawnMask::SpawnMaskRaid40Normal),
+    SpawnMaskLegacyHeroicAll    = (SpawnMask::SpawnMaskRaid10Heroic | SpawnMask::SpawnMaskRaid25Heroic),
+    SpawnMaskLegacyRaidAll      = (SpawnMask::SpawnMaskLegacyNormalAll | SpawnMask::SpawnMaskLegacyHeroicAll | SpawnMask::SpawnMaskRaidTool),
+    SpawnMaskRaidAll            = (SpawnMask::SpawnMaskRaidNormal | SpawnMask::SpawnMaskRaidHeroic | SpawnMask::SpawnMaskRaidMythic | SpawnMask::SpawnMaskRaidLFR)
+};
 
-    SPAWNMASK_RAID_10MAN_HEROIC = (1 << LEGACY_MAN10_HEROIC_DIFFICULTY),
-    SPAWNMASK_RAID_25MAN_HEROIC = (1 << LEGACY_MAN25_HEROIC_DIFFICULTY),
-    SPAWNMASK_RAID_HEROIC_ALL   = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
-
-    SPAWNMASK_RAID_RAID_TOOL    = (1 << RAID_TOOL_DIFFICULTY),
-
-    SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL | SPAWNMASK_RAID_RAID_TOOL)
+enum MapFlags
+{
+    MAP_FLAG_CAN_TOGGLE_DIFFICULTY  = 0x0100,
+    MAP_FLAG_FLEX_LOCKING           = 0x8000, ///< All difficulties share completed encounters lock, not bound to a single instance id
+                                              ///< heroic difficulty flag overrides it and uses instance id bind
 };
 
 enum FactionTemplateFlags
@@ -241,6 +266,22 @@ enum ItemLimitCategoryMode
 {
     ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
+};
+
+enum class ItemContext : uint8
+{
+    None             = 0,
+    DungeonNormal    = 1,
+    DungeonHeroic    = 2,
+    RaidHeroic       = 5,
+    RaidMythic       = 6,
+    RaidNormal       = 8,   ///< Gussed
+    RaidLfr          = 9,   ///< Gussed
+    TradeSkill       = 13,
+    DungeonLevelUp1  = 17,
+    DungeonLevelUp2  = 18,
+    DungeonLevelUp3  = 19,
+    DungeonLevelUp4  = 20,
 };
 
 enum MountFlags
@@ -350,7 +391,7 @@ enum VehicleSeatFlags
     VEHICLE_SEAT_FLAG_UNK18                                            = 0x00020000, // Needs research and support (28 vehicles): Allow entering vehicles while keeping specific permanent(?) auras that impose visuals (states like beeing under freeze/stun mechanic, emote state animations).
     VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_VOLUNTARY_EXIT                 = 0x00040000,
     VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_FORCED_EXIT                    = 0x00080000,
-    VEHICLE_SEAT_FLAG_UNK21                                            = 0x00100000,
+    VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE                         = 0x00100000,
     VEHICLE_SEAT_FLAG_UNK22                                            = 0x00200000,
     VEHICLE_SEAT_FLAG_REC_HAS_VEHICLE_ENTER_ANIM                       = 0x00400000,
     VEHICLE_SEAT_FLAG_IS_USING_VEHICLE_CONTROLS                        = 0x00800000, // Lua_IsUsingVehicleControls
@@ -401,8 +442,8 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_TOLVIR               = 401, // ARCHAEOLOGY Cataclysm
     CURRENCY_TYPE_IRONPAW                          = 402, // Cook token MoP
     CURRENCY_TYPE_WORLD_TREE                       = 416, // 4.2 token Molten front
-    CURRENCY_TYPE_CONQUEST_META_ARENA              = 483, // PvP
-    CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // PvP
+    CURRENCY_TYPE_CONQUEST_META_ARENA_BG           = 483, // PvP
+    CURRENCY_TYPE_CONQUEST_META_RBG                = 484, // Deprecated since WoD (merge of arena/rbg weekcap)
     CURRENCY_TYPE_DARKMOON_TICKET                  = 515, // Darkmoon fair
     CURRENCY_TYPE_MOTE_OF_DARKNESS                 = 614, // 4.3.4 token Dragon soul
     CURRENCY_TYPE_CORRUPTED_ESSENCE                = 615, // 4.3.4 Deathwing token
@@ -410,7 +451,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARCHAEOLOGY_PANDAREN             = 676, // ARCHAEOLOGY MoP
     CURRENCY_TYPE_ARCHAEOLOGY_MOGU                 = 677, // ARCHAEOLOGY MoP
     CURRENCY_TYPE_ELDER_CHARM_GOOD_FORTUNE         = 697, // LFR roll chance MoP
-    CURRENCY_TYPE_CONQUEST_META_RANDOM_BG          = 692, //
     CURRENCY_TYPE_ZEN_JEWEL                        = 698, // Jewelcrafting token MoP NYI
     CURRENCY_TYPE_LESSER_CHARM_GOOD_FORTUNE        = 738, // LFR roll chance MoP
     CURRENCY_TYPE_MOGU_RUNE_FATE                   = 752, // roll chance token for T15 boss
@@ -419,6 +459,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_TIMELESS_COIN                    = 777, // timeless isle token
     CURRENCY_TYPE_BLOODY_COIN                      = 789, // timeless isle token
     ///< WoD Currency
+    CURRENCY_TYPE_CONQUEST_META_ASHRAN             = 692, ///< Deprecated CURRENCY_TYPE_CONQUEST_META_RANDOM_BG, we use it for Ashran
     CURRENCY_TYPE_BLACK_IRON_FRAGEMENT             = 810, //
     CURRENCY_TYPE_DRAENOR_CLANS_ARCHAEOLOGY        = 821, // ARCHAEOLOGY WoD
     CURRENCY_TYPE_APEXIS_CRYSTAL                   = 823, // Set currency
@@ -435,6 +476,17 @@ enum CurrencyTypes
     CURRENCY_TYPE_SECRET_OF_DRAENOR_JEWELCRAFTING  = 1008,// Professions
     CURRENCY_TYPE_SECRET_OF_DRAENOR_LEATHERWORKING = 1017,// Professions
     CURRENCY_TYPE_SECRET_OF_DRAENOR_BLACKSMITHING  = 1020,// Professions
+    CURRENCY_TYPE_OIL                              = 1101 ///< Oil 6.1.X
+};
+
+/// Used for CRITERIA_CONDITION_LEGACY_RAID_TYPE
+enum class CriteriaLegacyRaidType : uint8
+{
+    Normal10    = 0,
+    Normal25    = 1,
+    Heroic10    = 2,
+    Heroic25    = 3,
+    None        = 255     ///< Custom ID, internal to server
 };
 
 #endif

@@ -36,143 +36,69 @@ void WorldSession::SendPetBattleJournal()
     uint32                          l_UnlockedSlotCount = m_Player->GetUnlockedPetBattleSlot();
     BattlePet::Ptr                * l_PetSlots          = m_Player->GetBattlePetCombatTeam();
 
-    WorldPacket l_Packet(SMSG_PETBATTLE_FULL_JOURNAL, 1000);
+    WorldPacket l_Packet(SMSG_BATTLE_PET_JOURNAL, 15 * 1024);
 
-    l_Packet.WriteBits(l_Pets.size(), 19);
-
-    for (std::vector<BattlePet::Ptr>::iterator l_It = l_Pets.begin(); l_It != l_Pets.end(); ++l_It)
-    {
-        BattlePet::Ptr l_Pet = (*l_It);
-
-        ObjectGuid l_Guid = l_Pet->JournalID;
-
-        l_Packet.WriteBit(l_Guid[7]);
-        l_Packet.WriteBit(!l_Pet->Quality);
-        l_Packet.WriteBit(l_Guid[3]);
-        l_Packet.WriteBit(l_Guid[5]);
-        l_Packet.WriteBit(l_Guid[1]);
-        l_Packet.WriteBit(l_Guid[6]);
-        l_Packet.WriteBit(0);
-        l_Packet.WriteBit(!0);
-        l_Packet.WriteBit(!l_Pet->Flags);
-        l_Packet.WriteBit(0);                                   // Has Unk block
-        l_Packet.WriteBits(l_Pet->Name.length(), 7);
-
-        //if (unkBlock)
-        //{
-        //    data.WriteBit(unkGuid[1]);
-        //    data.WriteBit(unkGuid[4]);
-        //    data.WriteBit(unkGuid[3]);
-        //    data.WriteBit(unkGuid[5]);
-        //    data.WriteBit(unkGuid[7]);
-        //    data.WriteBit(unkGuid[2]);
-        //    data.WriteBit(unkGuid[6]);
-        //    data.WriteBit(unkGuid[0]);
-        //}
-
-        l_Packet.WriteBit(l_Guid[0]);
-        l_Packet.WriteBit(l_Guid[2]);
-        l_Packet.WriteBit(l_Guid[4]);
-    }
-
-    l_Packet.WriteBit(1);                                     // unk
-    l_Packet.WriteBits(3, 25);                                // Slots count 
+    l_Packet << uint16(0);                                                                                  ///< 
+    l_Packet << uint32(3);                                                                                  ///< Slots count
+    l_Packet << uint32(l_Pets.size());                                                                      ///< Pets count
 
     for (uint32 l_I = 0; l_I < 3; l_I++)
     {
-        ObjectGuid l_Guid;
+        uint64 l_Guid = 0;
 
         if (l_PetSlots[l_I])
             l_Guid = l_PetSlots[l_I]->JournalID;
 
-        l_Packet.WriteBit(!l_I);                                // Have slot ID
-        l_Packet.WriteBit(!((l_I + 1) <= l_UnlockedSlotCount)); // Has unlocked slot
-        l_Packet.WriteBit(!0);                                  // Has collar id
-        l_Packet.WriteBit(l_Guid != 0);                         // Has Guid
-        l_Packet.WriteBit(l_Guid[1]);
-        l_Packet.WriteBit(l_Guid[4]);
-        l_Packet.WriteBit(l_Guid[5]);
-        l_Packet.WriteBit(l_Guid[6]);
-        l_Packet.WriteBit(l_Guid[0]);
-        l_Packet.WriteBit(l_Guid[2]);
-        l_Packet.WriteBit(l_Guid[3]);
-        l_Packet.WriteBit(l_Guid[7]);
-    }
-
-    l_Packet.FlushBits();
-
-    for (uint32 l_I = 0; l_I < 3; l_I++)
-    {
-        ObjectGuid l_Guid;
-
-        if (l_PetSlots[l_I])
-            l_Guid = l_PetSlots[l_I]->JournalID;
-
-        l_Packet.WriteByteSeq(l_Guid[2]);
-        l_Packet.WriteByteSeq(l_Guid[1]);
-        l_Packet.WriteByteSeq(l_Guid[3]);
-        l_Packet.WriteByteSeq(l_Guid[6]);
-        l_Packet.WriteByteSeq(l_Guid[7]);
-        l_Packet.WriteByteSeq(l_Guid[4]);
-        l_Packet.WriteByteSeq(l_Guid[5]);
-        l_Packet.WriteByteSeq(l_Guid[0]);
-
-        if (l_I)
-            l_Packet << uint8(l_I);
+        l_Packet.appendPackGUID(l_Guid);                                                                    ///< BattlePetGUID
+        l_Packet << uint32(0);                                                                              ///< CollarID
+        l_Packet << uint8(l_I);                                                                             ///< SlotIndex
+        l_Packet.WriteBit(!((l_I + 1) <= l_UnlockedSlotCount));                                             ///< Locked
+        l_Packet.FlushBits();
     }
 
     for (std::vector<BattlePet::Ptr>::iterator l_It = l_Pets.begin(); l_It != l_Pets.end(); ++l_It)
     {
         BattlePet::Ptr l_Pet = (*l_It);
 
-        ObjectGuid l_Guid = l_Pet->JournalID;
+        uint64 l_Guid = l_Pet->JournalID;
+        bool l_HasOwnerInfo = false;
         BattlePetSpeciesEntry const* l_SpeciesInfo = sBattlePetSpeciesStore.LookupEntry(l_Pet->Species);
 
         l_Pet->UpdateStats();
 
-        //if (unkBlock)
-        //{
-        //    data.WriteBit(unkGuid[1]);
-        //    data.WriteBit(unkGuid[3]);
-        //    data.WriteBit(unkGuid[5]);
-        //    data.WriteBit(unkGuid[2]);
-        //    data.WriteBit(unkGuid[4]);
-        //    data.WriteBit(unkGuid[7]);
-        //    data << uint32(0);
-        //    data << uint32(0);
-        //    data.WriteBit(unkGuid[6]);
-        //    data.WriteBit(unkGuid[0]);
-        //}
+        l_Packet.appendPackGUID(l_Guid);                                                                    ///< BattlePetGUID
+        l_Packet << uint32(l_Pet->Species);                                                                 ///< SpeciesID
+        l_Packet << uint32(l_SpeciesInfo ? l_SpeciesInfo->entry : 0);                                       ///< CreatureID
+        l_Packet << uint32(l_Pet->DisplayModelID);                                                          ///< DisplayID
+        l_Packet << uint16(l_Pet->Breed);                                                                   ///< BreedID
+        l_Packet << uint16(l_Pet->Level);                                                                   ///< Level
+        l_Packet << uint16(l_Pet->XP);                                                                      ///< Xp
+        l_Packet << uint16(l_Pet->Flags);                                                                   ///< BattlePetDBFlags
+        l_Packet << int32(l_Pet->InfoPower);                                                                ///< Power
+        l_Packet << int32(l_Pet->Health > l_Pet->InfoMaxHealth ? l_Pet->InfoMaxHealth : l_Pet->Health);     ///< Health
+        l_Packet << int32(l_Pet->InfoMaxHealth);                                                            ///< MaxHealth
+        l_Packet << int32(l_Pet->InfoSpeed);                                                                ///< Speed
+        l_Packet << uint8(l_Pet->Quality);                                                                  ///< BreedQuality
 
-        l_Packet << uint16(l_Pet->Level);
-        l_Packet.WriteByteSeq(l_Guid[7]);
-        l_Packet << int32(l_Pet->Health > l_Pet->InfoMaxHealth ? l_Pet->InfoMaxHealth : l_Pet->Health);
-        l_Packet << uint32(l_Pet->Species);
-        l_Packet << int32(l_Pet->InfoSpeed);
-        l_Packet << int32(l_Pet->InfoPower);
-        l_Packet << int32(l_Pet->InfoMaxHealth);
-        l_Packet.WriteByteSeq(l_Guid[6]);
-        l_Packet << uint32(l_SpeciesInfo ? l_SpeciesInfo->entry : 0);
-        l_Packet.WriteByteSeq(l_Guid[4]);
-        l_Packet.WriteByteSeq(l_Guid[2]);
-        l_Packet.WriteByteSeq(l_Guid[3]);
-        l_Packet.WriteByteSeq(l_Guid[0]);
+        l_Packet.WriteBits(l_Pet->Name.length(), 7);                                                        ///< CustomName
+        l_Packet.WriteBit(l_HasOwnerInfo);                                                                  ///< HasOwnerInfo
+        l_Packet.WriteBit(false);                                                                           ///< NoRename
+        l_Packet.FlushBits();
 
-        if (l_Pet->Flags)
-            l_Packet << uint16(l_Pet->Flags);
-
-        l_Packet << uint32(l_Pet->DisplayModelID);
-
-        if (l_Pet->Quality)
-            l_Packet << uint8(l_Pet->Quality);
-
-        l_Packet << uint16(l_Pet->XP);
-        l_Packet.WriteByteSeq(l_Guid[1]);
-        l_Packet.WriteByteSeq(l_Guid[5]);
         l_Packet.WriteString(l_Pet->Name);
+
+        if (l_HasOwnerInfo)
+        {
+            uint64 l_OwnerGUID = 0;
+
+            l_Packet.appendPackGUID(l_OwnerGUID);                                                           ///< Guid
+            l_Packet << uint32(g_RealmID);                                                                  ///< PlayerVirtualRealm
+            l_Packet << uint32(g_RealmID);                                                                  ///< PlayerNativeRealm
+        }
     }
 
-    l_Packet << uint16(0); // unk
+    l_Packet.WriteBit(true);                                                                                ///< HasJournalLock
+    l_Packet.FlushBits();
 
     SendPacket(&l_Packet);
 }
@@ -188,54 +114,27 @@ void WorldSession::SendPetBattleJournalBattleSlotUpdate()
     if (l_UnlockedSlotCount > 0)
         m_Player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HAS_BATTLE_PET_TRAINING);
 
-    WorldPacket l_Packet(SMSG_PETBATTLE_UPDATE_BATTLESLOT, 100);
+    WorldPacket l_Packet(SMSG_PET_BATTLE_SLOT_UPDATES, 100);
 
-    l_Packet.WriteBits(l_UnlockedSlotCount, 25);              // Slots count 
-    l_Packet.WriteBit(1);
-    l_Packet.WriteBit(0);
+    l_Packet << uint32(l_UnlockedSlotCount);    ///< Slots count
 
-    for (uint32 l_I = 0; l_I < l_UnlockedSlotCount; l_I++)
+    for (uint32 l_I = 0; l_I < 3; l_I++)
     {
-        ObjectGuid l_Guid;
+        uint64 l_Guid = 0;
 
         if (l_PetSlots[l_I])
             l_Guid = l_PetSlots[l_I]->JournalID;
 
-        l_Packet.WriteBit(l_Guid == 0);                       // Has Guid
-        l_Packet.WriteBit(!0);
-        l_Packet.WriteBit(l_Guid[3]);
-        l_Packet.WriteBit(l_Guid[1]);
-        l_Packet.WriteBit(l_Guid[5]);
-        l_Packet.WriteBit(l_Guid[4]);
-        l_Packet.WriteBit(l_Guid[6]);
-        l_Packet.WriteBit(l_Guid[2]);
-        l_Packet.WriteBit(l_Guid[7]);
-        l_Packet.WriteBit(l_Guid[0]);
-        l_Packet.WriteBit(!l_I);                              // Have slot ID
-        l_Packet.WriteBit(0);
+        l_Packet.appendPackGUID(l_Guid);                                                                    ///< BattlePetGUID
+        l_Packet << uint32(0);                                                                              ///< CollarID
+        l_Packet << uint8(l_I);                                                                             ///< SlotIndex
+        l_Packet.WriteBit(!((l_I + 1) <= l_UnlockedSlotCount));                                             ///< Locked
+        l_Packet.FlushBits();
     }
 
+    l_Packet.WriteBit(true);                    ///< NewSlotUnlocked
+    l_Packet.WriteBit(false);                   ///< AutoSlotted
     l_Packet.FlushBits();
-
-    for (uint32 l_I = 0; l_I < l_UnlockedSlotCount; l_I++)
-    {
-        ObjectGuid l_Guid;
-
-        if (l_PetSlots[l_I])
-            l_Guid = l_PetSlots[l_I]->JournalID;
-
-        l_Packet.WriteByteSeq(l_Guid[3]);
-        l_Packet.WriteByteSeq(l_Guid[7]);
-        l_Packet.WriteByteSeq(l_Guid[6]);
-        l_Packet.WriteByteSeq(l_Guid[2]);
-        l_Packet.WriteByteSeq(l_Guid[1]);
-        l_Packet.WriteByteSeq(l_Guid[5]);
-        l_Packet.WriteByteSeq(l_Guid[4]);
-        l_Packet.WriteByteSeq(l_Guid[0]);
-
-        if (l_I)
-            l_Packet << uint8(l_I);
-    }
 
     SendPacket(&l_Packet);
 }
@@ -833,30 +732,14 @@ void WorldSession::SendPetBattleFinished(PetBattle* battle)
 
 void WorldSession::HandlePetBattleSetAbility(WorldPacket& p_RecvData)
 {
-    ObjectGuid l_PetJournalID;
+    uint64 l_PetJournalID;
     uint32 l_Flag = 0;
     uint8 l_Action = 0;
 
+    p_RecvData.readPackGUID(l_PetJournalID);
     p_RecvData >> l_Flag;
 
-    l_PetJournalID[0]   = p_RecvData.ReadBit();
-    l_Action            = p_RecvData.ReadBits(2);  // 0 add flag, 2 remove it
-    l_PetJournalID[7]   = p_RecvData.ReadBit();
-    l_PetJournalID[3]   = p_RecvData.ReadBit();
-    l_PetJournalID[5]   = p_RecvData.ReadBit();
-    l_PetJournalID[1]   = p_RecvData.ReadBit();
-    l_PetJournalID[2]   = p_RecvData.ReadBit();
-    l_PetJournalID[4]   = p_RecvData.ReadBit();
-    l_PetJournalID[6]   = p_RecvData.ReadBit();
-
-    p_RecvData.ReadByteSeq(l_PetJournalID[3]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[4]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[2]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[5]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[6]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[0]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[7]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[1]);
+    l_Action = p_RecvData.ReadBits(2);  // 0 add flag, 2 remove it
 
     BattlePet::Ptr l_BattlePet = m_Player->GetBattlePet(l_PetJournalID);
 
@@ -872,44 +755,27 @@ void WorldSession::HandlePetBattleSetAbility(WorldPacket& p_RecvData)
 void WorldSession::HandlePetBattleRename(WorldPacket& p_RecvData)
 {
     DeclinedName    l_DeclinedNames;
-    ObjectGuid      l_PetJournalID;
+    uint64          l_PetJournalID;
     bool            l_HaveDeclinedNames = false;
     uint32          l_NameLenght        = 0;
     std::string     l_Name;
 
     uint32 l_DeclinedNameLens[MAX_DECLINED_NAME_CASES];
 
-    l_PetJournalID[3]   = p_RecvData.ReadBit();
-    l_PetJournalID[5]   = p_RecvData.ReadBit();
-    l_PetJournalID[1]   = p_RecvData.ReadBit();
-    l_PetJournalID[4]   = p_RecvData.ReadBit();
-    l_PetJournalID[0]   = p_RecvData.ReadBit();
-    l_PetJournalID[6]   = p_RecvData.ReadBit();
+    p_RecvData.readPackGUID(l_PetJournalID);
     l_NameLenght        = p_RecvData.ReadBits(7);
-    l_PetJournalID[2]   = p_RecvData.ReadBit();
-    l_PetJournalID[7]   = p_RecvData.ReadBit();
     l_HaveDeclinedNames = p_RecvData.ReadBit();
-
-    if (l_HaveDeclinedNames)
-    {
-        for (size_t l_I = 0 ; l_I < MAX_DECLINED_NAME_CASES ; ++l_I)
-            l_DeclinedNameLens[l_I] = p_RecvData.ReadBits(7);
-    }
-
-    p_RecvData.ReadByteSeq(l_PetJournalID[1]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[7]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[3]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[4]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[0]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[5]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[2]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[6]);
 
     l_Name = p_RecvData.ReadString(l_NameLenght);
 
     if (l_HaveDeclinedNames)
     {
-        for (size_t l_I = 0 ; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
+        p_RecvData.ResetBitReading();
+
+        for (size_t l_I = 0 ; l_I < MAX_DECLINED_NAME_CASES ; ++l_I)
+            l_DeclinedNameLens[l_I] = p_RecvData.ReadBits(7);
+
+        for (size_t l_I = 0; l_I < MAX_DECLINED_NAME_CASES; ++l_I)
             l_DeclinedNames.name[l_I] = p_RecvData.ReadString(l_DeclinedNameLens[l_I]);
     }
 
@@ -948,25 +814,9 @@ void WorldSession::HandlePetBattleRename(WorldPacket& p_RecvData)
 
 void WorldSession::HandleSummonCompanion(WorldPacket& recvData)
 {
-    ObjectGuid l_JournalID;
+    uint64 l_JournalID;
 
-    l_JournalID[7] = recvData.ReadBit();
-    l_JournalID[5] = recvData.ReadBit();
-    l_JournalID[0] = recvData.ReadBit();
-    l_JournalID[2] = recvData.ReadBit();
-    l_JournalID[4] = recvData.ReadBit();
-    l_JournalID[6] = recvData.ReadBit();
-    l_JournalID[3] = recvData.ReadBit();
-    l_JournalID[1] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(l_JournalID[4]);
-    recvData.ReadByteSeq(l_JournalID[1]);
-    recvData.ReadByteSeq(l_JournalID[0]);
-    recvData.ReadByteSeq(l_JournalID[2]);
-    recvData.ReadByteSeq(l_JournalID[6]);
-    recvData.ReadByteSeq(l_JournalID[3]);
-    recvData.ReadByteSeq(l_JournalID[7]);
-    recvData.ReadByteSeq(l_JournalID[5]);
+    recvData.readPackGUID(l_JournalID);
 
     if (m_Player->GetSummonedBattlePet() && m_Player->GetSummonedBattlePet()->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == l_JournalID)
         m_Player->UnsummonCurrentBattlePetIfAny(false);
@@ -1010,97 +860,51 @@ void WorldSession::HandlePetBattleCagePet(WorldPacket& recvData)
 
 void WorldSession::HandlePetBattleQueryName(WorldPacket& p_RecvData)
 {
-    ObjectGuid l_UnitGuid;
-    ObjectGuid l_JournalGuid;
+    uint64 l_UnitGuid;
+    uint64 l_JournalGuid;
 
-    l_JournalGuid[6]    = p_RecvData.ReadBit();
-    l_JournalGuid[3]    = p_RecvData.ReadBit();
-    l_JournalGuid[1]    = p_RecvData.ReadBit();
-    l_UnitGuid[0]       = p_RecvData.ReadBit();
-    l_UnitGuid[1]       = p_RecvData.ReadBit();
-    l_JournalGuid[4]    = p_RecvData.ReadBit();
-    l_JournalGuid[2]    = p_RecvData.ReadBit();
-    l_UnitGuid[3]       = p_RecvData.ReadBit();
-    l_UnitGuid[7]       = p_RecvData.ReadBit();
-    l_UnitGuid[4]       = p_RecvData.ReadBit();
-    l_JournalGuid[5]    = p_RecvData.ReadBit();
-    l_UnitGuid[6]       = p_RecvData.ReadBit();
-    l_UnitGuid[5]       = p_RecvData.ReadBit();
-    l_JournalGuid[0]    = p_RecvData.ReadBit();
-    l_UnitGuid[2]       = p_RecvData.ReadBit();
-    l_JournalGuid[7]    = p_RecvData.ReadBit();
-
-    p_RecvData.ReadByteSeq(l_JournalGuid[4]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[6]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[5]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[0]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[5]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[3]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[4]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[2]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[1]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[6]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[0]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[2]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[7]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[1]);
-    p_RecvData.ReadByteSeq(l_UnitGuid[3]);
-    p_RecvData.ReadByteSeq(l_JournalGuid[7]);
+    p_RecvData.readPackGUID(l_UnitGuid);
+    p_RecvData.readPackGUID(l_JournalGuid);
 
     Creature* l_Creature = Unit::GetCreature(*m_Player, l_UnitGuid);
 
     if (!l_Creature)
         return;
 
-    WorldPacket l_Packet(SMSG_PETBATTLE_QUERY_NAME_RESPONSE, 0x40);
+    WorldPacket l_Packet(SMSG_QUERY_PET_NAME_RESPONSE, 0x40);
 
+    l_Packet.appendPackGUID(l_JournalGuid);
     l_Packet.WriteBit(l_Creature->GetName() ? true : false);
 
     if (l_Creature->GetName())
     {
         l_Packet.WriteBits(l_Creature->GetName() ? strlen(l_Creature->GetName()) : 0, 8);
-
-        for (uint32 l_I = 0 ; l_I < 5 ; ++l_I)
-            l_Packet.WriteBits(0, 7);
-
         l_Packet.WriteBit(0);   // unk maybe declined names
+
+        for (uint32 l_I = 0; l_I < 5; ++l_I)
+            l_Packet.WriteBits(0, 7);
     }
 
     l_Packet.FlushBits();
 
     if (l_Creature->GetName())
-        l_Packet.WriteString(l_Creature->GetName());
+    {
+        l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
 
-    l_Packet << uint64(l_JournalGuid);
-    l_Packet << uint32(l_Creature->GetEntry());
-    l_Packet << uint32(l_Creature->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP));
+        if (l_Creature->GetName())
+            l_Packet.WriteString(l_Creature->GetName());
+    }
 
     m_Player->GetSession()->SendPacket(&l_Packet);
 }
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPacket& p_RecvData)
 {
-    ObjectGuid  l_PetJournalID;
-    uint8       l_DestSlot = 0;
+    uint64  l_PetJournalID;
+    uint8   l_DestSlot = 0;
 
+    p_RecvData.readPackGUID(l_PetJournalID);
     p_RecvData >> l_DestSlot;
-    l_PetJournalID[7] = p_RecvData.ReadBit();
-    l_PetJournalID[0] = p_RecvData.ReadBit();
-    l_PetJournalID[6] = p_RecvData.ReadBit();
-    l_PetJournalID[5] = p_RecvData.ReadBit();
-    l_PetJournalID[2] = p_RecvData.ReadBit();
-    l_PetJournalID[3] = p_RecvData.ReadBit();
-    l_PetJournalID[4] = p_RecvData.ReadBit();
-    l_PetJournalID[1] = p_RecvData.ReadBit();
-
-    p_RecvData.ReadByteSeq(l_PetJournalID[3]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[2]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[4]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[7]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[5]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[1]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[6]);
-    p_RecvData.ReadByteSeq(l_PetJournalID[0]);
 
     if (l_DestSlot >= MAX_PETBATTLE_SLOTS)
         return;

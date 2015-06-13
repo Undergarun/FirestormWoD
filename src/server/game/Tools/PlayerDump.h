@@ -54,6 +54,7 @@ enum DumpTableType
 
     DTT_ACC_ACH_PRO,    //   account_achievement_progress
     DTT_ACC_ACH,        //   account_achievement
+    DTT_ACC_SPELL,      ///< account_spell
 };
 
 enum DumpReturn
@@ -69,8 +70,10 @@ enum DumpReturn
 
 class PlayerDump
 {
-protected:
-    PlayerDump() {}
+    public:
+        static void LoadColumnsName();
+    protected:
+        PlayerDump() {}
 };
 
 class PlayerDumpWriter : public PlayerDump
@@ -78,12 +81,13 @@ class PlayerDumpWriter : public PlayerDump
 public:
     PlayerDumpWriter() {}
 
-    bool GetDump(uint32 guid, uint32 account, std::string& dump);
-    DumpReturn WriteDump(const std::string& file, uint32 guid, uint32 account);
+    bool GetDump(uint32 guid, uint32 account, std::string& dump, bool ashran);
+    DumpReturn WriteDump(const std::string& file, uint32 guid, uint32 account, bool ashran = false);
+
 private:
     typedef std::set<uint32> GUIDs;
 
-    bool DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type);
+    bool DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type, std::vector<std::string> const& columns, bool ashran);
     std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
     std::string GenerateWhereStr(char const* field, uint32 guid);
 

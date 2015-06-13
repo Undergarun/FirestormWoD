@@ -134,8 +134,8 @@ enum SMBattlegroundObjectTypes
 
 enum BG_SM_Score
 {
-    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_SM_MAX_TEAM_SCORE                = 1600
+    BG_SM_WARNING_NEAR_VICTORY_SCORE    = 1200,
+    BG_SM_MAX_TEAM_SCORE                = 1500
 };
 
 enum SMBattlegroundMineCartState
@@ -191,6 +191,27 @@ const float BG_SM_TrackPos[2][4] =
     { 847.481689f, 308.032562f, 346.573242f, 0.587086f }  // North
 };
 
+const float BG_SM_StartPos[3][4] =
+{
+    { 744.542053f, 183.545883f, 319.658203f, 4.356342f },
+    { 739.400330f, 203.598511f, 319.603333f, 2.308198f },
+    { 760.184509f, 198.844742f, 319.446655f, 0.351249f }
+};
+
+const uint32 BG_SM_CartIDs[3]
+{
+    NPC_MINE_CART_1,
+    NPC_MINE_CART_2,
+    NPC_MINE_CART_3
+};
+
+const uint32 BG_SM_CartTypes[3]
+{
+    NPC_SM_MINE_CART_1,
+    NPC_SM_MINE_CART_2,
+    NPC_SM_MINE_CART_3
+};
+
 #define MINE_CART_AT_DEPOT_POINTS       200
 #define POINTS_PER_MINE_CART            150
 #define DISPLAY_WORLDSTATE              1
@@ -232,11 +253,8 @@ class BattlegroundSM : public Battleground
         /* Battleground Events */
         void EventReopenDepot(uint32 p_Diff);
 
-        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
-
     private:
         void EventTeamCapturedMineCart(uint32 p_Team, uint8 p_MineCart);
-        void UpdatePointsCount(uint32 p_Team);
         void SummonMineCart(uint32 p_Diff);
         void FirstMineCartSummon(uint32 p_Diff);
         void MineCartsMoves();
@@ -247,6 +265,10 @@ class BattlegroundSM : public Battleground
         void CheckTrackSwitch();
 
         /* Scorekeeping */
+        uint32 GetTeamScore(uint32 p_TeamID) const { return m_TeamScores[GetTeamIndexByTeamId(p_TeamID)]; }
+        uint32 GetMaxScore() const { return BG_SM_MAX_TEAM_SCORE; }
+        bool IsScoreIncremental() const { return true; }
+
         void AddPoints(uint32 p_Team, uint32 p_Points);
 
         void RemovePoint(uint32 p_TeamID, uint32 p_Points = 1) { m_TeamScores[GetTeamIndexByTeamId(p_TeamID)] -= p_Points; }
@@ -258,11 +280,10 @@ class BattlegroundSM : public Battleground
         uint32 m_MineCartsTrigger[SM_MINE_CART_MAX];
         int32 m_MineCartsProgressBar[SM_MINE_CART_MAX];
         uint32 m_MineCartTeamKeeper[SM_MINE_CART_MAX]; // keepers team
-        int32 m_MineCartSpawnTimer;
         int32 m_FirstMineCartSummonTimer;
         int32 m_MineCartCheckTimer;
         int32 m_DepotCloseTimer[4];
-        int32 m_MineCartAddPointsTimer;
+        uint32 m_MineCartAddPointsTimer;
         int32 m_TrackSwitchClickTimer[SM_MAX_TRACK_SWITCH];
         bool m_Depot[4]; // 0 = Waterfall, 1 = Lava, 2 = Diamond, 3 = Troll
         bool m_MineCartReachedDepot[SM_MINE_CART_MAX];

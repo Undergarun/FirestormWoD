@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <cctype>
+#include <iomanip>
+#include <sstream>
 
  void init_sfmt();
 
@@ -91,12 +94,6 @@ void stripLineInvisibleChars(std::string &src);
 std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
-
-inline uint32 secsToTimeBitFields(time_t secs)
-{
-    tm* lt = localtime(&secs);
-    return uint32((lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min);
-}
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
 int32 irand(int32 min, int32 max);
@@ -370,6 +367,28 @@ bool IsIPAddress(char const* ipaddress);
 uint32 CreatePIDFile(const std::string& filename);
 
 std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = false);
+
+inline std::string UrlEncode(const std::string & p_Value)
+{
+    std::ostringstream l_Espaced;
+    l_Espaced.fill('0');
+    l_Espaced << std::hex;
+
+    for (std::string::const_iterator l_I = p_Value.begin(); l_I != p_Value.end(); ++l_I)
+    {
+        std::string::value_type l_Char = (*l_I);
+
+        if (isalnum(l_Char) || l_Char == '-' || l_Char == '_' || l_Char == '.' || l_Char == '~')
+        {
+            l_Espaced << l_Char;
+            continue;
+        }
+
+        l_Espaced << '%' << std::setw(2) << int((unsigned char)l_Char);
+    }
+
+    return l_Espaced.str();
+}
 #endif
 
 //handler for operations on large flags

@@ -258,8 +258,6 @@ void WorldSession::HandlePetitionQueryOpcode(WorldPacket& p_RecvData)
     p_RecvData >> l_PetitionID;
     p_RecvData.readPackGUID(l_ItemGUID);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_PETITION_QUERY Petition GUID %u Guild GUID %u", GUID_LOPART(l_ItemGUID), l_PetitionID);
-
     SendPetitionQueryOpcode(uint64(l_PetitionID));
 }
 
@@ -290,7 +288,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 l_PetitionGUID)
         return;
     }
 
-    WorldPacket l_Data(SMSG_PETITION_QUERY_RESPONSE);
+    WorldPacket l_Data(SMSG_QUERY_PETITION_RESPONSE);
 
     l_Data << uint32(GUID_LOPART(l_PetitionGUID));
     l_Data.WriteBit(l_Type == GUILD_CHARTER_TYPE);
@@ -300,18 +298,19 @@ void WorldSession::SendPetitionQueryOpcode(uint64 l_PetitionGUID)
     {
         l_Data << uint32(GUID_LOPART(l_PetitionGUID));
         l_Data.appendPackGUID(l_OwnerGUID);
-        l_Data << uint32(4);///< minSignatures
-        l_Data << uint32(4);///< maxSignatures
-        l_Data << uint32(0);///< deadLine
-        l_Data << uint32(0);///< issueDate
-        l_Data << uint32(0);///< allowedGuildID
-        l_Data << uint32(0);///< allowedClasses
-        l_Data << uint32(0);///< allowedRaces
-        l_Data << uint16(0);///< allowedGender
-        l_Data << uint32(0);///< allowedMinLevel
-        l_Data << uint32(0);///< allowedMaxLevel
-        l_Data << uint32(0);///< numChoices
-        l_Data << uint32(0);///< muid
+        l_Data << uint32(4); ///< minSignatures
+        l_Data << uint32(4); ///< maxSignatures
+        l_Data << uint32(0); ///< deadLine
+        l_Data << uint32(0); ///< issueDate
+        l_Data << uint32(0); ///< allowedGuildID
+        l_Data << uint32(0); ///< allowedClasses
+        l_Data << uint32(0); ///< allowedRaces
+        l_Data << uint16(0); ///< allowedGender
+        l_Data << uint32(0); ///< allowedMinLevel
+        l_Data << uint32(0); ///< allowedMaxLevel
+        l_Data << uint32(0); ///< numChoices
+        l_Data << uint32(0); ///< staticTypes
+        l_Data << uint32(0); ///< Muid
 
         l_Data.WriteBits(l_GuildName.size(), 7);
         l_Data.WriteBits(0, 12);                  ///< Body Text
@@ -494,7 +493,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& p_Packet)
     Player* l_Owner = ObjectAccessor::FindPlayer(l_OwnerGUID);
 
     if (l_Owner)
-        l_Owner->GetSession()->SendPetitionSignResult(l_OwnerGUID, l_PetitionGUID, PETITION_SIGN_DECLINED);
+        l_Owner->GetSession()->SendPetitionDeclined(m_Player->GetGUID());
 }
 
 void WorldSession::HandleOfferPetitionOpcode(WorldPacket & p_Packet)
@@ -718,9 +717,6 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& p_Packet)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    // created
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "TURN IN PETITION GUID %u", GUID_LOPART(l_PetitionGuid));
-
     l_Data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
     l_Data.WriteBits(PETITION_TURN_OK, 4);
     l_Data.FlushBits();
@@ -754,7 +750,7 @@ void WorldSession::SendPetitionShowList(uint64 p_GUID)
 
 void WorldSession::SendPetitionSignResult(uint64 p_PlayerGUID, uint64 p_ItemGUID, uint8 p_Result)
 {
-    WorldPacket l_Data(SMSG_PETITION_DECLINED);
+    WorldPacket l_Data(SMSG_PETITION_SIGN_RESULTS);
 
     l_Data.appendPackGUID(p_ItemGUID);
     l_Data.appendPackGUID(p_PlayerGUID);
@@ -768,6 +764,14 @@ void WorldSession::SendAlreadySigned(uint64 p_PlayerGUID)
 {
     WorldPacket l_Data(SMSG_PETITION_ALREADY_SIGNED);
     l_Data.appendPackGUID(p_PlayerGUID);
+
+    SendPacket(&l_Data);
+}
+
+void WorldSession::SendPetitionDeclined(uint64 p_PlayerGuid)
+{
+    WorldPacket l_Data(SMSG_PETITION_DECLINED);
+    l_Data.appendPackGUID(p_PlayerGuid);    ///< Decliner
 
     SendPacket(&l_Data);
 }

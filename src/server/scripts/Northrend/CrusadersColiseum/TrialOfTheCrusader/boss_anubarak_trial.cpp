@@ -609,7 +609,7 @@ class mob_frost_sphere : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(20.0f);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage, SpellInfo const* p_SpellInfo)
             {
                 if (me->GetHealth() <= damage)
                 {
@@ -696,7 +696,7 @@ class mob_anubarak_spike : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& uiDamage)
+            void DamageTaken(Unit* /*who*/, uint32& uiDamage, SpellInfo const* p_SpellInfo)
             {
                 uiDamage = 0;
             }
@@ -822,10 +822,9 @@ class spell_impale: public SpellScriptLoader
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                uint32 permafrost = sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, target);
 
                 // make sure Impale doesnt do damage if we are standing on permafrost
-                if (target && target->HasAura(permafrost))
+                if (target && target->HasAura(SPELL_PERMAFROST))
                     SetHitDamage(0);
             }
 

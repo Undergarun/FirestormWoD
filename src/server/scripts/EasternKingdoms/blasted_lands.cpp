@@ -31,12 +31,13 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "MapManager.h"
+#include "../Draenor/tanaan_jungle.h"
 
 /*######
 ## npc_deathly_usher
 ######*/
 
-#define GOSSIP_ITEM_USHER "I wish to to visit the Rise of the Defiler."
+#define GOSSIP_ITEM_USHER "I would like to visit the Rise of the Defiler."
 
 #define SPELL_TELEPORT_SINGLE           12885
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
@@ -108,10 +109,23 @@ class npc_world_invisible_trigger : public CreatureScript
                             if (l_Player->getLevel() < 90 || l_Player->isGameMaster())
                                 continue;
 
-                            if (l_Player->GetTeamId() == TEAM_ALLIANCE)
-                                l_Player->TeleportTo(1116, 2265.054f, 508.778f, 15.465f, l_Player->GetOrientation());
-                            else if (l_Player->GetTeamId() == TEAM_HORDE)
-                                l_Player->TeleportTo(1116, 5534.136f, 5017.660f, 12.676f, l_Player->GetOrientation());
+                            /// If Quest suit isn't done, tp to tanaan. If done, tp to faction respective Staging Area.
+                            if (l_Player->GetQuestStatus(34446) != QUEST_STATUS_REWARDED)
+                                l_Player->TeleportTo(1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                            else
+                            {
+                                switch (l_Player->GetTeamId())
+                                {
+                                    case TEAM_ALLIANCE:
+                                        l_Player->TeleportTo(1116, 3779.889f, -3888.14063f, 31.6778469f, 2.65f);
+                                        break;
+                                    case TEAM_HORDE:
+                                        l_Player->TeleportTo(1116, 5200.19f, -3910.11f, 1.30844f, 0.588f);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
                         }
                     }
                     else
@@ -188,11 +202,23 @@ class npc_archmage_khadgar_gossip : public CreatureScript
 
         bool OnGossipHello(Player* p_Player, Creature* p_Creature)
         {
-            if (p_Player->GetQuestStatus(QUEST_START_DRAENOR) == QUEST_STATUS_INCOMPLETE)
+            if (p_Player->GetTeamId() == TEAM_ALLIANCE)
             {
-                p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
-                p_Player->SendMovieStart(199);
-                p_Player->KilledMonsterCredit(78419);
+                if (p_Player->GetQuestStatus(35884) != QUEST_STATUS_REWARDED)
+                {
+                    p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                    p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
+                    p_Player->KilledMonsterCredit(78419);
+                }
+            }
+            else if (p_Player->GetTeamId() == TEAM_HORDE)
+            {
+                if (p_Player->GetQuestStatus(34446) != QUEST_STATUS_REWARDED)
+                {
+                    p_Player->AddMovieDelayedTeleport(199, 1265, 4066.7370f, -2381.9917f, 94.858f, 2.90f);
+                    p_Player->SendMovieStart(TanaanMovies::MovieEnterPortal);
+                    p_Player->KilledMonsterCredit(78419);
+                }
             }
             return true;
         }

@@ -250,29 +250,24 @@ OutdoorPvP::~OutdoorPvP()
     DeleteSpawns();
 }
 
-void OutdoorPvP::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
+void OutdoorPvP::HandlePlayerEnterZone(Player* p_Player, uint32 /*p_Zone*/)
 {
-    if (player && player->GetTeamId() < 2)
-        m_players[player->GetTeamId()].insert(player);
+    if (p_Player && p_Player->GetTeamId() < 2)
+        m_Players[p_Player->GetTeamId()].insert(p_Player->GetGUID());
 }
 
-void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+void OutdoorPvP::HandlePlayerLeaveZone(Player* p_Player, uint32 /*zone*/)
 {
-    // inform the objectives of the leaving
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        itr->second->HandlePlayerLeave(player);
-    // remove the world state information from the player (we can't keep everyone up to date, so leave out those who are not in the concerning zones)
-    if (!player->GetSession()->PlayerLogout())
-        SendRemoveWorldStates(player);
+    /// Inform the objectives of the leaving
+    for (OPvPCapturePointMap::iterator l_Iter = m_capturePoints.begin(); l_Iter != m_capturePoints.end(); ++l_Iter)
+        l_Iter->second->HandlePlayerLeave(p_Player);
 
-    if (player->GetTeamId() < 2)
-        m_players[player->GetTeamId()].erase(player);
+    /// Remove the world state information from the player (we can't keep everyone up to date, so leave out those who are not in the concerning zones)
+    if (!p_Player->GetSession()->PlayerLogout())
+        SendRemoveWorldStates(p_Player);
 
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %s left an outdoorpvp zone", player->GetName());
-}
-
-void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/)
-{
+    if (p_Player->GetTeamId() < 2)
+        m_Players[p_Player->GetTeamId()].erase(p_Player->GetGUID());
 }
 
 bool OutdoorPvP::Update(uint32 p_Diff)
@@ -427,9 +422,16 @@ bool OPvPCapturePoint::Update(uint32 diff)
 void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
 {
     if (m_sendUpdate)
-        for (int i = 0; i < 2; ++i)
-            for (PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-                (*itr)->SendUpdateWorldState(field, value);
+    {
+        for (uint8 l_I = 0; l_I < 2; ++l_I)
+        {
+            for (uint64 l_Guid : m_Players[l_I])
+            {
+                if (Player* l_Player = HashMapHolder<Player>::Find(l_Guid))
+                    l_Player->SendUpdateWorldState(field, value);
+            }
+        }
+    }
 }
 
 void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
@@ -600,12 +602,17 @@ bool OutdoorPvP::HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/)
     return false;
 }
 
-void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
+void OutdoorPvP::BroadcastPacket(WorldPacket& p_Data) const
 {
-    // This is faster than sWorld->SendZoneMessage
-    for (uint32 team = 0; team < 2; ++team)
-        for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            (*itr)->GetSession()->SendPacket(&data);
+    /// This is faster than sWorld->SendZoneMessage
+    for (uint32 l_TeamID = 0; l_TeamID < 2; ++l_TeamID)
+    {
+        for (uint64 l_Guid : m_Players[l_TeamID])
+        {
+            if (Player* l_Player = HashMapHolder<Player>::Find(l_Guid))
+                l_Player->GetSession()->SendPacket(&p_Data);
+        }
+    }
 }
 
 void OutdoorPvP::RegisterZone(uint32 zoneId)
@@ -613,22 +620,32 @@ void OutdoorPvP::RegisterZone(uint32 zoneId)
     sOutdoorPvPMgr->AddZone(zoneId, this);
 }
 
-bool OutdoorPvP::HasPlayer(Player* player) const
+bool OutdoorPvP::HasPlayer(Player* p_Player) const
 {
-    if (player && player->GetTeamId() < 2)
-        return m_players[player->GetTeamId()].find(player) != m_players[player->GetTeamId()].end();
+    if (p_Player && p_Player->GetTeamId() < 2)
+        return m_Players[p_Player->GetTeamId()].find(p_Player->GetGUID()) != m_Players[p_Player->GetTeamId()].end();
 
     return false;
 }
 
-void OutdoorPvP::TeamCastSpell(TeamId team, int32 spellId)
+void OutdoorPvP::TeamCastSpell(TeamId p_TeamID, int32 p_SpellID)
 {
-    if (spellId > 0)
-        for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            (*itr)->CastSpell(*itr, (uint32)spellId, true);
+    if (p_SpellID > 0)
+    {
+        for (uint64 l_Guid : m_Players[p_TeamID])
+        {
+            if (Player* l_Player = HashMapHolder<Player>::Find(l_Guid))
+                l_Player->CastSpell(l_Player, (uint32)p_SpellID, true);
+        }
+    }
     else
-        for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            (*itr)->RemoveAura((uint32)-spellId); // by stack?
+    {
+        for (uint64 l_Guid : m_Players[p_TeamID])
+        {
+            if (Player* l_Player = HashMapHolder<Player>::Find(l_Guid))
+                l_Player->RemoveAura((uint32)-p_SpellID); ///< By stack?
+        }
+    }
 }
 
 void OutdoorPvP::AddAreaTrigger(uint32 p_Entry, uint32 p_PhaseMask, uint32 p_SpellVisualID, Position const& p_Pos, uint32 p_Duration, Map* p_Map)
@@ -697,6 +714,51 @@ bool OutdoorPvP::DelCreature(uint32 p_Type)
     return true;
 }
 
+bool OutdoorPvP::AddObject(uint32 p_Type, uint32 p_Entry, uint32 p_Map, float p_X, float p_Y, float p_Z, float p_O, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3)
+{
+    uint32 l_Guid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+    if (sObjectMgr->AddGOData(l_Guid, p_Entry, p_Map, p_X, p_Y, p_Z, p_O, 0, p_Rot0, p_Rot1, p_Rot2, p_Rot3))
+    {
+        m_Objects[p_Type] = MAKE_NEW_GUID(l_Guid, p_Entry, HIGHGUID_GAMEOBJECT);
+        m_ObjectTypes[m_Objects[p_Type]] = p_Type;
+        return true;
+    }
+
+    return false;
+}
+
+bool OutdoorPvP::DelObject(uint32 p_Type)
+{
+    if (!m_Objects[p_Type])
+        return false;
+
+    GameObject* l_GameObject = HashMapHolder<GameObject>::Find(m_Objects[p_Type]);
+    if (!l_GameObject)
+    {
+        /// Can happen when closing the core
+        m_Objects[p_Type] = 0;
+        return false;
+    }
+
+    uint32 l_Guid = l_GameObject->GetDBTableGUIDLow();
+
+    /// Don't save respawn time
+    l_GameObject->SetRespawnTime(0);
+
+    /// Delete respawn time for this creature
+    PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
+    l_Statement->setUInt32(0, l_Guid);
+    l_Statement->setUInt16(1, l_GameObject->GetMapId());
+    l_Statement->setUInt32(2, 0);  ///< InstanceID, always 0 for world maps
+    CharacterDatabase.Execute(l_Statement);
+
+    l_GameObject->AddObjectToRemoveList();
+    sObjectMgr->DeleteGOData(l_Guid);
+    m_ObjectTypes[m_Objects[p_Type]] = 0;
+    m_Objects[p_Type] = 0;
+    return true;
+}
+
 void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 {
     TeamCastSpell(team, spellId);
@@ -754,7 +816,7 @@ void OutdoorPvP::SendAreaSpiritHealerQueryOpcode(Player* p_Player, uint64 const&
 {
     ASSERT(p_Player && p_Player->GetSession());
 
-    WorldPacket l_Data(Opcodes::SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    WorldPacket l_Data(Opcodes::SMSG_AREA_SPIRIT_HEALER_TIME, 16 + 2 + 4);
     l_Data.appendPackGUID(p_Guid);
     l_Data << uint32(m_LastResurectTimer);
     p_Player->GetSession()->SendPacket(&l_Data);
@@ -788,6 +850,14 @@ OutdoorGraveyard* OutdoorPvP::GetGraveyardById(uint32 p_ID)
         sLog->outError(LOG_FILTER_BATTLEFIELD, "OutdoorPvP::GetGraveyardById Id:%u cant be found", p_ID);
 
     return nullptr;
+}
+
+uint64 OutdoorPvP::GetCreature(uint32 p_Type)
+{
+    if (m_Creatures.find(p_Type) == m_Creatures.end())
+        return 0;
+
+    return m_Creatures[p_Type];
 }
 
 OutdoorGraveyard::OutdoorGraveyard(OutdoorPvP* p_OutdoorPvP)

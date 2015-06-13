@@ -1,0 +1,36 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  MILLENIUM-STUDIO
+//  Copyright 2014-2015 Millenium-studio SARL
+//  All Rights Reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#ifndef SCRIPTING_INTERFACES_PLAYER_CONDITION_HPP_INCLUDED
+#define SCRIPTING_INTERFACES_PLAYER_CONDITION_HPP_INCLUDED
+
+#include "InterfaceBase.hpp"
+
+/// Player condition Script Interface
+class PlayerConditionScript : public ScriptObjectImpl<false>
+{
+    protected:
+        /// Constructor
+        /// @p_ID : Player condition ID
+        PlayerConditionScript(uint32 p_ID);
+
+    public:
+        /// Called when a single condition is checked for a player.
+        /// @p_Condition  : Player condition instance
+        /// @p_SourceInfo : Player
+        virtual bool OnConditionCheck(PlayerConditionEntry const* p_Condition, Player* p_Player)
+        {
+            UNUSED(p_Condition);
+            UNUSED(p_Player);
+
+            return true;
+        }
+
+};
+
+#endif  ///< SCRIPTING_INTERFACES_PLAYER_CONDITION_HPP_INCLUDED

@@ -20,6 +20,8 @@
     \ingroup Trinityd
 */
 
+#include <thread>
+
 #include <ace/Sig_Handler.h>
 
 #include "Common.h"
@@ -48,6 +50,7 @@
 #include "RealmList.h"
 
 #include "BigNumber.h"
+//#include <Reporting/Reporter.hpp>
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
@@ -108,8 +111,7 @@ public:
             else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
             {
                 sLog->outError(LOG_FILTER_WORLDSERVER, "World Thread hangs, kicking out server!");
-                ASSERT(false);
-                exit(0);
+                assert(false);
             }
         }
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Anti-freeze thread exiting without problems.");
@@ -377,167 +379,54 @@ const char* ipTransfert[4] =
     "37.187.68.78"      // Hellscream
 };
 
-class CharactersTransfertRunnable : public ACE_Based::Runnable
+class MopTransfersRunnable : public ACE_Based::Runnable
 {
 public:
-    CharactersTransfertRunnable() {}
+    MopTransfersRunnable()
+    {
+    }
+
     void run(void)
     {
-        sLog->outTrace(LOG_FILTER_SERVER_LOADING, "Thread de transfert de perso demarre");
-
         while (!World::IsStopped())
         {
-            ACE_Based::Thread::Sleep(5000);
-            QueryResult toDump = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid` FROM transferts WHERE `from` = %u AND state = 0 ", sLog->GetRealmID());
-            QueryResult toLoad = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `dump` FROM transferts WHERE `to` = %u AND state = 1", sLog->GetRealmID());
+            ACE_Based::Thread::Sleep(30 * IN_MILLISECONDS);
 
-            //id account perso_guid from to revision dump last_error nb_attempt
-            if (toDump)
+            if (!sWorld->getBoolConfig(CONFIG_MOP_TRANSFER_ENABLE))
+                continue;
+
+            PreparedStatement* l_Statement = LoginMopDatabase.GetPreparedStatement(LOGINMOP_SEL_TRANSFER);
+            l_Statement->setUInt32(0, sLog->GetRealmID());
+
+            auto l_Result = LoginMopDatabase.Query(l_Statement);
+            if (!l_Result)
+                continue;
+
+            do
             {
-                do
-                {
-                    Field* field = toDump->Fetch();
-                    uint32 transaction = field[0].GetUInt32();
-                    uint32 account     = field[1].GetUInt32();
-                    uint32 perso_guid  = field[2].GetUInt32();
+                auto l_Fields = l_Result->Fetch();
+                uint32 l_Timestamp = getMSTime();
+                uint32 l_Id = l_Fields[0].GetUInt32();
+                uint32 l_Account = l_Fields[1].GetUInt32();
+                std::string l_Dump = l_Fields[2].GetString();
 
-                    if (Player * pPlayer = sObjectMgr->GetPlayerByLowGUID(perso_guid))
-                    {
-                        pPlayer->GetSession()->SendNotification("Vous devez vous deconnecter pour pouvoir transferer votre personnage");
-                        continue;
-                    }
+                std::ostringstream l_Filename;
+                l_Filename << "pdump/" << l_Account << "_" << l_Timestamp;
 
-                    bool error = true;
-                    std::string dump;
-                    if (PlayerDumpWriter().GetDump(perso_guid, account, dump))
-                    {
-                        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UP_TRANSFERT_PDUMP);
-                        stmt->setString(0, dump);
-                        stmt->setUInt32(1, transaction);
-                        if (LoginDatabase.DirectExecuteWithReturn(stmt))
-                        {
-                            error = false;
-                            CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'",  perso_guid);
-                            CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'",        perso_guid);
-                            // Useless ?
-                            //CharacterDatabase.PExecute("UPDATE characters SET at_login = '%u' WHERE guid = '%u'", AT_LOGIN_LOCKED_FOR_TRANSFER, perso_guid);
-                            CharacterDatabase.PExecute("UPDATE characters SET deleteInfos_Name=name, deleteInfos_Account=account, deleteDate='" UI64FMTD "', name='', account=0 WHERE guid=%u", uint64(time(NULL)), perso_guid);
-                        }
-                    }
+                FILE* l_File = fopen(l_Filename.str().c_str(), "w");
+                if (!l_File)
+                    continue;
 
-                    if (error)
-                    {
-                        sLog->outTrace(LOG_FILTER_WORLDSERVER, "PlayerDump fail ! (guid %u)", perso_guid);
-                        LoginDatabase.PQuery("UPDATE transferts SET nb_attempt = nb_attempt+1 WHERE id = %u", transaction);
-                        continue;
-                    }
-                }
-                while(toDump->NextRow());
+                fprintf(l_File, "%s\n", l_Dump.c_str());
+                fclose(l_File);
+
+                DumpReturn l_Error = PlayerDumpReader().LoadDump(l_Filename.str(), l_Account, "", 0, true);
+                remove(l_Filename.str().c_str());
+
+                if (l_Error == DUMP_SUCCESS)
+                    LoginMopDatabase.PQuery("UPDATE transfer_ashran SET state = 2 WHERE id = %u", l_Id);
             }
-
-            if (toLoad)
-            {
-                do
-                {
-                    // Get database values
-                    uint32 timestamp = getMSTime();
-                    Field* field = toLoad->Fetch();
-                    uint32 transaction = field[0].GetUInt32();
-                    uint32 account = field[1].GetUInt32();
-                    uint32 perso_guid = field[2].GetUInt32();
-                    std::string dump = field[3].GetString();
-                    std::ostringstream filename;
-                    filename << "pdump/" << account << "_" <<  perso_guid << "_" << timestamp;
-
-                    // create tmp dump
-                    FILE* file = fopen(filename.str().c_str(), "w");
-                    if (!file)
-                        continue;
-                    fprintf(file, "%s\n", dump.c_str());
-                    fclose(file);
-
-                    // Excute dump to new realm :D
-                    DumpReturn err = PlayerDumpReader().LoadDump(filename.str(), account, "", 0);
-                    remove(filename.str().c_str());
-
-                    if (err == DUMP_SUCCESS)
-                    {
-                        LoginDatabase.PQuery("UPDATE transferts SET state = 2 WHERE id = %u", transaction);
-                        continue;
-                    }
-
-                    LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1, state = 0 WHERE id = %u", (uint32)err, transaction);
-
-                    /*if (dump == DUMP_SUCCESS)
-                    {
-                        // Delete old dump
-                        cmd << "rm /home/transfert" << from << "/" << perso_guid << ".dump";
-                        system(cmd.str().c_str());
-                        cmd.str("");
-                        cmd.clear();
-
-                        LoginDatabase.PQuery("DELETE FROM transferts WHERE id = %u", transaction);
-                        PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_TRANSFERTS_LOGS);
-                        if (stmt)
-                        {
-                            stmt->setUInt32(0, transaction);
-                            stmt->setUInt32(1, account);
-                            stmt->setUInt32(2, perso_guid);
-                            stmt->setUInt32(3, from);
-                            stmt->setUInt32(4, sLog->GetRealmID());
-                            stmt->setString(5, "");
-                            LoginDatabase.Execute(stmt);
-                        }
-                    }
-                    else
-                    {
-                        LoginDatabase.PQuery("UPDATE transferts SET error = %u, nb_attempt = nb_attempt + 1 WHERE id = %u", dump, transaction);
-                        continue;
-                    }*/
-
-
-                    /*FILE *fout = fopen("temp.dump", "w");
-                    if (!fout)
-                        continue;
-                    fprintf(fout, "%s\n", dump.c_str());
-                    fclose(fout);
-
-                    switch(PlayerDumpReader().LoadDump("temp.dump", account, "", 0, AT_LOGIN_RENAME))
-                    {
-                        case DUMP_SUCCESS:
-                        {
-                            sLog->outString("Personne ok.");
-                            LoginDatabase.PQuery("DELETE FROM transferts WHERE id = %u", transaction);
-                            LoginDatabase.EscapeString(dump);
-
-                            PreparedStatement * stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_TRANSFERTS_LOGS);
-                            if (stmt)
-                            {
-                                stmt->setUInt32(0, transaction);
-                                stmt->setUInt32(1, account);
-                                stmt->setUInt32(2, perso_guid);
-                                stmt->setUInt32(3, from);
-                                stmt->setUInt32(4, sLog->GetRealmID());
-                                stmt->setString(5, dump.c_str());
-                                LoginDatabase.Execute(stmt);
-                            }
-                            break;
-                        }
-                        case DUMP_FILE_OPEN_ERROR:
-                            LoginDatabase.PQuery("UPDATE transferts SET last_error = 'DUMP_FILE_OPEN_ERROR', nb_attempt = nb_attempt + 1 WHERE id = %u", transaction);
-                            break;
-                        case DUMP_FILE_BROKEN:
-                            LoginDatabase.PQuery("UPDATE transferts SET last_error = 'DUMP_FILE_BROKEN', nb_attempt = nb_attempt + 1 WHERE id = %u", transaction);
-                            break;
-                        case DUMP_TOO_MANY_CHARS:
-                            LoginDatabase.PQuery("UPDATE transferts SET last_error = 'DUMP_TOO_MANY_CHARS', nb_attempt = nb_attempt + 1 WHERE id = %u", transaction);
-                            break;
-                        default:
-                            break;
-                    }*/
-                }
-                while (toLoad->NextRow());
-            }
+            while (l_Result->NextRow());
         }
     }
 };
@@ -577,6 +466,10 @@ int Master::Run()
         sLog->outInfo(LOG_FILTER_WORLDSERVER, "Daemon PID: %u\n", pid);
     }
 
+    ///- Initializing the Reporter.
+    //sLog->outInfo(LOG_FILTER_WORLDSERVER, "REPORTER: Creating instance.");
+    //sReporter->SetAddresses({ ConfigMgr::GetStringDefault("ReporterAddress", "localhost:3000") });
+
     ///- Start the databases
     if (!_StartDB())
         return 1;
@@ -602,7 +495,7 @@ int Master::Run()
     #endif /* _WIN32 */
 
     ///- Launch WorldRunnable thread
-    ACE_Based::Thread world_thread(new WorldRunnable);
+    ACE_Based::Thread world_thread(new WorldRunnable, "WorldRunnable");
     world_thread.setPriority(ACE_Based::Highest);
 
     ACE_Based::Thread* cliThread = NULL;
@@ -614,14 +507,14 @@ int Master::Run()
 #endif
     {
         ///- Launch CliRunnable thread
-        cliThread = new ACE_Based::Thread(new CliRunnable);
+        cliThread = new ACE_Based::Thread(new CliRunnable, "CliRunnable");
     }
 
-    ACE_Based::Thread rar_thread(new RARunnable);
-    ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable);
-    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable);
-    ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable);
-    //ACE_Based::Thread CharactersTransfertRunnable_thread(new CharactersTransfertRunnable);
+    ACE_Based::Thread rar_thread(new RARunnable, "RARunnable");
+    ACE_Based::Thread gmLogToDB_thread(new GmLogToDBRunnable, "GmLogToDBRunnable");
+    ACE_Based::Thread gmChatLogToDB_thread(new GmChatLogToDBRunnable, "GmChatLogToDBRunnable");
+    ACE_Based::Thread arenaLogToDB_thread(new ArenaLogToDBRunnable, "ArenaLogToDBRunnable");
+    ACE_Based::Thread l_MopTransfersThread(new MopTransfersRunnable, "MopTransfersRunnable");
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
@@ -671,7 +564,7 @@ int Master::Run()
     {
         TCSoapRunnable* runnable = new TCSoapRunnable();
         runnable->setListenArguments(ConfigMgr::GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(ConfigMgr::GetIntDefault("SOAP.Port", 7878)));
-        soap_thread = new ACE_Based::Thread(runnable);
+        soap_thread = new ACE_Based::Thread(runnable, "SoapRunnable");
     }
 
     ///- Start up freeze catcher thread
@@ -679,7 +572,7 @@ int Master::Run()
     {
         FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay * 1000);
-        ACE_Based::Thread freeze_thread(fdr);
+        ACE_Based::Thread freeze_thread(fdr, "FreezeDetector");
         freeze_thread.setPriority(ACE_Based::Highest);
     }
 
@@ -870,27 +763,57 @@ bool Master::_StartDB()
     //////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////
 
-    dbstring = ConfigMgr::GetStringDefault("MonitoringDatabaseInfo", "");
+    if (ConfigMgr::GetBoolDefault("MopTransfer.enable", false))
+    {
+        ///- Get MoP login database info from configuration file
+        dbstring = ConfigMgr::GetStringDefault("LoginMoPDatabaseInfo", "");
+        if (dbstring.empty())
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Login mop database not specified in configuration file");
+            return false;
+        }
+
+        async_threads = ConfigMgr::GetIntDefault("LoginMoPDatabaseInfo.WorkerThreads", 1);
+        if (async_threads < 1 || async_threads > 32)
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Login mop database: invalid number of worker threads specified. "
+                "Please pick a value between 1 and 32.");
+            return false;
+        }
+
+        synch_threads = ConfigMgr::GetIntDefault("LoginMoPDatabaseInfo.SynchThreads", 1);
+        ///- Initialize the login database
+        if (!LoginMopDatabase.Open(dbstring, async_threads, synch_threads))
+        {
+            sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login mop database %s", dbstring.c_str());
+            return false;
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
+
+    dbstring = ConfigMgr::GetStringDefault("HotfixDatabaseInfo", "");
     if (dbstring.empty())
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database not specified in configuration file");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
         return false;
     }
 
-    async_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.WorkerThreads", 1));
+    async_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.WorkerThreads", 1));
     if (async_threads < 1 || async_threads > 32)
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Monitoring database: invalid number of worker threads specified. "
-            "Please pick a value between 1 and 32.");
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database: invalid number of worker threads specified. "
+                       "Please pick a value between 1 and 32.");
         return false;
     }
 
-    synch_threads = uint8(ConfigMgr::GetIntDefault("MonitoringDatabase.SynchThreads", 1));
+    synch_threads = uint8(ConfigMgr::GetIntDefault("HotfixDatabase.SynchThreads", 1));
 
-    ///- Initialize the monitoring database
-    if (!MonitoringDatabase.Open(dbstring, async_threads, synch_threads))
+    ///- Initialize the hotfix database
+    if (!HotfixDatabase.Open(dbstring, async_threads, synch_threads))
     {
-        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to monitoring database %s", dbstring.c_str());
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to Hotfix database %s", dbstring.c_str());
         return false;
     }
 
@@ -925,7 +848,6 @@ void Master::_StopDB()
     CharacterDatabase.Close();
     WorldDatabase.Close();
     LoginDatabase.Close();
-    MonitoringDatabase.Close();
 
     MySQL::Library_End();
 }
