@@ -4272,6 +4272,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                         }
                     }
 
+                    /// Glyph of Rude interruption
+                    if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
+                        m_originalCaster->CastSpell(m_originalCaster, 86663, true);
+
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
 
