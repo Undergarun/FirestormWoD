@@ -1975,6 +1975,7 @@ public:
         WodPvpAssassination4pBonus = 170883,
         WodPvpAssassination4pBonusTrigger = 170882,
         Stealth = 1784,
+        StealthShapeshift = 158188,
         Subterfuge = 108208,
         StealthSubterfuge = 115191,
         StealthSubterfugeEffect = 115192,
@@ -1999,6 +2000,7 @@ public:
             {
                 l_Player->RemoveMovementImpairingAuras();
                 l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+                l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
 
                 /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
                 if (l_Player->getLevel() == 100)
@@ -2010,22 +2012,18 @@ public:
                     else if (l_Player->HasAura(eSpells::WodPvpCombat4pBonus))
                         l_Player->CastSpell(l_Player, eSpells::WodPvpCombat4pBonusTrigger, true);
                 }
+            }
+        }
 
-                /// Don't need to apply Stealth if we already have it or if we're in Subterfuge
-                if (!l_Player->HasAura(eSpells::Stealth) && !l_Player->HasAura(eSpells::StealthSubterfuge) && !l_Player->HasAura(eSpells::StealthSubterfugeEffect))
-                {
+        void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Player* l_Player = GetCaster()->ToPlayer())
+            {
+                /// Stealth should be applied just after Vanish buff remove
+                int32 l_CurrentStealthId = l_Player->HasAura(eSpells::Subterfuge) ? eSpells::StealthSubterfuge : eSpells::Stealth;
 
-                    /// Reset cooldown on stealth if needed
-                    if (l_Player->HasSpellCooldown(eSpells::Stealth))
-                        l_Player->RemoveSpellCooldown(eSpells::Stealth, true);
-                    if (l_Player->HasSpellCooldown(eSpells::StealthSubterfuge))
-                        l_Player->RemoveSpellCooldown(eSpells::StealthSubterfuge, true);
-
-                    if (!l_Player->HasAura(eSpells::Subterfuge))
-                        l_Player->CastSpell(l_Player, eSpells::Stealth, true);
-                    else
-                        l_Player->CastSpell(l_Player, eSpells::StealthSubterfuge, true);
-                }
+                l_Player->RemoveSpellCooldown(l_CurrentStealthId, true);
+                l_Player->CastSpell(l_Player, l_CurrentStealthId, true);
             }
         }
 
@@ -2033,6 +2031,7 @@ public:
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_vanish_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
             OnEffectApply += AuraEffectApplyFn(spell_rog_vanish_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
