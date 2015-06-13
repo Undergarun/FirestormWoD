@@ -38,7 +38,7 @@ class TarrenMillFFAEvent : public TarrenMillEvent
 
             ApplyOnAllPlayers([this](Player* p_Player)
             {
-                EnableFFAOnPlayer(p_Player);
+               /// EnableFFAOnPlayer(p_Player);
                 ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event started for the next 5 minutes!");
             });
         }
@@ -49,7 +49,7 @@ class TarrenMillFFAEvent : public TarrenMillEvent
 
             ApplyOnAllPlayers([this](Player* p_Player)
             {
-                DisableFFAOnPlayer(p_Player);
+                /// DisableFFAOnPlayer(p_Player);
                 ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event is now finished");
             });
         }
