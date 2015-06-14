@@ -332,7 +332,7 @@ void OutdoorPvPTarrenMillFun::HandleRewardHonor(Player* p_Player)
     UpdateRankAura(p_Player);
     CheckKillRewardConditions(p_Player);
 
-    p_Player->ModifyMoney(p_Player->GetMoney() + 20000);
+    p_Player->ModifyMoney(20000);
 }
 
 void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
