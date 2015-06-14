@@ -331,6 +331,8 @@ void OutdoorPvPTarrenMillFun::HandleRewardHonor(Player* p_Player)
     p_Player->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
     UpdateRankAura(p_Player);
     CheckKillRewardConditions(p_Player);
+
+    p_Player->ModifyMoney(p_Player->GetMoney() + 20000);
 }
 
 void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
