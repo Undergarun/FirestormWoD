@@ -24,7 +24,8 @@ namespace SpiresOfArakSpells
         SpellFixate               = 167757,
         SpellFixateSkyReach       = 176544, ///< skyreach spell, may be useful
         SpellSunburst             = 169810, ///< Explodes when killed by players (unused yet, maybe simply related to skyreach)
-        SpellSunStrike            = 153828  ///< Explodes when reaches a player (unused yet, maybe simply related to skyreach)
+        SpellSunStrike            = 153828, ///< Explodes when reaches a player (unused yet, maybe simply related to skyreach)
+        SouthshoreMobScalingAura  = 169704
     };
 }
 
@@ -47,6 +48,14 @@ namespace SpiresOfArakQuests
 {
     enum
     {
+    };
+}
+
+namespace SpiresOfArakDatas
+{
+    enum
+    {
+        HealthScalingCoeff = 10
     };
 }
 

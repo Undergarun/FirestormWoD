@@ -1706,6 +1706,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificLethalPoison:
         case SpellSpecificType::SpellSpecificNonLethalPoison:
         case SpellSpecificType::SpellSpecificCrowdFavorite:
+        case SpellSpecificType::SpellSpecificDisposition:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2128,7 +2129,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !(AttributesCu & SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
     // TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
@@ -2458,6 +2459,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 163369:    ///< Crowd Favorite - 75%
                 case 163370:    ///< Crowd Favorite - 100%
                     return SpellSpecificType::SpellSpecificCrowdFavorite;
+                case 157951:    ///< Aggressive Disposition
+                case 158016:    ///< Fierce Disposition
+                case 158017:    ///< Savage Disposition
+                    return SpellSpecificType::SpellSpecificDisposition;
                 default:
                     break;
             }
@@ -4291,19 +4296,7 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 
 bool SpellInfo::IsAffectedByResilience() const
 {
-    switch (Id)
-    {
-        case 49016: // Unholy Frenzy
-        case 87023: // Cauterize
-        case 110914:// Dark Bargain (DoT)
-        case 113344:// Bloodbath (DoT)
-        case 124280:// Touch of Karma (DoT)
-            return false;
-        default:
-            break;
-    }
-
-    return true;
+    return !HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE);
 }
 
 bool SpellInfo::IsLethalPoison() const

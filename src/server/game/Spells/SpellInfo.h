@@ -178,7 +178,8 @@ enum SpellSpecificType
     SpellSpecificLoneWolfBuff,
     SpellSpecificLethalPoison,
     SpellSpecificNonLethalPoison,
-    SpellSpecificCrowdFavorite
+    SpellSpecificCrowdFavorite,
+    SpellSpecificDisposition
 };
 
 enum SpellCustomAttributes
@@ -199,6 +200,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
+    SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET         = 0x00040000,
     SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER     = 0x00080000,  // Periodic auras with this flag keep old periodic timer when refreshing
     SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE    = 0x00200000, // Some triggered damage spells have to ignore resilence because it's already calculated in trigger spell (example: paladin's hand of light)
     // @todo: 4.3.4 core

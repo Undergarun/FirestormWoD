@@ -3932,6 +3932,85 @@ class spell_gen_selfie_camera : public SpellScriptLoader
         }
 };
 
+/// Carrying Seaforium - 52410
+class spell_gen_carrying_seaforium : public SpellScriptLoader
+{
+    public:
+        spell_gen_carrying_seaforium() : SpellScriptLoader("spell_gen_carrying_seaforium") { }
+
+        class spell_gen_carrying_seaforium_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_carrying_seaforium_SpellScript);
+
+            enum eSpells
+            {
+                CARRYING_SEAFORIUM_CAST = 52415
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveAura(eSpells::CARRYING_SEAFORIUM_CAST);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_carrying_seaforium_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_carrying_seaforium_SpellScript();
+        }
+};
+
+/// Inherit Master Threat List - 58838 - last update: 5.4.2 (17688)
+class spell_inherit_master_threat_list : public SpellScriptLoader
+{
+    public:
+        spell_inherit_master_threat_list() : SpellScriptLoader("spell_inherit_master_threat_list") {}
+
+        class spell_inherit_master_threat_list_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_inherit_master_threat_list_SpellScript);
+
+            void HandleCopy(SpellEffIndex)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (!GetHitUnit())
+                     return;
+
+                    if (Creature* l_Target = GetHitUnit()->ToCreature())
+                    {
+                        l_Target->getThreatManager().clearReferences();
+                        std::list<HostileReference*>& l_PlayerThreatManager = l_Caster->getThreatManager().getThreatList();
+                        for (HostileReference* l_Threat : l_PlayerThreatManager)
+                        {
+                            if (Unit* l_Obj = Unit::GetUnit(*l_Target, l_Threat->getUnitGuid()))
+                                l_Target->getThreatManager().addThreat(l_Target, l_Threat->getThreat());
+                        }
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_inherit_master_threat_list_SpellScript::HandleCopy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
+            }
+        };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_inherit_master_threat_list_SpellScript;
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4010,6 +4089,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_doom_bolt();
     new spell_gen_dampening();
     new spell_gen_selfie_camera();
+    new spell_gen_carrying_seaforium();
+    new spell_inherit_master_threat_list();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

@@ -15,6 +15,14 @@ DoorData const g_DoorData[] =
     { eHighmaulGameobjects::FungalGiantDoor,    eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossTheButcher,         DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { eHighmaulGameobjects::WindDoor,           eHighmaulDatas::BossBrackenspore,       DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall1,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall2,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall3,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::Earthwall4,         eHighmaulDatas::BossTectus,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronEntrance,  eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::TwinOgronExit,      eHighmaulDatas::BossTwinOgron,          DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerEntrance, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE },
+    { eHighmaulGameobjects::FelBreakerExitDoor, eHighmaulDatas::BossKoragh,             DoorType::DOOR_TYPE_PASSAGE,    BoundaryType::BOUNDARY_NONE },
     { 0,                                        0,                                      DoorType::DOOR_TYPE_ROOM,       BoundaryType::BOUNDARY_NONE } ///< End
 };
 
@@ -49,6 +57,12 @@ class instance_highmaul : public InstanceMapScript
                 m_TheButcherGuid            = 0;
 
                 m_BrackensporeGuid          = 0;
+
+                m_TectusGuid                = 0;
+                m_GuardiansGuids.resize(eHighmaulDatas::MaxTectusGuardians);
+
+                m_PhemosGuid                = 0;
+                m_PolGuid                   = 0;
             }
 
             uint64 m_ArenaMasterGuid;
@@ -73,6 +87,14 @@ class instance_highmaul : public InstanceMapScript
 
             /// Gorian Strand
             uint64 m_BrackensporeGuid;
+
+            /// The Market
+            uint64 m_TectusGuid;
+            std::vector<uint64> m_GuardiansGuids;
+
+            /// The Gorthenon
+            uint64 m_PhemosGuid;
+            uint64 m_PolGuid;
 
             void Initialize() override
             {
@@ -129,6 +151,20 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Brackenspore:
                         m_BrackensporeGuid = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::Tectus:
+                        m_TectusGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Rokka:
+                    case eHighmaulCreatures::Oro:
+                    case eHighmaulCreatures::Lokk:
+                        m_GuardiansGuids[p_Creature->GetEntry() - eHighmaulCreatures::Rokka] = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Phemos:
+                        m_PhemosGuid = p_Creature->GetGUID();
+                        break;
+                    case eHighmaulCreatures::Pol:
+                        m_PolGuid = p_Creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -183,6 +219,14 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulGameobjects::FungalGiantDoor:
                     case eHighmaulGameobjects::EarthenPillar:
                     case eHighmaulGameobjects::WindDoor:
+                    case eHighmaulGameobjects::Earthwall1:
+                    case eHighmaulGameobjects::Earthwall2:
+                    case eHighmaulGameobjects::Earthwall3:
+                    case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
                         AddDoor(p_GameObject, true);
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
@@ -207,6 +251,29 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulGameobjects::RaidGrate4:
                         m_RaidGrateGuids[eHighmaulDatas::RaidGrate004] = p_GameObject->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void OnGameObjectRemove(GameObject* p_GameObject) override
+            {
+                switch (p_GameObject->GetEntry())
+                {
+                    case eHighmaulGameobjects::GateArenaExit:
+                    case eHighmaulGameobjects::FungalGiantDoor:
+                    case eHighmaulGameobjects::EarthenPillar:
+                    case eHighmaulGameobjects::WindDoor:
+                    case eHighmaulGameobjects::Earthwall1:
+                    case eHighmaulGameobjects::Earthwall2:
+                    case eHighmaulGameobjects::Earthwall3:
+                    case eHighmaulGameobjects::Earthwall4:
+                    case eHighmaulGameobjects::TwinOgronEntrance:
+                    case eHighmaulGameobjects::TwinOgronExit:
+                    case eHighmaulGameobjects::FelBreakerEntrance:
+                    case eHighmaulGameobjects::FelBreakerExitDoor:
+                        AddDoor(p_GameObject, false);
                         break;
                     default:
                         break;
@@ -297,6 +364,16 @@ class instance_highmaul : public InstanceMapScript
                         return m_RaidGrateGuids[eHighmaulDatas::RaidGrate003];
                     case eHighmaulGameobjects::RaidGrate4:
                         return m_RaidGrateGuids[eHighmaulDatas::RaidGrate004];
+                    case eHighmaulCreatures::Tectus:
+                        return m_TectusGuid;
+                    case eHighmaulCreatures::Rokka:
+                    case eHighmaulCreatures::Oro:
+                    case eHighmaulCreatures::Lokk:
+                        return m_GuardiansGuids[p_Type - eHighmaulCreatures::Rokka];
+                    case eHighmaulCreatures::Phemos:
+                        return m_PhemosGuid;
+                    case eHighmaulCreatures::Pol:
+                        return m_PolGuid;
                     default:
                         break;
                 }
@@ -309,12 +386,14 @@ class instance_highmaul : public InstanceMapScript
                 if (!InstanceScript::CheckRequiredBosses(p_BossID, p_Player))
                     return false;
 
+                /// Highmaul has 4 main encounters (Kargath Bladefist, Ko'ragh, Twin Ogron, Imperator Mar'gok).
+                /// There are also three optional encounters - The Butcher, Brackenspore and Tectus.
                 switch (p_BossID)
                 {
-                    case eHighmaulDatas::BossTheButcher:
-                    case eHighmaulDatas::BossBrackenspore:
-                    case eHighmaulDatas::BossTectus:
                     case eHighmaulDatas::BossTwinOgron:
+                        if (GetBossState(eHighmaulDatas::BossKargathBladefist) != EncounterState::DONE)
+                            return false;
+                        break;
                     case eHighmaulDatas::BossKoragh:
                     case eHighmaulDatas::BossImperatorMargok:
                         if (GetBossState(p_BossID - 1) != EncounterState::DONE)
@@ -344,7 +423,9 @@ class instance_highmaul : public InstanceMapScript
                     p_Player->SetPhaseMask(eHighmaulDatas::PhaseKargathDefeated, true);
                     p_Player->CastSpell(p_Player, eHighmaulSpells::ChogallNight, true);
 
-                    if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
+                    if (GetBossState(eHighmaulDatas::BossTectus) == EncounterState::DONE)
+                        p_Player->NearTeleportTo(eHighmaulLocs::CityBaseTeleporter);
+                    else if (GetBossState(eHighmaulDatas::BossTheButcher) == EncounterState::DONE)
                         p_Player->NearTeleportTo(eHighmaulLocs::BeachEntrance);
                     else
                         p_Player->NearTeleportTo(eHighmaulLocs::KargathDefeated);

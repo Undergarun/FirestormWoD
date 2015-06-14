@@ -284,7 +284,6 @@ void BattlegroundBFG::_ChangeBanner(uint8 node, uint8 type, uint8 teamIndex)
     UpdateWorldState(l_Banner->GetGOInfo()->capturePoint.worldState1, (uint8)l_WorldStateValue);
 }
 
-
 int32 BattlegroundBFG::_GetNodeNameId(uint8 node)
 {
     switch (node)
@@ -374,13 +373,6 @@ void BattlegroundBFG::_NodeOccupied(uint8 node, Team team)
 
     if (!AddSpiritGuide(node, GILNEAS_BG_SpiritGuidePos[node][0], GILNEAS_BG_SpiritGuidePos[node][1], GILNEAS_BG_SpiritGuidePos[node][2], GILNEAS_BG_SpiritGuidePos[node][3], team))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
-
-    uint8 capturedNodes = 0;
-    for (uint8 i = 0; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
-    {
-        if (m_Nodes[node] == GetTeamIndexByTeamId(team) + GILNEAS_BG_NODE_TYPE_OCCUPIED && !m_NodeTimers[i])
-            ++capturedNodes;
-    }
 
     if (node >= GILNEAS_BG_DYNAMIC_NODES_COUNT) // only dynamic nodes, no start points
         return;

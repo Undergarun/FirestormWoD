@@ -1017,6 +1017,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL               = 58,
     PLAYER_LOGIN_QUERY_BOSS_LOOTED                  = 59,
     PLAYER_LOGIN_QUERY_WORLD_STATES                 = 60,
+    PLAYER_LOGIN_QUERY_STORE_PROFESSION             = 61,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -2655,7 +2656,7 @@ class Player : public Unit, public GridObject<Player>
         void SendAutoRepeatCancel(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 p_ForcedDifficulty = -1);
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -3073,8 +3074,8 @@ class Player : public Unit, public GridObject<Player>
         bool SetHover(bool enable);
 
         void SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude = 0.0f, uint8 p_Type = 0);
-        void RemoveAllMovementForces();
-        bool HasMovementForce(uint64 p_Source);
+        void RemoveAllMovementForces(uint32 p_Entry = 0);
+        bool HasMovementForce(uint64 p_Source = 0, bool p_IsEntry = false);
 
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
@@ -3296,7 +3297,7 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player>& GetAchievementMgr() { return m_achievementMgr; }
         AchievementMgr<Player> const& GetAchievementMgr() const { return m_achievementMgr; }
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, Unit* unit = NULL, bool p_LoginCheck = false);
         void CompletedAchievement(AchievementEntry const* entry);
 
         bool HasTitle(uint32 bitIndex);
@@ -3414,6 +3415,7 @@ class Player : public Unit, public GridObject<Player>
         void HandleStoreLevelCallback(PreparedQueryResult result);
         void HandleStoreGoldCallback(PreparedQueryResult result);
         void HandleStoreTitleCallback(PreparedQueryResult result);
+        void HandleStoreProfessionCallback(PreparedQueryResult p_Result);
 
         void CheckSpellAreaOnQuestStatusChange(uint32 quest_id);
 
@@ -3788,7 +3790,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_LegacyRaidDifficulty;
-        Difficulty m_raidMapDifficulty;
+        Difficulty m_PrevMapDifficulty;
 
         uint32 m_atLoginFlags;
 

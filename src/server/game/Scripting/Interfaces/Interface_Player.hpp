@@ -588,6 +588,15 @@ class PlayerScript : public ScriptObjectImpl<false>
             UNUSED(p_CleanDamage);
         }
 
+        /// Called when player block attack
+        /// @p_Player : Player instance
+        /// @p_DamageInfo  : Damage Infos
+        virtual void OnBlock(Player* p_Player, Unit* p_Attacker)
+        {
+            UNUSED(p_Player);
+            UNUSED(p_Attacker);
+        }
+
         /// Called when a player cancels some scene
         /// @p_Player          : Player instance
         /// @p_SceneInstanceID : Standalone scene instance ID

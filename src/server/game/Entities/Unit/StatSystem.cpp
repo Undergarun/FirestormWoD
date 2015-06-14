@@ -565,6 +565,18 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct = addTotalPct ? GetModifierValue(unitMod, TOTAL_PCT) : 1.0f;
 
+    /// Hack fix : Single-Minded Fury
+    if (addTotalPct && l_UsedWeapon)
+    {
+        if (getClass() == CLASS_WARRIOR && GetSpecializationId() == SPEC_WARRIOR_FURY)
+        {
+            /// Two-Handed weapon
+            /// We should remove Single-Minded Fury bonus, it should work just for one hand weapons
+            if (l_UsedWeapon->GetTemplate() && l_UsedWeapon->GetTemplate()->Sheath == 1)
+                total_pct = total_pct / 1.2f;
+        }
+    }
+
     /// Apply Versatility rating to damage calculation
     base_pct += (ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT)) / 100.0f;
 
@@ -709,8 +721,15 @@ void Player::UpdateParryPercentage()
         // Parry from rating
         diminishing = GetRatingBonusValue(CR_PARRY);
 
+        /// Parry from strength, just for paladin/dk/warrior
+        /*http://www.sacredduty.net/2014/08/06/tc401-avoidance-diminishing-returns-in-wod/
+        1% parry before diminishing returns = 176.3760684 strength
+        1 strength gives 1 / 176.3760684 = 0,0056697034301282*/
+        if (getClass() == CLASS_PALADIN || getClass() == CLASS_DEATH_KNIGHT || getClass() == CLASS_WARRIOR)
+            diminishing += GetTotalStatValue(STAT_STRENGTH, false) * 0.00566970f;
+
         // apply diminishing formula to diminishing parry chance
-        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + parryCap[pClass] * k_constant[pClass]);
+        value = nondiminishing + diminishing * parryCap[pClass] / (diminishing + (parryCap[pClass] * k_constant[pClass]));
 
         /// Apply parry from pct of critical strike from gear
         value += CalculatePct(GetRatingBonusValue(CR_CRIT_MELEE), GetTotalAuraModifier(SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING));
@@ -1071,7 +1090,18 @@ void Player::UpdateEnergyRegen()
     if (getPowerType() != Powers::POWER_ENERGY)
         return;
 
-    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, GetRegenForPower(Powers::POWER_ENERGY));
+    uint32 l_PowerIndex = GetPowerIndexByClass(Powers::POWER_ENERGY, getClass());
+
+    float l_RegenFlatMultiplier = 1.0f;
+    Unit::AuraEffectList const& l_RegenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (auto l_AuraEffect : l_RegenAura)
+    {
+        if (l_AuraEffect->GetMiscValue() != Powers::POWER_ENERGY)
+            continue;
+
+        l_RegenFlatMultiplier += l_AuraEffect->GetAmount() / 100.0f;
+    }
+    SetFloatValue(EUnitFields::UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + l_PowerIndex, GetRegenForPower(Powers::POWER_ENERGY) - (GetRegenForPower(Powers::POWER_ENERGY) / l_RegenFlatMultiplier));
 }
 
 void Player::UpdateFocusRegen()
@@ -1149,8 +1179,11 @@ float Player::GetRegenForPower(Powers p_Power)
             l_Pct += (*l_Iter)->GetAmount() / 100.0f;
     }
 
-    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE) + l_Pct) / 100.f);
-    return l_BaseRegen * l_HastePct;
+    float l_HastePct = 1.f / (1.f + (m_baseRatingValue[CR_HASTE_MELEE] * GetRatingMultiplier(CR_HASTE_MELEE)) / 100.f);
+
+    float l_Total = l_BaseRegen * l_HastePct;
+
+    return l_Total * l_Pct;
 }
 
 void Player::_ApplyAllStatBonuses()

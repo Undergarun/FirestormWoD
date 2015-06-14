@@ -579,7 +579,8 @@ class spell_monk_storm_earth_and_fire: public SpellScriptLoader
         }
 };
 
-// Chi Brew - 115399
+/// last update : 6.1.2 19802
+/// Chi Brew - 115399
 class spell_monk_chi_brew: public SpellScriptLoader
 {
     public:
@@ -598,37 +599,44 @@ class spell_monk_chi_brew: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                bool l_Mastery = false;
+
+                /// Mastery: Bottled Fury
+                float l_MasteryAmount = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
+                
+                if (l_Player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(l_MasteryAmount))
+                    l_Mastery = true;
+
+                const SpellInfo *l_BonusAmount = sSpellMgr->GetSpellInfo(145640);
+
+                if (l_BonusAmount == nullptr)
+                    return;
+
+                switch (l_Player->GetSpecializationId(l_Player->GetActiveSpec()))
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        bool mastery = false;
-                        // Mastery: Bottled Fury
-                        float Mastery = _player->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.5f;
-                        if (_player->HasAura(SPELL_MONK_MASTERY_BOTTLED_FURY) && roll_chance_f(Mastery))
-                            mastery = true;
+                case SPEC_MONK_BREWMASTER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
+                    break;
+                case SPEC_MONK_MISTWEAVER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_2].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_MANA_TEA_STACKS, true);
+                    break;
+                case SPEC_MONK_WINDWALKER:
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                        l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
-                        switch (_player->GetSpecializationId(_player->GetActiveSpec()))
-                        {
-                            case SPEC_MONK_BREWMASTER:
-                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_ELUSIVE_BREW_STACKS, true);
-                                break;
-                            case SPEC_MONK_MISTWEAVER:
-                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_MANA_TEA_STACKS, true);
-                                break;
-                            case SPEC_MONK_WINDWALKER:
-                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                                _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-
-                                if (mastery)
-                                    _player->CastSpell(_player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    if (l_Mastery)
+                       l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
+                    break;
+                default:
+                    break;
                 }
             }
 
@@ -959,11 +967,21 @@ class spell_monk_item_s12_4p_mistweaver: public SpellScriptLoader
         {
             PrepareSpellScript(spell_monk_item_s12_4p_mistweaver_SpellScript);
 
+            enum eSpells
+            {
+                GlyphofZenFocusAura = 159545,
+                GlyphofZenFocus = 159546
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(SPELL_MONK_ITEM_4_S12_MISTWEAVER))
-                        _player->CastSpell(_player, SPELL_MONK_ZEN_FOCUS, true);
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(SPELL_MONK_ITEM_4_S12_MISTWEAVER))
+                    l_Caster->CastSpell(l_Caster, SPELL_MONK_ZEN_FOCUS, true);
+
+                if (l_Caster->HasAura(eSpells::GlyphofZenFocusAura))
+                    l_Caster->CastSpell(l_Caster, eSpells::GlyphofZenFocus, true);
             }
 
             void Register()
@@ -1167,6 +1185,8 @@ class spell_monk_guard: public SpellScriptLoader
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
 
+                AddPct(p_Amount, (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT) + (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT));
+
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
                     std::list<Unit*> l_TargetList;
@@ -1292,14 +1312,16 @@ class spell_monk_power_strikes: public SpellScriptLoader
 
             void HandleAfterCast()
             {
-                if (Player* l_Player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+                
+                if (l_Caster->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
                 {
-                    if (l_Player->HasAura(SPELL_MONK_POWER_STRIKES_AURA))
-                    {
-                        if (l_Player->GetPower(POWER_CHI) >= l_Player->GetMaxPower(POWER_CHI))
-                            l_Player->CastSpell(l_Player, SPELL_MONK_CREATE_CHI_SPHERE, true);
-                        l_Player->RemoveAura(SPELL_MONK_POWER_STRIKES_AURA);
-                    }
+                    if (l_Caster->GetPower(POWER_CHI) >= l_Caster->GetMaxPower(POWER_CHI))
+                        l_Caster->CastSpell(l_Caster, SPELL_MONK_CREATE_CHI_SPHERE, true);
+                    else
+                        l_Caster->ModifyPower(POWER_CHI, 1);
+
+                    l_Caster->RemoveAura(SPELL_MONK_POWER_STRIKES_AURA);
                 }
             }
 
@@ -1494,7 +1516,9 @@ class spell_monk_eminence_heal : public SpellScriptLoader
 
             for (std::list<WorldObject*>::iterator l_Itr = p_Targets.begin(); l_Itr != p_Targets.end();)
             {
-                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || (*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() || !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
+                if ((*l_Itr) == nullptr || (*l_Itr)->ToUnit() == nullptr || !(*l_Itr)->ToUnit()->IsInRaidWith(l_Caster) || 
+                    ((*l_Itr)->ToUnit()->GetGUID() == l_Caster->GetGUID() && GetSpellInfo()->Id != SPELL_MONK_EMINENCE_HEAL) ||
+                    !l_Caster->IsValidAssistTarget((*l_Itr)->ToUnit()))
                     l_Itr = p_Targets.erase(l_Itr);
                else
                    l_Itr++;
@@ -2226,11 +2250,20 @@ class spell_monk_zen_sphere_tick : public SpellScriptLoader
             void HandleDamageExplosion(SpellEffIndex p_EffIndex)
             {
                 Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
 
                 if (AuraEffectPtr l_ZenSphereAura = l_Caster->GetAuraEffect(eSpells::ZenSphereAura, EFFECT_0))
                 {
                     if (l_ZenSphereAura->GetTickNumber() != l_ZenSphereAura->GetTotalTicks())
-                        SetHitDamage(GetSpellInfo()->Effects[EFFECT_1].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack));
+                    {
+                        int32 l_Damage = GetSpellInfo()->Effects[EFFECT_1].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+                        l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                        l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                        SetHitDamage(l_Damage);
+                    }
                     else
                     {
                         int32 l_DamageExplosion = GetSpellInfo()->Effects[EFFECT_3].AttackPowerMultiplier * l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
@@ -2736,13 +2769,17 @@ class spell_monk_keg_smash: public SpellScriptLoader
                 float l_High = 0;
 
                 Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Player == nullptr)
+                if (l_Player == nullptr ||l_Target == nullptr)
                     return;
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                SetHitDamage(int32(frand(14.5f * l_Low, 14.5f * l_High)));
+                int32 l_Damage = int32(frand(14.5f * l_Low, 14.5f * l_High));
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+                SetHitDamage(l_Damage);
 
             }
 
@@ -3708,20 +3745,24 @@ class spell_monk_fists_of_fury_damage : public SpellScriptLoader
                     return;
 
                 Unit* l_Target = GetHitUnit();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr ||l_Player == nullptr)
                     return;
 
                 float l_Low = 0;
                 float l_High = 0;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int32 l_Damage = int32(7.755f * l_Low + 7.755f * l_High) / 2;
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
 
                 if (l_Target->HasAura(113656))
-                    SetHitDamage((7.755f * l_Low + 7.755f * l_High) / 2);
+                    SetHitDamage(l_Damage);
                 else
-                    SetHitDamage(((7.755f * l_Low + 7.755f * l_High) / 2) / m_TotalTargets);
+                    SetHitDamage(l_Damage / m_TotalTargets);
             }
 
             void Register()
@@ -3790,11 +3831,21 @@ class spell_monk_jab: public SpellScriptLoader
                 float l_Low = 0;
                 float l_High = 0;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                Unit* l_Target = GetHitUnit();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                SetHitDamage(int32(frand(1.15f * l_Low, 1.15f * l_High)));
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                int32 l_Damage = int32(frand(1.15f * l_Low, 1.15f * l_High));
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
+
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_monk_jab_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -3834,16 +3885,23 @@ class spell_monk_tiger_palm: public SpellScriptLoader
                 float l_High = 0;
                 float l_Coeff = 3.0f;
 
-                if (Player* l_Player = GetCaster()->ToPlayer())
-                {
-                    l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+                Unit* l_Target = GetHitUnit();
+                Player* l_Player = GetCaster()->ToPlayer();
 
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
-                        l_Coeff = 6.0f;
-                    l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
-                }
+                if (l_Target == nullptr || l_Player == nullptr)
+                    return;
 
-                SetHitDamage(int32(frand(l_Coeff * l_Low, l_Coeff * l_High)));
+                l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_MONK_MISTWEAVER)
+                    l_Coeff = 6.0f;
+                l_Player->RemoveAurasDueToSpell(118864); // Combo Breaker
+
+                int32 l_Damage = int32(frand(l_Coeff * l_Low, l_Coeff * l_High));
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
             void Register()
             {
@@ -3896,7 +3954,10 @@ class spell_monk_blackout_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 // Base damage
-                int32 l_Damage = GetHitDamage() + int32(frand(5.375f * l_Low, 5.375f * l_High));
+                int32 l_Damage = int32(frand(5.375f * l_Low, 5.375f * l_High));
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
                 SetHitDamage(l_Damage);
 
                 // Add additionnal stuff depending on spec
@@ -4122,12 +4183,17 @@ class spell_monk_hurricane_strike_damage: public SpellScriptLoader
                 float l_High = 0;
 
                 Player* l_Player = GetCaster()->ToPlayer();
-                if (!l_Player)
+                Unit* l_Target = GetHitUnit();
+                if (l_Player == nullptr || l_Target == nullptr)
                     return;
 
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
-                SetHitDamage(int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (5 * (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS))));
+                int32 l_Damage = int32(frand(15 * 2 * l_Low, 15 * 2 * l_High) / (5 * (sSpellMgr->GetSpellInfo(SPELL_MONK_HURRICANE_STRIKE)->GetDuration() / IN_MILLISECONDS)));
+                l_Damage = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
@@ -4312,6 +4378,8 @@ class spell_monk_rising_sun_kick: public SpellScriptLoader
                 int32 l_Bp = int32(frand(8.0f * l_Low, 8.0f * l_High));
 
                 l_Bp += CalculatePct(l_Bp, l_PctModifier);
+                l_Bp = l_Player->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Bp, 0, SPELL_DIRECT_DAMAGE);
+                l_Bp = l_Target->SpellDamageBonusTaken(l_Player, GetSpellInfo(), l_Bp, SPELL_DIRECT_DAMAGE);
 
                 SetHitDamage(l_Bp);
             }

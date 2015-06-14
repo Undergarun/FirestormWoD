@@ -31,6 +31,7 @@ enum PaladinSpells
     PALADIN_SPELL_JUDGMENT                      = 20271,
     PALADIN_SPELL_JUDGMENTS_OF_THE_WISE         = 105424,
     PALADIN_SPELL_TEMPLARS_VERDICT              = 85256,
+    PALADIN_SPELL_FINAL_VERDICT                 = 157048,
     PALADIN_SPELL_PHYSICAL_VULNERABILITY        = 81326,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW           = 87172,
     PALADIN_SPELL_LONG_ARM_OF_THE_LAW_RUN_SPEED = 87173,
@@ -98,8 +99,6 @@ enum PaladinSpells
     PALADIN_SPELL_GLYPH_OF_DENOUNCE             = 56420,
     PALADIN_SPELL_GLYPH_OF_DENOUNCE_PROC        = 115654,
     PALADIN_SPELL_GLYPH_OF_DEVOTION_AURA        = 146955,
-    PALADIN_SPELL_SANCTIFIED_WRATH_TALENT       = 53376,
-    PALADIN_SPELL_SANCTIFIED_WRATH_BONUS        = 114232,
     PALADIN_SPELL_AVENGING_WRATH                = 31884,
     PALADIN_SPELL_AVENGING_WRATH_HEAL           = 31842,
     PALADIN_SPELL_EXORCISM_ENERGIZE             = 147715,
@@ -1648,12 +1647,12 @@ class spell_pal_ardent_defender: public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
-            uint32 absorbPct, healPct;
+            uint32 m_AbsorbPct, m_HealPct;
 
             bool Load()
             {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                m_HealPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                m_AbsorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -1663,21 +1662,26 @@ class spell_pal_ardent_defender: public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffectPtr aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffectPtr p_AurEff, DamageInfo & p_DmgInfo, uint32 & p_AbsorbAmount)
             {
-                Unit* victim = GetTarget();
-                int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
+                Unit* l_Victim = GetTarget();
+
+                if (l_Victim == nullptr)
+                    return;
+
+                int32 l_RemainingHealth =  l_Victim->GetHealth() - p_DmgInfo.GetDamage();
                 // If damage kills us
-                if (remainingHealth <= 0 && !victim->ToPlayer()->HasSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL))
+                if (l_RemainingHealth <= 0 && !l_Victim->ToPlayer()->HasSpellCooldown(PALADIN_SPELL_ARDENT_DEFENDER_HEAL))
                 {
                     // Cast healing spell, completely avoid damage
-                    absorbAmount = dmgInfo.GetDamage();
+                    p_AbsorbAmount = p_DmgInfo.GetDamage();
 
-                    int32 healAmount = int32(victim->CountPctFromMaxHealth(healPct));
-                    victim->CastCustomSpell(victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
+                    int32 l_HealAmount = int32(l_Victim->CountPctFromMaxHealth(m_HealPct));
+                    l_Victim->CastCustomSpell(l_Victim, PALADIN_SPELL_ARDENT_DEFENDER_HEAL, &l_HealAmount, NULL, NULL, true, NULL, p_AurEff);
+                    l_Victim->RemoveAurasDueToSpell(GetSpellInfo()->Id);
                 }
                 else
-                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+                    p_AbsorbAmount = CalculatePct(p_DmgInfo.GetDamage(), m_AbsorbPct);
             }
 
             void Register()
@@ -2022,7 +2026,7 @@ public:
             if (Unit* l_Caster = GetCaster())
                 if (Unit* l_Target = GetHitUnit())
                 {
-                    l_Target->SetPower(POWER_HOLY_POWER, m_PowerUsed);
+                    l_Caster->SetPower(POWER_HOLY_POWER, m_PowerUsed);
 
                     if (m_PowerUsed > 3 || l_Caster->HasAura(PALADIN_SPELL_DIVINE_PURPOSE_AURA))
                         m_PowerUsed = 3;
@@ -2119,10 +2123,20 @@ public:
     {
         PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
 
+        uint8 m_TargetCount = 0;
+
         enum eSpells
         {
             GlyphOfFinalWrath = 54935
         };
+
+        void FilterTargets(std::list<WorldObject*>& p_Targets)
+        {
+            m_TargetCount = p_Targets.size();
+
+            if (!GetCaster())
+                return;
+        }
 
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
@@ -2133,6 +2147,9 @@ public:
             if (l_Target == nullptr)
                 return;
 
+            if (m_TargetCount)
+                SetHitDamage(GetHitDamage() / m_TargetCount);
+
             if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_PROTECTION))
                 l_Caster->SetPower(POWER_HOLY_POWER, l_Caster->GetPower(POWER_HOLY_POWER) + GetSpellInfo()->Effects[EFFECT_1].BasePoints);
             if (l_Caster->HasAura(eSpells::GlyphOfFinalWrath) && l_GlyphOfFinalWrath != nullptr && l_Target->GetHealthPct() < 20.0f)
@@ -2141,6 +2158,7 @@ public:
 
         void Register()
         {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_holy_wrath_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             OnEffectHitTarget += SpellEffectFn(spell_pal_holy_wrath_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
@@ -2219,7 +2237,7 @@ public:
                 {
                     if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
                     {
-                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME)
+                        if (GetSpellInfo()->Id == PALADIN_SPELL_WORD_OF_GLORY || GetSpellInfo()->Id == PALADIN_SPELL_TEMPLARS_VERDICT || GetSpellInfo()->Id == SPELL_DIVINE_STORM || GetSpellInfo()->Id == PALADIN_SPELL_ETERNAL_FLAME || GetSpellInfo()->Id == PALADIN_SPELL_FINAL_VERDICT)
                             l_Player->CastSpell(l_Player, PALADIN_SPELL_DIVINE_PURPOSE_AURA, true);
                     }
                     else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_PROTECTION && roll_chance_i(sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PURPOSE)->Effects[EFFECT_0].BasePoints))
@@ -2440,13 +2458,18 @@ class spell_pal_enhanced_holy_shock : public SpellScriptLoader
         }
 };
 
-/// last update : 6.1.2 19802
 /// Sanctified Wrath - 53376
-/// Called by Avenging Wrath - 31884
+/// Called by Avenging Wrath (holy) - 31842 and Avenging Wrath (ret) - 31884
+/// last update : 6.1.2 19802
 class spell_pal_sanctified_wrath : public SpellScriptLoader
 {
     public:
         spell_pal_sanctified_wrath() : SpellScriptLoader("spell_pal_sanctified_wrath") { }
+
+        enum eSpells
+        {
+            SanctifiedWrathBonus = 114232
+        };
 
         class spell_pal_sanctified_wrath_AuraScript : public AuraScript
         {
@@ -2455,53 +2478,83 @@ class spell_pal_sanctified_wrath : public SpellScriptLoader
             void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                Player* l_Player = l_Caster->ToPlayer();
-
-                if (l_Player == nullptr)
-                    return;
-
-                l_Player->CastSpell(l_Player, PALADIN_SPELL_SANCTIFIED_WRATH_BONUS, true);
-
-                if (AuraPtr l_SanctifiedWrathAura = l_Player->GetAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                {
-                    l_SanctifiedWrathAura->GetEffect(EFFECT_1)->SetAmount(0);
-                    l_SanctifiedWrathAura->GetEffect(EFFECT_3)->SetAmount(0);
-                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_RETRIBUTION)
-                    {
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_0)->SetAmount(0);
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_4)->SetAmount(0);
-                    }
-                    else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
-                        l_SanctifiedWrathAura->GetEffect(EFFECT_2)->SetAmount(0);
-                }
-
+                l_Caster->CastSpell(l_Caster, eSpells::SanctifiedWrathBonus, true);
             }
 
             void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* l_Caster = GetCaster();
-
                 if (l_Caster == nullptr)
                     return;
 
-                if (l_Caster->HasAura(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS))
-                    l_Caster->RemoveAurasDueToSpell(PALADIN_SPELL_SANCTIFIED_WRATH_BONUS);
+                if (l_Caster->HasAura(eSpells::SanctifiedWrathBonus))
+                    l_Caster->RemoveAurasDueToSpell(eSpells::SanctifiedWrathBonus);
             }
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                /// Effect 3 is commun to both spells for holy and ret
+                OnEffectApply += AuraEffectApplyFn(spell_pal_sanctified_wrath_AuraScript::OnApply, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_sanctified_wrath_AuraScript::OnRemove, EFFECT_3, SPELL_AURA_FEATHER_FALL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_pal_sanctified_wrath_AuraScript();
+        }
+};
+
+/// Sanctified Wrath (bonus) - 114232
+class spell_pal_sanctified_wrath_bonus : public SpellScriptLoader
+{
+    public:
+        spell_pal_sanctified_wrath_bonus() : SpellScriptLoader("spell_pal_sanctified_wrath_bonus") { }
+
+        class spell_pal_sanctified_wrath_bonus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_sanctified_wrath_bonus_SpellScript);
+
+            void HandleApply(SpellEffIndex p_EffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                switch (p_EffIndex)
+                {
+                    case EFFECT_0: //< Mod CD Holy Shock
+                    case EFFECT_4: //< Crit chance
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_HOLY)
+                            PreventHitAura();
+                        break;
+                    case EFFECT_2: //< Mod CD Hammer of Wrath
+                        if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PALADIN_RETRIBUTION)
+                            PreventHitAura();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_sanctified_wrath_bonus_SpellScript::HandleApply, EFFECT_4, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_sanctified_wrath_bonus_SpellScript();
         }
 };
 
@@ -2565,22 +2618,30 @@ class spell_pal_denounce : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex /*l_EffIndex*/)
             {
-                Unit* l_Caster = GetCaster();
+                Player* l_Player = GetCaster()->ToPlayer();
                 Unit* l_Target = GetHitUnit();
 
-                if (l_Target == nullptr)
+                if (l_Target == nullptr || !l_Target->ToPlayer() || l_Player == nullptr)
                     return;
 
-                if (l_Caster->HasAura(eSpells::WoDPvPHoly2PBonusAura))
-                    l_Caster->CastSpell(l_Caster, eSpells::WoDPvPHoly2PBonus, true);
+                if (l_Player->HasAura(eSpells::WoDPvPHoly2PBonusAura))
+                    l_Player->CastSpell(l_Player, eSpells::WoDPvPHoly2PBonus, true);
 
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::WoDPvPHoly2PBonus);
 
                 if (l_SpellInfo == nullptr)
                     return;
 
-                if (AuraEffectPtr l_AuraEffect = l_Caster->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
-                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE));
+                float l_CritPctOfTarget = 0.0f;
+
+                if (l_Target->GetTypeId() == TYPEID_PLAYER)
+                    l_CritPctOfTarget = l_Target->GetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE);
+
+                if (AuraEffectPtr l_AuraEffect = l_Player->GetAuraEffect(eSpells::WoDPvPHoly2PBonus, EFFECT_0))
+                {
+                    l_AuraEffect->SetAmount(l_SpellInfo->Effects[EFFECT_0].BasePoints * l_CritPctOfTarget);
+                    l_Player->UpdateAllSpellCritChances();
+                }
             }
 
             void Register()
@@ -2618,6 +2679,26 @@ public:
                 p_Player->CastCustomSpell(p_Player, PALADIN_VINDICATORS_FURY, &l_EffectValue, &l_EffectValue, &l_EffectValue, true);
             }
         }
+    }
+};
+
+/// last update : 6.1.2 19802
+/// Holy Shield - 152261
+class PlayerScript_paladin_holy_shield : public PlayerScript
+{
+public:
+    PlayerScript_paladin_holy_shield() :PlayerScript("PlayerScript_paladin_holy_shield") {}
+
+    enum eSpells
+    {
+        HolyShieldAura = 152261,
+        HolyShieldDamage = 157122
+    };
+
+    void OnBlock(Player* p_Player, Unit* p_Attacker)
+    {
+        if (p_Player->HasAura(eSpells::HolyShieldAura))
+            p_Player->CastSpell(p_Attacker, eSpells::HolyShieldDamage, true);
     }
 };
 
@@ -2674,10 +2755,12 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_righteous_defense();
     new spell_pal_seal_of_justice();
     new spell_pal_sanctified_wrath();
+    new spell_pal_sanctified_wrath_bonus();
     new spell_pal_selfless_healer_proc();
 
     // Player Script
     new PlayerScript_empowered_divine_storm();
     new PlayerScript_saved_by_the_light();
     new PlayerScript_paladin_wod_pvp_4p_bonus();
+    new PlayerScript_paladin_holy_shield();
 }

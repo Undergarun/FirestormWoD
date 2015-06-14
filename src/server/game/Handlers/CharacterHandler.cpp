@@ -325,6 +325,10 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_STORE_PROFESSION);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_STORE_PROFESSION, l_Statement);
+
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
     l_Statement->setInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD, l_Statement);
@@ -447,8 +451,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     if (l_TemplateSetID)
     {
+        bool l_TemplateAvailable            = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateSetID);
-        if (!l_Template || l_Template->m_PlayerClass != l_CharacterClass)
+
+        if (!l_TemplateAvailable || !l_Template || l_Template->m_PlayerClass != l_CharacterClass)
         {
             l_CreationResponse << (uint8)CHAR_CREATE_ERROR;
             SendPacket(&l_CreationResponse);
@@ -897,6 +903,17 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                 CharacterDatabase.PExecute("UPDATE characters SET currentPetSlot = '0', petSlotUsed = '1' WHERE guid = %u", newChar.GetGUIDLow());
                 newChar.SetTemporaryUnsummonedPetNumber(pet_id);
+            }
+
+            /// Remove premade service flags if we've just create a premade and premade aren't free on that realm.
+            if (createInfo->TemplateId && !sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
+            {
+                PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REMOVE_ACCOUNT_SERVICE);
+                l_Statement->setUInt32(0, ServiceFlags::Premade);
+                l_Statement->setUInt32(1, GetAccountId());
+                LoginDatabase.Execute(l_Statement);
+
+                m_ServiceFlags &= ~ServiceFlags::Premade;
             }
 
             WorldPacket data(SMSG_CREATE_CHAR, 1);
@@ -1389,6 +1406,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     pCurrChar->HandleStoreGoldCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD));
     pCurrChar->HandleStoreTitleCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE));
     pCurrChar->HandleStoreLevelCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL));
+    pCurrChar->HandleStoreProfessionCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION));
     pCurrChar->SaveToDB();
 
     delete l_CharacterHolder;

@@ -869,7 +869,7 @@ Player::Player(WorldSession* session) : Unit(true), m_achievementMgr(this), m_re
     m_dungeonDifficulty = DifficultyNormal;
     m_raidDifficulty = DifficultyRaidNormal;
     m_LegacyRaidDifficulty = Difficulty10N;
-    m_raidMapDifficulty = DifficultyRaidNormal;
+    m_PrevMapDifficulty = DifficultyRaidNormal;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -1304,7 +1304,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (l_Template)
         for (auto l_Spell : l_Template->m_SpellIDs)
-            addSpell(l_Spell, true, true, true, false);
+            learnSpell(l_Spell, false);
 
     // original spells
     learnDefaultSpells();
@@ -3572,6 +3572,9 @@ void Player::ResetAllPowers()
             break;
         case POWER_ENERGY:
             SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+            break;
+        case POWER_COMBO_POINT:
+            ClearComboPoints();
             break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
@@ -13406,7 +13409,17 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
 
 Item* Player::GetItemByGuid(uint64 guid) const
 {
-    for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)		
+        if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))		
+            if (pItem->GetGUID() == guid)		
+                return pItem;		
+		
+    for (uint8 i = REAGENT_BANK_SLOT_BAG_START; i < REAGENT_BANK_SLOT_BAG_END; ++i)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
                 return pItem;
@@ -23929,10 +23942,10 @@ void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendDungeonDifficulty()
+void Player::SendDungeonDifficulty(int32 p_ForcedDifficulty /*= -1*/)
 {
     WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << uint32(GetDungeonDifficultyID());
+    data << uint32(p_ForcedDifficulty == -1 ? GetDungeonDifficultyID() : p_ForcedDifficulty);
     GetSession()->SendPacket(&data);
 }
 
@@ -25463,6 +25476,7 @@ void Player::InitDataForForm(bool reapplyMods)
                 setPowerType(POWER_RAGE);
             break;
         }
+        case FORM_SPIRITED_CRANE:
         case FORM_WISE_SERPENT:
         {
             if (getPowerType() != POWER_MANA)
@@ -27057,11 +27071,20 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (GetMap()->IsRaid())
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
-        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, GetMap()->GetDifficultyID());
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_PrevMapDifficulty);
     }
     else if (GetMap()->IsNonRaidDungeon())
-        SendDungeonDifficulty();
+    {
+        m_PrevMapDifficulty = GetMap()->GetDifficultyID();
+        SendDungeonDifficulty(m_PrevMapDifficulty);
+    }
+    else if (!GetMap()->Instanceable())
+    {
+        if (DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(m_PrevMapDifficulty))
+            SendRaidDifficulty((l_Difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
+    }
 
     GetSession()->SendPetBattleJournal();
 
@@ -29646,7 +29669,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute
 }
 
-void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/)
+void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit* p_Unit /*= nullptr*/, bool p_LoginCheck /*= false*/)
 {
     if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
         return;
@@ -29654,7 +29677,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
     AchievementCriteriaUpdateTask l_Task;
     l_Task.PlayerGUID = GetGUID();
     l_Task.UnitGUID   = p_Unit ? p_Unit->GetGUID() : 0;
-    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+    l_Task.Task = [p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, p_LoginCheck](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
     {
         /// Task will be executed async
         /// We need to ensure the player still exist
@@ -29665,7 +29688,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
         /// Same for the unit
         Unit* l_Unit = p_UnitGUID ? Unit::GetUnit(*l_Player, p_UnitGUID) : nullptr;
 
-        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+        l_Player->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
 
         // Update only individual achievement criteria here, otherwise we may get multiple updates
         // from a single boss kill
@@ -29673,7 +29696,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p
             return;
 
         if (Guild* l_Guild = sGuildMgr->GetGuildById(l_Player->GetGuildId()))
-            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player);
+            l_Guild->GetAchievementMgr().UpdateAchievementCriteria(p_Type, p_MiscValue1, p_MiscValue2, p_MiscValue3, l_Unit, l_Player, p_LoginCheck);
     };
 
     sAchievementMgr->AddCriteriaUpdateTask(l_Task);
@@ -31544,60 +31567,95 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
     }
 }
 
-    // Load skill
-    /*stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_METIER);
-    stmt->setInt32(0, GetGUIDLow());
-    PreparedQueryResult metierList = CharacterDatabase.Query(stmt);
-
-    if (metierList)
+namespace ProfessionBookSpells
+{
+    enum
     {
-        do
+        Alchemy        = 156614,
+        Blacksmithing  = 169923,
+        Enchanting     = 161788,
+        Engineering    = 161787,
+        Inscription    = 161789,
+        JewelCrafting  = 169926,
+        LeatherWorking = 169925,
+        Tailoring      = 169924,
+        FirstAid       = 160329,
+        Cooking        = 160360,
+        Herbalism      = 158745,
+        Mining         = 158754,
+        Skinning       = 158756,
+        Archaeology    = 158762,
+        Fishing        = 160326
+    };
+}
+
+void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    std::map<uint32, uint32> l_SkillLearningSpells = 
+    {
+        { SkillType::SKILL_ALCHEMY,        ProfessionBookSpells::Alchemy        },
+        { SkillType::SKILL_BLACKSMITHING,  ProfessionBookSpells::Blacksmithing  },
+        { SkillType::SKILL_ENCHANTING,     ProfessionBookSpells::Enchanting     },
+        { SkillType::SKILL_ENGINEERING,    ProfessionBookSpells::Engineering    },
+        { SkillType::SKILL_INSCRIPTION,    ProfessionBookSpells::Inscription    },
+        { SkillType::SKILL_JEWELCRAFTING,  ProfessionBookSpells::JewelCrafting  },
+        { SkillType::SKILL_LEATHERWORKING, ProfessionBookSpells::LeatherWorking },
+        { SkillType::SKILL_TAILORING,      ProfessionBookSpells::Tailoring      },
+        { SkillType::SKILL_FIRST_AID,      ProfessionBookSpells::FirstAid       },
+        { SkillType::SKILL_COOKING,        ProfessionBookSpells::Cooking        },
+        { SkillType::SKILL_HERBALISM,      ProfessionBookSpells::Herbalism      },
+        { SkillType::SKILL_MINING,         ProfessionBookSpells::Mining         },
+        { SkillType::SKILL_SKINNING,       ProfessionBookSpells::Skinning       },
+        { SkillType::SKILL_ARCHAEOLOGY,    ProfessionBookSpells::Archaeology    },
+        { SkillType::SKILL_FISHING,        ProfessionBookSpells::Fishing        }
+    };
+
+    do 
+    {
+        Field* l_Fields     = p_Result->Fetch();
+        uint32 l_SkillID    = l_Fields[0].GetUInt32();
+        bool   l_Recipe     = l_Fields[1].GetBool();
+
+        auto it = l_SkillLearningSpells.find(l_SkillID);
+        if (it == l_SkillLearningSpells.end())
+            continue;
+
+        uint32 l_SpellID = it->second;
+
+        if (getLevel() < 90)
+            continue;
+        
+        if (IsPrimaryProfessionSkill(l_SkillID) && !HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
+            continue;
+
+        /// Learn the skill to dreanor rank
+        CastSpell(this, l_SpellID, true);
+
+        /// Up skill to 700
+        SetSkill(l_SkillID, GetSkillStep(l_SkillID), 700, 700);
+
+        if (l_Recipe)
         {
-            Field* fieldMetier  = metierList->Fetch();
-            uint32 skillId      = fieldMetier[0].GetUInt32();
-            uint32 value        = fieldMetier[1].GetUInt32();
-
-            uint32 learnId = 0;
-
-            for (SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
+            const std::list<SkillLineAbilityEntry const*>& l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
+            for (auto l_Abilitie : l_Abilities)
             {
-                SpellEntry const* spell = (*itr);
-
-                const SpellEffectEntry* spellEffect = spell->GetSpellEffect(EFFECT_1, 0);
-
-                if (!spellEffect)
+                if (l_Abilitie->min_value > 600)
                     continue;
 
-                if ((uint32)spellEffect->EffectMiscValue != skillId)
-                    continue;
-
-                if ((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
-                    continue;
-
-                learnId = spell->Id;
-                break;
+                learnSpell(l_Abilitie->spellId, false);
             }
-
-            if (learnId)
-            {
-                if (!HasSpell(learnId))
-                    learnSpell(learnId, false);
-
-                SetSkill(skillId, GetSkillStep(skillId), value, value);
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_METIER);
-                stmt->setInt32(0, GetGUIDLow());
-                stmt->setInt32(1, skillId);
-                stmt->setInt32(2, value);
-                CharacterDatabase.Execute(stmt);
-
-                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");  // translate me
-            }
-
         }
-        while(metierList->NextRow());
-    }*/
 
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);
+        l_Statement->setUInt32(0, GetGUIDLow());
+        l_Statement->setUInt32(1, l_SkillID);
+        CharacterDatabase.Execute(l_Statement);
+    }
+    while (p_Result->NextRow());
+}
 
 void Player::CheckSpellAreaOnQuestStatusChange(uint32 quest_id)
 {
@@ -31770,11 +31828,13 @@ void Player::SetEmoteState(uint32 anim_id)
 
 void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Direction, float p_Magnitude /*= 0.0f*/, uint8 p_Type /*= 0*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return;
     }
+*/
 
     if (p_Apply)
     {
@@ -31811,22 +31871,62 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     }
 }
 
-void Player::RemoveAllMovementForces()
+void Player::RemoveAllMovementForces(uint32 p_Entry /*=0*/)
 {
-    std::set<uint64> l_ActiveMovementForces = m_ActiveMovementForces;
+    std::set<uint64> l_ActiveMovementForces;
+
+    if (!p_Entry)
+        l_ActiveMovementForces = m_ActiveMovementForces;
+    else
+    {
+        for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+        {
+            if (WorldObject* l_Obj = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+            {
+                if (l_Obj->GetEntry() == p_Entry)
+                    l_ActiveMovementForces.insert(l_Obj->GetGUID());
+            }
+        }
+    }
 
     for (uint64 l_ForceID : l_ActiveMovementForces)
         SendApplyMovementForce(l_ForceID, false, Position());
 }
 
-bool Player::HasMovementForce(uint64 p_Source)
+bool Player::HasMovementForce(uint64 p_Source /*= 0*/, bool p_IsEntry /*=false*/)
 {
+/* Removed because some Unit* can also be source of movement force
     if (sAreaTriggerStore.LookupEntry(GUID_ENPART(p_Source)) || GUID_HIPART(p_Source) != HIGHGUID_AREATRIGGER)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Invalid source for movement force. (GUID: 0x" UI64FMTD " AreaTrigger entry not found in DBC)", p_Source);
         return false;
     }
+*/
+    /// No Guid? Just returns if player has at least one movement force applied
+    if (!p_Source)
+        return !m_ActiveMovementForces.empty();
 
+    /// Entry?
+    if (p_IsEntry)
+    {
+        if (uint32(p_Source) == p_Source)
+        {
+            for (std::set<uint64>::iterator l_Itr = m_ActiveMovementForces.begin(); l_Itr != m_ActiveMovementForces.end(); ++l_Itr)
+            {
+                if (WorldObject* l_Object = ObjectAccessor::GetWorldObject(*this, *l_Itr))
+                {
+                    if (l_Object->GetEntry() == p_Source)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+        /// Not a valid entry
+        return false;
+    }
+
+    /// Guid?
     return m_ActiveMovementForces.find(p_Source) != m_ActiveMovementForces.end();
 }
 

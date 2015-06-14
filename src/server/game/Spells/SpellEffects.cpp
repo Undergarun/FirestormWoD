@@ -310,7 +310,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235                     Unused 6.1.2
     &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
-    &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
+    &Spell::EffectIncreaseSkill,                            //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     &Spell::EffectNULL,                                     //240 SPELL_EFFECT_240                     Unused 6.1.2
     &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241                     Unused 6.1.2
@@ -1383,7 +1383,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
 
     float speedXY, speedZ;
     CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 10.0f, m_spellInfo->Id);
 }
 
 void Spell::EffectJumpDest(SpellEffIndex p_EffIndex)
@@ -2265,6 +2265,9 @@ void Spell::EffectCreateRandomItem(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
     Player* player = unitTarget->ToPlayer();
+
+    // Update craft skill
+    player->UpdateCraftSkill(m_spellInfo->Id);
 
     // create some random items
     player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
@@ -7929,6 +7932,37 @@ void Spell::EffectGarrisonFinalize(SpellEffIndex p_EffIndex)
         return;
 
     l_Player->ToPlayer()->GetGarrison()->ActivateBuilding();
+}
+
+void Spell::EffectIncreaseSkill(SpellEffIndex p_EffIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || !unitTarget->IsInWorld())
+        return;
+
+    Player* l_Player = unitTarget->ToPlayer();
+
+    if (!l_Player)
+        return;
+
+    uint16 l_SkillId = m_spellInfo->Effects[p_EffIndex].MiscValue;
+
+    if (!l_Player->HasSkill(l_SkillId))
+        return;
+
+    int32 l_MaxSkillValue = m_spellInfo->Effects[p_EffIndex].MiscValueB;
+    int32 l_CurrentSkillValue = l_Player->GetSkillValue(l_SkillId);
+
+    if (l_CurrentSkillValue >= l_MaxSkillValue)
+        return;
+
+    int32 l_BasePoints = m_spellInfo->Effects[p_EffIndex].BasePoints;
+
+    int32 l_NewValue = std::min((int32)l_MaxSkillValue, (int32)(l_CurrentSkillValue + l_BasePoints));
+
+    l_Player->UpdateSkillPro(l_SkillId, 1000, l_BasePoints);
 }
 
 void Spell::EffectResurectPetBattles(SpellEffIndex effIndex)
