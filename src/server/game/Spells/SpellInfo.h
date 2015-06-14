@@ -465,6 +465,8 @@ public:
     ~SpellInfo();
 
     bool HasEffect(SpellEffects effect) const;
+    SpellEffectInfo const* GetEffectByType(SpellEffects p_Effect) const;
+
     int8 GetEffectIndex(SpellEffects effect) const;
     bool HasAura(AuraType aura) const;
     bool HasAreaAuraEffect() const;
@@ -595,6 +597,8 @@ public:
     bool IsNeedToCheckSchoolImmune() const;
     bool IsRemoveLossControlEffects() const;
     bool DoesIgnoreGlobalCooldown(Unit* caster) const;
+
+    Classes GetClassIDBySpellFamilyName() const;
 
     // helpers for breaking by damage spells
     bool IsBreakingCamouflage() const;

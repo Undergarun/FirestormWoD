@@ -1200,6 +1200,14 @@ bool SpellInfo::HasEffect(SpellEffects effect) const
     return false;
 }
 
+SpellEffectInfo const* SpellInfo::GetEffectByType(SpellEffects p_Effect) const
+{
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        if (Effects[l_I].IsEffect(p_Effect))
+            return &Effects[l_I];
+    return nullptr;
+}
+
 int8 SpellInfo::GetEffectIndex(SpellEffects effect) const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -4366,4 +4374,35 @@ bool SpellInfo::IsCustomArchaeologySpell() const
     }
 
     return false;
+}
+
+Classes SpellInfo::GetClassIDBySpellFamilyName() const
+{
+    switch (SpellFamilyName)
+    {
+        case SPELLFAMILY_MAGE:
+            return CLASS_MAGE;
+        case SPELLFAMILY_WARRIOR:
+            return CLASS_WARRIOR;
+        case SPELLFAMILY_WARLOCK:
+            return CLASS_WARLOCK;
+        case SPELLFAMILY_PRIEST:
+            return CLASS_PRIEST;
+        case SPELLFAMILY_DRUID:
+            return CLASS_DRUID;
+        case SPELLFAMILY_ROGUE:
+            return CLASS_ROGUE;
+        case SPELLFAMILY_HUNTER:
+            return CLASS_HUNTER;
+        case SPELLFAMILY_PALADIN:
+            return CLASS_PALADIN;
+        case SPELLFAMILY_SHAMAN:
+            return CLASS_SHAMAN;
+        case SPELLFAMILY_DEATHKNIGHT:
+            return CLASS_DEATH_KNIGHT;
+        case SPELLFAMILY_MONK:
+            return CLASS_MONK;
+        default:
+            return CLASS_NONE;
+    }
 }
