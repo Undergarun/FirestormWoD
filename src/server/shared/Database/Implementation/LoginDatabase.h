@@ -157,6 +157,8 @@ enum LoginDatabaseStatements
     /// Services
     LOGIN_REMOVE_ACCOUNT_SERVICE,
     //////////////////////////////////////////////////////////////////////////
+
+    MAX_LOGINDATABASE_STATEMENTS
 };
 
 #endif

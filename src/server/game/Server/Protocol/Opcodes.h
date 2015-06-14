@@ -511,12 +511,12 @@ enum Opcodes
         SMSG_CHALLENGE_MOD_REWARDS                              = 0x0000, ///< (NYI)
 
         /// Battlepay
-        SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x12A4, ///< 6.0.3 19116
-        SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x168A, ///< 6.0.6 19116
-        SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x0F2A, ///< 6.0.3 19116
-        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0BA3, ///< 6.0.3 19116
-        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x092F, ///< 6.0.3 19116
-        SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x0938, ///< 6.0.3 19116
+        SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE               = 0x0CE1, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE              = 0x02C0, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE          = 0x120E, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_START_PURCHASE_RESPONSE                 = 0x0F04, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_PURCHASE_UPDATE                         = 0x1639, ///< 6.1.2 19783
+        SMSG_BATTLE_PAY_CONFIRM_PURCHASE                        = 0x1716, ///< 6.1.2 19783
 
         SMSG_BLACK_MARKET_OPEN_RESULT                           = 0x18B5, ///< 6.1.2 19783
         SMSG_BLACK_MARKET_OUTBID                                = 0x18E6, ///< 6.1.2 19783
@@ -1546,9 +1546,9 @@ enum Opcodes
     /// Battle pay
     //////////////////////////////////////////////////////////////////////////
     CMSG_BATTLE_PAY_GET_PURCHASE_LIST              = 0x1616,    ///< 6.1.2 19783
-    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x1389,    ///< 6.0.3 19116
-    CMSG_BATTLE_PAY_START_PURCHASE                 = 0x011E,    ///< 6.0.3 19116
-    CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE      = 0x012E,    ///< 6.0.3 19116
+    CMSG_BATTLE_PAY_GET_PRODUCT_LIST_QUERY         = 0x0A1D,    ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_START_PURCHASE                 = 0x173F,    ///< 6.1.2 19783
+    CMSG_BATTLE_PAY_CONFIRM_PURCHASE_RESPONSE      = 0x1A1F,    ///< 6.1.2 19783
 
     //////////////////////////////////////////////////////////////////////////
     /// LFG
