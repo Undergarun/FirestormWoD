@@ -174,7 +174,7 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
 {
     m_Events.resize(eTarrenMillEvents::MaxEvents, nullptr);
 
-    m_Events[eTarrenMillEvents::EventFFA] = new TarrenMillFFAEvent
+    /*m_Events[eTarrenMillEvents::EventFFA] = new TarrenMillFFAEvent
     (
         eTarrenMillEvents::EventFFA,
         eTarrenMillEventStates::NotStarted,
@@ -184,7 +184,7 @@ void OutdoorPvPTarrenMillFun::InitializeEvents()
             MakeEventTimeRange(18, 0, 19, 0),
             MakeEventTimeRange(23, 0, 23, 59),
         }
-    );
+    );*/
 
     m_Events[eTarrenMillEvents::EventPortalShip] = new TarrenMillShipEvent
     (
@@ -302,7 +302,7 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
     for (TarrenMillEvent* l_Event : m_Events)
         l_Event->OnPlayerKilled(p_Player);
 
-    bool l_CanUpdateScoreAtSkill = !m_Events[eTarrenMillEvents::EventFFA]->IsInProgress();
+    bool l_CanUpdateScoreAtSkill = true;// !m_Events[eTarrenMillEvents::EventFFA]->IsInProgress();
     if (l_CanUpdateScoreAtSkill)
         UpdateScoreAtKill(p_Player);
 }

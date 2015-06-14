@@ -69,7 +69,7 @@ enum eTarrenMillEventDurations
 enum eTarrenMillEvents
 {
     EventPortalShip,
-    EventFFA,
+    //EventFFA,
     MaxEvents
 };
 
