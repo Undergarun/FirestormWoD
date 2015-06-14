@@ -18,11 +18,17 @@ class TarrenMillFFAEvent : public TarrenMillEvent
 
         void OnPlayerEnter(Player* p_Player) override
         {
+            if (!IsInProgress())
+                return;
+
             EnableFFAOnPlayer(p_Player);
         }
 
         void OnPlayerExit(Player* p_Player) override
         {
+            if (!IsInProgress())
+                return;
+
             DisableFFAOnPlayer(p_Player);
         }
 
@@ -33,7 +39,7 @@ class TarrenMillFFAEvent : public TarrenMillEvent
             ApplyOnAllPlayers([this](Player* p_Player)
             {
                 EnableFFAOnPlayer(p_Player);
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event started for the next 30 minutes!");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: FFA event started for the next 5 minutes!");
             });
         }
 
@@ -88,9 +94,9 @@ public:
                 return;
 
             if (l_TarrenMillScript->GetCurrentScore(TEAM_ALLIANCE) >= l_TarrenMillScript->GetCurrentScore(TEAM_HORDE))
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Alliance WON! A portal to the ships is available in Alliance town for 1 hour.");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Alliance WON! A portal to the ships is available in Alliance town for 30 minutes.");
             else
-                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Horde WON! A portal to the ships is available in Horde town for 1 hour.");
+                ChatHandler(p_Player).SendSysMessage("Tarren Mill: Horde WON! A portal to the ships is available in Horde town for 30 minutes.");
         });
     }
 
@@ -228,8 +234,6 @@ void OutdoorPvPTarrenMillFun::ResetScores()
     /// Send update to online players
     SendUpdateWorldState(eWorldStates::AllianceScore, 0);
     SendUpdateWorldState(eWorldStates::HordeScore, 0);
-
-    m_Events[eTarrenMillEvents::EventPortalShip]->Start();
 }
 
 void OutdoorPvPTarrenMillFun::LoadKillsRewards()
@@ -305,18 +309,30 @@ void OutdoorPvPTarrenMillFun::HandlePlayerKilled(Player* p_Player)
 
 void OutdoorPvPTarrenMillFun::HandleKill(Player* p_Killer, Unit* p_Killed)
 {
-    if (p_Killed->GetTypeId() != TypeID::TYPEID_PLAYER)
-        return;
+//     if (p_Killed->GetTypeId() != TypeID::TYPEID_PLAYER)
+//         return;
+// 
+//     if (p_Killed->ToPlayer()->GetTeamId() == p_Killer->GetTeamId())
+//         return;
+// 
+//     uint32 l_Kills = p_Killer->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+//     l_Kills++;
+// 
+//     p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
+//     UpdateRankAura(p_Killer);
+//     CheckKillRewardConditions(p_Killer);
+}
 
-    if (p_Killed->ToPlayer()->GetTeamId() == p_Killer->GetTeamId())
-        return;
-
-    uint32 l_Kills = p_Killer->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
+void OutdoorPvPTarrenMillFun::HandleRewardHonor(Player* p_Player)
+{
+    uint32 l_Kills = p_Player->GetCharacterWorldStateValue(eCharacterWorldStates::TarrenMillFunKill);
     l_Kills++;
 
-    p_Killer->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
-    UpdateRankAura(p_Killer);
-    CheckKillRewardConditions(p_Killer);
+    p_Player->SetCharacterWorldState(eCharacterWorldStates::TarrenMillFunKill, l_Kills);
+    UpdateRankAura(p_Player);
+    CheckKillRewardConditions(p_Player);
+
+    p_Player->ModifyMoney(20000);
 }
 
 void OutdoorPvPTarrenMillFun::CheckKillRewardConditions(Player* p_Player)
@@ -427,18 +443,17 @@ void OutdoorPvPTarrenMillFun::UpdateScoreAtKill(Player* p_Player)
     uint32 l_Value = sWorld->getWorldState(l_WorldState);
     l_Value++;
 
-    /// Debug code
-    if (l_Value >= 1)
+    if (l_Value >= eTarrenMillFunDatas::MaxScoreValue)
     {
         if (!m_Events[eTarrenMillEvents::EventPortalShip]->IsInProgress())
             m_Events[eTarrenMillEvents::EventPortalShip]->Start();
-
-        if (!m_Events[eTarrenMillEvents::EventFFA]->IsInProgress())
-            m_Events[eTarrenMillEvents::EventFFA]->Start();
+        ResetScores();
     }
-
-    sWorld->setWorldState(l_WorldState, l_Value);
-    SendUpdateWorldState(l_WorldState, l_Value);
+    else
+    {
+        sWorld->setWorldState(l_WorldState, l_Value);
+        SendUpdateWorldState(l_WorldState, l_Value);
+    }
 }
 
 void OutdoorPvPTarrenMillFun::HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID)
@@ -497,11 +512,16 @@ void TarrenMillEvent::Start()
 
 void TarrenMillEvent::OnStart()
 {
+    sLog->outAshran("TarrenMill: Start event [%u]", ID);
+
     State = eTarrenMillEventStates::Started;
+    NextStartTimestamp = time(nullptr);
 }
 
 void TarrenMillEvent::OnEnd()
 {
+    sLog->outAshran("TarrenMill: End event [%u]", ID);
+
     State = eTarrenMillEventStates::NotStarted;
     ComputeNextStartTime();
 }
@@ -581,6 +601,7 @@ void TarrenMillEvent::ComputeNextStartTime()
     }
 
     NextStartTimestamp = l_StartTimestamp;
+    sLog->outAshran("TarrenMill::ComputeNextStartTime: NextStartTimestamp : [%u] for event [%u]", NextStartTimestamp, ID);
 }
 
 bool TarrenMillEvent::IsInProgress() const
@@ -682,7 +703,7 @@ public:
             l_Position.m_orientation = 2.03f;
         }
 
-        p_Player->TeleportTo(eTarrenMillFunDatas::MapId, l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
+        p_Player->NearTeleportTo(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ, l_Position.m_orientation);
 
         return true;
     }

@@ -32,7 +32,7 @@ enum eTarrenMillFunDatas
 {
     ZoneId             = 7107,
     MapId              = 1280,
-    MaxScoreValue      = 5000,
+    MaxScoreValue      = 1500,
     ResetHour          = 2, ///< 2:00 AM
 };
 
@@ -62,8 +62,8 @@ enum eGameObjects
 
 enum eTarrenMillEventDurations
 {
-    EventFFADuration = 30 * MINUTE * IN_MILLISECONDS,
-    EventPortalShipDuration = 60 * MINUTE * IN_MILLISECONDS
+    EventFFADuration = 5 * MINUTE,
+    EventPortalShipDuration = 30 * MINUTE
 };
 
 enum eTarrenMillEvents
@@ -175,6 +175,7 @@ class OutdoorPvPTarrenMillFun : public OutdoorPvP
         void FillInitialWorldStates(ByteBuffer& p_Data) override;
         void HandlePlayerKilled(Player* p_Player) override;
         void HandleKill(Player* p_Killer, Unit* p_Killed) override;
+        void HandleRewardHonor(Player* p_Player) override;
         bool Update(uint32 p_Diff) override;
         void HandlePlayerEnterMap(Player* p_Player, uint32 p_MapID) override;
         void HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID) override;
