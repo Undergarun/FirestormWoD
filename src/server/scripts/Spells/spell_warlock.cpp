@@ -53,7 +53,7 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
     WARLOCK_METAMORPHOSIS                   = 103958,
-    WARLOCK_DEMONIC_LEAP_JUMP               = 169157,
+    WARLOCK_DEMONIC_LEAP_JUMP               = 109167,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
     WARLOCK_TWILIGHT_WARD_METAMORPHOSIS_S12 = 131624,
@@ -1488,7 +1488,7 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         }
 };
 
-// Demonic Leap (jump) - 169157
+// Demonic Leap (jump) - 109167
 class spell_warl_demonic_leap_jump: public SpellScriptLoader
 {
     public:
@@ -1505,14 +1505,9 @@ class spell_warl_demonic_leap_jump: public SpellScriptLoader
                     return SPELL_FAILED_DONT_REPORT;
 
                 Position pos;
-                caster->GetFirstCollisionPosition(pos, GetSpellInfo()->Effects[EFFECT_0].CalcRadius(caster), 0.0f);
+                caster->GetFirstCollisionPosition(pos, GetSpellInfo()->Effects[EFFECT_0].CalcRadius(caster), caster->GetOrientation());
 
-                if (pos.GetPositionX() > caster->GetPositionZ() + 5.0f)
-                {
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS);
-                    return SPELL_FAILED_NOPATH;
-                }
-                else if (!caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+                if (!caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
                 {
                     caster->RemoveAura(WARLOCK_METAMORPHOSIS);
                     return SPELL_FAILED_NOPATH;
