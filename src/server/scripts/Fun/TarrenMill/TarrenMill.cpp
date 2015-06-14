@@ -539,6 +539,8 @@ void TarrenMillEvent::OnUpdate(const uint32 p_Diff)
 
 void TarrenMillEvent::ComputeNextStartTime()
 {
+    NextStartTimestamp = 0;
+
     if (StartRanges.empty())
         return;
 
