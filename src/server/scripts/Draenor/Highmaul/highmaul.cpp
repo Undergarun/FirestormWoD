@@ -59,6 +59,11 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 me->GetMotionMaster()->MovePoint(eMove::MoveFirstPos, g_GhargFirstPos);
             }
 
+            bool CanRespawn() override
+            {
+                return false;
+            }
+
             void DoAction(int32 const p_Action)
             {
                 if (p_Action == eAction::ActionMove)
@@ -512,11 +517,6 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             EventDevour
         };
 
-        enum eCreature
-        {
-            IronGrunt = 88118
-        };
-
         struct npc_highmaul_night_twisted_devoutAI : public MS::AI::CosmeticAI
         {
             npc_highmaul_night_twisted_devoutAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
@@ -533,7 +533,7 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
 
-                if (Creature* l_IronGrunt = me->FindNearestCreature(eCreature::IronGrunt, 3.0f))
+                if (Creature* l_IronGrunt = me->FindNearestCreature(eHighmaulCreatures::IronGrunt, 3.0f))
                 {
                     me->Kill(l_IronGrunt);
                     DoZoneInCombat(me, 40.0f);
@@ -901,11 +901,6 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
             EventSurgeOfDarkness = 1
         };
 
-        enum eCreature
-        {
-            IronGrunt = 88118
-        };
-
         struct npc_highmaul_night_twisted_bruteAI : public ScriptedAI
         {
             npc_highmaul_night_twisted_bruteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
@@ -922,7 +917,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
 
                 std::list<Creature*> l_IronGrunts;
-                me->GetCreatureListWithEntryInGrid(l_IronGrunts, eCreature::IronGrunt, 35.0f);
+                me->GetCreatureListWithEntryInGrid(l_IronGrunts, eHighmaulCreatures::IronGrunt, 35.0f);
 
                 if (!l_IronGrunts.empty())
                 {
