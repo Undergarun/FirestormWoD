@@ -7066,35 +7066,9 @@ SpellCastResult Spell::CheckCasterAuras() const
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED)
-    {
-        // spell is usable while stunned, check if caster has only mechanic stun auras, another stun types must prevent cast spell
-        if (usableInStun)
-        {
-            bool foundNotStun = false;
-            Unit::AuraEffectList const& stunAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_STUN);
-            for (Unit::AuraEffectList::const_iterator i = stunAuras.begin(); i != stunAuras.end(); ++i)
-            {
-                if ((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() && !((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() & (1<<MECHANIC_STUN)))
-                {
-                    // Sap & Hand of Freedom hack
-                    if ((*i)->GetSpellInfo()->Id == 6770 && m_spellInfo->Id == 1044)
-                        continue;
 
-                    /// Cold Snap and Ice Block hack
-                    if ((*i)->GetSpellInfo()->Id == 45438 && m_spellInfo->Id == 11958)
-                        continue;
-
-                    foundNotStun = true;
-                    break;
-                }
-            }
-            if (foundNotStun && m_spellInfo->Id != 22812)
-                prevented_reason = SPELL_FAILED_STUNNED;
-        }
-        else
-            prevented_reason = SPELL_FAILED_STUNNED;
-    }
+    if (unitflag & UNIT_FLAG_STUNNED && !usableInStun)
+        prevented_reason = SPELL_FAILED_STUNNED;
     else if (unitflag & UNIT_FLAG_CONFUSED && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
     else if (unitflag & UNIT_FLAG_FLEEING && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))
