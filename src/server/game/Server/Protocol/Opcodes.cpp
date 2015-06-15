@@ -527,6 +527,10 @@ void InitOpcodes()
         /// Toybox
         DEFINE_OPCODE_HANDLER(SMSG_ACCOUNT_TOYS_UPDATE,                                 STATUS_NEVER,         PROCESS_THREADSAFE,   &WorldSession::Handle_ServerSide);
 
+        /// AreaTriggers
+        DEFINE_OPCODE_HANDLER(SMSG_AREA_TRIGGER_RE_SHAPE,                               STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+        DEFINE_OPCODE_HANDLER(SMSG_AREA_TRIGGER_RE_PATH,                                STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
+
         /// Calendar
         DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_CLEAR_PENDING_ACTION,                       STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);
         DEFINE_OPCODE_HANDLER(SMSG_CALENDAR_COMMAND_RESULT,                             STATUS_NEVER,         PROCESS_INPLACE,      &WorldSession::Handle_ServerSide);

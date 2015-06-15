@@ -655,23 +655,23 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
     if (p_Flags & UPDATEFLAG_HAS_AREATRIGGER)
     {
-        const AreaTriggerTemplate* l_MainTemplate = l_AreaTrigger->GetMainTemplate();
+        AreaTriggerTemplate const* l_MainTemplate = l_AreaTrigger->GetMainTemplate();
 
-        // We need to find the true conditions for FollowTerrain and HasAreaTriggerSpline.
-        bool l_AbsoluteOrientation      = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
-        bool l_DynamicShape             = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_DYNAMIC_SHAPE;
-        bool l_Attached                 = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_ATTACHED;
-        bool l_FaceMovementDir          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
-        bool l_FollowsTerrain           = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE);
-        bool l_HasTargetRollPitchYaw    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
-        bool l_HasScaleCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_SCALE_CURVE;
-        bool l_HasMorphCurveID          = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MORPH_CURVE;
-        bool l_HasFacingCurveID         = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_FACING_CURVE;
-        bool l_HasMoveCurveID           = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_HAS_MOVE_CURVE;
-        bool l_HasAreaTriggerSphere     = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
-        bool l_HasAreaTriggerBox        = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_BOX;
-        bool l_HasAreaTriggerPolygon    = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
-        bool l_HasAreaTriggerCylinder   = l_MainTemplate->m_Flags & AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+        /// We need to find the true conditions for HasAreaTriggerSpline.
+        bool l_AbsoluteOrientation      = l_MainTemplate->HasAbsoluteOrientation();
+        bool l_DynamicShape             = l_MainTemplate->HasDynamicShape();
+        bool l_Attached                 = l_MainTemplate->HasAttached();
+        bool l_FaceMovementDir          = l_MainTemplate->HasFaceMovementDir();
+        bool l_FollowsTerrain           = l_MainTemplate->HasFollowsTerrain();
+        bool l_HasTargetRollPitchYaw    = l_MainTemplate->HasTargetRollPitchYaw();
+        bool l_HasScaleCurveID          = l_MainTemplate->HasScaleCurveID();
+        bool l_HasMorphCurveID          = l_MainTemplate->HasMorphCurveID();
+        bool l_HasFacingCurveID         = l_MainTemplate->HasFacingCurveID();
+        bool l_HasMoveCurveID           = l_MainTemplate->HasMoveCurveID();
+        bool l_HasAreaTriggerSphere     = l_MainTemplate->HasAreaTriggerSphere();
+        bool l_HasAreaTriggerBox        = l_MainTemplate->HasAreaTriggerBox();
+        bool l_HasAreaTriggerPolygon    = l_MainTemplate->HasAreaTriggerPolygon();
+        bool l_HasAreaTriggerCylinder   = l_MainTemplate->HasAreaTriggerCylinder();
         bool l_HasAreaTriggerSpline     = l_MainTemplate->m_MoveCurveID || (l_AreaTrigger->GetTrajectory() != AREATRIGGER_INTERPOLATION_NONE && l_AreaTrigger->GetUpdateInterval() > 0);
 
         uint32 l_ElapsedMS = l_AreaTrigger->GetCreatedTime();

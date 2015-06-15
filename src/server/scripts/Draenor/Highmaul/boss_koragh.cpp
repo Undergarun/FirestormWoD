@@ -375,11 +375,11 @@ class boss_koragh : public CreatureScript
                 /// This effect stacks. When the barrier expires, Breaker's Strength is removed.
                 m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventBreakersStrength, 10 * TimeConstants::IN_MILLISECONDS);
 
-                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicFire, 6 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 40 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventExpelMagicShadow, 55 * TimeConstants::IN_MILLISECONDS);
-                ///m_Events.ScheduleEvent(eEvents::EventSuppressionField, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventExpelMagicFire, 6 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 40 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventExpelMagicShadow, 55 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventSuppressionField, 15 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventOverflowingEnergy, 36 * TimeConstants::IN_MILLISECONDS);
             }
 
@@ -1861,7 +1861,10 @@ class areatrigger_highmaul_expel_magic_frost : public AreaTriggerEntityScript
 class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
 {
     public:
-        areatrigger_highmaul_overflowing_energy() : AreaTriggerEntityScript("areatrigger_highmaul_overflowing_energy") { }
+        areatrigger_highmaul_overflowing_energy() : AreaTriggerEntityScript("areatrigger_highmaul_overflowing_energy")
+        {
+            m_FirstMove = true;
+        }
 
         enum eSpells
         {
@@ -1870,13 +1873,20 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
             OverflowingEnergyDamage = 161612
         };
 
+        enum eVisual
+        {
+            OverflowingVisual = 39136
+        };
+
+        bool m_FirstMove;
+
         void OnSetCreatePosition(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination) override
         {
-            float l_Rotation = frand(0, 2 * M_PI);
+            float l_Rotation = frand(0.0f, 2 * M_PI);
             float l_Range = frand(10.0f, 30.0f);
-            float l_X = g_CenterPos.m_positionX + (l_Range + cos(l_Rotation));
-            float l_Y = g_CenterPos.m_positionY + (l_Range + sin(l_Rotation));
-            float l_Z = g_CenterPos.m_positionZ;
+            float l_X = g_CenterPos.m_positionX + (l_Range * cos(l_Rotation));
+            float l_Y = g_CenterPos.m_positionY + (l_Range * sin(l_Rotation));
+            float l_Z = p_AreaTrigger->m_positionZ - 3.5f;
 
             p_DestinationPosition.m_positionX = l_X;
             p_DestinationPosition.m_positionY = l_Y;
@@ -1885,14 +1895,19 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
             p_AreaTrigger->SetTimeToTarget(10 * TimeConstants::IN_MILLISECONDS);
 
             if (p_Caster != nullptr)
-                p_Caster->CastSpell(p_DestinationPosition, eSpells::GroundMarker, true);
+            {
+                Position l_CastPos = p_DestinationPosition;
+                l_CastPos.m_positionZ = g_CenterPos.m_positionZ;
+
+                p_Caster->CastSpell(l_CastPos, eSpells::GroundMarker, true);
+            }
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
         {
             if (Unit* l_Caster = p_AreaTrigger->GetCaster())
             {
-                if (Player* l_Target = p_AreaTrigger->FindNearestPlayer(2.0f))
+                if (Player* l_Target = p_AreaTrigger->FindNearestPlayer(1.0f))
                 {
                     l_Caster->CastSpell(l_Target, eSpells::OverflowingEnergyDamage, true);
                     p_AreaTrigger->Remove(0);
@@ -1902,11 +1917,37 @@ class areatrigger_highmaul_overflowing_energy : public AreaTriggerEntityScript
 
         void OnDestinationReached(AreaTrigger* p_AreaTrigger) override
         {
-            if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+            if (m_FirstMove)
             {
-                l_Caster->CastSpell(*p_AreaTrigger, eSpells::OverflowingEnergyAoE, true);
-                p_AreaTrigger->Remove(0);
+                m_FirstMove = false;
+
+                Position l_Pos = *p_AreaTrigger;
+                l_Pos.m_positionZ = g_CenterPos.m_positionZ;
+
+                uint32 l_Time = 8 * TimeConstants::IN_MILLISECONDS;
+                uint32 l_OldTime = 8 * TimeConstants::IN_MILLISECONDS;
+
+                p_AreaTrigger->SetDestination(l_Pos);
+                p_AreaTrigger->SetTimeToTarget(l_Time + l_OldTime);
+                p_AreaTrigger->SendAreaTriggerRePath(l_Time, l_OldTime);
+
+                if (Unit* l_Boss = p_AreaTrigger->GetCaster())
+                    l_Boss->SendPlaySpellVisual(eVisual::OverflowingVisual, nullptr, 6.5f, 0.0f, l_Pos, false, true);
             }
+            else
+            {
+                if (Unit* l_Caster = p_AreaTrigger->GetCaster())
+                {
+                    l_Caster->CastSpell(*p_AreaTrigger, eSpells::OverflowingEnergyAoE, true);
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time) override
+        {
+            if (AreaTrigger* l_Visual = p_AreaTrigger->FindNearestAreaTrigger(eSpells::GroundMarker, 2.0f))
+                l_Visual->Remove(0);
         }
 
         AreaTriggerEntityScript* GetAI() const override

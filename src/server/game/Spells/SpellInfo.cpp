@@ -4191,8 +4191,19 @@ bool SpellEffectInfo::CanScale() const
                 case SPELL_AURA_DAMAGE_SHIELD:
                 case SPELL_AURA_SCHOOL_ABSORB:
                 case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                {
+                    switch (_spellInfo->Id)
+                    {
+                        case 162184: ///< Expel Magic: Shadow - Highmaul (Ko'ragh)
+                            return false;
+                        default:
+                            break;
+                    }
+
                     return true;
+                }
                 case SPELL_AURA_DUMMY:
+                {
                     switch (_spellInfo->Id)
                     {
                         // Earthquake
@@ -4201,6 +4212,7 @@ bool SpellEffectInfo::CanScale() const
                         default:
                             break;
                     }
+                }
                 default:
                     break;
             }
