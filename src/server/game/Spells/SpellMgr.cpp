@@ -128,7 +128,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARRIOR:
         {
             // Shockwave -- 132168
-            if (spellproto->SpellFamilyFlags[1] & 0x8000)
+            if (spellproto->SpellFamilyFlags[1] & 0x8000 && spellproto->Id != 46968)
                 return DIMINISHING_STUN;
             // Storm Bolt -- 132169
             if (spellproto->SpellFamilyFlags[2] & 0x1000)
