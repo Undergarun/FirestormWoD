@@ -31849,6 +31849,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
+        l_Data.WriteVector3(G3D::Vector3(0, 0, 0));     ///< Unk Pos
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
