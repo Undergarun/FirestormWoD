@@ -2952,7 +2952,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             {
                 if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL && m_damage != 0)
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
                 else if (l_Caster->HasAura(14161)) ///< Ruthlessness
