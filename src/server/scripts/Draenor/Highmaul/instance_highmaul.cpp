@@ -173,6 +173,12 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::Koragh:
                         m_KoraghGuid = p_Creature->GetGUID();
                         break;
+                    case eHighmaulCreatures::IronGrunt:
+                    case eHighmaulCreatures::BlackrockGrunt:
+                    case eHighmaulCreatures::LowBatchDeadPale:
+                    case eHighmaulCreatures::NightTwistedPaleVis:
+                    case eHighmaulCreatures::CosmeticGorianWarr:
+                    case eHighmaulCreatures::GorianCivilian:
                     case eHighmaulCreatures::RuneOfNullification:
                         p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Creature->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC | eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
