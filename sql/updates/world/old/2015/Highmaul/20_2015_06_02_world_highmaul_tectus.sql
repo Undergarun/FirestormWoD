@@ -324,8 +324,8 @@ UPDATE creature_template SET ScriptName = 'npc_highmaul_oro' WHERE entry = 86072
 UPDATE creature_template SET unit_class = 4, dmg_multiplier = 20, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839, flags_extra = 0x01 WHERE entry = 78948;
 UPDATE creature_template SET unit_class = 4, dmg_multiplier = 8, ScriptName = 'boss_tectus', mechanic_immune_mask = 617299839 WHERE entry IN (80551, 80557);
 UPDATE creature_template SET ScriptName = 'npc_highmaul_earthen_pillar_stalker' WHERE entry = 80476;
-UPDATE creature_template SET dmg_multiplier = 200, ScriptName = 'npc_highmaul_night_twisted_berserker' WHERE entry = 80822;
-UPDATE creature_template SET dmg_multiplier = 200, ScriptName = 'npc_highmaul_night_twisted_earthwarper' WHERE entry = 80599;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_night_twisted_berserker', mechanic_immune_mask = 608907135 WHERE entry = 80822;
+UPDATE creature_template SET dmg_multiplier = 5, ScriptName = 'npc_highmaul_night_twisted_earthwarper', mechanic_immune_mask = 608907135 WHERE entry = 80599;
 
 DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_meteoric_earthspire', 'spell_highmaul_stonebolt_volley', 'spell_highmaul_tectus_energy_gain', 'spell_highmaul_earthen_flechettes');
 DELETE FROM spell_script_names WHERE ScriptName IN ('spell_highmaul_earthen_pillar_timer', 'spell_highmaul_accretion', 'spell_highmaul_tectonic_upheaval', 'spell_highmaul_spawn_dust_cloud');

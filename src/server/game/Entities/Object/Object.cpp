@@ -794,15 +794,15 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                uint32 l_PathNodeCount = l_AreaTrigger->GetDuration() / l_AreaTrigger->GetUpdateInterval();
+                uint32 l_PathNodeCount = l_AreaTrigger->GetTimeToTarget() / l_AreaTrigger->GetUpdateInterval();
 
-                *p_Data << uint32(l_AreaTrigger->GetDuration());                            ///< Time To Target
+                *p_Data << uint32(l_AreaTrigger->GetTimeToTarget());                        ///< Time To Target
                 *p_Data << uint32(l_ElapsedMS);                                             ///< Elapsed Time For Movement
                 *p_Data << uint32(l_PathNodeCount);                                         ///< Path node count
                 for (uint32 l_I = 0; l_I < l_PathNodeCount; l_I++)
                 {
                     Position l_Pos;
-                    l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetDuration() * l_I / l_PathNodeCount, &l_Pos);
+                    l_AreaTrigger->GetPositionAtTime(l_AreaTrigger->GetTimeToTarget() * l_I / l_PathNodeCount, &l_Pos);
 
                     *p_Data << float(l_Pos.m_positionX);                                    ///< Node position X
                     *p_Data << float(l_Pos.m_positionY);                                    ///< Node position Y

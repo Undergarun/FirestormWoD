@@ -41,6 +41,7 @@ public:
             { "pettalents",     SEC_ADMINISTRATOR,  false, &HandleLearnAllMyPetTalentsCommand,  "", NULL },
             { "spells",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMySpellsCommand,      "", NULL },
             { "talents",        SEC_ADMINISTRATOR,  false, &HandleLearnAllMyTalentsCommand,     "", NULL },
+            { "glyphs",         SEC_ADMINISTRATOR,  false, &HandleLearnAllMyGlyphsCommand,      "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
@@ -482,6 +483,34 @@ public:
 
         /*if (GetTalentSpellCost(spellId))
             target->SendTalentsInfoData(false);*/
+
+        return true;
+    }
+
+    static bool HandleLearnAllMyGlyphsCommand(ChatHandler* p_Handler, char const* /*args*/)
+    {
+        Player* l_Player = p_Handler->GetSession()->GetPlayer();
+
+        for (uint32 l_ID = 0; l_ID < sSpellStore.GetNumRows(); ++l_ID)
+        {
+            if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_ID))
+            {
+                if (SpellEffectInfo const* l_EffectInfo = l_SpellInfo->GetEffectByType(SPELL_EFFECT_APPLY_GLYPH))
+                {
+                    if (GlyphPropertiesEntry const* l_Glyph = sGlyphPropertiesStore.LookupEntry(l_EffectInfo->MiscValue))
+                    {
+                        if (SpellInfo const* l_GlyphInfo = sSpellMgr->GetSpellInfo(l_Glyph->SpellId))
+                        {
+                            if (l_GlyphInfo->GetClassIDBySpellFamilyName() == l_Player->getClass())
+                            {
+                                if (!l_Player->HasSpell(l_SpellInfo->Id))
+                                    l_Player->learnSpell(l_SpellInfo->Id, false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         return true;
     }

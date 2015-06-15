@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 58838 AND ScriptName = "spell_inherit_master_threat_list";
+INSERT INTO spell_script_names(spell_id, ScriptName) VALUES(58838, "spell_inherit_master_threat_list");

@@ -3542,13 +3542,13 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, NULL, NULL, true);
                 
                 /// Apply the previous amount after casting to no apply the bonus multiple times.
-                if (AuraEffectPtr l_AcutalShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_ActualShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
+                    l_ActualShield->SetAmount(l_ActualShield->GetAmount() + l_PreviousAmount);
 
                     /// The maximum size of a Divine Aegis is 40% of the maximum health of the target.
-                    if (l_AcutalShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
-                        l_AcutalShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
+                    if (l_ActualShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
+                        l_ActualShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
                 }
             }
 

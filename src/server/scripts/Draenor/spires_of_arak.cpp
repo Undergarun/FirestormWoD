@@ -140,10 +140,29 @@ class boss_rukhmar : public CreatureScript
                     me->CastSpell(me, SpiresOfArakSpells::SpellBloodFeatherMissile, true);
             }
 
+            void HandleHealthAndDamageScaling()
+            {
+                std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                uint32 l_Count = std::count_if(l_ThreatList.begin(), l_ThreatList.end(), [this](HostileReference* p_HostileRef) -> bool
+                {
+                    Unit* l_Unit = Unit::GetUnit(*me, p_HostileRef->getUnitGuid());
+                    return l_Unit && l_Unit->GetTypeId() == TYPEID_PLAYER;
+                });
+
+                if (AuraPtr l_Scaling = me->GetAura(SpiresOfArakSpells::SouthshoreMobScalingAura))
+                {
+                    if (AuraEffectPtr l_Damage = l_Scaling->GetEffect(EFFECT_0))
+                        l_Damage->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                    if (AuraEffectPtr l_Health = l_Scaling->GetEffect(EFFECT_1))
+                        l_Health->ChangeAmount(SpiresOfArakDatas::HealthScalingCoeff * l_Count);
+                }
+            }
+
             void UpdateAI(const uint32 p_Diff) override
             {
                 m_Events.Update(p_Diff);
                 EnterEvadeIfOutOfCombatArea(p_Diff);
+                HandleHealthAndDamageScaling();
 
                 if (me->HasUnitState(UNIT_STATE_CASTING) || !UpdateVictim() || (m_MovingUpToward || m_MovingDownToward))
                 {

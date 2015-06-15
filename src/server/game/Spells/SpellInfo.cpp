@@ -1200,6 +1200,14 @@ bool SpellInfo::HasEffect(SpellEffects effect) const
     return false;
 }
 
+SpellEffectInfo const* SpellInfo::GetEffectByType(SpellEffects p_Effect) const
+{
+    for (uint8 l_I = 0; l_I < MAX_SPELL_EFFECTS; ++l_I)
+        if (Effects[l_I].IsEffect(p_Effect))
+            return &Effects[l_I];
+    return nullptr;
+}
+
 int8 SpellInfo::GetEffectIndex(SpellEffects effect) const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1706,6 +1714,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificLethalPoison:
         case SpellSpecificType::SpellSpecificNonLethalPoison:
         case SpellSpecificType::SpellSpecificCrowdFavorite:
+        case SpellSpecificType::SpellSpecificDisposition:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2128,7 +2137,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     }
 
     // not allow casting on flying player
-    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
+    if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT) && !(AttributesCu & SPELL_ATTR0_CU_ALLOW_INFLIGHT_TARGET))
         return SPELL_FAILED_BAD_TARGETS;
 
     // TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
@@ -2458,6 +2467,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 163369:    ///< Crowd Favorite - 75%
                 case 163370:    ///< Crowd Favorite - 100%
                     return SpellSpecificType::SpellSpecificCrowdFavorite;
+                case 157951:    ///< Aggressive Disposition
+                case 158016:    ///< Fierce Disposition
+                case 158017:    ///< Savage Disposition
+                    return SpellSpecificType::SpellSpecificDisposition;
                 default:
                     break;
             }
@@ -4291,19 +4304,7 @@ bool SpellInfo::DoesIgnoreGlobalCooldown(Unit* caster) const
 
 bool SpellInfo::IsAffectedByResilience() const
 {
-    switch (Id)
-    {
-        case 49016: // Unholy Frenzy
-        case 87023: // Cauterize
-        case 110914:// Dark Bargain (DoT)
-        case 113344:// Bloodbath (DoT)
-        case 124280:// Touch of Karma (DoT)
-            return false;
-        default:
-            break;
-    }
-
-    return true;
+    return !HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE);
 }
 
 bool SpellInfo::IsLethalPoison() const
@@ -4373,4 +4374,35 @@ bool SpellInfo::IsCustomArchaeologySpell() const
     }
 
     return false;
+}
+
+Classes SpellInfo::GetClassIDBySpellFamilyName() const
+{
+    switch (SpellFamilyName)
+    {
+        case SPELLFAMILY_MAGE:
+            return CLASS_MAGE;
+        case SPELLFAMILY_WARRIOR:
+            return CLASS_WARRIOR;
+        case SPELLFAMILY_WARLOCK:
+            return CLASS_WARLOCK;
+        case SPELLFAMILY_PRIEST:
+            return CLASS_PRIEST;
+        case SPELLFAMILY_DRUID:
+            return CLASS_DRUID;
+        case SPELLFAMILY_ROGUE:
+            return CLASS_ROGUE;
+        case SPELLFAMILY_HUNTER:
+            return CLASS_HUNTER;
+        case SPELLFAMILY_PALADIN:
+            return CLASS_PALADIN;
+        case SPELLFAMILY_SHAMAN:
+            return CLASS_SHAMAN;
+        case SPELLFAMILY_DEATHKNIGHT:
+            return CLASS_DEATH_KNIGHT;
+        case SPELLFAMILY_MONK:
+            return CLASS_MONK;
+        default:
+            return CLASS_NONE;
+    }
 }

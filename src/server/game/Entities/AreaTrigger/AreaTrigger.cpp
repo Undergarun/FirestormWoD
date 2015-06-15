@@ -46,6 +46,7 @@ AreaTrigger::AreaTrigger()
     m_CreatedTime = 0;
     m_Flags = 0;
     m_CreatureVisualGUID = 0;
+    m_TimeToTarget = 0;
 
     m_Trajectory = AREATRIGGER_INTERPOLATION_NONE;
     m_Templates.clear();
@@ -129,6 +130,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
 
     SetEntry(l_MainTemplate->m_Entry);
     SetDuration(p_SpellInfo->GetDuration());
+    SetTimeToTarget(GetDuration());
     SetObjectScale(1);
 
     SetGuidValue(AREATRIGGER_FIELD_CASTER, p_Caster->GetGUID());
@@ -147,7 +149,7 @@ bool AreaTrigger::CreateAreaTriggerFromSpell(uint32 p_GuidLow, Unit* p_Caster, S
     SetDestination(l_DestinationPosition);
     SetPathToLinearDestination(p_PathToDest);
     SetTrajectory(l_SourcePosition != l_DestinationPosition || p_PathToDest.size()  ? AREATRIGGER_INTERPOLATION_LINEAR : AREATRIGGER_INTERPOLATION_NONE);
-    SetUpdateTimerInterval(60);
+    SetUpdateTimerInterval(100);
 
     if (p_SpellInfo->GetDuration() != -1)
         SetUInt32Value(AREATRIGGER_FIELD_DURATION, p_SpellInfo->GetDuration());
@@ -409,7 +411,7 @@ void AreaTrigger::GetPositionAtTime(uint32 p_Time, Position* p_OutPos) const
             {
                 AreaTriggerTemplate const* l_MainTemplate = GetMainTemplate();
                 /// Durations get decreased over time so create time + remaining duration = max duration
-                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetDuration() + GetCreatedTime();
+                int32 l_Duration = l_MainTemplate && l_MainTemplate->m_Type == AREATRIGGER_TYPE_SPLINE && l_MainTemplate->m_SplineDatas.TimeToTarget ? l_MainTemplate->m_SplineDatas.TimeToTarget : GetTimeToTarget() + GetCreatedTime();
                 float l_Progress = std::min((float)l_Duration, (float)p_Time) / l_Duration;
                 p_OutPos->m_positionX = m_Source.m_positionX + l_Progress * (m_Destination.m_positionX - m_Source.m_positionX);
                 p_OutPos->m_positionY = m_Source.m_positionY + l_Progress * (m_Destination.m_positionY - m_Source.m_positionY);
