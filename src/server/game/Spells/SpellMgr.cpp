@@ -131,7 +131,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x8000 && spellproto->Id != 46968)
                 return DIMINISHING_STUN;
             // Storm Bolt -- 132169
-            if (spellproto->SpellFamilyFlags[2] & 0x1000)
+            if (spellproto->SpellFamilyFlags[2] & 0x1000 && spellproto->Id != 107570 && spellproto->Id != 145585)
                 return DIMINISHING_STUN;
 
             // Intimidating Shout -- 5246
