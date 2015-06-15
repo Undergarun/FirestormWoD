@@ -16964,7 +16964,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
-        if (roll_chance_i(20))
+        if (roll_chance_i(25))
             AddComboPoints(1);
     }
 
