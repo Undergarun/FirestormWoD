@@ -1483,6 +1483,61 @@ class spell_energized_tiles : public SpellScriptLoader
         }
 };
 
+/// Created by spell 116235
+class at_amethyst_pool : public AreaTriggerEntityScript
+{
+    public:
+        at_amethyst_pool() : AreaTriggerEntityScript("at_amethyst_pool") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 5.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            if (!l_TargetList.empty())
+            {
+                for (Unit* l_Target : l_TargetList)
+                {
+                    // Amethyst Pool - Periodic Damage
+                    if (l_Target->GetDistance(p_AreaTrigger) > 3.5f && l_Target->HasAura(SPELL_AMETHYST_AURA))
+                        l_Target->RemoveAura(SPELL_AMETHYST_AURA);
+                    else if (l_Target->GetDistance(p_AreaTrigger) <= 3.5f && !l_Target->HasAura(SPELL_AMETHYST_AURA))
+                        l_Caster->CastSpell(l_Target, SPELL_AMETHYST_AURA, true);
+                }
+            }
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 5.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Target : l_TargetList)
+            {
+                if (l_Target->HasAura(SPELL_AMETHYST_AURA))
+                    l_Target->RemoveAura(SPELL_AMETHYST_AURA);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_amethyst_pool();
+        }
+};
+
 void AddSC_boss_stone_guard()
 {
     new boss_stone_guard_controler();   // 60089
@@ -1494,4 +1549,5 @@ void AddSC_boss_stone_guard()
     new spell_jasper_chains();          // 130395
     new spell_jasper_chains_damage();   // 130404
     new spell_energized_tiles();        // 116541
+    new at_amethyst_pool();             ///< 116235
 }

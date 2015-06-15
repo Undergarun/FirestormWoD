@@ -624,6 +624,9 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleContactListOpcode(WorldPacket& p_RecvData)
 {
+    if (!m_Player)
+        return;
+
     uint32 l_Flags;
 
     p_RecvData >> l_Flags;

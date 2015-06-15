@@ -4726,7 +4726,11 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    uint32 l_CastFlags = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 l_CastFlags   = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
+
+    if (m_CastItemEntry)
+        l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
     if (m_triggeredByAuraSpell)
         l_CastFlags |= CAST_FLAG_PENDING;
@@ -4879,7 +4883,7 @@ void Spell::SendSpellStart()
         data << float(l_Itr._position.GetPositionZ());
     }
 
-    data.WriteBits(0, 18);                  ///< Cast flag ex
+    data.WriteBits(l_CastFlagsEx, 18);                  ///< Cast flag ex
     data.WriteBit(false);
     data.WriteBit(l_CastFlags & CAST_FLAG_PROJECTILE || l_CastFlags & CAST_FLAG_VISUAL_CHAIN);
     data.FlushBits();
@@ -4909,7 +4913,7 @@ void Spell::SendSpellGo()
         }
     }
 
-    uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlags   = CAST_FLAG_UNKNOWN_9;
     uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
 
     // triggered spells with spell visual != 0
@@ -4939,6 +4943,9 @@ void Spell::SendSpellGo()
 
     if (!m_spellInfo->StartRecoveryTime)
         l_CastFlags |= CAST_FLAG_NO_GCD;
+
+    if (m_CastItemEntry)
+        l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;

@@ -26975,42 +26975,48 @@ void Player::SendInitialPacketsBeforeAddToMap()
         SetQuestBit(l_QuestBit, true);
 }
 
-void Player::SendCooldownAtLogin()
+void Player::SendSpellHistory()
 {
     uint64 l_CurTime = 0;
     ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
+    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY);
+    l_HistoryData << uint32(GetSpellCooldownMap().size());
+
+    for (SpellCooldowns::const_iterator l_Itr = GetSpellCooldownMap().begin(); l_Itr != GetSpellCooldownMap().end(); ++l_Itr)
     {
-        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
-        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
+        l_HistoryData << uint32(l_Itr->first);
+        l_HistoryData << uint32(l_Itr->second.itemid);
 
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
-        if (l_SpellInfo == nullptr)
-            continue;
+        bool l_HasCooldown = l_Itr->second.end > l_CurTime;
 
-        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+        uint32 l_Category             = 0;
+        uint32 l_CategoryRecoveryTime = 0;
+        uint32 l_RecoveryTime         = l_Itr->second.end - l_CurTime;
 
-        if (l_HasCooldown)                                  ///< Flags
+        if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Itr->second.itemid))
         {
-            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
-                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
-            else
-                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+            for (uint8 l_I = 0; l_I < MAX_ITEM_SPELLS; ++l_I)
+            {
+                if (uint32(l_ItemProto->Spells[l_I].SpellId) == l_Itr->first)
+                {
+                    l_Category             = l_ItemProto->Spells[l_I].SpellCategory;
+                    l_CategoryRecoveryTime = l_ItemProto->Spells[l_I].SpellCategoryCooldown;
+                    break;
+                }
+            }
         }
-        else
-            l_Data << uint8(CooldownFlags::CooldownFlagNone);
 
-        l_Data << uint32(1);                                ///< Count
-        l_Data << uint32(l_Iter->first);                    ///< SrecID
+        l_HistoryData << uint32(l_Category);
+        l_HistoryData << uint32(l_HasCooldown ? l_RecoveryTime : 0);
+        l_HistoryData << uint32(l_CategoryRecoveryTime);
 
-        if (l_HasCooldown)                                  ///< ForcedCooldown
-            l_Data << uint32(l_Iter->second.end - l_CurTime);
-        else
-            l_Data << uint32(0);
+        l_HistoryData.FlushBits();
 
-        GetSession()->SendPacket(&l_Data);
+        l_HistoryData.WriteBit(false);  ///< OnHold
     }
+
+    GetSession()->SendPacket(&l_HistoryData);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -27054,7 +27060,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
         SendMoveRoot(0);
 
-    SendCooldownAtLogin();
+    SendSpellHistory();
     SendSpellCharges();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
@@ -33659,7 +33665,7 @@ void Player::DeleteInvalidSpells()
     for (PlayerSpellMap::const_iterator l_Iterator = l_SpellMap.begin(); l_Iterator != l_SpellMap.end(); ++l_Iterator)
     {
         if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
-        removeSpell(l_Iterator->first, false, false);
+            removeSpell(l_Iterator->first, false, false);
     }
 }
 

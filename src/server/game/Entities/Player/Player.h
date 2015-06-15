@@ -230,7 +230,7 @@ typedef std::list<uint64> WhisperListContainer;
 struct SpellCooldown
 {
     uint64 end;
-    uint16 itemid;
+    uint32 itemid;
 };
 
 typedef std::map<uint32, SpellCooldown> SpellCooldowns;
@@ -2851,7 +2851,7 @@ class Player : public Unit, public GridObject<Player>
         }
 
         void SendAurasForTarget(Unit* target);
-        void SendCooldownAtLogin();
+        void SendSpellHistory();
 
         PlayerMenu* PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
