@@ -1003,6 +1003,9 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
                 JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
+                if (l_TargetList.empty())
+                    return;
+
                 l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                 {
                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
