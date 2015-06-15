@@ -31898,6 +31898,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
+        G3D::Vector3 l_Vector(0, 0, 0);
 
         WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
@@ -31907,6 +31908,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
+        l_Data.WriteVector3(l_Vector);                  ///< Unk Pos
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 
