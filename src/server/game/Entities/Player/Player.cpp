@@ -3573,6 +3573,9 @@ void Player::ResetAllPowers()
         case POWER_ENERGY:
             SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
             break;
+        case POWER_COMBO_POINT:
+            ClearComboPoints();
+            break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
             break;
@@ -25473,6 +25476,7 @@ void Player::InitDataForForm(bool reapplyMods)
                 setPowerType(POWER_RAGE);
             break;
         }
+        case FORM_SPIRITED_CRANE:
         case FORM_WISE_SERPENT:
         {
             if (getPowerType() != POWER_MANA)
@@ -31621,16 +31625,17 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
         uint32 l_SkillID    = l_Fields[0].GetUInt32();
         bool   l_Recipe     = l_Fields[1].GetBool();
 
-        if (l_SkillLearningSpells.find(l_SkillID) == l_SkillLearningSpells.end())
+        auto it = l_SkillLearningSpells.find(l_SkillID);
+        if (it == l_SkillLearningSpells.end())
             continue;
+
+        uint32 l_SpellID = it->second;
 
         if (getLevel() < 90)
             continue;
         
         if (IsPrimaryProfessionSkill(l_SkillID) && !HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
             continue;
-
-        uint32 l_SpellID = l_SkillLearningSpells[l_SkillID];
 
         /// Learn the skill to dreanor rank
         CastSpell(this, l_SpellID, true);
@@ -31640,7 +31645,7 @@ void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
 
         if (l_Recipe)
         {
-            std::list<SkillLineAbilityEntry const*> l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
+            const std::list<SkillLineAbilityEntry const*>& l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
             for (auto l_Abilitie : l_Abilities)
             {
                 if (l_Abilitie->min_value > 600)
@@ -31840,6 +31845,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
     if (p_Apply)
     {
         uint32 l_TransportID = GetTransport() ? GetTransport()->GetEntry() : 0;
+        G3D::Vector3 l_Vector(0, 0, 0);
 
         WorldPacket l_Data(SMSG_APPLY_MOVEMENT_FORCE, 1 + 8 + 7 * 4);
         l_Data.appendPackGUID(GetGUID());               ///< Mover GUID
@@ -31849,6 +31855,7 @@ void Player::SendApplyMovementForce(uint64 p_Source, bool p_Apply, Position p_Di
         l_Data << float(p_Direction.GetPositionX());    ///< Direction X
         l_Data << float(p_Direction.GetPositionY());    ///< Direction Y
         l_Data << float(p_Direction.GetPositionZ());    ///< Direction Z
+        l_Data.WriteVector3(l_Vector);                  ///< Unk Pos
         l_Data << uint32(l_TransportID);                ///< Transport ID
         l_Data << float(p_Magnitude);                   ///< Magnitude
 

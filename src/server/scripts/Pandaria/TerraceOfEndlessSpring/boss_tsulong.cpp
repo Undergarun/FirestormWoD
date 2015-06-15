@@ -38,6 +38,9 @@ enum eTsulongEvents
     EVENT_SUN_BREATH,
     EVENT_SPAWN_EMBODIED_TERROR,
     EVENT_UNSTABLE_SHA,
+    EVENT_EMBODIED_TERROR_MOVE,
+    EVENT_DARK_OF_NIGHT_MOVE,
+    EVENT_UNSTABLE_SHA_MOVE
 };
 
 enum eTsulongSpells
@@ -191,11 +194,9 @@ class boss_tsulong : public CreatureScript
                 me->setPowerType(POWER_ENERGY);
                 me->SetPower(POWER_ENERGY, 0);
                 me->SetMaxPower(POWER_ENERGY, 100);
-
                 me->RemoveFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_REGENERATE_POWER);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				
                 phase = PHASE_NONE;
                 events.SetPhase(PHASE_NONE);
 
@@ -328,7 +329,7 @@ class boss_tsulong : public CreatureScript
                 value = 0;
             }
 
-            void DamageTaken(Unit* doneBy, uint32 &damage, SpellInfo const* p_SpellInfo)
+            void DamageTaken(Unit* doneBy, uint32 &damage, const SpellInfo* /*p_SpellInfo*/)
             {
                 if (pInstance && pInstance->GetBossState(DATA_TSULONG) == DONE)
                 {
@@ -429,7 +430,7 @@ class boss_tsulong : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -636,8 +637,7 @@ class boss_tsulong : public CreatureScript
                         case EVENT_SPAWN_EMBODIED_TERROR:
                             Position pos;
                             me->GetRandomNearPosition(pos, 45.0f);
-                            if (Creature* embodiedTerror = me->SummonCreature(EMBODIED_TERROR, pos))
-                                embodiedTerror->GetMotionMaster()->MovePoint(1, -1010.239f, -3043.97f, 12.82f);
+                            me->SummonCreature(EMBODIED_TERROR, pos);
                             events.ScheduleEvent(EVENT_SPAWN_EMBODIED_TERROR, TIMER_EMBODIED_TERROR, 0, PHASE_DAY);
                             break;
                         case EVENT_UNSTABLE_SHA:
@@ -788,7 +788,9 @@ class npc_dark_of_night : public CreatureScript
         {
             InstanceScript* pInstance;
             uint64 sunbeamTargetGUID;
+            uint64 m_SummonerGuid;
             uint32 visualCastTimer;
+            EventMap m_Events;
             bool explode;
 
             npc_dark_of_nightAI(Creature* creature) : CreatureAI(creature)
@@ -811,7 +813,8 @@ class npc_dark_of_night : public CreatureScript
                 {
                     sunbeamTargetGUID = summoner->GetGUID();
                     DoCast(summoner, SPELL_VISUAL_LINK_TO_BEAM);
-                    me->GetMotionMaster()->MovePoint(1, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
+                    m_SummonerGuid = summoner->GetGUID();
+                    m_Events.ScheduleEvent(EVENT_DARK_OF_NIGHT_MOVE, 500);
                 }
             }
 
@@ -842,6 +845,14 @@ class npc_dark_of_night : public CreatureScript
                         me->DespawnOrUnsummon(1000);
                         explode = true;
                     }
+                }
+
+                m_Events.Update(diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_DARK_OF_NIGHT_MOVE)
+                {
+                    if (Creature* summoner = Creature::GetCreature(*me, m_SummonerGuid))
+                        me->GetMotionMaster()->MovePoint(1, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
                 }
             }
         };
@@ -892,11 +903,17 @@ class npc_embodied_terror : public CreatureScript
         {
             InstanceScript* pInstance;
             uint32 terrorizeTimer;
+            EventMap m_Events;
 
             npc_embodied_terrorAI(Creature* creature) : CreatureAI(creature)
             {
                 pInstance = creature->GetInstanceScript();
                 terrorizeTimer = TIMER_TERRORIZE;
+            }
+
+            void IsSummonedBy(Unit* /*p_Summoner*/)
+            {
+                m_Events.ScheduleEvent(EVENT_EMBODIED_TERROR_MOVE, 500);
             }
 
             void JustDied(Unit* killer)
@@ -909,6 +926,8 @@ class npc_embodied_terror : public CreatureScript
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                m_Events.Update(diff);
 
                 if (Unit* victim = me->getVictim())
                 {
@@ -931,6 +950,9 @@ class npc_embodied_terror : public CreatureScript
                 }
                 else
                     terrorizeTimer -= diff;
+
+                if (m_Events.ExecuteEvent() == EVENT_EMBODIED_TERROR_MOVE)
+                    me->GetMotionMaster()->MovePoint(1, -1010.239f, -3043.97f, 12.82f);
 
                 DoMeleeAttackIfReady();
             }
@@ -998,6 +1020,7 @@ class npc_unstable_sha : public CreatureScript
         {
             InstanceScript* pInstance;
             uint32 boltTimer;
+            EventMap m_Events;
 
             npc_unstable_shaAI(Creature* creature) : CreatureAI(creature)
             {
@@ -1007,6 +1030,7 @@ class npc_unstable_sha : public CreatureScript
 
             void Reset()
             {
+                m_Events.Reset();
                 me->SetSpeed(MOVE_RUN, 0.5f, true);
                 me->SetSpeed(MOVE_WALK, 0.5f, true);
                 me->SetReactState(REACT_PASSIVE);
@@ -1015,13 +1039,7 @@ class npc_unstable_sha : public CreatureScript
                 if (!pInstance)
                     return;
 
-                if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
-                    me->GetMotionMaster()->MovePoint(1, tsulong->GetPositionX(), tsulong->GetPositionY(), tsulong->GetPositionZ());
-            }
-
-            void JustDied(Unit* killer)
-            {
-
+                m_Events.ScheduleEvent(EVENT_UNSTABLE_SHA_MOVE, 500);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1067,6 +1085,14 @@ class npc_unstable_sha : public CreatureScript
                 }
                 else
                     boltTimer -= diff;
+
+                m_Events.Update(diff);
+
+                if (m_Events.ExecuteEvent() == EVENT_UNSTABLE_SHA_MOVE)
+                {
+                    if (Creature* tsulong = pInstance->instance->GetCreature(pInstance->GetData64(NPC_TSULONG)))
+                        me->GetMotionMaster()->MovePoint(1, tsulong->GetPositionX(), tsulong->GetPositionY(), tsulong->GetPositionZ());
+                }
             }
         };
 
@@ -1077,7 +1103,7 @@ class npc_unstable_sha : public CreatureScript
 };
 
 // 125843, jam spell ? - Dread Shadows
-class spell_dread_shadows_damage: public SpellScriptLoader
+class spell_dread_shadows_damage : public SpellScriptLoader
 {
     public:
         spell_dread_shadows_damage() : SpellScriptLoader("spell_dread_shadows_damage") { }
@@ -1118,7 +1144,7 @@ class DreadShadowsTargetCheck
 };
 
 // 122768 - Dread Shadows
-class spell_dread_shadows_malus: public SpellScriptLoader
+class spell_dread_shadows_malus : public SpellScriptLoader
 {
     public:
         spell_dread_shadows_malus() : SpellScriptLoader("spell_dread_shadows_malus") { }
@@ -1147,7 +1173,7 @@ class spell_dread_shadows_malus: public SpellScriptLoader
 };
 
 // 122789 - Sunbeam
-class spell_sunbeam: public SpellScriptLoader
+class spell_sunbeam : public SpellScriptLoader
 {
     public:
         spell_sunbeam() : SpellScriptLoader("spell_sunbeam") { }
@@ -1229,7 +1255,7 @@ class spell_sunbeam: public SpellScriptLoader
 };
 
 // 122855 - Sun Breath
-class spell_sun_breath: public SpellScriptLoader
+class spell_sun_breath : public SpellScriptLoader
 {
     public:
         spell_sun_breath() : SpellScriptLoader("spell_sun_breath") { }
@@ -1267,7 +1293,7 @@ class spell_sun_breath: public SpellScriptLoader
 };
 
 // 123018 - Terrorize
-class spell_terrorize_player: public SpellScriptLoader
+class spell_terrorize_player : public SpellScriptLoader
 {
     public:
         spell_terrorize_player() : SpellScriptLoader("spell_terrorize_player") { }
@@ -1297,7 +1323,7 @@ class spell_terrorize_player: public SpellScriptLoader
         }
 };
 // 123697 - Instability
-class spell_instability: public SpellScriptLoader
+class spell_instability : public SpellScriptLoader
 {
     public:
         spell_instability() : SpellScriptLoader("spell_instability") { }
@@ -1330,7 +1356,7 @@ class spell_instability: public SpellScriptLoader
 };
 
 // 123716 - Light of the day
-class spell_light_of_the_day: public SpellScriptLoader
+class spell_light_of_the_day : public SpellScriptLoader
 {
     public:
         spell_light_of_the_day() : SpellScriptLoader("spell_light_of_the_day") { }

@@ -662,6 +662,12 @@ class spell_warr_rallying_cry: public SpellScriptLoader
         class spell_warr_rallying_cry_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warr_rallying_cry_SpellScript);
+            
+            enum eSpells
+            {
+                GLYPH_OF_RALLYING_CRY = 159754,
+                GLYPH_OF_RALLYING_CRY_BUFF = 159756
+            };
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
@@ -683,6 +689,10 @@ class spell_warr_rallying_cry: public SpellScriptLoader
 
                     l_Bp0 = CalculatePct(l_Player->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
                     l_Player->CastCustomSpell(l_Player, WARRIOR_SPELL_RALLYING_CRY, &l_Bp0, NULL, NULL, true);
+
+                    /// Glyph of Rallying Cry
+                    if (l_Player->HasAura(GLYPH_OF_RALLYING_CRY))
+                        l_Player->CastSpell(l_Player, GLYPH_OF_RALLYING_CRY_BUFF, true);
                 }
             }
 
@@ -1348,7 +1358,8 @@ class spell_warr_anger_management: public PlayerScript
 
 enum GlyphOfExecutor
 {
-    SpellWarrGlyphOfExecutor = 146971
+    SpellWarrGlyphOfExecutor = 146971,
+    SpellWarrGlyphOfExecutorEffect = 147352
 };
 
 /// Call by Execute - 5308 (Fury, Protection), Execute - 163201 (Arms)
@@ -1367,6 +1378,9 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 Unit* l_Target = GetHitUnit();
 
+                if (!l_Caster->ToPlayer())
+                    return;
+
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(GlyphOfExecutor::SpellWarrGlyphOfExecutor);
 
                 if (l_Target == nullptr || l_SpellInfo == nullptr)
@@ -1376,7 +1390,7 @@ class spell_warr_glyph_of_executor : public SpellScriptLoader
                     return;
 
                 if (!l_Target->isAlive()) ///< Killing an enemy with Execute grants you 30 rage.
-                    l_Caster->ModifyPower(POWER_RAGE, l_SpellInfo->Effects[EFFECT_0].BasePoints * l_Caster->GetPowerCoeff(POWER_RAGE));
+                    l_Caster->CastSpell(l_Caster, GlyphOfExecutor::SpellWarrGlyphOfExecutorEffect, true);
             }
 
             void Register()
@@ -1412,6 +1426,10 @@ class spell_warr_execute: public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
                 int32 l_Damage = GetHitDamage();
 
+                /// If damage is 0 we should return script, to prevent double rage consuming
+                if (l_Damage == 0)
+                    return;
+
                 int32 l_MaxConsumed = (GetSpellInfo()->Effects[EFFECT_2].BasePoints < 0 ? -GetSpellInfo()->Effects[EFFECT_2].BasePoints : GetSpellInfo()->Effects[EFFECT_2].BasePoints) * l_Caster->GetPowerCoeff(POWER_RAGE);
 
                 /// consuming up to 30 additional Rage to deal up to 405% additional damage
@@ -1422,13 +1440,16 @@ class spell_warr_execute: public SpellScriptLoader
                 else
                     l_RageConsumed = l_Caster->GetPower(POWER_RAGE);
 
-                if (AuraPtr l_Aura = l_Caster->GetAura(52437)) ///< Sudden Death : consume no extra Rage
+                /// Sudden Death : consume no extra Rage
+                if (AuraPtr l_Aura = l_Caster->GetAura(52437))
                     l_Aura->Remove();
                 else
+                {
                     l_Caster->ModifyPower(POWER_RAGE, -l_RageConsumed);
 
-                // Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
-                l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+                    // Should be % damage not % of the full amount, EFFECT_1 BP = 135% therefore 405 / 135 = 3 + 1 times more damage 
+                    l_Damage *= (((l_RageConsumed * (405.0f / l_MaxConsumed)) / GetSpellInfo()->Effects[EFFECT_1].BasePoints) + 1);
+                }
 
                 if (l_Caster->HasAura(SPELL_WARRIOR_WEAPONS_MASTER))
                 {
@@ -1436,9 +1457,8 @@ class spell_warr_execute: public SpellScriptLoader
 
                     l_Damage += CalculatePct(l_Damage, l_MasteryValue);
                 }
-
-                /// Please forgive me for I have sinned
-                SetHitDamage(l_Damage / 2);
+                
+                SetHitDamage(l_Damage);
             }
 
             void Register()

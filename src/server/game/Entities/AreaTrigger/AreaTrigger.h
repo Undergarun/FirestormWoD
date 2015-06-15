@@ -204,6 +204,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         Unit* GetCaster() const { return m_Caster; }
         uint64 GetCasterGUID() const { return GetGuidValue(AREATRIGGER_FIELD_CASTER); }
 
+        void SetTimeToTarget(uint32 p_Time) { m_TimeToTarget = p_Time; }
+        uint32 GetTimeToTarget() const { return m_TimeToTarget; }
+
         void BindToCaster();
         void UnbindFromCaster();
 
@@ -255,6 +258,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+
+        uint32 m_TimeToTarget;
 
         uint64 m_CreatureVisualGUID;
         std::list<Position> m_PathToLinearDestination;

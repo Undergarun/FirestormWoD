@@ -53,7 +53,7 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
     WARLOCK_METAMORPHOSIS                   = 103958,
-    WARLOCK_DEMONIC_LEAP_JUMP               = 169157,
+    WARLOCK_DEMONIC_LEAP_JUMP               = 109167,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
     WARLOCK_TWILIGHT_WARD_METAMORPHOSIS_S12 = 131624,
@@ -1488,7 +1488,7 @@ class spell_warl_hellfire_periodic: public SpellScriptLoader
         }
 };
 
-// Demonic Leap (jump) - 169157
+// Demonic Leap (jump) - 109167
 class spell_warl_demonic_leap_jump: public SpellScriptLoader
 {
     public:
@@ -1505,14 +1505,9 @@ class spell_warl_demonic_leap_jump: public SpellScriptLoader
                     return SPELL_FAILED_DONT_REPORT;
 
                 Position pos;
-                caster->GetFirstCollisionPosition(pos, GetSpellInfo()->Effects[EFFECT_0].CalcRadius(caster), 0.0f);
+                caster->GetFirstCollisionPosition(pos, GetSpellInfo()->Effects[EFFECT_0].CalcRadius(caster), caster->GetOrientation());
 
-                if (pos.GetPositionX() > caster->GetPositionZ() + 5.0f)
-                {
-                    caster->RemoveAura(WARLOCK_METAMORPHOSIS);
-                    return SPELL_FAILED_NOPATH;
-                }
-                else if (!caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+                if (!caster->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
                 {
                     caster->RemoveAura(WARLOCK_METAMORPHOSIS);
                     return SPELL_FAILED_NOPATH;
@@ -1711,7 +1706,20 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
                         }
                     }
+                }
+            }
 
+            void HandleApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                std::list<Unit*> l_TargetList;
+
+                p_AurEff->GetTargetList(l_TargetList);
+                for (auto l_Target : l_TargetList)
+                {
                     /// Associate DoT spells to their damage spells
                     std::list<std::pair<uint32, uint32>> l_DotAurasList;
                     l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
@@ -1753,6 +1761,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
             void Register()
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+                OnEffectApply += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -3285,6 +3294,40 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Fel Firebolt - 104318
+class spell_warl_fel_firebolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_fel_firebolt() : SpellScriptLoader("spell_warl_fel_firebolt") { }
+
+        class spell_warl_fel_firebolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_fel_firebolt_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                SetHitDamage(GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_fel_firebolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_fel_firebolt_SpellScript();
+        }
+};
+
 enum WoDPvPDemonology2PBonusSpells
 {
     WoDPvPDemonology2PBonusAura = 171393,
@@ -3381,6 +3424,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_chaos_wave();
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
+    new spell_warl_fel_firebolt();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }

@@ -222,7 +222,7 @@ enum ShapeshiftForm
     FORM_AMBIENT            = 0x06,
     FORM_GHOUL              = 0x07,
     FORM_DIREBEAR           = 0x08, // Removed in 4.0.1
-    FORM_STEVES_GHOUL       = 0x09,
+    FORM_SPIRITED_CRANE     = 0x09,
     FORM_THARONJA_SKELETON  = 0x0A,
     FORM_TEST_OF_STRENGTH   = 0x0B,
     FORM_BLB_PLAYER         = 0x0C,
@@ -1839,7 +1839,7 @@ class Unit : public WorldObject
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisualKit(uint32 p_KitRecID, uint32 p_KitType, int32 p_Duration = 0);
         void CancelSpellVisualKit(int32 p_SpellVisualKitID);
-        void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos = false, bool p_SpeedAsTime = false);
+        void SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, float p_Orientation, Position p_Pos, bool p_ThisAsPos = false, bool p_SpeedAsTime = false);
         void CancelSpellVisual(int32 p_SpellVisualID);
 
         void DeMorph();
