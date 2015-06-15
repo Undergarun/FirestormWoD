@@ -969,15 +969,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     {
         Player* l_Player = ToPlayer();
 
-        /// Only Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
-        if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
+        /// Only Druids in Bear form and Warrior Arms / Battle-Defensive, Fury / Battle, Prot / Battle can generate rage from autoattack
+        if (l_Player->GetShapeshiftForm() == FORM_BEAR || l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE || (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS && l_Player->GetShapeshiftForm() == FORM_DEFENSIVESTANCE))
         {
             Item const* l_Weapon = l_Player->GetItemByPos(INVENTORY_SLOT_BAG_0, cleanDamage->attackType == WeaponAttackType::BaseAttack ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND);
             float l_WeaponSpeed = (l_Weapon ? l_Weapon->GetTemplate()->Delay : BASE_ATTACK_TIME) / 1000.f;
 
             float l_RageGain = l_WeaponSpeed * 1.75f;
 
-            if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+            if (l_Player->GetShapeshiftForm() == FORM_BEAR)
+            {
+                l_RageGain = 5.00f;
+            }
+            else if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
             {
                 if (l_Player->GetShapeshiftForm() == FORM_BATTLESTANCE)
                 {
@@ -1127,15 +1131,35 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             }
         }
 
-        /// WoD: Arms Warriors now generate Rage from taking auto-attack damage.
-        /// Each 1% of health taken as damage will generate 1 Rage, up to 5 Rage per hit.
-        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_WARRIOR_ARMS)
+        /// Item – Warrior WoD Warrior 4P Bonus (165670) now generate Rage from damage taken.
+        /// Each 1k of damage taken will generate 1 Rage, up to 5 Rage per hit.
+        if (damage && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getPowerType() == POWER_RAGE)
         {
-            float l_RetiredPctOfHealth = damage / (victim->GetMaxHealth() / 100.0f);
-            if (l_RetiredPctOfHealth > 5.0f)
-                l_RetiredPctOfHealth = 5.0f;
+            if (AuraPtr l_Pvp4pBonus = victim->GetAura(165670))
+            {
+                if (damage > uint32(l_Pvp4pBonus->GetEffect(0)->GetAmount()))
+                {
+                    int32 l_Bp = floor(damage / l_Pvp4pBonus->GetEffect(0)->GetAmount());
+                    if (l_Bp > 5)
+                        l_Bp = 5;
 
-            victim->RewardRage(l_RetiredPctOfHealth);
+                    victim->EnergizeBySpell(victim, 165672, l_Bp * victim->GetPowerCoeff(POWER_RAGE), POWER_RAGE);
+                }
+            }
+        }
+        
+        /// Mastery: Primal Tenacity - 155783
+        /// Proc just from physical attack 
+        if (damage && cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_DRUID && victim->ToPlayer()->GetSpecializationId(victim->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_GUARDIAN)
+        {
+            /// Apply absorb just in case if this damage not absorbed
+            if (cleanDamage->absorbed_damage == 0)
+            {
+                float l_Mastery = victim->ToPlayer()->GetFloatValue(EPlayerFields::PLAYER_FIELD_MASTERY) * 1.5f;
+                int32 l_Value = CalculatePct(damage, l_Mastery);
+
+                victim->CastCustomSpell(victim, 155783, nullptr, &l_Value, nullptr, true);
+            }
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -1576,7 +1600,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
+            if (spellInfo->IsAffectedByResilience())
                 ApplyResilience(victim, &damage);
 
             break;
@@ -1609,7 +1633,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            if (!spellInfo->HasCustomAttribute(SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE))
+            if (spellInfo->IsAffectedByResilience())
                 ApplyResilience(victim, &damage);
             break;
         }
@@ -3927,19 +3951,6 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
             }
             auraStateFound = true;
             ++itr;
-        }
-    }
-
-    /// Hack fix for Vanish with Subterfuge, should apply stealth from vanish just when Subterfuge disappear
-    if (aura->GetSpellInfo()->Id == 131361)
-    {
-        if (aura->GetEffect(EFFECT_1))
-        {
-            if (aura->GetEffect(EFFECT_1)->GetAmount() == 1)
-            {
-                caster->ToPlayer()->RemoveSpellCooldown(115191, true);
-                caster->CastSpell(caster, 115191, true);
-            }
         }
     }
 
@@ -9472,7 +9483,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
             if (!(procEx & PROC_EX_CRITICAL_HIT))
                 return false;
 
-            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id != 5374)
+            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id != 5374 || procSpell->Id != 8676 || procSpell->Id != 111240)
                 return false;
 
             break;
@@ -11699,7 +11710,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // Bonus damage while using Metamorphosis
     if (GetTypeId() == TYPEID_PLAYER && HasAura(77219))
     {
-        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+        float Mastery = GetFloatValue(PLAYER_FIELD_MASTERY);
         DoneTotal += CalculatePct(pdamage, Mastery);
     }
     else if (isPet())
@@ -11707,7 +11718,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75f;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
             DoneTotal += CalculatePct(pdamage, Mastery);
         }
     }
@@ -11820,7 +11831,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
 
     // Sword of Light - 53503
     // Increases damage of Hammer of Wrath and Judgement too
-     if (GetTypeId() == TYPEID_PLAYER && spellProto && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && (spellProto->Id == 20271 || spellProto->Id == 24275))
+    if (GetTypeId() == TYPEID_PLAYER && spellProto && HasAura(53503) && ToPlayer()->IsTwoHandUsed() && (spellProto->Id == 20271 || spellProto->Id == 24275 || spellProto->Id == 158392))
          DoneTotal += CalculatePct(pdamage, 25);
 
     uint32 creatureTypeMask = victim->GetCreatureTypeMask();
@@ -13278,7 +13289,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         Unit* owner = GetOwner();
         if (owner && owner->HasAura(77219) && owner->GetTypeId() == TYPEID_PLAYER)
         {
-            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY) * 0.75;
+            float Mastery = owner->GetFloatValue(PLAYER_FIELD_MASTERY);
             AddPct(DoneTotalMod, Mastery);
         }
     }
@@ -17021,7 +17032,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     // Cast Shadowy Apparitions when Shadow Word : Pain is crit
     if (GetTypeId() == TYPEID_PLAYER && procSpell && procSpell->Id == 589 && HasAura(78203) && procExtra & PROC_EX_CRITICAL_HIT)
     {
-        SendPlaySpellVisual(33584, target, 6.f);
+        SendPlaySpellVisual(33584, target, 6.f, 0.0f, Position());
         CastSpell(target, 147193, true);
     }
 
@@ -17153,7 +17164,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         // Hack Fix : Subterfuge aura can't be removed by any action
         if (spellInfo->Id == 115191)
         {
-            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB))
+            if (((!isVictim && procExtra & PROC_EX_NORMAL_HIT) || isVictim || procExtra & PROC_EX_INTERNAL_DOT) && !HasAura(115192) && !HasAura(131361) && !(procExtra & PROC_EX_ABSORB) && !(procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
                 CastSpell(this, 115192, true);
         }
 
@@ -17287,7 +17298,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                             takeCharges = true;
 
                         /// Stealth isn't removed by multistrikes effects
-                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191 || triggeredByAura->GetId() == 5215) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
+                        if ((triggeredByAura->GetId() == 1784 || triggeredByAura->GetId() == 115191 || triggeredByAura->GetId() == 5215 || triggeredByAura->GetId() == 158185 || triggeredByAura->GetId() == 115192) && (procExtra & PROC_EX_INTERNAL_MULTISTRIKE))
                             takeCharges = false;
 
                         break;
@@ -19645,33 +19656,33 @@ void Unit::CancelSpellVisualKit(int32 p_SpellVisualKitID)
     SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), true);
 }
 
-void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(uint32 p_ID, Unit* p_Target, float p_Speed, float p_Orientation, Position p_Pos, bool p_ThisAsPos /*= false*/, bool p_SpeedAsTime /*= false*/)
 {
     ObjectGuid l_Guid = GetGUID();
     ObjectGuid l_Target = p_Target ? p_Target->GetGUID() : 0;
-    Position l_Pos;
 
     if (p_ThisAsPos)
-        GetPosition(&l_Pos);
+        GetPosition(&p_Pos);
     else if (p_Target)
-        GetPosition(&l_Pos);
-    else
+        GetPosition(&p_Pos);
+    else if (p_Pos.m_positionX == 0.0f && p_Pos.m_positionY == 0.0f && p_Pos.m_positionZ == 0.0f)
     {
-        l_Pos.m_positionX = 0.f;
-        l_Pos.m_positionY = 0.f;
-        l_Pos.m_positionZ = 0.f;
+        p_Pos.m_positionX = 0.f;
+        p_Pos.m_positionY = 0.f;
+        p_Pos.m_positionZ = 0.f;
     }
 
     WorldPacket l_Data(SMSG_PLAY_SPELL_VISUAL, 16 + 2 + 16 + 2 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 1);
     l_Data.appendPackGUID(GetGUID());
     l_Data.appendPackGUID(p_Target ? p_Target->GetGUID() : 0);
-    l_Data << float(l_Pos.m_positionX);
-    l_Data << float(l_Pos.m_positionY);
-    l_Data << float(l_Pos.m_positionZ);
-    l_Data << uint32(p_ID);         // spellVisualID
+    l_Data << float(p_Pos.m_positionX);
+    l_Data << float(p_Pos.m_positionY);
+    l_Data << float(p_Pos.m_positionZ);
+    l_Data << uint32(p_ID);
     l_Data << float(p_Speed);
-    l_Data << uint16(0);            // missReason
-    l_Data << uint16(0);            // reflectStatus
+    l_Data << uint16(0);            ///< MissReason
+    l_Data << uint16(0);            ///< ReflectStatus
+    l_Data << float(p_Orientation);
     l_Data.WriteBit(p_SpeedAsTime);
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession())

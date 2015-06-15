@@ -1,3 +1,17 @@
+DELETE FROM reference_loot_template WHERE entry = 78948;
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113639, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113640, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113641, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113642, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113643, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113644, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113645, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113646, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113647, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113648, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113649, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113650, 0, 1, 1, 1, 1);
+INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78948, 113651, 0, 1, 1, 1, 1);
 DELETE FROM reference_loot_template WHERE entry = 78491;
 INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78491, 113652, 0, 1, 1, 1, 1);
 INSERT INTO reference_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) VALUE (78491, 113653, 0, 1, 1, 1, 1);

@@ -608,6 +608,7 @@ typedef std::map<std::pair<uint32, uint32>, uint32> DataStoreMapPair;
 typedef std::map<std::string, DataStoreMapPair> DatastoreDifficultyKey;
 
 using ItemSourceSkills = std::map<uint32, std::vector<uint32>>;
+using TradeSpellSkills = std::map<uint32, std::list<SkillLineAbilityEntry const*>>;
 
 class SpellMgr
 {
@@ -737,6 +738,11 @@ class SpellMgr
             return &l_Itr->second;
         }
 
+        std::list<SkillLineAbilityEntry const*> const& GetTradeSpellFromSkill(uint32 p_Skill) const
+        {
+            return m_SkillTradeSpells.at(p_Skill);
+        }
+
     // Modifiers
     public:
 
@@ -813,6 +819,7 @@ class SpellMgr
         AvaiableDifficultySpell    mAvaiableDifficultyBySpell;
         DatastoreDifficultyKey     mDatastoreSpellDifficultyKey;
         ItemSourceSkills           m_ItemSourceSkills;
+        TradeSpellSkills           m_SkillTradeSpells;
 };
 
 #define sSpellMgr ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance()

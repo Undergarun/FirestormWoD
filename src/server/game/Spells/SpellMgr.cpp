@@ -156,7 +156,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
-            if (spellproto->SpellFamilyFlags[1] & 0x400)
+            if (spellproto->SpellFamilyFlags[1] & 0x400 && spellproto->Id != 5782)
                 return DIMINISHING_DISORIENT;
             // Howl of Terror -- 5484
             if (spellproto->SpellFamilyFlags[1] & 0x8)
@@ -225,8 +225,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellIconID == 5782 && spellproto->SpellVisual[0] == 38269)
                 return DIMINISHING_ROOT;
 
-            // Faerie Fire -- 770, 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            // Faerie Fire -- 770, Faerie Swarm -- 102355, 20 seconds in PvP (6.0)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return DIMINISHING_LIMITONLY;
 
             // Nature's Grasp
@@ -446,7 +446,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
+            if (spellproto->SpellFamilyFlags[0] & 0x400 || spellproto->SpellFamilyFlags[0] & 0x100)
                 return 20 * IN_MILLISECONDS;
             break;
         }
@@ -474,6 +474,12 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         {
             /// Psychic Scream - 6 seconds in PvP
             if (spellproto->Id == 8122)
+                return 6 * IN_MILLISECONDS;
+            break;
+        }
+        case SPELLFAMILY_WARLOCK:
+        {
+            if (spellproto->Id == 5484)
                 return 6 * IN_MILLISECONDS;
             break;
         }
@@ -3336,6 +3342,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
         }
 
+        if (spellInfo->Attributes & SPELL_ATTR0_TRADESPELL)
+        {
+            SkillLineAbilityMapBounds l_SpellBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellInfo->Id);
+            for (SkillLineAbilityMap::const_iterator l_SpellIdx = l_SpellBounds.first; l_SpellIdx != l_SpellBounds.second; ++l_SpellIdx)
+                m_SkillTradeSpells[l_SpellIdx->second->skillId].push_back(l_SpellIdx->second);
+        }
+
         ///////////////////////////
         //////   END BINARY  //////
         ///////////////////////////
@@ -3555,6 +3568,20 @@ void SpellMgr::LoadSpellCustomAttr()
             case 117624:///< Suicide No Blood No Logging (Tectus)
                 spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
+            case 166185:///< Rending Slash (Highmaul Conscript)
+            case 158026:///< Enfeebling Roar - Debuff (Phemos - Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 166199:///< Arcane Volatility (Gorian Arcanist)
+            case 158521:///< Double Slash (Phemos - Twin Ogron)
+                spellInfo->Effects[EFFECT_1].Effect = 0;
+                break;
+            case 158419:///< Pulverize - Third AoE (Pol - Twin Ogron)
+                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(4); ///< 1s
+                break;
+            case 158241:///< Blaze - DoT (Phemos - Twin Ogron)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER;
+                break;
             case 110744:///< Divine Star - should be 2 sec -- WTF Blizz ?
             case 122121:
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(66);
@@ -3579,6 +3606,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48278: ///< Paralyze
             case 65584: ///< Growth of Nature (Freya)
             case 64381: ///< Strength of the Pack (Auriaya)
+            case 166289:///< Arcane Force (Gorian Arcanist)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 20167: ///< Seal of Insight
@@ -3838,6 +3866,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 139866: ///< Torrent of Ice
             case 140138: ///< Nether Tear
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 163294: ///< Darkmoon Card of Draenor
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
             case 138652: ///< Eruption
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
@@ -4488,7 +4519,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].BasePoints = 2600;
                 break;
             case 91107: ///< Unholy Might
-                spellInfo->Effects[0].BasePoints = 35;
                 spellInfo->OverrideSpellList.push_back(109260); ///< Add Aspect of the Iron Hack to override spell list of Aspect of the Hawk
                 break;
             case 24858: ///< Moonkin form - hotfix 5.4.2
@@ -5249,17 +5279,27 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_MOD_COOLDOWN_BY_HASTE;
                 spellInfo->Effects[1].MiscValue = 11;
                 break;
+            case 603:   ///< Doom
+            case 103964:///< Touch of Chaos
+            case 124915:///< Chaos Wave
+            case 157695:///< Demonbolt
+                spellInfo->SchoolMask = SPELL_SCHOOL_MASK_SPELL;
+                break;
             /// All spells - BonusMultiplier = 0
             case 77758: ///< Thrash (bear)
             case 106830:///< Thrash (cat)
             case 22568: ///< Ferocious Bite
             case 5221:  ///< Shred
             case 22599: ///< Chromatic Mantle of the Dawn
-            case 47753: ///< Divine Aegis
             case 86273: ///< Illuminated Healing 
                 spellInfo->Effects[0].BonusMultiplier = 0;
                 break;
+            case 47753: ///< Divine Aegis
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                spellInfo->Effects[0].BonusMultiplier = 0;
+                break;
             /// All spells - ProcFlags = 0
+            case 58372:  ///< Glyph of Rude Interruption
             case 170848: ///< Item - Druid WoD PvP Feral 2P Bonus
             case 170853: ///< Item - Druid WoD PvP Restoration 2P Bonus
             case 165691: ///< Item - Monk WoD PvP Windwalker/Brewmaster 2P Bonus
@@ -6133,6 +6173,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
+
+            case 49016: // Unholy Frenzy
+            case 87023: // Cauterize
+            case 110914:// Dark Bargain (DoT)
+            case 113344:// Bloodbath (DoT)
+            case 124280:// Touch of Karma (DoT)
+            case 148022:// Icicle hit
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
+
             default:
                 break;
         }

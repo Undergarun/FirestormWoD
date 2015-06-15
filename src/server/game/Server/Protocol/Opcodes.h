@@ -779,7 +779,7 @@ enum Opcodes
         SMSG_WEEKLY_SPELL_USAGE                     = 0x0000, ///< (unused)
         SMSG_SEND_KNOWN_SPELLS                      = 0x109A, ///< 6.1.2 19783
         SMSG_SEND_SPELL_CHARGES                     = 0x187E, ///< 6.1.2 19783
-        SMSG_SEND_SPELL_HISTORY                     = 0x0000, ///< (unused)
+        SMSG_SEND_SPELL_HISTORY                     = 0x142D, ///< 6.1.2 19783
         SMSG_SEND_UNLEARN_SPELLS                    = 0x0000, ///< (unused)
         SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x152D, ///< 6.1.2 19783
         SMSG_CLEAR_COOLDOWN                         = 0x0A38, ///< 6.1.2 19783

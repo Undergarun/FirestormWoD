@@ -64,6 +64,7 @@ enum eSpells
     SPELL_OVERLOADED_MISSILE        = 116989,
     SPELL_OVERLOADED                = 117204,
     SPELL_ENERGY_CASCADE            = 122199,
+    SPELL_ENERGY_CONDUIT            = 116663,
 
     // Empyreal Focus
     SPELL_FOCUS_INACTIVE            = 127303,
@@ -2028,24 +2029,62 @@ class spell_unstable_energy : public SpellScriptLoader
         }
 };
 
+/// Created by spell 116546
+class at_draw_power : public AreaTriggerEntityScript
+{
+    public:
+        at_draw_power() : AreaTriggerEntityScript("at_draw_power") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 30.f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.f))
+                {
+                    if (l_Unit->HasAura(SPELL_ENERGY_CONDUIT))
+                        l_Caster->AddAura(SPELL_ENERGY_CONDUIT, l_Unit);
+                }
+                else
+                    l_Unit->RemoveAurasDueToSpell(SPELL_ENERGY_CONDUIT);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_draw_power();
+        }
+};
+
 void AddSC_boss_elegon()
 {
-    new boss_elegon();
-    new mob_empyreal_focus();
-    new mob_celestial_protector();
-    new mob_cosmic_spark();
-    new mob_energy_charge();
-    new mob_infinite_energy();
-    new go_celestial_control_console();
-    new spell_spawn_flash_1_periodic();
-    new spell_spawn_flash_2_periodic();
-    new spell_spawn_flash_3_periodic();
-    new spell_touch_of_titans();
-    new spell_radiating_energies();
-    new spell_draw_power();
-    new spell_core_checker();
-    new spell_grasping_energy_tendrils();
-    new spell_destabilizing_energies();
-    new spell_total_annihilation();
-    new spell_unstable_energy();
+    new boss_elegon();                      ///< 60410
+    new mob_empyreal_focus();               ///< 60776
+    new mob_celestial_protector();          ///< 60793
+    new mob_cosmic_spark();                 ///< 62618
+    new mob_energy_charge();                ///< 60913
+    new mob_infinite_energy();              ///< 65293
+    new go_celestial_control_console();     ///< 211650
+    new spell_spawn_flash_1_periodic();     ///< 127785
+    new spell_spawn_flash_2_periodic();     ///< 127783
+    new spell_spawn_flash_3_periodic();     ///< 127781
+    new spell_touch_of_titans();            ///< 117874
+    new spell_radiating_energies();         ///< 118313 - 122741
+    new spell_draw_power();                 ///< 119360 - 124967
+    new spell_core_checker();               ///< 118024
+    new spell_grasping_energy_tendrils();   ///< 127362
+    new spell_destabilizing_energies();     ///< 132222
+    new spell_total_annihilation();         ///< 127911
+    new spell_unstable_energy();            ///< 116994
+    new at_draw_power();                    ///< 116546
 }

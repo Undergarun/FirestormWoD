@@ -974,10 +974,16 @@ class mob_add_setthik_windblade : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_WINDBLADE, 200.0f))
+                {
                     if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_REAVER, 200.0f))
+                    {
                         if (pInstance)
+                        {
                             if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                                 Shekzeer->AI()->DoAction(ACTION_ALL_ADD_DIED);
+                        }
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -1063,10 +1069,16 @@ class mob_korthik_reaver : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (!GetClosestCreatureWithEntry(me, NPC_SETTHIK_WINDBLADE, 200.0f))
+                {
                     if (!GetClosestCreatureWithEntry(me, NPC_KORTHIK_REAVER, 200.0f))
+                    {
                         if (pInstance)
+                        {
                             if (Creature* Shekzeer = pInstance->instance->GetCreature(pInstance->GetData64(NPC_SHEKZEER)))
                                 Shekzeer->AI()->DoAction(ACTION_ALL_ADD_DIED);
+                        }
+                    }
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -1388,8 +1400,10 @@ class mob_dissonance_field : public CreatureScript
                 GetPlayerListInGrid(playerList, me, 200.0f);
 
                 for (Player* plr : playerList)
+                {
                     if (!plr->HasAura(SPELL_DISSONANCE_SPELLS))
                         me->AddAura(SPELL_DISSONANCE_SPELLS, plr);
+                }
             }
 
             // Can't be wounded directly by player attacks
@@ -1542,7 +1556,7 @@ class mob_sha_of_fear : public CreatureScript
                     // Flying to the roof and breaking the ceiling
                     case 2:
                     {
-                        if (me->GetPositionZ() >= 750.0f)
+                        if (me->GetPositionZ() >= 740.0f)
                         {
                             if (GameObject* ceil = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_MANTID_QUEEN_CEIL)))
                                 ceil->SetGoState(GO_STATE_ACTIVE);

@@ -1269,6 +1269,7 @@ class WorldSession
         time_t timeLastArenaTeamCommand;
         time_t timeLastChangeSubGroupCommand;
         time_t m_TimeLastSellItemOpcode;
+        time_t m_TimeLastUseItem;
 
         uint32 m_uiAntispamMailSentCount;
         uint32 m_uiAntispamMailSentTimer;
