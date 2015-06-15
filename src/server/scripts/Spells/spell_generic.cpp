@@ -3706,8 +3706,8 @@ namespace Resolve
 
                     /// - Update absorption done modifier percentage
                     auto l_AbsorptionModifierEffect = l_ResolvePassiveAura->GetEffect(SpellEffIndex::EFFECT_2);
-                    if (l_HealingModifierEffect != nullptr)
-                        l_HealingModifierEffect->ChangeAmount(l_ResolveAmount);
+                    if (l_AbsorptionModifierEffect != nullptr)
+                        l_AbsorptionModifierEffect->ChangeAmount(l_ResolveAmount);
                 }
             }
     };
