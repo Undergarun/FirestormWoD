@@ -12613,10 +12613,16 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 
 uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType)
 {
-    int32 l_CritPct = 200; // 200% for all melee damage type...
+    int32 l_CritPct = 100; // 200% for all melee damage type...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
+
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
+        l_CritPct = 50; ////< 150% on pvp
 
     if (p_AttackType == WeaponAttackType::RangedAttack)
         l_CritPct += p_Victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
@@ -12625,30 +12631,37 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
     if (p_SpellProto)
     {
-        l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
-
-        // adds additional damage to p_Damage (from talents)
-        if (Player* l_ModOwner = GetSpellModOwner())
+        l_CritPct += CalculatePct(l_CritPct, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+        /// adds additional damage to p_Damage (from talents)
+        if (l_ModOwner)
             l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
     }
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPct);
 
     return p_Damage;
 }
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPctBonus = 100; // 200% for all spell damage type...
+    int32 l_CritPctBonus = 100; ///< 200% for all spell damage type...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
 
-    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
 
-    // adds additional damage to p_Damage (from talents)
-    if (Player* l_ModOwner = GetSpellModOwner())
-        l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
+        l_CritPctBonus = 50; ///< 150% on pvp
+
+    if (p_SpellProto)
+    {
+        l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+        /// adds additional damage to p_Damage (from talents)
+        if (l_ModOwner)
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+    }
 
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
