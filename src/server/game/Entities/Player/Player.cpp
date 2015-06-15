@@ -3573,6 +3573,9 @@ void Player::ResetAllPowers()
         case POWER_ENERGY:
             SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
             break;
+        case POWER_COMBO_POINT:
+            ClearComboPoints();
+            break;
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
             break;
@@ -25473,6 +25476,7 @@ void Player::InitDataForForm(bool reapplyMods)
                 setPowerType(POWER_RAGE);
             break;
         }
+        case FORM_SPIRITED_CRANE:
         case FORM_WISE_SERPENT:
         {
             if (getPowerType() != POWER_MANA)
@@ -26971,42 +26975,48 @@ void Player::SendInitialPacketsBeforeAddToMap()
         SetQuestBit(l_QuestBit, true);
 }
 
-void Player::SendCooldownAtLogin()
+void Player::SendSpellHistory()
 {
     uint64 l_CurTime = 0;
     ACE_OS::gettimeofday().msec(l_CurTime);
 
-    for (SpellCooldowns::const_iterator l_Iter = GetSpellCooldownMap().begin(); l_Iter != GetSpellCooldownMap().end(); ++l_Iter)
+    WorldPacket l_HistoryData(SMSG_SEND_SPELL_HISTORY);
+    l_HistoryData << uint32(GetSpellCooldownMap().size());
+
+    for (SpellCooldowns::const_iterator l_Itr = GetSpellCooldownMap().begin(); l_Itr != GetSpellCooldownMap().end(); ++l_Itr)
     {
-        WorldPacket l_Data(SMSG_SPELL_COOLDOWN, 16 + 2 + 1 + 4 + 4 + 4);
-        bool l_HasCooldown = l_Iter->second.end > l_CurTime;
+        l_HistoryData << uint32(l_Itr->first);
+        l_HistoryData << uint32(l_Itr->second.itemid);
 
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_Iter->first);
-        if (l_SpellInfo == nullptr)
-            continue;
+        bool l_HasCooldown = l_Itr->second.end > l_CurTime;
 
-        l_Data.appendPackGUID(GetGUID());                   ///< Caster
+        uint32 l_Category             = 0;
+        uint32 l_CategoryRecoveryTime = 0;
+        uint32 l_RecoveryTime         = l_Itr->second.end - l_CurTime;
 
-        if (l_HasCooldown)                                  ///< Flags
+        if (ItemTemplate const* l_ItemProto = sObjectMgr->GetItemTemplate(l_Itr->second.itemid))
         {
-            if (l_SpellInfo->Attributes & SpellAttr0::SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
-                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD | CooldownFlags::CooldownFlagIncludeEventCooldowns);
-            else
-                l_Data << uint8(CooldownFlags::CooldownFlagIncludeGCD);
+            for (uint8 l_I = 0; l_I < MAX_ITEM_SPELLS; ++l_I)
+            {
+                if (uint32(l_ItemProto->Spells[l_I].SpellId) == l_Itr->first)
+                {
+                    l_Category             = l_ItemProto->Spells[l_I].SpellCategory;
+                    l_CategoryRecoveryTime = l_ItemProto->Spells[l_I].SpellCategoryCooldown;
+                    break;
+                }
+            }
         }
-        else
-            l_Data << uint8(CooldownFlags::CooldownFlagNone);
 
-        l_Data << uint32(1);                                ///< Count
-        l_Data << uint32(l_Iter->first);                    ///< SrecID
+        l_HistoryData << uint32(l_Category);
+        l_HistoryData << uint32(l_HasCooldown ? l_RecoveryTime : 0);
+        l_HistoryData << uint32(l_CategoryRecoveryTime);
 
-        if (l_HasCooldown)                                  ///< ForcedCooldown
-            l_Data << uint32(l_Iter->second.end - l_CurTime);
-        else
-            l_Data << uint32(0);
+        l_HistoryData.FlushBits();
 
-        GetSession()->SendPacket(&l_Data);
+        l_HistoryData.WriteBit(false);  ///< OnHold
     }
+
+    GetSession()->SendPacket(&l_HistoryData);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -27050,7 +27060,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
         SendMoveRoot(0);
 
-    SendCooldownAtLogin();
+    SendSpellHistory();
     SendSpellCharges();
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
@@ -31563,60 +31573,95 @@ void Player::HandleStoreLevelCallback(PreparedQueryResult result)
     }
 }
 
-    // Load skill
-    /*stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_METIER);
-    stmt->setInt32(0, GetGUIDLow());
-    PreparedQueryResult metierList = CharacterDatabase.Query(stmt);
-
-    if (metierList)
+namespace ProfessionBookSpells
+{
+    enum
     {
-        do
+        Alchemy        = 156614,
+        Blacksmithing  = 169923,
+        Enchanting     = 161788,
+        Engineering    = 161787,
+        Inscription    = 161789,
+        JewelCrafting  = 169926,
+        LeatherWorking = 169925,
+        Tailoring      = 169924,
+        FirstAid       = 160329,
+        Cooking        = 160360,
+        Herbalism      = 158745,
+        Mining         = 158754,
+        Skinning       = 158756,
+        Archaeology    = 158762,
+        Fishing        = 160326
+    };
+}
+
+void Player::HandleStoreProfessionCallback(PreparedQueryResult p_Result)
+{
+    if (!p_Result)
+        return;
+
+    std::map<uint32, uint32> l_SkillLearningSpells = 
+    {
+        { SkillType::SKILL_ALCHEMY,        ProfessionBookSpells::Alchemy        },
+        { SkillType::SKILL_BLACKSMITHING,  ProfessionBookSpells::Blacksmithing  },
+        { SkillType::SKILL_ENCHANTING,     ProfessionBookSpells::Enchanting     },
+        { SkillType::SKILL_ENGINEERING,    ProfessionBookSpells::Engineering    },
+        { SkillType::SKILL_INSCRIPTION,    ProfessionBookSpells::Inscription    },
+        { SkillType::SKILL_JEWELCRAFTING,  ProfessionBookSpells::JewelCrafting  },
+        { SkillType::SKILL_LEATHERWORKING, ProfessionBookSpells::LeatherWorking },
+        { SkillType::SKILL_TAILORING,      ProfessionBookSpells::Tailoring      },
+        { SkillType::SKILL_FIRST_AID,      ProfessionBookSpells::FirstAid       },
+        { SkillType::SKILL_COOKING,        ProfessionBookSpells::Cooking        },
+        { SkillType::SKILL_HERBALISM,      ProfessionBookSpells::Herbalism      },
+        { SkillType::SKILL_MINING,         ProfessionBookSpells::Mining         },
+        { SkillType::SKILL_SKINNING,       ProfessionBookSpells::Skinning       },
+        { SkillType::SKILL_ARCHAEOLOGY,    ProfessionBookSpells::Archaeology    },
+        { SkillType::SKILL_FISHING,        ProfessionBookSpells::Fishing        }
+    };
+
+    do 
+    {
+        Field* l_Fields     = p_Result->Fetch();
+        uint32 l_SkillID    = l_Fields[0].GetUInt32();
+        bool   l_Recipe     = l_Fields[1].GetBool();
+
+        auto it = l_SkillLearningSpells.find(l_SkillID);
+        if (it == l_SkillLearningSpells.end())
+            continue;
+
+        uint32 l_SpellID = it->second;
+
+        if (getLevel() < 90)
+            continue;
+        
+        if (IsPrimaryProfessionSkill(l_SkillID) && !HasSkill(l_SkillID) && GetFreePrimaryProfessionPoints() == 0)
+            continue;
+
+        /// Learn the skill to dreanor rank
+        CastSpell(this, l_SpellID, true);
+
+        /// Up skill to 700
+        SetSkill(l_SkillID, GetSkillStep(l_SkillID), 700, 700);
+
+        if (l_Recipe)
         {
-            Field* fieldMetier  = metierList->Fetch();
-            uint32 skillId      = fieldMetier[0].GetUInt32();
-            uint32 value        = fieldMetier[1].GetUInt32();
-
-            uint32 learnId = 0;
-
-            for (SpellSkillingList::iterator itr = sSpellSkillingList.begin(); itr != sSpellSkillingList.end(); itr++)
+            const std::list<SkillLineAbilityEntry const*>& l_Abilities = sSpellMgr->GetTradeSpellFromSkill(l_SkillID);
+            for (auto l_Abilitie : l_Abilities)
             {
-                SpellEntry const* spell = (*itr);
-
-                const SpellEffectEntry* spellEffect = spell->GetSpellEffect(EFFECT_1, 0);
-
-                if (!spellEffect)
+                if (l_Abilitie->min_value > 600)
                     continue;
 
-                if ((uint32)spellEffect->EffectMiscValue != skillId)
-                    continue;
-
-                if ((uint32)(spellEffect->EffectBasePoints+1) != (value/75))
-                    continue;
-
-                learnId = spell->Id;
-                break;
+                learnSpell(l_Abilitie->spellId, false);
             }
-
-            if (learnId)
-            {
-                if (!HasSpell(learnId))
-                    learnSpell(learnId, false);
-
-                SetSkill(skillId, GetSkillStep(skillId), value, value);
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BOUTIQUE_METIER);
-                stmt->setInt32(0, GetGUIDLow());
-                stmt->setInt32(1, skillId);
-                stmt->setInt32(2, value);
-                CharacterDatabase.Execute(stmt);
-
-                GetSession()->SendNotification("Votre metier commande sur la boutique vous a ete ajoute avec succes !");  // translate me
-            }
-
         }
-        while(metierList->NextRow());
-    }*/
 
+        PreparedStatement* l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_DEL_STORE_PROFESSION);
+        l_Statement->setUInt32(0, GetGUIDLow());
+        l_Statement->setUInt32(1, l_SkillID);
+        CharacterDatabase.Execute(l_Statement);
+    }
+    while (p_Result->NextRow());
+}
 
 void Player::CheckSpellAreaOnQuestStatusChange(uint32 quest_id)
 {
@@ -33620,7 +33665,7 @@ void Player::DeleteInvalidSpells()
     for (PlayerSpellMap::const_iterator l_Iterator = l_SpellMap.begin(); l_Iterator != l_SpellMap.end(); ++l_Iterator)
     {
         if (sObjectMgr->IsInvalidSpell(l_Iterator->first))
-        removeSpell(l_Iterator->first, false, false);
+            removeSpell(l_Iterator->first, false, false);
     }
 }
 

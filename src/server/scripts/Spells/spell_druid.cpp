@@ -36,6 +36,7 @@ enum YseraGiftSpells
     SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY   = 145110
 };
 
+/// last update : 6.1.2 19802
 /// Ysera's Gift - 145108
 class spell_dru_yseras_gift: public SpellScriptLoader
 {
@@ -59,25 +60,8 @@ class spell_dru_yseras_gift: public SpellScriptLoader
                 }
                 else
                 {
-                    std::list<Unit*> l_Party;
-
-                    l_Caster->GetRaidMembers(l_Party);
-
-                    l_Party.remove_if([l_Caster](Unit* p_Unit) {
-                        return (p_Unit->IsFullHealth() || p_Unit->GetDistance(l_Caster) >= 40.0f);
-                    });
-
-                    if (l_Party.empty())
-                        return;
-
-                    if (l_Party.size() > 1)
-                    {
-                        l_Party.sort(JadeCore::HealthPctOrderPred());
-                        l_Party.resize(1); // Just to be sure
-                    }
-
                     int32 l_HealAmount = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount());
-                    l_Caster->CastCustomSpell(l_Party.front(), SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
+                    l_Caster->CastCustomSpell(l_Caster, SPELL_DRUID_YSERAS_GIFT_HEAL_ALLY, &l_HealAmount, NULL, NULL, true);
                 }
             }
 
@@ -90,6 +74,51 @@ class spell_dru_yseras_gift: public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_yseras_gift_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Ysera's Gift (Ally heal) - 145110
+class spell_dru_yseras_gift_ally_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_yseras_gift_ally_proc() : SpellScriptLoader("spell_dru_yseras_gift_ally_proc") { }
+
+        class spell_dru_yseras_gift_ally_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_yseras_gift_ally_proc_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                p_Targets.remove_if([l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->ToUnit()->IsFullHealth() || p_Object->GetGUID() == l_Caster->GetGUID())
+                        return true;
+
+                    return false;
+                });
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_ally_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_yseras_gift_ally_proc_SpellScript();
         }
 };
 
@@ -1106,6 +1135,40 @@ class spell_dru_wild_growth : public SpellScriptLoader
     public:
         spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
 
+        class spell_dru_wild_growth_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_wild_growth_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfWildGrowth = 62970,
+                TreeOfLife = 33891
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+                uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
+
+                SpellInfo const* l_GlyphOfWildGrowth = sSpellMgr->GetSpellInfo(eSpells::GlyphOfWildGrowth);
+
+                if (l_Caster->HasAura(eSpells::GlyphOfWildGrowth) && l_GlyphOfWildGrowth != nullptr)
+                    l_MaxTargets += l_GlyphOfWildGrowth->Effects[EFFECT_0].BasePoints;
+
+                if (l_Caster->HasAura(eSpells::TreeOfLife))
+                    l_MaxTargets += 2;
+
+                if (p_Targets.size() > l_MaxTargets)
+                    p_Targets.resize(l_MaxTargets);
+            }
+            
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
         class spell_dru_wild_growth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_wild_growth_AuraScript);
@@ -1128,6 +1191,13 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
+
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_wild_growth_SpellScript();
+        }
+
 
         AuraScript* GetAuraScript() const
         {
@@ -1423,7 +1493,8 @@ enum CatFormSpells
     SPELL_DRUID_GLYPH_OF_CAT_FORM = 47180
 };
 
-/// Cat Form - 768
+/// last update : 6.1.2 19802
+/// Cat Form - 768, Cat Form (Claws of Shirvallah) - 171746
 class spell_dru_cat_form: public SpellScriptLoader
 {
     public:
@@ -1433,15 +1504,44 @@ class spell_dru_cat_form: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_cat_form_SpellScript);
 
+            enum eSpells
+            {
+                SPELL_DRU_SAVAGE_ROAR = 52610
+            };
+
             void HandleOnHit()
             {
                 if (Player* l_Player = GetCaster()->ToPlayer())
                 {
                     l_Player->RemoveMovementImpairingAuras();
-
                     /// Glyph of Cat Form
+                    /// Some form has this aura apply without having the glyph
                     if (!l_Player->HasGlyph(SPELL_DRUID_GLYPH_OF_CAT_FORM))
                         l_Player->RemoveAura(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                if (Player* l_Player = GetCaster()->ToPlayer())
+                {
+                    uint32 l_SavageRoarDuration;
+                    bool l_HasSavageRoar = false;
+
+                    /// Savage Roar
+                    if (AuraPtr l_SavageRoar = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
+                    {
+                        l_SavageRoarDuration = l_SavageRoar->GetDuration();
+                        l_SavageRoar->Remove();
+                        l_HasSavageRoar = true;
+                    }
+
+                    if (l_HasSavageRoar)
+                    {
+                        l_Player->AddAura(eSpells::SPELL_DRU_SAVAGE_ROAR, l_Player);
+                        if (AuraPtr l_SavageRoarNew = l_Player->GetAura(eSpells::SPELL_DRU_SAVAGE_ROAR))
+                            l_SavageRoarNew->SetDuration(l_SavageRoarDuration);
+                    }
                 }
             }
 
@@ -4076,7 +4176,16 @@ public:
             if (GetSpellInfo()->Id == SPELL_DRU_HEALING_TOUCH)
             {
                 if (l_Caster != l_Target && l_Caster->HasAura(SPELL_DRU_DREAM_OF_CENARIUS_FERAL))
-                    l_Caster->HealBySpell(l_Caster, GetSpellInfo(), GetHitHeal(), GetSpell()->IsCritForTarget(l_Target));
+                {
+                    uint32 l_HealAmount = GetHitHeal();
+                    SpellInfo const* l_GlyphOfCatForm = sSpellMgr->GetSpellInfo(SPELL_DRUID_GLYPH_OF_CAT_FORM);
+
+                    /// Glyph of Cat Form
+                    if (l_Caster->GetShapeshiftForm() == FORM_CAT && l_Caster->ToPlayer()->HasGlyph(l_GlyphOfCatForm->Id))
+                        AddPct(l_HealAmount, l_GlyphOfCatForm->Effects[EFFECT_0].BasePoints);
+
+                        l_Caster->HealBySpell(l_Caster, GetSpellInfo(), l_HealAmount, GetSpell()->IsCritForTarget(l_Target));
+                }
             }
             else if (GetSpellInfo()->Id == SPELL_DRU_REJUVENATION)
             {
@@ -4154,8 +4263,9 @@ class spell_dru_pulverize : public SpellScriptLoader
 
             enum eSpells
             {
-                PulverizeAura = 158792,
-                Lacerate = 33745
+                Lacerate = 33745,
+                AllowPulverize = 158790,
+                PulverizeAura = 158792
             };
 
             SpellCastResult CheckCast()
@@ -4183,11 +4293,11 @@ class spell_dru_pulverize : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (AuraPtr l_Lacerete = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
-                {
-                    l_Lacerete->ModStackAmount(-3);
-                    l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
-                }
+                if (AuraPtr l_Lacerate = l_Target->GetAura(eSpells::Lacerate, l_Caster->GetGUID()))
+                    l_Lacerate->ModStackAmount(-3);
+
+                l_Caster->CastSpell(l_Caster, eSpells::PulverizeAura, true);
+                l_Target->RemoveAura(eSpells::AllowPulverize);
             }
 
             void Register()
@@ -4284,8 +4394,55 @@ class spell_dru_glyph_of_enchanted_bark : public SpellScriptLoader
         }
 };
 
+/// WoD PvP Balance 4P Bonus - 180717
+class spell_dru_WodPvpBalance4pBonus : public SpellScriptLoader
+{
+    public:
+        spell_dru_WodPvpBalance4pBonus() : SpellScriptLoader("spell_dru_WodPvpBalance4pBonus") { }
+
+        class spell_dru_WodPvpBalance4pBonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_WodPvpBalance4pBonus_AuraScript);
+
+            enum eSpells
+            {
+                CelestialFury = 180719,
+                Starsurge = 78674
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                if (Unit* l_Caster = GetCaster())
+                {
+                    SpellInfo const* l_SpellInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+                    if (l_SpellInfo == nullptr)
+                        return;
+
+                    if (l_SpellInfo->Id != eSpells::Starsurge)
+                        return;
+
+                    l_Caster->CastSpell(l_Caster, eSpells::CelestialFury, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_WodPvpBalance4pBonus_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_WodPvpBalance4pBonus_AuraScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_yseras_gift_ally_proc();
     new spell_dru_glyph_of_enchanted_bark();
     new spell_dru_pulverize();
     new spell_dru_lifebloom_final_heal();
@@ -4361,5 +4518,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wild_mushroom_heal_proc();
     new spell_dru_dream_of_cenarius_feral();
     new spell_dru_wod_pvp_2p_restoration();
+    new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
 }

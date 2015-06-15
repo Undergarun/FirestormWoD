@@ -1670,17 +1670,56 @@ class spell_convert : public SpellScriptLoader
         }
 };
 
+/// Created by spell 122731
+class at_cancelling_noise : public AreaTriggerEntityScript
+{
+    public:
+        at_cancelling_noise() : AreaTriggerEntityScript("at_cancelling_noise") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 10.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            if (!l_TargetList.empty())
+            {
+                for (Unit* l_Target : l_TargetList)
+                {
+                    // Periodic absorption for Imperial Vizier Zor'lok's Force and Verve and Sonic Rings
+                    if (l_Target->GetDistance(p_AreaTrigger) > 2.0f && l_Target->HasAura(SPELL_NOISE_CANCELLING))
+                        l_Target->RemoveAura(SPELL_NOISE_CANCELLING);
+                    else if (l_Target->GetDistance(p_AreaTrigger) <= 2.0f && !l_Target->HasAura(SPELL_NOISE_CANCELLING))
+                        l_Caster->AddAura(SPELL_NOISE_CANCELLING, l_Target);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_cancelling_noise();
+        }
+};
+
 void AddSC_boss_zorlok()
 {
-    new boss_zorlok();                  // 62980 - Imperial Vizier Zor'lok
-    new mob_sonic_ring();               // 62689 - Sonic Ring
-    new mob_sonic_pulse();              // 63837 - Sonic Pulse
-    new spell_inhale();                 // 122852 - Inhale
-    new spell_attenuation();            // 122440 - Attenuation
-    new spell_force_verve();            // 122718 - Force and verve
-    new spell_sonic_ring();             // 122336 - Sonic Ring
-    new spell_sonic_pulse();            // 124673 - Sonic Pulse
-    new spell_zorlok_exhale();          // 122761 - Exhale
-    new spell_zorlok_exhale_damage();   // 122760 - Exhale (damage aura)
-    new spell_convert();                // 122740 - Convert
+    new boss_zorlok();                  ///< 62980 - Imperial Vizier Zor'lok
+    new mob_sonic_ring();               ///< 62689 - Sonic Ring
+    new mob_sonic_pulse();              ///< 63837 - Sonic Pulse
+    new spell_inhale();                 ///< 122852 - Inhale
+    new spell_attenuation();            ///< 122440 - Attenuation
+    new spell_force_verve();            ///< 122718 - Force and verve
+    new spell_sonic_ring();             ///< 122336 - Sonic Ring
+    new spell_sonic_pulse();            ///< 124673 - Sonic Pulse
+    new spell_zorlok_exhale();          ///< 122761 - Exhale
+    new spell_zorlok_exhale_damage();   ///< 122760 - Exhale (damage aura)
+    new spell_convert();                ///< 122740 - Convert
+    new at_cancelling_noise();          ///< 122731 - Cancelling Noise AreaTrigger
 }

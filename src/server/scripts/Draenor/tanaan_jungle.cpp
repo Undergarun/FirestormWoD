@@ -2139,16 +2139,13 @@ class npc_kargath_bladefist : public CreatureScript
                 {
                     std::list<Player*> l_PlayerList;
                     GetPlayerListInGrid(l_PlayerList, me, 80.0f);
+
                     for (Player* l_Player : l_PlayerList)
                     {
                         if (l_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainInArena) < 99)
                         {
                             if (Creature* l_Creature = me->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, g_ShatteredHandSpawn[urand(0, 3)]))
-                            {
-                                uint32 l_PhaseMask = l_Creature->GetPhaseMask();
-                                l_PhaseMask = TanaanPhases::PhaseArenaOrcs;
-                                l_Creature->SetPhaseMask(l_PhaseMask, true);
-                            }
+                                l_Creature->SetPhaseMask(TanaanPhases::PhaseArenaOrcs, true);
                         }
 
                         break;

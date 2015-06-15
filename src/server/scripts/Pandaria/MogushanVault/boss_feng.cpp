@@ -1616,24 +1616,75 @@ class go_cancel : public GameObjectScript
         }
 };
 
+/// Created by spell 115817
+class at_nullification_barrier : public AreaTriggerEntityScript
+{
+    public:
+        at_nullification_barrier() : AreaTriggerEntityScript("at_nullification_barrier") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 6.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            if (!l_TargetList.empty())
+            for (Unit* l_Target : l_TargetList)
+                l_Target->CastSpell(l_Target, SPELL_NULLIFICATION_BARRIER, true);
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 60.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->HasAura(SPELL_NULLIFICATION_BARRIER))
+                    l_Unit->RemoveAura(SPELL_NULLIFICATION_BARRIER);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_nullification_barrier();
+        }
+};
+
 void AddSC_boss_feng()
 {
-    new boss_feng();                        // 60009
-    new mob_lightning_fist();               // 60241
-    new mob_wild_spark();                   // 60438
-    new mob_siphon_shield();                // 60627
-    new mob_soul_fragment();                // 60781
-    new spell_mogu_epicenter();             // 116040
-    new spell_mogu_wildfire_spark();        // 116583
-    new spell_wildfire_spark();             // 116784
-    new spell_wildfire_infusion_stacks();   // 116821
-    new spell_mogu_wildfire_infusion();     // 116816
-    new spell_draw_flame();                 // 116711
-    new spell_mogu_arcane_velocity();       // 116365
-    new spell_mogu_arcane_resonance();      // 116434
-    new spell_mogu_inversion();             // 118300 - 118302 - 118304 - 118305 - 118307 - 118308 - 132296 - 132297 - 132298
-    new spell_spirit_bolt();                // 118530
-    new spell_nullification_barrier();      // 115817
-    new go_inversion;                       // 211628
-    new go_cancel;                          // 211626
+    new boss_feng();                        ///< 60009
+    new mob_lightning_fist();               ///< 60241
+    new mob_wild_spark();                   ///< 60438
+    new mob_siphon_shield();                ///< 60627
+    new mob_soul_fragment();                ///< 60781
+    new spell_mogu_epicenter();             ///< 116040
+    new spell_mogu_wildfire_spark();        ///< 116583
+    new spell_wildfire_spark();             ///< 116784
+    new spell_wildfire_infusion_stacks();   ///< 116821
+    new spell_mogu_wildfire_infusion();     ///< 116816
+    new spell_draw_flame();                 ///< 116711
+    new spell_mogu_arcane_velocity();       ///< 116365
+    new spell_mogu_arcane_resonance();      ///< 116434
+    new spell_mogu_inversion();             ///< 118300 - 118302 - 118304 - 118305 - 118307 - 118308 - 132296 - 132297 - 132298
+    new spell_spirit_bolt();                ///< 118530
+    new spell_nullification_barrier();      ///< 115817
+    new go_inversion;                       ///< 211628
+    new go_cancel;                          ///< 211626
+    new at_nullification_barrier();         ///< 115817
 }

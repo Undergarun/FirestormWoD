@@ -786,8 +786,47 @@ namespace MS { namespace Skill
                 }
 
         };
-
     }   ///< namespace DailyMajorSkills
+
+    /// Darkmoon Card of Draenor - 163294
+    class spell_Skill_Darkmoon_Card_Of_Draenor : public SpellScriptLoader
+    {
+        public:
+            /// Constructor
+            spell_Skill_Darkmoon_Card_Of_Draenor() : SpellScriptLoader("spell_Skill_Darkmoon_Card_Of_Draenor") { }
+
+            class spell_Skill_Darkmoon_Card_Of_Draenor_SpellScript : public SpellScript
+            {
+                PrepareSpellScript(spell_Skill_Darkmoon_Card_Of_Draenor_SpellScript);
+
+                void HandleOnCast()
+                {
+                    std::vector<uint32> l_RewardCard = {
+                        112278, 112277, 112276, 112274, 112275, 112273, 112272, 112271, 113135,
+                        112302, 112301, 112300, 112299, 112298, 112297, 112296, 112295, 113142,
+                        112286, 112285, 112284, 112283, 112282, 112281, 112280, 112279, 113139,
+                        112294, 112293, 112292, 112291, 112290, 112289, 112288, 112287, 113140
+                    };
+
+                    auto l_Seed = std::chrono::system_clock::now().time_since_epoch().count();
+                    std::shuffle(l_RewardCard.begin(), l_RewardCard.end(), std::default_random_engine(l_Seed));
+
+                    if (Player* l_Caster = GetCaster()->ToPlayer())
+                        l_Caster->AddItem(l_RewardCard.at(0), 1);
+                }
+
+                void Register()
+                {
+                    OnCast += SpellCastFn(spell_Skill_Darkmoon_Card_Of_Draenor_SpellScript::HandleOnCast);
+                }
+
+            };
+
+            SpellScript* GetSpellScript() const override
+            {
+                return new spell_Skill_Darkmoon_Card_Of_Draenor_SpellScript();
+            }
+    };
 
 }   ///< namespace Skill
 }   ///< namespace MS
@@ -797,6 +836,7 @@ void AddSC_spell_skill()
     new MS::Skill::spell_Cooking_DraenorRecipesRewards();
     new MS::Skill::spell_Inscription_Research();
     new MS::Skill::spell_Skill_ResetSecondaryProperties();
+    new MS::Skill::spell_Skill_Darkmoon_Card_Of_Draenor();
 
     /// Daily major skills
     new MS::Skill::DailyMajorSkills::spell_Skill_BlackSmithing_TruesteelIngot();
