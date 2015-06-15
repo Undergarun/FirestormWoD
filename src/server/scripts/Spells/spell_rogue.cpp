@@ -1028,20 +1028,20 @@ class spell_rog_nerve_strike: public SpellScriptLoader
                 if (GetSpellInfo()->Id != ROGUE_SPELL_KIDNEY_SHOT)
                     return;
 
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_REVEALING_STRIKE);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, l_Caster->GetGUID()))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (AuraPtr l_Kidney = l_Target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, l_Caster->GetGUID()))
                     {
-                        if (target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, caster->GetGUID()))
-                        {
-                            if (AuraPtr kidney = target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, caster->GetGUID()))
-                            {
-                                int32 duration = kidney->GetMaxDuration();
-                                AddPct(duration, 35);
-                                kidney->SetMaxDuration(duration);
-                                kidney->RefreshDuration(true);
-                            }
-                        }
+                        int32 l_Duration = l_Kidney->GetDuration();
+                        AddPct(l_Duration, l_SpellInfo->Effects[EFFECT_2].BasePoints);
+                        l_Kidney->SetDuration(l_Duration);
                     }
                 }
             }
