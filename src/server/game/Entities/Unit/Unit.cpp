@@ -12670,10 +12670,16 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
 uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPctBonus = 100; // 200% for all healing type...
+    int32 l_CritPctBonus = 100; ///< 200% for all healing...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && IsPvP())
-        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
+
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
+        l_CritPctBonus = 50; ///< 150% on pvp
 
     l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
@@ -12686,7 +12692,9 @@ uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uin
 {
     int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
 
-    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+    Player* l_ModOwner = GetSpellModOwner();
+
+    if (l_ModOwner && ((GetMap() && GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
         l_CritPctBonus = 50; ///< 150% on pvp like healing
 
     ///< Maybe some bonus of Aura to apply?
