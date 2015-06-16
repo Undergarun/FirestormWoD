@@ -1008,11 +1008,13 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
 
                 l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                 {
-                   if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
-                       return true;
+                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
+                        return true;
 
-                   if (p_Unit->HasAura(eSmokeSpells::SmokeBombAura))
-                       return true;
+                    if (p_Unit->HasAura(eSmokeSpells::SmokeBombAura))
+                        return true;
+
+                    return false;
                 });
 
                 for (Unit* l_Unit : l_TargetList)
