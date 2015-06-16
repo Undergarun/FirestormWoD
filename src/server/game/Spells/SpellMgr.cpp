@@ -6278,6 +6278,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 152280:///< Defile
                 case 109248:///< Binding Shot
                 case 173229:///< Creeping Moss (Brackenspore)
+                case 102793:///< Ursol's Vortex
                     spellInfo->ExplicitTargetMask &= ~TARGET_FLAG_UNIT;
                     break;
                 case 116011:///< Rune of Power
