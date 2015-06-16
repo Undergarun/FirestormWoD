@@ -256,3 +256,26 @@ INSERT INTO areatrigger_template (spell_id, eff_index, entry, type, scale_x, sca
 DELETE FROM spell_target_position WHERE id = 161574;
 INSERT INTO spell_target_position VALUE
 (161574, 0, 1228, 3904.2, 8607.48, 397.853, 0);
+
+SET @REF_KORAGH_NHM = 79015;
+
+DELETE FROM `reference_loot_template` WHERE entry = @REF_KORAGH_NHM;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KORAGH_NHM, 113836, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113837, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113838, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113839, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113840, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113841, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113842, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113843, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113844, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113845, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113846, 0, 1, 1, 1, 1),
+(@REF_KORAGH_NHM, 113847, 0, 1, 1, 1, 1);
+
+UPDATE `creature_template` SET `lootid`= @REF_KORAGH_NHM WHERE `entry`= @REF_KORAGH_NHM;
+
+DELETE FROM `creature_loot_template` WHERE `entry`= @REF_KORAGH_NHM;
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(@REF_KORAGH_NHM, 1, 100, 1, 0, -@REF_KORAGH_NHM, 6);
