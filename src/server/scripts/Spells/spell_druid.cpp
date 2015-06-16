@@ -3983,7 +3983,10 @@ class spell_dru_entangling_energy : public SpellScriptLoader
 
 enum UrsaMajor
 {
-    SPELL_DRU_URSA_MAJOR_PROC = 159233
+    SPELL_DRU_URSA_MAJOR_PROC   = 159233,
+    SPELL_DRU_MANGLE            = 33917,
+    SPELL_DRU_LACERATE          = 33745
+
 };
 
 /// Ursa Major - 159232
@@ -4005,7 +4008,9 @@ class spell_dru_ursa_major : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr)
+                if (p_ProcInfos.GetDamageInfo()->GetSpellInfo() != nullptr 
+                    && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != UrsaMajor::SPELL_DRU_MANGLE 
+                    && p_ProcInfos.GetDamageInfo()->GetSpellInfo()->Id != UrsaMajor::SPELL_DRU_LACERATE)
                     return;
 
                 if (!(p_ProcInfos.GetHitMask() & PROC_EX_INTERNAL_MULTISTRIKE))
