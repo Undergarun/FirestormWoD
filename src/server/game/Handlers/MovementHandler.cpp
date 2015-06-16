@@ -582,27 +582,9 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*p_RecvData*/)
 
 void WorldSession::HandleMoveKnockBackAck(WorldPacket & recvData)
 {
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    HandleMovementOpcodes(recvData);
 
     recvData.read_skip<uint32>();                          /// ACK Index
-
-    if (m_Player->m_mover->GetGUID() != movementInfo.guid)
-        return;
-
-    m_Player->m_movementInfo = movementInfo;
-
-    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
-    uint32 l_MSTime = getMSTime();
-
-    //if (m_clientTimeDelay == 0)
-        m_clientTimeDelay = l_MSTime - m_Player->m_movementInfo.time;
-
-    m_Player->m_movementInfo.time = m_Player->m_movementInfo.time + m_clientTimeDelay;
-
-    WriteMovementInfo(data, &m_Player->m_movementInfo);
-
-    m_Player->SendMessageToSet(&data, false);
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
@@ -612,8 +594,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 
     recvData.read_skip<uint32>();                          // unk
 
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
+    HandleMovementOpcodes(recvData);
 
     recvData.read_skip<uint32>();                          // unk2
 }
