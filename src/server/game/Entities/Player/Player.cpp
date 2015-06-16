@@ -7947,10 +7947,11 @@ void Player::UpdateRating(CombatRating p_CombatRating)
         float l_Haste = 1.0f / (1.0f + l_HastePct / 100.0f);
 
         ///< Update haste percentage for client
-        SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE, l_Haste);
-        SetFloatValue(UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
-        SetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
+        SetFloatValue(EUnitFields::UNIT_FIELD_MOD_SPELL_HASTE, l_Haste);
+        SetFloatValue(EUnitFields::UNIT_FIELD_MOD_HASTE, l_Haste);
+        SetFloatValue(EUnitFields::UNIT_FIELD_MOD_RANGED_HASTE, l_Haste);
+        SetFloatValue(EUnitFields::UNIT_FIELD_MOD_HASTE_REGEN, l_Haste);
+        SetFloatValue(EUnitFields::UNIT_FIELD_MOD_CASTING_SPEED, l_Haste);
 
         AuraType const l_HasteSpellAuraMod[] = { SPELL_AURA_MOD_COOLDOWN_BY_HASTE, SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE };
 
