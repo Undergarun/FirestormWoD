@@ -4920,14 +4920,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx3 &= ~SPELL_ATTR3_IGNORE_HIT_RESULT;
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_FEAR;
                 break;
-            case 124991: ///< Nature's Vigil (Damage)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->Effects[0].TargetB = 0;
-                break;
-            case 124988: ///< Nature's Vigil (Heal)
-                spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ALLY;
-                spellInfo->Effects[0].TargetB = 0;
-                break;
             case 122355: ///< Molten Core
                 spellInfo->StackAmount = 255;
                 break;
