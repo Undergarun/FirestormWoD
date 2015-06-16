@@ -481,6 +481,8 @@ class WorldSession
         /// @p_JoinDate : unix timestamp of the account creation
         void SetAccountJoinDate(uint32 p_JoinDate) { m_AccountJoinDate = p_JoinDate; }
 
+        time_t GetLoginTime() const { return m_LoginTime; }
+
         //////////////////////////////////////////////////////////////////////////
         /// Vote
         //////////////////////////////////////////////////////////////////////////
@@ -1321,6 +1323,7 @@ class WorldSession
         z_stream_s* _compressionStream;
 
         uint32 m_ServiceFlags;
+        time_t m_LoginTime;
 };
 #endif
 /// @}

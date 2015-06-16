@@ -109,6 +109,7 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0)
 {
     _warden = NULL;
     _filterAddonMessages = false;
+    m_LoginTime = time(nullptr);
 
     if (sock)
     {
