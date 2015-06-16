@@ -2297,13 +2297,6 @@ class spell_warl_burning_embers_regen : public PlayerScript
         }
 };
 
-enum SpellsDrainLife
-{
-    SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
-    SPELL_WARL_HARVEST_LIFE = 108371,
-    SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
-};
-
 // Drain Life - 689
 class spell_warl_drain_life: public SpellScriptLoader
 {
@@ -2314,27 +2307,32 @@ class spell_warl_drain_life: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    Player* _player = GetCaster()->ToPlayer();
-                    if (!_player)
-                        return;
+                DrainLifeHeal      = 89653,
+                EmpoweredDrainLife = 157069
+            };
 
-                    int32 l_Pct = 6 * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 10);
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints) / p_AurEff->GetTotalTicks();
 
-                    if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber());
+                if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(eSpells::EmpoweredDrainLife))
+                    l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * p_AurEff->GetTickNumber());
 
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
+                l_Caster->CastCustomSpell(l_Caster, eSpells::DrainLifeHeal, &l_Bp0, NULL, NULL, true);
 
-                    // In Demonology spec : Generates 10 Demonic Fury per second
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->EnergizeBySpell(_player, 689, 10, POWER_DEMONIC_FURY);
-                }
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
+
+                // In Demonology spec : Generates 10 Demonic Fury per second
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, 10 * l_Player->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
             }
 
             void Register()
