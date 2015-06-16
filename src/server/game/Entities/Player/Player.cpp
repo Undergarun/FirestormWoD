@@ -3359,7 +3359,7 @@ void Player::Regenerate(Powers power)
                 if (!isInCombat() && !HasAuraType(SPELL_AURA_INTERRUPT_REGEN))
                 {
                     float RunicPowerDecreaseRate = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
-                    addvalue += -30 * RunicPowerDecreaseRate; ///< 3 RunicPower by tick
+                    addvalue += (-30 * RunicPowerDecreaseRate / HastePct); ///< 3 RunicPower by tick
                 }
 
                 break;
