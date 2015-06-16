@@ -526,10 +526,20 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             void Reset() override
             {
                 m_Events.Reset();
+
+                if (me->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IMMUNE_TO_PC) ||
+                    me->HasFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NOT_SELECTABLE))
+                    me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                if (me->HasReactState(ReactStates::REACT_PASSIVE))
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
                 m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
 
