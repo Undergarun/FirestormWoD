@@ -29,9 +29,15 @@ namespace Battlepay
                 l_Data << uint32(l_Product.ProductID);
                 l_Data << uint64(l_Product.NormalPriceFixedPoint * g_CurrencyPrecision);
                 l_Data << uint64(l_Product.CurrentPriceFixedPoint * g_CurrencyPrecision);
-                l_Data << uint32(l_Product.Items.size());
                 l_Data << uint8(l_Product.Type);
                 l_Data << uint32(l_Product.Flags);
+
+                l_Data.FlushBits();
+
+                l_Data.WriteBits(l_Product.Items.size(), 7);
+                l_Data.WriteBits(2, 7);                         ///< 6.1.2 unk
+
+                l_Data.WriteBit(l_Product.DisplayInfoID != 0);
 
                 for (auto& l_ItemProduct : l_Product.Items)
                 {
@@ -53,8 +59,6 @@ namespace Battlepay
                 }
 
                 l_Data.FlushBits();
-                l_Data.WriteBits(l_Product.ChoiceType, 2);
-                l_Data.WriteBit(l_Product.DisplayInfoID != 0);
 
                 if (l_Product.DisplayInfoID != 0)
                     WriteDisplayInfo(l_Product.DisplayInfoID, l_Data);
