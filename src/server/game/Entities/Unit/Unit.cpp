@@ -1221,7 +1221,13 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     DamageTaken* dmgTaken = new DamageTaken(damage, getMSTime());
     victim->SetDamageTaken(dmgTaken);
 
-    DamageDone* dmgDone = new DamageDone(damage, getMSTime());
+    DamageDone* dmgDone = nullptr;
+
+    if (spellProto)
+        dmgDone = new DamageDone(damage, getMSTime(), spellProto->Id);
+    else
+        dmgDone = new DamageDone(damage, getMSTime(), 0);
+
     SetDamageDone(dmgDone);
 
     return damage;
@@ -21804,6 +21810,19 @@ uint32 Unit::GetDamageDoneInPastSecs(uint32 secs)
     for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
     {
         if ((getMSTime() - (*itr)->s_timestamp) <= (secs * IN_MILLISECONDS))
+            damage += (*itr)->s_damage;
+    }
+
+    return damage;
+};
+
+uint32 Unit::GetDamageDoneInPastSecsBySpell(uint32 p_Secs, uint32 p_SpellId)
+{
+    uint32 damage = 0;
+
+    for (DmgDoneList::iterator itr = m_dmgDone.begin(); itr != m_dmgDone.end(); itr++)
+    {
+        if (((*itr)->s_spellId && (getMSTime() - (*itr)->s_timestamp) <= (p_Secs * IN_MILLISECONDS)) && p_SpellId == (*itr)->s_spellId)
             damage += (*itr)->s_damage;
     }
 

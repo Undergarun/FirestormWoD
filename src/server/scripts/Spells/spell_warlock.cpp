@@ -1251,10 +1251,10 @@ class spell_warl_dark_regeneration: public SpellScriptLoader
         }
 };
 
-// Called by Haunt - 48181, Fel Flame - 77799, Shadow Bolt - 686, Incinerate - 29722, Chaos Bolt - 116858
-// Touch of Chaos - 103964, Demonic Slash - 114175, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027
-// Void Ray - 115422 and Shadow Burn - 17877
-// Soul Leech - 108370
+/// Called by Haunt - 48181, Drain soul - 103103,
+/// Shadow Bolt - 686, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Touch of Chaos - 103964,
+/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877
+/// Soul Leech - 108370
 class spell_warl_soul_leech: public SpellScriptLoader
 {
     public:
@@ -1266,21 +1266,26 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasAura(WARLOCK_SOUL_LEECH_AURA))
-                    {
-                        int32 bp = _player->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_SOUL_LEECH_AURA);
 
-                        if (Pet* pet = _player->GetPet())
-                        {
-                            bp += pet->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                            _player->CastCustomSpell(pet, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
-                        }
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
 
-                        _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
-                    }
-                }
+                if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
+                    return;
+
+                int32 l_Bp = l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, GetSpellInfo()->Id);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_AFFLICTION)
+                    l_Bp = CalculatePct(l_Bp, 30);
+                else
+                    l_Bp = CalculatePct(l_Bp, 15);
+
+                if (Pet* l_Pet = l_Player->GetPet())
+                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
             }
 
             void Register()

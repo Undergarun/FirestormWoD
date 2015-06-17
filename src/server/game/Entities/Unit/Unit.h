@@ -918,11 +918,12 @@ struct HealTaken
 
 struct DamageDone
 {
-    DamageDone(uint32 dmg, uint32 time)
-    : s_damage(dmg), s_timestamp(time) {}
+    DamageDone(uint32 dmg, uint32 time, uint32 spellId)
+    : s_damage(dmg), s_timestamp(time), s_spellId(spellId) {}
 
     uint32 s_damage;
     uint32 s_timestamp;
+    uint32 s_spellId;
 };
 
 struct DamageTaken
@@ -2542,6 +2543,7 @@ class Unit : public WorldObject
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);
         uint32 GetDamageDoneInPastSecs(uint32 secs);
+        uint32 GetDamageDoneInPastSecsBySpell(uint32 secs, uint32 spellId);
         uint32 GetDamageTakenInPastSecs(uint32 secs);
         void SetHealDone(HealDone* healDone) { m_healDone.push_back(healDone); }
         void SetHealTaken(HealTaken* healTaken) { m_healTaken.push_back(healTaken); }
