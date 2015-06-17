@@ -7774,19 +7774,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     {
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
 
-        // Wild Growth
-        if (m_spellInfo->Id == 48438)
-        {
-            float l_SetMod = 0.f;
-
-            // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
-                l_SetMod = l_AurEff->GetAmount() / 100.f;
-
-            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
-            damage *= l_Mod;
-        }
-
         if (isAreaAura)
             damage = uint32(float(damage) * caster->SpellHealingPctDone(target, m_spellInfo));
         else
