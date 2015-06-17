@@ -572,7 +572,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
         {
             maxDist = dist;
             if (isMoving() && obj->isMoving())
-                maxDist += 2.5f;
+                maxDist += 4.f;
         }
 
         return GetExactDist(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()) < maxDist;
@@ -14600,7 +14600,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         return;
 
     ObjectGuid l_Guid = GetGUID();
-    if (!forced)
+    if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
         WorldPacket l_Data;
 
@@ -19940,6 +19940,23 @@ void Unit::SendMoveKnockBack(Player* p_Player, float p_SpeedXY, float p_SpeedZ, 
     l_Packet << float(p_SpeedZ);
 
     p_Player->GetSession()->SendPacket(&l_Packet);
+
+    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 200);
+    uint32 l_MSTime = getMSTime();
+
+    m_movementInfo.time             = l_MSTime;
+    m_movementInfo.Alive32          = l_MSTime;
+    m_movementInfo.HasFallData      = true;
+    m_movementInfo.fallTime         = 0;
+    m_movementInfo.hasFallDirection = true;
+    m_movementInfo.j_cosAngle       = p_Cos;
+    m_movementInfo.j_sinAngle       = p_Sin;
+    m_movementInfo.j_xyspeed        = p_SpeedXY;
+    m_movementInfo.JumpVelocity     = p_SpeedZ;
+
+    p_Player->GetSession()->WriteMovementInfo(data, &m_movementInfo);
+
+    SendMessageToSet(&data, false);
 }
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
