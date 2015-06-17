@@ -1296,8 +1296,8 @@ class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
-// Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
+// Called by Jab - 100780, Spinning Crane Kick - 101546, Expel Harm - 115072
+// Surging Mist - 116694, Crackling Jade Lightning - 117952
 // Power Strikes - 121817
 class spell_monk_power_strikes: public SpellScriptLoader
 {

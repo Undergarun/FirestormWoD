@@ -1831,11 +1831,7 @@ void Spell::SelectImplicitTargetObjectTargets(SpellEffIndex p_EffIndex, SpellImp
     if (m_spellInfo->HasPersistenAura())
         return;
 
-    if (!m_targets.GetObjectTarget() || !m_targets.GetItemTarget() || !m_targets.GetUnitTarget())
-    {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell: ERROR: No explicit object or item target available! (SpellID: %u)", GetSpellInfo()->Id);
-        return;
-    }
+    ASSERT((m_targets.GetObjectTarget() || m_targets.GetItemTarget() || m_targets.GetUnitTarget()) && "Spell::SelectImplicitTargetObjectTargets - no explicit object or item target available!");
 
     WorldObject* l_Target = m_targets.GetObjectTarget();
 
