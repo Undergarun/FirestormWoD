@@ -67,7 +67,7 @@ Position const g_NpcMovePos[3] =
 {
     { 6972.43f, -1094.44f, 4.962f, 0.903368f },
     { 6969.16f, -1089.79f, 4.600f, 0.881810f },
-    { 6964.44f, -1085.31f, 4.603f, 0.102262f },
+    { 6964.44f, -1085.31f, 4.603f, 0.102262f }
 }; 
 
 class beforeoshir_event : public BasicEvent
