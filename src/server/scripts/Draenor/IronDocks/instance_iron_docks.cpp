@@ -8,6 +8,15 @@
 
 #include "iron_docks.hpp"
 
+static BossScenarios const g_BossScenarios[] =
+{
+    { eIronDocksDatas::DataNokgar,      eIronDocksScenario::IronDocksNokgar     },
+    { eIronDocksDatas::DataGrimrail,    eIronDocksScenario::IronDocksGrimrail   },
+    { eIronDocksDatas::DataOshir,       eIronDocksScenario::IronDocksOshir      },
+    { eIronDocksDatas::DataSkulloc,     eIronDocksScenario::IronDocksSkulloc    },
+    { 0,                                0                                       }
+};
+
 class iron_stars_event : public BasicEvent
 {
     public:
@@ -122,33 +131,39 @@ class instance_iron_docks : public InstanceMapScript
             bool m_SecondEvent;
             bool m_ThirdEvent;
 
+            /// Scenario handling
+            uint32 m_CreatureKilled;
+
             void Initialize() override
             {
                 SetBossNumber(4);
+                LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eIronDocksScenario::IronDocksChallengeID : eIronDocksScenario::IronDocksScenarioID);
 
                 /// Bosses
-                m_MakoggGuid    = 0;
-                m_DuguruGuid    = 0;
-                m_NoxxGuid      = 0;
-                m_NokgarGuid    = 0;
-                m_WolfGuid      = 0;
-                m_OshirGuid     = 0;
-                m_SkullocGuid   = 0;
+                m_MakoggGuid        = 0;
+                m_DuguruGuid        = 0;
+                m_NoxxGuid          = 0;
+                m_NokgarGuid        = 0;
+                m_WolfGuid          = 0;
+                m_OshirGuid         = 0;
+                m_SkullocGuid       = 0;
 
                 /// Mini bosses
-                m_DarunaGuid    = 0;
-                m_GwarnokGuid   = 0;
-                m_OlugarGuid    = 0;
+                m_DarunaGuid        = 0;
+                m_GwarnokGuid       = 0;
+                m_OlugarGuid        = 0;
 
                 // Triggers
                 // Gobs
                 // Creatures
-                m_TurretGuid    = 0;
-                m_ZoggoshGuid   = 0;
-                m_KoramarGuid   = 0;
+                m_TurretGuid        = 0;
+                m_ZoggoshGuid       = 0;
+                m_KoramarGuid       = 0;
 
-                m_SecondEvent   = false;
-                m_ThirdEvent    = false;
+                m_SecondEvent       = false;
+                m_ThirdEvent        = false;
+
+                m_CreatureKilled    = 0;
             }
 
             void OnCreatureCreate(Creature* p_Creature) override
@@ -199,6 +214,18 @@ class instance_iron_docks : public InstanceMapScript
                 }
             }
 
+            void OnGameObjectCreate(GameObject* p_GameObject) override
+            {
+                switch (p_GameObject->GetEntry())
+                {
+                    case eIronDocksGameObject::ChallengeModeDoor:
+                        m_ChallengeDoorGuid = p_GameObject->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void OnUnitDeath(Unit* p_Unit) override
             {
                 Creature* l_Creature = p_Unit->ToCreature();
@@ -234,6 +261,24 @@ class instance_iron_docks : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            void OnCreatureKilled(Creature* p_Creature, Player* p_Player) override
+            {
+                if (!instance->IsChallengeMode() || !IsChallengeModeStarted() || m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
+                    return;
+
+                if (p_Creature == nullptr)
+                    return;
+
+                if (!p_Creature->isElite() || p_Creature->IsDungeonBoss())
+                    return;
+
+                ++m_CreatureKilled;
+                SendScenarioProgressUpdate(CriteriaProgressData(eIronDocksScenario::IronDocksEnnemies, m_CreatureKilled, m_InstanceGuid, time(nullptr), m_BeginningTime, 0));
+
+                if (m_CreatureKilled >= eIronDocksScenario::IronDocksKillCount)
+                    m_ConditionCompleted = true;
             }
 
             void SetData(uint32 p_Type, uint32 p_Data) override
@@ -315,6 +360,13 @@ class instance_iron_docks : public InstanceMapScript
                     return false;
 
                 return true;
+            }
+
+            void Update(uint32 p_Diff) override
+            {
+                ScheduleBeginningTimeUpdate(p_Diff);
+                ScheduleChallengeStartup(p_Diff);
+                ScheduleChallengeTimeUpdate(p_Diff);
             }
         };
 

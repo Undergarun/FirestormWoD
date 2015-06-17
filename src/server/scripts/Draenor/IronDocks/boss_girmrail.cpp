@@ -311,14 +311,20 @@ class boss_grimrail_makogg : public CreatureScript
                 _JustDied();
                 Talk(eYells::SayDeathMakogg);
 
-                if (Creature* l_Nox = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
+                if (m_Instance != nullptr)
                 {
-                    if (Creature* l_Duguru = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailDuguru)))
+                    if (Creature* l_Nox = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
                     {
-                        if (l_Duguru->isDead() && l_Nox->isDead())
-                            l_Duguru->m_Events.AddEvent(new aftergrimrail_event(l_Duguru, 0), l_Duguru->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
-                        else
-                            me->SetLootRecipient(nullptr);
+                        if (Creature* l_Duguru = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailDuguru)))
+                        {
+                            if (l_Duguru->isDead() && l_Nox->isDead())
+                            {
+                                m_Instance->SetBossState(eIronDocksDatas::DataGrimrail, EncounterState::DONE);
+                                l_Duguru->m_Events.AddEvent(new aftergrimrail_event(l_Duguru, 0), l_Duguru->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                            }
+                            else
+                                me->SetLootRecipient(nullptr);
+                        }
                     }
                 }
             }
@@ -602,14 +608,20 @@ class boss_grimrail_noxx : public CreatureScript
                 Talk(eYells::SayDeath);
                 summons.DespawnAll();
 
-                if (Creature* l_Makogg = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailMakogg)))
+                if (m_Instance != nullptr)
                 {
-                    if (Creature* l_Duguru = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailDuguru)))
+                    if (Creature* l_Makogg = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailMakogg)))
                     {
-                        if (l_Duguru->isDead() && l_Makogg->isDead())
-                            l_Duguru->m_Events.AddEvent(new aftergrimrail_event(l_Duguru, 0), l_Duguru->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
-                        else
-                            me->SetLootRecipient(nullptr);
+                        if (Creature* l_Duguru = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailDuguru)))
+                        {
+                            if (l_Duguru->isDead() && l_Makogg->isDead())
+                            {
+                                m_Instance->SetBossState(eIronDocksDatas::DataGrimrail, EncounterState::DONE);
+                                l_Duguru->m_Events.AddEvent(new aftergrimrail_event(l_Duguru, 0), l_Duguru->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                            }
+                            else
+                                me->SetLootRecipient(nullptr);
+                        }
                     }
                 }
             }
@@ -871,14 +883,20 @@ class boss_grimrail_duguru : public CreatureScript
 
                 Talk(eYells::SayDeath);
 
-                if (Creature* l_Makogg = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailMakogg)))
+                if (m_Instance != nullptr)
                 {
-                    if (Creature* l_Noxx = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
+                    if (Creature* l_Makogg = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailMakogg)))
                     {
-                        if (l_Noxx->isDead() && l_Makogg->isDead())
-                            l_Noxx->m_Events.AddEvent(new aftergrimrail_event(l_Noxx, 0), l_Noxx->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
-                        else
-                            me->SetLootRecipient(nullptr);
+                        if (Creature* l_Noxx = m_Instance->instance->GetCreature(m_Instance->GetData64(eIronDocksDatas::DataGrimrailNoxx)))
+                        {
+                            if (l_Noxx->isDead() && l_Makogg->isDead())
+                            {
+                                m_Instance->SetBossState(eIronDocksDatas::DataGrimrail, EncounterState::DONE);
+                                l_Noxx->m_Events.AddEvent(new aftergrimrail_event(l_Noxx, 0), l_Noxx->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                            }
+                            else
+                                me->SetLootRecipient(nullptr);
+                        }
                     }
                 }
             }

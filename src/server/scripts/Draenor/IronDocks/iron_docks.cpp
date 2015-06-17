@@ -53,6 +53,8 @@ Position const g_PracticingWarriors2[2] =
     { 6611.09f, -685.70f, 4.773f, 5.494924f }
 };
 
+Position const g_OutTeleportPos = { 8852.49f, 1364.35f, 97.0f, 1.581f };
+
 enum eSpells
 {
     /// Battlemaster
@@ -2089,6 +2091,47 @@ class iron_docks_area_trigger_jagged_caltrops : public AreaTriggerEntityScript
         }
 };
 
+/// Instance Portal (Raid: Normal, Heroic, Mythic) - 232490
+class go_iron_docks_instance_portal : public GameObjectScript
+{
+    public:
+        go_iron_docks_instance_portal() : GameObjectScript("go_iron_docks_instance_portal") { }
+
+        struct go_iron_docks_instance_portalAI : public GameObjectAI
+        {
+            go_iron_docks_instance_portalAI(GameObject* p_GameObject) : GameObjectAI(p_GameObject)
+            {
+                m_CheckTimer = 1000;
+            }
+
+            uint32 m_CheckTimer;
+
+            void UpdateAI(uint32 p_Diff) override
+            {
+                if (m_CheckTimer)
+                {
+                    if (m_CheckTimer <= p_Diff)
+                    {
+                        m_CheckTimer = 1000;
+
+                        std::list<Player*> l_PlayerList;
+                        go->GetPlayerListInGrid(l_PlayerList, 5.0f);
+
+                        for (Player* l_Player : l_PlayerList)
+                            l_Player->TeleportTo(1116, g_OutTeleportPos);
+                    }
+                    else
+                        m_CheckTimer -= p_Diff;
+                }
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* p_GameObject) const override
+        {
+            return new go_iron_docks_instance_portalAI(p_GameObject);
+        }
+};
+
 void AddSC_iron_docks_cpp()
 {
     /// NPCs
@@ -2132,4 +2175,7 @@ void AddSC_iron_docks_cpp()
     new iron_docks_area_trigger_barbed_arrow();
     new iron_docks_area_trigger_oil_effect();
     new iron_docks_area_trigger_jagged_caltrops();
+
+    /// GameObject
+    new go_iron_docks_instance_portal();
 }

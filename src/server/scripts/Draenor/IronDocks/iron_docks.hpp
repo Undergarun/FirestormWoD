@@ -11,16 +11,18 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "InstanceScript.h"
+#include "GameObjectAI.h"
 
 #ifndef IRON_DOCKS_HPP
 # define IRON_DOCKS_HPP
 
 enum eIronDocksDatas
 {
-    DataNokgar          = 0,
     DataMountWolf       = 600,
-    DataOshir           = 1,
-    DataSkulloc         = 2,
+    DataNokgar          = 0,
+    DataGrimrail        = 1,
+    DataOshir           = 2,
+    DataSkulloc         = 3,
     DataGrimrailMakogg  = 19,
     DataGrimrailNoxx    = 20,
     DataGrimrailDuguru  = 21,
@@ -89,6 +91,28 @@ enum eIronDocksTalks
 enum eIronDocksSpell
 {
     SpellCannonBarrageAura = 168537
+};
+
+enum eIronDocksScenario
+{
+    /// Normal/Heroic Mode
+    /// ScenarioID
+    IronDocksScenarioID     = 685,
+    /// Bosses
+    IronDocksNokgar         = 25108,
+    IronDocksGrimrail       = 25109,
+    IronDocksOshir          = 25110,
+    IronDocksSkulloc        = 25111,
+    /// Challenge Mode
+    /// ScenarioID
+    IronDocksChallengeID    = 426,
+    IronDocksKillCount      = 44,
+    IronDocksEnnemies       = 26362
+};
+
+enum eIronDocksGameObject
+{
+    ChallengeModeDoor = 211989
 };
 
 #endif ///< IRON_DOCKS_HPP
