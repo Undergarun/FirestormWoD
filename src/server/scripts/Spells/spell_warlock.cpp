@@ -220,6 +220,44 @@ class spell_warl_grimoire_of_service: public SpellScriptLoader
         }
 };
 
+/// Call by Summon Fel Imp - 112866, Summon Voidlord - 112867, Summon Shivarra - 112868
+/// Summon Observer - 112869, Summon Wrathguard - 112870, Summon Abyssal - 112921, Summon Terrorguard - 112927
+/// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy_effect() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_effect") { }
+
+        class spell_warl_grimoire_of_supremacy_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_grimoire_of_supremacy_effect_SpellScript);
+
+            enum eSpells
+            {
+                GrimoireOfSupremacyBonus = 115578
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
+                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, false);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_grimoire_of_supremacy_effect_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_effect_SpellScript();
+        }
+};
+
+
 // Haunt (dispel effect) - 48181
 class spell_warl_haunt_dispel: public SpellScriptLoader
 {
@@ -3411,6 +3449,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
+    new spell_warl_grimoire_of_supremacy_effect();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }
