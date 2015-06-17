@@ -35,6 +35,8 @@
 #include "BattlegroundMgr.hpp"
 #include "Battleground.h"
 
+#define MOVEMENT_PACKET_TIME_DELAY 0
+
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
     HandleMoveWorldportAckOpcode();
@@ -428,10 +430,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& p_Packet)
 
     uint32 l_MSTime = getMSTime();
 
-    //if (m_clientTimeDelay == 0)
+    if (m_clientTimeDelay == 0)
         m_clientTimeDelay = l_MSTime - l_MovementInfo.time;
 
-    l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay;
+    l_MovementInfo.time = l_MovementInfo.time + m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
 
     WorldSession::WriteMovementInfo(data, &l_MovementInfo);
     l_Mover->SendMessageToSet(&data, m_Player);
