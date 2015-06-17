@@ -452,8 +452,11 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                uint32 l_Time = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-                                l_Creature->AI()->SetGUID(p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id | (uint64(l_Time) << 32), eDatas::AddSpellToQueue);
+                                uint64 l_Data;
+                                ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
+
+                                l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }
                         }
