@@ -1485,7 +1485,11 @@ class Unit : public WorldObject
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
-        int32 insightCount;
+        int32 m_InsightCount;
+
+        /// Used for Bandit's Guile
+        void setInsightCount(uint8 p_Value) { m_InsightCount = p_Value; }
+        uint8 getInsightCount() { return m_InsightCount; }
 
         void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {

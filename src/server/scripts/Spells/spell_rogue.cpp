@@ -2488,6 +2488,109 @@ public:
     }
 };
 
+/// Bandit's Guile - 84654
+/// Call by Sinister Strike - 1752
+class spell_rog_bandits_guile : public SpellScriptLoader
+{
+    public:
+        spell_rog_bandits_guile() : SpellScriptLoader("spell_rog_bandits_guile") { }
+
+        class spell_rog_bandits_guile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_bandits_guile_SpellScript);
+
+            enum eSpells
+            {
+                ShallowInsight  = 84745, //< Green
+                ModerateInsight = 84746, //< Yellow
+                DeepInsight     = 84747  //< Red
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->setInsightCount(l_Caster->getInsightCount() + 1);
+
+                /// it takes a total of 4 strikes to get a proc, or a level up
+                if (l_Caster->getInsightCount() < 4)
+                {
+                    /// Each strike refresh the duration of Shallow Insight or Moderate Insight
+                    /// but you can't refresh Deep Insight without starting from Shallow Insight.
+                    if (AuraPtr l_ShallowInsight = l_Caster->GetAura(eSpells::ShallowInsight))
+                        l_ShallowInsight->RefreshDuration();
+                    else if (AuraPtr l_ModerateInsight = l_Caster->GetAura(eSpells::ModerateInsight))
+                        l_ModerateInsight->RefreshDuration();
+                }
+                else
+                {
+                    l_Caster->setInsightCount(0);
+
+                    /// it takes 4 strikes to get Shallow Insight
+                    /// then 4 strikes to get Moderate Insight
+                    /// and then 4 strikes to get Deep Insight
+
+                    if (AuraPtr l_ShallowInsight = l_Caster->GetAura(eSpells::ShallowInsight))
+                    {
+                        l_ShallowInsight->Remove();
+                        l_Caster->CastSpell(l_Caster, eSpells::ModerateInsight, true);
+                    }
+                    else if (AuraPtr l_ModerateInsight = l_Caster->GetAura(eSpells::ModerateInsight))
+                    {
+                        l_ModerateInsight->Remove();
+                        l_Caster->CastSpell(l_Caster, eSpells::DeepInsight, true);
+                    }
+                    else if (!l_Caster->HasAura(eSpells::DeepInsight))
+                        l_Caster->CastSpell(l_Caster, eSpells::ShallowInsight, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_bandits_guile_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_bandits_guile_SpellScript();
+        }
+};
+
+/// Deep Insight - 84747
+class spell_rog_deep_insight : public SpellScriptLoader
+{
+    public:
+        spell_rog_deep_insight() : SpellScriptLoader("spell_rog_deep_insight") { }
+
+        class spell_rog_deep_insight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_deep_insight_SpellScript);
+
+            enum eSpells
+            {
+                EmpoweredBanditsGuile = 157581
+            };
+
+            void HandleDamagePct(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (AuraEffectPtr l_EmpoweredBanditsGuile = l_Caster->GetAuraEffect(eSpells::EmpoweredBanditsGuile, EFFECT_0))
+                    SetHitDamage(GetEffectValue() + l_EmpoweredBanditsGuile->GetAmount());
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_rog_deep_insight_SpellScript::HandleDamagePct, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_deep_insight_SpellScript();
+        }
+};
 
 void AddSC_rogue_spell_scripts()
 {
@@ -2535,6 +2638,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_internal_bleeding_damage();
     new spell_rog_feint();
     new spell_rog_backstab();
+    new spell_rog_bandits_guile();
+    new spell_rog_deep_insight();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

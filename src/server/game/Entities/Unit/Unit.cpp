@@ -202,7 +202,7 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
     m_modAttackSpeedPct[WeaponAttackType::RangedAttack] = 1.0f;
 
     m_extraAttacks = 0;
-    insightCount = 0;
+    m_InsightCount = 0;
     m_canDualWield = false;
 
     m_rootTimes = 0;
@@ -16928,49 +16928,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     {
         if (roll_chance_i(25))
             AddComboPoints(1);
-    }
-
-    // Bandit's Guile - 84654
-    // Your Sinister Strike and Revealing Strike abilities increase your damage dealt by up to 30%
-    if (GetTypeId() == TYPEID_PLAYER && HasAura(84654) && procSpell && (procSpell->Id == 84617 || procSpell->Id == 1752))
-    {
-        insightCount++;
-
-        // it takes a total of 4 strikes to get a proc, or a level up
-        if (insightCount >= 4)
-        {
-            insightCount = 0;
-
-            // it takes 4 strikes to get Shallow insight
-            // than 4 strikes to get Moderate insight
-            // and than 4 strikes to get Deep Insight
-
-            // Shallow Insight
-            if (HasAura(84745))
-            {
-                RemoveAura(84745);
-                CastSpell(this, 84746, true); // Moderate Insight
-            }
-            else if (HasAura(84746))
-            {
-                RemoveAura(84746);
-                CastSpell(this, 84747, true); // Deep Insight
-            }
-            // the cycle will begin
-            else if (!HasAura(84747))
-                CastSpell(this, 84745, true); // Shallow Insight
-        }
-        else
-        {
-            // Each strike refreshes the duration of shallow insight or Moderate insight
-            // but you can't refresh Deep Insight without starting from shallow insight.
-            // Shallow Insight
-            if (AuraPtr shallowInsight = GetAura(84745))
-                shallowInsight->RefreshDuration();
-            // Moderate Insight
-            else if (AuraPtr moderateInsight = GetAura(84746))
-                moderateInsight->RefreshDuration();
-        }
     }
 
     // Hack Fix Ice Floes - Drop charges

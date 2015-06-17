@@ -5151,7 +5151,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 84746: ///< Moderate Insight
             case 84747: ///< Deep Insight
                 spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_DONE;
-                spellInfo->Effects[0].MiscValue = SPELL_SCHOOL_MASK_ALL;
+                break;
+            case 157581: //< Empowered Bandit's Guile
+                spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
                 break;
             case 121733: ///< Throw
                 spellInfo->OverrideSpellList.push_back(114014); ///< Add Shuriken Toss to override spell list of Throw
@@ -6183,7 +6185,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 for (auto l_Iter : spellInfo->SpellPowers)
                     ((SpellPowerEntry*)l_Iter)->Cost = 0;
             }
-
             case 171690: ///< Truesteel Ingot
             case 169081: ///< War Paints
             case 168835: ///< Hexweave Cloth
@@ -6192,7 +6193,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 169092: ///< Temporal Crystal
                 spellInfo->Effects[EFFECT_0].ItemType = 0;
                 break;
-
             case 49016: // Unholy Frenzy
             case 87023: // Cauterize
             case 110914:// Dark Bargain (DoT)
@@ -6201,7 +6201,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148022:// Icicle hit
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
-
             default:
                 break;
         }
