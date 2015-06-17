@@ -572,7 +572,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
         {
             maxDist = dist;
             if (isMoving() && obj->isMoving())
-                maxDist += 2.5f;
+                maxDist += 4.f;
         }
 
         return GetExactDist(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()) < maxDist;
