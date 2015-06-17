@@ -33143,8 +33143,7 @@ void Player::ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Cate
         ChargesData* l_Charges = GetChargesData(p_CategoryID);
         ++l_Charges->m_ConsumedCharges;
 
-        int32 l_TotalRecoveryMod = GetTotalAuraModifierByMiscValue(AuraType::SPELL_AURA_CHARGE_RECOVERY_MOD, p_CategoryID);
-        l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime + l_TotalRecoveryMod);
+        l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime);
     }
 }
 
