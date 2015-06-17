@@ -14600,7 +14600,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         return;
 
     ObjectGuid l_Guid = GetGUID();
-    if (!forced)
+    if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
         WorldPacket l_Data;
 
