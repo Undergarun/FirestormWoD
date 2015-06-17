@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -22,32 +23,13 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
+
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
     }
 
-    using npc_AndersLongstitchAI = SimpleSequenceCosmeticScriptAI<&npc_AndersLongstitchAIData::FnLevel1, &npc_AndersLongstitchAIData::FnLevel2, &npc_AndersLongstitchAIData::FnLevel3>;
-
-    class npc_AndersLongstitch : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_AndersLongstitch();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_AndersLongstitch = ProfessionBuilding_SkillNPC<npc_AndersLongstitchAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Alliance_YourFirstLeatherworkingWorkOrder, &npc_AndersLongstitchAIData::Recipes, &npc_AndersLongstitchAIData::FnLevel1, &npc_AndersLongstitchAIData::FnLevel2, &npc_AndersLongstitchAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 78207 - Marianne Levine                                           ////
@@ -57,32 +39,11 @@ namespace MS { namespace Garrison
         extern InitSequenceFunction FnLevel1;
         extern InitSequenceFunction FnLevel2;
         extern InitSequenceFunction FnLevel3;
+
+        extern char ScriptName[];
     }
 
-    using npc_MarianneLevineAI = SimpleSequenceCosmeticScriptAI<&npc_MarianneLevineAIData::FnLevel1, &npc_MarianneLevineAIData::FnLevel2, &npc_MarianneLevineAIData::FnLevel3>;
-
-    class npc_MarianneLevine : public CreatureScript
-    {
-        public:
-            /// Constructor
-            npc_MarianneLevine();
-
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            virtual CreatureAI * GetAI(Creature * p_Creature) const override;
-
-    };
+    using npc_MarianneLevine = ProfessionBuilding_WorkOrderNPC<npc_MarianneLevineAIData::ScriptName, SKILL_LEATHERWORKING, Quests::Alliance_YourFirstLeatherworkingWorkOrder, &npc_MarianneLevineAIData::FnLevel1, &npc_MarianneLevineAIData::FnLevel2, &npc_MarianneLevineAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS
