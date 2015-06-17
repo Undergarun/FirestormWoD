@@ -31745,13 +31745,20 @@ void Player::CastPassiveTalentSpell(uint32 spellId)
                 AddAura(108499, this);
             break;
         case 108501:// Grimoire of Service
-            learnSpell(111859, false);  // WARLOCK_GRIMOIRE_IMP
-            learnSpell(111895, false);  // WARLOCK_GRIMOIRE_VOIDWALKER
-            learnSpell(111896, false);  // WARLOCK_GRIMOIRE_SUCCUBUS
-            learnSpell(111897, false);  // WARLOCK_GRIMOIRE_FELHUNTER
+            learnSpell(111859, false);  ///< WARLOCK_GRIMOIRE_IMP
+            learnSpell(111895, false);  ///< WARLOCK_GRIMOIRE_VOIDWALKER
+            learnSpell(111896, false);  ///< WARLOCK_GRIMOIRE_SUCCUBUS
+            learnSpell(111897, false);  ///< WARLOCK_GRIMOIRE_FELHUNTER
 
             if (GetSpecializationId(GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                learnSpell(111898, false);  // WARLOCK_GRIMOIRE_FELGUARD
+            {
+                learnSpell(111898, false);  ///< WARLOCK_GRIMOIRE_FELGUARD
+                if (HasAura(152107)) ///< Demonic Servitude
+                {
+                    learnSpell(157900, false);  ///< WARLOCK_GRIMOIRE_DOOMGUARD
+                    learnSpell(157901, false);  ///< WARLOCK_GRIMOIRE_INFERNAL
+                }
+            }
             break;
         default:
             break;
@@ -31803,6 +31810,10 @@ void Player::RemovePassiveTalentSpell(SpellInfo const* info)
                 removeSpell(111897, false, false);  // WARLOCK_GRIMOIRE_FELHUNTER
             if (HasSpell(111898))
                 removeSpell(111898, false, false);  // WARLOCK_GRIMOIRE_FELGUARD
+            if (HasSpell(157900))
+                removeSpell(157900, false, false);  // WARLOCK_GRIMOIRE_DOOMGUARD
+            if (HasSpell(157901))
+                removeSpell(157901, false, false);  // WARLOCK_GRIMOIRE_INFERNAL
             break;
         default:
             break;
@@ -33130,7 +33141,10 @@ void Player::ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Cate
     {
         ChargesData* l_Charges = GetChargesData(p_CategoryID);
         ++l_Charges->m_ConsumedCharges;
-        l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime);
+
+        int32 l_TotalRecoveryMod = GetTotalAuraModifierByMiscValue(AuraType::SPELL_AURA_CHARGE_RECOVERY_MOD, p_CategoryID);
+        sLog->outError(LOG_FILTER_GENERAL, "------------------------>TOTAL MOD = %d", l_TotalRecoveryMod);
+        l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime + l_TotalRecoveryMod);
     }
 }
 
