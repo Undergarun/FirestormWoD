@@ -1488,8 +1488,8 @@ class Unit : public WorldObject
         int32 m_InsightCount;
 
         /// Used for Bandit's Guile
-        void setInsightCount(uint8 p_Value) { m_InsightCount = p_Value; }
-        uint8 getInsightCount() { return m_InsightCount; }
+        void SetInsightCount(uint8 p_Value) { m_InsightCount = p_Value; }
+        uint8 GetInsightCount() const { return m_InsightCount; }
 
         void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {

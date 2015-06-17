@@ -2510,10 +2510,10 @@ class spell_rog_bandits_guile : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
 
-                l_Caster->setInsightCount(l_Caster->getInsightCount() + 1);
+                l_Caster->SetInsightCount(l_Caster->GetInsightCount() + 1);
 
                 /// it takes a total of 4 strikes to get a proc, or a level up
-                if (l_Caster->getInsightCount() < 4)
+                if (l_Caster->GetInsightCount() < 4)
                 {
                     /// Each strike refresh the duration of Shallow Insight or Moderate Insight
                     /// but you can't refresh Deep Insight without starting from Shallow Insight.
@@ -2524,7 +2524,7 @@ class spell_rog_bandits_guile : public SpellScriptLoader
                 }
                 else
                 {
-                    l_Caster->setInsightCount(0);
+                    l_Caster->SetInsightCount(0);
 
                     /// it takes 4 strikes to get Shallow Insight
                     /// then 4 strikes to get Moderate Insight
