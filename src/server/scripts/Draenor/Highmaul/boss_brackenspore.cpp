@@ -119,7 +119,6 @@ class boss_brackenspore : public CreatureScript
             MindFungus          = 86611,
             SporeShooter        = 86612,
             WorldTrigger        = 59481,
-            BlackrockGrunt      = 86610,
             /// Fight
             SporeShooterFight   = 79183,
             MindFungusFight     = 79082,
@@ -365,7 +364,7 @@ class boss_brackenspore : public CreatureScript
                 me->CastSpell(me, eSpells::EnergyRegen, true);
 
                 std::list<Creature*> l_CosmeticMobs;
-                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eCreatures::BlackrockGrunt, 800.0f);
+                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eHighmaulCreatures::BlackrockGrunt, 800.0f);
 
                 for (Creature* l_Grunt : l_CosmeticMobs)
                     l_Grunt->DespawnOrUnsummon();

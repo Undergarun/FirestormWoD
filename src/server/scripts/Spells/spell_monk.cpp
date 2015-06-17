@@ -1185,8 +1185,6 @@ class spell_monk_guard: public SpellScriptLoader
                 else if (Unit* l_Player = GetCaster()->GetOwner()) // For Black Ox Statue
                     p_Amount = int32(l_Player->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 18);
 
-                AddPct(p_Amount, (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT) + (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT));
-
                 if (l_Caster->HasAura(eSpells::WoDPvPBrewmaster4PBonusAura))
                 {
                     std::list<Unit*> l_TargetList;
@@ -1298,8 +1296,8 @@ class spell_monk_glyph_of_zen_flight: public SpellScriptLoader
         }
 };
 
-// Called by Jab - 100780, Soothing Mist (Energize) - 116335, Spinning Crane Kick (Energize) - 129881
-// Crackling Jade Lightning (Energize) - 123333 and Expel Harm - 115072
+// Called by Jab - 100780, Spinning Crane Kick - 101546, Expel Harm - 115072
+// Surging Mist - 116694, Crackling Jade Lightning - 117952
 // Power Strikes - 121817
 class spell_monk_power_strikes: public SpellScriptLoader
 {

@@ -529,6 +529,10 @@ enum Opcodes
 
         /// Toys
         SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0E1D, ///< 6.1.2 19783
+
+        /// AreaTriggers
+        SMSG_AREA_TRIGGER_RE_SHAPE                              = 0x1A0E, ///< 6.1.2 19865
+        SMSG_AREA_TRIGGER_RE_PATH                               = 0x1F09, ///< 6.1.2 19865
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////

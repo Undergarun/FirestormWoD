@@ -798,25 +798,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         }
     }
 
-    /// Mastery: Primal Tenacity
-    if (victim->HasSpell(155783) && !victim->HasAura(155783))
-    {
-        if (!spellProto || ((spellProto->DmgClass == SPELL_DAMAGE_CLASS_RANGED || spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE) && damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL))
-        {
-            victim->CastSpell(victim, 155783, true);
-            SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(155783);
-
-            if (AuraPtr l_PrimalTenacity = victim->GetAura(155783, victim->GetGUID()))
-            {
-                if (AuraEffectPtr l_AuraEffect = l_PrimalTenacity->GetEffect(l_PrimalTenacity->GetEffectIndexByType(SPELL_AURA_SCHOOL_ABSORB)))
-                {
-                    if (l_SpellInfo != nullptr)
-                        l_AuraEffect->SetAmount((int32)(damage * (victim->GetFloatValue(PLAYER_FIELD_MASTERY) * l_SpellInfo->Effects[EFFECT_0].BonusMultiplier)));
-                }
-            }
-        }
-    }
-
     // Temporal Shield - 115610
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->HasAura(115610) && damage != 0)
     {
@@ -2754,22 +2735,6 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
         max_damage = 5.0f;
 
     return urand((uint32)min_damage, (uint32)max_damage);
-}
-
-float Unit::CalculateLevelPenalty(SpellInfo const* spellProto) const
-{
-    if (spellProto->SpellLevel <= 0 || spellProto->SpellLevel >= spellProto->MaxLevel)
-        return 1.0f;
-
-    float LvlPenalty = 0.0f;
-
-    if (spellProto->SpellLevel < 20)
-        LvlPenalty = 20.0f - spellProto->SpellLevel * 3.75f;
-    float LvlFactor = (float(spellProto->SpellLevel) + 6.0f) / float(getLevel());
-    if (LvlFactor > 1.0f)
-        LvlFactor = 1.0f;
-
-    return AddPct(LvlFactor, -LvlPenalty);
 }
 
 void Unit::SendMeleeAttackStart(Unit* victim)
@@ -12190,8 +12155,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         //if (!bonus || coeff < 0)
             //coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack);
 
-        //float factorMod = CalculateLevelPenalty(spellProto) * stack;
-        // level penalty still applied on Taken bonus - is it blizzlike?
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -12613,10 +12576,16 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
 
 uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim, WeaponAttackType p_AttackType)
 {
-    int32 l_CritPct = 200; // 200% for all melee damage type...
+    int32 l_CritPct = 100; // 200% for all melee damage type...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPct = 150; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
+
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
+        l_CritPct = 50; ////< 150% on pvp
 
     if (p_AttackType == WeaponAttackType::RangedAttack)
         l_CritPct += p_Victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE);
@@ -12625,30 +12594,37 @@ uint32 Unit::MeleeCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
     if (p_SpellProto)
     {
-        l_CritPct += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask());
-
-        // adds additional damage to p_Damage (from talents)
-        if (Player* l_ModOwner = GetSpellModOwner())
+        l_CritPct += CalculatePct(l_CritPct, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+        /// adds additional damage to p_Damage (from talents)
+        if (l_ModOwner)
             l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
     }
 
-    p_Damage = CalculatePct(p_Damage, l_CritPct);
+    p_Damage += CalculatePct(p_Damage, l_CritPct);
 
     return p_Damage;
 }
 
 uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPctBonus = 100; // 200% for all spell damage type...
+    int32 l_CritPctBonus = 100; ///< 200% for all spell damage type...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim)
-        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
 
-    l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
 
-    // adds additional damage to p_Damage (from talents)
-    if (Player* l_ModOwner = GetSpellModOwner())
-        l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
+        l_CritPctBonus = 50; ///< 150% on pvp
+
+    if (p_SpellProto)
+    {
+        l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
+        /// adds additional damage to p_Damage (from talents)
+        if (l_ModOwner)
+            l_ModOwner->ApplySpellMod(p_SpellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, p_Damage);
+    }
 
     p_Damage += CalculatePct(p_Damage, l_CritPctBonus);
 
@@ -12657,10 +12633,16 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
 
 uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*p_SpellProto*/, uint32 p_Damage, Unit* p_Victim)
 {
-    int32 l_CritPctBonus = 100; // 200% for all healing type...
+    int32 l_CritPctBonus = 100; ///< 200% for all healing...
+    Player* l_ModOwner = GetSpellModOwner();
 
-    if (p_Victim && GetTypeId() == TYPEID_PLAYER && p_Victim->GetTypeId() == TYPEID_PLAYER && this != p_Victim && IsPvP())
-        l_CritPctBonus = 50; // WoD: ...except for PvP out of Ashran area where is 150%
+    if (p_Victim == nullptr)
+        return  p_Damage;
+
+    Player* l_ModVictimOwner = p_Victim->GetSpellModOwner();
+
+    if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr && ((l_ModOwner->GetMap() && l_ModOwner->GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
+        l_CritPctBonus = 50; ///< 150% on pvp
 
     l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
@@ -12673,7 +12655,9 @@ uint32 Unit::SpellCriticalAuraAbsorbBonus(SpellInfo const* /*p_SpellProto*/, uin
 {
     int32 l_CritPctBonus = 100; ///< 200% for all absorb type...
 
-    if (GetTypeId() == TYPEID_PLAYER && IsPvP())
+    Player* l_ModOwner = GetSpellModOwner();
+
+    if (l_ModOwner && ((GetMap() && GetMap()->IsBattlegroundOrArena()) || l_ModOwner->IsInPvPCombat()))
         l_CritPctBonus = 50; ///< 150% on pvp like healing
 
     ///< Maybe some bonus of Aura to apply?
@@ -12948,7 +12932,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         //if (!bonus || coeff < 0)
         //    coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack) * 1.88f;  // As wowwiki says: C = (Cast Time / 3.5) * 1.88 (for healing spells)
 
-        // factorMod *= CalculateLevelPenalty(spellProto) * int32(stack);
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -16742,7 +16725,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
     // Multistrike...
     if (!(procExtra & PROC_EX_INTERNAL_MULTISTRIKE) && !(procFlag & PROC_FLAG_KILL) &&
-        damage && target && GetTypeId() == TYPEID_PLAYER)
+        damage && target && GetTypeId() == TYPEID_PLAYER && !(procSpell && !procSpell->IsPositive() && target->GetGUID() == GetGUID()))
     {
         // ...grants your spells, abilities, and auto-attacks...
         if (procFlag & MULTISTRIKE_DONE_HIT_PROC_FLAG_MASK)
@@ -16943,7 +16926,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     /// Revealing Strike - 84617
     if (target && target->HasAura(84617, GetGUID()) && procSpell && procSpell->Id == 1752)
     {
-        if (roll_chance_i(20))
+        if (roll_chance_i(25))
             AddComboPoints(1);
     }
 
