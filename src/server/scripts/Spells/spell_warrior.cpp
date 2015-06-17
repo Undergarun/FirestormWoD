@@ -1931,6 +1931,45 @@ class spell_warr_meat_cleaver : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Shield Slam - 23922
+class spell_warr_shield_slam : public SpellScriptLoader
+{
+    public:
+        spell_warr_shield_slam() : SpellScriptLoader("spell_warr_shield_slam") { }
+
+        class spell_warr_shield_slam_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_shield_slam_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.366f;
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_shield_slam_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_shield_slam_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_sweeping_strikes();
@@ -1973,6 +2012,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_blood_craze();
     new spell_warr_glyph_of_executor();
     new spell_warr_meat_cleaver();
+    new spell_warr_shield_slam();
 
     /// Playerscripts
     new PlayerScript_second_wind();
