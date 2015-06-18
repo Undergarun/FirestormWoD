@@ -1135,15 +1135,16 @@ class spell_dru_wild_growth : public SpellScriptLoader
     public:
         spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
 
+        enum eSpells
+        {
+            GlyphOfWildGrowth = 62970,
+            TreeOfLife = 33891,
+            T10Resto2PBonus = 70658
+        };
+
         class spell_dru_wild_growth_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_wild_growth_SpellScript);
-
-            enum eSpells
-            {
-                GlyphOfWildGrowth = 62970,
-                TreeOfLife = 33891
-            };
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
@@ -1159,7 +1160,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     l_MaxTargets += 2;
 
                 if (p_Targets.size() > l_MaxTargets)
-                    p_Targets.resize(l_MaxTargets);
+                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
             
             void Register()
@@ -1173,7 +1174,9 @@ class spell_dru_wild_growth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_wild_growth_AuraScript);
 
-            void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            uint32 m_TooltipAmount;
+
+            void HandleCalculateAmountOnTick(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -1184,11 +1187,32 @@ class spell_dru_wild_growth : public SpellScriptLoader
                         l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
                     }
                 }
+
+                m_TooltipAmount = 7*p_Amount; ///< The base healing is split among the ticks with the first tick getting (6%+1/7) of the tooltip heal
+                p_Amount += CalculatePct(m_TooltipAmount, 6);
+            }
+
+            void DecreaseHealOnTick(AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                float l_SetMod = 1.f;
+
+                // Item - Druid T10 Restoration 2P Bonus
+                if (AuraEffectPtr l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
+                    l_SetMod = 1.f - l_T10Resto2PBonus->GetAmount() / 100.f;
+
+                int32 l_Amount = p_AurEff->GetAmount();
+                l_Amount -= l_SetMod * CalculatePct(m_TooltipAmount, 2);  ///< "each successive tick losing 2% of the tooltip heal" http://wowwiki.wikia.com/Wild_Growth
+                p_AurEff->SetAmount(l_Amount);
             }
 
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::DecreaseHealOnTick,  EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
