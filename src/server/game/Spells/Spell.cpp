@@ -1544,32 +1544,45 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                 break;
             }
             case SPELLFAMILY_DRUID:
+            {
+                bool l_RemoveEnemies = true;
                 switch(m_spellInfo->Id)
                 {
-                    // Firebloom, Item  Druid T12 Restoration 4P Bonus
+                    /// Firebloom, Item  Druid T12 Restoration 4P Bonus
                     case 99017:
                         l_MaxSize = 1;
                         l_Power = POWER_HEALTH;
                         break;
-                    // Efflorescence
+                    /// Efflorescence
                     case 81269:
                         l_MaxSize = 3;
                         l_Power = POWER_HEALTH;
                         break;
-                    // Tranquility
+                    /// Tranquility
                     case 44203:
                         l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
+
+                    default:
+                        l_RemoveEnemies = false;
+                        break;
+                }
+                
+                if (l_RemoveEnemies)
+                {
+                    /// Remove targets outside caster's raid
+                    for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
+                    {
+                        if (!(*l_Iterator)->IsInRaidWith(m_caster))
+                            l_Iterator = l_UnitTargets.erase(l_Iterator);
+                        else
+                            ++l_Iterator;
+                    }
                 }
 
-                // Remove targets outside caster's raid
-                for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
-                    if (!(*l_Iterator)->IsInRaidWith(m_caster))
-                        l_Iterator = l_UnitTargets.erase(l_Iterator);
-                    else
-                        ++l_Iterator;
                 break;
+            }
             default:
                 break;
         }
