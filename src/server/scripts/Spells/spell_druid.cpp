@@ -1153,7 +1153,7 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     l_MaxTargets += 2;
 
                 if (p_Targets.size() > l_MaxTargets)
-                    p_Targets.resize(l_MaxTargets);
+                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
             
             void Register()
@@ -1166,6 +1166,8 @@ class spell_dru_wild_growth : public SpellScriptLoader
         class spell_dru_wild_growth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+            uint32 m_TooltipAmount;
 
             void HandleCalculateAmountOnTick(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
@@ -1180,6 +1182,9 @@ class spell_dru_wild_growth : public SpellScriptLoader
                     if (l_SoulOfTheForest->GetBase())
                         l_SoulOfTheForest->GetBase()->Remove();
                 }
+
+                m_TooltipAmount = 7*p_Amount; ///< The base healing is split among the ticks with the first tick getting (6%+1/7) of the tooltip heal
+                p_Amount += CalculatePct(m_TooltipAmount, 6);
             }
 
             void DecreaseHealOnTick(AuraEffectPtr p_AurEff)
@@ -1188,15 +1193,15 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 if (!l_Caster)
                     return;
 
-                float l_SetMod = 0.f;
+                float l_SetMod = 1.f;
 
                 // Item - Druid T10 Restoration 2P Bonus
                 if (AuraEffectPtr l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
-                    l_SetMod = l_T10Resto2PBonus->GetAmount() / 100.f;
+                    l_SetMod = 1.f - l_T10Resto2PBonus->GetAmount() / 100.f;
 
-                float l_Mod = (((p_AurEff->GetTotalTicks() - p_AurEff->GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
-
-                p_AurEff->SetAmount(int32(p_AurEff->GetAmount() * l_Mod));
+                int32 l_Amount = p_AurEff->GetAmount();
+                l_Amount -= l_SetMod * CalculatePct(m_TooltipAmount, 2);  ///< "each successive tick losing 2% of the tooltip heal" http://wowwiki.wikia.com/Wild_Growth
+                p_AurEff->SetAmount(l_Amount);
             }
 
             void Register()
