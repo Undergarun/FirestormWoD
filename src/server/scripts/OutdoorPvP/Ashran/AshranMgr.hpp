@@ -1,31 +1,33 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "OutdoorPvP.h"
-#include "OutdoorPvPMgr.h"
-#include "AshranDatas.hpp"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Language.h"
-#include "ScriptedCosmeticAI.hpp"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
-#include "LFGMgr.h"
-#include "Group.h"
-
 #ifndef ASHRAN_MGR_HPP_ASHRAN
-#define ASHRAN_MGR_HPP_ASHRAN
+# define ASHRAN_MGR_HPP_ASHRAN
+
+# include "OutdoorPvP.h"
+# include "OutdoorPvPMgr.h"
+# include "AshranDatas.hpp"
+# include "ScriptMgr.h"
+# include "ScriptedCreature.h"
+# include "ScriptedGossip.h"
+# include "ScriptedEscortAI.h"
+# include "Player.h"
+# include "WorldPacket.h"
+# include "World.h"
+# include "ObjectMgr.h"
+# include "Language.h"
+# include "ScriptedCosmeticAI.hpp"
+# include "CreatureTextMgr.h"
+# include "MoveSplineInit.h"
+# include "LFGMgr.h"
+# include "Group.h"
+# include "ScriptPCH.h"
+# include "MapManager.h"
 
 class OutdoorPvPAshran;
 
@@ -111,6 +113,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         void HandleKill(Player* p_Killer, Unit* p_Killed);
 
         bool IsFactionGuard(Unit* p_Unit) const;
+        void SpawnGladiators(uint8 p_TeamID = TeamId::TEAM_NEUTRAL, bool p_Spawn = true);
 
         void FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container);
 
@@ -119,6 +122,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         void ScheduleEndOfBattle(uint32 p_Diff);
         void ScheduleInitPoints(uint32 p_Diff);
         void ScheduleEventsUpdate(uint32 p_Diff);
+        void ScheduleGladiatorRespawn(uint32 p_Diff);
 
         void StartEvent(uint8 p_EventID);
         void EndEvent(uint8 p_EventID, bool p_ScheduleNext = true);
@@ -212,9 +216,10 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
+        uint32 m_GladiatorRespawnTime;
 
         AshranVignettesMap m_NeutralVignettes;
         AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
 };
 
-#endif
+#endif ///< ASHRAN_MGR_HPP_ASHRAN
