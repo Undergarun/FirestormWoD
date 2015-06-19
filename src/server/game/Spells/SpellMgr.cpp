@@ -6201,6 +6201,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148022:// Icicle hit
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
+            case 51657:
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = 0;
+                break;
+
             default:
                 break;
         }
