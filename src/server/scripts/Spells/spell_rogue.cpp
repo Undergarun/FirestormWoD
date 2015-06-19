@@ -621,9 +621,9 @@ class spell_rog_killing_spree: public SpellScriptLoader
                         JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
                         l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
-                        l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                        l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                         {
-                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura())
+                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
                                 return true;
 
                             return false;
