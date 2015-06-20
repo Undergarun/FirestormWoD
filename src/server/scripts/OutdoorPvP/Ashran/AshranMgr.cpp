@@ -597,8 +597,9 @@ OutdoorPvPAshran::OutdoorPvPAshran()
         m_InvitedPlayers[l_Team].clear();
         m_PlayersWillBeKick[l_Team].clear();
         m_FactionVignettes[l_Team].clear();
+
         m_EnnemiesKilled[l_Team] = 0;
-        m_EnnemiesKilledMax[l_Team] = 100;
+        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap2;
         m_FactionGenericMoP[l_Team] = 0;
 
         for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
@@ -904,10 +905,73 @@ void OutdoorPvPAshran::HandlePlayerKilled(Player* p_Player)
 void OutdoorPvPAshran::HandleKill(Player* p_Killer, Unit* p_Killed)
 {
     std::string l_Str = p_Killer->GetSession()->GetTrinityString(TrinityStrings::LangDisplaySlainCounter);
+    uint8 l_SlayCount = 0;
+
     if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
-        p_Killed->SendItemBonusDebug(eAshranDatas::KillCountForPlayer, l_Str);
+        l_SlayCount = eAshranDatas::KillCountForPlayer;
     else if (IsFactionGuard(p_Killed))  ///< Only for Road of Glory
-        p_Killed->SendItemBonusDebug(eAshranDatas::KillCountForFactionGuard, l_Str);
+        l_SlayCount = eAshranDatas::KillCountForFactionGuard;
+
+    if (l_SlayCount > 0)
+    {
+        p_Killed->SendItemBonusDebug(l_SlayCount, l_Str);
+
+        TeamId l_Team = p_Killer->GetTeamId();
+        if (l_Team < TeamId::TEAM_NEUTRAL)
+        {
+            /// Actual cap is not reached, just increase
+            if ((m_EnnemiesKilled[l_Team] + l_SlayCount) < m_EnnemiesKilledMax[l_Team])
+            {
+                m_EnnemiesKilled[l_Team] += l_SlayCount;
+
+                if (l_Team == TeamId::TEAM_ALLIANCE)
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAlliance, m_EnnemiesKilled[l_Team]);
+                else
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHorde, m_EnnemiesKilled[l_Team]);
+            }
+            /// Actual cap is reached, increase cap if needed, and spawn a guardian
+            else
+            {
+                uint8 l_Needed = m_EnnemiesKilledMax[l_Team] - m_EnnemiesKilled[l_Team];
+                l_SlayCount -= l_Needed;
+
+                m_EnnemiesKilled[l_Team] = l_SlayCount;
+
+                switch (m_EnnemiesKilledMax[l_Team])
+                {
+                    case eAshranDatas::EnnemiesSlainCap1:
+                        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap2;
+                        break;
+                    case eAshranDatas::EnnemiesSlainCap2:
+                        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap3;
+                        break;
+                    case eAshranDatas::EnnemiesSlainCap3:
+                        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap4;
+                        break;
+                    case eAshranDatas::EnnemiesSlainCap4:
+                        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap5;
+                        break;
+                    /// This is the max cap
+                    case eAshranDatas::EnnemiesSlainCap5:
+                    default:
+                        break;
+                }
+
+                if (l_Team == TeamId::TEAM_ALLIANCE)
+                {
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAlliance, m_EnnemiesKilled[l_Team]);
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAllianceMax, m_EnnemiesKilledMax[l_Team]);
+                }
+                else
+                {
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHorde, m_EnnemiesKilled[l_Team]);
+                    SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHordeMax, m_EnnemiesKilledMax[l_Team]);
+                }
+
+                /// Spawn a Cap'tain!
+            }
+        }
+    }
 }
 
 bool OutdoorPvPAshran::IsFactionGuard(Unit* p_Unit) const
@@ -1310,7 +1374,7 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(eWorldStates::WorldStateEnnemiesSlainAlliance) << uint32(m_EnnemiesKilled[TEAM_ALLIANCE]);
     p_Data << uint32(eWorldStates::WorldStateEnnemiesSlainHorde) << uint32(m_EnnemiesKilled[TEAM_HORDE]);
 
-    p_Data << uint32(eWorldStates::WorldStateEnnemiesSlainAlianceMax) << uint32(m_EnnemiesKilledMax[TEAM_ALLIANCE]);
+    p_Data << uint32(eWorldStates::WorldStateEnnemiesSlainAllianceMax) << uint32(m_EnnemiesKilledMax[TEAM_ALLIANCE]);
     p_Data << uint32(eWorldStates::WorldStateEnnemiesSlainHordeMax) << uint32(m_EnnemiesKilledMax[TEAM_HORDE]);
 
     p_Data << uint32(eWorldStates::WorldStateActiveStage) << uint32(-1);
@@ -1408,7 +1472,7 @@ void OutdoorPvPAshran::SendRemoveWorldStates(Player* p_Player)
 {
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAlliance, 0);
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHorde, 0);
-    p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAlianceMax, 0);
+    p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAllianceMax, 0);
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHordeMax, 0);
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateActiveStage, 0);
     p_Player->SendUpdateWorldState(eWorldStates::WorldStateControlTheFlag, 0);

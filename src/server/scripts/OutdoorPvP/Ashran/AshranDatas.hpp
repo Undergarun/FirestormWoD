@@ -42,7 +42,14 @@ enum eAshranDatas
     TaxiPathBaseAllianceToHorde = 4666,
     KillCountForPlayer          = 5,
     KillCountForFactionGuard    = 1,
-    HealthPCTAddedByHostileRef  = 25
+    HealthPCTAddedByHostileRef  = 25,
+
+    /// Ennemies Slain
+    EnnemiesSlainCap1           = 50,
+    EnnemiesSlainCap2           = 100,
+    EnnemiesSlainCap3           = 250,
+    EnnemiesSlainCap4           = 500,
+    EnnemiesSlainCap5           = 1000
 };
 
 enum eAshranSpells
@@ -126,7 +133,7 @@ enum eWorldStates
     WorldStateArchmageOverwatchBattle       = 9718,
     WorldStateGrandMarshalTrembladeBattle   = 9719,
     WorldStateControlTheFlag                = 9785,
-    WorldStateEnnemiesSlainAlianceMax       = 9801,
+    WorldStateEnnemiesSlainAllianceMax      = 9801,
     WorldStateEnnemiesSlainHordeMax         = 9802,
     //////////////////////////////////////////////////
     /// Kings' Rest (west)
@@ -261,6 +268,42 @@ enum eCreatures
     GaylePlagueheart        = 84645,
     IlyaPlagueheart         = 84646,
     Kronus                  = 82201
+};
+
+enum eAshranCaptains
+{
+    /// Alliance
+    AvengerTurley       = 80499,
+    JacksonBajheera     = 80484,
+    JohnSwifty          = 79902,
+    TosanGalaxyfist     = 80494,
+    BrockTheCrazed      = 80498,
+    AluneWindmane       = 80488,
+    ChaniMalflame       = 85129,
+    HildieHackerguard   = 80495,
+    TaylorDewland       = 80500,
+    MaldaBrewbelly      = 85122,
+    ShaniFreezewind     = 80485,
+    AnneOtther          = 85140,
+    MathiasZunn         = 85137,
+
+    /// Horde
+    LordMes             = 80497,
+    MindbenderTalbadar  = 80490,
+    ElliotVanRook       = 80493,
+    VanguardSamuelle    = 80492,
+    ElementalistNovo    = 80491,
+    CaptainHoodrych     = 79900,
+    SoulbrewrNadagast   = 80489,
+    NecrolordAzael      = 80486,
+    RifthunterYoske     = 80496,
+    Morriz              = 85133,
+    KazEndsky           = 87690,
+    RazorGuerra         = 85138,
+    JaredVHellstrike    = 85131,
+    /// Kimilyn serve as an additional Captain for the Horde side, bringing their total to 14, above the Alliance's 13.
+    /// She is not included in the Take Them Out (Alliance) achievement, likely since this would make the achievement harder for the Alliance to earn than for the Horde.
+    Kimilyn             = 88109
 };
 
 enum eArtifactsDatas
