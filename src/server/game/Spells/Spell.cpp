@@ -3155,6 +3155,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if (!unit || !effectMask)
         return SPELL_MISS_EVADE;
 
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (unit->ToCreature() && unit->IsAIEnabled)
+        unit->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, m_caster, m_spellInfo);
+
+    if (l_SpellResult != SPELL_MISS_NONE)
+        return l_SpellResult;
+
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
     if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;

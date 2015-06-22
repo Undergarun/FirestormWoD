@@ -2590,6 +2590,11 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
     if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
         return MELEE_HIT_MISS;
 
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (victim->ToCreature() && victim->IsAIEnabled)
+        ((Unit*)victim)->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, (Unit*)this);
+
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
 
@@ -9136,6 +9141,33 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
                         target = victim;
                         break;
+                    case 139316:            ////< Putrify (Dark Animus trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 139317;
+                        target = victim;
+                        break;
+                    }
+                    case 140296:            ///< Conductive Shield (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 140299;
+                        target = victim;
+                        break;
+                    }
+                    case 138201:            /// Lei Shen's gift (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 138210;
+                        target = victim;
+                        break;
+                    }
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
