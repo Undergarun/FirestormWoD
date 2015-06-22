@@ -286,6 +286,7 @@ enum eAshranCaptains
     ShaniFreezewind     = 80485,
     AnneOtther          = 85140,
     MathiasZunn         = 85137,
+    MaxAllianceCaptains = 13,
 
     /// Horde
     LordMes             = 80497,
@@ -303,7 +304,8 @@ enum eAshranCaptains
     JaredVHellstrike    = 85131,
     /// Kimilyn serve as an additional Captain for the Horde side, bringing their total to 14, above the Alliance's 13.
     /// She is not included in the Take Them Out (Alliance) achievement, likely since this would make the achievement harder for the Alliance to earn than for the Horde.
-    Kimilyn             = 88109
+    Kimilyn             = 88109,
+    MaxHordeCaptains    = 14
 };
 
 enum eArtifactsDatas
@@ -544,6 +546,41 @@ struct AshranGraveyard
 {
     uint32 m_ID;
     TeamId m_StartTeam;
+};
+
+uint32 const g_AllianceCaptains[eAshranCaptains::MaxAllianceCaptains] =
+{
+    eAshranCaptains::AvengerTurley,
+    eAshranCaptains::JacksonBajheera,
+    eAshranCaptains::JohnSwifty,
+    eAshranCaptains::TosanGalaxyfist,
+    eAshranCaptains::BrockTheCrazed,
+    eAshranCaptains::AluneWindmane,
+    eAshranCaptains::ChaniMalflame,
+    eAshranCaptains::HildieHackerguard,
+    eAshranCaptains::TaylorDewland,
+    eAshranCaptains::MaldaBrewbelly,
+    eAshranCaptains::ShaniFreezewind,
+    eAshranCaptains::AnneOtther,
+    eAshranCaptains::MathiasZunn
+};
+
+uint32 const g_HordeCaptains[eAshranCaptains::MaxHordeCaptains] =
+{
+    eAshranCaptains::LordMes,
+    eAshranCaptains::MindbenderTalbadar,
+    eAshranCaptains::ElliotVanRook,
+    eAshranCaptains::VanguardSamuelle,
+    eAshranCaptains::ElementalistNovo,
+    eAshranCaptains::CaptainHoodrych,
+    eAshranCaptains::SoulbrewrNadagast,
+    eAshranCaptains::NecrolordAzael,
+    eAshranCaptains::RifthunterYoske,
+    eAshranCaptains::Morriz,
+    eAshranCaptains::KazEndsky,
+    eAshranCaptains::RazorGuerra,
+    eAshranCaptains::JaredVHellstrike,
+    eAshranCaptains::Kimilyn
 };
 
 creature_type const g_StormshieldGladiators[eSpawns::StormshieldGladiatorsCount] =

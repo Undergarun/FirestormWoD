@@ -1,6 +1,6 @@
 SET NAMES utf8;
 
-DELETE FROM creature_text WHERE entry IN (80499, 80484, 79902, 80498, 80488, 85129, 80495, 85140, 85137, 80497, 80493, 80492, 80491, 79900, 80486, 80496, 87690, 85138, 88109);
+DELETE FROM creature_text WHERE entry IN (80499, 80484, 79902, 80498, 80488, 85129, 80495, 85140, 85137, 80497, 80490, 80493, 80492, 80491, 79900, 80489, 80486, 80496, 87690, 85138, 88109);
 INSERT INTO creature_text VALUES
 (80499, 0, 0, 'To the face!', 14, 0, 100, 0, 0, 0, 'AvengerTurleySlay1'),
 (80499, 0, 1, 'Eat dirt!', 14, 0, 100, 0, 0, 0, 'AvengerTurleySlay2'),
@@ -39,18 +39,29 @@ INSERT INTO creature_text VALUES
 (80497, 0, 0, 'I bring the gift of death to the Alliance.', 14, 0, 100, 0, 0, 0, 'LordMesSpawn'),
 (80497, 1, 0, 'The hour belongs to my enemy but I will return when the odds are in my favor.', 14, 0, 100, 0, 0, 0, 'LordMesDeath'),
 
+(80490, 0, 0, 'Are you prepared to meet Azeroth''s greatest champion?!', 14, 0, 100, 0, 0, 0, 'MindbenderTalbadarSpawn'),
+
 (80493, 0, 0, 'Shattered!', 14, 0, 100, 0, 0, 0, 'ElliotVanRookSlay1'),
 (80493, 0, 1, 'Free win!', 14, 0, 100, 0, 0, 0, 'ElliotVanRookSlay2'),
 (80493, 1, 0, 'Down goes Van Rook eeeeeeeee....', 14, 0, 100, 0, 0, 0, 'ElliotVanRookDeath'),
 
-(80492, 0, 0, 'I must find a way to enhance my performance for next time.', 14, 0, 100, 0, 0, 0, 'VanguardSamuelleDeath'),
+(80492, 0, 0, 'The day has come for true retribution!', 14, 0, 100, 0, 0, 0, 'VanguardSamuelleKill1'),
+(80492, 0, 1, 'Return to the light!', 14, 0, 100, 0, 0, 0, 'VanguardSamuelleKill2'),
+(80492, 0, 2, 'You have been judged, unworthy.', 14, 0, 100, 0, 0, 0, 'VanguardSamuelleKill2'),
+(80492, 1, 0, 'I must find a way to enhance my performance for next time.', 14, 0, 100, 0, 0, 0, 'VanguardSamuelleDeath'),
 
 (80491, 0, 0, 'I return to the earth, but I will rise again enflamed!', 14, 0, 100, 0, 0, 0, 'ElementalistNovoDeath'),
 
-(79900, 0, 0, 'Bwahahahaha!', 14, 0, 100, 0, 0, 0, 'CaptainHoodrychKill'),
+(79900, 0, 0, 'Bwahahahaha!', 14, 0, 100, 0, 0, 0, 'CaptainHoodrychKill1'),
+(79900, 0, 1, 'Ahahaha, major choppable!', 14, 0, 100, 0, 0, 0, 'CaptainHoodrychKill2'),
 (79900, 1, 0, 'B-b-b-b-bladestorm!', 14, 0, 100, 0, 0, 0, 'CaptainHoodrychBladestorm'),
+(79900, 2, 0, 'Aaargh, I''ll stick to tavern games from now on.', 14, 0, 100, 0, 0, 0, 'CaptainHoodrychDeath'),
 
-(80486, 0, 0, 'Defeated? No! Charles, where were you?!', 14, 0, 100, 0, 0, 0, 'NecrolordAzaelDeath'),
+(80489, 0, 0, 'Alright boys and girls, it''s prime time!', 14, 0, 100, 0, 0, 0, 'SoulbrewerNadagastSpawn'),
+(80489, 1, 0, 'Chopped and brewed.', 14, 0, 100, 0, 0, 0, 'SoulbrewerNadagastKilled'),
+
+(80486, 0, 0, 'My power is surpassed only by my stature!', 14, 0, 100, 0, 0, 0, 'NecrolordAzaelKill'),
+(80486, 1, 0, 'Defeated? No! Charles, where were you?!', 14, 0, 100, 0, 0, 0, 'NecrolordAzaelDeath'),
 
 (80496, 0, 0, 'Another trophy for my wall.', 14, 0, 100, 0, 0, 0, 'RifthunterYoskeSlay1'),
 (80496, 0, 1, 'My pet hungers.', 14, 0, 100, 0, 0, 0, 'RifthunterYoskeSlay2'),
@@ -69,7 +80,7 @@ INSERT INTO creature_text VALUES
 (88109, 0, 0, 'Forged in flame, my power knows no bounds, my allies fear nothing!', 14, 0, 100, 0, 0, 0, 'KimilynSpawn'),
 (88109, 1, 0, 'My body has fallen, but my spirit rises. I will always be with you.', 14, 0, 100, 0, 0, 0, 'KimilynDeath');
 
-DELETE FROM locales_creature_text WHERE entry IN (80499, 80484, 79902, 80498, 80488, 85129, 80495, 85140, 85137, 80497, 80493, 80492, 80491, 79900, 80486, 80496, 87690, 85138, 88109);
+DELETE FROM locales_creature_text WHERE entry IN (80499, 80484, 79902, 80498, 80488, 85129, 80495, 85140, 85137, 80497, 80490, 80493, 80492, 80491, 79900, 80489, 80486, 80496, 87690, 85138, 88109);
 --                                                       French     German     Spanish    Russian
 INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
 (
@@ -262,6 +273,13 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Сейчас враг торжествует. Но я вернусь, когда преимущество будет на моей стороне.'
 ),
 (
+    80490, 0, 0,
+    'Apprêtez-vous à rencontrer le plus grand champion d''Azeroth !',
+    'Seid Ihr bereit, Azeroths größtem Champion gegenüberzutreten?!',
+    '¡¿Estás $glisto:lista; para conocer al campeón más grande de Azeroth?!',
+    'Вы готовы сразиться с величайшим воителем Азерота?!'
+),
+(
     80493, 0, 0,
     'Brisé !',
     'Zerschmettert!',
@@ -284,6 +302,27 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
 ),
 (
     80492, 0, 0,
+    'Le jour du véritable châtiment est arrivé !',
+    'Der Tag der wahren Rache ist gekommen!',
+    '¡Llegó el día de la auténtica reprensión!',
+    'Пришел день истинной расплаты!'
+),
+(
+    80492, 0, 1,
+    'Retournez à la Lumière !',
+    'Kehrt zurück ins Licht!',
+    '¡Regresa a la luz!',
+    'Назад, к Свету!'
+),
+(
+    80492, 0, 2,
+    'Indignes, vous avez été jugés.',
+    'Ihr wurdet gerichtet, Unwürdiger.',
+    'Fuiste $gjuzgado y considerado indigno:juzgada y considerada indigna;.',
+    'Молот правосудия пал на тебя.'
+),
+(
+    80492, 1, 0,
     'Je dois trouver le moyen de m''améliorer pour la prochaine fois.',
     'Ich muss einen Weg finden, um meine Leistung fürs nächste Mal zu verbessern.',
     'Debo encontrar un modo de mejorar mi actuación.',
@@ -304,6 +343,13 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Ха-ха-ха-ха-ха!'
 ),
 (
+    79900, 0, 1,
+    'Ha ha ha, j''en ai fait du petit bois !',
+    'Ahahaha, ordentlich klein gehackt!',
+    'Ja, ja, ja, ja, ¡gran comestible!',
+    'А-ха-ха! Порубил на куски!'
+),
+(
     79900, 1, 0,
     'T-t-t-t-tempête de lames !',
     'K-k-k-k-klingensturm!',
@@ -311,7 +357,35 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Вихрь клинко-о-о-о-ов!'
 ),
 (
+    79900, 2, 0,
+    'Aaargh ! Je crois que je vais dorénavant m''en tenir aux piliers de taverne.',
+    'Aaargh! Ich begnüge mich ab jetzt mit Kneipenspielen.',
+    '¡Aaargh! Me limitaré a juegos de taberna por ahora.',
+    'Гр-р-р! Все, я буду играть только в тавернах.'
+),
+(
+    80489, 0, 0,
+    'Bon les gars, c''est le coup d''envoi !',
+    'Also los, Jungs und Mädels, jetzt ist die beste Zeit!',
+    '¡Muy bien, chicos y chicas, es horario estelar!',
+    'Ну что, мальчики и девочки, пришло время повеселиться!'
+),
+(
+    80489, 1, 0,
+    'Emballé, c''est pesé.',
+    'Kleingehackt und gebraut.',
+    'Troceado y servido.',
+    'Порубили и сварили.'
+),
+(
     80486, 0, 0,
+    'Ma puissance n''est surpassée que par ma stature !',
+    'Meine Macht wird nur noch durch meine Statur übertroffen!',
+    '¡Mi poder solo es superado por mi estatura!',
+    'Мою силу превосходит только мой рост!'
+),
+(
+    80486, 1, 0,
     'Vaincu ? Non ! Charles, où étiez-vous ?!',
     'Besiegt? Nein! Charles, wo wart Ihr?!',
     '¿Derrotado? ¡No! Charles, ¡¿dónde estabas?!',
@@ -408,3 +482,75 @@ INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, t
     'Mi cuerpo ha caído, pero mi espíritu se levanta. Siempre estaré contigo.',
     'Мое тело повержено, но дух воспарит. Я всегда буду с тобой.'
 );
+
+UPDATE creature_classlevelstats SET basehp5 = 78283 WHERE level = 100 AND class = 8;
+
+# Alliance
+DELETE FROM creature_equip_template WHERE entry IN (80499, 80484, 79902, 80494, 80498, 80488, 85129, 80495, 80500, 85122, 80485, 85140, 85137);
+INSERT INTO creature_equip_template VALUES
+(80499, 1, 32963, 42508, 0),
+(80484, 1, 77191, 77191, 0),
+(79902, 1, 21553, 0, 0),
+(80494, 1, 89711, 89711, 0),
+(80498, 1, 87862, 0, 0),
+(80488, 1, 65484, 0, 0),
+(85129, 1, 89776, 0, 0),
+(80495, 1, 28184, 28184, 0),
+(80500, 1, 77214, 29458, 0),
+(85122, 1, 27903, 0, 55782),
+(80485, 1, 110784, 0, 0),
+(85140, 1, 42477, 0, 2550),
+(85137, 1, 87862, 0, 0);
+
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, dmg_multiplier = 5, faction = 2618 WHERE entry IN (80499, 80484, 79902, 80494, 80498, 80488, 85129, 80495, 80500, 85122, 80485, 85140, 85137);
+UPDATE creature_template SET unit_class = 2, unit_flags2 = 2099200, ScriptName = 'npc_ashran_avenger_turley' WHERE entry = 80499;
+UPDATE creature_template SET ScriptName = 'npc_ashran_jackson_bajheera' WHERE entry = 80484;
+UPDATE creature_template SET ScriptName = 'npc_ashran_john_swifty' WHERE entry = 79902;
+UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_tosan_galaxyfist' WHERE entry = 80494;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_brock_the_crazed' WHERE entry = 80498;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_alune_windmane' WHERE entry = 80488;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_chani_malflame' WHERE entry = 85129;
+UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_hildie_hackerguard' WHERE entry = 80495;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_taylor_dewland' WHERE entry = 80500;
+UPDATE creature_template SET ScriptName = 'npc_ashran_malda_brewbelly' WHERE entry = 85122;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_shani_freezewind' WHERE entry = 80485;
+UPDATE creature_template SET ScriptName = 'npc_ashran_anne_otther' WHERE entry = 85140;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_mathias_zunn' WHERE entry = 85137;
+
+# Horde
+DELETE FROM creature_equip_template WHERE entry IN (80497, 80490, 80493, 80492, 80491, 79900, 80489, 80486, 80496, 85133, 87690, 85138, 85131, 88109);
+INSERT INTO creature_equip_template VALUES
+(80497, 1, 42477, 0, 0),
+(80490, 1, 72484, 0, 0),
+(80493, 1, 104045, 0, 2550),
+(80492, 1, 34247, 0, 0),
+(80491, 1, 32026, 32082, 0),
+(79900, 1, 49615, 0, 2550),
+(80489, 1, 30910, 30872, 0),
+(80486, 1, 119770, 0, 2550),
+(80496, 1, 85756, 0, 72278),
+(85133, 1, 106879, 0, 0),
+(87690, 1, 42477, 0, 2550),
+(85138, 1, 119705, 119705, 0),
+(85131, 1, 112920, 112920, 0),
+(88109, 1, 72484, 0, 0);
+
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, dmg_multiplier = 5, faction = 2667 WHERE entry IN (80497, 80490, 80493, 80492, 80491, 79900, 80489, 80486, 80496, 85133, 87690, 85138, 85131, 88109);
+UPDATE creature_template SET ScriptName = 'npc_ashran_lord_mes' WHERE entry = 80497;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_mindbender_talbadar' WHERE entry = 80490;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_elliott_van_rook' WHERE entry = 80493;
+UPDATE creature_template SET unit_class = 2, unit_flags2 = 2099200, ScriptName = 'npc_ashran_vanguard_samuelle' WHERE entry = 80492;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_elementalist_novo' WHERE entry = 80491;
+UPDATE creature_template SET ScriptName = 'npc_ashran_captain_hoodrych' WHERE entry = 79900;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_soulbrewer_nadagast' WHERE entry = 80489;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_necrolord_azael' WHERE entry = 80486;
+UPDATE creature_template SET ScriptName = 'npc_ashran_rifthunter_yoske' WHERE entry = 80496;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_morriz' WHERE entry = 85133;
+UPDATE creature_template SET ScriptName = 'npc_ashran_kaz_endsky' WHERE entry = 87690;
+UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_razor_guerra' WHERE entry = 85138;
+UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_jared_v_hellstrike' WHERE entry = 85131;
+UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_kimilyn' WHERE entry = 88109;
+
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_ashran_shockwave');
+INSERT INTO spell_script_names VALUE
+(164092, 'spell_ashran_shockwave');
