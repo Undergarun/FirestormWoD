@@ -32569,7 +32569,7 @@ void Player::CreateGarrison()
     m_Garrison->Create();
 }
 
-bool Player::IsInGarrison()
+bool Player::IsInGarrison() const
 {
     if (!m_Garrison || !m_Garrison->GetGarrisonSiteLevelEntry())
         return false;
@@ -32578,6 +32578,14 @@ bool Player::IsInGarrison()
         return true;
 
     return false;
+}
+
+int32 Player::GetGarrisonMapID() const
+{
+    if (!m_Garrison)
+        return -1;
+
+    return m_Garrison->GetGarrisonSiteLevelEntry()->MapID;
 }
 
 void Player::DeleteGarrison()
