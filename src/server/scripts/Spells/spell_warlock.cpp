@@ -3352,6 +3352,76 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Demonic Servitude - 152107
+class spell_warl_demonic_servitude : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_servitude() : SpellScriptLoader("spell_warl_demonic_servitude") { }
+
+        class spell_warl_demonic_servitude_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_demonic_servitude_AuraScript);
+
+            enum eSpells
+            {
+                GrimoireOfService = 108501,
+                GrimoireDoomguard = 157900,
+                GrimoireInfernal = 157901
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::GrimoireOfService)) ///< Grimoire of Service
+                {
+                    if (!l_Player->HasSpell(eSpells::GrimoireDoomguard))
+                        l_Player->learnSpell(eSpells::GrimoireDoomguard, false);
+                    if (!l_Player->HasSpell(eSpells::GrimoireInfernal))
+                        l_Player->learnSpell(eSpells::GrimoireInfernal, false);
+                }
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                Player* l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::GrimoireDoomguard))
+                    l_Player->removeSpell(eSpells::GrimoireDoomguard, false, false);
+                if (l_Player->HasSpell(eSpells::GrimoireInfernal))
+                    l_Player->removeSpell(eSpells::GrimoireInfernal, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warl_demonic_servitude_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warl_demonic_servitude_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_demonic_servitude_AuraScript();
+        }
+};
+
 enum WoDPvPDemonology2PBonusSpells
 {
     WoDPvPDemonology2PBonusAura = 171393,
@@ -3380,6 +3450,7 @@ class PlayerScript_WoDPvPDemonology2PBonus : public PlayerScript
 
 void AddSC_warlock_spell_scripts()
 {
+    new spell_warl_demonic_servitude();
     new spell_warl_fire_and_brimstone();
     new spell_warl_haunt();
     new spell_warl_glyph_of_nightmares();
