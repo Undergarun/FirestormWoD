@@ -648,122 +648,117 @@ class spell_dru_natures_vigil: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_natures_vigil_AuraScript);
 
-            void OnProcHeal(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eSpells
             {
-                PreventDefaultAction();
+                NatureVigilHeal = 124988,
+                NatureVigilDamage = 124991
+            };
 
-                Unit* caster = GetCaster();
-                if (!caster)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellProcInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+
+                if (l_Caster == nullptr || l_SpellProcInfo == nullptr)
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                bool singleTarget = false;
+                bool l_SingleTarget = false;
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if ((eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
-                         eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
-                        eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetB.GetTarget() == 0)
-                        singleTarget = true;
-
-                if (!singleTarget)
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_HEAL ||
-                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_DAMAGE)
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE) && !(eventInfo.GetDamageInfo()->GetDamageType() == HEAL))
-                    return;
-
-                int32 bp = 0;
-                Unit* target = NULL;
-                uint32 spellId = 0;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
                 {
-                    bp = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-                    spellId = SPELL_DRUID_NATURES_VIGIL_DAMAGE;
-                    target = caster->SelectNearbyTarget(caster, 25.0f);
-                    if (!target)
-                        target = eventInfo.GetActionTarget();
+                    if ((l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
+                        l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
+                        l_SpellProcInfo->Effects[i].TargetB.GetTarget() == 0)
+                        l_SingleTarget = true;
                 }
 
-                if (!target || !spellId || !bp)
+                if (!l_SingleTarget)
                     return;
 
-                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
-            }
+                int32 l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
 
-            void OnProcDamage(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+                if (!l_SpellProcInfo->IsPositive())
+                    l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
 
-                Unit* caster = GetCaster();
-                if (!caster)
+                l_Caster->CastCustomSpell(l_Caster, eSpells::NatureVigilHeal, &l_Bp, NULL, NULL, true);
+
+                Player *l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                bool singleTarget = false;
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if ((eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
-                         eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
-                        eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetB.GetTarget() == 0)
-                        singleTarget = true;
-
-                if (!singleTarget)
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_HEAL ||
-                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_DAMAGE)
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE) && !(eventInfo.GetDamageInfo()->GetDamageType() == HEAL))
-                    return;
-
-                int32 bp = 0;
-                Unit* target = NULL;
-                uint32 spellId = 0;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
-                {
-                    bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-                    spellId = SPELL_DRUID_NATURES_VIGIL_HEAL;
-                    target = caster->SelectNearbyAlly(caster, 25.0f);
-                    if (!target)
-                        target = caster;
-                }
-
-                if (!target || !spellId || !bp)
-                    return;
-
-                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION && l_SpellProcInfo->IsPositive())
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::NatureVigilDamage, &l_Bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProcHeal, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProcDamage, EFFECT_3, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_natures_vigil_AuraScript();
+        }
+};
+
+/// Nature's Vigil (heal) - 124988, Nature's Vigil (damage) - 124991
+class spell_dru_natures_vigil_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_natures_vigil_proc() : SpellScriptLoader("spell_dru_natures_vigil_proc") { }
+
+        class spell_dru_natures_vigil_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_natures_vigil_proc_SpellScript);
+
+            enum eSpells
+            {
+                NatureVigilHeal = 124988,
+                NatureVigilDamage = 124991
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->GetGUID() == l_Caster->GetGUID())
+                        return true;
+
+                    return false;
+                });
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::DistanceCompareOrderPred(l_Caster));
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::NatureVigilHeal:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_natures_vigil_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                case eSpells::NatureVigilDamage:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_natures_vigil_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_natures_vigil_proc_SpellScript();
         }
 };
 
@@ -1135,31 +1130,25 @@ class spell_dru_wild_growth : public SpellScriptLoader
     public:
         spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
 
+        enum eSpells
+        {
+            TreeOfLife = 33891,
+            T10Resto2PBonus = 70658
+        };
+
         class spell_dru_wild_growth_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_dru_wild_growth_SpellScript);
 
-            enum eSpells
-            {
-                GlyphOfWildGrowth = 62970,
-                TreeOfLife = 33891
-            };
-
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit* l_Caster = GetCaster();
                 uint8 l_MaxTargets = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
 
-                SpellInfo const* l_GlyphOfWildGrowth = sSpellMgr->GetSpellInfo(eSpells::GlyphOfWildGrowth);
-
-                if (l_Caster->HasAura(eSpells::GlyphOfWildGrowth) && l_GlyphOfWildGrowth != nullptr)
-                    l_MaxTargets += l_GlyphOfWildGrowth->Effects[EFFECT_0].BasePoints;
-
-                if (l_Caster->HasAura(eSpells::TreeOfLife))
+                if (GetCaster()->HasAura(eSpells::TreeOfLife))
                     l_MaxTargets += 2;
 
                 if (p_Targets.size() > l_MaxTargets)
-                    p_Targets.resize(l_MaxTargets);
+                    JadeCore::RandomResizeList(p_Targets, l_MaxTargets);
             }
             
             void Register()
@@ -1173,31 +1162,54 @@ class spell_dru_wild_growth : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_wild_growth_AuraScript);
 
-            void HandleCalculateAmountOnTick(constAuraEffectPtr /*aurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
+            uint32 m_TooltipAmount;
+
+            void HandleCalculateAmountOnTick(constAuraEffectPtr /*p_AurEff*/, int32& p_Amount, bool& /*canBeRecalculated*/)
             {
-                if (Unit* l_Caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                /// If soul of the forest is activated we increase the heal by 50%
+                if (AuraEffectPtr l_SoulOfTheForest = l_Caster->GetAuraEffect(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO, EFFECT_2))
                 {
-                    /// If soul of the forest is activated we increase the heal by 50%
-                    if (l_Caster->HasAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO))
-                    {
-                        p_Amount *= 1.5f;
-                        l_Caster->RemoveAura(SPELL_DRUID_SOUL_OF_THE_FOREST_RESTO);
-                    }
+                    AddPct(p_Amount, l_SoulOfTheForest->GetAmount());
+                    if (l_SoulOfTheForest->GetBase())
+                        l_SoulOfTheForest->GetBase()->Remove();
                 }
+
+                m_TooltipAmount = 7*p_Amount; ///< The base healing is split among the ticks with the first tick getting (6%+1/7) of the tooltip heal
+                p_Amount += CalculatePct(m_TooltipAmount, 6);
+            }
+
+            void DecreaseHealOnTick(AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
+
+                float l_SetMod = 1.f;
+
+                // Item - Druid T10 Restoration 2P Bonus
+                if (AuraEffectPtr l_T10Resto2PBonus = l_Caster->GetAuraEffect(eSpells::T10Resto2PBonus, EFFECT_0))
+                    l_SetMod = 1.f - l_T10Resto2PBonus->GetAmount() / 100.f;
+
+                int32 l_Amount = p_AurEff->GetAmount();
+                l_Amount -= l_SetMod * CalculatePct(m_TooltipAmount, 2);  ///< "each successive tick losing 2% of the tooltip heal" http://wowwiki.wikia.com/Wild_Growth
+                p_AurEff->SetAmount(l_Amount);
             }
 
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_wild_growth_AuraScript::HandleCalculateAmountOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::DecreaseHealOnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
-
 
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_wild_growth_SpellScript();
         }
-
 
         AuraScript* GetAuraScript() const
         {
@@ -4466,6 +4478,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_swipe();
     new spell_dru_maul();
     new spell_dru_natures_vigil();
+    new spell_dru_natures_vigil_proc();
     new spell_dru_ursols_vortex_snare();
     new spell_dru_ursols_vortex();
     new spell_dru_dash();

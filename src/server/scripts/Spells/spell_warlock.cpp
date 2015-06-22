@@ -220,6 +220,44 @@ class spell_warl_grimoire_of_service: public SpellScriptLoader
         }
 };
 
+/// Call by Summon Fel Imp - 112866, Summon Voidlord - 112867, Summon Shivarra - 112868
+/// Summon Observer - 112869, Summon Wrathguard - 112870, Summon Abyssal - 112921, Summon Terrorguard - 112927
+/// Grimoire of Supremacy - 108499
+class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_supremacy_effect() : SpellScriptLoader("spell_warl_grimoire_of_supremacy_effect") { }
+
+        class spell_warl_grimoire_of_supremacy_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_grimoire_of_supremacy_effect_SpellScript);
+
+            enum eSpells
+            {
+                GrimoireOfSupremacyBonus = 115578
+            };
+
+            void HandleAfterCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
+                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, false);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_warl_grimoire_of_supremacy_effect_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_grimoire_of_supremacy_effect_SpellScript();
+        }
+};
+
+
 // Haunt (dispel effect) - 48181
 class spell_warl_haunt_dispel: public SpellScriptLoader
 {
@@ -1251,10 +1289,10 @@ class spell_warl_dark_regeneration: public SpellScriptLoader
         }
 };
 
-// Called by Haunt - 48181, Fel Flame - 77799, Shadow Bolt - 686, Incinerate - 29722, Chaos Bolt - 116858
-// Touch of Chaos - 103964, Demonic Slash - 114175, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027
-// Void Ray - 115422 and Shadow Burn - 17877
-// Soul Leech - 108370
+/// Called by Haunt - 48181, Drain soul - 103103,
+/// Shadow Bolt - 686, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Touch of Chaos - 103964,
+/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877
+/// Soul Leech - 108370
 class spell_warl_soul_leech: public SpellScriptLoader
 {
     public:
@@ -1266,21 +1304,26 @@ class spell_warl_soul_leech: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasAura(WARLOCK_SOUL_LEECH_AURA))
-                    {
-                        int32 bp = _player->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+                Player* l_Player = GetCaster()->ToPlayer();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(WARLOCK_SOUL_LEECH_AURA);
 
-                        if (Pet* pet = _player->GetPet())
-                        {
-                            bp += pet->GetDamageDoneInPastSecs(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                            _player->CastCustomSpell(pet, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
-                        }
+                if (l_Player == nullptr || l_SpellInfo == nullptr)
+                    return;
 
-                        _player->CastCustomSpell(_player, WARLOCK_SOUL_LEECH_HEAL, &bp, NULL, NULL, true);
-                    }
-                }
+                if (!l_Player->HasAura(WARLOCK_SOUL_LEECH_AURA))
+                    return;
+
+                int32 l_Bp = l_Player->GetDamageDoneInPastSecsBySpell(l_SpellInfo->Effects[EFFECT_0].BasePoints, GetSpellInfo()->Id);
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SpecIndex::SPEC_WARLOCK_AFFLICTION)
+                    l_Bp = CalculatePct(l_Bp, 30);
+                else
+                    l_Bp = CalculatePct(l_Bp, 15);
+
+                if (Pet* l_Pet = l_Player->GetPet())
+                    l_Player->CastCustomSpell(l_Pet, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
+
+                l_Player->CastCustomSpell(l_Player, WARLOCK_SOUL_LEECH_HEAL, &l_Bp, NULL, NULL, true);
             }
 
             void Register()
@@ -1706,20 +1749,7 @@ class spell_warl_drain_soul: public SpellScriptLoader
                             p_AurEff->SetAmount(p_AurEff->GetAmount() + CalculatePct(p_AurEff->GetAmount(), l_SpellInfo->Effects[EFFECT_0].BasePoints));
                         }
                     }
-                }
-            }
 
-            void HandleApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster)
-                    return;
-
-                std::list<Unit*> l_TargetList;
-
-                p_AurEff->GetTargetList(l_TargetList);
-                for (auto l_Target : l_TargetList)
-                {
                     /// Associate DoT spells to their damage spells
                     std::list<std::pair<uint32, uint32>> l_DotAurasList;
                     l_DotAurasList.push_back(std::make_pair(980,    131737)); ///< Agony
@@ -1761,7 +1791,6 @@ class spell_warl_drain_soul: public SpellScriptLoader
             void Register()
             {
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_drain_soul_AuraScript::HandlePeriodicDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectApply += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -2311,13 +2340,6 @@ class spell_warl_burning_embers_regen : public PlayerScript
         }
 };
 
-enum SpellsDrainLife
-{
-    SPELL_WARL_DRAIN_LIFE_HEAL = 89653,
-    SPELL_WARL_HARVEST_LIFE = 108371,
-    SPELL_WARL_EMPOWERED_DRAIN_LIFE = 157069
-};
-
 // Drain Life - 689
 class spell_warl_drain_life: public SpellScriptLoader
 {
@@ -2328,30 +2350,32 @@ class spell_warl_drain_life: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_drain_life_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            enum eSpells
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    Player* _player = GetCaster()->ToPlayer();
-                    if (!_player)
-                        return;
+                DrainLifeHeal      = 89653,
+                EmpoweredDrainLife = 157069
+            };
 
-                    int32 l_Pct = 6 * (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 10);
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+                if (!l_Caster)
+                    return;
 
-                    int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(l_Pct) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS);
+                int32 l_Bp0 = l_Caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_1].BasePoints) / p_AurEff->GetTotalTicks();
 
-                    if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(SPELL_WARL_EMPOWERED_DRAIN_LIFE))
-                        l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * aurEff->GetTickNumber());
+                if (AuraPtr l_EmpoweredDrainLife = l_Caster->GetAura(eSpells::EmpoweredDrainLife))
+                    l_Bp0 += CalculatePct(l_Bp0, l_EmpoweredDrainLife->GetSpellInfo()->Effects[EFFECT_0].BasePoints * p_AurEff->GetTickNumber());
 
-                    if (AuraPtr l_HarvestLife = l_Caster->GetAura(SPELL_WARL_HARVEST_LIFE))
-                        l_Bp0 += CalculatePct(l_Bp0, l_HarvestLife->GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                l_Caster->CastCustomSpell(l_Caster, eSpells::DrainLifeHeal, &l_Bp0, NULL, NULL, true);
 
-                    l_Caster->CastCustomSpell(l_Caster, SPELL_WARL_DRAIN_LIFE_HEAL, &l_Bp0, NULL, NULL, true);
+                Player* l_Player = GetCaster()->ToPlayer();
+                if (!l_Player)
+                    return;
 
-                    // In Demonology spec : Generates 10 Demonic Fury per second
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
-                        _player->EnergizeBySpell(_player, 689, 10, POWER_DEMONIC_FURY);
-                }
+                // In Demonology spec : Generates 10 Demonic Fury per second
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY)
+                    l_Player->EnergizeBySpell(l_Player, GetSpellInfo()->Id, 10 * l_Player->GetPowerCoeff(POWER_DEMONIC_FURY), POWER_DEMONIC_FURY);
             }
 
             void Register()
@@ -3425,6 +3449,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_WodPvPDemonology4PBonus();
     new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
+    new spell_warl_grimoire_of_supremacy_effect();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }

@@ -999,9 +999,23 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
                 std::list<Unit*> l_TargetList;
                 float l_Radius = 8.0f;
 
-                JadeCore::AnyFriendlyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Caster, l_Radius);
-                JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
+                JadeCore::AnyUnitInObjectRangeCheck l_Check(p_AreaTrigger, l_Radius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, l_Check);
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+                if (l_TargetList.empty())
+                    return;
+
+                l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
+                {
+                    if (p_Unit == nullptr || !l_Caster->IsValidAttackTarget(p_Unit))
+                        return true;
+
+                    if (p_Unit->HasAura(eSmokeSpells::SmokeBombAura))
+                        return true;
+
+                    return false;
+                });
 
                 for (Unit* l_Unit : l_TargetList)
                     l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);

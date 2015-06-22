@@ -1918,8 +1918,8 @@ void ObjectMgr::LoadGameobjects()
 
     //                                                0                1   2    3         4           5           6        7           8
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, zoneId, areaId, position_x, position_y, position_z, orientation, "
-    //      9          10         11          12         13          14             15      16         17         18        19          20
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, spawnMask, phaseMask, eventEntry, pool_entry "
+    //      9          10         11          12         13          14             15      16         17           18         19        20          21
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, custom_flags, spawnMask, phaseMask, eventEntry, pool_entry "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2021,15 +2021,15 @@ void ObjectMgr::LoadGameobjects()
         data.go_state       = GOState(go_state);
 
         data.isActive       = fields[16].GetBool();
-
-        data.spawnMask      = fields[17].GetUInt32();
+        data.CustomFlags    = fields[17].GetUInt32();
+        data.spawnMask      = fields[18].GetUInt32();
 
         if (data.spawnMask & ~spawnMasks[data.mapid])
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
-        data.phaseMask      = fields[18].GetUInt32();
-        int16 gameEvent     = fields[19].GetInt8();
-        uint32 PoolId        = fields[20].GetUInt32();
+        data.phaseMask      = fields[19].GetUInt32();
+        int16 gameEvent     = fields[20].GetInt8();
+        uint32 PoolId        = fields[21].GetUInt32();
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {

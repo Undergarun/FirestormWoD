@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -1324,6 +1324,151 @@ class npc_ashran_wrynns_vanguard_battle_standard : public CreatureScript
         }
 };
 
+/// Stormshield Sentinel - 86767
+class npc_ashran_stormshield_sentinel : public CreatureScript
+{
+    public:
+        npc_ashran_stormshield_sentinel() : CreatureScript("npc_ashran_stormshield_sentinel") { }
+
+        enum eSpells
+        {
+            SpellShoot              = 163921,
+            SpellKillShot           = 173642,
+            SpellHeadhuntersMark    = 177203,
+            SpellConcussiveShot     = 17174
+        };
+
+        enum eEvents
+        {
+            SearchTarget = 1,
+            EventShoot,
+            EventKillShot,
+            EventHeadhuntersMark,
+            EventConcussiveShot,
+            EventClearEvade
+        };
+
+        struct npc_ashran_stormshield_sentinelAI : public ScriptedAI
+        {
+            npc_ashran_stormshield_sentinelAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_CosmeticEvent.Reset();
+            }
+
+            EventMap m_Events;
+            EventMap m_CosmeticEvent;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                m_CosmeticEvent.ScheduleEvent(eEvents::SearchTarget, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventShoot, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventKillShot, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHeadhuntersMark, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventConcussiveShot, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterEvadeMode() override
+            {
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
+                CreatureAI::EnterEvadeMode();
+
+                m_CosmeticEvent.ScheduleEvent(eEvents::EventClearEvade, 500);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_CosmeticEvent.Update(p_Diff);
+
+                switch (m_CosmeticEvent.ExecuteEvent())
+                {
+                    case eEvents::SearchTarget:
+                    {
+                        if (Player* l_Player = me->FindNearestPlayer(40.0f))
+                            AttackStart(l_Player);
+                        else
+                            m_CosmeticEvent.ScheduleEvent(eEvents::SearchTarget, 1 * TimeConstants::IN_MILLISECONDS);
+
+                        break;
+                    }
+                    case eEvents::EventClearEvade:
+                    {
+                        me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventShoot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellShoot, false);
+                        m_Events.ScheduleEvent(eEvents::EventShoot, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventKillShot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            if (l_Target->HealthBelowPct(20))
+                            {
+                                me->CastSpell(l_Target, eSpells::SpellKillShot, false);
+                                m_Events.ScheduleEvent(eEvents::EventKillShot, 10 * TimeConstants::IN_MILLISECONDS);
+                                break;
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventKillShot, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHeadhuntersMark:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellHeadhuntersMark, false);
+                        m_Events.ScheduleEvent(eEvents::EventHeadhuntersMark, 18 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventConcussiveShot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellConcussiveShot, false);
+                        m_Events.ScheduleEvent(eEvents::EventConcussiveShot, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_stormshield_sentinelAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -1343,4 +1488,5 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_stormshield_stormcrow();
     new npc_ashran_stormshield_gladiator();
     new npc_ashran_wrynns_vanguard_battle_standard();
+    new npc_ashran_stormshield_sentinel();
 }
