@@ -2048,7 +2048,7 @@ public:
 
                     l_Caster->CastSpell(l_Target, PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL, true);
 
-                    if (AuraPtr l_PeriodicHeal = l_Caster->GetAura(PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL))
+                    if (AuraPtr l_PeriodicHeal = l_Target->GetAura(PALADIN_SPELL_ETERNAL_FLAME_PERIODIC_HEAL))
                     {
                         int32 l_Duration = (GetSpellInfo()->Effects[EFFECT_2].BasePoints / 3) * m_PowerUsed;
                         l_PeriodicHeal->SetDuration(l_Duration * IN_MILLISECONDS);
