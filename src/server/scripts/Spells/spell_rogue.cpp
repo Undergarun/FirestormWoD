@@ -2563,32 +2563,35 @@ class spell_rog_deep_insight : public SpellScriptLoader
     public:
         spell_rog_deep_insight() : SpellScriptLoader("spell_rog_deep_insight") { }
 
-        class spell_rog_deep_insight_SpellScript : public SpellScript
+        class spell_rog_deep_insight_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_rog_deep_insight_SpellScript);
+            PrepareAuraScript(spell_rog_deep_insight_AuraScript);
 
             enum eSpells
             {
                 EmpoweredBanditsGuile = 157581
             };
 
-            void HandleDamagePct(SpellEffIndex /*p_EffIndex*/)
+            void CalculateAmount(constAuraEffectPtr /*p_AuraEffect*/, int32& p_Amount, bool& /*p_CanBeRecalculated*/)
             {
                 Unit* l_Caster = GetCaster();
 
+                if (l_Caster == nullptr)
+                    return;
+
                 if (AuraEffectPtr l_EmpoweredBanditsGuile = l_Caster->GetAuraEffect(eSpells::EmpoweredBanditsGuile, EFFECT_0))
-                    SetHitDamage(GetEffectValue() + l_EmpoweredBanditsGuile->GetAmount());
+                    p_Amount += l_EmpoweredBanditsGuile->GetAmount();
             }
 
             void Register()
             {
-                OnEffectLaunch += SpellEffectFn(spell_rog_deep_insight_SpellScript::HandleDamagePct, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_deep_insight_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_rog_deep_insight_SpellScript();
+            return new spell_rog_deep_insight_AuraScript();
         }
 };
 
