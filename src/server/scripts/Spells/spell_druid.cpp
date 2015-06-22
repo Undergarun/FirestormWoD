@@ -3430,6 +3430,7 @@ enum SpellsRake
     SPELL_DRU_BLOODTALONS = 145152
 };
 
+/// last update : 6.1.2 19802
 /// Rake - 1822
 class spell_dru_rake: public SpellScriptLoader
 {
@@ -3440,16 +3441,23 @@ class spell_dru_rake: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_rake_SpellScript);
 
-            bool m_isStealthed = false;
+            enum eSpells
+            {
+                KingOfTheJungle = 102543
+            };
+
+            bool m_isStealthedOrKingOfTheJungle = false;
 
             void HandleOnPrepare()
             {
                 if (Unit* l_Caster = GetCaster())
                 {
-                    m_isStealthed = l_Caster->HasStealthAura();
+                    if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
+                        m_isStealthedOrKingOfTheJungle = true;
+
                     if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                     {
-                        if (m_isStealthed)
+                        if (m_isStealthedOrKingOfTheJungle)
                             l_ImprovedRake->GetEffect(1)->SetAmount(1);
                         else
                             l_ImprovedRake->GetEffect(1)->SetAmount(0);
@@ -3475,12 +3483,12 @@ class spell_dru_rake: public SpellScriptLoader
                 {
                     if (AuraPtr l_ImprovedRake = l_Caster->GetAura(SPELL_DRU_IMPROVED_RAKE))
                     {
-                        if (m_isStealthed)
+                        if (m_isStealthedOrKingOfTheJungle)
                             SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), l_ImprovedRake->GetEffect(0)->GetAmount()));
                     }
                 }
 
-                if (l_Target && l_Caster && m_isStealthed)
+                if (l_Target && l_Caster && m_isStealthedOrKingOfTheJungle)
                 {
                     l_Caster->CastSpell(l_Target, SPELL_DRU_RAKE_STUNT, true);
 
@@ -3614,6 +3622,7 @@ enum SpellsShred
     SPELL_DRUID_SWIPE = 106785
 };
 
+/// last update : 6.1.2 19802
 /// Shred - 5221
 class spell_dru_shred: public SpellScriptLoader
 {
@@ -3624,11 +3633,19 @@ class spell_dru_shred: public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_shred_SpellScript);
 
-            bool m_isStealthed = false;
+            enum eSpells
+            {
+                KingOfTheJungle = 102543
+            };
+
+            bool m_isStealthedOrKingOfTheJungle = false;
 
             void HandleOnPrepare()
             {
-                m_isStealthed = GetCaster()->HasStealthAura();
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::KingOfTheJungle) || l_Caster->HasStealthAura())
+                    m_isStealthedOrKingOfTheJungle = true;
             }
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -3641,7 +3658,7 @@ class spell_dru_shred: public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                if (m_isStealthed)
+                if (m_isStealthedOrKingOfTheJungle)
                 {
                     if (l_SpellInfo != nullptr)
                         l_Damage += CalculatePct(l_Damage, l_SpellInfo->Effects[EFFECT_3].BasePoints);
