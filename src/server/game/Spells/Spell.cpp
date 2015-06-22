@@ -2972,7 +2972,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        m_comboPointGain += 1;
                         l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }

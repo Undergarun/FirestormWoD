@@ -2207,15 +2207,6 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                         if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
                             l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
                     }
-                    if (l_Caster->HasAura(ROGUE_SPELL_RUTHLESSNESS))
-                    {
-                        if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
-                        {
-                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_COMBO_POINT_DELAYED, true);
-                            l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
-                        }
-                    }
-
                     if (Unit* l_Target = GetHitUnit())
                     {
                         if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
