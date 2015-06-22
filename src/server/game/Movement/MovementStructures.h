@@ -173,6 +173,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 
         || opcode == CMSG_MOVE_JUMP
         || opcode == CMSG_MOVE_FALL_LAND
+        || opcode == CMSG_MOVE_KNOCK_BACK_ACK
 
         || opcode == CMSG_MOVE_HEARTBEAT
         || opcode == CMSG_MOVE_SET_FACING
