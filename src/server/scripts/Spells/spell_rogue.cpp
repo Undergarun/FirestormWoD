@@ -2187,7 +2187,7 @@ class spell_rog_fan_of_knives: public SpellScriptLoader
         }
 };
 
-/// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943
+/// Call by Kidney Shot 408 - Eviscerate 2098 - Recuperate 73651 - Slice and Dice 5171 - Deadly Throw 26679 - Rupture 1943 - Envenom 32645
 /// Relentless Strikes - 58423
 class spell_rog_relentless_strikes : public SpellScriptLoader
 {
