@@ -3333,11 +3333,17 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr)
+                if (l_Owner == nullptr || l_Target == nullptr)
                     return;
 
-                SetHitDamage(GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
@@ -3349,6 +3355,50 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_fel_firebolt_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Doom Bolt - 85692
+class spell_warl_doom_bolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_doom_bolt() : SpellScriptLoader("spell_warl_doom_bolt") { }
+
+        class spell_warl_doom_bolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_doom_bolt_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                /// If target has less then 20% damage we should increase damage by 20%
+                if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_doom_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_doom_bolt_SpellScript();
         }
 };
 
@@ -3521,6 +3571,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
     new spell_warl_grimoire_of_supremacy_effect();
+    new spell_warl_doom_bolt();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }
