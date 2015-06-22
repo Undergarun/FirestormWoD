@@ -1136,6 +1136,16 @@ namespace PrevQuestLogicFlags
     };
 }
 
+struct WbAccessControlListEntry
+{
+    uint32 ID;
+    char*  Url;
+    uint32 AccessFlags;
+    uint32 Unk1;
+    uint32 Restricted;
+    uint32 Region;
+};
+
 struct VignetteEntry
 {
     uint32 Id;                                                      ///< 0

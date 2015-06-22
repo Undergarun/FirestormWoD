@@ -70,6 +70,7 @@ extern DB2Storage <MountEntry>                      sMountStore;
 extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
 extern DB2Storage <VignetteEntry>                   sVignetteStore;
 extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
+extern DB2Storage <WbAccessControlListEntry>        sWbAccessControlListStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2

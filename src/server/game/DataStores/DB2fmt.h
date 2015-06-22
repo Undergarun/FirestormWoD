@@ -80,6 +80,7 @@ const char QuestPackageItemEntryfmt[] = "niiii";
 const char MountEntryfmt[] = "niiisssiii";
 const char PlayerConditionEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 const char VignetteEntryfmt[] = "nsiiff";
+const char WbAccessControlListfmt[] = "nsiiii";
 
 const char GlyphRequiredSpecfmt[] =
 {
