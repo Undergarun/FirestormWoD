@@ -101,6 +101,13 @@ const uint8_t jam_quest_check_data_win32[]    = { 0x90, 0x90 };     ///< jmp to 
 const uint8_t client_check_data_win32[]       = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x22, 0x01, 0x00, 0x00 };     ///< jmp to bypass socket check
 const uint8_t load_custom_data1_win32[]       = { 0x00 };
 const uint8_t load_custom_data2_win32[]       = { 0x75 };
+const uint8_t load_custom_data3_win32[]       = { 0x75 };
+const uint8_t load_custom_data4_win32[]       = { 0x04 };
+const uint8_t load_custom_data5_win32[]       = { 0x75 };
+
+const uint8_t browser_account_id_win32[]      = { 0xEB, 0x0B};
+const uint8_t browser_replace_url_win32[]     = { 0x02 };
+
 
 const struct RewriteItem Win32Patchs[] =
 {
@@ -112,23 +119,34 @@ const struct RewriteItem Win32Patchs[] =
     { 0x009A2470, sizeof(bnet_versions_data),                    bnet_versions_data                     },        ///< Change bnet versions data
     { 0x009A249C, sizeof(bnet_cdns_data),                        bnet_cdns_data                         },        ///< Change bnet cdns data
     { 0x0020D0A3, sizeof(jam_dispatch_check_data_win32),         jam_dispatch_check_data_win32          },        ///< Bypass jam dispatch socket check
-    { 0x00202D1A, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< bypass jam quest dispatch socket check
-    { 0x00264AEB, sizeof(client_check_data_win32),               client_check_data_win32                },        ///< bypass client dispatch socket check
-    { 0x000123B3, sizeof(load_custom_data1_win32),               load_custom_data1_win32,               },        ///< Bypass file signature check 1/2
-    { 0x000123C0, sizeof(load_custom_data2_win32),               load_custom_data2_win32,               }         ///< Bypass file signature check 2/2
+    { 0x00202D1A, sizeof(jam_quest_check_data_win32),            jam_quest_check_data_win32             },        ///< Bypass jam quest dispatch socket check
+    { 0x00264AEB, sizeof(client_check_data_win32),               client_check_data_win32                },        ///< Bypass client dispatch socket check
+    { 0x000123B3, sizeof(load_custom_data1_win32),               load_custom_data1_win32,               },        ///< CASC - check local file
+    { 0x000110B6, sizeof(load_custom_data2_win32),               load_custom_data2_win32,               },        ///< CASC - check local file part 2
+    { 0x000123C0, sizeof(load_custom_data3_win32),               load_custom_data3_win32,               },        ///< CASC - check local file part 3
+    { 0x0086CA12, sizeof(load_custom_data4_win32),               load_custom_data4_win32,               },        ///< Bypass signature check
+    { 0x0039AE8E, sizeof(load_custom_data5_win32),               load_custom_data5_win32,               },        ///< Bypass .old  rename
+    { 0x003A3023, sizeof(browser_account_id_win32),              browser_account_id_win32,              },        ///< Fill url with account id intead of account name
+    { 0x0003EEA5, sizeof(browser_replace_url_win32),             browser_replace_url_win32,             },        ///< Use navigable url 2 instead 5 with account name fill
 };
 
-const uint8_t client_check_data_win64[]         = { 0x41, 0xBE, 0x00, 0x00, 0x00, 0x00, ///< mov r14d, 0
-                                                    0xBF, 0x00, 0x00, 0x00, 0x00,       ///< mov edi, 0
-                                                    0xE9, 0x11, 0x01, 0x00, 0x00        ///< jmp loc_140408A3F
-                                                  };
-const uint8_t jam_dispatch_check_data_win64[]   = { 0xEB, 0x2B };                       ///< jmp loc_14037F0E3
-const uint8_t jam_quest_check_data_win64[]      = { 0x90,                               ///< nop
-                                                    0x90                                ///< nop
-                                                  };
+const uint8_t client_check_data_win64[] =
+{
+    0x41, 0xBE, 0x00, 0x00, 0x00, 0x00, ///< mov r14d, 0
+    0xBF, 0x00, 0x00, 0x00, 0x00,       ///< mov edi, 0
+    0xE9, 0x11, 0x01, 0x00, 0x00        ///< jmp loc_140408A3F
+};
 
-const uint8_t load_custom_data1_win64[] = { 0x00 };
-const uint8_t load_custom_data2_win64[] = { 0x85 };
+const uint8_t jam_quest_check_data_win64[] =
+{
+    0x90,                               ///< nop
+    0x90                                ///< nop
+};
+
+const uint8_t jam_dispatch_check_data_win64[] =
+{
+    0xEB, 0x2B                          ///< jmp loc_14037F0E3
+};
 
 const struct RewriteItem Win64Patchs[] =
 {
@@ -142,8 +160,6 @@ const struct RewriteItem Win64Patchs[] =
     { 0x0037E4B6, sizeof(jam_dispatch_check_data_win64),         jam_dispatch_check_data_win64          },        ///< Bypass jam dispatch socket check
     { 0x0036E481, sizeof(jam_quest_check_data_win64),            jam_quest_check_data_win64             },        ///< bypass jam quest dispatch socket check
     { 0x00407D1E, sizeof(client_check_data_win64),               client_check_data_win64                },        ///< bypass client dispatch socket check
-    { 0x0001C0AE, sizeof(load_custom_data1_win64),               load_custom_data1_win64,               },        ///< Bypass file signature check 1/2
-    { 0x0001C0B0, sizeof(load_custom_data2_win64),               load_custom_data2_win64,               }         ///< Bypass file signature check 2/2
 };
 
 const uint8_t client_packets_check_data_mac64[] = { 0xBB, 0x00, 0x00, 0x00, 0x00, 0xE9, 0x27, 0x01, 0x00, 0x00 };   ///< jmp to bypass socket check
