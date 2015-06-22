@@ -1418,6 +1418,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_FIRST_PREMADE_MONEY] = ConfigMgr::GetIntDefault("Fun.FirstPremadeMoney", 0);
     m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
 
+    m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 
