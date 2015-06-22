@@ -1291,7 +1291,7 @@ class spell_warl_dark_regeneration: public SpellScriptLoader
 
 /// Called by Haunt - 48181, Drain soul - 103103,
 /// Shadow Bolt - 686, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Touch of Chaos - 103964,
-/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877
+/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877, Chaos bolt - 116858
 /// Soul Leech - 108370
 class spell_warl_soul_leech: public SpellScriptLoader
 {
