@@ -60,6 +60,24 @@ namespace Battlepay
             };
         }
 
+        namespace CustomMessage
+        {
+            enum
+            {
+                AshranStoreBalance,
+            };
+
+            static const char* g_CustomMessage[] =
+            {
+                "ASHRAN_STORE_BALANCE"
+            };
+
+            static const char* GetCustomMessage(uint8 p_ID)
+            {
+                return g_CustomMessage[p_ID];
+            }
+        }
+
         /*
         * Write display info into packet bytebuffer
         * @param p_DisplayInfoID: Id of the display info to write
@@ -109,6 +127,13 @@ namespace Battlepay
         * @param p_Session  : Packet will be sent to that WorldSession
         */
         void SendDistributionList(WorldSession* p_Session);
+
+        /*
+        * Send points balance to client
+        * Because it's custom, we use addon message system
+        * @param p_Session  : Packet will be sent to that WorldSession
+        */
+        void SendPointsBalance(WorldSession* p_Session);
     }
 }
 

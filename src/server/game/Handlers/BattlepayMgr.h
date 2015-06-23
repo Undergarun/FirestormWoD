@@ -189,6 +189,8 @@ namespace Battlepay
 
             bool AlreadyHasProductItem(uint32 p_AccountID, const Battlepay::ProductItem& p_ProductItem) const;
 
+            uint32 GetBalance(uint64 p_PlayerGuid) const;
+
         private:
 
             /*

@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlepayPacketFactory.h"
+#include "Chat.h"
+#include <sstream>
 
 namespace Battlepay
 {
@@ -183,6 +185,33 @@ namespace Battlepay
             l_Data << uint32(0);    ///< Count
 
             p_Session->SendPacket(&l_Data);
+        }
+
+        void SendPointsBalance(WorldSession* p_Session)
+        {
+            PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
+            l_Statement->setUInt32(0, p_Session->GetAccountId());
+            l_Statement->setUInt32(1, p_Session->GetAccountId());
+
+            auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
+
+            p_Session->AddPrepareStatementCallback(std::make_pair([p_Session](PreparedQueryResult p_Result) -> void
+            {
+                uint32 l_Balance = 0;
+                if (p_Result)
+                {
+                    Field* l_Fields = p_Result->Fetch();
+                    l_Balance = atoi(l_Fields[0].GetCString());
+                }
+
+                Player* l_Player = p_Session->GetPlayer();
+                if (l_Player == nullptr)
+                    return;
+
+                std::ostringstream l_Data;
+                l_Data << l_Balance;
+                l_Player->SendCustomMessage(GetCustomMessage(CustomMessage::AshranStoreBalance), l_Data);
+            }, l_FuturResult));
         }
     }
 }

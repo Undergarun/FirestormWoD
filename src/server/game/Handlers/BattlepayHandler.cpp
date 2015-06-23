@@ -25,6 +25,7 @@ void WorldSession::HandleBattlepayGetProductListQuery(WorldPacket& p_RecvData)
 
     Battlepay::PacketFactory::SendDistributionList(this);
     Battlepay::PacketFactory::SendProductList(this);
+    Battlepay::PacketFactory::SendPointsBalance(this);
 }
 
 void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)

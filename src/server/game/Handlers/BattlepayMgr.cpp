@@ -177,4 +177,10 @@ namespace Battlepay
     {
         return false;
     }
+
+    /// @TODO
+    uint32 Manager::GetBalance(uint64 p_PlayerGuid) const
+    {
+        return 8000;
+    }
 }
