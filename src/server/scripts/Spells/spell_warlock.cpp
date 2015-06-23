@@ -3319,7 +3319,7 @@ public:
 };
 
 /// last update : 6.1.2 19802
-/// Fel Firebolt - 104318
+/// Fel Firebolt - 104318, Firebolt - 3110
 class spell_warl_fel_firebolt : public SpellScriptLoader
 {
     public:
