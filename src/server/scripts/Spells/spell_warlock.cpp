@@ -175,35 +175,35 @@ class spell_warl_grimoire_of_service: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
                 {
-                    if (Unit* target = GetHitUnit())
+                    switch ((*itr)->GetEntry())
                     {
-                        for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
-                        {
-                            switch ((*itr)->GetEntry())
-                            {
-                                case ENTRY_IMP:
-                                    (*itr)->CastSpell(caster, WARLOCK_DEMON_SINGLE_MAGIC, false);
-                                    if ((*itr)->ToCreature() && (*itr)->ToCreature()->AI())
-                                        (*itr)->ToCreature()->AI()->AttackStart(target);
-                                    break;
-                                case ENTRY_VOIDWALKER:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SUFFERING, false);
-                                    break;
-                                case ENTRY_SUCCUBUS:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SEDUCE, false);
-                                    break;
-                                case ENTRY_FELHUNTER:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SPELL_LOCK, false);
-                                    break;
-                                case ENTRY_FELGUARD:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_AXE_TOSS, false);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                    case ENTRY_IMP:
+                        (*itr)->CastSpell(l_Caster, WARLOCK_DEMON_SINGLE_MAGIC, true);
+                        if ((*itr)->ToCreature() && (*itr)->ToCreature()->AI())
+                            (*itr)->ToCreature()->AI()->AttackStart(l_Target);
+                        break;
+                    case ENTRY_VOIDWALKER:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SUFFERING, true);
+                        break;
+                    case ENTRY_SUCCUBUS:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SEDUCE, true);
+                        break;
+                    case ENTRY_FELHUNTER:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SPELL_LOCK, true);
+                        break;
+                    case ENTRY_FELGUARD:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_AXE_TOSS, true);
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
