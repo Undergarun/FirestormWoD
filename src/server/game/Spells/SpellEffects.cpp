@@ -1622,19 +1622,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
-            float AbsorbMod2 = 0.0f;
-
-            Unit *l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            float minval = (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float maxval = (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
-            AddPct(currentValue, AbsorbMod2);
 
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }

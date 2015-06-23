@@ -1277,15 +1277,23 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     {
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
         {
+            float l_Minval = (float)caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+            float l_Maxval = (float)caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+            /// Apply bonus absorption
+            float totalMod = l_Minval + l_Maxval;
+
             /// Apply Versatility absorb bonus
-            amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-            
+            totalMod += caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
             /// Apply Mastery: Discipline Shield
             if (caster->HasAura(77484))
             {
                 float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
-                amount += CalculatePct(amount, l_Mastery);
+                totalMod += l_Mastery;
             }
+
+            amount += CalculatePct(amount, totalMod);
 
             /// Check if is crit
             if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
