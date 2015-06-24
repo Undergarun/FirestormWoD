@@ -795,7 +795,6 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_rog_cloak_and_dagger_SpellScript::CheckCast);
                 OnHit += SpellHitFn(spell_rog_cloak_and_dagger_SpellScript::HandleOnHit);
             }
         };
@@ -1011,44 +1010,6 @@ class spell_rog_nerve_strike: public SpellScriptLoader
 {
     public:
         spell_rog_nerve_strike() : SpellScriptLoader("spell_rog_nerve_strike") { }
-
-        class spell_rog_combat_readiness_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_combat_readiness_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (GetSpellInfo()->Id != ROGUE_SPELL_KIDNEY_SHOT)
-                    return;
-
-                Unit* l_Caster = GetCaster();
-                Unit* l_Target = GetHitUnit();
-                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_REVEALING_STRIKE);
-
-                if (l_Target == nullptr || l_SpellInfo == nullptr)
-                    return;
-
-                if (l_Target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, l_Caster->GetGUID()))
-                {
-                    if (AuraPtr l_Kidney = l_Target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, l_Caster->GetGUID()))
-                    {
-                        int32 l_Duration = l_Kidney->GetDuration();
-                        AddPct(l_Duration, l_SpellInfo->Effects[EFFECT_2].BasePoints);
-                        l_Kidney->SetDuration(l_Duration);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_combat_readiness_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_combat_readiness_SpellScript();
-        }
 
         class spell_rog_combat_readiness_AuraScript : public AuraScript
         {
@@ -2188,6 +2149,13 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_relentless_strikes_SpellScript);
 
+            enum eSpells
+            {
+                Evicerate = 2098,
+                Envenom = 32645,
+                DeadlyThrow = 84747
+            };
+
             void HandleOnHit()
             {
                 if (Unit* l_Caster = GetCaster())
@@ -2197,14 +2165,64 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
                         if (roll_chance_i(20 * l_Caster->GetPower(POWER_COMBO_POINT)))
                             l_Caster->CastSpell(l_Caster, ROGUE_SPELL_RELTENTLESS_STRIKES_PROC, true);
                     }
-                    if (Unit* l_Target = GetHitUnit())
+                }
+            }
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
+                {
+                    int32 l_Damage = GetHitDamage();
+                    AddPct(l_Damage, l_AurEff->GetAmount());
+                    SetHitDamage(l_Damage);
+                }
+            }
+
+            void HandleAfterHit()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
+                {
+                    int32 l_BonusAmount = l_AurEff->GetAmount();
+
+                    if (GetSpellInfo()->Id == ROGUE_SPELL_KIDNEY_SHOT)
+                    if (AuraPtr l_Kidney = l_Target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, l_Caster->GetGUID()))
                     {
-                        if (AuraEffectPtr l_AurEff = l_Target->GetAuraEffect(ROGUE_SPELL_REVEALING_STRIKE, EFFECT_2, l_Caster->GetGUID()))
-                        {
-                            int32 l_Damage = GetHitDamage();
-                            AddPct(l_Damage, l_AurEff->GetAmount());
-                            SetHitDamage(l_Damage);
-                        }
+                        int32 l_Duration = l_Kidney->GetDuration();
+                        AddPct(l_Duration, l_BonusAmount);
+                        l_Kidney->SetDuration(l_Duration);
+                    }
+                    if (GetSpellInfo()->Id == ROGUE_SPELL_RECUPERATE)
+                    if (AuraPtr l_Recuperate = l_Caster->GetAura(ROGUE_SPELL_RECUPERATE, l_Caster->GetGUID()))
+                    {
+                        int32 l_Duration = l_Recuperate->GetDuration();
+                        AddPct(l_Duration, l_BonusAmount);
+                        l_Recuperate->SetDuration(l_Duration);
+                    }
+                    if (GetSpellInfo()->Id == ROGUE_SPELL_SLICE_AND_DICE)
+                    if (AuraPtr l_SliceAndDice = l_Caster->GetAura(ROGUE_SPELL_RECUPERATE, l_Caster->GetGUID()))
+                    {
+                        int32 l_Duration = l_SliceAndDice->GetDuration();
+                        AddPct(l_Duration, l_BonusAmount);
+                        l_SliceAndDice->SetDuration(l_Duration);
+                    }
+                    if (GetSpellInfo()->Id == ROGUE_SPELL_RUPTURE_DOT)
+                    if (AuraPtr l_Rupture = l_Target->GetAura(ROGUE_SPELL_RUPTURE_DOT, l_Caster->GetGUID()))
+                    {
+                        int32 l_Duration = l_Rupture->GetDuration();
+                        AddPct(l_Duration, l_BonusAmount);
+                        l_Rupture->SetDuration(l_Duration);
                     }
                 }
             }
@@ -2212,6 +2230,23 @@ class spell_rog_relentless_strikes : public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleOnHit);
+
+                switch (m_scriptSpellId)
+                {
+                case eSpells::Evicerate:
+                case eSpells::Envenom:
+                case eSpells::DeadlyThrow:
+                    OnEffectHitTarget += SpellEffectFn(spell_rog_relentless_strikes_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                    break;
+                case ROGUE_SPELL_KIDNEY_SHOT:
+                case ROGUE_SPELL_RECUPERATE:
+                case ROGUE_SPELL_SLICE_AND_DICE:
+                case ROGUE_SPELL_RUPTURE_DOT:
+                    AfterHit += SpellHitFn(spell_rog_relentless_strikes_SpellScript::HandleAfterHit);
+                    break;
+                default:
+                    break;
+                }
             }
         };
 
