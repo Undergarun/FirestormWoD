@@ -212,6 +212,13 @@ namespace Battlepay
                 l_Data << l_Balance;
                 l_Player->SendCustomMessage(GetCustomMessage(CustomMessage::AshranStoreBalance), l_Data);
             }, l_FuturResult));
+
+            if (Player* l_Player = p_Session->GetPlayer())
+            {
+                std::ostringstream l_Data;
+                l_Data << p_Session->GetAccountId();
+                l_Player->SendCustomMessage(GetCustomMessage(CustomMessage::AshranAccountId), l_Data);
+            }
         }
     }
 }

@@ -1146,6 +1146,15 @@ struct WbAccessControlListEntry
     uint32 Region;
 };
 
+struct WbCertWhitelistEntry
+{
+    uint32 ID;
+    char*  Url;
+    uint8  Unk1;
+    uint8  Unk2;
+    uint32 Unk3;
+};
+
 struct VignetteEntry
 {
     uint32 Id;                                                      ///< 0

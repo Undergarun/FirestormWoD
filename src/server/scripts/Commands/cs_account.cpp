@@ -25,6 +25,9 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "BattlepayPacketFactory.h"
+
+using namespace Battlepay::PacketFactory;
 
 class account_commandscript: public CommandScript
 {
@@ -42,15 +45,16 @@ public:
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
-            { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
-            { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
-            { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
-            { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
-            { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
-            { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
+            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,         "", NULL },
+            { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,        "", NULL },
+            { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,        "", NULL },
+            { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,    "", NULL },
+            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,          "", NULL },
+            { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable  },
+            { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,      "", NULL },
+            { "updatebalance",  SEC_CONSOLE,        true,  &HandleAccountUpdateBalanceCommand, "", NULL },
+            { "",               SEC_PLAYER,         false, &HandleAccountCommand,              "", NULL },
+            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {
@@ -594,6 +598,48 @@ public:
                 return false;
         }
         return true;
+    }
+
+    static bool HandleAccountUpdateBalanceCommand(ChatHandler* p_Handler, const char* p_Args)
+    {
+        uint32 l_AccountID  = 0;
+        uint32 l_AddPoints  = 0;
+        uint32 l_NewBalance = 0;
+
+        try
+        {
+            l_AccountID  = std::atoi(strtok((char*)p_Args, " "));
+            l_NewBalance = std::atoi(strtok(NULL, " "));
+        }
+        catch (...)
+        {
+            return false;
+        }
+
+        SessionMap const& l_Sessions = sWorld->GetAllSessions();
+        auto l_SessionItr = l_Sessions.find(l_AccountID);
+
+        if (l_SessionItr != l_Sessions.end())
+        {
+            WorldSession* l_Session = l_SessionItr->second;
+            Player* l_Player        = l_Session->GetPlayer();
+
+            if (l_Player == nullptr)
+                return false;
+
+            std::ostringstream l_Data;
+            l_Data << l_NewBalance;
+            l_Player->SendCustomMessage
+            (
+                CustomMessage::GetCustomMessage(CustomMessage::AshranStoreBalance),
+                l_Data
+            );
+
+            ChatHandler(l_Player).PSendSysMessage("New Ashran points balance : %u", l_NewBalance);
+            return true;
+        }
+
+        return false;
     }
 };
 

@@ -76,6 +76,7 @@ DB2Storage <PlayerConditionEntry>           sPlayerConditionStore(PlayerConditio
 DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 DB2Storage <GlyphRequiredSpecEntry>         sGlyphRequiredSpecStore(GlyphRequiredSpecfmt);
 DB2Storage <WbAccessControlListEntry>       sWbAccessControlListStore(WbAccessControlListfmt);
+DB2Storage <WbCertWhitelistEntry>           sWbCertWhitelistStore(WbCertWhitelistfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -224,7 +225,6 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sPlayerConditionStore,           db2Path, "PlayerCondition.db2"                                                  );
     LoadDB2(bad_db2_files, sVignetteStore,                  db2Path, "Vignette.db2"                                                         );
     LoadDB2(bad_db2_files, sGlyphRequiredSpecStore,         db2Path, "GlyphRequiredSpec.db2"                                                );
-    LoadDB2(bad_db2_files, sWbAccessControlListStore,       db2Path, "WbAccessControlList.db2",          "wb_access_control_list",      "ID");
 
     //////////////////////////////////////////////////////////////////////////
     /// Quest DB2
@@ -320,6 +320,12 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sBattlePetSpeciesStore,          db2Path, "BattlePetSpecies.db2",            "battle_pet_species",           "ID");
     LoadDB2(bad_db2_files, sBattlePetSpeciesStateStore,     db2Path, "BattlePetSpeciesState.db2"                                            );
     LoadDB2(bad_db2_files, sBattlePetSpeciesXAbilityStore,  db2Path, "BattlePetSpeciesXAbility.db2"                                         );
+
+    //////////////////////////////////////////////////////////////////////////
+    /// WebBrowser DB2
+    //////////////////////////////////////////////////////////////////////////
+    LoadDB2(bad_db2_files, sWbAccessControlListStore,       db2Path, "WbAccessControlList.db2",          "wb_access_control_list",      "ID");
+    LoadDB2(bad_db2_files, sWbCertWhitelistStore,           db2Path, "WbCertWhitelist.db2",              "wb_cert_whitelist",           "ID");
 
     std::set<uint32> scalingCurves;
     for (uint32 i = 0; i < sScalingStatDistributionStore.GetNumRows(); ++i)
