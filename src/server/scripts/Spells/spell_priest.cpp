@@ -3762,9 +3762,51 @@ class spell_pri_glyph_of_restored_faith : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Dispel Mass - 32592
+class spell_pri_dispel_mass : public SpellScriptLoader
+{
+    public:
+        spell_pri_dispel_mass() : SpellScriptLoader("spell_pri_dispel_mass") { }
+
+        enum eSpells
+        {
+            DispelMassGlyphe = 55691,
+            DispelMassInvulnerability = 39897
+        };
+
+        class spell_pri_dispel_mass_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dispel_mass_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::DispelMassGlyphe))
+                    return;
+
+                if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eSpells::DispelMassInvulnerability, true);
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_pri_dispel_mass_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_dispel_mass_SpellScript();
+        }
+};
+
+
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_dispel_mass();
     new spell_pri_shadowy_apparition();
     new spell_pri_mind_flay();
     new spell_pri_glyphe_of_mind_blast();
