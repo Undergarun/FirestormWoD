@@ -13,6 +13,7 @@
 # include "OutdoorPvPMgr.h"
 # include "AshranDatas.hpp"
 # include "ScriptMgr.h"
+# include "GameObjectAI.h"
 # include "ScriptedCreature.h"
 # include "ScriptedGossip.h"
 # include "ScriptedEscortAI.h"
@@ -134,6 +135,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         void SendRemoveWorldStates(Player* p_Player);
 
         void HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p_Player);
+        bool HandleOpenGo(Player* p_Player, uint64 p_Guid);
 
         void OnCreatureCreate(Creature* p_Creature);
         void OnCreatureRemove(Creature* p_Creature);
@@ -220,6 +222,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_NextBattleTimer;
         uint32 m_MaxBattleTime;
         uint32 m_GladiatorRespawnTime;
+        uint32 m_AncientArtifactRemainingTime;
 
         AshranVignettesMap m_NeutralVignettes;
         AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];

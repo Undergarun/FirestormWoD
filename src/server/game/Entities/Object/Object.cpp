@@ -2704,21 +2704,16 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     uint32 speakerNameLength = name ? strlen(name) : 0;
     std::string channel = ""; // no channel
 
-    ObjectGuid senderGuid = GetGUID();
-    ObjectGuid groupGuid = 0;
-    ObjectGuid receiverGuid = targetGuid;
-    ObjectGuid guildGuid = 0;
-
     data->Initialize(SMSG_CHAT, 800);
     *data << uint8(msgtype);
     *data << uint8(language);
-    data->appendPackGUID(senderGuid);
-    data->appendPackGUID(0);
-    data->appendPackGUID(0);
-    data->appendPackGUID(0);
+    data->appendPackGUID(GetGUID());
+    data->appendPackGUID(0);            ///< SenderGuildGUID
+    data->appendPackGUID(0);            ///< WoWAccountGUID
+    data->appendPackGUID(targetGuid);
     *data << uint32(g_RealmID);
     *data << uint32(g_RealmID);
-    data->appendPackGUID(groupGuid);
+    data->appendPackGUID(0);            ///< GroupGUID
     *data << uint32(0);
     *data << float(0);
 

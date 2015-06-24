@@ -34,6 +34,7 @@ enum eAshranDatas
     AshranHallowedGroundH       = 7782,
     AshranHallowedGroundA       = 7781,
     AshranHallowedGroundID      = 42989,
+    AncientArtifactCount        = 9,
 
     /// Misc
     PlayerMinLevel              = 100,
@@ -141,6 +142,8 @@ enum eWorldStates
     WorldStateEnableGraveyardProgressBar    = 9053,
     WorldStateGraveyardProgressBar          = 9054,
     WorldStateGraveyardProgressBarGreyPct   = 9055,
+    WorldStateGraveyardStatusForAlliance    = 9214,
+    WorldStateGraveyardStatusForHorde       = 9215,
     /// Kings' Rest (west)
     //////////////////////////////////////////////////
     /// Five Towers line the Road of Glory
@@ -539,6 +542,9 @@ enum eSpecialSpawns
     CaptainJaredVHellstrike,
     CaptainKimilyn,
 
+    /// Ancient Artifact
+    AncientArtifactSpawn,
+
     /// Max spawn count
     MaxTowerGuardians           = 2,
     MaxFactionBosses            = 2,
@@ -571,6 +577,12 @@ enum eAshranVignettes
     VignetteWarlockGateway2     = 435,
     VignetteWarspearPortal      = 436,
     VignetteKorlok              = 643
+};
+
+enum eAshranTalks
+{
+    ArtifactLootedByHorde = 4,
+    ArtifactLootedByAlliance = 5
 };
 
 struct AshranGraveyard
@@ -626,6 +638,19 @@ AshranCaptain const g_AshranCaptains[eSpecialSpawns::MaxAshranCaptains] =
     { eAshranCaptains::RazorGuerra,           eSpecialSpawns::CaptainRazorGuerra        },
     { eAshranCaptains::JaredVHellstrike,      eSpecialSpawns::CaptainJaredVHellstrike   },
     { eAshranCaptains::Kimilyn,               eSpecialSpawns::CaptainKimilyn            }
+};
+
+go_type const g_AncientArtifactPos[eAshranDatas::AncientArtifactCount] =
+{
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4966.47f, -3720.54f, 3.63465f, 6.27924f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4889.49f, -3750.56f, 12.1343f, 3.96231f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4820.18f, -3652.79f, 0.49170f, 4.64168f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4204.46f, -3971.46f, 10.6328f, 5.50052f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4348.12f, -3898.68f, 8.38964f, 1.61672f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4092.32f, -4497.17f, 86.2245f, 1.53424f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4592.43f, -4317.44f, 18.9973f, 3.27390f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4977.82f, -4643.51f, 91.2159f, 2.13901f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 5068.70f, -4606.89f, 51.1554f, 1.49499f, 0.0f, 0.0f, 0.0f, 0.0f }
 };
 
 creature_type const g_StormshieldGladiators[eSpawns::StormshieldGladiatorsCount] =

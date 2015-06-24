@@ -482,15 +482,43 @@ void OPvPCapturePoint_Graveyard::SendChangePhase()
 
 void OPvPCapturePoint_Graveyard::FillInitialWorldStates(ByteBuffer& p_Data)
 {
-    // Must send control status ?
-    /*p_Data << uint32(WORLD_STATE_ENABLE_GRAVEYARD_PROGRESS_BAR) << uint32(WORLD_STATE_DISABLED);
-    p_Data << uint32(WORLD_STATE_GRAVEYARD_PROGRESS_BAR) << uint32(50); // Neutral
-    p_Data << uint32(WORLD_STATE_GRAVEYARD_PROGRESS_BAR_GREY_PCT) << uint32(70);*/
+    switch (m_GraveyardState)
+    {
+        case eControlStatus::ControlNeutral:
+            p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForAlliance) << uint32(eWorldStates::WorldStateDisabled);
+            p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForHorde) << uint32(eWorldStates::WorldStateDisabled);
+            break;
+        case eControlStatus::ControlAlliance:
+            p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForAlliance) << uint32(eWorldStates::WorldStateEnabled);
+            break;
+        case eControlStatus::ControlHorde:
+            p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForHorde) << uint32(eWorldStates::WorldStateEnabled);
+            break;
+        default:
+            break;
+    }
 }
 
 void OPvPCapturePoint_Graveyard::UpdateTowerState()
 {
-    // Must update control status here
+    if (m_PvP == nullptr)
+        return;
+
+    switch (m_GraveyardState)
+    {
+        case eControlStatus::ControlNeutral:
+            m_PvP->SendUpdateWorldState(eWorldStates::WorldStateGraveyardStatusForAlliance, eWorldStates::WorldStateDisabled);
+            m_PvP->SendUpdateWorldState(eWorldStates::WorldStateGraveyardStatusForHorde, eWorldStates::WorldStateDisabled);
+            break;
+        case eControlStatus::ControlAlliance:
+            m_PvP->SendUpdateWorldState(eWorldStates::WorldStateGraveyardStatusForAlliance, eWorldStates::WorldStateEnabled);
+            break;
+        case eControlStatus::ControlHorde:
+            m_PvP->SendUpdateWorldState(eWorldStates::WorldStateGraveyardStatusForHorde, eWorldStates::WorldStateEnabled);
+            break;
+        default:
+            break;
+    }
 }
 
 bool OPvPCapturePoint_Graveyard::HandlePlayerEnter(Player* p_Player)
@@ -602,6 +630,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_NextBattleTimer       = eAshranDatas::AshranTimeForBattle * TimeConstants::IN_MILLISECONDS;
     m_MaxBattleTime         = 0;
     m_GladiatorRespawnTime  = 0;
+    m_AncientArtifactTime   = 0;
 
     m_PlayerCurrencyLoots.clear();
     m_NeutralVignettes.clear();
@@ -704,6 +733,9 @@ bool OutdoorPvPAshran::SetupOutdoorPvP()
     /// Summon the two faction guardians
     AddCreature(eSpecialSpawns::AllianceGuardian, g_AllianceGuardian);
     AddCreature(eSpecialSpawns::HordeGuardian, g_HordeGuardian);
+
+    /// Summon an Ancient Artifact at a random pos
+    AddObject(eSpecialSpawns::AncientArtifactSpawn, g_AncientArtifactPos[urand(0, eAshranDatas::AncientArtifactCount - 1)]);
 
     return true;
 }
@@ -1511,6 +1543,28 @@ void OutdoorPvPAshran::FillInitialWorldStates(ByteBuffer& p_Data)
     p_Data << uint32(eWorldStates::WorldStateRisenSpiritsCapturedHorde) << uint32(eWorldStates::WorldStateDisabled);
     p_Data << uint32(eWorldStates::WorldStateRisenSpiritsCaptureEnabled) << uint32(eWorldStates::WorldStateDisabled);
 
+    /// King's Rest
+    if (m_GraveYard != nullptr)
+    {
+        switch (m_GraveYard->GetGraveyardState())
+        {
+            case eControlStatus::ControlNeutral:
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForAlliance) << uint32(eWorldStates::WorldStateDisabled);
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForHorde) << uint32(eWorldStates::WorldStateDisabled);
+                break;
+            case eControlStatus::ControlAlliance:
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForHorde) << uint32(eWorldStates::WorldStateDisabled);
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForAlliance) << uint32(eWorldStates::WorldStateEnabled);
+                break;
+            case eControlStatus::ControlHorde:
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForAlliance) << uint32(eWorldStates::WorldStateDisabled);
+                p_Data << uint32(eWorldStates::WorldStateGraveyardStatusForHorde) << uint32(eWorldStates::WorldStateEnabled);
+                break;
+            default:
+                break;
+        }
+    }
+
     /// Faction bosses
     if (m_CurrentBattleState == eWorldStates::WorldStateGrandMarshalTrembladeBattle)
     {
@@ -1630,6 +1684,31 @@ void OutdoorPvPAshran::HandleBFMGREntryInviteResponse(bool p_Accepted, Player* p
         else
             p_Player->TeleportTo(eAshranDatas::AshranNeutralMapID, g_AllianceTeleportPos.m_positionX, g_AllianceTeleportPos.m_positionY, g_AllianceTeleportPos.m_positionZ, g_AllianceTeleportPos.m_orientation);
     }
+}
+
+bool OutdoorPvPAshran::HandleOpenGo(Player* p_Player, uint64 p_Guid)
+{
+    /// Handle Ancient Artifact opening
+    if (m_Objects[eSpecialSpawns::AncientArtifactSpawn] == p_Guid)
+    {
+        p_Player->CastSpell(p_Player, eAshranSpells::SpellAncientArtifact, true);
+
+        if (Creature* l_Herald = GetHerald())
+        {
+            if (l_Herald->IsAIEnabled)
+            {
+                if (p_Player->GetTeamId() == TeamId::TEAM_ALLIANCE)
+                    l_Herald->AI()->Talk(eAshranTalks::ArtifactLootedByAlliance, p_Player->GetGUID(), TextRange::TEXT_RANGE_MAP);
+                else
+                    l_Herald->AI()->Talk(eAshranTalks::ArtifactLootedByHorde, p_Player->GetGUID(), TextRange::TEXT_RANGE_MAP);
+            }
+        }
+
+        DelObject(eSpecialSpawns::AncientArtifactSpawn);
+        return true;
+    }
+
+    return false;
 }
 
 void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)
