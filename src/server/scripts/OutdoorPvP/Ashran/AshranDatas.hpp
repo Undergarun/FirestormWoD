@@ -47,9 +47,10 @@ enum eAshranDatas
     /// Ennemies Slain
     EnnemiesSlainCap1           = 50,
     EnnemiesSlainCap2           = 100,
-    EnnemiesSlainCap3           = 250,
-    EnnemiesSlainCap4           = 500,
-    EnnemiesSlainCap5           = 1000
+    EnnemiesSlainCap3           = 200,
+    EnnemiesSlainCap4           = 400,
+    EnnemiesSlainCap5           = 800,
+    EnnemiesSlainCap6           = 1000
 };
 
 enum eAshranSpells
@@ -295,7 +296,7 @@ enum eAshranCaptains
     VanguardSamuelle    = 80492,
     ElementalistNovo    = 80491,
     CaptainHoodrych     = 79900,
-    SoulbrewrNadagast   = 80489,
+    SoulbrewerNadagast  = 80489,
     NecrolordAzael      = 80486,
     RifthunterYoske     = 80496,
     Morriz              = 85133,
@@ -509,6 +510,35 @@ enum eSpecialSpawns
     AllianceFangraal,
     HordeKronus,
 
+    /// Reserved IDs for Captains
+    CaptainAvengerTurley,
+    CaptainJacksonBajheera,
+    CaptainJohnSwifty,
+    CaptainTosanGalaxyfist,
+    CaptainBrockTheCrazed,
+    CaptainAluneWindmane,
+    CaptainChaniMalflame,
+    CaptainHildieHackerguard,
+    CaptainTaylorDewland,
+    CaptainMaldaBrewbelly,
+    CaptainShaniFreezewind,
+    CaptainAnneOtther,
+    CaptainMathiasZunn,
+    CaptainLordMes,
+    CaptainMindbenderTalbadar,
+    CaptainElliotVanRook,
+    CaptainVanguardSamuelle,
+    CaptainElementalistNovo,
+    CaptainCaptainHoodrych,
+    CaptainSoulbrewerNadagast,
+    CaptainNecrolordAzael,
+    CaptainRifthunterYoske,
+    CaptainMorriz,
+    CaptainKazEndsky,
+    CaptainRazorGuerra,
+    CaptainJaredVHellstrike,
+    CaptainKimilyn,
+
     /// Max spawn count
     MaxTowerGuardians           = 2,
     MaxFactionBosses            = 2,
@@ -516,7 +546,8 @@ enum eSpecialSpawns
     MaxBossGuardian             = 2,
     MagePortalsCreatures        = 4,
     WarlockGatewaysCreatures    = 2,
-    WarlockGatewaysObjects      = 2
+    WarlockGatewaysObjects      = 2,
+    MaxAshranCaptains           = eAshranCaptains::MaxAllianceCaptains + eAshranCaptains::MaxHordeCaptains
 };
 
 enum eFactions
@@ -548,39 +579,53 @@ struct AshranGraveyard
     TeamId m_StartTeam;
 };
 
-uint32 const g_AllianceCaptains[eAshranCaptains::MaxAllianceCaptains] =
+struct AshranCaptain
 {
-    eAshranCaptains::AvengerTurley,
-    eAshranCaptains::JacksonBajheera,
-    eAshranCaptains::JohnSwifty,
-    eAshranCaptains::TosanGalaxyfist,
-    eAshranCaptains::BrockTheCrazed,
-    eAshranCaptains::AluneWindmane,
-    eAshranCaptains::ChaniMalflame,
-    eAshranCaptains::HildieHackerguard,
-    eAshranCaptains::TaylorDewland,
-    eAshranCaptains::MaldaBrewbelly,
-    eAshranCaptains::ShaniFreezewind,
-    eAshranCaptains::AnneOtther,
-    eAshranCaptains::MathiasZunn
+    AshranCaptain()
+    {
+        Entry = 0;
+        Type = 0;
+    }
+
+    AshranCaptain(uint32 p_Entry, uint32 p_Type)
+    {
+        Entry = p_Entry;
+        Type = p_Type;
+    }
+
+    uint32 Entry;
+    uint32 Type;
 };
 
-uint32 const g_HordeCaptains[eAshranCaptains::MaxHordeCaptains] =
+AshranCaptain const g_AshranCaptains[eSpecialSpawns::MaxAshranCaptains] =
 {
-    eAshranCaptains::LordMes,
-    eAshranCaptains::MindbenderTalbadar,
-    eAshranCaptains::ElliotVanRook,
-    eAshranCaptains::VanguardSamuelle,
-    eAshranCaptains::ElementalistNovo,
-    eAshranCaptains::CaptainHoodrych,
-    eAshranCaptains::SoulbrewrNadagast,
-    eAshranCaptains::NecrolordAzael,
-    eAshranCaptains::RifthunterYoske,
-    eAshranCaptains::Morriz,
-    eAshranCaptains::KazEndsky,
-    eAshranCaptains::RazorGuerra,
-    eAshranCaptains::JaredVHellstrike,
-    eAshranCaptains::Kimilyn
+    { eAshranCaptains::AvengerTurley,         eSpecialSpawns::CaptainAvengerTurley      },
+    { eAshranCaptains::JacksonBajheera,       eSpecialSpawns::CaptainJacksonBajheera    },
+    { eAshranCaptains::JohnSwifty,            eSpecialSpawns::CaptainJohnSwifty         },
+    { eAshranCaptains::TosanGalaxyfist,       eSpecialSpawns::CaptainTosanGalaxyfist    },
+    { eAshranCaptains::BrockTheCrazed,        eSpecialSpawns::CaptainBrockTheCrazed     },
+    { eAshranCaptains::AluneWindmane,         eSpecialSpawns::CaptainAluneWindmane      },
+    { eAshranCaptains::ChaniMalflame,         eSpecialSpawns::CaptainChaniMalflame      },
+    { eAshranCaptains::HildieHackerguard,     eSpecialSpawns::CaptainHildieHackerguard  },
+    { eAshranCaptains::TaylorDewland,         eSpecialSpawns::CaptainTaylorDewland      },
+    { eAshranCaptains::MaldaBrewbelly,        eSpecialSpawns::CaptainMaldaBrewbelly     },
+    { eAshranCaptains::ShaniFreezewind,       eSpecialSpawns::CaptainShaniFreezewind    },
+    { eAshranCaptains::AnneOtther,            eSpecialSpawns::CaptainAnneOtther         },
+    { eAshranCaptains::MathiasZunn,           eSpecialSpawns::CaptainMathiasZunn        },
+    { eAshranCaptains::LordMes,               eSpecialSpawns::CaptainLordMes            },
+    { eAshranCaptains::MindbenderTalbadar,    eSpecialSpawns::CaptainMindbenderTalbadar },
+    { eAshranCaptains::ElliotVanRook,         eSpecialSpawns::CaptainElliotVanRook      },
+    { eAshranCaptains::VanguardSamuelle,      eSpecialSpawns::CaptainVanguardSamuelle   },
+    { eAshranCaptains::ElementalistNovo,      eSpecialSpawns::CaptainElementalistNovo   },
+    { eAshranCaptains::CaptainHoodrych,       eSpecialSpawns::CaptainCaptainHoodrych    },
+    { eAshranCaptains::SoulbrewerNadagast,    eSpecialSpawns::CaptainSoulbrewerNadagast },
+    { eAshranCaptains::NecrolordAzael,        eSpecialSpawns::CaptainNecrolordAzael     },
+    { eAshranCaptains::RifthunterYoske,       eSpecialSpawns::CaptainRifthunterYoske    },
+    { eAshranCaptains::Morriz,                eSpecialSpawns::CaptainMorriz             },
+    { eAshranCaptains::KazEndsky,             eSpecialSpawns::CaptainKazEndsky          },
+    { eAshranCaptains::RazorGuerra,           eSpecialSpawns::CaptainRazorGuerra        },
+    { eAshranCaptains::JaredVHellstrike,      eSpecialSpawns::CaptainJaredVHellstrike   },
+    { eAshranCaptains::Kimilyn,               eSpecialSpawns::CaptainKimilyn            }
 };
 
 creature_type const g_StormshieldGladiators[eSpawns::StormshieldGladiatorsCount] =

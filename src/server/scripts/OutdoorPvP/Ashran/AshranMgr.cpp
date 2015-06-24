@@ -103,6 +103,8 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
             l_GenericMoP->AI()->DoAction(p_Faction == eControlStatus::ControlHorde ? eAshranActions::AnnounceHordeVictory : eAshranActions::AnnounceAllianceVictory);
     }
 
+    bool l_MustChangeKillCap = false;
+
     switch (p_BattleID)
     {
         case eBattleType::EmberfallTower:
@@ -164,6 +166,9 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     AddCreature(eSpecialSpawns::EmberfallTowerSpiritHealer, g_EmberfallTowerSpiritHealer[TeamId::TEAM_HORDE]);
                 else
                     AddCreature(eSpecialSpawns::EmberfallTowerSpiritHealer, g_EmberfallTowerSpiritHealer[TeamId::TEAM_ALLIANCE]);
+
+                if (p_Faction == eControlStatus::ControlAlliance)
+                    l_MustChangeKillCap = true;
             }
 
             break;
@@ -212,6 +217,9 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     if (p_Faction == eControlStatus::ControlAlliance)
                         AddObject(l_Index, g_VolrathsAdvanceFires[l_Index - l_FireIndex]);
                 }
+
+                if (p_Faction == eControlStatus::ControlAlliance)
+                    l_MustChangeKillCap = true;
             }
 
             break;
@@ -310,6 +318,9 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     if (p_Faction == eControlStatus::ControlHorde)
                         AddObject(l_Index, g_TrembladesVanguardFires[l_Index - l_FireIndex]);
                 }
+
+                if (p_Faction == eControlStatus::ControlHorde)
+                    l_MustChangeKillCap = true;
             }
 
             break;
@@ -324,7 +335,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 for (uint8 l_Index = eSpawns::TrembladesVanguardSpawnsIDs; l_Index < l_CreatureMaxIndex; ++l_Index)
                 {
                     DelCreature(l_Index);
-                    AddCreature(l_Index, g_ArchmageOverwatchNeutral[l_Index - eSpawns::ArchmageOverwatchSpawnsIDs], 5);
+                    AddCreature(l_Index, g_ArchmageOverwatchNeutral[l_Index - eSpawns::TrembladesVanguardSpawnsIDs], 5);
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
@@ -380,6 +391,9 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     AddCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer, g_ArchmageOverwatchSpiritHealer[TeamId::TEAM_HORDE]);
                 else
                     AddCreature(eSpecialSpawns::ArchmageOverwatchSpiritHealer, g_ArchmageOverwatchSpiritHealer[TeamId::TEAM_ALLIANCE]);
+
+                if (p_Faction == eControlStatus::ControlHorde)
+                    l_MustChangeKillCap = true;
             }
 
             break;
@@ -387,6 +401,10 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         default:
             break;
     }
+
+    /// If a faction loses a Tower on their own side of the Road of Glory, their quota will be reset to 50.
+    if (l_MustChangeKillCap)
+        ((OutdoorPvPAshran*)m_PvP)->ResetKillCap(p_Faction == eControlStatus::ControlAlliance ? TeamId::TEAM_HORDE : TeamId::TEAM_ALLIANCE);
 }
 
 OPvPCapturePoint_Graveyard::OPvPCapturePoint_Graveyard(OutdoorPvP* p_Outdoor) : OPvPCapturePoint(p_Outdoor)
@@ -587,6 +605,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
 
     m_PlayerCurrencyLoots.clear();
     m_NeutralVignettes.clear();
+    m_ActiveCaptains.clear();
 
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
@@ -854,26 +873,28 @@ void OutdoorPvPAshran::HandlePlayerLeaveArea(Player* p_Player, uint32 p_AreaID)
     if (p_Player == nullptr || p_Player->isInFlight() || p_Player->getLevel() < MAX_LEVEL)
         return;
 
-    if (p_Player->GetMapId() != eAshranDatas::AshranNeutralMapID)
-        return;
-
-    if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
+    if (p_Player->GetMapId() == eAshranDatas::AshranNeutralMapID)
     {
-        uint64 l_Guid = p_Player->GetGUID();
-
-        sMapMgr->AddCriticalOperation([l_Guid]() -> void
+        if (p_AreaID == eAshranDatas::AshranPreAreaHorde || p_AreaID == eAshranDatas::AshranPreAreaAlliance)
         {
-            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
-                l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
-        });
-    }
+            uint64 l_Guid = p_Player->GetGUID();
 
-    if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
-        p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
-    else if (p_AreaID == eAshranDatas::EmberfallTowerAreaID || p_AreaID == eAshranDatas::ArchmageOverwatchAreaID)
-        p_Player->RemoveAura(eAshranSpells::SpellTowerDefense);
-    else if (p_AreaID == eAshranDatas::VolrathsAdvanceAreaID || p_AreaID == eAshranDatas::TrembladesVanguardAreaID)
-        p_Player->RemoveAura(eAshranSpells::SpellStandFast);
+            sMapMgr->AddCriticalOperation([l_Guid]() -> void
+            {
+                if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+                    l_Player->SwitchToPhasedMap(eAshranDatas::AshranMapID);
+            });
+        }
+    }
+    else
+    {
+        if (p_AreaID == eAshranDatas::AshranHordeBase || p_AreaID == eAshranDatas::AshranAllianceBase)
+            p_Player->RemoveAura(eAshranSpells::SpellHoldYourGround);
+        else if (p_AreaID == eAshranDatas::EmberfallTowerAreaID || p_AreaID == eAshranDatas::ArchmageOverwatchAreaID)
+            p_Player->RemoveAura(eAshranSpells::SpellTowerDefense);
+        else if (p_AreaID == eAshranDatas::VolrathsAdvanceAreaID || p_AreaID == eAshranDatas::TrembladesVanguardAreaID)
+            p_Player->RemoveAura(eAshranSpells::SpellStandFast);
+    }
 }
 
 void OutdoorPvPAshran::HandlePlayerResurrects(Player* p_Player, uint32 p_ZoneID)
@@ -951,8 +972,11 @@ void OutdoorPvPAshran::HandleKill(Player* p_Killer, Unit* p_Killed)
                     case eAshranDatas::EnnemiesSlainCap4:
                         m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap5;
                         break;
-                    /// This is the max cap
                     case eAshranDatas::EnnemiesSlainCap5:
+                        m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap6;
+                        break;
+                    /// This is the max cap
+                    case eAshranDatas::EnnemiesSlainCap6:
                     default:
                         break;
                 }
@@ -968,9 +992,97 @@ void OutdoorPvPAshran::HandleKill(Player* p_Killer, Unit* p_Killed)
                     SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHordeMax, m_EnnemiesKilledMax[l_Team]);
                 }
 
-                /// Spawn a Cap'tain!
+                creature_type l_Spawn;
+                AshranCaptain l_Captain;
+                uint8 l_MaxLoop = 255;
+
+                do
+                {
+                    --l_MaxLoop;
+
+                    if (l_Team == TeamId::TEAM_ALLIANCE)
+                    {
+                        l_Captain = g_AshranCaptains[urand(0, eAshranCaptains::MaxAllianceCaptains - 1)];
+                        l_Spawn.teamval = Team::ALLIANCE;
+                        l_Spawn.x = g_FactionBossesSpawn[2].x;
+                        l_Spawn.y = g_FactionBossesSpawn[2].y;
+                        l_Spawn.z = g_FactionBossesSpawn[2].z;
+                        l_Spawn.o = g_FactionBossesSpawn[2].o;
+                    }
+                    else
+                    {
+                        l_Captain = g_AshranCaptains[urand(eAshranCaptains::MaxAllianceCaptains, eSpecialSpawns::MaxAshranCaptains - 1)];
+                        l_Spawn.teamval = Team::HORDE;
+                        l_Spawn.x = g_FactionBossesSpawn[5].x;
+                        l_Spawn.y = g_FactionBossesSpawn[5].y;
+                        l_Spawn.z = g_FactionBossesSpawn[5].z;
+                        l_Spawn.o = g_FactionBossesSpawn[5].o;
+                    }
+
+                    l_Spawn.entry = l_Captain.Entry;
+                    l_Spawn.map = eAshranDatas::AshranMapID;
+
+                    /// Don't spawn the same Captain twice at the same time if it's possible
+                    if (m_ActiveCaptains.find(l_Captain.Type) != m_ActiveCaptains.end())
+                        l_Captain = AshranCaptain();
+                }
+                while (!l_Captain.Entry || l_MaxLoop > 0);
+
+                m_ActiveCaptains.insert(l_Captain.Type);
+                AddCreature(l_Captain.Type, l_Spawn);
             }
         }
+    }
+}
+
+void OutdoorPvPAshran::ResetKillCap(uint8 p_Team)
+{
+    if (p_Team >= TeamId::TEAM_NEUTRAL)
+        return;
+
+    /// Actual cap is reached, spawn guardian(s) and reset it
+    while (m_EnnemiesKilled[p_Team] >= eAshranDatas::EnnemiesSlainCap1)
+    {
+        m_EnnemiesKilled[p_Team] -= eAshranDatas::EnnemiesSlainCap1;
+
+        creature_type l_Spawn;
+        AshranCaptain l_Captain;
+        if (p_Team == TeamId::TEAM_ALLIANCE)
+        {
+            l_Captain = g_AshranCaptains[urand(0, eAshranCaptains::MaxAllianceCaptains - 1)];
+            l_Spawn.teamval = Team::ALLIANCE;
+            l_Spawn.x = g_FactionBossesSpawn[2].x;
+            l_Spawn.y = g_FactionBossesSpawn[2].y;
+            l_Spawn.z = g_FactionBossesSpawn[2].z;
+            l_Spawn.o = g_FactionBossesSpawn[2].o;
+        }
+        else
+        {
+            l_Captain = g_AshranCaptains[urand(eAshranCaptains::MaxAllianceCaptains, eSpecialSpawns::MaxAshranCaptains - 1)];
+            l_Spawn.teamval = Team::HORDE;
+            l_Spawn.x = g_FactionBossesSpawn[5].x;
+            l_Spawn.y = g_FactionBossesSpawn[5].y;
+            l_Spawn.z = g_FactionBossesSpawn[5].z;
+            l_Spawn.o = g_FactionBossesSpawn[5].o;
+        }
+
+        l_Spawn.entry = l_Captain.Entry;
+        l_Spawn.map = eAshranDatas::AshranMapID;
+
+        AddCreature(l_Captain.Type, l_Spawn);
+    }
+
+    m_EnnemiesKilledMax[p_Team] = eAshranDatas::EnnemiesSlainCap1;
+
+    if (p_Team == TeamId::TEAM_ALLIANCE)
+    {
+        SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAlliance, m_EnnemiesKilled[p_Team]);
+        SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainAllianceMax, m_EnnemiesKilledMax[p_Team]);
+    }
+    else
+    {
+        SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHorde, m_EnnemiesKilled[p_Team]);
+        SendUpdateWorldState(eWorldStates::WorldStateEnnemiesSlainHordeMax, m_EnnemiesKilledMax[p_Team]);
     }
 }
 
@@ -1609,6 +1721,14 @@ void OutdoorPvPAshran::OnCreatureRemove(Creature* p_Creature)
         case eCreatures::Kronus:
             RemoveVignetteOnPlayers(eAshranVignettes::VignetteKronus, TeamId::TEAM_HORDE);
             break;
+        case eCreatures::HighWarlordVolrath:
+            DelCreature(eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_HORDE);
+            m_FactionGenericMoP[TeamId::TEAM_HORDE] = 0;
+            break;
+        case eCreatures::GrandMarshalTremblade:
+            DelCreature(eCreatures::SLGGenericMoPLargeAoI + TeamId::TEAM_ALLIANCE);
+            m_FactionGenericMoP[TeamId::TEAM_ALLIANCE] = 0;
+            break;
         default:
             break;
     }
@@ -1892,6 +2012,14 @@ void OutdoorPvPAshran::HandleFactionBossDeath(uint8 p_Faction)
         else
             return; ///< Nothing to do here
     }
+}
+
+void OutdoorPvPAshran::HandleCaptainDeath(uint32 p_Type)
+{
+    OutdoorPvP::DelCreature(p_Type);
+
+    if (m_ActiveCaptains.find(p_Type) != m_ActiveCaptains.end())
+        m_ActiveCaptains.erase(p_Type);
 }
 
 WorldSafeLocsEntry const* OutdoorPvPAshran::GetClosestGraveyard(Player* p_Player)

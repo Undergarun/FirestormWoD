@@ -179,7 +179,8 @@ enum SpellSpecificType
     SpellSpecificLethalPoison,
     SpellSpecificNonLethalPoison,
     SpellSpecificCrowdFavorite,
-    SpellSpecificDisposition
+    SpellSpecificDisposition,
+    SpellSpecificTowerBuffs
 };
 
 enum SpellCustomAttributes

@@ -97,6 +97,7 @@ class OutdoorPvPAshran : public OutdoorPvP
     using PlayerTimerMap = std::map<uint64, uint32>;
     using PlayerCurrencyLoot = std::map<uint64, uint32>;
     using AshranVignettesMap = std::map<uint32, uint64>;
+    using ActiveCaptains = std::set<uint32>;
 
     public:
         OutdoorPvPAshran();
@@ -111,6 +112,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         void HandlePlayerKilled(Player* p_Player);
         void HandleKill(Player* p_Killer, Unit* p_Killed);
+        void ResetKillCap(uint8 p_Team);
 
         bool IsFactionGuard(Unit* p_Unit) const;
         void SpawnGladiators(uint8 p_TeamID = TeamId::TEAM_NEUTRAL, bool p_Spawn = true);
@@ -154,6 +156,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 GetCurrentBattleType() const;
 
         void HandleFactionBossDeath(uint8 p_Faction);
+        void HandleCaptainDeath(uint32 p_Type);
 
         OPvPCapturePoint_Middle* GetCapturePoint(uint8 p_Index) const { return m_ControlPoints[p_Index]; }
 
@@ -220,6 +223,7 @@ class OutdoorPvPAshran : public OutdoorPvP
 
         AshranVignettesMap m_NeutralVignettes;
         AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
+        ActiveCaptains m_ActiveCaptains;
 };
 
 #endif ///< ASHRAN_MGR_HPP_ASHRAN

@@ -497,7 +497,7 @@ INSERT INTO creature_equip_template VALUES
 (85129, 1, 89776, 0, 0),
 (80495, 1, 28184, 28184, 0),
 (80500, 1, 77214, 29458, 0),
-(85122, 1, 27903, 0, 55782),
+(85122, 1, 85756, 0, 72278),
 (80485, 1, 110784, 0, 0),
 (85140, 1, 42477, 0, 2550),
 (85137, 1, 87862, 0, 0);
@@ -512,7 +512,7 @@ UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_alune_wind
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_chani_malflame' WHERE entry = 85129;
 UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_hildie_hackerguard' WHERE entry = 80495;
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_taylor_dewland' WHERE entry = 80500;
-UPDATE creature_template SET ScriptName = 'npc_ashran_malda_brewbelly' WHERE entry = 85122;
+UPDATE creature_template SET baseattacktime = 1000, rangeattacktime = 1000, ScriptName = 'npc_ashran_malda_brewbelly' WHERE entry = 85122;
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_shani_freezewind' WHERE entry = 80485;
 UPDATE creature_template SET ScriptName = 'npc_ashran_anne_otther' WHERE entry = 85140;
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_mathias_zunn' WHERE entry = 85137;
@@ -544,8 +544,8 @@ UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_elementali
 UPDATE creature_template SET ScriptName = 'npc_ashran_captain_hoodrych' WHERE entry = 79900;
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_soulbrewer_nadagast' WHERE entry = 80489;
 UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_necrolord_azael' WHERE entry = 80486;
-UPDATE creature_template SET ScriptName = 'npc_ashran_rifthunter_yoske' WHERE entry = 80496;
-UPDATE creature_template SET unit_class = 8, ScriptName = 'npc_ashran_morriz' WHERE entry = 85133;
+UPDATE creature_template SET baseattacktime = 1000, rangeattacktime = 1000, ScriptName = 'npc_ashran_rifthunter_yoske' WHERE entry = 80496;
+UPDATE creature_template SET baseattacktime = 1000, rangeattacktime = 1000, unit_class = 8, ScriptName = 'npc_ashran_morriz' WHERE entry = 85133;
 UPDATE creature_template SET ScriptName = 'npc_ashran_kaz_endsky' WHERE entry = 87690;
 UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_razor_guerra' WHERE entry = 85138;
 UPDATE creature_template SET unit_class = 4, ScriptName = 'npc_ashran_jared_v_hellstrike' WHERE entry = 85131;

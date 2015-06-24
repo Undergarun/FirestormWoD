@@ -1715,6 +1715,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SpellSpecificType::SpellSpecificNonLethalPoison:
         case SpellSpecificType::SpellSpecificCrowdFavorite:
         case SpellSpecificType::SpellSpecificDisposition:
+        case SpellSpecificType::SpellSpecificTowerBuffs:
             return spellSpec1 == spellSpec2;
         case SpellSpecificType::SpellSpecificFood:
             return spellSpec2 == SpellSpecificType::SpellSpecificFood
@@ -2471,6 +2472,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case 158016:    ///< Fierce Disposition
                 case 158017:    ///< Savage Disposition
                     return SpellSpecificType::SpellSpecificDisposition;
+                case 173534:    ///< Hold your ground
+                case 173541:    ///< Tower Defense
+                case 173549:    ///< Stand Fast
+                    return SpellSpecificType::SpellSpecificTowerBuffs;
                 default:
                     break;
             }

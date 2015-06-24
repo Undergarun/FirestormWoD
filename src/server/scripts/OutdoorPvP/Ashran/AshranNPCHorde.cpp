@@ -1567,13 +1567,19 @@ class npc_ashran_lord_mes : public CreatureScript
             EventPlagueStrike = 1,
             EventDeathAndDecay,
             EventDeathCoil,
-            EventDeathGrip
+            EventDeathGrip,
+            EventMove
         };
 
         enum eTalks
         {
             Spawn,
             Death
+        };
+
+        enum eData
+        {
+            MountID = 25280
         };
 
         struct npc_ashran_lord_mesAI : public ScriptedAI
@@ -1584,7 +1590,15 @@ class npc_ashran_lord_mes : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
             bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -1595,10 +1609,15 @@ class npc_ashran_lord_mes : public CreatureScript
                     Talk(eTalks::Spawn);
                     m_Spawn = true;
                 }
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventPlagueStrike, 2 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDeathAndDecay, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDeathCoil, 8 * TimeConstants::IN_MILLISECONDS);
@@ -1608,6 +1627,9 @@ class npc_ashran_lord_mes : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainLordMes);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -1621,6 +1643,16 @@ class npc_ashran_lord_mes : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -1695,7 +1727,8 @@ class npc_ashran_mindbender_talbadar : public CreatureScript
             EventMindBlast,
             EventMindSear,
             EventPsychicScream,
-            EventShadowWordPain
+            EventShadowWordPain,
+            EventMove
         };
 
         enum eTalk
@@ -1711,7 +1744,15 @@ class npc_ashran_mindbender_talbadar : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
             bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -1726,6 +1767,8 @@ class npc_ashran_mindbender_talbadar : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 10 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventMindBlast, 5 * TimeConstants::IN_MILLISECONDS);
@@ -1734,8 +1777,24 @@ class npc_ashran_mindbender_talbadar : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainMindbenderTalbadar);
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -1821,7 +1880,8 @@ class npc_ashran_elliott_van_rook : public CreatureScript
             EventBlizzard = 1,
             EventFrostNova,
             EventFrostbolt,
-            EventIceLance
+            EventIceLance,
+            EventMove
         };
 
         enum eTalks
@@ -1830,19 +1890,37 @@ class npc_ashran_elliott_van_rook : public CreatureScript
             Death
         };
 
+        enum eData
+        {
+            MountID = 51048
+        };
+
         struct npc_ashran_elliott_van_rookAI : public ScriptedAI
         {
             npc_ashran_elliott_van_rookAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventBlizzard, 6 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFrostNova, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventFrostbolt, 1 * TimeConstants::IN_MILLISECONDS);
@@ -1858,10 +1936,23 @@ class npc_ashran_elliott_van_rook : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainElliotVanRook);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -1928,7 +2019,8 @@ class npc_ashran_vanguard_samuelle : public CreatureScript
             EventDivineShield,
             EventDivineStorm,
             EventHammerOfJustice,
-            EventAvengingWrath
+            EventAvengingWrath,
+            EventMove
         };
 
         enum eTalks
@@ -1942,6 +2034,14 @@ class npc_ashran_vanguard_samuelle : public CreatureScript
             npc_ashran_vanguard_samuelleAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -1950,6 +2050,8 @@ class npc_ashran_vanguard_samuelle : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventJudgment, 1 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventHammerOfWrath, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDivineShield, 1 * TimeConstants::IN_MILLISECONDS);
@@ -1967,10 +2069,23 @@ class npc_ashran_vanguard_samuelle : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainVanguardSamuelle);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2058,7 +2173,8 @@ class npc_ashran_elementalist_novo : public CreatureScript
             EventHex,
             EventLavaBurst,
             EventLightningBolt,
-            EventMagmaTotem
+            EventMagmaTotem,
+            EventMove
         };
 
         enum eTalk
@@ -2071,6 +2187,14 @@ class npc_ashran_elementalist_novo : public CreatureScript
             npc_ashran_elementalist_novoAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2082,6 +2206,8 @@ class npc_ashran_elementalist_novo : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventChainLightning, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventHex, 10 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventLavaBurst, 8 * TimeConstants::IN_MILLISECONDS);
@@ -2092,6 +2218,9 @@ class npc_ashran_elementalist_novo : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalk::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainElementalistNovo);
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -2102,6 +2231,16 @@ class npc_ashran_elementalist_novo : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2165,7 +2304,8 @@ class npc_ashran_captain_hoodrych : public CreatureScript
         enum eEvents
         {
             EventBladestorm = 1,
-            EventShockwave
+            EventShockwave,
+            EventMove
         };
 
         enum eTalks
@@ -2175,19 +2315,37 @@ class npc_ashran_captain_hoodrych : public CreatureScript
             Death
         };
 
+        enum eData
+        {
+            MountID = 38607
+        };
+
         struct npc_ashran_captain_hoodrychAI : public ScriptedAI
         {
             npc_ashran_captain_hoodrychAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventBladestorm, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventShockwave, 10 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2208,10 +2366,23 @@ class npc_ashran_captain_hoodrych : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainCaptainHoodrych);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2280,7 +2451,8 @@ class npc_ashran_soulbrewer_nadagast : public CreatureScript
         enum eEvents
         {
             EventChaosBolt = 1,
-            EventRainOfFire
+            EventRainOfFire,
+            EventMove
         };
 
         enum eTalks
@@ -2297,7 +2469,15 @@ class npc_ashran_soulbrewer_nadagast : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
             bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2315,6 +2495,8 @@ class npc_ashran_soulbrewer_nadagast : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventChaosBolt, 3 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRainOfFire, 6 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2325,8 +2507,24 @@ class npc_ashran_soulbrewer_nadagast : public CreatureScript
                     Talk(eTalks::Slay);
             }
 
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainSoulbrewerNadagast);
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2375,7 +2573,8 @@ class npc_ashran_necrolord_azael : public CreatureScript
         enum eEvents
         {
             EventChaosBolt = 1,
-            EventRainOfFire
+            EventRainOfFire,
+            EventMove
         };
 
         enum eTalks
@@ -2384,19 +2583,37 @@ class npc_ashran_necrolord_azael : public CreatureScript
             Death
         };
 
+        enum eData
+        {
+            MountID = 51048
+        };
+
         struct npc_ashran_necrolord_azaelAI : public ScriptedAI
         {
             npc_ashran_necrolord_azaelAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventChaosBolt, 3 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRainOfFire, 6 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2410,10 +2627,23 @@ class npc_ashran_necrolord_azael : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainNecrolordAzael);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2462,7 +2692,8 @@ class npc_ashran_rifthunter_yoske : public CreatureScript
         enum eEvents
         {
             EventShoot = 1,
-            EventSerpentSting
+            EventSerpentSting,
+            EventMove
         };
 
         enum eTalks
@@ -2476,6 +2707,14 @@ class npc_ashran_rifthunter_yoske : public CreatureScript
             npc_ashran_rifthunter_yoskeAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2484,6 +2723,8 @@ class npc_ashran_rifthunter_yoske : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventShoot, 3 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventSerpentSting, 5 * TimeConstants::IN_MILLISECONDS);
             }
@@ -2497,10 +2738,23 @@ class npc_ashran_rifthunter_yoske : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainRifthunterYoske);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2546,9 +2800,10 @@ class npc_ashran_morriz : public CreatureScript
             Typhoon = 164337
         };
 
-        enum eEvent
+        enum eEvents
         {
-            EventTyphoon = 1
+            EventTyphoon = 1,
+            EventMove
         };
 
         struct npc_ashran_morrizAI : public ScriptedAI
@@ -2556,6 +2811,14 @@ class npc_ashran_morriz : public CreatureScript
             npc_ashran_morrizAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2564,11 +2827,29 @@ class npc_ashran_morriz : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
-                m_Events.ScheduleEvent(eEvent::EventTyphoon, 15 * TimeConstants::IN_MILLISECONDS);
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventTyphoon, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainMorriz);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2579,10 +2860,10 @@ class npc_ashran_morriz : public CreatureScript
 
                 switch (m_Events.ExecuteEvent())
                 {
-                    case eEvent::EventTyphoon:
+                    case eEvents::EventTyphoon:
                     {
                         me->CastSpell(me, eSpell::Typhoon, false);
-                        m_Events.ScheduleEvent(eEvent::EventTyphoon, 20 * TimeConstants::IN_MILLISECONDS);
+                        m_Events.ScheduleEvent(eEvents::EventTyphoon, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2619,7 +2900,8 @@ class npc_ashran_kaz_endsky : public CreatureScript
             EventPlagueStrike = 1,
             EventDeathAndDecay,
             EventDeathCoil,
-            EventDeathGrip
+            EventDeathGrip,
+            EventMove
         };
 
         enum eTalks
@@ -2628,19 +2910,37 @@ class npc_ashran_kaz_endsky : public CreatureScript
             Death
         };
 
+        enum eData
+        {
+            MountID = 25280
+        };
+
         struct npc_ashran_kaz_endskyAI : public ScriptedAI
         {
             npc_ashran_kaz_endskyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventPlagueStrike, 2 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDeathAndDecay, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDeathCoil, 8 * TimeConstants::IN_MILLISECONDS);
@@ -2656,6 +2956,9 @@ class npc_ashran_kaz_endsky : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainKazEndsky);
             }
 
             void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
@@ -2669,6 +2972,16 @@ class npc_ashran_kaz_endsky : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2745,7 +3058,8 @@ class npc_ashran_razor_guerra : public CreatureScript
             EventFanOfKnives,
             EventHemorrhage,
             EventShadowStep,
-            EventWoundPoison
+            EventWoundPoison,
+            EventMove
         };
 
         enum eTalks
@@ -2754,19 +3068,37 @@ class npc_ashran_razor_guerra : public CreatureScript
             Death
         };
 
+        enum eData
+        {
+            MountID = 51048
+        };
+
         struct npc_ashran_razor_guerraAI : public ScriptedAI
         {
             npc_ashran_razor_guerraAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
                 m_Events.Reset();
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventBlind, 15 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventCloakOfShadows, 1 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventEviscerate, 10 * TimeConstants::IN_MILLISECONDS);
@@ -2785,10 +3117,23 @@ class npc_ashran_razor_guerra : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainRazorGuerra);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2881,7 +3226,8 @@ class npc_ashran_jared_v_hellstrike : public CreatureScript
             EventBlackoutKick = 1,
             EventLegSweep,
             EventRisingSunKick,
-            EventSpinningCraneKick
+            EventSpinningCraneKick,
+            EventMove
         };
 
         struct npc_ashran_jared_v_hellstrikeAI : public ScriptedAI
@@ -2889,6 +3235,14 @@ class npc_ashran_jared_v_hellstrike : public CreatureScript
             npc_ashran_jared_v_hellstrikeAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2897,14 +3251,33 @@ class npc_ashran_jared_v_hellstrike : public CreatureScript
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventBlackoutKick, 5 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventLegSweep, 8 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventRisingSunKick, 10 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventSpinningCraneKick, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainJaredVHellstrike);
+            }
+
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    me->SetWalk(true);
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
@@ -2970,13 +3343,19 @@ class npc_ashran_kimilyn : public CreatureScript
             EventMindBlast,
             EventMindSear,
             EventPsychicScream,
-            EventShadowWordPain
+            EventShadowWordPain,
+            EventMove
         };
 
         enum eTalks
         {
             Spawn,
             Death
+        };
+
+        enum eData
+        {
+            MountID = 51048
         };
 
         struct npc_ashran_kimilynAI : public ScriptedAI
@@ -2987,7 +3366,15 @@ class npc_ashran_kimilyn : public CreatureScript
             }
 
             EventMap m_Events;
+            EventMap m_MoveEvent;
             bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
 
             void Reset() override
             {
@@ -2998,10 +3385,15 @@ class npc_ashran_kimilyn : public CreatureScript
                     Talk(eTalks::Spawn);
                     m_Spawn = true;
                 }
+
+                me->Mount(eData::MountID);
             }
 
             void EnterCombat(Unit* p_Attacker) override
             {
+                me->Mount(0);
+                me->SetHomePosition(*me);
+
                 m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 10 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
                 m_Events.ScheduleEvent(eEvents::EventMindBlast, 5 * TimeConstants::IN_MILLISECONDS);
@@ -3013,10 +3405,23 @@ class npc_ashran_kimilyn : public CreatureScript
             void JustDied(Unit* p_Killer) override
             {
                 Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainKimilyn);
             }
 
             void UpdateAI(uint32 const p_Diff) override
             {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Kronus
+                    me->LoadPath(eCreatures::Kronus);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
                 if (!UpdateVictim())
                     return;
 
