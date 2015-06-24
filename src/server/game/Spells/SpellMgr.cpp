@@ -5123,6 +5123,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102359: ///< Mass Entanglement
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
+            case 64380: ///< Shattering Throw
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DISPEL_MECHANIC;
+                spellInfo->Effects[0].MiscValue = 29;
+                break;
             case 102355: ///< Faerie Swarm
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
