@@ -781,26 +781,16 @@ class spell_rog_cloak_and_dagger: public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_cloak_and_dagger_SpellScript);
 
-            SpellCastResult CheckCast()
-            {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    if (l_Caster->HasUnitState(UNIT_STATE_ROOT))
-                        return SPELL_FAILED_ROOTED;
-                    if (Unit* l_Target = GetHitUnit())
-                        if (l_Target == l_Caster)
-                        return SPELL_FAILED_BAD_TARGETS;
-                    return SPELL_CAST_OK;
-                }
-                return SPELL_FAILED_TRY_AGAIN;
-            }
-
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                    if (Unit* l_Target = GetHitUnit())
-                        if (l_Caster->HasSpell(ROGUE_SPELL_CLOAK_AND_DAGGER))
-                            l_Caster->CastSpell(l_Target, 36563, true);
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                if (l_Caster->HasAura(ROGUE_SPELL_CLOAK_AND_DAGGER) && !l_Caster->HasUnitState(UNIT_STATE_ROOT))
+                    l_Caster->CastSpell(l_Target, ROGUE_SPELL_SHADOWSTEP_TELEPORT_ONLY, true);
             }
 
             void Register()
