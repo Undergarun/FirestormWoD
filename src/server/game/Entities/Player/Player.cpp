@@ -33082,24 +33082,15 @@ bool Player::CanUseCharge(uint32 p_CategoryID) const
     if (!l_Charges.m_ConsumedCharges)
         return true;
 
-    uint32 l_Count = 0;
-    bool l_IsModified = false;
+    uint32 l_ModCharge = 0;
     Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(AuraType::SPELL_AURA_MOD_CHARGES);
     for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
     {
         if ((*l_Iter)->GetMiscValue() == p_CategoryID)
-        {
-            ++l_Count;
-            l_IsModified = true;
-        }
+            l_ModCharge += (*l_Iter)->GetAmount();
     }
 
-    /// If spell is not modified, we should assume
-    /// that spell doesn't use charges yet
-    if (!l_Count && l_IsModified)
-        return true;
-
-    if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges)
+    if (l_Charges.m_ConsumedCharges >= l_Charges.m_MaxCharges + l_ModCharge)
         return false;
 
     return true;
