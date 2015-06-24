@@ -7859,6 +7859,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 130551: ///< Word of GLory
+                        case 85222: ///< Light of Dawn
                         {
                             float mastery = ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f;
                             basepoints0 = int32(damage * float(mastery / 100.0f));
@@ -9183,13 +9185,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 // Greater Heal Refund
                 if (auraSpellInfo->Id == 37594)
                     trigger_spell_id = 37595;
-
-                // Glyph of Mass Dispel
-                if (auraSpellInfo->Id == 32375)
-                {
-                    if (HasAura(55691))
-                        trigger_spell_id = 39897;
-                }
                 break;
             }
             case SPELLFAMILY_DRUID:
