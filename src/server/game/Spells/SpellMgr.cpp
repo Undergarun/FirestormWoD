@@ -3355,6 +3355,84 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 128254: ///< Brew Finale Wheat Effect (Yan-Zhu - Stormstout Brewery)
+            case 128256: ///< Brew Finale Medium Effect (Yan-Zhu - Stormstout Brewery)
+            case 128258: ///< Brew Finale Dark Effect (Yan-Zhu - Stormstout Brewery)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_NEARBY_ENEMY;
+                break;
+            case 133601: ///< Durumu Debuff 2A (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].BasePoints *= 35000;
+                break;
+            case 134169:
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->AttributesCu &= ~SPELL_ATTR0_HIDDEN_CLIENTSIDE;
+                break;
+            case 140016: ///< Drop Feathers (Ji Kun - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].MiscValue = 218543;
+                break;
+            case 134755: ///< Eye Sore (Durumu - Throne of Thunder)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 133740: ///< Bright Light (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_1].MiscValue = 0;
+                spellInfo->AttributesEx8 &= ~SPELL_ATTR8_UNK27;
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNEL_TRACK_TARGET;
+                spellInfo->Effects[EFFECT_3].TriggerSpell = 0;
+                break;
+            case 133795: ///< Drain Life (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_2].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133798: ///< Drain Life (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 133796: ///< Drain Life (Durumu - Throne of Thunder)
+            case 138908: ///< Transfusion (Dark Animus - Throne of Thunder)
+            case 147234: ///< Dummy Nuke (Iron Qon - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 140495: ///< Lingering Gaze (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].BasePoints *= 2.9f;
+                break;
+            case 136413: ///< Force of Will (Durumu - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_104;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
+                break;
+            case 138378: ///< Transfusion (Dark Animus - Throne of Thunder)
+                spellInfo->ExplicitTargetMask = 0;
+                break;
+            case 136954: ///< Anima Ring (Dark Animu - Throne of Thunder)
+                for (uint8 l_Itr = 0; l_Itr < 12; ++l_Itr)
+                    spellInfo->Effects[l_Itr].TriggerSpell = 0;
+                break;
+            case 136955: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 136956: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 136957: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 136958: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 136959: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 136960: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138671: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138672: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138673: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138674: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138675: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+            case 138676: ///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_DEST_DEST;
+                spellInfo->ExplicitTargetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case 136962: ///< Anima Ring (Debuff) (Dark Animus - Throne of Thunder)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
+                break;
+            case 138613: ///< Matter Swap (Dark Animus - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetB = 0;
+                break;
+            case 139803: /// Triumphant Rush
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                spellInfo->Effects[EFFECT_2].TargetB = TARGET_UNIT_DEST_AREA_ENEMY;
+                break;
             case 167615: ///< Pierced Armor
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
@@ -3704,6 +3782,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 64482:  ///< Tower of Life
             case 55076:  ///< Sun Scope
             case 60023:  ///< Scourge Banner Aura
+            case 66118:  ///< Leeching Swarm
             case 137502: ///< Growing Fury
             case 58105:  ///< Power of Shadron
             case 61248:  ///< Power of Tenebron
@@ -3863,7 +3942,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 137117: ///< Reckless Charge (Rolling)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
-            case 139866: ///< Torrent of Ice
             case 140138: ///< Nether Tear
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                 break;
@@ -3903,6 +3981,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 137633: ///< Crystal Shell (damage absorb)
             case 137648: ///< Crystal Shell (heal absorb)
+            case 134916: ///< Decapitate (debuff) (Lei Shen - Throne of Thunder)
                 spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
@@ -4072,9 +4151,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;*/
             case 135299: ///< Ice Trap (snare)
             case 140023: ///< Ring of Peace (dummy)
+            case 138234: ///< Lightning Storm (damage) (Lei Shen trash - Throne of Thunder)
             case 81782:  ///< Power Word: Barrier (buff)
             case 139485: ///< Dark Winds
                 spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                break;
+            case 134821: ///< Discharged Energy (Lei Shen - Throne of Thunder)
+            case 135153: ///< Crashing Thunder (DoT) (Lei Shen - Throne of Thunder)
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(285); ///< 1s
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_HIDE_DURATION;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DONT_RESET_PERIODIC_TIMER | SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
+                break;
+            case 137252: ///< Overcharge (Lei Shen - Throne of Thunder)
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(35); ///< Min: 0, Max: 35
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(21); ///< 35
                 break;
             case 103965: ///< Metamorphosis (override auras)
                 spellInfo->Effects[2].SpellClassMask[0] = 64;
@@ -4296,6 +4387,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 106401: ///< Twilight Onslaught
             case 155152: ///< Prismatic Crystal damage
             case 172073: ///< Meteoric Earthspire (Rokka & Lokk)
+            case 135703: ///< Static Shock (Lei Shen - Throne of Thunder)
+            case 136366: ///< Bounding Bolt (Lei Shen - Throne of Thunder)
                 /// ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
@@ -4457,8 +4550,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 121129: ///< Daybreak (heal)
                 spellInfo->Effects[1].TargetA = TARGET_SRC_CASTER;
                 break;
-            case 51699: ///< Honor Among Thieves (triggered)
-            case 57934: ///< Tricks of the Trade
+            case 51699:  ///< Honor Among Thieves (triggered)
+            case 57934:  ///< Tricks of the Trade
+            case 138275: ///< Cosmetic Visual (Lei Shen - Throne of Thunder)
+            case 138274: ///< Cosmetic Visual (triggered - Lei Shen - Throne of Thunder)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 154294: ///< Power Conduit
@@ -4848,10 +4943,38 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[1].TargetB = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 125451: ///< Ultimate Corruption
+            case 139866: ///< Torrent of Ice (Megaera - Throne of Thunder)
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ANY;
                 break;
             case 108503: ///< Grimoire of Sacrifice
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 136192: ///< Lightning Storm (Iron Qon - Throne of Thunder)
+            {
+                for (uint8 l_Idx = 0; l_Idx < 5; ++l_Idx)
+                    spellInfo->Effects[l_Idx].TargetB = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            }
+            case 136330: ///< Burning Cinders (Iron Qon - Throne of Thunder)
+            case 136419: ///< Storm Cloud (Iron Qon - Throne of Thunder)
+            case 136449: ///< Frozen Blood (Iron Qon - Throne of Thunder)
+            case 137118: ///< Bloom Moon Lotus (Twin Consorts - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 137749: ///< Cosmic Barrage (Twin Consorts - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                break;
+            case 138318: ///< Crane Rush (Twin Consorts - Throne of Thunder)
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_TARGET_ANY;
+                spellInfo->Effects[EFFECT_1].TargetA = TARGET_SRC_CASTER;
+                spellInfo->Effects[EFFECT_1].TargetB = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 143412: ///< Immerseus Swirl (Immerseus - Siege of Orgrimmar)
+                spellInfo->Effects[EFFECT_0].Amplitude = 1000;
+                break;
+            case 143413:
+                spellInfo->Effects[EFFECT_0].Amplitude = 3000;
                 break;
             case 119905: ///< Cauterize (Command Demon)
             case 119907: ///< Disarm (Command Demon)
@@ -4977,6 +5100,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 51490:  ///< Thunderstorm
             case 108416: ///< Sacrificial Pact
             case 137562: ///< Nimble Brew
+            case 134758: ///< Burning Cinders
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
             case 115611: ///< Temporal Ripples
@@ -5482,6 +5606,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 106334: ///< Wash Away
                 spellInfo->AttributesEx3 &= ~ SPELL_ATTR3_ONLY_TARGET_PLAYERS;
+                spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CONE_ENEMY_24;
+                spellInfo->Effects[EFFECT_0].TargetB = 0;
                 break;
             case 124974: ///< Nature's Vigil
                 spellInfo->AttributesEx7 &= ~SPELL_ATTR7_ALLIANCE_ONLY;
