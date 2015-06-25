@@ -14385,6 +14385,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         gain = maxPower - curPower;
     }
 
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->PowerModified(getPowerType(), GetPower(getPowerType()));
+
     return gain;
 }
 
