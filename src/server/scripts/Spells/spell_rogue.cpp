@@ -452,8 +452,11 @@ class spell_rog_shadow_reflection_proc : public SpellScriptLoader
                                 if (!l_Creature->IsAIEnabled)
                                     break;
 
-                                uint32 l_Time = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
-                                l_Creature->AI()->SetGUID(p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id | (uint64(l_Time) << 32), eDatas::AddSpellToQueue);
+                                uint64 l_Data;
+                                ((uint32*)(&l_Data))[0] = p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id;
+                                ((uint32*)(&l_Data))[1] = p_AurEff->GetBase()->GetMaxDuration() - p_AurEff->GetBase()->GetDuration();
+
+                                l_Creature->AI()->SetGUID(l_Data, eDatas::AddSpellToQueue);
                                 break;
                             }
                         }
@@ -618,9 +621,9 @@ class spell_rog_killing_spree: public SpellScriptLoader
                         JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(l_Caster, l_TargetList, l_Check);
                         l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
-                        l_TargetList.remove_if([this](Unit* p_Unit) -> bool
+                        l_TargetList.remove_if([this, l_Caster](Unit* p_Unit) -> bool
                         {
-                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura())
+                            if (p_Unit == nullptr || p_Unit->HasCrowdControlAura() || !l_Caster->IsValidAttackTarget(p_Unit))
                                 return true;
 
                             return false;
@@ -1028,20 +1031,20 @@ class spell_rog_nerve_strike: public SpellScriptLoader
                 if (GetSpellInfo()->Id != ROGUE_SPELL_KIDNEY_SHOT)
                     return;
 
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(ROGUE_SPELL_REVEALING_STRIKE);
+
+                if (l_Target == nullptr || l_SpellInfo == nullptr)
+                    return;
+
+                if (l_Target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, l_Caster->GetGUID()))
                 {
-                    if (Unit* target = GetHitUnit())
+                    if (AuraPtr l_Kidney = l_Target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, l_Caster->GetGUID()))
                     {
-                        if (target->HasAura(ROGUE_SPELL_REVEALING_STRIKE, caster->GetGUID()))
-                        {
-                            if (AuraPtr kidney = target->GetAura(ROGUE_SPELL_KIDNEY_SHOT, caster->GetGUID()))
-                            {
-                                int32 duration = kidney->GetMaxDuration();
-                                AddPct(duration, 35);
-                                kidney->SetMaxDuration(duration);
-                                kidney->RefreshDuration(true);
-                            }
-                        }
+                        int32 l_Duration = l_Kidney->GetDuration();
+                        AddPct(l_Duration, l_SpellInfo->Effects[EFFECT_2].BasePoints);
+                        l_Kidney->SetDuration(l_Duration);
                     }
                 }
             }
@@ -2485,6 +2488,109 @@ public:
     }
 };
 
+/// Bandit's Guile - 84654
+/// Call by Sinister Strike - 1752
+class spell_rog_bandits_guile : public SpellScriptLoader
+{
+    public:
+        spell_rog_bandits_guile() : SpellScriptLoader("spell_rog_bandits_guile") { }
+
+        class spell_rog_bandits_guile_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_bandits_guile_SpellScript);
+
+            enum eSpells
+            {
+                ShallowInsight  = 84745, //< Green
+                ModerateInsight = 84746, //< Yellow
+                DeepInsight     = 84747  //< Red
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                l_Caster->SetInsightCount(l_Caster->GetInsightCount() + 1);
+
+                /// it takes a total of 4 strikes to get a proc, or a level up
+                if (l_Caster->GetInsightCount() < 4)
+                {
+                    /// Each strike refresh the duration of Shallow Insight or Moderate Insight
+                    /// but you can't refresh Deep Insight without starting from Shallow Insight.
+                    if (AuraPtr l_ShallowInsight = l_Caster->GetAura(eSpells::ShallowInsight))
+                        l_ShallowInsight->RefreshDuration();
+                    else if (AuraPtr l_ModerateInsight = l_Caster->GetAura(eSpells::ModerateInsight))
+                        l_ModerateInsight->RefreshDuration();
+                }
+                else
+                {
+                    l_Caster->SetInsightCount(0);
+
+                    /// it takes 4 strikes to get Shallow Insight
+                    /// then 4 strikes to get Moderate Insight
+                    /// and then 4 strikes to get Deep Insight
+
+                    if (AuraPtr l_ShallowInsight = l_Caster->GetAura(eSpells::ShallowInsight))
+                    {
+                        l_ShallowInsight->Remove();
+                        l_Caster->CastSpell(l_Caster, eSpells::ModerateInsight, true);
+                    }
+                    else if (AuraPtr l_ModerateInsight = l_Caster->GetAura(eSpells::ModerateInsight))
+                    {
+                        l_ModerateInsight->Remove();
+                        l_Caster->CastSpell(l_Caster, eSpells::DeepInsight, true);
+                    }
+                    else if (!l_Caster->HasAura(eSpells::DeepInsight))
+                        l_Caster->CastSpell(l_Caster, eSpells::ShallowInsight, true);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_rog_bandits_guile_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_bandits_guile_SpellScript();
+        }
+};
+
+/// Deep Insight - 84747
+class spell_rog_deep_insight : public SpellScriptLoader
+{
+    public:
+        spell_rog_deep_insight() : SpellScriptLoader("spell_rog_deep_insight") { }
+
+        class spell_rog_deep_insight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_deep_insight_SpellScript);
+
+            enum eSpells
+            {
+                EmpoweredBanditsGuile = 157581
+            };
+
+            void HandleDamagePct(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (AuraEffectPtr l_EmpoweredBanditsGuile = l_Caster->GetAuraEffect(eSpells::EmpoweredBanditsGuile, EFFECT_0))
+                    SetHitDamage(GetEffectValue() + l_EmpoweredBanditsGuile->GetAmount());
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_rog_deep_insight_SpellScript::HandleDamagePct, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_deep_insight_SpellScript();
+        }
+};
 
 void AddSC_rogue_spell_scripts()
 {
@@ -2532,6 +2638,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_internal_bleeding_damage();
     new spell_rog_feint();
     new spell_rog_backstab();
+    new spell_rog_bandits_guile();
+    new spell_rog_deep_insight();
 
     /// Player Scripts
     new PlayerScript_ruthlessness();

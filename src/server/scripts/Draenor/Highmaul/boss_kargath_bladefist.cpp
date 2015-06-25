@@ -267,6 +267,8 @@ class boss_kargath_bladefist : public CreatureScript
             bool m_ChainHurl;
             bool m_NearDeath;
 
+            bool m_InEvadeMode;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -285,6 +287,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 m_ChainHurl = false;
                 m_NearDeath = false;
+                m_InEvadeMode = false;
 
                 if (m_Instance)
                 {
@@ -442,6 +445,9 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eActions::InterruptByPillar:
                     {
+                        if (m_InEvadeMode)
+                            break;
+
                         Talk(eTalks::FlamePillar);
                         me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
                         me->RemoveAura(eSpells::BerserkerRushDamageTick);
@@ -482,7 +488,17 @@ class boss_kargath_bladefist : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                me->SetControlled(false, UnitState::UNIT_STATE_ROOT);
+                m_InEvadeMode = true;
+
+                me->RemoveAllAuras();
+                me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
+
+                me->InterruptNonMeleeSpells(true);
+
+                /// Just in case, to prevent the fail Return to Home
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                me->ClearUnitState(UnitState::UNIT_STATE_DISTRACTED);
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 if (Unit* l_ChainHurl = Unit::GetUnit(*me, m_ChainHurlGuid))
                 {
@@ -494,6 +510,8 @@ class boss_kargath_bladefist : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SetBossState(eHighmaulDatas::BossKargathBladefist, EncounterState::FAIL);
+
+                m_InEvadeMode = false;
             }
 
             void JustReachedHome() override
@@ -553,6 +571,10 @@ class boss_kargath_bladefist : public CreatureScript
                             break;
 
                         p_Target->EnterVehicle(me, 0, true);
+
+                        /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                        /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                        p_Target->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
 
                         /// This should prevent Kargath to send player under map after Impale
                         if (Creature* l_ATForCrowd = me->FindNearestCreature(eCreatures::AreaTriggerForCrowd, 100.0f))
@@ -3537,7 +3559,12 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->IsOnVehicle())
+                        continue;
+
                     l_Caster->CastSpell(l_Unit, eSpell::MoltenBomb, true);
+                }
             }
         }
 
@@ -3582,8 +3609,13 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    if (l_Unit->GetPositionZ() > (g_ArenaFloor + 5.0f))
+                    if (l_Unit->IsOnVehicle())
+                    {
+                        if (l_Unit->HasAura(eSpells::FlameJet))
+                            l_Unit->RemoveAura(eSpells::FlameJet);
+
                         continue;
+                    }
 
                     /// Don't add DoT on targets in vehicle (Chain Hurl or Impale)
                     if (l_Caster->GetDistance(l_Unit) <= 7.0f && !l_Unit->IsOnVehicle())
@@ -3635,7 +3667,12 @@ class areatrigger_highmaul_mauling_brew : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->IsOnVehicle())
+                        continue;
+
                     l_Caster->CastSpell(l_Unit, eSpells::MaulingBrew, true);
+                }
             }
         }
 

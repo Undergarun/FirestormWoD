@@ -150,8 +150,9 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                     {
                         if (!m_Queuing)
                             break;
-                        uint32 l_SpellID = p_Data & 0xFFFFFFFF;
-                        uint32 l_Time = p_Data >> 32;
+
+                        uint32 l_SpellID = ((uint32*)(&p_Data))[0];
+                        uint32 l_Time = ((uint32*)(&p_Data))[1];
                         m_SpellQueue.push(SpellData(l_SpellID, l_Time));
                         break;
                     }
@@ -185,6 +186,9 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
             {
                 if (p_SpellInfo->Id == eSpells::ShadowReflectionClone && p_Caster != nullptr && p_Caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
+                    me->SetMaxPower(Powers::POWER_COMBO_POINT, 5);
+                    me->SetPower(Powers::POWER_COMBO_POINT, p_Caster->GetPower(Powers::POWER_COMBO_POINT));
+
                     for (uint8 l_AttType = 0; l_AttType < WeaponAttackType::MaxAttack; ++l_AttType)
                     {
                         me->SetBaseWeaponDamage((WeaponAttackType)l_AttType, MAXDAMAGE, p_Caster->GetWeaponDamageRange((WeaponAttackType)l_AttType, MAXDAMAGE));
@@ -192,7 +196,6 @@ class spell_npc_rogue_shadow_reflection : public CreatureScript
                     }
 
                     me->UpdateAttackPowerAndDamage();
-
                 }
             }
 

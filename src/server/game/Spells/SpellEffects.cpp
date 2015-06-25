@@ -2340,8 +2340,8 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 6572:  // Revenge
-            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE)
+        case 6572:  /// Revenge
+            if (m_caster->GetShapeshiftForm() != FORM_DEFENSIVESTANCE && m_caster->GetShapeshiftForm() != FORM_GLADIATORSTANCE)
                 return;
             break;
         case 9512:                                          // Restore Energy

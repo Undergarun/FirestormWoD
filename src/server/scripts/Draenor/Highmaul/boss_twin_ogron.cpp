@@ -26,12 +26,12 @@ Position const g_PhemosMovePos[3] =
 
 Position const g_PhemosJumpPos = { 4028.90f, 8485.51f, 322.226f, 5.63415f };
 
-float g_GorthenonFloor = 330.0f;
+float const g_GorthenonFloor = 330.0f;
 
 Position const g_CenterPos = { 4062.38f, 8470.91f, 322.226f, 0.0f };
 
-float g_CircleToCenterDist = 25.0f;
-float g_BlazeDistToCenter = 136.0f;
+float const g_CircleToCenterDist = 30.0f;
+float const g_BlazeDistToCenter = 136.0f;
 
 void RespawnOgrons(Creature* p_Source, InstanceScript* p_Instance)
 {
@@ -167,9 +167,6 @@ class boss_twin_ogron_pol : public CreatureScript
                 me->CancelSpellVisual(eVisuals::BigPulverize);
                 me->CancelSpellVisual(eVisuals::PulverizeVisual);
                 me->CancelSpellVisualKit(eVisuals::PulverizeLast);
-
-                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
-                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
@@ -283,6 +280,9 @@ class boss_twin_ogron_pol : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventShieldBash, 22 * TimeConstants::IN_MILLISECONDS);
 
                 StartOgrons(me, p_Attacker);
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Phemos, 150.0f))
+                    me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -467,7 +467,8 @@ class boss_twin_ogron_phemos : public CreatureScript
             WeakenedDefenses        = 159709,
 
             DoubleSlashMainHand     = 158521,
-            DoubleSlashOffHand      = 167198
+            DoubleSlashOffHand      = 167198,
+            BlazeDoT                = 158241
         };
 
         enum eEvents
@@ -614,15 +615,6 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                 me->CancelSpellVisual(eVisuals::QuakeSpellVisual);
                 me->CancelSpellVisualKit(eVisuals::QuakeVisualID);
-
-                if (m_Instance != nullptr)
-                {
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
-                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
-                }
-
-                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
-                    me->CastSpell(l_Other, eSpells::VenomshadeCopyDmgAura, true);
             }
 
             bool CanRespawn() override
@@ -750,6 +742,9 @@ class boss_twin_ogron_phemos : public CreatureScript
                 m_Events.ScheduleEvent(eEvents::EventDoubleSlash, 26 * TimeConstants::IN_MILLISECONDS);
 
                 StartOgrons(me, p_Attacker);
+
+                if (Creature* l_Other = me->FindNearestCreature(eHighmaulCreatures::Pol, 150.0f))
+                    me->AddAura(eSpells::VenomshadeCopyDmgAura, l_Other);
             }
 
             void KilledUnit(Unit* p_Killed) override
@@ -768,7 +763,10 @@ class boss_twin_ogron_phemos : public CreatureScript
 
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BlazeDoT);
                 }
+
+                me->RemoveAllAreasTrigger();
             }
 
             void EnterEvadeMode() override
@@ -782,8 +780,14 @@ class boss_twin_ogron_phemos : public CreatureScript
                     m_Instance->SetBossState(eHighmaulDatas::BossTwinOgron, EncounterState::FAIL);
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::WeakenedDefenses);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::EnfeeblingRoarDebuff);
+                    m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BlazeDoT);
+
                     RespawnOgrons(me, m_Instance);
                 }
+
+                me->RemoveAllAreasTrigger();
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override

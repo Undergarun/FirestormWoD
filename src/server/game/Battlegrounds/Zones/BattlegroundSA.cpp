@@ -152,13 +152,28 @@ bool BattlegroundSA::ResetObjs()
         return false;
     }
 
-    // MAD props for Kiper for discovering those values - 4 hours of his work.
-    GetBGObject(BG_SA_BOAT_ONE)->UpdateRotationFields(1.0f, 0.0002f);
-    GetBGObject(BG_SA_BOAT_TWO)->UpdateRotationFields(1.0f, 0.00001f);
+    /// MAD props for Kiper for discovering those values - 4 hours of his work.
+    if (GameObject* l_BoatOne = GetBGObject(BG_SA_BOAT_ONE))
+    {
+        if (l_BoatOne->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
+            l_BoatOne->SetRotationAngles(acosf(0.0002f), 0.f, 0.f);
+        else
+            l_BoatOne->UpdateRotationFields(1.0f, 0.0002f);
 
-    /// - Don't know why we need to set transport 'active' to stop them, and stopped to move them ...
-    GetBGObject(BG_SA_BOAT_ONE)->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
-    GetBGObject(BG_SA_BOAT_TWO)->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+        /// - Don't know why we need to set transport 'active' to stop them, and stopped to move them ...
+        l_BoatOne->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+    }
+
+    if (GameObject* l_BoatTwo = GetBGObject(BG_SA_BOAT_ONE))
+    {
+        if (l_BoatTwo->GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
+            l_BoatTwo->SetRotationAngles(acosf(0.00001f), 0.f, 0.f);
+        else
+            l_BoatTwo->UpdateRotationFields(1.0f, 0.00001f);
+
+        /// - Don't know why we need to set transport 'active' to stop them, and stopped to move them ...
+        l_BoatTwo->SetGoState(GO_STATE_TRANSPORT_ACTIVE);
+    }
 
     SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
     SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);

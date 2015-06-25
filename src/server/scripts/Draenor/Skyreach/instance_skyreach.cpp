@@ -40,10 +40,6 @@ namespace MS
 
             struct instance_SkyreachInstanceMapScript : public InstanceScript
             {
-                uint32 m_BeginningTime;
-                bool   m_CanUpdate;
-                ObjectGuid m_InstanceGuid;
-
                 // Araknath part.
                 uint64 m_AraknathGuid;
                 uint64 m_SkyreachArcanologistGuid;
@@ -76,9 +72,6 @@ namespace MS
 
                 instance_SkyreachInstanceMapScript(Map* p_Map) 
                     : InstanceScript(p_Map),
-                    m_BeginningTime(0),
-                    m_CanUpdate(false),
-                    m_InstanceGuid(MAKE_NEW_GUID(instance->GetId(), 0, HIGHGUID_INSTANCE_SAVE)),
                     m_AraknathGuid(0),
                     m_SkyreachArcanologistGuid(0),
                     m_SolarConstructorsGuid(),
@@ -578,7 +571,6 @@ namespace MS
 
                     m_ReadyForRaidingIVAchievements[p_Player->GetGUID()] = 0;
                     m_PlayerGuidToBlockId[p_Player->GetGUID()] = 0;
-                    m_CanUpdate = true;
                 }
 
                 void Update(uint32 p_Diff)
@@ -586,11 +578,6 @@ namespace MS
                     ScheduleBeginningTimeUpdate(p_Diff);
                     ScheduleChallengeStartup(p_Diff);
                     ScheduleChallengeTimeUpdate(p_Diff);
-
-                    if (!m_CanUpdate)
-                        return;
-
-                    m_BeginningTime += p_Diff;
 
                     // We check here if a player is in the WindMaze zone.
                     Map::PlayerList const &l_PlayerList = instance->GetPlayers();

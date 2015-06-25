@@ -648,122 +648,117 @@ class spell_dru_natures_vigil: public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_natures_vigil_AuraScript);
 
-            void OnProcHeal(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eSpells
             {
-                PreventDefaultAction();
+                NatureVigilHeal = 124988,
+                NatureVigilDamage = 124991
+            };
 
-                Unit* caster = GetCaster();
-                if (!caster)
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                Unit* l_Caster = GetCaster();
+                SpellInfo const* l_SpellProcInfo = p_EventInfo.GetDamageInfo()->GetSpellInfo();
+
+                if (l_Caster == nullptr || l_SpellProcInfo == nullptr)
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                bool singleTarget = false;
+                bool l_SingleTarget = false;
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if ((eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
-                         eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
-                        eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetB.GetTarget() == 0)
-                        singleTarget = true;
-
-                if (!singleTarget)
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_HEAL ||
-                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_DAMAGE)
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE) && !(eventInfo.GetDamageInfo()->GetDamageType() == HEAL))
-                    return;
-
-                int32 bp = 0;
-                Unit* target = NULL;
-                uint32 spellId = 0;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
                 {
-                    bp = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-                    spellId = SPELL_DRUID_NATURES_VIGIL_DAMAGE;
-                    target = caster->SelectNearbyTarget(caster, 25.0f);
-                    if (!target)
-                        target = eventInfo.GetActionTarget();
+                    if ((l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
+                        l_SpellProcInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
+                        l_SpellProcInfo->Effects[i].TargetB.GetTarget() == 0)
+                        l_SingleTarget = true;
                 }
 
-                if (!target || !spellId || !bp)
+                if (!l_SingleTarget)
                     return;
 
-                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
-            }
+                int32 l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
 
-            void OnProcDamage(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+                if (!l_SpellProcInfo->IsPositive())
+                    l_Bp = CalculatePct(p_EventInfo.GetDamageInfo()->GetDamage(), GetSpellInfo()->Effects[EFFECT_3].BasePoints);
 
-                Unit* caster = GetCaster();
-                if (!caster)
+                l_Caster->CastCustomSpell(l_Caster, eSpells::NatureVigilHeal, &l_Bp, NULL, NULL, true);
+
+                Player *l_Player = l_Caster->ToPlayer();
+
+                if (l_Player == nullptr)
                     return;
 
-                if (eventInfo.GetActor()->GetGUID() != caster->GetGUID())
-                    return;
-
-                if (!eventInfo.GetDamageInfo()->GetSpellInfo())
-                    return;
-
-                bool singleTarget = false;
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if ((eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
-                         eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY) &&
-                        eventInfo.GetDamageInfo()->GetSpellInfo()->Effects[i].TargetB.GetTarget() == 0)
-                        singleTarget = true;
-
-                if (!singleTarget)
-                    return;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_HEAL ||
-                    eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_DRUID_NATURES_VIGIL_DAMAGE)
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamage()) && !(eventInfo.GetHealInfo()->GetHeal()))
-                    return;
-
-                if (!(eventInfo.GetDamageInfo()->GetDamageType() == SPELL_DIRECT_DAMAGE) && !(eventInfo.GetDamageInfo()->GetDamageType() == HEAL))
-                    return;
-
-                int32 bp = 0;
-                Unit* target = NULL;
-                uint32 spellId = 0;
-
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->IsPositive())
-                {
-                    bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-                    spellId = SPELL_DRUID_NATURES_VIGIL_HEAL;
-                    target = caster->SelectNearbyAlly(caster, 25.0f);
-                    if (!target)
-                        target = caster;
-                }
-
-                if (!target || !spellId || !bp)
-                    return;
-
-                caster->CastCustomSpell(target, spellId, &bp, NULL, NULL, true);
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_DRUID_RESTORATION && l_SpellProcInfo->IsPositive())
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::NatureVigilDamage, &l_Bp, NULL, NULL, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProcHeal, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProcDamage, EFFECT_3, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_dru_natures_vigil_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_natures_vigil_AuraScript();
+        }
+};
+
+/// Nature's Vigil (heal) - 124988, Nature's Vigil (damage) - 124991
+class spell_dru_natures_vigil_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_natures_vigil_proc() : SpellScriptLoader("spell_dru_natures_vigil_proc") { }
+
+        class spell_dru_natures_vigil_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_natures_vigil_proc_SpellScript);
+
+            enum eSpells
+            {
+                NatureVigilHeal = 124988,
+                NatureVigilDamage = 124991
+            };
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                Unit* l_Caster = GetCaster();
+
+                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
+                {
+                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
+                        return true;
+
+                    if (p_Object->GetGUID() == l_Caster->GetGUID())
+                        return true;
+
+                    return false;
+                });
+
+                if (p_Targets.size() > 1)
+                {
+                    p_Targets.sort(JadeCore::DistanceCompareOrderPred(l_Caster));
+                    p_Targets.resize(1);
+                }
+            }
+
+            void Register()
+            {
+                switch (m_scriptSpellId)
+                {
+                case eSpells::NatureVigilHeal:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_natures_vigil_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+                    break;
+                case eSpells::NatureVigilDamage:
+                    OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_natures_vigil_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+                    break;
+                default:
+                    break;
+                }
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_natures_vigil_proc_SpellScript();
         }
 };
 
@@ -4483,6 +4478,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_swipe();
     new spell_dru_maul();
     new spell_dru_natures_vigil();
+    new spell_dru_natures_vigil_proc();
     new spell_dru_ursols_vortex_snare();
     new spell_dru_ursols_vortex();
     new spell_dru_dash();

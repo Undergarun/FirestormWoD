@@ -1269,10 +1269,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     }
 
     if (DoneActualBenefit != 0.0f && caster)
-    {
-        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
-    }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
 

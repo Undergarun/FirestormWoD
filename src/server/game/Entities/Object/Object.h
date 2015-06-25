@@ -612,6 +612,7 @@ struct Position
         }
         return fmod(o, 2.0f * static_cast<float>(M_PI));
     }
+
     static float NormalizePitch(float o)
     {
         if (o > -M_PI && o < M_PI)
@@ -620,6 +621,20 @@ struct Position
         o = NormalizeOrientation(o + M_PI) - M_PI;
 
         return o;
+    }
+
+    bool IsNearPosition(Position const* p_CheckPos, float p_Range) const
+    {
+        float l_PosX = GetPositionX();
+        float l_PosY = GetPositionY();
+        float l_PosZ = GetPositionZ();
+
+        if ((l_PosX <= (p_CheckPos->m_positionX + p_Range) && l_PosX >= (p_CheckPos->m_positionX - p_Range)) &&
+            (l_PosY <= (p_CheckPos->m_positionY + p_Range) && l_PosY >= (p_CheckPos->m_positionY - p_Range)) &&
+            (l_PosZ <= (p_CheckPos->m_positionZ + p_Range) && l_PosZ >= (p_CheckPos->m_positionZ - p_Range)))
+            return true;
+
+        return false;
     }
 };
 
@@ -1040,6 +1055,7 @@ class WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true);
+        AreaTrigger* FindNearestAreaTrigger(uint32 p_SpellID, float p_Range) const;
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;

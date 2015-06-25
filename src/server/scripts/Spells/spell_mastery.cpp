@@ -801,8 +801,7 @@ class spell_mastery_ignite: public SpellScriptLoader
                             {
                                 float l_Value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.5f;
 
-                                int32 l_Bp = GetHitDamage();
-
+                                int32 l_Bp = GetHitDamage() + GetAbsorbedDamage();
                                 if (l_Bp)
                                 {
                                     l_Bp = int32(CalculatePct(l_Bp, l_Value));

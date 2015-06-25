@@ -918,11 +918,12 @@ struct HealTaken
 
 struct DamageDone
 {
-    DamageDone(uint32 dmg, uint32 time)
-    : s_damage(dmg), s_timestamp(time) {}
+    DamageDone(uint32 dmg, uint32 time, uint32 spellId)
+    : s_damage(dmg), s_timestamp(time), s_spellId(spellId) {}
 
     uint32 s_damage;
     uint32 s_timestamp;
+    uint32 s_spellId;
 };
 
 struct DamageTaken
@@ -1485,7 +1486,11 @@ class Unit : public WorldObject
         void GetRandomContactPoint(const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
-        int32 insightCount;
+        int32 m_InsightCount;
+
+        /// Used for Bandit's Guile
+        void SetInsightCount(uint8 p_Value) { m_InsightCount = p_Value; }
+        uint8 GetInsightCount() const { return m_InsightCount; }
 
         void _addAttacker(Unit* pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
@@ -2374,7 +2379,6 @@ class Unit : public WorldObject
         int32 CalcSpellDuration(SpellInfo const* spellProto);
         int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell = nullptr);
-        float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 
         void addFollower(FollowerReference* pRef) { m_FollowingRefManager.insertFirst(pRef); }
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
@@ -2539,6 +2543,7 @@ class Unit : public WorldObject
         uint32 GetHealingDoneInPastSecs(uint32 secs);
         uint32 GetHealingTakenInPastSecs(uint32 secs);
         uint32 GetDamageDoneInPastSecs(uint32 secs);
+        uint32 GetDamageDoneInPastSecsBySpell(uint32 secs, uint32 spellId);
         uint32 GetDamageTakenInPastSecs(uint32 secs);
         void SetHealDone(HealDone* healDone) { m_healDone.push_back(healDone); }
         void SetHealTaken(HealTaken* healTaken) { m_healTaken.push_back(healTaken); }

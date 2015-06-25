@@ -94,7 +94,10 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    UpdateRotationFields(0.0f, 1.0f);
+    if (GetCustomFlags() & eGoBCustomFlags::CustomFlagUseQuaternion)
+        SetRotationAngles(0.f, float(M_PI / 2.0f), 0.f);
+    else
+        UpdateRotationFields(0.0f, 1.0f);
     return true;
 }
 
