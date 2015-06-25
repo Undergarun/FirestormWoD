@@ -1933,6 +1933,7 @@ public:
         Subterfuge = 108208,
         StealthSubterfuge = 115191,
         StealthSubterfugeEffect = 115192,
+        GlyphOfDisappearance = 159638
     };
 
     class spell_rog_vanish_AuraScript : public AuraScript
@@ -1977,7 +1978,9 @@ public:
                 int32 l_CurrentStealthId = l_Player->HasAura(eSpells::Subterfuge) ? eSpells::StealthSubterfuge : eSpells::Stealth;
 
                 l_Player->RemoveSpellCooldown(l_CurrentStealthId, true);
-                l_Player->CastSpell(l_Player, l_CurrentStealthId, true);
+
+                if (!l_Player->HasAura(eSpells::GlyphOfDisappearance))
+                    l_Player->CastSpell(l_Player, l_CurrentStealthId, true);
             }
         }
 
