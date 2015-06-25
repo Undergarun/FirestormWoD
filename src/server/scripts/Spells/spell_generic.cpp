@@ -383,7 +383,7 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* spellEntry)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
                     return false;
@@ -396,8 +396,25 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 if (!caster)
                     return;
 
+                bool l_IsValid = true;
+                if (caster->GetMapId() != 649)
+                {
+                    caster->RemoveAura(GetSpellInfo()->Id);
+                    caster->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                    l_IsValid = false;
+                    Remove();
+                    SetDuration(0);
+                }
+
                 if (Unit* target = GetTarget())
                 {
+                    if (!l_IsValid)
+                    {
+                        target->RemoveAura(GetSpellInfo()->Id);
+                        target->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                        return;
+                    }
+
                     int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
@@ -408,15 +425,66 @@ class spell_gen_leeching_swarm: public SpellScriptLoader
                 }
             }
 
+            void CheckSpell(constAuraEffectPtr aurEff, bool& isPeriodic, int32& amplitude)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = GetUnitOwner();
+                Unit* l_Target = GetTarget();
+
+                Unit* l_TabUnit[3] = { l_Caster, l_Owner, l_Target };
+
+                for (uint8 l_Idx = 0; l_Idx < 3; ++l_Idx)
+                {
+                    if (l_TabUnit[l_Idx])
+                    {
+                        if (l_TabUnit[l_Idx]->GetMapId() != 649)
+                        {
+                            isPeriodic = false;
+                            Remove();
+                            break;
+                        }
+                    }
+                }
+            }
+
             void Register()
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_gen_leeching_swarm_AuraScript::CheckSpell, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_leeching_swarm_AuraScript();
+        }
+
+        class spell_gen_leeching_swarm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_leeching_swarm_SpellScript);
+
+            SpellCastResult CheckMap()
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (l_Caster->GetMapId() != 649)
+                        return SPELL_FAILED_INCORRECT_AREA;
+                    else
+                        return SPELL_CAST_OK;
+                }
+                else
+                    return SPELL_FAILED_CASTER_DEAD;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_leeching_swarm_SpellScript::CheckMap);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_leeching_swarm_SpellScript();
         }
 };
 
