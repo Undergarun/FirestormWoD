@@ -3358,6 +3358,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167615: ///< Pierced Armor
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 97709:  ///< Altered Form (Racial)
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_UNK21;
+                break;
             case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
                 spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
                 break;
