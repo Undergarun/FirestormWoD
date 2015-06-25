@@ -1691,7 +1691,16 @@ bool OutdoorPvPAshran::HandleOpenGo(Player* p_Player, uint64 p_Guid)
     /// Handle Ancient Artifact opening
     if (m_Objects[eSpecialSpawns::AncientArtifactSpawn] == p_Guid)
     {
-        p_Player->CastSpell(p_Player, eAshranSpells::SpellAncientArtifact, true);
+        if (AuraPtr l_Aura = p_Player->AddAura(eAshranSpells::SpellAncientArtifact, p_Player))
+        {
+            if (m_AncientArtifactTime > 0)
+            {
+                l_Aura->SetDuration(m_AncientArtifactTime);
+                l_Aura->SetMaxDuration(m_AncientArtifactTime);
+            }
+            else
+                m_AncientArtifactTime = eAshranDatas::AncientArtifactMaxTime;
+        }
 
         if (Creature* l_Herald = GetHerald())
         {
@@ -1709,6 +1718,26 @@ bool OutdoorPvPAshran::HandleOpenGo(Player* p_Player, uint64 p_Guid)
     }
 
     return false;
+}
+
+void OutdoorPvPAshran::HandleArtifactDrop(Unit* p_Unit, uint32 p_Time)
+{
+    /// Aura was removed by expire, Ancient Artifact must be respawned somewhere...
+    if (!p_Time)
+    {
+        m_AncientArtifactTime = 0;
+        AddObject(eSpecialSpawns::AncientArtifactSpawn, g_AncientArtifactPos[urand(0, eAshranDatas::AncientArtifactCount - 1)]);
+    }
+    /// Aura was canceled manually or removed by death, Ancient Artifact must be respawned at the target location
+    else
+    {
+        if (p_Unit != nullptr)
+        {
+            go_type const l_GoType = { eGameObjects::AncientArtifact, eAshranDatas::AshranMapID, p_Unit->m_positionX, p_Unit->m_positionY, p_Unit->m_positionZ, p_Unit->m_orientation, 0.0f, 0.0f, 0.0f, 0.0f };
+            AddObject(eSpecialSpawns::AncientArtifactSpawn, l_GoType);
+            m_AncientArtifactTime = p_Time;
+        }
+    }
 }
 
 void OutdoorPvPAshran::OnCreatureCreate(Creature* p_Creature)

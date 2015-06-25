@@ -28,6 +28,7 @@ enum eAshranDatas
     AshranTimeForBattle         = 25,
     AshranEventTimer            = 30,   ///< In minutes
     AshranEventWarning          = 3,    ///< In minutes
+    AncientArtifactMaxTime      = 30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS,
 
     /// Generic data
     BattlefieldWorldPvP         = 0x20000,

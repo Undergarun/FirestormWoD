@@ -797,6 +797,39 @@ class spell_ashran_shockwave : public SpellScriptLoader
         }
 };
 
+/// Ancient Artifact - 168506
+class spell_ashran_ancient_artifact : public SpellScriptLoader
+{
+    public:
+        spell_ashran_ancient_artifact() : SpellScriptLoader("spell_ashran_ancient_artifact") { }
+
+        class spell_ashran_ancient_artifact_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_ancient_artifact_AuraScript);
+
+            void OnRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (Unit* l_Target = GetTarget())
+                {
+                    OutdoorPvP* l_Outdoor = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(l_Target->GetZoneId());
+                    if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_Outdoor)
+                        l_Ashran->HandleArtifactDrop(l_Target, l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_EXPIRE ? 0 : GetDuration());
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ashran_ancient_artifact_AuraScript::OnRemove, EFFECT_4, SPELL_AURA_398, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ashran_ancient_artifact_AuraScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -814,4 +847,5 @@ void AddSC_AshranSpells()
     new spell_ashran_earth_smash();
     new spell_ashran_preserved_discombobulator_ray();
     new spell_ashran_shockwave();
+    new spell_ashran_ancient_artifact();
 }
