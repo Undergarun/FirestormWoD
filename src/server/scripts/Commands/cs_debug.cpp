@@ -133,6 +133,7 @@ class debug_commandscript: public CommandScript
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
                 { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
+                { "battlepaymount", SEC_ADMINISTRATOR,  false, &HandleBattlePayMountCommand,       "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -142,6 +143,69 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleBattlePayMountCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            QueryResult l_Result = WebDatabase.PQuery("SELECT itemID, price, fake_price FROM shop_items WHERE category = 2");
+            if (!l_Result)
+                return false;
+
+            FILE* l_Output = fopen("./battlepay_mount.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            uint32 l_Group = 1; ///< group mount
+
+            std::ostringstream l_StrBuilder;
+
+            l_StrBuilder << "SET @PRODUCTID := COALESCE((SELECT MAX(ProductID) FROM battlepay_product), 0) + 1;" << std::endl;
+            l_StrBuilder << "SET @ORDER := COALESCE((SELECT MAX(Ordering) FROM battlepay_shop_entry WHERE GroupID = " << l_Group << ") + 1;" << std::endl;
+            l_StrBuilder << "SET @DISPLAYINFOID := COALESCE((SELECT MAX(DisplayInfoId) FROM battlepay_display_info), 0) + 1;" << std::endl;
+
+            do
+            {
+                Field* l_Fields    = l_Result->Fetch();
+                uint32 l_ItemID    = l_Fields[0].GetUInt32();
+                uint32 l_Price     = l_Fields[1].GetUInt32();
+                uint32 l_FakePrice = l_Fields[2].GetUInt32();
+
+                if (l_FakePrice == 0)
+                    l_FakePrice = l_Price;
+
+                ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemID);
+                if (l_Item == nullptr)
+                    continue;
+
+                uint32 l_CreatureDisplayInfoID = 0;
+                std::string l_Description = "";
+
+                for (uint32 l_I = 0; l_I < sMountStore.GetNumRows(); ++l_I)
+                {
+                    auto l_MountEntry = sMountStore.LookupEntry(l_I);
+                    if (!l_MountEntry || l_MountEntry->SpellID != l_Item->Spells[1].SpellId)
+                        continue;
+
+                    l_CreatureDisplayInfoID = l_MountEntry->CreatureDisplayID;
+                    l_Description = l_MountEntry->Description->Get(LocaleConstant::LOCALE_enUS);
+                    break;
+                }
+
+                l_StrBuilder << "INSERT INTO `battlepay_shop_entry` (GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID) VALUES (" << l_Group << ",@PRODUCTID, @ORDER, 0, 0, 0);" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID" << ");" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_product_item` (ProductID, ItemID, Quantity, DisplayID, PetResult) VALUES (" << "@PRODUCTID" << "," << l_ItemID << ",1,0,0);" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << ",0,\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_enUS) << "\", '',\"" << "" << "\", 0);" << std::endl;
+                l_StrBuilder << "SET @PRODUCTID := @PRODUCTID + 1;" << std::endl;
+                l_StrBuilder << "SET @ORDER := @ORDER + 1;" << std::endl;
+                l_StrBuilder << "SET @DISPLAYINFOID := @DISPLAYINFOID + 1;" << std::endl;
+            }
+            while (l_Result->NextRow());
+
+            fwrite(l_StrBuilder.str().c_str(), l_StrBuilder.str().length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            return true;
         }
 
         static bool HandleDebugCriteriaCommand(ChatHandler* p_Handler, char const* p_Args)
