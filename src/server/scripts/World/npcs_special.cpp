@@ -3850,21 +3850,22 @@ enum PastSelfSpells
     SPELL_FADING                    = 107550,
     SPELL_ALTER_TIME                = 110909,
     SPELL_ENCHANTED_REFLECTION      = 102284,
-    SPELL_ENCHANTED_REFLECTION_2    = 102288,
+    SPELL_ENCHANTED_REFLECTION_2    = 102288
 };
 
 struct auraData
 {
-    auraData(uint32 id, int32 duration, uint8 charges, bool isStackAmount) :
-        m_id(id), m_Duration(duration), m_Charges(charges), m_isStackAmount(isStackAmount)
+    auraData(uint32 p_ID, int32 p_Duration, uint8 p_Charges, bool p_HasStackAmount) :
+        ID(p_ID), Duration(p_Duration), Charges(p_Charges), HasStackAmount(p_HasStackAmount)
     {
-        memset(m_EffectAmounts, 0, sizeof(m_EffectAmounts));
+        memset(EffectAmounts, 0, sizeof(EffectAmounts));
     }
-    uint32 m_id;
-    int32 m_Duration;
-    int32 m_EffectAmounts[MAX_EFFECTS];
-    uint8 m_Charges;
-    bool m_isStackAmount;
+
+    uint32 ID;
+    int32 Duration;
+    int32 EffectAmounts[MAX_EFFECTS];
+    uint8 Charges;
+    bool HasStackAmount;
 };
 
 #define ACTION_ALTER_TIME   1
@@ -3882,26 +3883,25 @@ class npc_past_self : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetMaxHealth(500);
                 me->SetHealth(me->GetMaxHealth());
-                mana = 0;
-                health = 0;
-                auras.clear();
+                m_Mana = 0;
+                m_Health = 0;
             }
 
-            int32 mana;
-            int32 health;
-            std::set<auraData*> auras;
+            int32 m_Mana;
+            int32 m_Health;
+            std::vector<std::unique_ptr<auraData>> m_SavedAuras;
 
             void Reset()
             {
-                if (!me->HasAura(SPELL_FADING))
-                    me->AddAura(SPELL_FADING, me);
+                if (!me->HasAura(PastSelfSpells::SPELL_FADING))
+                    me->AddAura(PastSelfSpells::SPELL_FADING, me);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* p_Owner)
             {
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit::AuraApplicationMap const& appliedAuras = owner->GetAppliedAuras();
+                    Unit::AuraApplicationMap const& appliedAuras = p_Owner->GetAppliedAuras();
                     for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
                     {
                         if (AuraPtr aura = itr->second->GetBase())
@@ -3916,75 +3916,75 @@ class npc_past_self : public CreatureScript
                             if (auraInfo->IsPassive())
                                 continue;
 
-                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335)
+                            if (auraInfo->Id == 23333 || auraInfo->Id == 23335) ///< Horde Flag || Alliance Flag
                                 continue;
 
-                            bool stack = aura->GetStackAmount();
-                            uint8 charges = stack ? aura->GetStackAmount() : aura->GetCharges();
-                            auto l_Inserted = auras.insert(new auraData(auraInfo->Id, aura->GetDuration(), charges, stack));
+                            bool l_Stack = aura->GetStackAmount();
+                            uint8 l_Charges = l_Stack ? aura->GetStackAmount() : aura->GetCharges();
+                            
+                            m_SavedAuras.emplace_back(new auraData(auraInfo->Id, aura->GetDuration(), l_Charges, l_Stack));
 
                             for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
                             {
                                 if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                    (*l_Inserted.first)->m_EffectAmounts[l_I] = l_Effect->GetAmount();
+                                    m_SavedAuras.back()->EffectAmounts[l_I] = l_Effect->GetAmount();
                             }
                         }
                     }
 
-                    mana = owner->GetPower(POWER_MANA);
-                    health = owner->GetHealth();
+                    m_Mana = p_Owner->GetPower(Powers::POWER_MANA);
+                    m_Health = p_Owner->GetHealth();
 
-                    owner->AddAura(SPELL_ENCHANTED_REFLECTION, me);
-                    owner->AddAura(SPELL_ENCHANTED_REFLECTION_2, me);
+                    p_Owner->AddAura(PastSelfSpells::SPELL_ENCHANTED_REFLECTION, me);
+                    p_Owner->AddAura(PastSelfSpells::SPELL_ENCHANTED_REFLECTION_2, me);
                 }
                 else
                     me->DespawnOrUnsummon();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(const int32 p_Action)
             {
-                if (action == ACTION_ALTER_TIME)
+                if (p_Action == ACTION_ALTER_TIME)
                 {
-                    if (TempSummon* pastSelf = me->ToTempSummon())
+                    if (TempSummon* l_PastSelf = me->ToTempSummon())
                     {
-                        if (Unit* m_owner = pastSelf->GetSummoner())
+                        if (Unit* l_Owner = l_PastSelf->GetSummoner())
                         {
-                            if (m_owner->ToPlayer())
+                            if (l_Owner->ToPlayer())
                             {
-                                if (!m_owner->isAlive())
+                                if (!l_Owner->isAlive())
                                     return;
 
-                                m_owner->RemoveNonPassivesAuras();
+                                l_Owner->RemoveNonPassivesAuras();
 
-                                for (std::set<auraData*>::iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                                for (const auto& l_AuraDataPtr : m_SavedAuras)
                                 {
-                                    AuraPtr aura = !m_owner->HasAura((*itr)->m_id) ? m_owner->AddAura((*itr)->m_id, m_owner) : m_owner->GetAura((*itr)->m_id);
-                                    if (aura)
+                                    /// Since we removed all non-passive aura and don't store passive ones, we can't already have that aura
+                                    AuraPtr l_Aura = l_Owner->AddAura(l_AuraDataPtr->ID, l_Owner);
+                                    if (l_Aura)
                                     {
-                                        aura->SetDuration((*itr)->m_Duration);
-                                        if ((*itr)->m_isStackAmount)
-                                            aura->SetStackAmount((*itr)->m_Charges);
+                                        l_Aura->SetDuration(l_AuraDataPtr->Duration);
+                                        if (l_AuraDataPtr->HasStackAmount)
+                                            l_Aura->SetStackAmount(l_AuraDataPtr->Charges);
                                         else
-                                            aura->SetCharges((*itr)->m_Charges);
+                                            l_Aura->SetCharges(l_AuraDataPtr->Charges);
 
                                         for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
                                         {
-                                            if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                                l_Effect->ChangeAmount((*itr)->m_EffectAmounts[l_I]);
+                                            if (AuraEffectPtr l_Effect = l_Aura->GetEffect(l_I))
+                                                l_Effect->ChangeAmount(l_AuraDataPtr->EffectAmounts[l_I]);
                                         }
 
-                                        aura->SetNeedClientUpdateForTargets();
+                                        l_Aura->SetNeedClientUpdateForTargets();
                                     }
-
-                                    delete (*itr);
                                 }
 
-                                auras.clear();
+                                m_SavedAuras.clear();
 
-                                m_owner->SetPower(POWER_MANA, mana);
-                                m_owner->SetHealth(health);
+                                l_Owner->SetPower(POWER_MANA, m_Mana);
+                                l_Owner->SetHealth(m_Health);
 
-                                m_owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
+                                l_Owner->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), true);
                                 me->DespawnOrUnsummon(100);
                             }
                         }
@@ -3993,9 +3993,9 @@ class npc_past_self : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature *creature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_past_selfAI(creature);
+            return new npc_past_selfAI(p_Creature);
         }
 };
 
