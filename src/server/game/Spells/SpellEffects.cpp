@@ -1696,6 +1696,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         int32 gain = int32(newDamage* gainMultiplier);
 
+        /// Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
+
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
@@ -6603,7 +6607,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // HACK FIX !! @TODO: Find how filter not stealable spells for boss
-    if (unitTarget->ToCreature() && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss()))
+    if (unitTarget->ToCreature()
+        && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss() || unitTarget->ToCreature()->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS))
         return;
 
     DispelChargesList steal_list;
