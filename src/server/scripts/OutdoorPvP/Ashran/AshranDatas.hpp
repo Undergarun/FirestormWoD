@@ -36,6 +36,8 @@ enum eAshranDatas
     AshranHallowedGroundA       = 7781,
     AshranHallowedGroundID      = 42989,
     AncientArtifactCount        = 9,
+    AllianceRacingMovesCount    = 42,
+    HordeRacingMovesCount       = 38,
 
     /// Misc
     PlayerMinLevel              = 100,
@@ -228,6 +230,8 @@ enum eCreatures
     MarshalKarshStormforge  = 82880,
     MarshalGabriel          = 82878,
     LifelessAncient         = 81883,
+    AllianceRider           = 82870,
+    ExAllianceRacer         = 82884,
 
     /// Horde
     WarspearBloodGuard      = 83699,
@@ -245,6 +249,8 @@ enum eCreatures
     GeneralAevd             = 82882,
     WarlordNoktyn           = 82883,
     UnderpoweredEarthFury   = 82200,
+    HordeRider              = 82864,
+    SpeedyHordeRacer        = 82903,
 
     /// Artifact Fragments NPCs
     /// Horde
@@ -354,7 +360,12 @@ enum eGameObjects
     HordeGateway1           = 234082,
     HordeGateway2           = 234083,
     AllianceGateway1        = 234067,
-    AllianceGateway2        = 234081
+    AllianceGateway2        = 234081,
+
+    /// Stadium Racing
+    AllianceRacingFlag      = 239131,
+    NeutralRacingFlag       = 239132,
+    HordeRacingFlag         = 239133
 };
 
 enum eAshranActions
@@ -546,6 +557,24 @@ enum eSpecialSpawns
     /// Ancient Artifact
     AncientArtifactSpawn,
 
+    /// Stadium Racing
+    AllianceRacingFlagSpawn1,
+    AllianceRacingFlagSpawn2,
+    NeutralRacingFlagSpawn1,
+    NeutralRacingFlagSpawn2,
+    NeutralRacingFlagSpawn3,
+    NeutralRacingFlagSpawn4,
+    HordeRacingFlagSpawn1,
+    HordeRacingFlagSpawn2,
+    NeutralRacingFlagSpawn5,
+    NeutralRacingFlagSpawn6,
+    NeutralRacingFlagSpawn7,
+    NeutralRacingFlagSpawn8,
+    SpeedyHordeRacerSpawn,
+    HordeRiderSpawn,
+    AllianceExRiderSpawn,
+    AllianceRiderSpawn,
+
     /// Max spawn count
     MaxTowerGuardians           = 2,
     MaxFactionBosses            = 2,
@@ -554,7 +583,9 @@ enum eSpecialSpawns
     MagePortalsCreatures        = 4,
     WarlockGatewaysCreatures    = 2,
     WarlockGatewaysObjects      = 2,
-    MaxAshranCaptains           = eAshranCaptains::MaxAllianceCaptains + eAshranCaptains::MaxHordeCaptains
+    MaxAshranCaptains           = eAshranCaptains::MaxAllianceCaptains + eAshranCaptains::MaxHordeCaptains,
+    MaxRacingFlags              = 12,
+    MaxRacingCreatures          = 4
 };
 
 enum eFactions
@@ -641,6 +672,118 @@ AshranCaptain const g_AshranCaptains[eSpecialSpawns::MaxAshranCaptains] =
     { eAshranCaptains::Kimilyn,               eSpecialSpawns::CaptainKimilyn            }
 };
 
+creature_type const g_RacingCreaturesPos[eSpecialSpawns::MaxRacingCreatures] =
+{
+    { eCreatures::SpeedyHordeRacer, Team::HORDE,    eAshranDatas::AshranMapID, 4768.788f, -3832.371f, 4.797024f, 0.671473f },
+    { eCreatures::HordeRider,       Team::HORDE,    eAshranDatas::AshranMapID, 4768.788f, -3832.371f, 4.797024f, 0.671473f },
+    { eCreatures::ExAllianceRacer,  Team::ALLIANCE, eAshranDatas::AshranMapID, 4805.709f, -3872.469f, 7.171597f, 3.974371f },
+    { eCreatures::AllianceRider,    Team::ALLIANCE, eAshranDatas::AshranMapID, 4805.709f, -3872.469f, 7.171597f, 3.974371f }
+};
+
+go_type const g_RacingFlagsPos[eSpecialSpawns::MaxRacingFlags] =
+{
+    { eGameObjects::AllianceRacingFlag, eAshranDatas::AshranMapID, 4812.02f, -3879.64f, 7.83354f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::AllianceRacingFlag, eAshranDatas::AshranMapID, 4800.17f, -3866.97f, 6.43225f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4813.62f, -3878.16f, 7.56979f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4798.85f, -3868.50f, 6.66704f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4810.55f, -3881.18f, 8.00249f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4802.15f, -3864.88f, 6.05869f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::HordeRacingFlag,    eAshranDatas::AshranMapID, 4764.51f, -3827.79f, 3.84885f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::HordeRacingFlag,    eAshranDatas::AshranMapID, 4773.66f, -3838.16f, 4.02257f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4765.65f, -3827.09f, 3.81885f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4763.41f, -3828.92f, 4.11111f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4774.54f, -3836.07f, 4.27951f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { eGameObjects::NeutralRacingFlag,  eAshranDatas::AshranMapID, 4771.92f, -3838.98f, 4.15799f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }
+};
+
+G3D::Vector3 const g_AllianceRacingMoves[eAshranDatas::AllianceRacingMovesCount] =
+{
+    { 4814.682f, -3862.875f, 5.536155f },
+    { 4815.376f, -3862.155f, 5.536155f },
+    { 4816.498f, -3862.345f, 6.306688f },
+    { 4820.679f, -3858.191f, 5.590374f },
+    { 4825.521f, -3853.332f, 5.090096f },
+    { 4831.548f, -3847.128f, 4.229769f },
+    { 4834.912f, -3843.898f, 4.084693f },
+    { 4841.262f, -3838.458f, 3.462050f },
+    { 4851.496f, -3827.995f, 2.004415f },
+    { 4855.956f, -3817.465f, 0.988973f },
+    { 4855.874f, -3809.616f, 1.395477f },
+    { 4853.279f, -3799.901f, 1.203610f },
+    { 4849.236f, -3792.505f, 1.329617f },
+    { 4842.870f, -3788.474f, 1.476189f },
+    { 4835.221f, -3787.316f, 0.566372f },
+    { 4827.774f, -3788.517f, -0.34404f },
+    { 4820.616f, -3792.066f, -0.67678f },
+    { 4812.039f, -3795.568f, -0.01472f },
+    { 4803.723f, -3801.929f, 1.616438f },
+    { 4796.220f, -3809.214f, 2.413211f },
+    { 4790.671f, -3814.639f, 3.082258f },
+    { 4785.616f, -3819.665f, 3.768104f },
+    { 4777.779f, -3827.781f, 4.535831f },
+    { 4772.362f, -3833.052f, 4.764608f },
+    { 4766.514f, -3838.061f, 5.236484f },
+    { 4761.383f, -3842.380f, 5.622338f },
+    { 4755.631f, -3848.533f, 6.082021f },
+    { 4751.801f, -3854.245f, 6.497694f },
+    { 4747.529f, -3861.557f, 7.432248f },
+    { 4748.080f, -3868.351f, 8.293043f },
+    { 4751.052f, -3875.366f, 8.715312f },
+    { 4755.855f, -3881.583f, 9.274425f },
+    { 4762.792f, -3886.458f, 9.860820f },
+    { 4769.792f, -3887.969f, 10.04148f },
+    { 4777.491f, -3888.252f, 10.00944f },
+    { 4784.366f, -3886.172f, 9.555762f },
+    { 4791.596f, -3881.873f, 8.814582f },
+    { 4798.754f, -3876.899f, 7.969384f },
+    { 4803.713f, -3872.712f, 7.294305f },
+    { 4809.707f, -3867.741f, 6.627753f },
+    { 4816.498f, -3862.345f, 6.306688f },
+    { 4820.679f, -3858.191f, 5.590374f }
+};
+
+G3D::Vector3 const g_HordeRacingMoves[eAshranDatas::HordeRacingMovesCount] =
+{
+    { 4777.989f, -3825.748f, 4.340241f },
+    { 4778.601f, -3824.957f, 4.340241f },
+    { 4780.496f, -3821.010f, 3.984424f },
+    { 4783.910f, -3817.453f, 3.636849f },
+    { 4788.273f, -3812.526f, 3.117988f },
+    { 4792.983f, -3806.557f, 2.305152f },
+    { 4800.424f, -3798.637f, 1.166585f },
+    { 4807.171f, -3790.910f, -0.12893f },
+    { 4818.670f, -3784.517f, 0.142154f },
+    { 4826.697f, -3782.406f, -0.21501f },
+    { 4835.237f, -3782.021f, 0.492600f },
+    { 4845.827f, -3790.156f, 0.953786f },
+    { 4848.400f, -3795.340f, 0.852263f },
+    { 4851.490f, -3802.050f, 1.471959f },
+    { 4850.046f, -3808.712f, 1.435560f },
+    { 4848.367f, -3816.236f, 1.673889f },
+    { 4845.000f, -3823.087f, 2.704359f },
+    { 4836.265f, -3833.030f, 3.446886f },
+    { 4829.943f, -3838.101f, 3.804240f },
+    { 4827.483f, -3840.512f, 3.934387f },
+    { 4821.239f, -3847.049f, 4.479604f },
+    { 4816.172f, -3852.036f, 5.014072f },
+    { 4810.801f, -3856.542f, 5.240987f },
+    { 4805.717f, -3862.576f, 5.969340f },
+    { 4800.070f, -3868.363f, 6.689080f },
+    { 4796.327f, -3871.899f, 7.165856f },
+    { 4790.208f, -3877.332f, 8.006101f },
+    { 4783.330f, -3882.576f, 8.943475f },
+    { 4775.374f, -3890.049f, 10.27254f },
+    { 4761.454f, -3892.630f, 10.50814f },
+    { 4749.913f, -3880.188f, 9.045112f },
+    { 4750.520f, -3865.828f, 7.953274f },
+    { 4753.360f, -3860.568f, 7.074049f },
+    { 4756.783f, -3852.842f, 6.472168f },
+    { 4763.476f, -3839.750f, 5.462884f },
+    { 4772.541f, -3828.990f, 4.589789f },
+    { 4780.496f, -3821.010f, 3.984424f },
+    { 4783.910f, -3817.453f, 3.636849f }
+};
+
 go_type const g_AncientArtifactPos[eAshranDatas::AncientArtifactCount] =
 {
     { eGameObjects::AncientArtifact,    eAshranDatas::AshranMapID, 4966.47f, -3720.54f, 3.63465f, 6.27924f, 0.0f, 0.0f, 0.0f, 0.0f },
@@ -703,7 +846,7 @@ creature_type const g_HordeKronus       = { eCreatures::Kronus,     Team::HORDE,
 creature_type const g_AllianceGuardian  = { eCreatures::LifelessAncient,        Team::ALLIANCE, eAshranDatas::AshranMapID, 3983.90f, -4117.12f, 58.0536f, 1.10755f };
 creature_type const g_HordeGuardian     = { eCreatures::UnderpoweredEarthFury,  Team::HORDE,    eAshranDatas::AshranMapID, 5064.02f, -4232.31f, 41.4964f, 2.03435f };
 
-go_type const g_WarlockGatewaysGob[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysObjects] =
+go_type const g_WarlockGatewaysGob[TeamId::TEAM_NEUTRAL][eSpecialSpawns::WarlockGatewaysObjects] =
 {
     /// Alliance
     {
@@ -717,7 +860,7 @@ go_type const g_WarlockGatewaysGob[MS::Battlegrounds::TeamsCount::Value][eSpecia
     }
 };
 
-creature_type const g_WarlockGatewaysSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::WarlockGatewaysCreatures] =
+creature_type const g_WarlockGatewaysSpawns[TeamId::TEAM_NEUTRAL][eSpecialSpawns::WarlockGatewaysCreatures] =
 {
     /// Alliance
     {
@@ -731,13 +874,13 @@ creature_type const g_WarlockGatewaysSpawns[MS::Battlegrounds::TeamsCount::Value
     }
 };
 
-go_type const g_MagePortalsGob[MS::Battlegrounds::TeamsCount::Value] =
+go_type const g_MagePortalsGob[TeamId::TEAM_NEUTRAL] =
 {
     { eGameObjects::PortalToStormshield,    eAshranDatas::AshranMapID, 4645.94f, -4097.77f, 22.6435f, 5.14771f, 0.0f, 0.0f, 0.0f, 0.0f },  ///< Alliance
     { eGameObjects::PortalToWarspear,       eAshranDatas::AshranMapID, 4428.61f, -4082.23f, 28.1979f, 1.69192f, 0.0f, 0.0f, 0.0f, 0.0f }   ///< Horde
 };
 
-creature_type const g_MagePortalsSpawns[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MagePortalsCreatures] =
+creature_type const g_MagePortalsSpawns[TeamId::TEAM_NEUTRAL][eSpecialSpawns::MagePortalsCreatures] =
 {
     /// Alliance
     {
@@ -763,7 +906,7 @@ uint32 const g_MaxArtifactsToCollect[eArtifactsDatas::MaxArtifactCounts] =
     eArtifactsDatas::MaxCountForDruidShaman
 };
 
-uint32 const g_ArtifactsWorldStates[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts] =
+uint32 const g_ArtifactsWorldStates[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts] =
 {
     /// Alliance
     {
@@ -791,7 +934,7 @@ AshranGraveyard const g_AshranGraveyards[eGraveyards::TotalGraveyards] =
     { eGraveyards::TowerHorde,      TeamId::TEAM_HORDE      }   ///< 5 - Emberfall Tower
 };
 
-uint32 const g_GraveyardIDs[MS::Battlegrounds::TeamsCount::Value][eGraveyards::MaxGraveyards] =
+uint32 const g_GraveyardIDs[TeamId::TEAM_NEUTRAL][eGraveyards::MaxGraveyards] =
 {
     /// Alliance
     {
@@ -810,13 +953,13 @@ uint32 const g_GraveyardIDs[MS::Battlegrounds::TeamsCount::Value][eGraveyards::M
 Position const g_HordeTeleportPos = { 5216.443359f, -3963.191406f, 5.553593f, 6.242684f };
 Position const g_AllianceTeleportPos = { 3849.396240f, -4013.051025f, 26.282335f, 3.141932f };
 
-uint32 const g_HallowedGroundEntries[MS::Battlegrounds::TeamsCount::Value] =
+uint32 const g_HallowedGroundEntries[TeamId::TEAM_NEUTRAL] =
 {
     eAshranDatas::AshranHallowedGroundH,
     eAshranDatas::AshranHallowedGroundA
 };
 
-Position const g_HallowedGroundPos[MS::Battlegrounds::TeamsCount::Value] =
+Position const g_HallowedGroundPos[TeamId::TEAM_NEUTRAL] =
 {
     { 5090.467f, -4076.731f, 49.38393f, 3.379836f },    ///< eAshranDatas::AshranHallowedGroundH
     { 3928.052f, -4032.738f, 57.41695f, 5.473989f }     ///< eAshranDatas::AshranHallowedGroundA
@@ -849,25 +992,25 @@ uint32 const g_TowerControlStatus[eBattleType::MaxBattleType] =
     eWorldStates::WorldStateArchmageOverwatchStatus
 };
 
-creature_type const g_MarketplaceGraveyardSpirits[MS::Battlegrounds::TeamsCount::Value] =
+creature_type const g_MarketplaceGraveyardSpirits[TeamId::TEAM_NEUTRAL] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4532.90f, -4007.06f, 6.08817f, 4.7095f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4532.90f, -4007.06f, 6.08817f, 4.7095f }
 };
 
-creature_type const g_EmberfallTowerSpiritHealer[MS::Battlegrounds::TeamsCount::Value] =
+creature_type const g_EmberfallTowerSpiritHealer[TeamId::TEAM_NEUTRAL] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4846.03f, -4186.43f, 31.7727f, 2.7156f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4846.03f, -4186.43f, 31.7727f, 2.7156f }
 };
 
-creature_type const g_ArchmageOverwatchSpiritHealer[MS::Battlegrounds::TeamsCount::Value] =
+creature_type const g_ArchmageOverwatchSpiritHealer[TeamId::TEAM_NEUTRAL] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 4192.70f, -4152.65f, 31.7642f, 0.0512f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 4192.70f, -4152.65f, 31.7642f, 0.0512f }
 };
 
-creature_type const g_BasesSpiritHealers[MS::Battlegrounds::TeamsCount::Value] =
+creature_type const g_BasesSpiritHealers[TeamId::TEAM_NEUTRAL] =
 {
     { eCreatures::AllianceSpiritGuide, Team::ALLIANCE, eAshranDatas::AshranMapID, 3924.49f, -4030.79f, 59.2817f, 5.9936f },
     { eCreatures::HordeSpiritGuide,    Team::HORDE,    eAshranDatas::AshranMapID, 5089.37f, -4077.54f, 50.9001f, 3.7238f }
@@ -906,7 +1049,7 @@ creature_type const g_FactionBossesGuardians[eSpecialSpawns::MaxBossGuardian * 2
     { eCreatures::WarlordNoktyn,            Team::HORDE,    eAshranDatas::AshranMapID, 5032.13f, -4185.38f, 47.08f, 2.5503f },    ///< Emberfall Tower
 };
 
-creature_type const g_FactionTaxisToBase[MS::Battlegrounds::TeamsCount::Value][eSpecialSpawns::MaxTaxiToBases] =
+creature_type const g_FactionTaxisToBase[TeamId::TEAM_NEUTRAL][eSpecialSpawns::MaxTaxiToBases] =
 {
     /// Alliance
     {
@@ -922,7 +1065,7 @@ creature_type const g_FactionTaxisToBase[MS::Battlegrounds::TeamsCount::Value][e
     }
 };
 
-creature_type const g_EmberfallTowerSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::EmberfallTowerCreaturesCount] =
+creature_type const g_EmberfallTowerSpawns[TeamId::TEAM_NEUTRAL][eSpawns::EmberfallTowerCreaturesCount] =
 {
     // ALLIANCE
     {
@@ -997,7 +1140,7 @@ go_type const g_EmberfallFiresSpawns[eSpawns::EmberfallTowerObjectsCount] =
     { eGameObjects::Smallfire1,             eAshranDatas::AshranMapID, 4768.50f, -4245.03f, 47.74f, 3.60f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-creature_type const g_VolrathsAdvanceSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::VolrathsAdvanceCreaturesCount] =
+creature_type const g_VolrathsAdvanceSpawns[TeamId::TEAM_NEUTRAL][eSpawns::VolrathsAdvanceCreaturesCount] =
 {
     // ALLIANCE
     {
@@ -1074,7 +1217,7 @@ go_type const g_VolrathsAdvanceFires[eSpawns::VolrathsAdvanceObjectsCount] =
     { eGameObjects::Smallfire1, eAshranDatas::AshranMapID, 4646.33f, -4207.88f, 12.42f, 0.37f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-creature_type const g_CrossroadSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::TheCrossroadsCreaturesCount] =
+creature_type const g_CrossroadSpawns[TeamId::TEAM_NEUTRAL][eSpawns::TheCrossroadsCreaturesCount] =
 {
     // Alliance
     {
@@ -1118,7 +1261,7 @@ creature_type const g_CrossroadsNeutralSpawns[eSpawns::TheCrossroadsCreaturesCou
     { eCreatures::StormshieldFootman, Team::ALLIANCE, eAshranDatas::AshranMapID, 4527.00f, -4169.13f, 7.09213f, 6.21319f }
 };
 
-go_type const g_CrossroadsBanners[MS::Battlegrounds::TeamsCount::Value][eSpawns::TheCrossroadsObjectsCount] =
+go_type const g_CrossroadsBanners[TeamId::TEAM_NEUTRAL][eSpawns::TheCrossroadsObjectsCount] =
 {
     // ALLIANCE
     {
@@ -1132,7 +1275,7 @@ go_type const g_CrossroadsBanners[MS::Battlegrounds::TeamsCount::Value][eSpawns:
     }
 };
 
-creature_type const g_TrembladesVanguardSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::TrembladesVanguardCreaturesCount] =
+creature_type const g_TrembladesVanguardSpawns[TeamId::TEAM_NEUTRAL][eSpawns::TrembladesVanguardCreaturesCount] =
 {
     // Alliance
     {
@@ -1197,7 +1340,7 @@ go_type const g_TrembladesVanguardFires[eSpawns::TrembladesVanguardObjectsCount]
     { eGameObjects::Smallfire1, eAshranDatas::AshranMapID, 4307.32f, -4195.97f, 10.80f, 0.37f, 0.00f, 0.00f, 0.00f, 0.00f }
 };
 
-creature_type const g_ArchmageOverwatchSpawns[MS::Battlegrounds::TeamsCount::Value][eSpawns::ArchmageOverwatchCreaturesCount] =
+creature_type const g_ArchmageOverwatchSpawns[TeamId::TEAM_NEUTRAL][eSpawns::ArchmageOverwatchCreaturesCount] =
 {
     // Alliance
     {
@@ -1294,7 +1437,7 @@ uint32 const g_EventWarnTexts[eAshranEvents::MaxEvents] =
     TrinityStrings::LangAshranReserved1,
     TrinityStrings::LangAshranReserved2,
     TrinityStrings::LangAshranReserved3,
-    TrinityStrings::LangAshranReserved4
+    TrinityStrings::LangSendStadiumRacingEvent
 };
 
 creature_type const g_Korlok            = { eCreatures::KorlokTheOgreKing, Team::TEAM_NONE, eAshranDatas::AshranMapID, 4533.17f, -4446.13f, 28.3867f, 1.56182f };

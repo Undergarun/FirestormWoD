@@ -3488,6 +3488,47 @@ class npc_ashran_kimilyn : public CreatureScript
         }
 };
 
+/// Speedy Horde Racer - 82903
+class npc_ashran_speedy_horde_racer : public CreatureScript
+{
+    public:
+        npc_ashran_speedy_horde_racer() : CreatureScript("npc_ashran_speedy_horde_racer") { }
+
+        struct npc_ashran_speedy_horde_racerAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_speedy_horde_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                AddTimedDelayedOperation(500, [this]() -> void
+                {
+                    if (Creature* l_Rider = me->FindNearestCreature(eCreatures::HordeRider, 10.0f))
+                        l_Rider->EnterVehicle(me);
+                });
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    Movement::MoveSplineInit l_Init(*me);
+                    FillRidePath(l_Init.Path());
+                    l_Init.SetWalk(true);
+                    l_Init.SetCyclic();
+                    l_Init.Launch();
+                });
+            }
+
+            void FillRidePath(Movement::PointsArray& p_Path)
+            {
+                for (uint8 l_I = 0; l_I < eAshranDatas::HordeRacingMovesCount; ++l_I)
+                    p_Path.push_back(g_HordeRacingMoves[l_I]);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_speedy_horde_racerAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCHorde()
 {
     new npc_jeron_emberfall();
@@ -3523,4 +3564,5 @@ void AddSC_AshranNPCHorde()
     new npc_ashran_razor_guerra();
     new npc_ashran_jared_v_hellstrike();
     new npc_ashran_kimilyn();
+    new npc_ashran_speedy_horde_racer();
 }

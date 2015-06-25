@@ -16,6 +16,7 @@
 # include "ScriptedCreature.h"
 # include "ScriptedGossip.h"
 # include "ScriptedEscortAI.h"
+# include "ScriptedCosmeticAI.hpp"
 # include "Player.h"
 # include "WorldPacket.h"
 # include "World.h"
@@ -192,7 +193,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         OPvPCapturePoint_Graveyard* m_GraveYard;
         OPvPCapturePoint_Middle* m_ControlPoints[eBattleType::MaxBattleType];
         uint64 m_GenericMoPGuids[eBattleType::MaxBattleType];
-        uint64 m_FactionGenericMoP[MS::Battlegrounds::TeamsCount::Value];
+        uint64 m_FactionGenericMoP[TeamId::TEAM_NEUTRAL];
         uint32 m_InitPointsTimer;
         bool m_IsInitialized;
         bool m_WillBeReset;
@@ -203,17 +204,17 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint64 m_GrandMasrhalTremblade;
         uint32 m_WorldPvPAreaId;
 
-        GuidSet m_PlayersInWar[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_InvitedPlayers[MS::Battlegrounds::TeamsCount::Value];
-        PlayerTimerMap m_PlayersWillBeKick[MS::Battlegrounds::TeamsCount::Value];
+        GuidSet m_PlayersInWar[TeamId::TEAM_NEUTRAL];
+        PlayerTimerMap m_InvitedPlayers[TeamId::TEAM_NEUTRAL];
+        PlayerTimerMap m_PlayersWillBeKick[TeamId::TEAM_NEUTRAL];
         PlayerCurrencyLoot m_PlayerCurrencyLoots;
 
-        uint32 m_EnnemiesKilled[MS::Battlegrounds::TeamsCount::Value];
-        uint32 m_EnnemiesKilledMax[MS::Battlegrounds::TeamsCount::Value];
+        uint32 m_EnnemiesKilled[TeamId::TEAM_NEUTRAL];
+        uint32 m_EnnemiesKilledMax[TeamId::TEAM_NEUTRAL];
 
-        uint64 m_ArtifactsNPCGuids[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
-        uint32 m_ArtifactsCollected[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
-        bool m_ArtifactEventsLaunched[MS::Battlegrounds::TeamsCount::Value][eArtifactsDatas::MaxArtifactCounts];
+        uint64 m_ArtifactsNPCGuids[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
+        uint32 m_ArtifactsCollected[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
+        bool m_ArtifactEventsLaunched[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
 
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
@@ -225,7 +226,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_AncientArtifactTime;
 
         AshranVignettesMap m_NeutralVignettes;
-        AshranVignettesMap m_FactionVignettes[MS::Battlegrounds::TeamsCount::Value];
+        AshranVignettesMap m_FactionVignettes[TeamId::TEAM_NEUTRAL];
         ActiveCaptains m_ActiveCaptains;
 };
 

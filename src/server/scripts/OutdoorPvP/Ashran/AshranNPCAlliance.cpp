@@ -3305,6 +3305,47 @@ class npc_ashran_mathias_zunn : public CreatureScript
         }
 };
 
+/// Ex Alliance Racer - 82884
+class npc_ashran_ex_alliance_racer : public CreatureScript
+{
+    public:
+        npc_ashran_ex_alliance_racer() : CreatureScript("npc_ashran_ex_alliance_racer") { }
+
+        struct npc_ashran_ex_alliance_racerAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_ex_alliance_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+
+            void Reset() override
+            {
+                AddTimedDelayedOperation(500, [this]() -> void
+                {
+                    if (Creature* l_Rider = me->FindNearestCreature(eCreatures::AllianceRider, 10.0f))
+                        l_Rider->EnterVehicle(me);
+                });
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    Movement::MoveSplineInit l_Init(*me);
+                    FillRidePath(l_Init.Path());
+                    l_Init.SetWalk(true);
+                    l_Init.SetCyclic();
+                    l_Init.Launch();
+                });
+            }
+
+            void FillRidePath(Movement::PointsArray& p_Path)
+            {
+                for (uint8 l_Iter = 0; l_Iter < eAshranDatas::AllianceRacingMovesCount; ++l_Iter)
+                    p_Path.push_back(g_AllianceRacingMoves[l_Iter]);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_ex_alliance_racerAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -3338,4 +3379,5 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_shani_freezewind();
     new npc_ashran_anne_otther();
     new npc_ashran_mathias_zunn();
+    new npc_ashran_ex_alliance_racer();
 }

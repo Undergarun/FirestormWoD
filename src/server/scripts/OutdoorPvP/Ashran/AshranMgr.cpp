@@ -1464,6 +1464,19 @@ void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
             AddCreature(eSpecialSpawns::OgreHordeChapion, g_HordeChampion, 5 * TimeConstants::MINUTE);
             break;
         }
+        case eAshranEvents::EventStadiumRacing:
+        {
+            SendEventWarningToPlayers(TrinityStrings::LangStadiumRacingHasBegun);
+
+            for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingFlags; ++l_I)
+                AddObject(eSpecialSpawns::AllianceRacingFlagSpawn1 + l_I, g_RacingFlagsPos[l_I]);
+
+            for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingCreatures; ++l_I)
+                AddCreature(eSpecialSpawns::SpeedyHordeRacerSpawn + l_I, g_RacingCreaturesPos[l_I]);
+
+            break;
+        }
+        case eAshranEvents::MaxEvents:
         default:
             break;
     }
@@ -1491,6 +1504,17 @@ void OutdoorPvPAshran::EndEvent(uint8 p_EventID, bool p_ScheduleNext /*= true*/)
             DelCreature(eSpecialSpawns::OgreHordeChapion);
             break;
         }
+        case eAshranEvents::EventStadiumRacing:
+        {
+            for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingFlags; ++l_I)
+                DelObject(eSpecialSpawns::AllianceRacingFlagSpawn1 + l_I);
+
+            for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingCreatures; ++l_I)
+                DelCreature(eSpecialSpawns::SpeedyHordeRacerSpawn + l_I);
+
+            break;
+        }
+        case eAshranEvents::MaxEvents:
         default:
             break;
     }
@@ -1503,6 +1527,18 @@ void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
         for (uint64 l_Guid : m_PlayersInWar[l_I])
         {
             if (Player* l_Player = sObjectAccessor->FindPlayer(l_Guid))
+            {
+                std::string l_Text = l_Player->GetSession()->GetTrinityString(p_LangID);
+                WorldPacket l_Data;
+                l_Player->BuildPlayerChat(&l_Data, nullptr, CHAT_MSG_TEXT_EMOTE, l_Text.c_str(), LANG_UNIVERSAL);
+                l_Player->GetSession()->SendPacket(&l_Data);
+            }
+        }
+
+        /// Send announces to invitees too
+        for (auto l_Invitee : m_InvitedPlayers[l_I])
+        {
+            if (Player* l_Player = sObjectAccessor->FindPlayer(l_Invitee.first))
             {
                 std::string l_Text = l_Player->GetSession()->GetTrinityString(p_LangID);
                 WorldPacket l_Data;
@@ -1955,12 +1991,16 @@ void OutdoorPvPAshran::InitializeEvents()
     uint32 l_TimerInterval = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS / eAshranEvents::MaxEvents;
     for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
     {
-        if (l_Index > eAshranEvents::EventKorlokTheOgreKing)    ///< Just Kor'lok yet
+        if (l_Index != eAshranEvents::EventKorlokTheOgreKing &&
+            l_Index != eAshranEvents::EventStadiumRacing)   ///< Just Kor'lok and Stadium Racing yet
             break;
 
         l_Timer += l_TimerInterval;
         m_AshranEvents[l_Index] = l_Timer;
     }
+
+    /// DEBUG
+    m_AshranEvents[eAshranEvents::EventStadiumRacing] = 185 * TimeConstants::IN_MILLISECONDS;
 }
 
 void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
