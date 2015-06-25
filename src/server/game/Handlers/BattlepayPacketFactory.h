@@ -26,13 +26,15 @@ namespace Battlepay
             InvalidPaymentMethod       = 25,
             PaymentFailed              = 2,
             WrongCurrency              = 12,
-            BattlepayDisabled          = 13,
-            InsufficientBalance        = 28,
-            OtherOK                    = 0,     ///< They are lot of id for "other" case, but they are used only in internal/GM client
-            OtherCancelByUser          = 4,
-            //AlreadyOwned             = 0,     ///< This error is client-side only, can't be sended by the server
+            BattlepayDisabled          = 13,    ///< Also 14
+            InsufficientBalance        = 28,    ///< Also 29
+            Other                      = 3,
+            //AlreadyOwned               = ,
             ParentalControlsNoPurchase = 34,
-            Denied                     = 1
+            Denied                     = 1,
+            ConsumableTokenOwned       = 46,
+            TooManyTokens              = 47,
+            Ok                         = 0
         };
 
         /// Result of SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE

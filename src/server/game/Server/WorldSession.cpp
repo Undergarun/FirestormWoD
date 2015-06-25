@@ -121,8 +121,9 @@ m_clientTimeDelay(0), m_ServiceFlags(p_ServiceFlags), m_TimeLastUseItem(0)
 
     InitializeQueryCallbackParameters();
 
-    m_TransactionCallbacks       = std::make_unique<TransactionCallbacks>();
-    m_PreparedStatementCallbacks = std::make_unique<PreparedStatementCallbacks>();
+    m_TransactionCallbacks             = std::make_unique<TransactionCallbacks>();
+    m_PreparedStatementCallbacks       = std::make_unique<PreparedStatementCallbacks>();
+    m_PreparedStatementCallbacksBuffer = std::make_unique<PreparedStatementCallbacks>();
 
     _compressionStream = new z_stream();
     _compressionStream->zalloc = (alloc_func)NULL;
@@ -402,6 +403,12 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         m_PreparedStatementCallbackLock.unlock();
     }
 
+    /// - Add prepared statements in buffer queue to real queue
+    while (!m_PreparedStatementCallbacksBuffer->empty())
+    {
+        m_PreparedStatementCallbacks->push_front(m_PreparedStatementCallbacksBuffer->front());
+        m_PreparedStatementCallbacksBuffer->pop_front();
+    }
 
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);

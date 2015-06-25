@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "BattlepayMgr.h"
+#include "BattlepayPacketFactory.h"
+#include "Chat.h"
 
 namespace Battlepay
 {
@@ -172,15 +174,85 @@ namespace Battlepay
         return true;
     }
 
-    /// @TODO
-    bool Manager::AlreadyHasProductItem(uint32 p_AccountID, const Battlepay::ProductItem& p_ProductItem) const
+    void Manager::SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)
     {
-        return false;
+        Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(p_Purchase->ProductID);
+        std::ostringstream l_ItemsText;
+
+        for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
+        {
+            if (!l_ItemsText.str().empty())
+                l_ItemsText << ",";
+
+            l_ItemsText << l_ItemProduct.ItemID;
+        }
+
+        Battlepay::DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(l_Product.DisplayInfoID);
+        std::string l_Type = "item";
+
+        PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_INS_PURCHASE);
+        l_Statement->setUInt32(0, p_Session->GetAccountId());
+        l_Statement->setUInt32(1, sLog->GetRealmID());
+        l_Statement->setUInt32(2, p_Session->GetPlayer() ? p_Session->GetPlayer()->GetGUIDLow() : 0);
+        l_Statement->setString(3, l_ItemsText.str());
+        l_Statement->setString(4, "InGame Shop - " + l_Type + " - " + std::string(l_DisplayInfo ? l_DisplayInfo->Name1 : ""));
+        l_Statement->setUInt32(5, p_Purchase->CurrentPrice);
+        l_Statement->setString(6, p_Session->GetRemoteAddress());
+        l_Statement->setString(7, l_Type);
+        auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
+
+        p_Session->AddPrepareStatementCallback(std::make_pair([p_Session](PreparedQueryResult p_Result) -> void
+        {
+            sBattlepayMgr->OnPrepareStatementCallbackEvent(p_Session, CallbackEvent::SavePurchase);
+        }, l_FuturResult), true);
     }
 
-    /// @TODO
-    uint32 Manager::GetBalance(uint64 p_PlayerGuid) const
+    void Manager::OnPrepareStatementCallbackEvent(WorldSession* p_Session, uint8 p_CallbackEvent)
     {
-        return 8000;
+        switch (p_CallbackEvent)
+        {
+            case Battlepay::CallbackEvent::SavePurchase:
+                Battlepay::PacketFactory::SendPointsBalance(p_Session);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Manager::ProcessDelivery(WorldSession* p_Session, Battlepay::Purchase* p_Purchase)
+    {
+        Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(p_Purchase->ProductID);
+
+        for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
+        {
+            if (Player* l_Player = p_Session->GetPlayer())
+                l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
+        }
+    }
+
+    void Manager::OnPaymentSucess(uint32 p_AccountId, uint32 p_NewBalance)
+    {
+        SessionMap const& l_Sessions = sWorld->GetAllSessions();
+        auto l_SessionItr = l_Sessions.find(p_AccountId);
+
+        if (l_SessionItr != l_Sessions.end())
+        {
+            WorldSession* l_Session = l_SessionItr->second;
+            Player* l_Player = l_Session->GetPlayer();
+
+            if (l_Player == nullptr)
+                return;
+
+            std::ostringstream l_Data;
+            l_Data << p_NewBalance;
+            l_Player->SendCustomMessage
+            (
+                PacketFactory::CustomMessage::GetCustomMessage(PacketFactory::CustomMessage::AshranStoreBalance),
+                l_Data
+            );
+
+            /// @TODO: Translation
+            ChatHandler(l_Player).PSendSysMessage("Votre nouveau solde est de %u points Ashran.", p_NewBalance);
+        }
     }
 }

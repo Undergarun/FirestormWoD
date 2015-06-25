@@ -503,15 +503,18 @@ class WorldSession
                 m_TransactionCallbackLock.unlock();
         }
 
-        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback, bool p_Lock = true)
+        void AddPrepareStatementCallback(std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture> p_Callback, bool p_Buffer = false)
         {
-            if (p_Lock)
+            if (!p_Buffer)
+            {
                 m_PreparedStatementCallbackLock.lock();
-
-            m_PreparedStatementCallbacks->push_front(p_Callback);
-
-            if (p_Lock)
+                m_PreparedStatementCallbacks->push_front(p_Callback);
                 m_PreparedStatementCallbackLock.unlock();
+                return;
+
+            }
+
+            m_PreparedStatementCallbacksBuffer->push_front(p_Callback);
         }
 
     public:                                                 // opcodes handlers
@@ -1224,6 +1227,7 @@ class WorldSession
         using PrepareStatementCallback   = std::pair<std::function<void(PreparedQueryResult)>, PreparedQueryResultFuture>;
         using PreparedStatementCallbacks = std::forward_list<PrepareStatementCallback>;
         std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacks;
+        std::unique_ptr<PreparedStatementCallbacks> m_PreparedStatementCallbacksBuffer;
         std::mutex m_PreparedStatementCallbackLock;
 
     private:

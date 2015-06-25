@@ -50,7 +50,7 @@ namespace Battlepay
                     l_Data.FlushBits();
 
                     l_Data.WriteBit(l_ItemProduct.DisplayInfoID != 0);
-                    l_Data.WriteBit(sBattlepayMgr->AlreadyHasProductItem(p_Session->GetAccountId(), l_ItemProduct));
+                    l_Data.WriteBit(false); ///< Already has product item
                     l_Data.WriteBit(l_ItemProduct.PetResult != 0);
 
                     if (l_ItemProduct.PetResult != 0)
@@ -211,7 +211,7 @@ namespace Battlepay
                 std::ostringstream l_Data;
                 l_Data << l_Balance;
                 l_Player->SendCustomMessage(GetCustomMessage(CustomMessage::AshranStoreBalance), l_Data);
-            }, l_FuturResult));
+            }, l_FuturResult), true);
 
             if (Player* l_Player = p_Session->GetPlayer())
             {

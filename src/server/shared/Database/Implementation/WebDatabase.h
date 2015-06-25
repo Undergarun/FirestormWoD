@@ -42,6 +42,7 @@ enum WebDatabaseStatements
     */
 
     WEB_SEL_ACCOUNT_POINTS,
+    WEB_INS_PURCHASE,
 
     MAX_WEBDATABASE_STATEMENTS
 };

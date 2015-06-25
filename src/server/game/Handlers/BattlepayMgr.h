@@ -48,6 +48,14 @@ namespace Battlepay
         Denied                     = 1
     };
 
+    namespace CallbackEvent
+    {
+        enum
+        {
+            SavePurchase,
+        };
+    }
+
     struct ProductGroup
     {
         uint32          GroupID;
@@ -114,6 +122,7 @@ namespace Battlepay
         uint64 CurrentPrice;
         uint64 TargetCharacter;
         uint8  Status;
+        bool   Lock;
     };
 
     class Manager
@@ -143,6 +152,31 @@ namespace Battlepay
             */
             bool IsAvailable() const;
 
+            /*
+            * Save purchase in website database
+            * that function decrease user balance
+            * After the purchase in saved, balance is sended to client with callback
+            */
+            void SavePurchase(WorldSession* p_Session, Battlepay::Purchase* p_Purchase);
+
+            /*
+            * Called by sql prepare statement callback
+            */
+            void OnPrepareStatementCallbackEvent(WorldSession* p_Session, uint8 p_CallbackEvent);
+
+            /*
+            * Deliver purchases to user
+            * e.g. : items, premades, golds, services ...etc
+            */
+            void ProcessDelivery(WorldSession* p_Session, Battlepay::Purchase* p_Purchase);
+
+            /*
+            * Called by SOAP callback (command)
+            * Payment service provider (Allopass, Paypal, Paymentwall ...etc) callback when payement is sucessfull
+            * Send balance update to client
+            */
+            void OnPaymentSucess(uint32 p_AccountId, uint32 p_NewBalance);
+
             std::vector<ProductGroup> const& GetProductGroups() const { return m_ProductGroups; }
             std::vector<ShopEntry> const& GetShopEntries() const { return m_ShopEntries; }
             std::map<uint32, Product> const& GetProducts() const { return m_Products; }
@@ -167,29 +201,37 @@ namespace Battlepay
                 return &m_DisplayInfos.at(p_Id);
             }
 
+            /*
+            * Register purchase information to start the transaction
+            */
             void RegisterStartPurchase(uint32 p_AccountId, Battlepay::Purchase p_Purchase)
             {
                 m_ActualTransactions[p_AccountId] = p_Purchase;
             }
 
+            /*
+            * Generate new purchase ID
+            */
             uint64 GenerateNewPurchaseID()
             {
                 return uint64(0x1E77800000000000 | ++m_PurchaseIDCount);
             }
 
-            Battlepay::Purchase const* GetPurchase(uint64 p_PlayerGUID) const
+            /*
+            * Retreive purchase in progress to given account id if any
+            */
+            Battlepay::Purchase* GetPurchase(uint32 p_AccountId)
             {
-                if (m_ActualTransactions.find(p_PlayerGUID) == m_ActualTransactions.end())
+                if (m_ActualTransactions.find(p_AccountId) == m_ActualTransactions.end())
                     return nullptr;
 
-                return &m_ActualTransactions.at(p_PlayerGUID);
+                return &m_ActualTransactions[p_AccountId];
             }
 
+            /*
+            * Return wallet name (balance, credit cards ...etc)
+            */
             std::string const& GetDefaultWalletName() const { return m_WalletName; }
-
-            bool AlreadyHasProductItem(uint32 p_AccountID, const Battlepay::ProductItem& p_ProductItem) const;
-
-            uint32 GetBalance(uint64 p_PlayerGuid) const;
 
         private:
 

@@ -34,6 +34,7 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     uint32 l_ProductID;
     uint32 l_ClientToken;
 
+    /// Read packet
     p_RecvData >> l_ClientToken;
     p_RecvData >> l_ProductID;
     p_RecvData.readPackGUID(l_TargetCharacter);
@@ -45,7 +46,6 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
     l_Purchase.TargetCharacter = l_TargetCharacter;
     l_Purchase.Status          = Battlepay::PacketFactory::UpdateStatus::Loading;
 
-    /// @TODO: Handle price, already have it ...etc and generate a error code (result) if needed
     auto l_CharacterNameData = sWorld->GetCharacterNameData(GUID_LOPART(l_TargetCharacter));
 
     /// The TargetCharacter guid sended by the client doesn't exist
@@ -69,21 +69,48 @@ void WorldSession::HandleBattlePayStartPurchase(WorldPacket& p_RecvData)
         return;
     }
 
-    Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_ProductID);
-
-    /// Purchase can be done, let's generate purchase ID & Server Token
-    l_Purchase.PurchaseID      = sBattlepayMgr->GenerateNewPurchaseID();
-    l_Purchase.ServerToken     = urand(0, 0xFFFFFFF);
-    l_Purchase.CurrentPrice    = l_Product.CurrentPriceFixedPoint;
-    l_Purchase.Status          = Battlepay::PacketFactory::UpdateStatus::Ready;
+    /// Update purchase price
+    Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_Purchase.ProductID);
+    l_Purchase.CurrentPrice = l_Product.CurrentPriceFixedPoint;
 
     /// Store the purchase and link it to the current account, we will need it later
     sBattlepayMgr->RegisterStartPurchase(GetAccountId(), l_Purchase);
 
-    /// Send neccesary packets to client to show the confirmation window
-    Battlepay::PacketFactory::SendStartPurchaseResponse(this, l_Purchase, Battlepay::PacketFactory::Error::OtherOK);
-    Battlepay::PacketFactory::SendPurchaseUpdate(this, l_Purchase, Battlepay::PacketFactory::Error::OtherOK);
-    Battlepay::PacketFactory::SendConfirmPurchase(this, l_Purchase);
+    /// Query balance to database
+    PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
+    l_Statement->setUInt32(0, GetAccountId());
+    l_Statement->setUInt32(1, GetAccountId());
+
+    auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
+    AddPrepareStatementCallback(std::make_pair([this](PreparedQueryResult p_Result) -> void
+    {
+        Battlepay::Purchase* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
+
+        /// Never buy points
+        if (!p_Result)
+        {
+            Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            return;
+        }
+
+        /// Check balance
+        Field* l_Fields = p_Result->Fetch();
+        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
+        {
+            Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+            return;
+        }
+
+        /// Purchase can be done, let's generate purchase ID & Server Token
+        l_Purchase->PurchaseID = sBattlepayMgr->GenerateNewPurchaseID();
+        l_Purchase->ServerToken = urand(0, 0xFFFFFFF);
+        l_Purchase->Status = Battlepay::PacketFactory::UpdateStatus::Ready;
+
+        /// Send neccesary packets to client to show the confirmation window
+        Battlepay::PacketFactory::SendStartPurchaseResponse(this, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Ok);
+        Battlepay::PacketFactory::SendConfirmPurchase(this, *l_Purchase);
+    }, l_FuturResult));
 }
 
 void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
@@ -92,67 +119,62 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPacket& p_RecvData)
     uint64 l_ClientCurrentPriceFixedPoint;
     bool   l_ConfirmPurchase;
 
+    /// Read packet
     l_ConfirmPurchase = p_RecvData.ReadBit();
     p_RecvData.ResetBitReading();
 
     p_RecvData >> l_ServerToken;
     p_RecvData >> l_ClientCurrentPriceFixedPoint;
 
+    /// Apply balance currency precision (thx @blizz)
     l_ClientCurrentPriceFixedPoint /= Battlepay::PacketFactory::g_CurrencyPrecision;
 
-    Battlepay::Purchase const* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
+    Battlepay::Purchase* l_Purchase = sBattlepayMgr->GetPurchase(GetAccountId());
     /// We can't handle that case because we havn't purchase data
     /// Anyway, the client is cheater if it send payConfirm opcode without starting purchase
     if (l_Purchase == nullptr)
         return;
 
-    if (l_Purchase->ServerToken != l_ServerToken)
+    /// Database query to process that purchase is already in progress.
+    if (l_Purchase->Lock)
+        return;
+
+    /// Client refuse to buy or send invalid data
+    if (l_Purchase->ServerToken != l_ServerToken
+        || l_ConfirmPurchase == false
+        || l_Purchase->CurrentPrice != l_ClientCurrentPriceFixedPoint)
     {
         Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Denied);
         return;
     }
 
-    if (l_ConfirmPurchase == false)
-    {
-        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::OtherCancelByUser);
-        return;
-    }
+    l_Purchase->Lock = true;
 
-    if (l_Purchase->CurrentPrice != l_ClientCurrentPriceFixedPoint)
-    {
-        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
-        return;
-    }
-
-    PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLEPAY_POINTS);
+    /// Double balance check, because the balance can change since the user click on "Buy now"
+    PreparedStatement* l_Statement = WebDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
     l_Statement->setUInt32(0, GetAccountId());
+    l_Statement->setUInt32(1, GetAccountId());
 
-    auto l_FuturResult = LoginDatabase.AsyncQuery(l_Statement);
+    auto l_FuturResult = WebDatabase.AsyncQuery(l_Statement);
     AddPrepareStatementCallback(std::make_pair([this, l_Purchase](PreparedQueryResult p_Result) -> void
     {
+        /// Never buy points
         if (!p_Result)
-        {
-            Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
             return;
-        }
 
+        /// Check balance
         Field* l_Fields = p_Result->Fetch();
-        if (l_Fields[0].GetInt32() < l_Purchase->CurrentPrice)
-        {
-            Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::InsufficientBalance);
+        if (std::atoi(l_Fields[0].GetCString()) < l_Purchase->CurrentPrice)
             return;
-        }
 
-        Battlepay::Product const& l_Product = sBattlepayMgr->GetProduct(l_Purchase->ProductID);
-        for (Battlepay::ProductItem const& l_ItemProduct : l_Product.Items)
-        {
-            if (Player* l_Player = GetPlayer())
-                l_Player->AddItem(l_ItemProduct.ItemID, l_ItemProduct.Quantity);
-        }
+        /// Display "Purchase delivered" frame
+        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::Other);
 
-        Battlepay::PacketFactory::SendPurchaseUpdate(this, *l_Purchase, Battlepay::PacketFactory::Error::OtherCancelByUser);
-        /// There is a other opcode to show delivery item
+        /// Save purchase in database (that decrease balance) & send balance update
+        sBattlepayMgr->SavePurchase(this, l_Purchase);
 
-        /// @TODO: Remove points ...
+        /// Deliver purchases (items, gold, services ...etc)
+        sBattlepayMgr->ProcessDelivery(this, l_Purchase);
+
     }, l_FuturResult));
 }
