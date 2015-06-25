@@ -32981,21 +32981,10 @@ bool Player::_LoadPetBattles(PreparedQueryResult&& p_Result)
 /// SpellCharges
 void Player::SendSpellCharges()
 {
-    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES);
+    WorldPacket l_Data(SMSG_SEND_SPELL_CHARGES, 4 + m_SpellChargesMap.size() * 9);
 
-    if (m_SpellChargesMap.empty())
-    {
-        l_Data << uint32(0);
-        SendDirectMessage(&l_Data);
-        return;
-    }
-
-    size_t l_EntriesPos = l_Data.wpos();
-    l_Data << uint32(0);
-
-    uint32 l_Count = 0;
-    SpellChargesMap l_SpellCharges = m_SpellChargesMap;
-    for (auto l_SpellCharge : l_SpellCharges)
+    l_Data << uint32(m_SpellChargesMap.size());
+    for (auto l_SpellCharge : m_SpellChargesMap)
     {
         ChargesData l_Charges = l_SpellCharge.second;
 
@@ -33004,12 +32993,9 @@ void Player::SendSpellCharges()
             l_Data << uint32(0);
         else
             l_Data << uint32(l_Charges.m_ChargesCooldown.front());
+
         l_Data << uint8(l_Charges.m_ConsumedCharges);
-
-        ++l_Count;
     }
-
-    l_Data.put(l_EntriesPos, l_Count);
 
     SendDirectMessage(&l_Data);
 }
@@ -33135,22 +33121,23 @@ void Player::UpdateCharges(uint32 const p_Time)
 
 void Player::ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Category)
 {
-    int32 l_ModRecovery = 0;
+    int32 l_ChargeRegenTime = p_Category->ChargeRegenTime;
     Unit::AuraEffectList const& l_ModCharges = GetAuraEffectsByType(AuraType::SPELL_AURA_CHARGE_RECOVERY_MOD);
-    for (Unit::AuraEffectList::const_iterator l_Iter = l_ModCharges.begin(); l_Iter != l_ModCharges.end(); ++l_Iter)
+    for (AuraEffectPtr l_Effect : l_ModCharges)
     {
-        if ((*l_Iter)->GetMiscValue() == p_CategoryID)
-            l_ModRecovery += (*l_Iter)->GetAmount();
+        if (l_Effect->GetMiscValue() == p_CategoryID)
+            l_ChargeRegenTime += l_Effect->GetAmount();
     }
 
+    uint8 l_ConsumedCharges;
     if (m_SpellChargesMap.find(p_CategoryID) == m_SpellChargesMap.end())
-        m_SpellChargesMap.insert(std::make_pair(p_CategoryID, ChargesData(p_Category->MaxCharges, p_Category->ChargeRegenTime + l_ModRecovery)));
+        m_SpellChargesMap.insert(std::make_pair(p_CategoryID, ChargesData(p_Category->MaxCharges, l_ChargeRegenTime)));
     else
     {
         ChargesData* l_Charges = GetChargesData(p_CategoryID);
         ++l_Charges->m_ConsumedCharges;
 
-        l_Charges->m_ChargesCooldown.push_back(p_Category->ChargeRegenTime + l_ModRecovery);
+        l_Charges->m_ChargesCooldown.push_back(l_ChargeRegenTime);
     }
 }
 

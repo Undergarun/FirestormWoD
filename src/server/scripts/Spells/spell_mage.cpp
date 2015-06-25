@@ -2672,6 +2672,43 @@ class PlayerScript_rapid_teleportation : public PlayerScript
         }
 };
 
+/// Ring of Frost (Freeze) - 82691 - last update: 6.1.2 19865
+class spell_ring_of_frost_freeze : public SpellScriptLoader
+{
+    public:
+        spell_ring_of_frost_freeze() : SpellScriptLoader("spell_ring_of_frost_freeze") { }
+
+        enum Spells
+        {
+            RingOfFrostImmune = 91264
+        };
+
+        class spell_ring_of_frost_freeze_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ring_of_frost_freeze_AuraScript);
+
+            void AfterRemove(constAuraEffectPtr p_AurEff, AuraEffectHandleModes p_Mode)
+            {
+                AuraRemoveMode l_RemoveMode = GetTargetApplication()->GetRemoveMode();
+                if (l_RemoveMode == AuraRemoveMode::AURA_REMOVE_BY_DEATH)
+                    return;
+
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(GetTarget(), Spells::RingOfFrostImmune, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_ring_of_frost_freeze_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ring_of_frost_freeze_AuraScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     /// AreaTriggers
@@ -2726,6 +2763,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_WoDPvPFrost2PBonus();
     new spell_mage_arcane_power();
     new spell_mage_polymorph();
+    new spell_ring_of_frost_freeze();
 
     /// Player Script
     new PlayerScript_rapid_teleportation();
