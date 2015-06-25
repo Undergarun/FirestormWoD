@@ -2972,7 +2972,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        m_comboPointGain += 1;
                         l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }
@@ -6033,7 +6033,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && category->MaxCharges != 0 && !player->CanUseCharge(categories->Id))
+            if (category && category->MaxCharges != 0 && !player->CanUseCharge(category->Id))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }

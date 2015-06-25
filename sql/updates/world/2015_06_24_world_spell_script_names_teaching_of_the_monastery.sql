@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_monk_teachings_of_the_monastery';

@@ -1622,19 +1622,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
     {
         if (m_spellAura->GetEffect(i) && m_spellAura->GetEffect(i)->GetAuraType() == SPELL_AURA_SCHOOL_ABSORB)
         {
-            float AbsorbMod2 = 0.0f;
-
-            Unit *l_Caster = GetCaster();
-
-            if (l_Caster == nullptr)
-                return;
-
-            float minval = (float)l_Caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-            float maxval = (float)l_Caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
-
-            AbsorbMod2 = minval + maxval;
             int currentValue = m_spellAura->GetEffect(i)->GetAmount();
-            AddPct(currentValue, AbsorbMod2);
 
             m_spellAura->GetEffect(i)->SetAmount(currentValue);
         }
@@ -4275,6 +4263,9 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     /// Glyph of Rude interruption
                     if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
                         m_originalCaster->CastSpell(m_originalCaster, 86663, true);
+                    /// Item - Rogue WoD PvP 2P Bonus
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));

@@ -1,20 +1,27 @@
-/*
-SQLyog Ultimate v11.11 (64 bit)
-MySQL - 5.5.42-37.1 : Database - world_hotfix
-*********************************************************************
-*/
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4135
+#
+# http://www.sequelpro.com/
+# http://code.google.com/p/sequel-pro/
+#
+# Host: 127.0.0.1 (MySQL 5.5.38)
+# Database: hotfix
+# Generation Time: 2015-06-19 14:02:40 +0000
+# ************************************************************
 
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
-
-/*!40101 SET SQL_MODE=''*/;
-
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`world_hotfix` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
-/*Table structure for table `_custom_items` */
+
+# Dump of table _custom_items
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `_custom_items`;
 
@@ -23,7 +30,10 @@ CREATE TABLE `_custom_items` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `_hashs` */
+
+
+# Dump of table _hashs
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `_hashs`;
 
@@ -33,7 +43,10 @@ CREATE TABLE `_hashs` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `_hotfixs` */
+
+
+# Dump of table _hotfixs
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `_hotfixs`;
 
@@ -44,9 +57,12 @@ CREATE TABLE `_hotfixs` (
   `Date` int(11) unsigned NOT NULL,
   `Comment` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=232 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `battle_pet_species` */
+
+
+# Dump of table battle_pet_species
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `battle_pet_species`;
 
@@ -62,9 +78,12 @@ CREATE TABLE `battle_pet_species` (
   `Description` text,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1657 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `battle_pet_species_locale` */
+
+
+# Dump of table battle_pet_species_locale
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `battle_pet_species_locale`;
 
@@ -94,7 +113,10 @@ CREATE TABLE `battle_pet_species_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `currency_types` */
+
+
+# Dump of table currency_types
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `currency_types`;
 
@@ -113,9 +135,12 @@ CREATE TABLE `currency_types` (
   `DescriptionLang` text,
   `BuildVerified` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1021 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `currency_types_locale` */
+
+
+# Dump of table currency_types_locale
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `currency_types_locale`;
 
@@ -165,7 +190,10 @@ CREATE TABLE `currency_types_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `curve_point` */
+
+
+# Dump of table curve_point
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `curve_point`;
 
@@ -177,9 +205,12 @@ CREATE TABLE `curve_point` (
   `Y` float NOT NULL,
   `BuildVerified` int(11) NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4866 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `item` */
+
+
+# Dump of table item
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item`;
 
@@ -197,7 +228,10 @@ CREATE TABLE `item` (
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_appearance` */
+
+
+# Dump of table item_appearance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_appearance`;
 
@@ -207,9 +241,12 @@ CREATE TABLE `item_appearance` (
   `Unk` int(11) unsigned NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=25540 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `item_bonus` */
+
+
+# Dump of table item_bonus
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_bonus`;
 
@@ -222,9 +259,12 @@ CREATE TABLE `item_bonus` (
   `Index` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=1571 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_bonus_tree_node` */
+
+
+# Dump of table item_bonus_tree_node
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_bonus_tree_node`;
 
@@ -236,9 +276,12 @@ CREATE TABLE `item_bonus_tree_node` (
   `ItemBonusEntry` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=1104 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_currency_cost` */
+
+
+# Dump of table item_currency_cost
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_currency_cost`;
 
@@ -247,9 +290,12 @@ CREATE TABLE `item_currency_cost` (
   `ItemID` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=42311 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_effect` */
+
+
+# Dump of table item_effect
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_effect`;
 
@@ -265,9 +311,12 @@ CREATE TABLE `item_effect` (
   `SpellCategoryCooldown` int(10) NOT NULL,
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=25037 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `item_extended_cost` */
+
+
+# Dump of table item_extended_cost
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_extended_cost`;
 
@@ -303,9 +352,12 @@ CREATE TABLE `item_extended_cost` (
   `OverrideBuyPrice` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=5854 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_modified_appearance` */
+
+
+# Dump of table item_modified_appearance
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_modified_appearance`;
 
@@ -318,9 +370,12 @@ CREATE TABLE `item_modified_appearance` (
   `Index` int(10) unsigned NOT NULL,
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=69223 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `item_sparse` */
+
+
+# Dump of table item_sparse
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_sparse`;
 
@@ -429,69 +484,75 @@ CREATE TABLE `item_sparse` (
   `ItemNameDescriptionID` int(11) NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=123976 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_sparse_locale` */
+
+
+# Dump of table item_sparse_locale
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_sparse_locale`;
 
 CREATE TABLE `item_sparse_locale` (
   `ID` int(11) unsigned NOT NULL,
-  `Name_koKR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_frFR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_deDE` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_zhCN` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_zhTW` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_esES` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_esMX` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_ruRU` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_ptPT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name_itIT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_koKR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_frFR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_deDE` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_zhCN` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_zhTW` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_esES` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_esMX` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_ruRU` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_ptPT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name2_itIT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_koKR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_frFR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_deDE` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_zhCN` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_zhTW` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_esES` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_esMX` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_ruRU` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_ptPT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name3_itIT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_koKR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_frFR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_deDE` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_zhCN` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_zhTW` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_esES` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_esMX` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_ruRU` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_ptPT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Name4_itIT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_koKR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_frFR` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_deDE` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_zhCN` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_zhTW` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_esES` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_esMX` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_ruRU` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_ptPT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `Description_itIT` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
+  `Name_koKR` text CHARACTER SET latin1,
+  `Name_frFR` text CHARACTER SET latin1,
+  `Name_deDE` text CHARACTER SET latin1,
+  `Name_zhCN` text CHARACTER SET latin1,
+  `Name_zhTW` text CHARACTER SET latin1,
+  `Name_esES` text CHARACTER SET latin1,
+  `Name_esMX` text CHARACTER SET latin1,
+  `Name_ruRU` text CHARACTER SET latin1,
+  `Name_ptPT` text CHARACTER SET latin1,
+  `Name_itIT` text CHARACTER SET latin1,
+  `Name2_koKR` text CHARACTER SET latin1,
+  `Name2_frFR` text CHARACTER SET latin1,
+  `Name2_deDE` text CHARACTER SET latin1,
+  `Name2_zhCN` text CHARACTER SET latin1,
+  `Name2_zhTW` text CHARACTER SET latin1,
+  `Name2_esES` text CHARACTER SET latin1,
+  `Name2_esMX` text CHARACTER SET latin1,
+  `Name2_ruRU` text CHARACTER SET latin1,
+  `Name2_ptPT` text CHARACTER SET latin1,
+  `Name2_itIT` text CHARACTER SET latin1,
+  `Name3_koKR` text CHARACTER SET latin1,
+  `Name3_frFR` text CHARACTER SET latin1,
+  `Name3_deDE` text CHARACTER SET latin1,
+  `Name3_zhCN` text CHARACTER SET latin1,
+  `Name3_zhTW` text CHARACTER SET latin1,
+  `Name3_esES` text CHARACTER SET latin1,
+  `Name3_esMX` text CHARACTER SET latin1,
+  `Name3_ruRU` text CHARACTER SET latin1,
+  `Name3_ptPT` text CHARACTER SET latin1,
+  `Name3_itIT` text CHARACTER SET latin1,
+  `Name4_koKR` text CHARACTER SET latin1,
+  `Name4_frFR` text CHARACTER SET latin1,
+  `Name4_deDE` text CHARACTER SET latin1,
+  `Name4_zhCN` text CHARACTER SET latin1,
+  `Name4_zhTW` text CHARACTER SET latin1,
+  `Name4_esES` text CHARACTER SET latin1,
+  `Name4_esMX` text CHARACTER SET latin1,
+  `Name4_ruRU` text CHARACTER SET latin1,
+  `Name4_ptPT` text CHARACTER SET latin1,
+  `Name4_itIT` text CHARACTER SET latin1,
+  `Description_koKR` text CHARACTER SET latin1,
+  `Description_frFR` text CHARACTER SET latin1,
+  `Description_deDE` text CHARACTER SET latin1,
+  `Description_zhCN` text CHARACTER SET latin1,
+  `Description_zhTW` text CHARACTER SET latin1,
+  `Description_esES` text CHARACTER SET latin1,
+  `Description_esMX` text CHARACTER SET latin1,
+  `Description_ruRU` text CHARACTER SET latin1,
+  `Description_ptPT` text CHARACTER SET latin1,
+  `Description_itIT` text CHARACTER SET latin1,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `item_x_bonus_tree` */
+
+
+# Dump of table item_x_bonus_tree
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `item_x_bonus_tree`;
 
@@ -501,9 +562,12 @@ CREATE TABLE `item_x_bonus_tree` (
   `ItemBonusTreeCategory` int(11) NOT NULL,
   `BuildVerified` int(10) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=MyISAM AUTO_INCREMENT=21575 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*Table structure for table `map_challenge_mode` */
+
+
+# Dump of table map_challenge_mode
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `map_challenge_mode`;
 
@@ -520,9 +584,12 @@ CREATE TABLE `map_challenge_mode` (
   `Unk5` int(11) unsigned NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `mount` */
+
+
+# Dump of table mount
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `mount`;
 
@@ -539,9 +606,12 @@ CREATE TABLE `mount` (
   `PlayerConditionID` int(10) unsigned NOT NULL,
   `BuildVerified` int(10) NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=600001 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `mount_locale` */
+
+
+# Dump of table mount_locale
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `mount_locale`;
 
@@ -581,7 +651,10 @@ CREATE TABLE `mount_locale` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*Table structure for table `quest_package_item` */
+
+
+# Dump of table quest_package_item
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `quest_package_item`;
 
@@ -593,9 +666,12 @@ CREATE TABLE `quest_package_item` (
   `Type` int(10) unsigned NOT NULL DEFAULT '0',
   `BuildVerified` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3964 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `spell_aura_restrictions` */
+
+
+# Dump of table spell_aura_restrictions
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `spell_aura_restrictions`;
 
@@ -611,9 +687,12 @@ CREATE TABLE `spell_aura_restrictions` (
   `ExcludeTargetAuraSpell` int(11) unsigned NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9832 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `spell_casting_requirements` */
+
+
+# Dump of table spell_casting_requirements
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `spell_casting_requirements`;
 
@@ -627,9 +706,12 @@ CREATE TABLE `spell_casting_requirements` (
   `RequiresSpellFocus` int(11) unsigned NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16444 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `spell_effect_group_size` */
+
+
+# Dump of table spell_effect_group_size
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `spell_effect_group_size`;
 
@@ -639,9 +721,12 @@ CREATE TABLE `spell_effect_group_size` (
   `Coefficient` float NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=1795 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `spell_misc` */
+
+
+# Dump of table spell_misc
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `spell_misc`;
 
@@ -673,9 +758,14 @@ CREATE TABLE `spell_misc` (
   `MultistrikeSpeedMod` float NOT NULL,
   `BuildVerified` int(11) unsigned NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=159072 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

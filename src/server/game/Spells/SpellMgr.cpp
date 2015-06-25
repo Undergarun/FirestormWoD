@@ -3358,6 +3358,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 167615: ///< Pierced Armor
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                 break;
+            case 97709:  ///< Altered Form (Racial)
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_UNK21;
+                break;
             case 81333:  ///< Might of the Frozen Wastes -- dont apply obliterate twice
                 spellInfo->Effects[EFFECT_1].SpellClassMask &= ~spellInfo->Effects[EFFECT_0].SpellClassMask;
                 break;
@@ -5123,6 +5126,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 102359: ///< Mass Entanglement
                 spellInfo->AttributesEx5 &= ~SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
+            case 64380: ///< Shattering Throw
+                spellInfo->Effects[0].Effect = SPELL_EFFECT_DISPEL_MECHANIC;
+                spellInfo->Effects[0].MiscValue = 29;
+                break;
             case 102355: ///< Faerie Swarm
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_SINGLE_TARGET_SPELL;
                 break;
@@ -6201,6 +6208,11 @@ void SpellMgr::LoadSpellCustomAttr()
             case 148022:// Icicle hit
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_TRIGGERED_IGNORE_RESILENCE;
                 break;
+            case 51657:
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
+                spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = 0;
+                break;
+
             default:
                 break;
         }

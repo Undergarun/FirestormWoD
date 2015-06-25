@@ -1,14 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
-#include "ScriptPCH.h"
-#include "MapManager.h"
 
 OutdoorGraveyardAshran::OutdoorGraveyardAshran(OutdoorPvPAshran* p_OutdoorPvP) : OutdoorGraveyard(p_OutdoorPvP)
 {
@@ -111,12 +109,12 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         {
             if (p_Faction == eControlStatus::ControlNeutral)
             {
-                // Spawn fighting guards
-                // Stormshield Footman VS Warspear Grunt
+                /// Spawn fighting guards
+                /// Stormshield Footman VS Warspear Grunt
                 for (uint8 l_Count = 0; l_Count < eSpawns::EmberfallTowerCreaturesCount; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_EmberfallTowerNeutralSpawns[l_Count]);
+                    AddCreature(l_Count, g_EmberfallTowerNeutralSpawns[l_Count], 5);
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
@@ -138,14 +136,14 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateHighWarlordVolrath : eWorldStates::WorldStateVolrathsAdvanceBattle);
                 }
 
-                // Spawn horde or alliance guards
+                /// Spawn horde or alliance guards
                 for (uint8 l_Count = 0; l_Count < eSpawns::EmberfallTowerCreaturesCount; ++l_Count)
                 {
                     DelCreature(l_Count);
                     AddCreature(l_Count, g_EmberfallTowerSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count], 2 * TimeConstants::MINUTE);
                 }
 
-                // Spawn fires
+                /// Spawn fires
                 for (uint8 l_Count = eSpawns::EmberfallTowerCreaturesCount; l_Count < eSpawns::EmberfallTowerSpawnsIDs; ++l_Count)
                 {
                     DelObject(l_Count);
@@ -174,13 +172,13 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         {
             if (p_Faction == eControlStatus::ControlNeutral)
             {
-                // Spawn fighting guards
-                // Stormshield Footman VS Warspear Grunt
+                /// Spawn fighting guards
+                /// Stormshield Footman VS Warspear Grunt
                 uint8 l_CreatureMaxIndex = eSpawns::EmberfallTowerSpawnsIDs + eSpawns::VolrathsAdvanceCreaturesCount;
                 for (uint8 l_Count = eSpawns::EmberfallTowerSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_VolrathsAdvanceNeutralSpawns[l_Count - eSpawns::EmberfallTowerSpawnsIDs]);
+                    AddCreature(l_Count, g_VolrathsAdvanceNeutralSpawns[l_Count - eSpawns::EmberfallTowerSpawnsIDs], 5);
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
@@ -197,7 +195,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateEmberfallTowerBattle : eWorldStates::WorldStateTheCrossroadsBattle);
                 }
 
-                // Spawn horde or alliance guards
+                /// Spawn horde or alliance guards
                 uint8 l_CreatureMaxIndex = eSpawns::EmberfallTowerSpawnsIDs + eSpawns::VolrathsAdvanceCreaturesCount;
                 for (uint8 l_Count = eSpawns::EmberfallTowerSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
@@ -205,7 +203,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     AddCreature(l_Count, g_VolrathsAdvanceSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::EmberfallTowerSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
-                // Spawn fires
+                /// Spawn fires
                 uint8 l_FireIndex = eSpawns::EmberfallTowerSpawnsIDs + eSpawns::VolrathsAdvanceCreaturesCount;
                 for (uint8 l_Index = l_FireIndex; l_Index < eSpawns::VolrathsAdvanceSpawnsIDs; ++l_Index)
                 {
@@ -222,13 +220,13 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         {
             if (p_Faction == eControlStatus::ControlNeutral)
             {
-                // Spawn fighting guards
-                // Stormshield Footman VS Warspear Grunt
+                /// Spawn fighting guards
+                /// Stormshield Footman VS Warspear Grunt
                 uint8 l_CreatureMaxIndex = eSpawns::VolrathsAdvanceSpawnsIDs + eSpawns::TheCrossroadsCreaturesCount;
                 for (uint8 l_Count = eSpawns::VolrathsAdvanceSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_CrossroadsNeutralSpawns[l_Count - eSpawns::VolrathsAdvanceSpawnsIDs]);
+                    AddCreature(l_Count, g_CrossroadsNeutralSpawns[l_Count - eSpawns::VolrathsAdvanceSpawnsIDs], 5);
                 }
 
                 uint8 l_FlagIndex = eSpawns::VolrathsAdvanceSpawnsIDs + eSpawns::TheCrossroadsCreaturesCount;
@@ -249,7 +247,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateVolrathsAdvanceBattle : eWorldStates::WorldStateTrembladesVanguardBattle);
                 }
 
-                // Spawn horde or alliance guards
+                /// Spawn horde or alliance guards
                 uint8 l_CreatureMaxIndex = eSpawns::VolrathsAdvanceSpawnsIDs + eSpawns::TheCrossroadsCreaturesCount;
                 for (uint8 l_Count = eSpawns::VolrathsAdvanceSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
@@ -257,7 +255,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     AddCreature(l_Count, g_CrossroadSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::VolrathsAdvanceSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
-                // Spawn flags
+                /// Spawn flags
                 uint8 l_FlagIndex = eSpawns::VolrathsAdvanceSpawnsIDs + eSpawns::TheCrossroadsCreaturesCount;
                 for (uint8 l_Count = l_FlagIndex; l_Count < eSpawns::TheCrossroadsSpawnsIDs; ++l_Count)
                 {
@@ -272,13 +270,13 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         {
             if (p_Faction == eControlStatus::ControlNeutral)
             {
-                // Spawn fighting guards
-                // Stormshield Footman VS Warspear Grunt
+                /// Spawn fighting guards
+                /// Stormshield Footman VS Warspear Grunt
                 uint8 l_CreatureMaxIndex = eSpawns::TheCrossroadsSpawnsIDs + eSpawns::TrembladesVanguardCreaturesCount;
                 for (uint8 l_Count = eSpawns::TheCrossroadsSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
                     DelCreature(l_Count);
-                    AddCreature(l_Count, g_TrembladesVanguardNeutralSpawns[l_Count - eSpawns::TheCrossroadsSpawnsIDs]);
+                    AddCreature(l_Count, g_TrembladesVanguardNeutralSpawns[l_Count - eSpawns::TheCrossroadsSpawnsIDs], 5);
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
@@ -295,7 +293,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateTheCrossroadsBattle : eWorldStates::WorldStateArchmageOverwatchBattle);
                 }
 
-                // Spawn horde or alliance guards
+                /// Spawn horde or alliance guards
                 uint8 l_CreatureMaxIndex = eSpawns::TheCrossroadsSpawnsIDs + eSpawns::TrembladesVanguardCreaturesCount;
                 for (uint8 l_Count = eSpawns::TheCrossroadsSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
@@ -303,7 +301,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     AddCreature(l_Count, g_TrembladesVanguardSpawns[p_Faction == eControlStatus::ControlAlliance ? TEAM_ALLIANCE : TEAM_HORDE][l_Count - eSpawns::TheCrossroadsSpawnsIDs], 2 * TimeConstants::MINUTE);
                 }
 
-                // Spawn fires
+                /// Spawn fires
                 uint8 l_FireIndex = eSpawns::TheCrossroadsSpawnsIDs + eSpawns::TrembladesVanguardCreaturesCount;
                 for (uint8 l_Index = l_FireIndex; l_Index < eSpawns::TrembladesVanguardSpawnsIDs; ++l_Index)
                 {
@@ -320,16 +318,13 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
         {
             if (p_Faction == eControlStatus::ControlNeutral)
             {
-                // Despawn horde or alliance guards
+                /// Despawn horde or alliance guards
+                /// Spawn fighting guards
                 uint8 l_CreatureMaxIndex = eSpawns::TrembladesVanguardSpawnsIDs + eSpawns::ArchmageOverwatchCreaturesCount;
-                for (uint8 l_Count = eSpawns::TrembladesVanguardSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
-                    DelCreature(l_Count);
-
-                // Spawn fighting guards
-                for (uint8 l_Index = eSpawns::ArchmageOverwatchSpawnsIDs; l_Index < eSpawns::ArchmageOverwatchSpawnsIDs; ++l_Index)
+                for (uint8 l_Index = eSpawns::TrembladesVanguardSpawnsIDs; l_Index < l_CreatureMaxIndex; ++l_Index)
                 {
                     DelCreature(l_Index);
-                    AddCreature(l_Index, g_ArchmageOverwatchNeutral[l_Index - eSpawns::ArchmageOverwatchSpawnsIDs]);
+                    AddCreature(l_Index, g_ArchmageOverwatchNeutral[l_Index - eSpawns::ArchmageOverwatchSpawnsIDs], 5);
                 }
 
                 if (GameObject* l_Flag = sObjectAccessor->FindGameObject(m_capturePointGUID))
@@ -351,11 +346,11 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                     ((OutdoorPvPAshran*)m_PvP)->SetBattleState(p_Faction == eControlStatus::ControlAlliance ? eWorldStates::WorldStateTrembladesVanguardBattle : eWorldStates::WorldStateGrandMarshalTrembladeBattle);
                 }
 
-                // Despawn fighting guards
+                /// Despawn fighting guards
                 for (uint8 l_Index = eSpawns::ArchmageOverwatchSpawnsIDs; l_Index < eSpawns::ArchmageOverwatchSpawnsIDs; ++l_Index)
                     DelCreature(l_Index);
 
-                // Spawn horde or alliance guards
+                /// Spawn horde or alliance guards
                 uint8 l_CreatureMaxIndex = eSpawns::TrembladesVanguardSpawnsIDs + eSpawns::ArchmageOverwatchCreaturesCount;
                 for (uint8 l_Count = eSpawns::TrembladesVanguardSpawnsIDs; l_Count < l_CreatureMaxIndex; ++l_Count)
                 {
@@ -364,7 +359,7 @@ void OPvPCapturePoint_Middle::SpawnFactionGuards(eBattleType p_BattleID, uint8 p
                 }
 
                 uint8 l_FireIndex = eSpawns::TrembladesVanguardSpawnsIDs + eSpawns::ArchmageOverwatchCreaturesCount;
-                // Spawn fires
+                /// Spawn fires
                 for (uint8 l_Index = l_FireIndex; l_Index < eSpawns::ArchmageOverwatchSpawnsIDs; ++l_Index)
                 {
                     DelObject(l_Index);
@@ -585,6 +580,10 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_InitPointsTimer       = 0;
     m_IsInitialized         = false;
     m_WillBeReset           = false;
+    m_CurrentBattleState    = eWorldStates::WorldStateTheCrossroadsBattle;
+    m_NextBattleTimer       = eAshranDatas::AshranTimeForBattle * TimeConstants::IN_MILLISECONDS;
+    m_MaxBattleTime         = 0;
+    m_GladiatorRespawnTime  = 0;
 
     m_PlayerCurrencyLoots.clear();
     m_NeutralVignettes.clear();
@@ -600,9 +599,6 @@ OutdoorPvPAshran::OutdoorPvPAshran()
         m_FactionVignettes[l_Team].clear();
         m_EnnemiesKilled[l_Team] = 0;
         m_EnnemiesKilledMax[l_Team] = 100;
-        m_CurrentBattleState = eWorldStates::WorldStateTheCrossroadsBattle;
-        m_NextBattleTimer = eAshranDatas::AshranTimeForBattle * TimeConstants::IN_MILLISECONDS;
-        m_MaxBattleTime = 0;
         m_FactionGenericMoP[l_Team] = 0;
 
         for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
@@ -940,6 +936,57 @@ bool OutdoorPvPAshran::IsFactionGuard(Unit* p_Unit) const
     return false;
 }
 
+void OutdoorPvPAshran::SpawnGladiators(uint8 p_TeamID /*= TeamId::TEAM_NEUTRAL*/, bool p_Spawn /*= true*/)
+{
+    /// Always despawn before spawn, for security
+
+    if (p_TeamID == TeamId::TEAM_NEUTRAL)
+    {
+        /// Stormshield Gladiators
+        for (uint32 l_I = eSpawns::WarspearGladiatorsSpawnsIDs; l_I < eSpawns::StormshieldGladiatorsSpawnsIDs; ++l_I)
+        {
+            DelCreature(l_I);
+
+            if (p_Spawn)
+                AddCreature(l_I, g_StormshieldGladiators[l_I - eSpawns::WarspearGladiatorsSpawnsIDs], 2 * TimeConstants::MINUTE);
+        }
+
+        /// Warspear Gladiators
+        for (uint32 l_I = eSpawns::ArchmageOverwatchSpawnsIDs; l_I < eSpawns::WarspearGladiatorsSpawnsIDs; ++l_I)
+        {
+            DelCreature(l_I);
+
+            if (p_Spawn)
+                AddCreature(l_I, g_WarspearGladiators[l_I - eSpawns::ArchmageOverwatchSpawnsIDs], 2 * TimeConstants::MINUTE);
+        }
+    }
+    else
+    {
+        if (p_TeamID == TeamId::TEAM_ALLIANCE)
+        {
+            /// Stormshield Gladiators
+            for (uint32 l_I = eSpawns::WarspearGladiatorsSpawnsIDs; l_I < eSpawns::StormshieldGladiatorsSpawnsIDs; ++l_I)
+            {
+                DelCreature(l_I);
+
+                if (p_Spawn)
+                    AddCreature(l_I, g_StormshieldGladiators[l_I - eSpawns::WarspearGladiatorsSpawnsIDs], 2 * TimeConstants::MINUTE);
+            }
+        }
+        else
+        {
+            /// Warspear Gladiators
+            for (uint32 l_I = eSpawns::ArchmageOverwatchSpawnsIDs; l_I < eSpawns::WarspearGladiatorsSpawnsIDs; ++l_I)
+            {
+                DelCreature(l_I);
+
+                if (p_Spawn)
+                    AddCreature(l_I, g_WarspearGladiators[l_I - eSpawns::ArchmageOverwatchSpawnsIDs], 2 * TimeConstants::MINUTE);
+            }
+        }
+    }
+}
+
 void OutdoorPvPAshran::FillCustomPvPLoots(Player* p_Looter, Loot& p_Loot, uint64 p_Container)
 {
     if (m_PlayerCurrencyLoots.find(p_Container) == m_PlayerCurrencyLoots.end())
@@ -1003,6 +1050,7 @@ bool OutdoorPvPAshran::Update(uint32 p_Diff)
     ScheduleEndOfBattle(p_Diff);
     ScheduleInitPoints(p_Diff);
     ScheduleEventsUpdate(p_Diff);
+    ScheduleGladiatorRespawn(p_Diff);
 
     return OutdoorPvP::Update(p_Diff);
 }
@@ -1026,7 +1074,7 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
 
         bool l_Found = false;
         uint8 l_Count = 0;
-        // Faction mini-bosses
+        /// Faction mini-bosses
         for (uint32 l_BattleIndex : g_MiddleBattlesEntries)
         {
             if (m_CurrentBattleState == l_BattleIndex)
@@ -1038,7 +1086,7 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
             }
         }
 
-        // Road of Glory control points
+        /// Road of Glory control points
         if (l_Found)
         {
             SendUpdateWorldState(eWorldStates::WorldStateControlTheFlag, eWorldStates::WorldStateEnabled);
@@ -1054,10 +1102,10 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
                     l_Flag->SetByteValue(EGameObjectFields::GAMEOBJECT_BYTES_1, 2, eFlagStates::FlagNeutral);
             }
         }
-        // Bosses battle
+        /// Bosses battle
         else
         {
-            // Once all Towers have been claimed by a given faction, after a short interval the enemy faction base itself will become contested.
+            /// Once all Towers have been claimed by a given faction, after a short interval the enemy faction base itself will become contested.
             m_MaxBattleTime = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
             SendUpdateWorldState(eWorldStates::WorldStateTimeRemainingForBoss, time(NULL) + (m_MaxBattleTime / TimeConstants::IN_MILLISECONDS));
 
@@ -1069,8 +1117,12 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
 
                 if (Creature* l_Volrath = sObjectAccessor->FindCreature(m_HighWarlordVolrath))
                     l_Volrath->AI()->DoAction(eAshranActions::WarspearOutpostInFight);
+
+                /// In addition, the dominant faction's Sentinels will eliminate the enemy Gladiators, rendering the enemy base vulnerable.
+                /// I've checked on retail, Gladiators are just despawned, no visual effect at all
+                SpawnGladiators(TeamId::TEAM_HORDE, false);
             }
-            else // WORLD_STATE_GRAND_MARSHAL_TREMBLADE_BATTLE
+            else ///< WorldStateGrandMarshalTrembladeBattle
             {
                 SendUpdateWorldState(eWorldStates::WorldStateSlayTremblade, eWorldStates::WorldStateEnabled);
                 SendUpdateWorldState(eWorldStates::WorldStateGrandMarshalTrembladeBattle, eWorldStates::WorldStateEnabled);
@@ -1078,6 +1130,10 @@ void OutdoorPvPAshran::ScheduleNextBattle(uint32 p_Diff)
 
                 if (Creature* l_Tremblade = sObjectAccessor->FindCreature(m_GrandMasrhalTremblade))
                     l_Tremblade->AI()->DoAction(eAshranActions::StormshieldStrongholdInFight);
+
+                /// In addition, the dominant faction's Headhunters will eliminate the enemy Gladiators, rendering the enemy base vulnerable.
+                /// I've checked on retail, Gladiators are just despawned, no visual effect at all
+                SpawnGladiators(TeamId::TEAM_ALLIANCE, false);
             }
         }
     }
@@ -1090,9 +1146,9 @@ void OutdoorPvPAshran::ScheduleEndOfBattle(uint32 p_Diff)
     if (!m_MaxBattleTime)
         return;
 
-    // Attacking players then have a 10 minute window in which to assault the base and defeat the enemy faction leader,
-    // after which the base's NPCs will respawn, and the previous Tower will revert to neutral;
-    // attacking players will then need to capture it again in order to get another shot at assaulting the enemy base.
+    /// Attacking players then have a 10 minute window in which to assault the base and defeat the enemy faction leader,
+    /// after which the base's NPCs will respawn, and the previous Tower will revert to neutral;
+    /// attacking players will then need to capture it again in order to get another shot at assaulting the enemy base.
     if (m_MaxBattleTime <= p_Diff)
     {
         m_MaxBattleTime = 0;
@@ -1107,8 +1163,10 @@ void OutdoorPvPAshran::ScheduleEndOfBattle(uint32 p_Diff)
 
             if (Creature* l_Volrath = sObjectAccessor->FindCreature(m_HighWarlordVolrath))
                 l_Volrath->AI()->DoAction(eAshranActions::WarspearVictory);
+
+            SpawnGladiators(TeamId::TEAM_HORDE);
         }
-        else ///< WORLD_STATE_GRAND_MARSHAL_TREMBLADE_BATTLE
+        else ///< WorldStateGrandMarshalTrembladeBattle
         {
             SendUpdateWorldState(eWorldStates::WorldStateSlayTremblade, eWorldStates::WorldStateDisabled);
             SendUpdateWorldState(eWorldStates::WorldStateGrandMarshalTrembladeBattle, eWorldStates::WorldStateDisabled);
@@ -1117,6 +1175,8 @@ void OutdoorPvPAshran::ScheduleEndOfBattle(uint32 p_Diff)
 
             if (Creature* l_Tremblade = sObjectAccessor->FindCreature(m_GrandMasrhalTremblade))
                 l_Tremblade->AI()->DoAction(eAshranActions::StormshieldVictory);
+
+            SpawnGladiators(TeamId::TEAM_ALLIANCE);
         }
     }
     else
@@ -1165,6 +1225,20 @@ void OutdoorPvPAshran::ScheduleEventsUpdate(uint32 p_Diff)
         else
             m_AshranEvents[l_Index] -= p_Diff;
     }
+}
+
+void OutdoorPvPAshran::ScheduleGladiatorRespawn(uint32 p_Diff)
+{
+    if (!m_GladiatorRespawnTime)
+        return;
+
+    if (m_GladiatorRespawnTime <= p_Diff)
+    {
+        m_GladiatorRespawnTime = 0;
+        SpawnGladiators();
+    }
+    else
+        m_GladiatorRespawnTime -= p_Diff;
 }
 
 void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
@@ -1577,6 +1651,8 @@ void OutdoorPvPAshran::InitializeControlPoints()
         if (OPvPCapturePoint_Middle* l_CapturePoint = m_ControlPoints[l_BattleId])
             l_CapturePoint->SpawnFactionGuards(l_CapturePoint->GetBattleType(), l_CapturePoint->GetBattleFaction());
     }
+
+    SpawnGladiators();
 }
 
 void OutdoorPvPAshran::InitializeEvents()
@@ -1730,9 +1806,12 @@ void OutdoorPvPAshran::HandleFactionBossDeath(uint8 p_Faction)
     else
         return; ///< Nothing to do here, boss shouldn't be killed yet
 
-    /// When the Battleground is won by either side, there is a 5 minute pause; after which,
-    /// the Battleground simply restarts fresh at the Crossroads.
-    SetNextBattleTimer(5 * TimeConstants::MINUTE);
+    /// When the Battleground is won by either side, there is a 5 minute pause; after which, the Battleground simply restarts fresh at the Crossroads.
+    /// Patch 6.1.0 (2015-02-24): There's now a 10 minute delay between battles after Grand Marshal Tremblade or High Warlord Volrath has been defeated (down from 30 minutes).
+    SetNextBattleTimer(10 * TimeConstants::MINUTE);
+
+    /// Hotfix (2015-01-27): Stormshield Gladiators and Warspear Gladiators now respawn 3 minutes after Grand Marshal Tremblade or High Warlord Volrath has been defeated.
+    m_GladiatorRespawnTime = 3 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
 
     m_WillBeReset = true;   ///< Must do that before changing state
     SetBattleState(eWorldStates::WorldStateTheCrossroadsBattle);
