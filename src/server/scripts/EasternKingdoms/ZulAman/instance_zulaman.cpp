@@ -33,6 +33,7 @@ class instance_zulaman : public InstanceMapScript
                 HexLordGateGUID = 0;
                 MainGateGUID    = 0;
                 StrangeGongGUID = 0;
+                m_MalacrassExitGuid = 0;
 
                 QuestTimer = 0;
                 QuestMinute = 21;
@@ -115,6 +116,7 @@ class instance_zulaman : public InstanceMapScript
                         break;
                     case GO_HALAZZI_EXIT:
                         AddDoor(pGo, true);
+                        m_MalacrassExitGuid = pGo->GetGUID();
                         break;
                     case GO_MALACRASS_ENTRANCE:
                         HexLordGateGUID = pGo->GetGUID(); 
@@ -283,6 +285,17 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
+            uint64 GetData64(uint32 p_Type)
+            {
+                switch (p_Type)
+                {
+                case GO_MALACRASS_EXIT:
+                    return m_MalacrassExitGuid;
+                default:
+                    return 0;
+                }
+            }
+
             void Update(uint32 diff)
             {
                 if (QuestMinute)
@@ -327,6 +340,7 @@ class instance_zulaman : public InstanceMapScript
             uint64 StrangeGongGUID;
             uint64 AmanishiTempestGUID;
             uint64 uiKashaBagGUID;
+            uint64 m_MalacrassExitGuid;
 
             uint32 uiMainGate;
             uint32 uiVendor1;

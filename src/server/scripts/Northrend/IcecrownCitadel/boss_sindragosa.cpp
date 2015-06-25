@@ -247,6 +247,9 @@ class boss_sindragosa : public CreatureScript
 
             void EnterCombat(Unit* victim)
             {
+                if (!instance)
+                    return;
+
                 if (!instance->CheckRequiredBosses(DATA_SINDRAGOSA, victim->ToPlayer()))
                 {
                     EnterEvadeMode();
@@ -261,8 +264,7 @@ class boss_sindragosa : public CreatureScript
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
 
-                if (instance)
-                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_DAMAGE);
             }
 
             void JustReachedHome()
