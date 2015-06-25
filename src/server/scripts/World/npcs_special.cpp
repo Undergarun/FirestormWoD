@@ -3564,84 +3564,86 @@ class npc_dire_beast : public CreatureScript
             return new npc_dire_beastAI(creature);
         }
 };
-
 /*######
 ## npc_ring_of_frost
 ######*/
+
+float const g_RingOfFrostMaxRadius = 5.0f;
 
 class npc_ring_of_frost : public CreatureScript
 {
     public:
         npc_ring_of_frost() : CreatureScript("npc_ring_of_frost") { }
 
+        enum Constants
+        {
+            RingOfFrostFreeze = 82691,
+            RingOfFrostImmune = 91264
+        };
+
         struct npc_ring_of_frostAI : public Scripted_NoMovementAI
         {
-            npc_ring_of_frostAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_ring_of_frostAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void Reset()
             {
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
             void InitializeAI()
             {
                 ScriptedAI::InitializeAI();
-                Unit * owner = me->GetOwner();
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                Unit* l_Owner = me->GetOwner();
+                if (!l_Owner || l_Owner->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
-                me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
-                std::list<Creature*> templist;
-                me->GetCreatureListWithEntryInGrid(templist, me->GetEntry(), 200.0f);
-                if (!templist.empty())
-                    for (std::list<Creature*>::const_iterator itr = templist.begin(); itr != templist.end(); ++itr)
-                        if ((*itr)->GetOwner() == me->GetOwner() && *itr != me)
-                            (*itr)->DisappearAndDie();
-            }
+                std::list<Creature*> l_RingList;
+                me->GetCreatureListWithEntryInGrid(l_RingList, me->GetEntry(), 200.0f);
 
-            void CheckIfMoveInRing(Unit *who)
-            {
-                if (who->isAlive() && me->IsInRange(who, 2.0f, 4.7f) && me->IsWithinLOSInMap(who))
+                for (Creature* l_Ring : l_RingList)
                 {
-                    if (!who->HasAura(82691))
-                    {
-                        if (!who->HasAura(91264))
-                        {
-                            me->CastSpell(who, 82691, true);
-                            me->CastSpell(who, 91264, true);
-                        }
-                    }
-                    else me->CastSpell(who, 91264, true);
+                    if (l_Ring->GetOwner() == me->GetOwner() && l_Ring != me)
+                        l_Ring->DisappearAndDie();
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void CheckIfMoveInRing(Unit* p_Who)
             {
-                // Find all the enemies
-                std::list<Unit*> targets;
-                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 5.0f);
-                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(5.0f, searcher);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if (!(*iter)->isTotem())
-                        CheckIfMoveInRing(*iter);
+                if (p_Who->isAlive() && me->IsInRange(p_Who, 2.0f, 5.0f) && me->IsWithinLOSInMap(p_Who))
+                {
+                    if (p_Who->HasAura(Constants::RingOfFrostImmune) || p_Who->HasAura(Constants::RingOfFrostFreeze))
+                        return;
+
+                    if (Unit* l_Owner = me->GetOwner())
+                        l_Owner->CastSpell(p_Who, Constants::RingOfFrostFreeze, true);
+                }
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                /// Find all the enemies
+                std::list<Unit*> l_Targets;
+
+                JadeCore::AnyUnfriendlyUnitInObjectRangeCheck l_Check(me, me, g_RingOfFrostMaxRadius);
+                JadeCore::UnitListSearcher<JadeCore::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Targets, l_Check);
+                me->VisitNearbyObject(g_RingOfFrostMaxRadius, l_Searcher);
+
+                for (Unit* l_Target : l_Targets)
+                    CheckIfMoveInRing(l_Target);
             }
         };
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* p_Creature) const
         {
-            return new npc_ring_of_frostAI(pCreature);
+            return new npc_ring_of_frostAI(p_Creature);
         }
 };
 
