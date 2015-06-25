@@ -668,12 +668,12 @@ class spell_rog_glyph_of_decoy: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
+                if (Unit* l_Caster = GetCaster())
                 {
-                    if (!caster->HasAura(ROGUE_SPELL_GLYPH_OF_DECOY))
+                    if (!l_Caster->HasAura(ROGUE_SPELL_GLYPH_OF_DECOY))
                         return;
 
-                    caster->CastSpell(caster, ROGUE_SPELL_DECOY_SUMMON, true);
+                    l_Caster->SummonCreature(62261, *l_Caster);
                 }
             }
 

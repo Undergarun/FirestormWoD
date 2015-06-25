@@ -4681,24 +4681,42 @@ class npc_rogue_decoy : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void Reset()
+            uint32 m_DespawnTimer;
+
+            void Reset() override
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                m_DespawnTimer = 0;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_RENAME);
                 me->SetFlag(UNIT_FIELD_FLAGS2, UNIT_FLAG2_DISABLE_TURN);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_RENAME);
             }
 
-            void IsSummonedBy(Unit* owner)
+            void IsSummonedBy(Unit* p_Owner) override
             {
-                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                if (!p_Owner || p_Owner->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                me->SetMaxHealth(owner->GetMaxHealth() / 2);
+                m_DespawnTimer = 5000;
+
+                me->SetMaxHealth(p_Owner->GetMaxHealth() / 2);
                 me->SetHealth(me->GetMaxHealth());
 
-                owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
-                owner->CastSpell(me, SPELL_CLONE_CASTER, true);
+                p_Owner->CastSpell(me, SPELL_INITIALIZE_IMAGES, true);
+                p_Owner->CastSpell(me, SPELL_CLONE_CASTER, true);
                 me->AddAura(SPELL_ROOT_FOR_EVER, me);
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (m_DespawnTimer)
+                {
+                    if (m_DespawnTimer <= p_Diff)
+                    {
+                        m_DespawnTimer = 0;
+                        me->DespawnOrUnsummon();
+                    }
+                    else
+                        m_DespawnTimer -= p_Diff;
+                }
             }
         };
 
