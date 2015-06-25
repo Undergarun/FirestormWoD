@@ -3603,7 +3603,7 @@ class npc_ring_of_frost : public CreatureScript
                     return;
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
                 std::list<Creature*> l_RingList;
                 me->GetCreatureListWithEntryInGrid(l_RingList, me->GetEntry(), 200.0f);
