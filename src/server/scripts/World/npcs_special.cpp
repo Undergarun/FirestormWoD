@@ -3970,7 +3970,7 @@ class npc_past_self : public CreatureScript
                                         for (uint32 l_I = 0; l_I < MAX_EFFECTS; ++l_I)
                                         {
                                             if (AuraEffectPtr l_Effect = aura->GetEffect(l_I))
-                                                l_Effect->SetAmount((*itr)->m_EffectAmounts[l_I]);
+                                                l_Effect->ChangeAmount((*itr)->m_EffectAmounts[l_I]);
                                         }
 
                                         aura->SetNeedClientUpdateForTargets();
