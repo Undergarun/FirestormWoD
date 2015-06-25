@@ -523,3 +523,68 @@ AreaTrigger* AreaTrigger::GetAreaTrigger(WorldObject const& p_Object, uint64 p_G
 {
     return p_Object.GetMap()->GetAreaTrigger(p_Guid);
 }
+
+/// Method to check if a Coordinate is located in a polygon
+bool AreaTrigger::IsInAreaTriggerPolygon(std::vector<G3D::Vector2> p_Polygon, G3D::Vector2 p_Point, float p_Radius/* = 0.5f*/) const
+{
+    /// This method uses the ray tracing algorithm to determine if the point is in the polygon
+    int l_PointCount = p_Polygon.size();
+    int l_J = -999;
+    int l_I = -999;
+    bool l_IsInPolygon = false;
+
+    for (l_I = 0; l_I < l_PointCount; l_I++)
+    {
+        /// Repeat loop for all sets of points
+        /// If i is the last vertex, let j be the first vertex
+        if (l_I == (l_PointCount - 1))
+            l_J = 0;
+        /// For all-else, let j=(i+1)th vertex
+        else
+            l_J = l_I + 1;
+
+        float l_VerticeY_I = p_Polygon[l_I].y;
+        float l_VerticeX_I = p_Polygon[l_I].x;
+        float l_VerticeY_J = p_Polygon[l_J].y;
+        float l_VerticeX_J = p_Polygon[l_J].x;
+        float l_TestX = p_Point.x;
+        float l_TestY = p_Point.y;
+
+        /// Following statement checks if testPoint.Y is below Y-coord of i-th vertex. NB: Y-axis is inverted
+        bool l_BelowLowY = l_VerticeY_I < l_TestY + p_Radius;
+
+        /// Following statement checks if testPoint.Y is below Y-coord of i+1-th vertex
+        bool l_BelowHighY = l_VerticeY_J < l_TestY + p_Radius;
+
+        /// Following statement is true if testPoint.Y satisfies either (only one is possible)
+        /// -->(i).Y < testPoint.Y < (i+1).Y        OR
+        /// -->(i).Y > testPoint.Y > (i+1).Y
+        ///
+        /// (Note)
+        /// Both of the conditions indicate that a point is located within the edges of the Y-th coordinate
+        /// of the (i)-th and the (i+1)- th vertices of the polygon. If neither of the above
+        /// conditions is satisfied, then it is assured that a semi-infinite horizontal line draw
+        /// to the right from the testpoint will NOT cross the line that connects vertices i and i+1
+        /// of the polygon
+
+        bool l_WithinYsEdges = l_BelowLowY != l_BelowHighY;
+
+        if (l_WithinYsEdges)
+        {
+            /// This is the slope of the line that connects vertices i and i+1 of the polygon
+            float l_sLopeOfLine = (l_VerticeX_J - l_VerticeX_I) / (l_VerticeY_J - l_VerticeY_I);
+
+            /// This looks up the x-coord of a point lying on the above line, given its y-coord
+            float l_PointOnLine = (l_sLopeOfLine * (l_VerticeY_I - l_TestY)) + l_VerticeX_I;
+
+            /// Checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
+            bool l_IsLeftToLine = l_TestX - p_Radius < l_PointOnLine;
+
+            /// This statement changes true to false (and vice-versa)
+            if (l_IsLeftToLine)
+                l_IsInPolygon = !l_IsInPolygon;
+        }
+    }
+
+    return l_IsInPolygon;
+}

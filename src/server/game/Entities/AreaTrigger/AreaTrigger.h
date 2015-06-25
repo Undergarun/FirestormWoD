@@ -212,6 +212,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
         uint32 GetCreatedTime() const { return m_CreatedTime; }
 
+        float GetVisualRadius() const { return m_VisualRadius; }
+        void SetVisualRadius(float radius) { m_VisualRadius = radius; }
+
         uint32 GetUpdateInterval() const { return m_UpdateTimer.GetInterval(); }
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }
 
@@ -245,6 +248,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
          * @param p_SpellId : Id of spell to cast
          */
         void CastSpell(Unit* p_Target, uint32 p_SpellId);
+        bool IsInAreaTriggerPolygon(std::vector<G3D::Vector2> p_Polygon, G3D::Vector2 p_Point, float p_Radius = 0.5f) const;
 
     protected:
         int32 m_Duration;
