@@ -5902,9 +5902,580 @@
       <primary>field0</primary>
     </index>
     <field type="int" name="field0" />
+    <field type="int" name="TextureID" />
+    <field type="int" name="field2" />
+    <field type="float" name="field3" />
+    <field type="float" name="field4" />
+  </GroundEffectDoodad>
+  <GroundEffectTexture build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
     <field type="int" name="field1" />
     <field type="int" name="field2" />
     <field type="int" name="field3" />
     <field type="int" name="field4" />
-  </GroundEffectDoodad>
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+  </GroundEffectTexture>
+  <GroupFinderActivity build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ActivityGroupID" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="minLevel" />
+    <field type="int" name="maxLevel" />
+    <field type="int" name="ReqiLevel" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="string" name="Name" />
+    <field type="string" name="Difficulty" />
+  </GroupFinderActivity>
+  <GroupFinderActivityGrp build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+    <field type="int" name="field2" />
+  </GroupFinderActivityGrp>
+  <GroupFinderCategory build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="Name" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+  </GroupFinderCategory>
+  <gtBattlePetTypeDamageMod build="20182">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="float" name="Data" />
+  </gtBattlePetTypeDamageMod>
+  <gtBattlePetXP build="20182">
+    <index>
+      <primary>id</primary>
+    </index>
+    <field type="int" name="id" />
+    <field type="float" name="data" />
+  </gtBattlePetXP>
+  <GuildColorBackground build="20182">
+    <index>
+      <primary>ColorID</primary>
+    </index>
+    <field type="int" name="ColorID" />
+    <field type="byte" name="red" />
+    <field type="byte" name="green" />
+    <field type="byte" name="blue" />
+  </GuildColorBackground>
+  <GuildColorBorder build="20182">
+    <index>
+      <primary>ColorID</primary>
+    </index>
+    <field type="int" name="ColorID" />
+    <field type="byte" name="red" />
+    <field type="byte" name="green" />
+    <field type="byte" name="blue" />
+  </GuildColorBorder>
+  <GuildColorEmblem build="20182">
+    <index>
+      <primary>ColorID</primary>
+    </index>
+    <field type="int" name="ColorID" />
+    <field type="byte" name="red" />
+    <field type="byte" name="green" />
+    <field type="byte" name="bleu" />
+  </GuildColorEmblem>
+  <Heirloom build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ItemID" />
+    <field type="string" name="Description1" />
+    <field type="string" name="Description2" />
+    <field type="int" name="MaxHeirloomUpgrade" />
+    <field type="int" name="OldHeirloomID1" />
+    <field type="int" name="OldHeirloomID2" />
+    <field type="int" name="HeroicVersion" />
+    <field type="int" name="UpgradableByItemID1" />
+    <field type="int" name="UpgradableByItemID2" />
+    <field type="int" name="UpgradeItemBonusId1" />
+    <field type="int" name="UpgradeItemBonusId2" />
+  </Heirloom>
+  <HelmetAnimScaling build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="float" name="field3" />
+  </HelmetAnimScaling>
+  <HelmetGeosetVisData build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+  </HelmetGeosetVisData>
+  <HighlightColor build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </HighlightColor>
+  <ImportPriceQuality build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="Data" />
+  </ImportPriceQuality>
+  <ImportPriceShield build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="Data" />
+  </ImportPriceShield>
+  <ImportPriceWeapon build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="Data" />
+  </ImportPriceWeapon>
+  <ItemAppearance build="20182">
+    <index>
+      <primary>Id</primary>
+    </index>
+    <field type="int" name="Id" />
+    <field type="int" name="DisplayId" />
+    <field type="int" name="IconFileDataID" />
+  </ItemAppearance>
+  <ItemArmorQuality build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="Qualitymod1" />
+    <field type="float" name="Qualitymod2" />
+    <field type="float" name="Qualitymod3" />
+    <field type="float" name="Qualitymod4" />
+    <field type="float" name="Qualitymod5" />
+    <field type="float" name="Qualitymod6" />
+    <field type="float" name="Qualitymod7" />
+    <field type="int" name="ItemLevel" />
+  </ItemArmorQuality>
+  <ItemArmorShield build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ItemLevel" />
+    <field type="float" name="Qualitymod1" />
+    <field type="float" name="Qualitymod2" />
+    <field type="float" name="Qualitymod3" />
+    <field type="float" name="Qualitymod4" />
+    <field type="float" name="Qualitymod5" />
+    <field type="float" name="Qualitymod6" />
+    <field type="float" name="Qualitymod7" />
+  </ItemArmorShield>
+  <ItemArmorTotal build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="ItemLevel" />
+    <field type="float" name="Cloth" />
+    <field type="float" name="Leather" />
+    <field type="float" name="Mail" />
+    <field type="float" name="Plate" />
+  </ItemArmorTotal>
+  <ItemDamageAmmo build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="float" name="Quality1" />
+    <field type="float" name="Quality2" />
+    <field type="float" name="Quality3" />
+    <field type="float" name="Quality4" />
+    <field type="float" name="Quality5" />
+    <field type="float" name="Quality6" />
+    <field type="int" name="Quality7" />
+    <field type="int" name="ItemLevel" />
+  </ItemDamageAmmo>
+  <ItemEffect build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="newField" />
+  </ItemEffect>
+  <ItemGroupSounds build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+  </ItemGroupSounds>
+  <ItemNameDescription build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="string" name="field1" />
+    <field type="int" name="field2" />
+  </ItemNameDescription>
+  <ItemPetFood build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="string" name="Name" />
+  </ItemPetFood>
+  <ItemPriceBase build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="float" name="field2" />
+    <field type="float" name="field3" />
+  </ItemPriceBase>
+  <ItemRandomSuffix build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+  </ItemRandomSuffix>
+  <ItemSet build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+  </ItemSet>
+  <ItemSpecOverride build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </ItemSpecOverride>
+  <ItemToMountSpell build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+  </ItemToMountSpell>
+  <ItemUpgradePath build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+  </ItemUpgradePath>
+  <ItemVisualEffects build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="TextureID" />
+  </ItemVisualEffects>
+  <ItemVisuals build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+  </ItemVisuals>
+  <JournalEncounter build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="DungeonMapID" />
+    <field type="int" name="WorldMapAreaID" />
+    <field type="float" name="Map1" />
+    <field type="float" name="Map2" />
+    <field type="int" name="FirstSectionID" />
+    <field type="int" name="JournalInstanceID" />
+    <field type="int" name="OrderIndex" />
+    <field type="int" name="DifficultyMask" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+    <field type="int" name="Flags" />
+  </JournalEncounter>
+  <JournalEncounterCreature build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="JournalEncounterID" />
+    <field type="int" name="CreatureDisplayInfoID" />
+    <field type="int" name="OrderIndex" />
+    <field type="int" name="FileDataID" />
+    <field type="string" name="Name" />
+    <field type="string" name="Description" />
+  </JournalEncounterCreature>
+  <JournalEncounterItem build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="JournalEncounterID" />
+    <field type="int" name="ItemID" />
+    <field type="int" name="DifficultyMask" />
+    <field type="int" name="FactionMask" />
+    <field type="int" name="Flags" />
+  </JournalEncounterItem>
+  <JournalEncounterSection build="201823">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+  </JournalEncounterSection>
+  <JournalEncounterSection build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="JournalEncounterID" />
+    <field type="int" name="NextSiblingSectionID" />
+    <field type="int" name="FirstChildSectionID" />
+    <field type="int" name="ParentSectionID" />
+    <field type="int" name="OrderIndex" />
+    <field type="int" name="Type" />
+    <field type="int" name="Flags" />
+    <field type="int" name="IconFlags" />
+    <field type="string" name="TitleLang" />
+    <field type="string" name="BodyTextLang" />
+    <field type="int" name="DifficultyMask" />
+    <field type="int" name="IconCreatureDisplayInfoID" />
+    <field type="int" name="SpellID" />
+    <field type="int" name="IconFileDataID" />
+  </JournalEncounterSection>
+  <JournalEncounterXDifficulty build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="JournalEncounterID" />
+    <field type="int" name="DifficultyID" />
+  </JournalEncounterXDifficulty>
+  <JournalInstance build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="MapID" />
+    <field type="int" name="AreaID" />
+    <field type="int" name="ButtonFiledataID" />
+    <field type="int" name="ButtonSmallFileDataID" />
+    <field type="int" name="BackgroundFiledataID" />
+    <field type="int" name="LoreFileDataID" />
+    <field type="int" name="UNK1" />
+    <field type="string" name="NameLang" />
+    <field type="string" name="DescriptionLang" />
+    <field type="int" name="UNK2" />
+  </JournalInstance>
+  <JournalItemXDifficulty build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="JournalEncounterItemID" />
+    <field type="int" name="DifficultyID" />
+  </JournalItemXDifficulty>
+  <JournalSectionXDifficulty build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+  </JournalSectionXDifficulty>
+  <KeyChain build="20182">
+    <field type="int" name="newField" />
+    <field type="byte" name="newField1" />
+    <field type="byte" name="newField2" />
+    <field type="byte" name="newField3" />
+    <field type="byte" name="newField4" />
+    <field type="byte" name="newField5" />
+    <field type="byte" name="newField6" />
+    <field type="byte" name="newField7" />
+    <field type="byte" name="newField8" />
+    <field type="byte" name="newField9" />
+    <field type="byte" name="newField10" />
+    <field type="byte" name="newField11" />
+    <field type="byte" name="newField12" />
+    <field type="byte" name="newField13" />
+    <field type="byte" name="newField14" />
+    <field type="byte" name="newField15" />
+    <field type="byte" name="newField16" />
+    <field type="byte" name="newField17" />
+    <field type="byte" name="newField18" />
+    <field type="byte" name="newField19" />
+    <field type="byte" name="newField20" />
+    <field type="byte" name="newField21" />
+    <field type="byte" name="newField22" />
+    <field type="byte" name="newField23" />
+    <field type="byte" name="newField24" />
+    <field type="byte" name="newField25" />
+    <field type="byte" name="newField26" />
+    <field type="byte" name="newField27" />
+    <field type="byte" name="newField28" />
+    <field type="byte" name="newField29" />
+    <field type="byte" name="newField30" />
+    <field type="byte" name="newField31" />
+    <field type="byte" name="newField32" />
+  </KeyChain>
+  <LFGDungeonExpansion build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="LfgId" />
+    <field type="int" name="ExpansionLevel" />
+    <field type="int" name="RandomId" />
+    <field type="int" name="HardLevelMin" />
+    <field type="int" name="HardLevelMax" />
+    <field type="int" name="TargetLevelMin" />
+    <field type="int" name="TargetLevelMax" />
+  </LFGDungeonExpansion>
+  <LfgDungeonGroup build="20182">
+    <index>
+      <primary>ID</primary>
+    </index>
+    <field type="int" name="ID" />
+    <field type="int" name="LfgDungeonsID" />
+    <field type="int" name="RandomLfgDungeonsID" />
+    <field type="int" name="UNK" />
+    <field type="int" name="GroupId" />
+  </LfgDungeonGroup>
+  <LfgDungeons build="20182">
+    <index>
+      <primary>field0</primary>
+    </index>
+    <field type="int" name="field0" />
+    <field type="int" name="field1" />
+    <field type="int" name="field2" />
+    <field type="int" name="field3" />
+    <field type="int" name="field4" />
+    <field type="int" name="field5" />
+    <field type="int" name="field6" />
+    <field type="int" name="field7" />
+    <field type="int" name="field8" />
+    <field type="int" name="field9" />
+    <field type="int" name="field10" />
+    <field type="int" name="field11" />
+    <field type="int" name="field12" />
+    <field type="int" name="field13" />
+    <field type="int" name="field14" />
+    <field type="int" name="field15" />
+    <field type="int" name="field16" />
+    <field type="int" name="field17" />
+    <field type="int" name="field18" />
+    <field type="int" name="field19" />
+    <field type="int" name="field20" />
+    <field type="int" name="field21" />
+    <field type="int" name="field22" />
+    <field type="int" name="field23" />
+    <field type="int" name="field24" />
+    <field type="int" name="field25" />
+    <field type="int" name="field26" />
+    <field type="int" name="field27" />
+    <field type="int" name="field28" />
+    <field type="int" name="field29" />
+  </LfgDungeons>
 </DBFilesClient>
