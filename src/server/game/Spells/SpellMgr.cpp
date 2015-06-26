@@ -4242,10 +4242,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->Effects[0].Effect = 0;
                 spellInfo->Effects[2].Effect = 0;
                 break;
-            case 82366: ///< Consecration
-            case 116467:
-                spellInfo->Effects[2].Effect = SPELL_EFFECT_DUMMY;
-                break;
             case 124009: ///< Tiger Lust
             case 130793: ///< Provoke
             case 123996: ///< Crackling Tiger Lightning
@@ -6211,6 +6207,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 51657:
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 spellInfo->Effects[SpellEffIndex::EFFECT_1].Effect = 0;
+                break;
+            case 81297: ///< Consecration Damages
+            case 81298: ///< Consecration Visual
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
 
             default:
