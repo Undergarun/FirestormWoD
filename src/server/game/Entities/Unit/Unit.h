@@ -2435,7 +2435,7 @@ class Unit : public WorldObject
         void SendRemoveLossOfControl(AuraApplication const* p_AurApp, LossOfControlType p_Type);
 
         ///----------Pet responses methods-----------------
-        void SendPetCastFail(uint32 spellid, SpellCastResult msg);
+        void SendPetCastFail(uint32 spellid, SpellCastResult msg, uint8 l_CastCount);
         void SendPetActionFeedback (uint32 p_SpellID, uint8 p_Reason);
         void SendPetTalk (uint32 pettalk);
         void SendPetAIReaction(uint64 guid);
