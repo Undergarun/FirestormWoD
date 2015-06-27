@@ -36,8 +36,9 @@ enum eAshranDatas
     AshranHallowedGroundA       = 7781,
     AshranHallowedGroundID      = 42989,
     AncientArtifactCount        = 9,
-    AllianceRacingMovesCount    = 42,
-    HordeRacingMovesCount       = 38,
+    AllianceRacingMovesCount    = 40,
+    HordeRacingMovesCount       = 37,
+    MaxStadiumRacingLaps        = 3,
 
     /// Misc
     PlayerMinLevel              = 100,
@@ -613,8 +614,10 @@ enum eAshranVignettes
 
 enum eAshranTalks
 {
-    ArtifactLootedByHorde = 4,
-    ArtifactLootedByAlliance = 5
+    ArtifactLootedByHorde       = 4,
+    ArtifactLootedByAlliance    = 5,
+    AllianceVictorious          = 6,
+    HordeVictorious             = 7
 };
 
 struct AshranGraveyard
@@ -698,6 +701,7 @@ go_type const g_RacingFlagsPos[eSpecialSpawns::MaxRacingFlags] =
 
 G3D::Vector3 const g_AllianceRacingMoves[eAshranDatas::AllianceRacingMovesCount] =
 {
+    { 4805.709f, -3872.469f, 7.171597f },
     { 4814.682f, -3862.875f, 5.536155f },
     { 4815.376f, -3862.155f, 5.536155f },
     { 4816.498f, -3862.345f, 6.306688f },
@@ -736,14 +740,12 @@ G3D::Vector3 const g_AllianceRacingMoves[eAshranDatas::AllianceRacingMovesCount]
     { 4784.366f, -3886.172f, 9.555762f },
     { 4791.596f, -3881.873f, 8.814582f },
     { 4798.754f, -3876.899f, 7.969384f },
-    { 4803.713f, -3872.712f, 7.294305f },
-    { 4809.707f, -3867.741f, 6.627753f },
-    { 4816.498f, -3862.345f, 6.306688f },
-    { 4820.679f, -3858.191f, 5.590374f }
+    { 4805.709f, -3872.469f, 7.171597f }
 };
 
 G3D::Vector3 const g_HordeRacingMoves[eAshranDatas::HordeRacingMovesCount] =
 {
+    { 4768.788f, -3832.371f, 4.797024f },
     { 4777.989f, -3825.748f, 4.340241f },
     { 4778.601f, -3824.957f, 4.340241f },
     { 4780.496f, -3821.010f, 3.984424f },
@@ -779,9 +781,7 @@ G3D::Vector3 const g_HordeRacingMoves[eAshranDatas::HordeRacingMovesCount] =
     { 4753.360f, -3860.568f, 7.074049f },
     { 4756.783f, -3852.842f, 6.472168f },
     { 4763.476f, -3839.750f, 5.462884f },
-    { 4772.541f, -3828.990f, 4.589789f },
-    { 4780.496f, -3821.010f, 3.984424f },
-    { 4783.910f, -3817.453f, 3.636849f }
+    { 4768.788f, -3832.371f, 4.797024f }
 };
 
 go_type const g_AncientArtifactPos[eAshranDatas::AncientArtifactCount] =

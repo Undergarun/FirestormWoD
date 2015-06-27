@@ -3311,12 +3311,35 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
     public:
         npc_ashran_ex_alliance_racer() : CreatureScript("npc_ashran_ex_alliance_racer") { }
 
+        enum eEvent
+        {
+            EventCheckPos = 1
+        };
+
+        enum eSpell
+        {
+            AllianceRacer = 166784
+        };
+
         struct npc_ashran_ex_alliance_racerAI : public MS::AI::CosmeticAI
         {
             npc_ashran_ex_alliance_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
 
+            Position m_LapPos;
+            EventMap m_Events;
+
+            void InitializeAI()
+            {
+                m_LapPos = *me;
+
+                Reset();
+            }
+
             void Reset() override
             {
+                me->CastSpell(me, eSpell::AllianceRacer, true);
+                me->ModifyAuraState(AuraStateType::AURA_STATE_UNKNOWN22, true);
+
                 AddTimedDelayedOperation(500, [this]() -> void
                 {
                     if (Creature* l_Rider = me->FindNearestCreature(eCreatures::AllianceRider, 10.0f))
@@ -3331,12 +3354,42 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
                     l_Init.SetCyclic();
                     l_Init.Launch();
                 });
+
+                /// Begin to check pos after 5s, to prevent counting laps too soon
+                m_Events.ScheduleEvent(eEvent::EventCheckPos, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+
+                m_Events.Update(p_Diff);
+
+                if (m_Events.ExecuteEvent() == eEvent::EventCheckPos)
+                {
+                    if (me->IsNearPosition(&m_LapPos, 0.5f))
+                    {
+                        IncreaseLapCount();
+
+                        /// Begin to check pos after 5s, to prevent counting laps too soon
+                        m_Events.ScheduleEvent(eEvent::EventCheckPos, 5 * TimeConstants::IN_MILLISECONDS);
+                    }
+                    else
+                        m_Events.ScheduleEvent(eEvent::EventCheckPos, 100);
+                }
             }
 
             void FillRidePath(Movement::PointsArray& p_Path)
             {
                 for (uint8 l_Iter = 0; l_Iter < eAshranDatas::AllianceRacingMovesCount; ++l_Iter)
                     p_Path.push_back(g_AllianceRacingMoves[l_Iter]);
+            }
+
+            void IncreaseLapCount()
+            {
+                OutdoorPvP* l_Outdoor = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_Outdoor)
+                    l_Ashran->SetEventData(eAshranEvents::EventStadiumRacing, TeamId::TEAM_ALLIANCE, 1);
             }
         };
 

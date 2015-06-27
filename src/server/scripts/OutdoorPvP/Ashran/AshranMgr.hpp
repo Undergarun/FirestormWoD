@@ -130,6 +130,7 @@ class OutdoorPvPAshran : public OutdoorPvP
         void StartEvent(uint8 p_EventID);
         void EndEvent(uint8 p_EventID, bool p_ScheduleNext = true);
         void SendEventWarningToPlayers(uint32 p_LangID);
+        void SetEventData(uint8 p_EventID, uint8 p_TeamID, uint32 p_Data);
 
         void FillInitialWorldStates(ByteBuffer& p_Data);
         void SendRemoveWorldStates(Player* p_Player);
@@ -216,8 +217,10 @@ class OutdoorPvPAshran : public OutdoorPvP
         uint32 m_ArtifactsCollected[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
         bool m_ArtifactEventsLaunched[TeamId::TEAM_NEUTRAL][eArtifactsDatas::MaxArtifactCounts];
 
+        uint32 m_StadiumRacingLaps[TeamId::TEAM_NEUTRAL];
         uint32 m_AshranEvents[eAshranEvents::MaxEvents];
         bool m_AshranEventsWarned[eAshranEvents::MaxEvents];
+        bool m_AshranEventsLaunched[eAshranEvents::MaxEvents];
 
         uint32 m_CurrentBattleState;
         uint32 m_NextBattleTimer;

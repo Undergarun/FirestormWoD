@@ -133,6 +133,8 @@ class debug_commandscript: public CommandScript
                 { "playercondition",SEC_ADMINISTRATOR,  false, &HandleDebugPlayerCondition,        "", NULL },
                 { "packetprofiler", SEC_ADMINISTRATOR,  false, &HandleDebugPacketProfiler,         "", NULL },
                 { "hotfix",         SEC_ADMINISTRATOR,  false, &HandleHotfixOverride,              "", NULL },
+                { "adjustspline",   SEC_ADMINISTRATOR,  false, &HandleDebugAdjustSplineCommand,    "", NULL },
+                { "splinesync",     SEC_ADMINISTRATOR,  false, &HandleDebugSplineSyncCommand,      "", NULL },
                 { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
             };
             static ChatCommand commandTable[] =
@@ -142,6 +144,62 @@ class debug_commandscript: public CommandScript
                 { NULL,             SEC_PLAYER,         false, NULL,                  "",              NULL }
             };
             return commandTable;
+        }
+
+        static bool HandleDebugAdjustSplineCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrVal = strtok((char*)p_Args, " ");
+            float l_Value = atof(l_StrVal);
+
+            if (Unit* l_Target = p_Handler->getSelectedUnit())
+            {
+                WorldPacket l_Data(Opcodes::SMSG_ADJUST_SPLINE_DURATION);
+                l_Data.appendPackGUID(l_Target->GetGUID());
+                l_Data << float(l_Value);
+                l_Target->SendMessageToSetInRange(&l_Data, l_Target->GetVisibilityRange(), false);
+                return true;
+            }
+            else
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        static bool HandleDebugSplineSyncCommand(ChatHandler* p_Handler, char const* p_Args)
+        {
+            if (!*p_Args)
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* l_StrVal = strtok((char*)p_Args, " ");
+            float l_Value = atof(l_StrVal);
+
+            if (Unit* l_Target = p_Handler->getSelectedUnit())
+            {
+                WorldPacket l_Data(Opcodes::SMSG_FLIGHT_SPLINE_SYNC);
+                l_Data.appendPackGUID(l_Target->GetGUID());
+                l_Data << float(l_Value);
+                l_Target->SendMessageToSetInRange(&l_Data, l_Target->GetVisibilityRange(), false);
+                return true;
+            }
+            else
+            {
+                p_Handler->SendSysMessage(LANG_BAD_VALUE);
+                p_Handler->SetSentErrorMessage(true);
+                return false;
+            }
         }
 
         static bool HandleDebugCriteriaCommand(ChatHandler* p_Handler, char const* p_Args)

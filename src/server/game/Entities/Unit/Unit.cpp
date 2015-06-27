@@ -14588,6 +14588,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (!IsInWorld())
         return;
 
+    bool l_MustAdjustSplineDuration = false;
     ObjectGuid l_Guid = GetGUID();
     if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
@@ -14845,6 +14846,26 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         else
             SendMessageToSet(&l_SelfPacket, true);
     }
+
+    /// Adjust Spline duration for client
+    if (l_MustAdjustSplineDuration)
+        SendAdjustSplineDuration(0.0f);
+}
+
+void Unit::SendAdjustSplineDuration(float p_Scale)
+{
+    WorldPacket l_Data(Opcodes::SMSG_ADJUST_SPLINE_DURATION);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_Scale);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
+void Unit::SendFlightSplineSync(float p_SplineDist)
+{
+    WorldPacket l_Data(Opcodes::SMSG_FLIGHT_SPLINE_SYNC);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_SplineDist);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::setDeathState(DeathState s)

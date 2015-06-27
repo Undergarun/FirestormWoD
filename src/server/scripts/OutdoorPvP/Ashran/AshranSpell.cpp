@@ -830,6 +830,95 @@ class spell_ashran_ancient_artifact : public SpellScriptLoader
         }
 };
 
+/// Horde Racer - 166819
+/// Alliance Racer - 166784
+class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
+{
+    public:
+        spell_ashran_horde_and_alliance_racer() : SpellScriptLoader("spell_ashran_horde_and_alliance_racer") { }
+
+        class spell_ashran_horde_and_alliance_racer_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_ashran_horde_and_alliance_racer_AuraScript);
+
+            enum eSpells
+            {
+                HordeRider      = 166819,
+                AllianceRider   = 166784
+            };
+
+            enum eDatas
+            {
+                SpeedPCTPerPlayer   = 30,
+                MaxSpeedPCT         = 500
+            };
+
+            uint32 m_CheckTimer;
+
+            bool Load()
+            {
+                m_CheckTimer = 200;
+                return true;
+            }
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    if (m_CheckTimer)
+                    {
+                        if (m_CheckTimer <= p_Diff)
+                        {
+                            m_CheckTimer = 200;
+
+                            std::list<Player*> l_PlayerList;
+                            l_Caster->GetPlayerListInGrid(l_PlayerList, 10.0f);
+
+                            if (l_PlayerList.empty())
+                            {
+                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                    l_AurEff->ChangeAmount(0);
+
+                                return;
+                            }
+
+                            l_PlayerList.remove_if([this](Player* p_Player) -> bool
+                            {
+                                if (p_Player == nullptr)
+                                    return true;
+
+                                if (GetSpellInfo()->Id == eSpells::AllianceRider && p_Player->GetTeamId() != TeamId::TEAM_ALLIANCE)
+                                    return true;
+
+                                if (GetSpellInfo()->Id == eSpells::HordeRider && p_Player->GetTeamId() != TeamId::TEAM_HORDE)
+                                    return true;
+
+                                return false;
+                            });
+
+                            /// The riders move very slowly, but for each player of their faction within their vicinity their speed is increased by 30%,
+                            /// allowing them to outstrip their competitor.
+                            if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                l_AurEff->ChangeAmount(std::min(((int32)l_PlayerList.size() * eDatas::SpeedPCTPerPlayer), (int32)eDatas::MaxSpeedPCT));
+                        }
+                        else
+                            m_CheckTimer -= p_Diff;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_ashran_horde_and_alliance_racer_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_ashran_horde_and_alliance_racer_AuraScript();
+        }
+};
+
 void AddSC_AshranSpells()
 {
     new spell_ashran_blade_twister();
@@ -848,4 +937,5 @@ void AddSC_AshranSpells()
     new spell_ashran_preserved_discombobulator_ray();
     new spell_ashran_shockwave();
     new spell_ashran_ancient_artifact();
+    new spell_ashran_horde_and_alliance_racer();
 }

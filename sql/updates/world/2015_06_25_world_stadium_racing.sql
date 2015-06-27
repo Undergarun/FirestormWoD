@@ -37,3 +37,31 @@ INSERT INTO trinity_string (entry, content_default, content_loc2, content_loc3, 
     'El |c00FFFF00|Hspell:178022|h[Evento: Carrera en el estadio]|h|r comienzó en el Anfiteatro de Aniquilación.',
     '|c00FFFF00|Hspell:178022|h[Событие: Кольцевые гонки]|h|r начал в Амфитеатре истребления.'
 );
+
+DELETE FROM creature_text WHERE entry = 84113 AND groupid > 5;
+INSERT INTO creature_text VALUES
+(84113, 6, 0, 'The Alliance is victorious!', 41, 0 ,100, 0, 0, 0, 'AllianceVictorious'),
+(84113, 7, 0, 'The Horde is victorious!', 41, 0, 100, 0, 0, 0, 'HordeVictorious');
+
+DELETE FROM locales_creature_text WHERE entry = 84113 AND textGroup > 5;
+--                                                       French     German     Spanish    Russian
+INSERT INTO locales_creature_text (entry, textGroup, id, text_loc2, text_loc3, text_loc6, text_loc8) VALUES
+(
+    84113, 6, 0,
+    'L''Alliance gagne !',
+    'Die Allianz siegt!',
+    '¡Victoria para la Alianza!',
+    'Альянс одержал победу!'
+),
+(
+    84113, 7, 0,
+    'La Horde gagne !',
+    'Die Horde siegt!',
+    '¡Victoria para la Horda!',
+    'Победа за Ордой!'
+);
+
+DELETE FROM spell_script_names WHERE ScriptName = 'spell_ashran_horde_and_alliance_racer';
+INSERT INTO spell_script_names VALUE
+(166819, 'spell_ashran_horde_and_alliance_racer'),
+(166784, 'spell_ashran_horde_and_alliance_racer');

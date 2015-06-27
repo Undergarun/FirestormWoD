@@ -2369,6 +2369,13 @@ class Unit : public WorldObject
         }
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float rate, bool forced = false);
+
+        void SendAdjustSplineDuration(float p_Scale);
+
+        /// This is used to send the current spline percentage
+        /// Send values from 0 to 1, depending on the current waypoint of the current spline
+        void SendFlightSplineSync(float p_SplineDist);
+
         float m_TempSpeed;
 
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }

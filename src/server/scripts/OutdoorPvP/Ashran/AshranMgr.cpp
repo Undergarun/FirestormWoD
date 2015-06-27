@@ -639,16 +639,17 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     m_Guid = MAKE_NEW_GUID(m_WorldPvPAreaId, 0, HighGuid::HIGHGUID_TYPE_BATTLEGROUND);
     m_Guid |= eAshranDatas::BattlefieldWorldPvP;
 
-    for (uint8 l_Team = BattlegroundTeamId::BG_TEAM_ALLIANCE; l_Team < MS::Battlegrounds::TeamsCount::Value; ++l_Team)
+    for (uint8 l_Team = 0; l_Team < TeamId::TEAM_NEUTRAL; ++l_Team)
     {
         m_PlayersInWar[l_Team].clear();
         m_InvitedPlayers[l_Team].clear();
         m_PlayersWillBeKick[l_Team].clear();
         m_FactionVignettes[l_Team].clear();
 
-        m_EnnemiesKilled[l_Team] = 0;
+        m_EnnemiesKilled[l_Team]    = 0;
         m_EnnemiesKilledMax[l_Team] = eAshranDatas::EnnemiesSlainCap2;
         m_FactionGenericMoP[l_Team] = 0;
+        m_StadiumRacingLaps[l_Team] = 0;
 
         for (uint8 l_I = 0; l_I < eArtifactsDatas::MaxArtifactCounts; ++l_I)
         {
@@ -665,6 +666,7 @@ OutdoorPvPAshran::OutdoorPvPAshran()
     {
         m_AshranEvents[l_Index] = 0;
         m_AshranEventsWarned[l_Index] = false;
+        m_AshranEventsLaunched[l_Index] = false;
     }
 
     AddCreature(eSpecialSpawns::AllianceFactionBoss, g_FactionBossesSpawn[0], 5 * TimeConstants::MINUTE);
@@ -828,7 +830,7 @@ void OutdoorPvPAshran::HandlePlayerLeaveMap(Player* p_Player, uint32 p_MapID)
     if (p_MapID != eAshranDatas::AshranMapID || p_Player == nullptr)
         return;
 
-    if (p_Player->GetTeamId() < 2)
+    if (p_Player->GetTeamId() < TeamId::TEAM_NEUTRAL)
     {
         m_InvitedPlayers[p_Player->GetTeamId()].erase(p_Player->GetGUID());
         m_PlayersInWar[p_Player->GetTeamId()].erase(p_Player->GetGUID());
@@ -1454,6 +1456,8 @@ void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
     if (p_EventID >= eAshranEvents::MaxEvents)  ///< Shouldn't happens
         return;
 
+    m_AshranEventsLaunched[p_EventID] = true;
+
     switch (p_EventID)
     {
         case eAshranEvents::EventKorlokTheOgreKing:
@@ -1474,6 +1478,9 @@ void OutdoorPvPAshran::StartEvent(uint8 p_EventID)
             for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingCreatures; ++l_I)
                 AddCreature(eSpecialSpawns::SpeedyHordeRacerSpawn + l_I, g_RacingCreaturesPos[l_I]);
 
+            SendUpdateWorldState(eWorldStates::WorldStateEnableLapsEvent, eWorldStates::WorldStateEnabled);
+            SendUpdateWorldState(eWorldStates::WorldStateLapsAlliance, m_StadiumRacingLaps[TeamId::TEAM_ALLIANCE]);
+            SendUpdateWorldState(eWorldStates::WorldStateLapsHorde, m_StadiumRacingLaps[TeamId::TEAM_HORDE]);
             break;
         }
         case eAshranEvents::MaxEvents:
@@ -1512,12 +1519,17 @@ void OutdoorPvPAshran::EndEvent(uint8 p_EventID, bool p_ScheduleNext /*= true*/)
             for (uint8 l_I = 0; l_I < eSpecialSpawns::MaxRacingCreatures; ++l_I)
                 DelCreature(eSpecialSpawns::SpeedyHordeRacerSpawn + l_I);
 
+            SendUpdateWorldState(eWorldStates::WorldStateLapsAlliance, 0);
+            SendUpdateWorldState(eWorldStates::WorldStateLapsHorde, 0);
+            SendUpdateWorldState(eWorldStates::WorldStateEnableLapsEvent, eWorldStates::WorldStateDisabled);
             break;
         }
         case eAshranEvents::MaxEvents:
         default:
             break;
     }
+
+    m_AshranEventsLaunched[p_EventID] = false;
 }
 
 void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
@@ -1546,6 +1558,56 @@ void OutdoorPvPAshran::SendEventWarningToPlayers(uint32 p_LangID)
                 l_Player->GetSession()->SendPacket(&l_Data);
             }
         }
+    }
+}
+
+void OutdoorPvPAshran::SetEventData(uint8 p_EventID, uint8 p_TeamID, uint32 p_Data)
+{
+    if (p_EventID >= eAshranEvents::MaxEvents)
+        return;
+
+    if (!m_AshranEventsLaunched[p_EventID])
+        return;
+
+    switch (p_EventID)
+    {
+        case eAshranEvents::EventStadiumRacing:
+        {
+            if (p_TeamID >= TeamId::TEAM_NEUTRAL)
+                break;
+
+            /// End event
+            if ((m_StadiumRacingLaps[p_TeamID] + p_Data) >= eAshranDatas::MaxStadiumRacingLaps)
+            {
+                EndEvent(eAshranEvents::EventStadiumRacing);
+                /// Reward players
+
+                if (Creature* l_Herald = GetHerald())
+                {
+                    if (l_Herald->IsAIEnabled)
+                    {
+                        if (p_TeamID == TeamId::TEAM_ALLIANCE)
+                            l_Herald->AI()->Talk(eAshranTalks::AllianceVictorious, 0, TEXT_RANGE_MAP);
+                        else
+                            l_Herald->AI()->Talk(eAshranTalks::HordeVictorious, 0, TEXT_RANGE_MAP);
+                    }
+                }
+            }
+            else
+            {
+                m_StadiumRacingLaps[p_TeamID] += p_Data;
+
+                if (p_TeamID == TeamId::TEAM_ALLIANCE)
+                    SendUpdateWorldState(eWorldStates::WorldStateLapsAlliance, m_StadiumRacingLaps[p_TeamID]);
+                else
+                    SendUpdateWorldState(eWorldStates::WorldStateLapsHorde, m_StadiumRacingLaps[p_TeamID]);
+            }
+
+            break;
+        }
+        case eAshranEvents::EventKorlokTheOgreKing:
+        default:
+            break;
     }
 }
 

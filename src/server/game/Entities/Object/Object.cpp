@@ -507,14 +507,14 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 *p_Data << float(0);                                        ///< Spline destination Z
             }
 
-            p_Data->WriteBit(!l_Spline->Finalized());
+            p_Data->WriteBit(!l_Spline->Finalized());                       ///< HasSplineMove
             p_Data->FlushBits();
 
             if (!l_Spline->Finalized())
             {
-                bool l_IsParabolicAndNotEnded   = (l_Spline->splineflags & Movement::MoveSplineFlag::Parabolic) && l_Spline->effect_start_time < l_Spline->Duration();
-                bool l_IsParabolicOrAnimated    = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
-                bool l_HasFilterKeys             = false;
+                bool l_HasJumpGravity   = (l_Spline->splineflags & Movement::MoveSplineFlag::Parabolic) && l_Spline->effect_start_time < l_Spline->Duration();
+                bool l_HasSpecialTime   = l_Spline->splineflags & (Movement::MoveSplineFlag::Parabolic | Movement::MoveSplineFlag::Animation);
+                bool l_HasFilterKeys    = false;
 
                 uint8 l_FinalFacingMove = 0;
 
@@ -533,14 +533,14 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
                 p_Data->WriteBits(l_Spline->splineflags.raw(), 25);         ///< Spline flags
                 p_Data->WriteBits(l_FinalFacingMove, 2);                    ///< Final facing computation
-                p_Data->WriteBit(l_IsParabolicAndNotEnded);                 ///< Is an parabolic movement and it's not ended
-                p_Data->WriteBit(l_IsParabolicOrAnimated);                  ///< Is an parabolic movement or it's animated
+                p_Data->WriteBit(l_HasJumpGravity);                         ///< Is an parabolic movement and it's not ended
+                p_Data->WriteBit(l_HasSpecialTime);                         ///< Is an parabolic movement or it's animated
                 p_Data->WriteBits(uint8(l_Spline->spline.mode()), 2);       ///< Spline mode
                 p_Data->WriteBit(l_HasFilterKeys);                          ///< Has unk spline part
                 p_Data->FlushBits();
 
-                *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
                 *p_Data << uint32(l_Spline->timePassed());                  ///< Time passed
+                *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
                 *p_Data << float(1.f);                                      ///< splineInfo.duration_mod; added in 3.1
                 *p_Data << float(1.f);                                      ///< splineInfo.duration_mod_next; added in 3.1
                 *p_Data << uint32(l_Spline->getPath().size());              ///< Path node count
@@ -558,10 +558,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                     *p_Data << float(l_Spline->facing.f.z);                 ///< Final facing Z
                 }
 
-                if (l_IsParabolicAndNotEnded)
+                if (l_HasJumpGravity)
                     *p_Data << float(l_Spline->vertical_acceleration);      ///< Vertical acceleration
 
-                if (l_IsParabolicOrAnimated)
+                if (l_HasSpecialTime)
                     *p_Data << uint32(l_Spline->effect_start_time);         ///< Effect start time
 
                 if (l_HasFilterKeys)
