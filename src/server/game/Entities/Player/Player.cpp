@@ -33129,7 +33129,6 @@ void Player::ConsumeCharge(uint32 p_CategoryID, SpellCategoryEntry const* p_Cate
             l_ChargeRegenTime += l_Effect->GetAmount();
     }
 
-    uint8 l_ConsumedCharges;
     if (m_SpellChargesMap.find(p_CategoryID) == m_SpellChargesMap.end())
         m_SpellChargesMap.insert(std::make_pair(p_CategoryID, ChargesData(p_Category->MaxCharges, l_ChargeRegenTime)));
     else

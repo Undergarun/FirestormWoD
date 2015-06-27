@@ -17517,7 +17517,7 @@ Player* Unit::GetSpellModOwner() const
 
 ///----------Pet responses methods-----------------
 
-void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
+void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result, uint8 p_CastCount)
 {
     if (p_Result == SPELL_CAST_OK)
         return;
@@ -17532,7 +17532,7 @@ void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
     l_Data << uint32(p_Result);                             ///< Reason
     l_Data << uint32(0);                                    ///< FailedArg1
     l_Data << uint32(0);                                    ///< FailedArg2
-    l_Data << uint8(0);                                     ///< CastID
+    l_Data << uint8(p_CastCount);                           ///< CastID
 
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }

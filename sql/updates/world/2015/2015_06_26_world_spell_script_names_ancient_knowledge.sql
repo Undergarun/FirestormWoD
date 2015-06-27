@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 127250 AND ScriptName = "spell_item_ancient_knowledge";
+INSERT INTO spell_script_names(spell_id, ScriptName) VALUES(127250, "spell_item_ancient_knowledge");

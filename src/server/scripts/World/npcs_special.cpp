@@ -3586,13 +3586,13 @@ class npc_ring_of_frost : public CreatureScript
             npc_ring_of_frostAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void Reset()
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
             }
 
             void InitializeAI()
@@ -3603,7 +3603,7 @@ class npc_ring_of_frost : public CreatureScript
                     return;
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE);
 
                 std::list<Creature*> l_RingList;
                 me->GetCreatureListWithEntryInGrid(l_RingList, me->GetEntry(), 200.0f);
@@ -4956,6 +4956,78 @@ class npc_training_dummy_tanking : public CreatureScript
         }
 };
 
+/// Consecration - 43499
+class npc_consecration : public CreatureScript
+{
+    public:
+        npc_consecration() : CreatureScript("npc_consecration") { }
+
+        enum Constants : uint32
+        {
+            TickPeriod = 1 * IN_MILLISECONDS
+        };
+
+        enum eSpells
+        {
+            ConsecrationVisual = 81298,
+            ConsecrationDamage = 81297
+        };
+
+        struct npc_consecrationAI : public PassiveAI
+        {
+            uint32 m_Counter;
+
+            npc_consecrationAI(Creature* creature) :
+                PassiveAI(creature),
+                m_Counter(0)
+            {
+            }
+
+            void EnterEvadeMode() override
+            {
+                if (!me->isAlive())
+                    return;
+
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->ResetPlayerDamageReq();
+            }
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                p_Owner->CastSpell(*me, eSpells::ConsecrationVisual, true);
+            }
+
+            void Reset() override
+            {
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_NON_ATTACKABLE | eUnitFlags::UNIT_FLAG_NOT_SELECTABLE | eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_Counter += p_Diff;
+
+                if (m_Counter >= Constants::TickPeriod)
+                {
+                    if (Unit* l_Owner = me->GetOwner())
+                    {
+                        if (DynamicObject* dynObj = l_Owner->GetDynObject(eSpells::ConsecrationVisual))
+                        {
+                            l_Owner->CastSpell(*dynObj, eSpells::ConsecrationDamage, true);
+                        }
+                    }
+
+                    m_Counter -= Constants::TickPeriod;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_consecrationAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -5010,4 +5082,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_healing();
     new npc_training_dummy_damage();
     new npc_training_dummy_tanking();
+    new npc_consecration();
 }
