@@ -1955,7 +1955,9 @@ public:
             {
                 l_Player->RemoveMovementImpairingAuras();
                 l_Player->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-                l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
+
+                if (!l_Player->HasAura(eSpells::GlyphOfDisappearance))
+                    l_Player->CastSpell(l_Player, eSpells::StealthShapeshift, true);
 
                 /// Item - Rogue WoD PvP Assassination 4P Bonus and Item - Rogue WoD PvP Combat 4P Bonus
                 if (l_Player->getLevel() == 100)
