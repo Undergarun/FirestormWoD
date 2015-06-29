@@ -1913,39 +1913,6 @@ class spell_sha_glyph_of_eternal_earth : public SpellScriptLoader
         }
 };
 
-/// 10400 - Flametongue
-class spell_sha_flametongue: public SpellScriptLoader
-{
-    public:
-        spell_sha_flametongue() : SpellScriptLoader("spell_sha_flametongue") { }
-
-        class spell_sha_flametongue_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_flametongue_AuraScript);
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                Unit* target = eventInfo.GetProcTarget();
-                SpellInfo const* spellProto = GetSpellInfo();
-
-                if (eventInfo.GetDamageInfo()->GetAttackType() == WeaponAttackType::OffAttack || spellProto)
-                    GetCaster()->CastSpell(target, SPELL_SHA_LAMETONGUE_ATTACK, true);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_flametongue_AuraScript();
-        }
-};
-
 /// 157804 - Improved Flame Shock
 class spell_sha_improoved_flame_shock: public SpellScriptLoader
 {
