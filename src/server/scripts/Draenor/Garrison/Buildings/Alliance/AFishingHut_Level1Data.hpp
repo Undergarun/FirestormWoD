@@ -8,7 +8,7 @@
 #ifndef GARRISON_FISHING_HUT_LEVEL_1_DATA_ALLIANCE_HPP_GARRISON
 #define GARRISON_FISHING_HUT_LEVEL_1_DATA_ALLIANCE_HPP_GARRISON
 
-#include "../../../GarrisonScriptData.hpp"
+#include "../../GarrisonScriptData.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
