@@ -523,12 +523,17 @@ public:
                         if (creature && creature->GetAI())
                             creature->GetAI()->DoAction(2); //ACTION_ATTACK
 
-                        std::list<uint64>::iterator itr = adepts.begin();
-                        std::advance(itr, urand(0, adepts.size() - 1));
-
-                        Creature* adept = instance->GetCreature(*itr);
-                        if (creature && adept)
-                            creature->Attack(adept, true);
+                        if (!adepts.empty())
+                        {
+                            std::list<uint64>::iterator itr = adepts.begin();
+                            
+                            if (adepts.size() > 1)
+                                std::advance(itr, urand(0, adepts.size() - 1));
+    
+                            Creature* adept = instance->GetCreature(*itr);
+                            if (creature && adept)
+                                creature->Attack(adept, true);
+                        }
                     }
 
                     SetBossState(DATA_TRIAL_OF_THE_KING, DONE);
