@@ -36,7 +36,8 @@ enum eData
 
 enum eSpells
 {
-    SPELL_RITUAL_OF_PURIFICATION = 126848
+    SPELL_RITUAL_OF_PURIFICATION    = 126848,
+    SPELL_NIGHT_PHASE_EFFECT        = 122841, ///< Tsulong night effect
 };
 
 enum eActions
