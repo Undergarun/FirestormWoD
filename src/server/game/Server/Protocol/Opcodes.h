@@ -66,7 +66,7 @@ enum Opcodes
         SMSG_HOTFIX_NOTIFY                          = 0x0AA1, ///< 6.2.0 19173
         SMSG_WORLD_SERVER_INFO                      = 0x0626, ///< 6.2.0 19173
         SMSG_INITIAL_SETUP                          = 0x02CC, ///< 6.2.0 19173
-        SMSG_PONG                                   = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x005E
+        SMSG_PONG                                   = 0x1805, ///< 6.2.0 19173
         SMSG_UITIME                                 = 0x0B52, ///< 6.2.0 19173
 
         /// Query
@@ -191,7 +191,7 @@ enum Opcodes
         SMSG_ACCOUNT_MOUNT_UPDATE                   = 0x085C, ///< 6.2.0 19173
         SMSG_PLAY_SCENE                             = 0x0BD6, ///< 6.2.0 19173
         SMSG_CANCEL_SCENE                           = 0x0A15, ///< 6.2.0 19173
-        SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x01E3
+        SMSG_TALENTS_INVOLUNTARILY_RESET            = 0x00B1, ///< 6.2.0 19173
         SMSG_SET_ITEM_PURCHASE_DATA                 = 0x1085, ///< 6.2.0 19173
         SMSG_SHOW_TRADE_SKILL_RESPONSE              = 0x0C97, ///< 6.2.0 19173
 
@@ -273,7 +273,7 @@ enum Opcodes
 
         /// Taxi
         SMSG_TAXI_NODE_STATUS                       = 0x00DF, ///< 6.2.0 19173
-        SMSG_NEW_TAXI_PATH                          = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x080F
+        SMSG_NEW_TAXI_PATH                          = 0x02B5, ///< 6.2.0 19173
         SMSG_SHOW_TAXI_NODES                        = 0x1086, ///< 6.2.0 19173
         SMSG_ACTIVATE_TAXI_REPLY                    = 0x0A90, ///< 6.2.0 19173
 
@@ -374,12 +374,12 @@ enum Opcodes
         SMSG_PET_ACTION_FEEDBACK                            = 0x0091, ///< 6.2.0 19173
         SMSG_PET_ACTION_SOUND                               = 0x0050, ///< 6.2.0 19173
         SMSG_PET_ADDED                                      = 0x0000, ///< (unused)
-        SMSG_SET_PET_SPECIALIZATION                         = 0x0054, ///< 6.2.0 19173
+        SMSG_SET_PET_SPECIALIZATION                         = 0x0132, ///< 6.2.0 19173
         SMSG_STABLE_RESULT                                  = 0x0054, ///< 6.2.0 19173
 
         /// Pet Battle opcodes
         SMSG_BATTLE_PET_JOURNAL                             = 0x060F, ///< 6.2.0 19173
-        SMSG_QUERY_PET_NAME_RESPONSE                        = 0x064F, ///< 6.2.0 19173
+        SMSG_QUERY_PET_NAME_RESPONSE                        = 0x0000,
         SMSG_PETBATTLE_REQUEST_FAILED                       = 0x0000,
         SMSG_PETBATTLE_FIRST_ROUND                          = 0x0000,
         SMSG_PETBATTLE_FULL_UPDATE                          = 0x0000,
@@ -440,7 +440,7 @@ enum Opcodes
 
         /// Trainers
         SMSG_TRAINER_LIST                                       = 0x03C6, ///< 6.2.0 19173
-        SMSG_TRAINER_SERVICE                                    = 0x0050, ///< 6.2.0 19173
+        SMSG_TRAINER_SERVICE                                    = 0x0C1F, ///< 6.2.0 19173
 
         /// Void Storage
         SMSG_VOID_ITEM_SWAP_RESPONSE                            = 0x0004, ///< 6.2.0 19173
@@ -451,7 +451,7 @@ enum Opcodes
 
         /// Petition
         SMSG_PETITION_ALREADY_SIGNED                            = 0x0C60, ///< 6.2.0 19173
-        SMSG_PETITION_SIGN_RESULTS                              = 0x00C8, ///< 6.2.0 19173
+        SMSG_PETITION_SIGN_RESULTS                              = 0x08A2, ///< 6.2.0 19173
         SMSG_QUERY_PETITION_RESPONSE                            = 0x00A2, ///< 6.2.0 19173
         SMSG_PETITION_SHOW_LIST                                 = 0x0C08, ///< 6.2.0 19173
         SMSG_PETITION_SHOW_SIGNATURES                           = 0x0222, ///< 6.2.0 19173
@@ -465,13 +465,7 @@ enum Opcodes
         SMSG_HIGHEST_THREAT_UPDATE                              = 0x0B36, ///< 6.2.0 19173
 
         /// Tickets
-        SMSG_GM_TICKET_GET_TICKET_RESPONSE                      = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0EDF
-        SMSG_GM_TICKET_RESPONSE                                 = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0131
-        SMSG_GM_TICKET_RESPONSE_ERROR                           = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0841
-        SMSG_GM_TICKET_RESOLVE_RESPONSE                         = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0408
         SMSG_GM_TICKET_SYSTEM_STATUS                            = 0x0ADF, ///< 6.2.0 19173
-        SMSG_GM_TICKET_UPDATE                                   = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0A94
-        SMSG_GM_TICKET_STATUS_UPDATE                            = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x005F
         SMSG_GM_TICKET_CASE_STATUS                              = 0x005F, ///< 6.2.0 19173
 
         /// Calendar
@@ -497,7 +491,7 @@ enum Opcodes
         SMSG_CALENDAR_SEND_NUM_PENDING                          = 0x08B5, ///< 6.2.0 19173
 
         /// Warden
-        SMSG_WARDEN_DATA                                        = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0BEC
+        SMSG_WARDEN_DATA                                        = 0x0EDC, ///< 6.2.0 19173
 
         /// Challenges
         SMSG_CHALLENGE_MODE_REQUEST_LEADERS_RESULT              = 0x0453, ///< 6.2.0 19173
@@ -539,7 +533,7 @@ enum Opcodes
         /// Guild Finder
         SMSG_LFGUILD_BROWSE                         = 0x08FC, ///< 6.2.0 19173
         SMSG_LFGUILD_APPLICATIONS                   = 0x04EB, ///< 6.2.0 19173
-        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x00FC, ///< 6.2.0 19173
+        SMSG_LFGUILD_APPLICATIONS_LIST_CHANGED      = 0x0AB3, ///< 6.2.0 19173
         SMSG_LFGUILD_COMMAND_RESULT                 = 0x0000, ///< (unused)
         SMSG_LFGUILD_RECRUITS                       = 0x08E4, ///< 6.2.0 19173
         SMSG_LFGUILD_POST                           = 0x02B4, ///< 6.2.0 19173
@@ -556,7 +550,7 @@ enum Opcodes
         /// Achievement
         SMSG_GUILD_ACHIEVEMENT_DELETED              = 0x06AC, ///< 6.2.0 19173
         SMSG_GUILD_ACHIEVEMENT_MEMBERS              = 0x0000, ///< (unused)
-        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x01A1, ///< 6.2.0 19173
+        SMSG_GUILD_ACHIEVEMENT_EARNED               = 0x04FC, ///< 6.2.0 19173
         SMSG_GUILD_CRITERIA_UPDATE                  = 0x0000, ///< (unused)
         SMSG_GUILD_CRITERIA_DELETED                 = 0x00AB, ///< 6.2.0 19173
         SMSG_ALL_GUILD_ACHIEVEMENTS                 = 0x08E3, ///< 6.2.0 19173
@@ -715,7 +709,7 @@ enum Opcodes
         SMSG_SPLINE_MOVE_SET_SWIM_BACK_SPEED        = 0x1D17, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED           = 0x18C7, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED      = 0x1264, ///< 6.2.0 19173
-        SMSG_SPLINE_MOVE_SET_WALK_SPEED             = 0x1954, ///< 6.2.0 19173
+        SMSG_SPLINE_MOVE_SET_WALK_SPEED             = 0x062F, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_SET_TURN_RATE              = 0x1557, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_SET_PITCH_RATE             = 0x1908, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_ROOT                       = 0x12E3, ///< 6.2.0 19173
@@ -1006,7 +1000,7 @@ enum Opcodes
     CMSG_AUTH_SESSION                           = 0x045A, ///< 6.2.0 19173
     CMSG_ENABLE_NAGLE                           = 0x065D, ///< 6.2.0 19173
     CMSG_SUSPEND_COMMS_ACK                      = 0x0C99, ///< 6.2.0 19173
-    CMSG_KEEP_ALIVE                             = 0x03A2, ///< 6.2.0 19173
+    CMSG_KEEP_ALIVE                             = 0x0325, ///< 6.2.0 19173
     CMSG_OBJECT_UPDATE_FAILED                   = 0x1C87, ///< 6.2.0 19173
     CMSG_OBJECT_UPDATE_RESCUED                  = 0x1988, ///< 6.2.0 19173
 
@@ -1020,10 +1014,10 @@ enum Opcodes
     CMSG_PLAYER_LOGIN                           = 0x0921, ///< 6.2.0 19173
     CMSG_VIOLENCE_LEVEL                         = 0x1118, ///< 6.2.0 19173
     CMSG_LOAD_SCREEN                            = 0x0735, ///< 6.2.0 19173
-    CMSG_REQUEST_ACCOUNT_DATA                   = 0x0EB2, ///< 6.2.0 19173
+    CMSG_REQUEST_ACCOUNT_DATA                   = 0x0A46, ///< 6.2.0 19173
     CMSG_UPDATE_ACCOUNT_DATA                    = 0x0CB6, ///< 6.2.0 19173
-    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0535, ///< 6.2.0 19173
-    CMSG_SET_RAID_DIFFICULTY                    = 0x09C1, ///< 6.2.0 19173
+    CMSG_SET_DUNGEON_DIFFICULTY                 = 0x0EA6, ///< 6.2.0 19173
+    CMSG_SET_RAID_DIFFICULTY                    = 0x0F25, ///< 6.2.0 19173
     CMSG_AUTO_DECLINE_GUILD_INVITES             = 0x084C, ///< 6.2.0 19173
     CMSG_SHOWING_CLOAK                          = 0x0843, ///< 6.2.0 19173
     CMSG_SHOWING_HELM                           = 0x0A5B, ///< 6.2.0 19173
@@ -1044,9 +1038,9 @@ enum Opcodes
     CMSG_SAVE_EQUIPMENT_SET                     = 0x04CF, ///< 6.2.0 19173
     CMSG_USE_EQUIPMENT_SET                      = 0x0668, ///< 6.2.0 19173
     CMSG_DELETE_EQUIPMENT_SET                   = 0x0620, ///< 6.2.0 19173
-    CMSG_WHO                                    = 0x08A5, ///< 6.2.0 19173
+    CMSG_WHO                                    = 0x03A2, ///< 6.2.0 19173
     CMSG_SOCKET_GEMS                            = 0x0260, ///< 6.2.0 19173
-    CMSG_RESURRECT_RESPONSE                     = 0x0902, ///< 6.2.0 19173
+    CMSG_RESURRECT_RESPONSE                     = 0x0535, ///< 6.2.0 19173
     CMSG_QUERY_INSPECT_ACHIEVEMENTS             = 0x0A4B, ///< 6.2.0 19173
     CMSG_SPLIT_ITEM                             = 0x0370, ///< 6.2.0 19173
     CMSG_SET_PLAYER_DECLINED_NAMES              = 0x0522, ///< 6.2.0 19173
@@ -1096,7 +1090,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Combat
     //////////////////////////////////////////////////////////////////////////
-    CMSG_ATTACKSTOP                             = 0x04D0, ///< 6.2.0 19173
+    CMSG_ATTACKSTOP                             = 0x022B, ///< 6.2.0 19173
     CMSG_ATTACKSWING                            = 0x1D58, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
@@ -1126,7 +1120,7 @@ enum Opcodes
     CMSG_NPC_TEXT_QUERY                         = 0x1C47, ///< 6.2.0 19173
     CMSG_NAME_QUERY                             = 0x0DA6, ///< 6.2.0 19173
     CMSG_QUEST_QUERY                            = 0x0A24, ///< 6.2.0 19173
-    CMSG_QUEST_POI_QUERY                        = 0x0A56, ///< 6.2.0 19173
+    CMSG_QUEST_POI_QUERY                        = 0x05B5, ///< 6.2.0 19173
     CMSG_REALM_NAME_QUERY                       = 0x0000,
     CMSG_GAMEOBJECT_QUERY                       = 0x17F8, ///< 6.2.0 19173
     CMSG_PETITION_QUERY                         = 0x1675, ///< 6.2.0 19173
@@ -1184,7 +1178,7 @@ enum Opcodes
     CMSG_NEUTRAL_PLAYER_SELECT_FACTION          = 0x1237, ///< 6.2.0 19173
     CMSG_INSPECT                                = 0x004C, ///< 6.2.0 19173
     CMSG_INSPECT_HONOR_STATS                    = 0x0146, ///< 6.2.0 19173
-    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x09C5, ///< 6.2.0 19173
+    CMSG_REQUEST_INSPECT_RATED_BG_STATS         = 0x0AB2, ///< 6.2.0 19173
     CMSG_TIME_SYNC_RESP                         = 0x1A94, ///< 6.2.0 19173
     CMSG_UNLEARN_SKILL                          = 0x04DB, ///< 6.2.0 19173
     CMSG_EMOTE                                  = 0x0488, ///< 6.2.0 19173
@@ -1219,7 +1213,7 @@ enum Opcodes
     /// Vendors
     //////////////////////////////////////////////////////////////////////////
     CMSG_LIST_INVENTORY                         = 0x001F, ///< 6.2.0 19173
-    CMSG_REPAIR_ITEM                            = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x19A2
+    CMSG_REPAIR_ITEM                            = 0x0498, ///< 6.2.0 19173
     CMSG_BUYBACK_ITEM                           = 0x008C, ///< 6.2.0 19173
     CMSG_BUY_ITEM                               = 0x08DF, ///< 6.2.0 19173
     CMSG_SELL_ITEM                              = 0x045B, ///< 6.2.0 19173
@@ -1382,7 +1376,7 @@ enum Opcodes
     CMSG_DO_READY_CHECK                         = 0x0AD6, ///< 6.2.0 19173
     CMSG_READY_CHECK_RESPONSE                   = 0x0B46, ///< 6.2.0 19173
     CMSG_INITIATE_ROLE_POLL                     = 0x02A1, ///< 6.2.0 19173
-    CMSG_REQUEST_RAID_INFO                      = 0x0035, ///< 6.2.0 19173
+    CMSG_REQUEST_RAID_INFO                      = 0x0A12, ///< 6.2.0 19173
     CMSG_SET_EVERYONE_IS_ASSISTANT              = 0x0432, ///< 6.2.0 19173
     CMSG_CLEAR_RAID_MARKER                      = 0x0B2B, ///< 6.2.0 19173
     CMSG_GROUP_ASSISTANT_LEADER                 = 0x0C26, ///< 6.2.0 19173
@@ -1394,20 +1388,20 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// Friend
     //////////////////////////////////////////////////////////////////////////
-    CMSG_SEND_CONTACT_LIST                      = 0x07B5, ///< 6.2.0 19173
-    CMSG_ADD_FRIEND                             = 0x0EA2, ///< 6.2.0 19173
-    CMSG_ADD_IGNORE                             = 0x0F25, ///< 6.2.0 19173
-    CMSG_SET_CONTACT_NOTES                      = 0x0936, ///< 6.2.0 19173
-    CMSG_DEL_FRIEND                             = 0x1085, ///< 6.2.0 19173
-    CMSG_DEL_IGNORE                             = 0x0842, ///< 6.2.0 19173
+    CMSG_SEND_CONTACT_LIST                      = 0x02D5, ///< 6.2.0 19173
+    CMSG_ADD_FRIEND                             = 0x0035, ///< 6.2.0 19173
+    CMSG_ADD_IGNORE                             = 0x00D6, ///< 6.2.0 19173
+    CMSG_SET_CONTACT_NOTES                      = 0x0901, ///< 6.2.0 19173
+    CMSG_DEL_FRIEND                             = 0x0CB1, ///< 6.2.0 19173
+    CMSG_DEL_IGNORE                             = 0x0532, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
     /// Petition
     //////////////////////////////////////////////////////////////////////////
-    CMSG_OFFER_PETITION                         = 0x08A1, ///< 6.2.0 19173
+    CMSG_OFFER_PETITION                         = 0x08B1, ///< 6.2.0 19173
     CMSG_PETITION_BUY                           = 0x00DB, ///< 6.2.0 19173
     CMSG_PETITION_DECLINE                       = 0x02CF, ///< 6.2.0 19173
-    CMSG_PETITION_RENAME                        = 0x02D5, ///< 6.2.0 19173
+    CMSG_PETITION_RENAME                        = 0x0F26, ///< 6.2.0 19173
     CMSG_PETITION_SHOWLIST                      = 0x0208, ///< 6.2.0 19173
     CMSG_PETITION_SHOW_SIGNATURES               = 0x0658, ///< 6.2.0 19173
     CMSG_PETITION_SIGN                          = 0x08D4, ///< 6.2.0 19173
@@ -1418,13 +1412,13 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_PET_NAME_QUERY                         = 0x17E8, ///< 6.2.0 19173
     CMSG_PET_RENAME                             = 0x0521, ///< 6.2.0 19173
-    CMSG_PET_ABANDON                            = 0x04C4, ///< 6.2.0 19173
+    CMSG_PET_ABANDON                            = 0x02C3, ///< 6.2.0 19173
     CMSG_PET_ACTION                             = 0x000B, ///< 6.2.0 19173
-    CMSG_PET_CANCEL_AURA                        = 0x14D3, ///< 6.2.0 19173
+    CMSG_PET_CANCEL_AURA                        = 0x0A4F, ///< 6.2.0 19173
     CMSG_PET_CAST_SPELL                         = 0x13E2, ///< 6.2.0 19173
     CMSG_PET_SET_ACTION                         = 0x06D8, ///< 6.2.0 19173
     CMSG_PET_STOP_ATTACK                        = 0x0694, ///< 6.2.0 19173
-    CMSG_LEARN_PET_SPECIALIZATION_GROUP         = 0x0BD6, ///< 6.2.0 19173
+    CMSG_LEARN_PET_SPECIALIZATION_GROUP         = 0x15C8, ///< 6.2.0 19173
     CMSG_LIST_STABLE_PETS                       = 0x04C4, ///< 6.2.0 19173
     CMSG_SET_PET_SLOT                           = 0x0C41, ///< 6.2.0 19173
 
@@ -1432,9 +1426,9 @@ enum Opcodes
     /// Battlegrounds
     //////////////////////////////////////////////////////////////////////////
     CMSG_BATTLEMASTER_JOIN                      = 0x02E0, ///< 6.2.0 19173
-    CMSG_BATTLEMASTER_JOIN_ARENA                = 0x1584, ///< 6.2.0 19173
-    CMSG_BATTLEMASTER_JOIN_ARENA_SKIRMISH       = 0x00E0, ///< 6.2.0 19173
-    CMSG_JOIN_RATED_BATTLEGROUND                = 0x025C, ///< 6.2.0 19173
+    CMSG_BATTLEMASTER_JOIN_ARENA                = 0x00E0, ///< 6.2.0 19173
+    CMSG_BATTLEMASTER_JOIN_ARENA_SKIRMISH       = 0x025C, ///< 6.2.0 19173
+    CMSG_JOIN_RATED_BATTLEGROUND                = 0x1584, ///< 6.2.0 19173
     CMSG_BATTLEFIELD_PORT                       = 0x08CB, ///< 6.2.0 19173
     CMSG_REQUEST_BATTLEFIELD_STATUS             = 0x0122, ///< 6.2.0 19173
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA         = 0x1CC3, ///< 6.2.0 19173
@@ -1453,7 +1447,7 @@ enum Opcodes
     CMSG_BATTLEFIELD_LIST                       = 0x1553, ///< 6.2.0 19173
     CMSG_REQUEST_RATED_BATTLEFIELD_INFO         = 0x1185, ///< 6.2.0 19173
     CMSG_START_WAR_GAME                         = 0x03A6, ///< 6.2.0 19173
-    CMSG_ACCEPT_WARGAME_INVITE                  = 0x025C, ///< 6.2.0 19173
+    CMSG_ACCEPT_WARGAME_INVITE                  = 0x0A11, ///< 6.2.0 19173
     CMSG_REPORT_PVP_AFK                         = 0x04C7, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
@@ -1463,7 +1457,7 @@ enum Opcodes
     CMSG_ACCEPT_GUILD_INVITE                       = 0x00A6, ///< 6.2.0 19173
     CMSG_GUILD_DECLINE_INVITATION                  = 0x085D, ///< 6.2.0 19173
     CMSG_GUILD_OFFICER_REMOVE_MEMBER               = 0x011E, ///< 6.2.0 19173
-    CMSG_GUILD_SET_GUILD_MASTER                    = 0x0221, ///< 6.2.0 19173
+    CMSG_GUILD_SET_GUILD_MASTER                    = 0x07A2, ///< 6.2.0 19173
     CMSG_GUILD_LEAVE                               = 0x044E, ///< 6.2.0 19173
     CMSG_GUILD_DELETE                              = 0x054E, ///< 6.2.0 19173
     CMSG_GUILD_UPDATE_MOTD_TEXT                    = 0x05CD, ///< 6.2.0 19173
@@ -1484,7 +1478,7 @@ enum Opcodes
     CMSG_GUILD_BANK_TEXT_QUERY                     = 0x0C0D, ///< 6.2.0 19173
     CMSG_GUILD_BANK_SWAP_ITEMS                     = 0x0847, ///< 6.2.0 19173
     CMSG_GUILD_BANK_UPDATE_TAB                     = 0x0A48, ///< 6.2.0 19173
-    CMSG_GUILD_BANK_WITHDRAW_MONEY                 = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x0832
+    CMSG_GUILD_BANK_WITHDRAW_MONEY                 = 0x080F, ///< 6.2.0 19173
     CMSG_GUILD_BANK_SET_TAB_TEXT                   = 0x060D, ///< 6.2.0 19173
     CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS             = 0x0000, ///< (unused)
     CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT             = 0x034E, ///< 6.2.0 19173
@@ -1542,7 +1536,7 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     CMSG_DFGET_SYSTEM_INFO                         = 0x04A6, ///< 6.2.0 19173
     CMSG_LFG_GET_PLAYER_INFO                       = 0x0000, 
-    CMSG_LFG_GET_STATUS                            = 0x04A6, ///< 6.2.0 19173
+    CMSG_LFG_GET_STATUS                            = 0x07B6, ///< 6.2.0 19173
     CMSG_LFG_JOIN                                  = 0x0635, ///< 6.2.0 19173
     CMSG_LFG_LEAVE                                 = 0x0942, ///< 6.2.0 19173
     CMSG_LFG_PROPOSAL_RESULT                       = 0x0B15, ///< 6.2.0 19173
@@ -1608,8 +1602,8 @@ enum Opcodes
     //////////////////////////////////////////////////////////////////////////
     /// GameMasters
     //////////////////////////////////////////////////////////////////////////
-    CMSG_REPORT_BUG                                 = 0x0836, ///< 6.2.0 19173 -- Merged with suggestion probably
-    CMSG_REPORT_SUGGESTION                          = 0x0836, ///< 6.2.0 19173
+    CMSG_REPORT_BUG                                 = 0x0B55, ///< 6.2.0 19173
+    CMSG_REPORT_SUGGESTION                          = 0x03D6, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
     /// ToyBox
@@ -1619,22 +1613,22 @@ enum Opcodes
     CMSG_USE_TOY                                    = 0x16F1, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
-    /// Calendar
+    /// Calendarr
     //////////////////////////////////////////////////////////////////////////
-    CMSG_CALENDAR_ADD_EVENT                         = 0x0325, ///< 6.2.0 19173
-    CMSG_CALENDAR_COMPLAIN                          = 0x0826, ///< 6.2.0 19173
-    CMSG_CALENDAR_COPY_EVENT                        = 0x0AB1, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_INVITE                      = 0x03C2, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x0956, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x01D6, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_RSVP                        = 0x09A5, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x0955, ///< 6.2.0 19173
-    CMSG_CALENDAR_EVENT_STATUS                      = 0x0000, ///< Autoparser error - Opcode not found. Old Opcode: 0x9056
+    CMSG_CALENDAR_ADD_EVENT                         = 0x0955, ///< 6.2.0 19173
+    CMSG_CALENDAR_COMPLAIN                          = 0x0BD5, ///< 6.2.0 19173
+    CMSG_CALENDAR_COPY_EVENT                        = 0x0956, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_INVITE                      = 0x0FA1, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_MODERATOR_STATUS            = 0x09A5, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_REMOVE_INVITE               = 0x0026, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_RSVP                        = 0x03C2, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_SIGNUP                      = 0x0826, ///< 6.2.0 19173
+    CMSG_CALENDAR_EVENT_STATUS                      = 0x01D6, ///< 6.2.0 19173
     CMSG_CALENDAR_GET_CALENDAR                      = 0x0531, ///< 6.2.0 19173
-    CMSG_CALENDAR_GET_EVENT                         = 0x0FA1, ///< 6.2.0 19173
-    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x0915, ///< 6.2.0 19173
+    CMSG_CALENDAR_GET_EVENT                         = 0x06A1, ///< 6.2.0 19173
+    CMSG_CALENDAR_GET_NUM_PENDING                   = 0x0AB1, ///< 6.2.0 19173
     CMSG_CALENDAR_GUILD_FILTER                      = 0x0000, ///<
-    CMSG_CALENDAR_REMOVE_EVENT                      = 0x01D6, ///< 6.2.0 19173
+    CMSG_CALENDAR_REMOVE_EVENT                      = 0x03A1, ///< 6.2.0 19173
     CMSG_CALENDAR_UPDATE_EVENT                      = 0x0126, ///< 6.2.0 19173
 
     //////////////////////////////////////////////////////////////////////////
@@ -1775,7 +1769,7 @@ enum Opcodes
     
     CMSG_GMRESPONSE_RESOLVE                         = 0x0000, ///< RIP ????
     CMSG_GMSURVEY_SUBMIT                            = 0x0000, ///< RIP ???
-    CMSG_GMTICKET_CREATE                            = 0x00D1, ///< RIP ????
+    CMSG_GMTICKET_CREATE                            = 0x0000, ///< RIP ????
     CMSG_GMTICKET_DELETETICKET                      = 0x0000, ///< RIP ????
     CMSG_GMTICKET_GETTICKET                         = 0x0000, ///< RIP ????
     CMSG_GMTICKET_GET_CASE_STATUS                   = 0x0000, ///< RIP ????
@@ -1924,6 +1918,12 @@ enum Opcodes
     SMSG_SERVER_BUCK_DATA                               = 0x0000,
     SMSG_SERVER_BUCK_DATA_START                         = 0x0000,
     SMSG_SHOW_MAILBOX                                   = 0x0000,
+    SMSG_GM_TICKET_GET_TICKET_RESPONSE                  = 0x0000,
+    SMSG_GM_TICKET_RESPONSE                             = 0x0000,
+    SMSG_GM_TICKET_RESPONSE_ERROR                       = 0x0000,
+    SMSG_GM_TICKET_RESOLVE_RESPONSE                     = 0x0000,
+    SMSG_GM_TICKET_UPDATE                               = 0x0000,
+    SMSG_GM_TICKET_STATUS_UPDATE                        = 0x0000,
 };
 
 /// Player state

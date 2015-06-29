@@ -816,8 +816,8 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& p_RecvPacket)
     uint32 l_SpellID;
     uint64 l_PetGUID;
 
-    l_SpellID = p_RecvPacket.read<uint32>();
     p_RecvPacket.readPackGUID(l_PetGUID);
+    l_SpellID = p_RecvPacket.read<uint32>();
 
     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(l_SpellID);
     if (!l_SpellInfo)
