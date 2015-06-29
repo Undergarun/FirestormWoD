@@ -20526,9 +20526,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder* holder, SQLQueryHolder* p_L
         if (HasAura(15007))
             MalDeRez = true;
 
-
         RemoveAllAuras();
         RemoveFromGroup();
+        CleanupAfterTaxiFlight();
 
         if (BGdesert)
             AddAura(26013, this);
