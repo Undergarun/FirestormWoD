@@ -2053,16 +2053,12 @@ void OutdoorPvPAshran::InitializeEvents()
     uint32 l_TimerInterval = eAshranDatas::AshranEventTimer * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS / eAshranEvents::MaxEvents;
     for (uint8 l_Index = 0; l_Index < eAshranEvents::MaxEvents; ++l_Index)
     {
-        if (l_Index != eAshranEvents::EventKorlokTheOgreKing &&
-            l_Index != eAshranEvents::EventStadiumRacing)   ///< Just Kor'lok and Stadium Racing yet
+        if (l_Index != eAshranEvents::EventKorlokTheOgreKing)   ///< Just Kor'lok and Stadium Racing yet
             break;
 
         l_Timer += l_TimerInterval;
         m_AshranEvents[l_Index] = l_Timer;
     }
-
-    /// DEBUG
-    m_AshranEvents[eAshranEvents::EventStadiumRacing] = 185 * TimeConstants::IN_MILLISECONDS;
 }
 
 void OutdoorPvPAshran::SetBattleState(uint32 p_NewState)
