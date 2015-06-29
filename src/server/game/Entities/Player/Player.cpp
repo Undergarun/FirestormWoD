@@ -9566,142 +9566,151 @@ void Player::ModifyCurrencyAndSendToast(uint32 id, int32 count, bool printLog/* 
     SendDisplayToast(id, count, DISPLAY_TOAST_METHOD_CURRENCY_OR_GOLD, TOAST_TYPE_NEW_CURRENCY, false, false);
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool ignoreLimit /* = false */)
+void Player::ModifyCurrency(uint32 p_CurrencyID, int32 p_Count, bool printLog/* = true*/, bool p_IgnoreMultipliers/* = false*/, bool p_IgnoreLimit /* = false */)
 {
-    if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && count >= 0 &&
-            (id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
-            || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG
-            || id == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
+    if (!sWorld->getBoolConfig(WorldBoolConfigs::CONFIG_ARENA_SEASON_IN_PROGRESS) && p_Count >= 0 &&
+            (  p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_RBG
+            || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_META_ARENA_BG
+            || p_CurrencyID == CurrencyTypes::CURRENCY_TYPE_CONQUEST_POINTS))
         return;
 
-    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
-    if (!currency || !count)
+    CurrencyTypesEntry const* l_CurrencyEntry = sCurrencyTypesStore.LookupEntry(p_CurrencyID);
+    if (!l_CurrencyEntry || !p_Count)
         return;
 
-    if (!ignoreMultipliers)
-        count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
+    if (!p_IgnoreMultipliers)
+        p_Count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, p_CurrencyID);
 
-    int32 precision = currency->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
-    uint32 oldTotalCount = 0;
-    uint32 oldWeekCount = 0;
-    uint32 oldSeasonTotalCount = 0;
+    int32 l_Precision = l_CurrencyEntry->Flags & CURRENCY_FLAG_HIGH_PRECISION ? CURRENCY_PRECISION : 1;
+    uint32 l_OldTotalCount          = 0;
+    uint32 l_OldWeekCount           = 0;
+    uint32 l_OldSeasonTotalCount    = 0;
 
-    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
+    PlayerCurrenciesMap::iterator l_CurrencyIT = _currencyStorage.find(p_CurrencyID);
+    if (l_CurrencyIT == _currencyStorage.end())
     {
-        PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.totalCount = 0;
-        cur.weekCount = 0;
-        cur.seasonTotal = 0;
-        cur.flags = 0;
-        cur.weekCap = CalculateCurrencyWeekCap(id);
-        cur.needResetCap = false;
-        _currencyStorage[id] = cur;
-        itr = _currencyStorage.find(id);
+        PlayerCurrency l_NewCurrency;
+        l_NewCurrency.state         = PLAYERCURRENCY_NEW;
+        l_NewCurrency.totalCount    = 0;
+        l_NewCurrency.weekCount     = 0;
+        l_NewCurrency.seasonTotal   = 0;
+        l_NewCurrency.flags         = 0;
+        l_NewCurrency.weekCap       = CalculateCurrencyWeekCap(p_CurrencyID);
+        l_NewCurrency.needResetCap  = false;
+
+        _currencyStorage[p_CurrencyID] = l_NewCurrency;
+        l_CurrencyIT = _currencyStorage.find(p_CurrencyID);
+
+        l_OldTotalCount       = 0;
+        l_OldWeekCount        = 0;
+        l_OldSeasonTotalCount = 0;
     }
     else
     {
-        oldTotalCount = itr->second.totalCount;
-        oldWeekCount = itr->second.weekCount;
-        oldSeasonTotalCount = itr->second.seasonTotal;
+        l_OldTotalCount       = l_CurrencyIT->second.totalCount;
+        l_OldWeekCount        = l_CurrencyIT->second.weekCount;
+        l_OldSeasonTotalCount = l_CurrencyIT->second.seasonTotal;
     }
 
-    // count can't be more then weekCap.
-    uint32 weekCap = GetCurrencyWeekCap(currency->ID);
-    if (!ignoreLimit && weekCap && count > int32(weekCap))
-        count = weekCap;
+    /// count can't be more then weekCap.
+    uint32 l_WeekCap = GetCurrencyWeekCap(l_CurrencyEntry->ID);
+    if (!p_IgnoreLimit && l_WeekCap && p_Count > int32(l_WeekCap))
+        p_Count = l_WeekCap;
 
-    int32 newTotalCount = int32(oldTotalCount) + count;
-    if (newTotalCount < 0)
-        newTotalCount = 0;
+    int32 l_NewTotalCount = int32(l_OldTotalCount) + p_Count;
+    if (l_NewTotalCount < 0)
+        l_NewTotalCount = 0;
 
-    int32 newWeekCount = !ignoreLimit ? (int32(oldWeekCount) + (count > 0 ? count : 0)) : int32(oldWeekCount);
-    if (newWeekCount < 0)
-        newWeekCount = 0;
+    int32 l_NewWeekCount = !p_IgnoreLimit ? (int32(l_OldWeekCount) + (p_Count > 0 ? p_Count : 0)) : int32(l_OldWeekCount);
+    if (l_NewWeekCount < 0)
+        l_NewWeekCount = 0;
 
-    int32 newSeasonTotalCount = !ignoreLimit ? (int32(oldSeasonTotalCount) + (count > 0 ? count : 0)) : int32(oldSeasonTotalCount);
+    int32 l_NewSeasonTotalCount = !p_IgnoreLimit ? (int32(l_OldSeasonTotalCount) + (p_Count > 0 ? p_Count : 0)) : int32(l_OldSeasonTotalCount);
 
-    if (!ignoreLimit)
+    if (!p_IgnoreLimit)
     {
-        // if we get more then weekCap just set to limit
-        if (weekCap && int32(weekCap) < newWeekCount)
+        /// if we get more then weekCap just set to limit
+        if (l_WeekCap && int32(l_WeekCap) < l_NewWeekCount)
         {
-            newWeekCount = int32(weekCap);
-            // weekCap - oldWeekCount alwayt >= 0 as we set limit before!
-            newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
+            l_NewWeekCount = int32(l_WeekCap);
+            /// weekCap - oldWeekCount alwayt >= 0 as we set limit before!
+            l_NewTotalCount = l_OldTotalCount + (l_WeekCap - l_OldWeekCount);
         }
 
-        // if we get more then totalCap set to maximum;
-        if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+        /// if we get more then totalCap set to maximum;
+        if (l_CurrencyEntry->TotalCap && int32(l_CurrencyEntry->TotalCap) < l_NewTotalCount)
         {
-            newTotalCount = int32(currency->TotalCap);
-            newWeekCount = weekCap;
+            l_NewTotalCount = int32(l_CurrencyEntry->TotalCap);
+            l_NewWeekCount = l_WeekCap;
         }
     }
 
-    if (newWeekCount < 0)
-        newWeekCount = 0;
-    if (newTotalCount < 0)
-        newTotalCount = 0;
+    if (l_NewWeekCount < 0)
+        l_NewWeekCount = 0;
+    if (l_NewTotalCount < 0)
+        l_NewTotalCount = 0;
 
-    if (id == CURRENCY_TYPE_HONOR_POINTS || id == CURRENCY_TYPE_JUSTICE_POINTS)
+    if (p_CurrencyID == CURRENCY_TYPE_HONOR_POINTS || p_CurrencyID == CURRENCY_TYPE_JUSTICE_POINTS)
     {
-        newWeekCount = newTotalCount;
-        weekCap = 0;
+        l_NewWeekCount = l_NewTotalCount;
+        l_WeekCap = 0;
     }
 
-    if (uint32(newTotalCount) != oldTotalCount)
+    if (uint32(l_NewTotalCount) != l_OldTotalCount)
     {
-        if (itr->second.state != PLAYERCURRENCY_NEW)
-            itr->second.state = PLAYERCURRENCY_CHANGED;
+        if (l_CurrencyIT->second.state != PLAYERCURRENCY_NEW)
+            l_CurrencyIT->second.state = PLAYERCURRENCY_CHANGED;
 
-        itr->second.totalCount = newTotalCount;
-        itr->second.weekCount = newWeekCount;
-        itr->second.seasonTotal = newSeasonTotalCount;
+        l_CurrencyIT->second.totalCount = l_NewTotalCount;
+        l_CurrencyIT->second.weekCount = l_NewWeekCount;
+        l_CurrencyIT->second.seasonTotal = l_NewSeasonTotalCount;
 
         // probably excessive checks
         if (IsInWorld() && !GetSession()->PlayerLoading())
         {
-            if (count > 0 && !ignoreLimit)
-                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
+            if (p_Count > 0 && !p_IgnoreLimit)
+                UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, p_CurrencyID, p_Count);
 
-            if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
+            if (l_CurrencyEntry->Category == CURRENCY_CATEGORY_META_CONQUEST)
             {
                 // count was changed to week limit, now we can modify original points.
-                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog);
+                ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, p_Count, printLog);
                 return;
             }
 
-            if (id == CURRENCY_TYPE_CONQUEST_POINTS)
+            if (p_CurrencyID == CURRENCY_TYPE_CONQUEST_POINTS)
                 SendPvpRewards();
 
+            /// Update archaeology projects
+            if (l_CurrencyEntry->Flags & CURRENCY_FLAG_ARCHAEOLOGY_FRAGMENT && GetSkillValue(SKILL_ARCHAEOLOGY))
+                m_archaeologyMgr.GenerateResearchProjects();
+
              // on new case just set init.
-            if (itr->second.state == PLAYERCURRENCY_NEW)
+            if (l_OldTotalCount == 0 && l_CurrencyIT->second.state == PLAYERCURRENCY_NEW)
             {
-                itr->second.weekCap = CalculateCurrencyWeekCap(id);
+                l_CurrencyIT->second.weekCap = CalculateCurrencyWeekCap(p_CurrencyID);
                 SendCurrencies();
                 return;
             }
 
-            WorldPacket packet(SMSG_UPDATE_CURRENCY);
+            WorldPacket l_Packet(SMSG_UPDATE_CURRENCY);
 
-            packet << uint32(id);
-            packet << uint32(newTotalCount);
-            packet << uint32(0);                        // Flags
+            l_Packet << uint32(p_CurrencyID);
+            l_Packet << uint32(l_NewTotalCount);
+            l_Packet << uint32(0);                        // Flags
 
-            packet.WriteBit(weekCap != 0);
-            packet.WriteBit(itr->second.seasonTotal);
-            packet.WriteBit(0);                         // SuppressChatLog
-            packet.FlushBits();
+            l_Packet.WriteBit(l_WeekCap != 0);
+            l_Packet.WriteBit(l_CurrencyIT->second.seasonTotal);
+            l_Packet.WriteBit(0);                         // SuppressChatLog
+            l_Packet.FlushBits();
 
-            if (weekCap)
-                packet << uint32(newWeekCount);
+            if (l_WeekCap)
+                l_Packet << uint32(l_NewWeekCount);
 
-            if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal);
+            if (l_CurrencyIT->second.seasonTotal)
+                l_Packet << uint32(l_CurrencyIT->second.seasonTotal);
 
-            GetSession()->SendPacket(&packet);
+            GetSession()->SendPacket(&l_Packet);
         }
     }
 }
