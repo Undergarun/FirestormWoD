@@ -2750,6 +2750,7 @@ class Unit : public WorldObject
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         TimeTrackerSmall m_movesplineTimer;
+        TimeTrackerSmall m_FlightSplineSyncTimer;
 
         uint64 simulacrumTargetGUID;
         uint64 iciclesTargetGUID;

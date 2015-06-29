@@ -160,10 +160,7 @@ class debug_commandscript: public CommandScript
 
             if (Unit* l_Target = p_Handler->getSelectedUnit())
             {
-                WorldPacket l_Data(Opcodes::SMSG_ADJUST_SPLINE_DURATION);
-                l_Data.appendPackGUID(l_Target->GetGUID());
-                l_Data << float(l_Value);
-                l_Target->SendMessageToSetInRange(&l_Data, l_Target->GetVisibilityRange(), false);
+                l_Target->SendAdjustSplineDuration(l_Value);
                 return true;
             }
             else
@@ -188,10 +185,7 @@ class debug_commandscript: public CommandScript
 
             if (Unit* l_Target = p_Handler->getSelectedUnit())
             {
-                WorldPacket l_Data(Opcodes::SMSG_FLIGHT_SPLINE_SYNC);
-                l_Data.appendPackGUID(l_Target->GetGUID());
-                l_Data << float(l_Value);
-                l_Target->SendMessageToSetInRange(&l_Data, l_Target->GetVisibilityRange(), false);
+                l_Target->SendFlightSplineSync(l_Value);
                 return true;
             }
             else
