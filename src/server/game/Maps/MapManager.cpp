@@ -171,6 +171,10 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         return false;
 
     Difficulty targetDifficulty = player->GetDifficultyID(entry);
+
+    if (entry->MapID == player->GetGarrisonMapID())
+        targetDifficulty = Difficulty::DifficultyNormal;
+
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
     MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)

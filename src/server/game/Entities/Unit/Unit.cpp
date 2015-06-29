@@ -7863,6 +7863,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 130551: ///< Word of GLory
+                        case 85222: ///< Light of Dawn
                         {
                             float mastery = ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f;
                             basepoints0 = int32(damage * float(mastery / 100.0f));
@@ -9214,13 +9216,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 // Greater Heal Refund
                 if (auraSpellInfo->Id == 37594)
                     trigger_spell_id = 37595;
-
-                // Glyph of Mass Dispel
-                if (auraSpellInfo->Id == 32375)
-                {
-                    if (HasAura(55691))
-                        trigger_spell_id = 39897;
-                }
                 break;
             }
             case SPELLFAMILY_DRUID:
@@ -11635,6 +11630,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     // small exception for Echo of Light, can't find any general rule
     // should ignore ALL damage mods, they already calculated in trigger spell
     if (spellProto->Id == 77489 || spellProto->Id == 12654) // Echo of Light and Ignite
+        return pdamage;
+
+    /// small exception for Prismatic Crystal, can't find any general rule
+    /// should ignore ALL damage mods, they already calculated in trigger spell
+    if (spellProto->Id == 155152)
         return pdamage;
 
     // For totems get damage bonus from owner
@@ -17546,7 +17546,7 @@ Player* Unit::GetSpellModOwner() const
 
 ///----------Pet responses methods-----------------
 
-void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
+void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result, uint8 p_CastCount)
 {
     if (p_Result == SPELL_CAST_OK)
         return;
@@ -17561,7 +17561,7 @@ void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
     l_Data << uint32(p_Result);                             ///< Reason
     l_Data << uint32(0);                                    ///< FailedArg1
     l_Data << uint32(0);                                    ///< FailedArg2
-    l_Data << uint8(0);                                     ///< CastID
+    l_Data << uint8(p_CastCount);                           ///< CastID
 
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }

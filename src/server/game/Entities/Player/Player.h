@@ -1637,7 +1637,8 @@ class Player : public Unit, public GridObject<Player>
 
         MS::Garrison::Manager * GetGarrison();
         void CreateGarrison();
-        bool IsInGarrison();
+        bool IsInGarrison() const;
+        int32 GetGarrisonMapID() const;
         void DeleteGarrison();
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = NULL, BarberShopStyleEntry const* p_NewFace = nullptr);

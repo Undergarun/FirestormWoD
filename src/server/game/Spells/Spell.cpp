@@ -2972,7 +2972,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        m_comboPointGain += 1;
                         l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }
@@ -3184,8 +3184,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    // Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
+    /// Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune

@@ -175,35 +175,35 @@ class spell_warl_grimoire_of_service: public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Unit* caster = GetCaster())
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+
+                for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
                 {
-                    if (Unit* target = GetHitUnit())
+                    switch ((*itr)->GetEntry())
                     {
-                        for (Unit::ControlList::const_iterator itr = caster->m_Controlled.begin(); itr != caster->m_Controlled.end(); ++itr)
-                        {
-                            switch ((*itr)->GetEntry())
-                            {
-                                case ENTRY_IMP:
-                                    (*itr)->CastSpell(caster, WARLOCK_DEMON_SINGLE_MAGIC, false);
-                                    if ((*itr)->ToCreature() && (*itr)->ToCreature()->AI())
-                                        (*itr)->ToCreature()->AI()->AttackStart(target);
-                                    break;
-                                case ENTRY_VOIDWALKER:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SUFFERING, false);
-                                    break;
-                                case ENTRY_SUCCUBUS:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SEDUCE, false);
-                                    break;
-                                case ENTRY_FELHUNTER:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_SPELL_LOCK, false);
-                                    break;
-                                case ENTRY_FELGUARD:
-                                    (*itr)->CastSpell(target, WARLOCK_DEMON_AXE_TOSS, false);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                    case ENTRY_IMP:
+                        (*itr)->CastSpell(l_Caster, WARLOCK_DEMON_SINGLE_MAGIC, true);
+                        if ((*itr)->ToCreature() && (*itr)->ToCreature()->AI())
+                            (*itr)->ToCreature()->AI()->AttackStart(l_Target);
+                        break;
+                    case ENTRY_VOIDWALKER:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SUFFERING, true);
+                        break;
+                    case ENTRY_SUCCUBUS:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SEDUCE, true);
+                        break;
+                    case ENTRY_FELHUNTER:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_SPELL_LOCK, true);
+                        break;
+                    case ENTRY_FELGUARD:
+                        (*itr)->CastSpell(l_Target, WARLOCK_DEMON_AXE_TOSS, true);
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -1291,7 +1291,7 @@ class spell_warl_dark_regeneration: public SpellScriptLoader
 
 /// Called by Haunt - 48181, Drain soul - 103103,
 /// Shadow Bolt - 686, Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Touch of Chaos - 103964,
-/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877
+/// Soul Fire - 6353, Soul Fire (Metamorphosis) - 104027, Incinerate - 29722, ShadowBurn - 17877, Chaos bolt - 116858
 /// Soul Leech - 108370
 class spell_warl_soul_leech: public SpellScriptLoader
 {
@@ -3319,7 +3319,7 @@ public:
 };
 
 /// last update : 6.1.2 19802
-/// Fel Firebolt - 104318
+/// Fel Firebolt - 104318, Firebolt - 3110
 class spell_warl_fel_firebolt : public SpellScriptLoader
 {
     public:
@@ -3333,11 +3333,17 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
             {
                 Unit* l_Caster = GetCaster();
                 Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
 
-                if (l_Owner == nullptr)
+                if (l_Owner == nullptr || l_Target == nullptr)
                     return;
 
-                SetHitDamage(GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL));
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
             }
 
             void Register()
@@ -3349,6 +3355,50 @@ class spell_warl_fel_firebolt : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_fel_firebolt_SpellScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Doom Bolt - 85692
+class spell_warl_doom_bolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_doom_bolt() : SpellScriptLoader("spell_warl_doom_bolt") { }
+
+        class spell_warl_doom_bolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_doom_bolt_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr || l_Target == nullptr)
+                    return;
+
+                int32 l_Damage = GetSpellInfo()->Effects[EFFECT_0].BonusMultiplier * l_Owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
+
+                /// If target has less then 20% damage we should increase damage by 20%
+                if (l_Target->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].BasePoints)
+                    AddPct(l_Damage, GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_doom_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_doom_bolt_SpellScript();
         }
 };
 
@@ -3521,6 +3571,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_WoDPvPDestruction2PBonus();
     new spell_warl_fel_firebolt();
     new spell_warl_grimoire_of_supremacy_effect();
+    new spell_warl_doom_bolt();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }

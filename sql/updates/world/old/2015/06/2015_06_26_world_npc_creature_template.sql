@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id = 26573 AND ScriptName IN ("spell_pal_consecration", "spell_pal_consecration_area");
+UPDATE creature_template SET ScriptName = "npc_consecration" WHERE entry = 43499;

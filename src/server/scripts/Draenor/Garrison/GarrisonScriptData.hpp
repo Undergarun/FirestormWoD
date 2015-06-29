@@ -45,38 +45,45 @@ namespace MS { namespace Garrison
     };
 
     /// Garrison Quests
-    enum Quests
+    namespace Quests
     {
-        /// Alliance
-        QUEST_ETABLISH_YOUR_GARRISON_A              = 34586,
-        QUEST_KEEPING_IT_TOGETHER                   = 35176,
-        QUEST_SHIP_SALVAGE                          = 35166,
-        QUEST_PALE_MOONLIGHT                        = 35174,
-        Alliance_LostInTransition                   = 37087,
-        Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
-        Alliance_BiggerIsBetter                     = 36592,
-        Alliance_YourFirstAlchemyWorkOrder          = 36641,
-        Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
-        Alliance_YourFirstEnchantingWorkOrder       = 36645,
-        Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
-        Alliance_YourFirstEngineeringWorkOrder      = 36646,
-        Alliance_YourFirstInscriptionWorkOrder      = 36647,
+        enum
+        {
+            /// Alliance
+            QUEST_ETABLISH_YOUR_GARRISON_A              = 34586,
+            QUEST_KEEPING_IT_TOGETHER                   = 35176,
+            QUEST_SHIP_SALVAGE                          = 35166,
+            QUEST_PALE_MOONLIGHT                        = 35174,
+            Alliance_LostInTransition                   = 37087,
+            Alliance_BiggerIsBetter                     = 36592,
+            /// Small profession building quests
+            Alliance_YourFirstBlacksmithingWorkOrder    = 35168,
+            Alliance_YourFirstAlchemyWorkOrder          = 36641,
+            Alliance_YourFirstLeatherworkingWorkOrder   = 36642,
+            Alliance_YourFirstEnchantingWorkOrder       = 36645,
+            Alliance_YourFirstJewelcraftingWorkOrder    = 36644,
+            Alliance_YourFirstEngineeringWorkOrder      = 36646,
+            Alliance_YourFirstInscriptionWorkOrder      = 36647,
+            /// Herb garden
+            Alliance_ClearingTheGarden                  = 36404,
 
-        /// Horde
-        QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
-        QUEST_WHAT_WE_GOT                         = 34824,
-        QUEST_BUILD_YOUR_BARRACKS                 = 34461,
-        Horde_LostInTransition                    = 37060,
-        Horde_YourFirstBlacksmithingWorkOrder     = 37569,
-        Horde_BiggerIsBetter                      = 36567,
-        Horde_YourFirstTailoringWorkOrder         = 37575,
-        Horde_YourFirstAlchemyWorkOrder           = 37568,
-        Horde_YourFirstLeatherworkingWorkOrder    = 37574,
-        Horde_YourFirstEnchantingWorkOrder        = 37570,
-        Horde_YourFirstJewelcraftingWorkOrder     = 37573,
-        Horde_YourFirstEngineeringWorkOrder       = 37571,
-        Horde_YourFirstInscriptionWorkOrder       = 37572
-    };
+            /// Horde
+            QUEST_ETABLISH_YOUR_GARRISON_H            = 34378,
+            QUEST_WHAT_WE_GOT                         = 34824,
+            QUEST_BUILD_YOUR_BARRACKS                 = 34461,
+            Horde_LostInTransition                    = 37060,
+            Horde_BiggerIsBetter                      = 36567,
+            /// Small profession building quests
+            Horde_YourFirstBlacksmithingWorkOrder     = 37569,
+            Horde_YourFirstTailoringWorkOrder         = 37575,
+            Horde_YourFirstAlchemyWorkOrder           = 37568,
+            Horde_YourFirstLeatherworkingWorkOrder    = 37574,
+            Horde_YourFirstEnchantingWorkOrder        = 37570,
+            Horde_YourFirstJewelcraftingWorkOrder     = 37573,
+            Horde_YourFirstEngineeringWorkOrder       = 37571,
+            Horde_YourFirstInscriptionWorkOrder       = 37572
+        };
+    }   ///< namespace Quests
 
     /// Garrison achievement related
     enum Achievements
@@ -101,17 +108,21 @@ namespace MS { namespace Garrison
     };
 
     /// NPC texts id
-    enum NPCTexts
+    namespace NPCTexts
     {
-        NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_1        = 85492,
-        NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_2        = 85490,
-        NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_3        = 85493,
-        NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST    = 83682,
-        NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
-        NPC_TEXT_LADY_SENA                           = 82232,
-        NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
-        NPC_TEXT_SENIOR_PEON_II                      = 88704,
-    };
+        enum
+        {
+            NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_1        = 85492,
+            NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_2        = 85490,
+            NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_3        = 85493,
+            NPC_TEXT_ASSISTANT_BRIGHTSTONE_TEXT_QUEST    = 83682,
+            NPC_TEXT_SHELLY_HAMBY_TEXT_QUEST             = 83505,
+            NPC_TEXT_LADY_SENA                           = 82232,
+            NPC_TEXT_SERGENT_GRIMJAW                     = 84128,
+            NPC_TEXT_SENIOR_PEON_II                      = 88704,
+            OllyNimkipDefault                            = 86941
+        };
+    }   ///< namespace NPCTexts
 
     /// Creature text index
     enum CreatureTexts

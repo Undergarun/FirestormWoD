@@ -8,8 +8,8 @@
 #ifndef GARRISON_FISHING_HUT_ALLIANCE_HPP_GARRISON
 #define GARRISON_FISHING_HUT_ALLIANCE_HPP_GARRISON
 
-#include "../../../GarrisonScriptData.hpp"
-#include "../../../GarrisonNPC.hpp"
+#include "../../GarrisonScriptData.hpp"
+#include "../../GarrisonNPC.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
