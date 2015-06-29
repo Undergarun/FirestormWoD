@@ -1881,9 +1881,11 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 110078:
         case 106498:
         case 106368:
+        case 133755:
+        case 140013:
             if (!player)
                 return SPELL_CAST_OK;
-            return (area_id == 5928) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+            return (area_id == 5928 || area_id == 6622) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         case 103755: // Twilight Epiphany, Archbishop Benedictus, Hour of Twilight
             return ((map_id == 940 && area_id == 5845) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA);
         case 105009: // Gift of Sargeras, Well of Eternity
@@ -3940,6 +3942,30 @@ bool SpellInfo::IsPoisonOrBleedSpell() const
         case 112961:///< Leeching Poison
         case 113780:///< Deadly Poison (direct damage)
         case 122233:///< Crimson Tempest (DoT)
+            return true;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool SpellInfo::IsCustomChecked() const
+{
+    switch (Id)
+    {
+        case 136955:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136956:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136957:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136958:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136959:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 136960:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138671:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138672:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138673:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138674:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138675:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
+        case 138676:///< Anima Ring (Triggered) (Dark Animus - Throne of Thunder)
             return true;
         default:
             break;

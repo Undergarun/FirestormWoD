@@ -1,5 +1,4 @@
 ﻿/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2576,6 +2575,11 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 {
     if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
         return MELEE_HIT_MISS;
+
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (victim->ToCreature() && victim->IsAIEnabled)
+        ((Unit*)victim)->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, (Unit*)this);
 
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
@@ -9109,6 +9113,33 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
                         target = victim;
                         break;
+                    case 139316:            ////< Putrify (Dark Animus trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 139317;
+                        target = victim;
+                        break;
+                    }
+                    case 140296:            ///< Conductive Shield (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 140299;
+                        target = victim;
+                        break;
+                    }
+                    case 138201:            /// Lei Shen's gift (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 138210;
+                        target = victim;
+                        break;
+                    }
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
@@ -13798,11 +13829,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
                 continue;
         }
-        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-        {
-            if (!(mountCapability->Flags & 0x2))
-                continue;
-        }
 
         if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
             continue;
@@ -14341,6 +14367,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         SetPower(power, maxPower);
         gain = maxPower - curPower;
     }
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->PowerModified(getPowerType(), GetPower(getPowerType()));
 
     return gain;
 }

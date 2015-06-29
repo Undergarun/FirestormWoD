@@ -16,7 +16,6 @@ enum Spells
     SPELL_SPIRIT_BOLTS              = 43383,
     SPELL_DRAIN_POWER               = 44131,
     SPELL_SIPHON_SOUL               = 43501,
-
     
     SPELL_FLASH_HEAL                = 43575,
     SPELL_DISPEL_MAGIC              = 43577,
@@ -162,6 +161,7 @@ static PlayerAbilityStruct PlayerAbility[][3] =
     {SPELL_DR_MOONFIRE, ABILITY_TARGET_ENEMY, 8000}}
 };
 
+/// 24239 - Hex Lord Malacrass
 class boss_hex_lord_malacrass : public CreatureScript
 {
     public:
@@ -196,6 +196,8 @@ class boss_hex_lord_malacrass : public CreatureScript
             void Reset()
             {
                 _Reset();
+
+                events.Reset();
 
                 switch (urand(0, 5))
                 {
@@ -250,6 +252,11 @@ class boss_hex_lord_malacrass : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (GameObject* l_WoodenDoor = instance->instance->GetGameObject(instance->GetData64(GO_MALACRASS_EXIT)))
+                {
+                    if (l_WoodenDoor->GetGoState() == GO_STATE_READY)
+                        l_WoodenDoor->SetGoState(GO_STATE_ACTIVE);
+                }
                 _JustDied();
                 Talk(SAY_DEATH);
             }
@@ -282,11 +289,11 @@ class boss_hex_lord_malacrass : public CreatureScript
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             {
                                 PlayerClass = pTarget->getClass() - 1;
-				if (PlayerClass > 9)
-					PlayerClass = 0;
-                                if (PlayerClass == CLASS_DRUID-1)
+                                if (PlayerClass > 9)
+                                    PlayerClass = 0;
+                                if (PlayerClass == CLASS_DRUID - 1)
                                     PlayerClass = CLASS_DRUID;
-                                else if (PlayerClass == CLASS_PRIEST-1 && pTarget->HasSpell(15473))
+                                else if (PlayerClass == CLASS_PRIEST - 1 && pTarget->HasSpell(15473))
                                     PlayerClass = CLASS_PRIEST; // shadow priest
 
                                 DoCast(pTarget, SPELL_SIPHON_SOUL);
@@ -328,12 +335,12 @@ class boss_hex_lord_malacrass : public CreatureScript
                         target = DoSelectLowestHpFriendly(50, 0);
                         break;
                     case ABILITY_TARGET_BUFF:
-                        {
-                            std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, PlayerAbility[PlayerClass][random].spell);
-                            if (!templist.empty())
-                                target = *(templist.begin());
-                        }
+                    {
+                        std::list<Creature*> templist = DoFindFriendlyMissingBuff(50, PlayerAbility[PlayerClass][random].spell);
+                        if (!templist.empty())
+                            target = *(templist.begin());
                         break;
+                    }
                 }
                 if (target)
                     DoCast(target, PlayerAbility[PlayerClass][random].spell, false);
@@ -341,6 +348,7 @@ class boss_hex_lord_malacrass : public CreatureScript
         };
 };
 
+/// 24240 - Alyson Antille
 class npc_alyson_antille : public CreatureScript
 {
     public:
@@ -354,9 +362,7 @@ class npc_alyson_antille : public CreatureScript
 
         struct npc_alyson_antilleAI : public ScriptedAI
         {
-            npc_alyson_antilleAI(Creature* pCreature) : ScriptedAI(pCreature)
-            {
-            }
+            npc_alyson_antilleAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
             uint32 flashheal_timer;
             uint32 dispelmagic_timer;
@@ -388,20 +394,21 @@ class npc_alyson_antille : public CreatureScript
                     }
                     else
                     {
-                        if (urand(0, 1))
-                            target = DoSelectLowestHpFriendly(50, 0);
-                        else
-                            target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                        target = urand(0, 1) ? DoSelectLowestHpFriendly(50, 0) : SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
                             DoCast(target, SPELL_DISPEL_MAGIC, false);
                     }
                     flashheal_timer = 2500;
-                } else flashheal_timer -= diff;
+                }
+                else
+                    flashheal_timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
         };
 };
+
+/// 24244 - Gazakroth
 class npc_gazakroth : public CreatureScript
 {
     public:
@@ -431,15 +438,19 @@ class npc_gazakroth : public CreatureScript
 
                 if (firebolt_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FIREBOLT, false);
+                    if (Unit* l_Victim = me->getVictim())
+                        DoCast(l_Victim, SPELL_FIREBOLT, false);
                     firebolt_timer = 700;
-                } else firebolt_timer -= diff;
+                }
+                else
+                    firebolt_timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
         };
 };
 
+/// 24246 - Darkheart
 class npc_darkheart : public CreatureScript
 {
     public:
@@ -461,6 +472,7 @@ class npc_darkheart : public CreatureScript
             {
                 psychicwail_timer = 8000;
             }
+
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
@@ -470,7 +482,9 @@ class npc_darkheart : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_PSYCHIC_WAIL, false);
                     psychicwail_timer = 12000;
-                } else psychicwail_timer -= diff;
+                }
+                else
+                    psychicwail_timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -478,7 +492,7 @@ class npc_darkheart : public CreatureScript
 };
 
 
-
+/// 43522 - Unstable Affliction
 class npc_slither : public CreatureScript
 {
     public:
@@ -554,11 +568,11 @@ class spell_hexlord_unstable_affliction: public SpellScriptLoader
 
 void AddSC_boss_hex_lord_malacrass()
 {
-    new boss_hex_lord_malacrass();
-    new npc_gazakroth();
-    new npc_darkheart();
-    new npc_slither();
-    new npc_alyson_antille();
-    new spell_hexlord_unstable_affliction();
+    new boss_hex_lord_malacrass();              ///< 24239
+    new npc_gazakroth();                        ///< 24244
+    new npc_darkheart();                        ///< 24246
+    new npc_slither();                          ///< 24242
+    new npc_alyson_antille();                   ///< 24240
+    new spell_hexlord_unstable_affliction();    ///< 43522
 }
 
