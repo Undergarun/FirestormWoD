@@ -14596,6 +14596,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
+    float l_OldRate = m_speed_rate[p_MovementType];
     m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
@@ -14626,6 +14627,10 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
+
+                if (!movespline->Finalized())
+                    l_MustAdjustSplineDuration = true;
+
                 break;
             }
             case MOVE_RUN_BACK:
@@ -14866,8 +14871,21 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     }
 
     /// Adjust Spline duration for client
-    if (l_MustAdjustSplineDuration)
-        SendAdjustSplineDuration(0.0f);
+    if (l_MustAdjustSplineDuration && m_speed_rate[p_MovementType] != 0.0f)
+    {
+        float l_Scale = l_OldRate / m_speed_rate[p_MovementType];
+        if (l_Scale != 1.0f)
+        {
+            SendAdjustSplineDuration(l_Scale);
+
+            if (l_Scale > 1.0f)
+                movespline->RemoveDurationMod(l_Scale);
+            else
+                movespline->AddDurationMod(l_Scale);
+
+            movespline->RecalculateLengths();
+        }
+    }
 }
 
 void Unit::SendAdjustSplineDuration(float p_Scale)

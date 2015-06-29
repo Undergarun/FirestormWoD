@@ -67,11 +67,15 @@ namespace Movement
         //float           duration_mod_next;
         float           vertical_acceleration;
         float           initialOrientation;
+        float           m_Velocity;
+        float           m_DurationMod;
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
 
         void init_spline(const MoveSplineInitArgs& args);
+        void RecalculateLengths();
+
     public:
 
         const MySpline::ControlArray& getPath() const { return spline.getPoints(); }
@@ -125,6 +129,19 @@ namespace Movement
 
         bool onTransport;
         std::string ToString() const;
+        void SetDurationMod(float p_Mod) { m_DurationMod = p_Mod; }
+        void AddDurationMod(float p_Mod)
+        {
+            m_DurationMod *= p_Mod;
+            printf("MoveSpline::AddDurationMod(%f) => new mod [%f]\r\n", p_Mod, m_DurationMod);
+        }
+        void RemoveDurationMod(float p_Mod)
+        {
+            if (p_Mod == 0.0f)
+                return;
+            m_DurationMod /= (1.0f / p_Mod);
+            printf("MoveSpline::RemoveDurationMod(%f) => new mod [%f]\r\n", p_Mod, m_DurationMod);
+        }
     };
 }
 #endif // TRINITYSERVER_MOVEPLINE_H

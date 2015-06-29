@@ -112,13 +112,16 @@ enum{
 
 struct CommonInitializer
 {
-    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) {}
-    float velocityInv;
-    int32 time;
-    inline int32 operator()(Spline<int32>& s, int32 i)
+    CommonInitializer(float p_Velocity, float p_DurationMod = 1.0f) : m_Velocity(1000.f / p_Velocity), m_DurationMod(p_DurationMod), m_Time(minimal_duration) {}
+
+    float m_Velocity;
+    float m_DurationMod;
+    int32 m_Time;
+
+    inline int32 operator()(Spline<int32>& p_Spline, int32 p_Index)
     {
-        time += (s.SegLength(i) * velocityInv);
-        return time;
+        m_Time += (p_Spline.SegLength(p_Index) * m_Velocity);
+        return m_Time * m_DurationMod;
     }
 };
 
@@ -159,6 +162,18 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     point_Idx = spline.first();
 }
 
+void MoveSpline::RecalculateLengths()
+{
+    CommonInitializer l_Initializer(m_Velocity, m_DurationMod);
+    spline.initLengths(l_Initializer);
+
+    if (spline.length() < Movement::minimal_duration)
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "MoveSpline::init_spline: zero length spline, wrong input data?");
+        spline.set_length(spline.last(), spline.isCyclic() ? 1 * TimeConstants::IN_MILLISECONDS : 1);
+    }
+}
+
 void MoveSpline::Initialize(const MoveSplineInitArgs& args)
 {
     splineflags = args.flags;
@@ -170,6 +185,8 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     onTransport = false;
     time_passed = 0;
     vertical_acceleration = 0.f;
+    m_Velocity = args.velocity;
+    m_DurationMod = 1.0f;
     effect_start_time = 0;
 
     // Check if its a stop spline

@@ -896,6 +896,14 @@ class spell_ashran_horde_and_alliance_racer : public SpellScriptLoader
                                 return false;
                             });
 
+                            if (l_PlayerList.empty())
+                            {
+                                if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
+                                    l_AurEff->ChangeAmount(0);
+
+                                return;
+                            }
+
                             /// The riders move very slowly, but for each player of their faction within their vicinity their speed is increased by 30%,
                             /// allowing them to outstrip their competitor.
                             if (AuraEffectPtr l_AurEff = l_Caster->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))

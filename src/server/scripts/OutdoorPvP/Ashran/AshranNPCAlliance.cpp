@@ -3350,7 +3350,6 @@ class npc_ashran_ex_alliance_racer : public CreatureScript
                 {
                     Movement::MoveSplineInit l_Init(*me);
                     FillRidePath(l_Init.Path());
-                    l_Init.SetWalk(true);
                     l_Init.SetCyclic();
                     l_Init.Launch();
                 });

@@ -17,7 +17,7 @@ UPDATE creature_template SET faction = 12, VehicleId = 3715, ScriptName = 'npc_a
 # Alliance Rider
 UPDATE creature_template SET unit_flags = 33536, unit_flags2 = 71829504 WHERE entry = 82870;
 
-UPDATE creature_template SET minlevel = 100, maxlevel = 100, unit_flags = 33536, unit_flags2 = 4196352 WHERE entry IN (82884, 82903);
+UPDATE creature_template SET minlevel = 100, maxlevel = 100, unit_flags = 33536, unit_flags2 = 4196352, speed_walk = 0.8, speed_run = 0.2857143 WHERE entry IN (82884, 82903);
 
 DELETE FROM trinity_string WHERE entry IN (14071, 14072);
 INSERT INTO trinity_string (entry, content_default, content_loc2, content_loc3, content_loc6, content_loc8) VALUE
