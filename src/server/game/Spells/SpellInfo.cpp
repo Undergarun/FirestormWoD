@@ -2035,7 +2035,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
          return SPELL_FAILED_BAD_TARGETS;
 
      // Custom MoP Script - Hack fix for Vanish immunity, players with 3 sec immunity can't be broken from the stealth
-     if (unitTarget && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
+     if (unitTarget && !unitTarget->IsFriendlyTo(caster) && unitTarget->HasAuraType(SPELL_AURA_MOD_STEALTH) && unitTarget->HasAura(131361))
          return SPELL_FAILED_BAD_TARGETS;
 
     // creature/player specific target checks

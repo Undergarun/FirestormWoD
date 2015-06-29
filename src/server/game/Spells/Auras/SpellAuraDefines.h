@@ -518,7 +518,7 @@ enum AuraType
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,  // 6.0.X
     SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE                   = 458,  // 6.0.X
     SPELL_AURA_459                                          = 459,  // 6.0.X
-    SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                   = 460,  // 6.0.X
+    SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                  = 460,  // 6.0.X
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
     SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,  // 6.0.X
