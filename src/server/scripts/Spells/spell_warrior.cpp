@@ -1970,8 +1970,55 @@ class spell_warr_shield_slam : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Shattering Throw - 64382
+class spell_warr_shattering_throw : public SpellScriptLoader
+{
+    public:
+        spell_warr_shattering_throw() : SpellScriptLoader("spell_warr_shattering_throw") { }
+
+        class spell_warr_shattering_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_shattering_throw_SpellScript);
+
+            enum eSpells
+            {
+                ShatteringThrowDispel = 64380,
+            };
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Player* l_Player = GetCaster()->ToPlayer();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Player == nullptr || l_Target == nullptr)
+                    return;
+
+                if (l_Target->IsImmunedToDamage(GetSpellInfo()))
+                {
+                    l_Player->CastSpell(l_Target, eSpells::ShatteringThrowDispel, true);
+                    return;
+                }
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY)
+                    SetHitDamage(GetHitDamage() * 1.2f);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_shattering_throw_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_shattering_throw_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_shattering_throw();
     new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
     new spell_warr_rend();

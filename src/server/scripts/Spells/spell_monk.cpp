@@ -1606,45 +1606,6 @@ class spell_monk_jade_serpent_statue: public SpellScriptLoader
         }
 };
 
-// Called by Spinning Crane Kick - 107270
-// Teachings of the Monastery - 116645
-class spell_monk_teachings_of_the_monastery: public SpellScriptLoader
-{
-    public:
-        spell_monk_teachings_of_the_monastery() : SpellScriptLoader("spell_monk_teachings_of_the_monastery") { }
-
-        class spell_monk_teachings_of_the_monastery_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_teachings_of_the_monastery_SpellScript);
-
-            void HandleHeal()
-            {
-                Unit* l_Caster = GetCaster();
-                if (!l_Caster->HasAura(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT))
-                    return;
-
-                std::list<Player*> l_TempListPlayer;
-
-                l_Caster->GetPlayerListInGrid(l_TempListPlayer, 8.0f);
-                for (std::list<Player*>::iterator i = l_TempListPlayer.begin(); i != l_TempListPlayer.end(); ++i)
-                {
-                    if ((*i)->IsFriendlyTo(l_Caster))
-                        l_Caster->CastSpell((*i), SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnCast += SpellCastFn(spell_monk_teachings_of_the_monastery_SpellScript::HandleHeal);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_teachings_of_the_monastery_SpellScript();
-        }
-};
-
 // Mana Tea - 115294
 class spell_monk_mana_tea: public SpellScriptLoader
 {
@@ -3523,7 +3484,8 @@ enum SpinningCraneKickSpells
     SPELL_MONK_MANA_MEDITATION            = 121278
 };
 
-// Spinning Crane Kick - 101546
+/// last update : 6.1.2 19802
+/// Spinning Crane Kick - 101546
 class spell_monk_spinning_crane_kick: public SpellScriptLoader
 {
     public:
@@ -3549,7 +3511,11 @@ class spell_monk_spinning_crane_kick: public SpellScriptLoader
                 l_Player->CalculateMonkMeleeAttacks(l_Low, l_High);
 
                 int l_Bp0 = (((4 * 0.75f * l_Low + 4 * 0.75f * l_High) / 2) / (GetSpellInfo()->GetDuration() / IN_MILLISECONDS));
-                l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE, &l_Bp0, NULL, NULL, true);
+                
+                if (!l_Player->HasAura(SPELL_MONK_STANCE_OF_THE_WISE_SERPENT))
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_DAMAGE, &l_Bp0, NULL, NULL, true);
+                else
+                    l_Player->CastCustomSpell(l_Player, SPELL_MONK_SPINNING_CRANE_KICK_HEAL, &l_Bp0, NULL, NULL, true);
             }
             void Register()
             {
@@ -5091,7 +5057,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_touch_of_karma();
     new spell_monk_thunder_focus_tea();
     new spell_monk_jade_serpent_statue();
-    new spell_monk_teachings_of_the_monastery();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
     new spell_monk_enveloping_mist();

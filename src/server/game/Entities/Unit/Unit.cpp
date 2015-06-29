@@ -1,5 +1,4 @@
 ﻿/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2576,6 +2575,11 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 {
     if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
         return MELEE_HIT_MISS;
+
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (victim->ToCreature() && victim->IsAIEnabled)
+        ((Unit*)victim)->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, (Unit*)this);
 
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
@@ -7859,6 +7863,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                         case 25914:
                         case 82327:
                         case 86452:
+                        case 130551: ///< Word of GLory
+                        case 85222: ///< Light of Dawn
                         {
                             float mastery = ToPlayer()->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.25f;
                             basepoints0 = int32(damage * float(mastery / 100.0f));
@@ -9107,6 +9113,33 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
                         target = victim;
                         break;
+                    case 139316:            ////< Putrify (Dark Animus trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 139317;
+                        target = victim;
+                        break;
+                    }
+                    case 140296:            ///< Conductive Shield (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 140299;
+                        target = victim;
+                        break;
+                    }
+                    case 138201:            /// Lei Shen's gift (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 138210;
+                        target = victim;
+                        break;
+                    }
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
@@ -9183,13 +9216,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                 // Greater Heal Refund
                 if (auraSpellInfo->Id == 37594)
                     trigger_spell_id = 37595;
-
-                // Glyph of Mass Dispel
-                if (auraSpellInfo->Id == 32375)
-                {
-                    if (HasAura(55691))
-                        trigger_spell_id = 39897;
-                }
                 break;
             }
             case SPELLFAMILY_DRUID:
@@ -11606,6 +11632,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const *spellProto, uin
     if (spellProto->Id == 77489 || spellProto->Id == 12654) // Echo of Light and Ignite
         return pdamage;
 
+    /// small exception for Prismatic Crystal, can't find any general rule
+    /// should ignore ALL damage mods, they already calculated in trigger spell
+    if (spellProto->Id == 155152)
+        return pdamage;
+
     // For totems get damage bonus from owner
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTotem())
         if (Unit* owner = GetOwner())
@@ -13798,11 +13829,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
             if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
                 continue;
         }
-        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-        {
-            if (!(mountCapability->Flags & 0x2))
-                continue;
-        }
 
         if (mountCapability->RequiredMap != -1 && int32(GetMapId()) != mountCapability->RequiredMap)
             continue;
@@ -14341,6 +14367,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         SetPower(power, maxPower);
         gain = maxPower - curPower;
     }
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->PowerModified(getPowerType(), GetPower(getPowerType()));
 
     return gain;
 }
@@ -17517,7 +17546,7 @@ Player* Unit::GetSpellModOwner() const
 
 ///----------Pet responses methods-----------------
 
-void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
+void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result, uint8 p_CastCount)
 {
     if (p_Result == SPELL_CAST_OK)
         return;
@@ -17532,7 +17561,7 @@ void Unit::SendPetCastFail(uint32 p_SpellID, SpellCastResult p_Result)
     l_Data << uint32(p_Result);                             ///< Reason
     l_Data << uint32(0);                                    ///< FailedArg1
     l_Data << uint32(0);                                    ///< FailedArg2
-    l_Data << uint8(0);                                     ///< CastID
+    l_Data << uint8(p_CastCount);                           ///< CastID
 
     l_Owner->ToPlayer()->GetSession()->SendPacket(&l_Data);
 }
