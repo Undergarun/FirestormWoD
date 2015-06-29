@@ -595,10 +595,9 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
             l_Position.m_positionZ = p_SourcePosition.m_positionZ;
-            p_Caster->UpdateGroundPositionZ(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ);
 
             p_PathToLinearDestination.push_back(l_Position);
-            p_DestinationPosition = p_SourcePosition; // Return back
+            p_DestinationPosition = l_Position;
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
