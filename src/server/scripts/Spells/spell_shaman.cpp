@@ -1749,7 +1749,6 @@ class spell_sha_improved_chain_heal : public SpellScriptLoader
                 if (l_ExplTarget->GetGUID() != l_Target->GetGUID()) ///< Only first target
                     return;
 
-                sLog->outError(LOG_FILTER_GENERAL, "PASSE LO GROOSSSSS");
                 SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::ImprovedChainHealAura);
                 int32 l_Heal = GetHitHeal();
 

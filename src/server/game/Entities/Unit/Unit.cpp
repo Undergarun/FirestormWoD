@@ -8203,6 +8203,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
+                case 10400: ///< Flametongue
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (!(procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK))
+                        return false;
+
+                        triggered_spell_id = 10444;
+
+                    break;
+                }
                 case 324:   // Lightning Shield
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
