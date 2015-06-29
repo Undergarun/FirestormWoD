@@ -2584,26 +2584,6 @@ public:
     }
 };
 
-/// last update : 6.1.2 19802
-/// Holy Shield - 152261
-class PlayerScript_paladin_holy_shield : public PlayerScript
-{
-public:
-    PlayerScript_paladin_holy_shield() :PlayerScript("PlayerScript_paladin_holy_shield") {}
-
-    enum eSpells
-    {
-        HolyShieldAura = 152261,
-        HolyShieldDamage = 157122
-    };
-
-    void OnBlock(Player* p_Player, Unit* p_Attacker)
-    {
-        if (p_Player->HasAura(eSpells::HolyShieldAura))
-            p_Player->CastSpell(p_Attacker, eSpells::HolyShieldDamage, true);
-    }
-};
-
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_denounce();
@@ -2661,5 +2641,4 @@ void AddSC_paladin_spell_scripts()
     new PlayerScript_empowered_divine_storm();
     new PlayerScript_saved_by_the_light();
     new PlayerScript_paladin_wod_pvp_4p_bonus();
-    new PlayerScript_paladin_holy_shield();
 }

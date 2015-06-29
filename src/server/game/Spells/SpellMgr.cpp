@@ -6338,7 +6338,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
-
             default:
                 break;
         }
