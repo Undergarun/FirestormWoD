@@ -1719,6 +1719,56 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
+/// Call by Chain Heal - 1064
+class spell_sha_improved_chain_heal : public SpellScriptLoader
+{
+    public:
+        spell_sha_improved_chain_heal() : SpellScriptLoader("spell_sha_improved_chain_heal") { }
+
+        class spell_sha_improved_chain_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_improved_chain_heal_SpellScript);
+
+            enum eSpells
+            {
+                ImprovedChainHealAura = 157813
+            };
+
+            void HitTarget(SpellEffIndex)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+                Unit* l_ExplTarget = GetExplTargetUnit();
+
+                if (l_Target == nullptr || l_ExplTarget == nullptr)
+                    return;
+
+                if (!l_Caster->HasAura(eSpells::ImprovedChainHealAura))
+                    return;
+
+                if (l_ExplTarget->GetGUID() != l_Target->GetGUID()) ///< Only first target
+                    return;
+
+                sLog->outError(LOG_FILTER_GENERAL, "PASSE LO GROOSSSSS");
+                SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::ImprovedChainHealAura);
+                int32 l_Heal = GetHitHeal();
+
+                l_Heal += CalculatePct(l_Heal, l_SpellInfo->Effects[EFFECT_0].BasePoints);
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_improved_chain_heal_SpellScript::HitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_improved_chain_heal_SpellScript();
+        }
+};
+
 /// Healing Wave - 77472
 class spell_sha_healing_wave : public SpellScriptLoader
 {
@@ -2796,7 +2846,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_heroism();
     new spell_sha_lava_lash_spread();
     new spell_sha_windfury();
-    new spell_sha_flametongue();
     new spell_sha_improoved_flame_shock();
     new spell_sha_feral_spirit();
     new spell_sha_pet_spirit_hunt();
@@ -2820,4 +2869,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_call_lightning();
     new spell_sha_soothing_wind();
     new spell_sha_WoDPvPEnhancement2PBonus();
+    new spell_sha_improved_chain_heal();
 }
