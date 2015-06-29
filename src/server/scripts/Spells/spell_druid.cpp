@@ -720,22 +720,9 @@ class spell_dru_natures_vigil_proc : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& p_Targets)
             {
-                Unit* l_Caster = GetCaster();
-
-                p_Targets.remove_if([this, l_Caster](WorldObject* p_Object) -> bool
-                {
-                    if (p_Object == nullptr || p_Object->ToUnit() == nullptr)
-                        return true;
-
-                    if (p_Object->GetGUID() == l_Caster->GetGUID())
-                        return true;
-
-                    return false;
-                });
-
                 if (p_Targets.size() > 1)
                 {
-                    p_Targets.sort(JadeCore::DistanceCompareOrderPred(l_Caster));
+                    p_Targets.sort(JadeCore::HealthPctOrderPred());
                     p_Targets.resize(1);
                 }
             }
