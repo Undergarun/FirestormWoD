@@ -914,9 +914,12 @@ struct CharShipmentContainerEntry
     uint32 Unk4;                                                    ///< 7
     uint32 Unk5;                                                    ///< 8
     uint32 Unk6;                                                    ///< 9
-    LocalizedString const* Description;                             ///< 10
-    uint32 Unk7;                                                    ///< 11
+    uint32 Unk7;                                                    ///< 10
+    LocalizedString const* Description;                             ///< 11
     uint32 Unk8;                                                    ///< 12
+    uint32 Unk9;                                                    ///< 13
+    uint32 Unk10;                                                   ///< 14
+    uint32 Unk11;                                                   ///< 15
 };
 
 #define MAX_BATTLEPET_PROPERTIES 6

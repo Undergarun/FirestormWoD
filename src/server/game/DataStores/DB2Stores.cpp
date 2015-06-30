@@ -77,6 +77,8 @@ DB2Storage <MountEntry>                     sMountStore(MountEntryfmt);
 DB2Storage <PlayerConditionEntry>           sPlayerConditionStore(PlayerConditionEntryfmt);
 DB2Storage <VignetteEntry>                  sVignetteStore(VignetteEntryfmt);
 DB2Storage <GlyphRequiredSpecEntry>         sGlyphRequiredSpecStore(GlyphRequiredSpecfmt);
+DB2Storage <MailTemplateEntry>              sMailTemplateStore(MailTemplateEntryfmt);
+DB2Storage <SpecializationSpellEntry>       sSpecializationSpellStore(SpecializationSpellsfmt);
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -417,6 +419,8 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files,  sTransportAnimationStore,     db2Path, "TransportAnimation.db2");
     LoadDB2(bad_db2_files,  sTransportRotationStore,      db2Path, "TransportRotation.db2");
     LoadDB2(bad_db2_files,  sWorldMapOverlayStore,        db2Path, "WorldMapOverlay.db2");                                              // 17399
+    LoadDB2(bad_db2_files,  sMailTemplateStore,           db2Path, "MailTemplate.db2");                                                 // 17399
+    LoadDB2(bad_db2_files,  sSpecializationSpellStore,    db2Path, "SpecializationSpells.db2");                                         // 17399
 
     for (uint32 l_ID = 0; l_ID < sMountTypeStore.GetNumRows(); ++l_ID)
     {

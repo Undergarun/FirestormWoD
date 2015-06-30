@@ -72,6 +72,7 @@ extern DB2Storage <MountEntry>                      sMountStore;
 extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
 extern DB2Storage <VignetteEntry>                   sVignetteStore;
 extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
+extern DB2Storage <MailTemplateEntry>               sMailTemplateStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
@@ -98,6 +99,7 @@ extern DB2Storage <GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore;
 extern DB2Storage <GarrSpecializationEntry>         sGarrSpecializationStore;
 extern DB2Storage <CharShipmentEntry>               sCharShipmentStore;
 extern DB2Storage <CharShipmentContainerEntry>      sCharShipmentContainerStore;
+extern DB2Storage <SpecializationSpellEntry>        sSpecializationSpellStore;
 
 //////////////////////////////////////////////////////////////////////////
 /// Battle pet
