@@ -8244,7 +8244,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
                     if (!(procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK))
                         return false;
 
-                        triggered_spell_id = 10444;
+                    if (effIndex != EFFECT_0)
+                        return false;
+
+                    triggered_spell_id = 10444;
 
                     break;
                 }
