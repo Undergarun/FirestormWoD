@@ -4070,7 +4070,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration());
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
             }
 
             void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
@@ -4085,8 +4085,7 @@ class spell_dru_ursa_major_aura : public SpellScriptLoader
                 if (l_Stack == nullptr)
                     return;
 
-                int32 l_Bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
-                p_AurEff->SetAmount(l_Bp * l_Stack->m_StackDuration.size());
+                p_AurEff->SetAmount(l_Stack->GetTotalAmount());
             }
 
             void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)

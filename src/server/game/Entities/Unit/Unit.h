@@ -379,19 +379,30 @@ struct SpellImmune
 
 struct StackOnDuration
 {
-    std::vector<uint64> m_StackDuration;
+    std::vector<std::pair<uint64, int32>> m_StackDuration;
 
     StackOnDuration() {}
 
-    StackOnDuration(uint32 p_Duration)
+    StackOnDuration(uint64 p_Duration, int32 p_Amount)
     {
-        m_StackDuration.push_back(p_Duration);
+        m_StackDuration.push_back(std::make_pair(p_Duration, p_Amount));
     }
 
-    std::vector<uint64> GetStackDuration() const { return m_StackDuration; }
-    void DecreaseDuration(uint8 p_StackNb, uint32 p_Time)
+    std::vector<std::pair<uint64, int32>> GetStackDuration() const { return m_StackDuration; }
+
+    void DecreaseDuration(int8 p_StackNb, uint32 p_Time)
     {
-        m_StackDuration[p_StackNb] -= p_Time;
+        m_StackDuration[p_StackNb].first -= p_Time;
+    }
+
+    int32 GetTotalAmount() const
+    {
+        int32 l_TotalAmount = 0;
+
+        for (std::pair<uint32, int32> l_Stack : m_StackDuration)
+            l_TotalAmount += l_Stack.second;
+
+        return l_TotalAmount;
     }
 };
 
@@ -2116,7 +2127,7 @@ class Unit : public WorldObject
         void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
 
         StackOnDuration* GetStackOnDuration(uint32 p_SpellID);
-        void AddToStackOnDuration(uint32 p_SpellID, uint32 p_DurationTime);
+        void AddToStackOnDuration(uint32 p_SpellID, uint64 p_DurationTime, int32 p_Amount);
         void RemoveStackOnDuration(uint32 p_SpellID);
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;

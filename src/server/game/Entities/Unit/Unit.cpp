@@ -4949,14 +4949,14 @@ StackOnDuration* Unit::GetStackOnDuration(uint32 p_SpellID)
     return nullptr;
 }
 
-void Unit::AddToStackOnDuration(uint32 p_SpellID, uint32 p_DurationTime)
+void Unit::AddToStackOnDuration(uint32 p_SpellID, uint64 p_DurationTime, int32 p_Amount)
 {
     if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
-        m_StackOnDurationMap.insert(std::make_pair(p_SpellID, StackOnDuration(p_DurationTime)));
+        m_StackOnDurationMap.insert(std::make_pair(p_SpellID, StackOnDuration(p_DurationTime, p_Amount)));
     else
     {
         StackOnDuration* l_Stack = GetStackOnDuration(p_SpellID);
-        l_Stack->m_StackDuration.push_back(p_DurationTime);
+        l_Stack->m_StackDuration.push_back(std::make_pair(p_DurationTime, p_Amount));
     }
 }
 
@@ -17843,17 +17843,18 @@ void Unit::UpdateStackOnDuration(uint32 p_Time)
     {
         StackOnDuration* l_Stack = GetStackOnDuration(l_Iter->first);
 
-        std::vector<uint64> l_StackDuration = l_Stack->GetStackDuration();
+        std::vector<std::pair<uint64, int32>> l_StackDuration = l_Stack->GetStackDuration();
 
         bool l_MustContinue = false;
         uint8 l_Count = 0;
-        for (uint64 l_Duration : l_StackDuration)
+        for (std::pair<uint64, int32> l_StackParam : l_StackDuration)
         {
-            if (l_Duration <= p_Time)
+            if (l_StackParam.first <= p_Time)
             {
                 if (l_StackDuration.size() <= 1)
                 {
                     l_Iter = m_StackOnDurationMap.erase(l_Iter);
+                    l_MustContinue = true;
                     break;
                 }
 
