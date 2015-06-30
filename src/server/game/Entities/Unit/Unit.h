@@ -377,6 +377,24 @@ struct SpellImmune
     uint32 spellId;
 };
 
+struct StackOnDuration
+{
+    std::vector<uint64> m_StackDuration;
+
+    StackOnDuration() {}
+
+    StackOnDuration(uint32 p_Duration)
+    {
+        m_StackDuration.push_back(p_Duration);
+    }
+
+    std::vector<uint64> GetStackDuration() const { return m_StackDuration; }
+    void DecreaseDuration(uint8 p_StackNb, uint32 p_Time)
+    {
+        m_StackDuration[p_StackNb] -= p_Time;
+    }
+};
+
 typedef std::list<SpellImmune> SpellImmuneList;
 
 enum UnitModifierType
@@ -1443,6 +1461,7 @@ class Unit : public WorldObject
         typedef std::list<AuraEffectPtr> AuraEffectList;
         typedef std::list<AuraPtr> AuraList;
         typedef std::list<AuraApplication *> AuraApplicationList;
+        typedef std::map<uint32, StackOnDuration> AuraStackOnDurationMap;
         typedef std::list<DiminishingReturn> Diminishing;
         typedef std::set<uint32> ComboPointHolderSet;
         typedef std::vector<uint32> AuraIdList;
@@ -2039,6 +2058,9 @@ class Unit : public WorldObject
         AuraApplicationMap      & GetAppliedAuras()       { return m_appliedAuras; }
         AuraApplicationMap const& GetAppliedAuras() const { return m_appliedAuras; }
 
+        AuraStackOnDurationMap      & GetAurasStackOnDuration()       { return m_StackOnDurationMap; }
+        AuraStackOnDurationMap const& GetAurasStackOnDuration() const { return m_StackOnDurationMap; }
+
         void RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(uint32 spellId, uint64 casterGUID = 0, uint32 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode = AURA_REMOVE_BY_DEFAULT);
@@ -2092,6 +2114,10 @@ class Unit : public WorldObject
         AuraPtr GetAuraOfRankedSpell(uint32 spellId, uint64 casterGUID = 0, uint64 itemCasterGUID = 0, uint32 reqEffMask = 0) const;
 
         void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList);
+
+        StackOnDuration* GetStackOnDuration(uint32 p_SpellID);
+        void AddToStackOnDuration(uint32 p_SpellID, uint32 p_DurationTime);
+        void RemoveStackOnDuration(uint32 p_SpellID);
 
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;
         uint32 GetAuraCount(uint32 spellId) const;
@@ -2453,6 +2479,9 @@ class Unit : public WorldObject
         // group updates
         void UpdateAuraForGroup(uint8 slot);
 
+        /// Stacks Updates
+        void UpdateStackOnDuration(uint32 p_time);
+
         // proc trigger system
         bool CanProc(){return !m_procDeep;}
         void SetCantProc(bool apply)
@@ -2643,7 +2672,7 @@ class Unit : public WorldObject
         AuraList m_removedAuras;
         AuraMap::iterator m_auraUpdateIterator;
         uint32 m_removedAurasCount;
-
+        AuraStackOnDurationMap m_StackOnDurationMap;
         AuraEffectList m_modAuras[TOTAL_AURAS];
         AuraList m_scAuras;                        // casted singlecast auras
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit

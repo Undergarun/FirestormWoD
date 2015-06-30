@@ -465,6 +465,9 @@ void Unit::Update(uint32 p_time)
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
 
+    /// Update all the stack durations
+    UpdateStackOnDuration(p_time);
+
     if (isAlive())
     {
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, HealthBelowPct(20));
@@ -4936,6 +4939,33 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
                 dispelList.push_back(std::make_pair(aura, charges));
         }
     }
+}
+
+StackOnDuration* Unit::GetStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) != m_StackOnDurationMap.end())
+        return &m_StackOnDurationMap[p_SpellID];
+
+    return nullptr;
+}
+
+void Unit::AddToStackOnDuration(uint32 p_SpellID, uint32 p_DurationTime)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        m_StackOnDurationMap.insert(std::make_pair(p_SpellID, StackOnDuration(p_DurationTime)));
+    else
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(p_SpellID);
+        l_Stack->m_StackDuration.push_back(p_DurationTime);
+    }
+}
+
+void Unit::RemoveStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        return;
+    else
+        m_StackOnDurationMap.erase(m_StackOnDurationMap.find(p_SpellID));
 }
 
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
@@ -17804,6 +17834,42 @@ void Unit::UpdateReactives(uint32 p_time)
         {
             m_reactiveTimer[reactive] -= p_time;
         }
+    }
+}
+
+void Unit::UpdateStackOnDuration(uint32 p_Time)
+{
+    for (AuraStackOnDurationMap::iterator l_Iter = m_StackOnDurationMap.begin(); l_Iter != m_StackOnDurationMap.end();)
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(l_Iter->first);
+
+        std::vector<uint64> l_StackDuration = l_Stack->GetStackDuration();
+
+        bool l_MustContinue = false;
+        uint8 l_Count = 0;
+        for (uint64 l_Duration : l_StackDuration)
+        {
+            if (l_Duration <= p_Time)
+            {
+                if (l_StackDuration.size() <= 1)
+                {
+                    l_Iter = m_StackOnDurationMap.erase(l_Iter);
+                    break;
+                }
+
+                l_Stack->m_StackDuration.erase(l_Stack->m_StackDuration.begin() + l_Count);
+                continue;
+            }
+            else
+                l_Stack->DecreaseDuration(l_Count, p_Time);
+
+            ++l_Count;
+        }
+
+        if (l_MustContinue)
+            continue;
+
+        ++l_Iter;
     }
 }
 
