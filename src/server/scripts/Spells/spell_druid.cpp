@@ -4053,6 +4053,66 @@ class spell_dru_ursa_major : public SpellScriptLoader
         }
 };
 
+/// Ursa Major (aura) - 159233
+class spell_dru_ursa_major_aura : public SpellScriptLoader
+{
+    public:
+        spell_dru_ursa_major_aura() : SpellScriptLoader("spell_dru_ursa_major_aura") { }
+
+        class spell_dru_ursa_major_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_ursa_major_aura_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration());
+            }
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                int32 l_Bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+                p_AurEff->SetAmount(l_Bp * l_Stack->m_StackDuration.size());
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveStackOnDuration(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_ursa_major_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectUpdate += AuraEffectUpdateFn(spell_dru_ursa_major_aura_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dru_ursa_major_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_ursa_major_aura_AuraScript();
+        }
+};
+
 enum HealingTouchSpells
 {
     SPELL_DRU_BLOODTALONS_MOD_DAMAGE = 145152,
@@ -4542,4 +4602,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_wod_pvp_2p_restoration();
     new spell_dru_WodPvpBalance4pBonus();
     new spell_dru_empowered_moonkin();
+    new spell_dru_ursa_major_aura();
 }
