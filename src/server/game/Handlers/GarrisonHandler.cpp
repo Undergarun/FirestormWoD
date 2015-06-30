@@ -64,9 +64,9 @@ void WorldSession::HandleGetGarrisonInfoOpcode(WorldPacket & p_RecvData)
     l_Infos << uint32(l_Plots.size());
     l_Infos << uint32(l_Followers.size());
     l_Infos << uint32(l_Missions.size());
-    l_Infos << uint32(l_CompletedMission.size());
-    l_Infos << uint32(l_Missions.size());                                       ///< Bit loop - ship related ? 6.2 - cannot be null if missions.size() > 0
     l_Infos << uint32(0);                                                       ///< Uint32 loop - ship related ? 6.2
+    l_Infos << uint32(l_Missions.size());                                       ///< 6.2.0 IsMissionNavel ????
+    l_Infos << uint32(l_CompletedMission.size());
 
     l_Infos << int32(l_Garrison->GetNumFollowerActivationsRemaining());
 

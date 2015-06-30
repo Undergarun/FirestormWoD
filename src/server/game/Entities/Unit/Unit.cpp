@@ -13751,7 +13751,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::SendMountResult(MountResult p_Error)
 {
-    if (!ToPlayer())
+    if (GetTypeId() != TYPEID_PLAYER)
         return;
 
     WorldPacket l_Data(SMSG_MOUNT_RESULT, 4);
