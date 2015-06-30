@@ -1078,6 +1078,8 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                     l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);
+
+                l_Caster->CastSpell(l_Caster, eSmokeSpells::SmokeBombAura, true);
             }
         }
 
