@@ -242,7 +242,7 @@ class spell_warl_grimoire_of_supremacy_effect : public SpellScriptLoader
                 Unit* l_Caster = GetCaster();
 
                 for (Unit::ControlList::const_iterator itr = l_Caster->m_Controlled.begin(); itr != l_Caster->m_Controlled.end(); ++itr)
-                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, false);
+                    (*itr)->CastSpell((*itr), eSpells::GrimoireOfSupremacyBonus, true);
             }
 
             void Register()
