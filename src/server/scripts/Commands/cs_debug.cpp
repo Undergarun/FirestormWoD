@@ -2709,6 +2709,7 @@ class debug_commandscript: public CommandScript
                     l_Data << uint32(p_Store->GetHash());
                     l_Data << uint32(p_Entry);
                     l_Data << uint32(sObjectMgr->GetHotfixDate(p_Entry, p_Store->GetHash()));
+                    l_Data.WriteBit(1);                                                         ///< Found ???
                     l_Data << uint32(l_ResponseData.size());
                     l_Data.append(l_ResponseData);
 
@@ -2720,6 +2721,7 @@ class debug_commandscript: public CommandScript
                     l_Data << uint32(p_Store->GetHash());
                     l_Data << uint32(-int32(p_Entry));
                     l_Data << uint32(time(NULL));
+                    l_Data.WriteBit(0);                                                         ///< Not Found ???
                     l_Data << uint32(0);
 
                     p_Handler->GetSession()->SendPacket(&l_Data);

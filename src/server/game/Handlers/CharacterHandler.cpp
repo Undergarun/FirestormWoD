@@ -1176,6 +1176,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(extendedCost->ID);
             l_Data << uint32(sObjectMgr->GetHotfixDate(extendedCost->ID, sItemExtendedCostStore.GetHash()));
+            l_Data.WriteBit(1);                                                         ///< Found ???
             l_Data << uint32(l_ResponseData.size());
             l_Data.append(l_ResponseData);
         }
@@ -1183,6 +1184,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
         {
             l_Data << uint32(-1);
             l_Data << uint32(time(NULL));
+            l_Data.WriteBit(0);                                                         ///< Not Found ???
             l_Data << uint32(0);
         }
 

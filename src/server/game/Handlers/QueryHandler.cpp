@@ -419,6 +419,7 @@ void WorldSession::SendBroadcastTextDb2Reply(uint32 p_Entry)
     data << uint32(DB2_REPLY_BROADCAST_TEXT);
     data << uint32(p_Entry);
     data << uint32(sObjectMgr->GetHotfixDate(p_Entry, DB2_REPLY_BROADCAST_TEXT));
+    data.WriteBit(1);                                                         ///< Found ???
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -680,6 +681,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
                 l_Data << uint32(l_Type);
                 l_Data << uint32(l_Entry);
                 l_Data << uint32(sObjectMgr->GetHotfixDate(l_Entry, l_Type));
+                l_Data.WriteBit(1);                                                         ///< Found ???
                 l_Data << uint32(l_ResponseData.size());
                 l_Data.append(l_ResponseData);
 
@@ -691,6 +693,7 @@ void WorldSession::HandleDBQueryBulk(WorldPacket& p_RecvPacket)
                 l_Data << uint32(l_Type);
                 l_Data << uint32(-int32(l_Entry));
                 l_Data << uint32(time(NULL));
+                l_Data.WriteBit(0);                                                         ///< Found ???
                 l_Data << uint32(0);
 
                 SendPacket(&l_Data);
