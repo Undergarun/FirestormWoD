@@ -21495,20 +21495,7 @@ bool Unit::IsVisionObscured(Unit* victim, SpellInfo const* spellInfo)
         else
             return true;
     }
-    // Victim and caster have aura with effect SPELL_AURA_INTERFERE_TARGETTING, but aura may be not smoke bomb.
-    else if (myAura != NULL && victimAura != NULL)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (AuraEffectPtr effect = myAura->GetEffect(i))
-            {
-                if (effect->GetAuraType() != SPELL_AURA_INTERFERE_TARGETTING)
-                    continue;
-                if (effect->GetAmount() && !IsFriendlyTo(victimCaster))
-                    return true;
-            }
-        }
-    }
+
     return false;
 }
 
