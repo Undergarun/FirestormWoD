@@ -7486,8 +7486,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
         /// Apply versatility rating for players
-        if (caster->ToPlayer())
-            damage += CalculatePct(damage, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->ToPlayer()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (caster->GetSpellModOwner())
+            damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
         // Calculate armor mitigation
         if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))

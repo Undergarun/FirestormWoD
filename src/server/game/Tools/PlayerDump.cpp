@@ -718,7 +718,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& p_File, uint32 p_Accoun
 
                 /// We transfer max 50k golds
                 l_Index = GetFieldIndexFromColumn("money", l_Columns) + 1;
-                uint64 l_Gold = atoi(getnth(l_Line, l_Index).c_str());
+                uint64 l_Gold = std::stoll(getnth(l_Line, l_Index).c_str());
                 if (l_Gold > (50000 * GOLD))
                 {
                     char l_MaxMoney[20];

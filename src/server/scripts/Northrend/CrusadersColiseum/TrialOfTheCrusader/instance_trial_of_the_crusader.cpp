@@ -66,6 +66,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 WebDoorGUID = 0;
                 CrusadersCacheGUID = 0;
                 FloorGUID = 0;
+
+                m_AuraToRemove.clear();
+                m_AuraToRemove.push_back(SPELL_LEECHING_SWARM_AURA);
             }
 
             bool IsEncounterInProgress() const
@@ -102,6 +105,16 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
                 }
             }
+
+            void OnPlayerExit(Player* p_Player)
+            {
+                for (const uint32& l_AuraID : m_AuraToRemove)
+                {
+                    if (p_Player->HasAura(l_AuraID))
+                        p_Player->RemoveAura(l_AuraID);
+                }
+            }
+
 
             void OpenDoor(uint64 guid)
             {
@@ -739,6 +752,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 NorthrendBeasts;
                 bool   NeedSave;
                 std::string SaveDataBuffer;
+                std::list<uint32> m_AuraToRemove;
 
                 uint64 BarrentGUID;
                 uint64 TirionGUID;

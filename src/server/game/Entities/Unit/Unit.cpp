@@ -1,5 +1,4 @@
 ﻿/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -465,6 +464,9 @@ void Unit::Update(uint32 p_time)
 
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
+
+    /// Update all the stack durations
+    UpdateStackOnDuration(p_time);
 
     if (isAlive())
     {
@@ -1563,10 +1565,13 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
-        damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (GetSpellModOwner()) 
+    {
+        if (GetSpellModOwner()->getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
+            damage += CalculatePct(damage, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (victim->GetSpellModOwner())
+            damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    }
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1752,8 +1757,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (victim->GetSpellModOwner())
+        damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -2594,6 +2599,11 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 {
     if (victim->HasAuraType(SPELL_AURA_DEFLECT_FRONT_SPELLS) && victim->isInFront(this))
         return MELEE_HIT_MISS;
+
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (victim->ToCreature() && victim->IsAIEnabled)
+        ((Unit*)victim)->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, (Unit*)this);
 
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
@@ -4947,6 +4957,33 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
                 dispelList.push_back(std::make_pair(aura, charges));
         }
     }
+}
+
+StackOnDuration* Unit::GetStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) != m_StackOnDurationMap.end())
+        return &m_StackOnDurationMap[p_SpellID];
+
+    return nullptr;
+}
+
+void Unit::AddToStackOnDuration(uint32 p_SpellID, uint64 p_DurationTime, int32 p_Amount)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        m_StackOnDurationMap.insert(std::make_pair(p_SpellID, StackOnDuration(p_DurationTime, p_Amount)));
+    else
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(p_SpellID);
+        l_Stack->m_StackDuration.push_back(std::make_pair(p_DurationTime, p_Amount));
+    }
+}
+
+void Unit::RemoveStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        return;
+    else
+        m_StackOnDurationMap.erase(m_StackOnDurationMap.find(p_SpellID));
 }
 
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
@@ -8217,6 +8254,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     break;
                 }
+                case 10400: ///< Flametongue
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (!(procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK))
+                        return false;
+
+                    if (effIndex != EFFECT_0)
+                        return false;
+
+                    triggered_spell_id = 10444;
+
+                    break;
+                }
                 case 324:   // Lightning Shield
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
@@ -9127,6 +9179,33 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffectPtr tri
                         basepoints0 = victim->GetCreateHealth() * auraSpellInfo->Effects[1].CalcValue() / 100;
                         target = victim;
                         break;
+                    case 139316:            ////< Putrify (Dark Animus trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 139317;
+                        target = victim;
+                        break;
+                    }
+                    case 140296:            ///< Conductive Shield (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 140299;
+                        target = victim;
+                        break;
+                    }
+                    case 138201:            /// Lei Shen's gift (Lei Shen trash - Throne of Thunder)
+                    {
+                        if (GetTypeId() != TYPEID_UNIT)
+                            return false;
+
+                        trigger_spell_id = 138210;
+                        target = victim;
+                        break;
+                    }
                     case 57345:             // Darkmoon Card: Greatness
                     {
                         float stat = 0.0f;
@@ -12778,8 +12857,8 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     }
 
     /// Apply Versatility healing bonus done
-    if (GetTypeId() == TYPEID_PLAYER)
-        DoneTotal += CalculatePct(healamount, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (GetSpellModOwner())
+        DoneTotal += CalculatePct(healamount, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
@@ -13032,8 +13111,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         /// Apply Versatility healing bonus
-        if (GetTypeId() == TYPEID_PLAYER)
-            AdvertisedBenefit += CalculatePct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (GetSpellModOwner())
+            AdvertisedBenefit += CalculatePct(AdvertisedBenefit, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
 
     return AdvertisedBenefit;
@@ -13348,7 +13427,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack && !spellProto)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
     {
         if (HasAura(76806))
         {
@@ -13814,11 +13893,6 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         {
             if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
-                continue;
-        }
-        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
-        {
-            if (!(mountCapability->Flags & 0x2))
                 continue;
         }
 
@@ -14359,6 +14433,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
         SetPower(power, maxPower);
         gain = maxPower - curPower;
     }
+
+    if (ToCreature() && ToCreature()->IsAIEnabled)
+        ToCreature()->AI()->PowerModified(getPowerType(), GetPower(getPowerType()));
 
     return gain;
 }
@@ -17795,6 +17872,43 @@ void Unit::UpdateReactives(uint32 p_time)
         {
             m_reactiveTimer[reactive] -= p_time;
         }
+    }
+}
+
+void Unit::UpdateStackOnDuration(uint32 p_Time)
+{
+    for (AuraStackOnDurationMap::iterator l_Iter = m_StackOnDurationMap.begin(); l_Iter != m_StackOnDurationMap.end();)
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(l_Iter->first);
+
+        std::vector<std::pair<uint64, int32>> l_StackDuration = l_Stack->GetStackDuration();
+
+        bool l_MustContinue = false;
+        uint8 l_Count = 0;
+        for (std::pair<uint64, int32> l_StackParam : l_StackDuration)
+        {
+            if (l_StackParam.first <= p_Time)
+            {
+                if (l_StackDuration.size() <= 1)
+                {
+                    l_Iter = m_StackOnDurationMap.erase(l_Iter);
+                    l_MustContinue = true;
+                    break;
+                }
+
+                l_Stack->m_StackDuration.erase(l_Stack->m_StackDuration.begin() + l_Count);
+                continue;
+            }
+            else
+                l_Stack->DecreaseDuration(l_Count, p_Time);
+
+            ++l_Count;
+        }
+
+        if (l_MustContinue)
+            continue;
+
+        ++l_Iter;
     }
 }
 
@@ -21486,20 +21600,7 @@ bool Unit::IsVisionObscured(Unit* victim, SpellInfo const* spellInfo)
         else
             return true;
     }
-    // Victim and caster have aura with effect SPELL_AURA_INTERFERE_TARGETTING, but aura may be not smoke bomb.
-    else if (myAura != NULL && victimAura != NULL)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (AuraEffectPtr effect = myAura->GetEffect(i))
-            {
-                if (effect->GetAuraType() != SPELL_AURA_INTERFERE_TARGETTING)
-                    continue;
-                if (effect->GetAmount() && !IsFriendlyTo(victimCaster))
-                    return true;
-            }
-        }
-    }
+
     return false;
 }
 

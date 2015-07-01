@@ -1684,6 +1684,10 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 
         int32 gain = int32(newDamage* gainMultiplier);
 
+        /// Hack fix for Dark Animus
+        if (m_caster->GetEntry() == 69427)
+            gain = 1;
+
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, gainMultiplier);
@@ -4243,13 +4247,13 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     if (l_CurrentSpellInfo->Id == 133939 && m_spellInfo->Id != 134091)
                         continue;
 
-                    /// Item - Rogue WoD PvP 2P Bonus - 165995
-                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
+                    /// Item - Rogue WoD PvP 2P Bonus
+                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
+                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
                     /// Item - Shaman WoD PvP Elemental 4P Bonus - 171109
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(171109))
-                        m_originalCaster->CastSpell(unitTarget, 165996, true);
+                    if (m_spellInfo->Id == 57994 && m_originalCaster->HasAura(171109))
+                        m_originalCaster->CastSpell(m_originalCaster, 77762, true);
 
                     /// Item - Druid WoD PvP Feral 2P Bonus
                     if (m_spellInfo->Id == 93985 && m_originalCaster->HasAura(170848))
@@ -4265,9 +4269,6 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     /// Glyph of Rude interruption
                     if (m_spellInfo->Id == 6552 && m_originalCaster->HasAura(58372))
                         m_originalCaster->CastSpell(m_originalCaster, 86663, true);
-                    /// Item - Rogue WoD PvP 2P Bonus
-                    if (m_spellInfo->Id == 1766 && m_originalCaster->HasAura(165995))
-                        m_originalCaster->CastSpell(m_originalCaster, 165996, true);
 
                     int32 duration = m_spellInfo->GetDuration();
                     unitTarget->ProhibitSpellSchool(l_CurrentSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex));
@@ -6596,7 +6597,8 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
         return;
 
     // HACK FIX !! @TODO: Find how filter not stealable spells for boss
-    if (unitTarget->ToCreature() && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss()))
+    if (unitTarget->ToCreature()
+        && (unitTarget->ToCreature()->IsDungeonBoss() || unitTarget->ToCreature()->isWorldBoss() || unitTarget->ToCreature()->GetCreatureTemplate()->rank == CREATURE_ELITE_WORLDBOSS))
         return;
 
     DispelChargesList steal_list;

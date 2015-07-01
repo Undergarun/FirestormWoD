@@ -1863,7 +1863,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    // 3% of your health over 3 sec.
+                    /// 3% of your health over 3 sec.
                     int32 l_Health = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount()) / (l_SpellInfo->GetDuration() / IN_MILLISECONDS);
 
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARR_BLOOD_CRAZE_HEAL, &l_Health, nullptr, nullptr, true);
@@ -1879,6 +1879,66 @@ class spell_warr_blood_craze : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_blood_craze_Aurascript();
+        }
+};
+
+/// Blood Craze (aura) - 159363
+class spell_warr_blood_craze_aura : public SpellScriptLoader
+{
+    public:
+        spell_warr_blood_craze_aura() : SpellScriptLoader("spell_warr_blood_craze_aura") { }
+
+        class spell_warr_blood_craze_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_blood_craze_aura_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                /// 3% of your health over 3 sec.
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), p_AurEff->GetAmount());
+            }
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                p_AurEff->SetAmount(l_Stack->GetTotalAmount());
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveStackOnDuration(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_blood_craze_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectUpdate += AuraEffectUpdateFn(spell_warr_blood_craze_aura_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_blood_craze_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_blood_craze_aura_AuraScript();
         }
 };
 
@@ -2060,6 +2120,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_executor();
     new spell_warr_meat_cleaver();
     new spell_warr_shield_slam();
+    new spell_warr_blood_craze_aura();
 
     /// Playerscripts
     new PlayerScript_second_wind();

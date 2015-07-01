@@ -1,0 +1,3 @@
+-- (152261) Sacred Shield
+DELETE FROM `spell_proc_event` WHERE `entry` IN (152261);
+INSERT INTO `spell_proc_event` VALUES (152261, 0x00, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00022AA8, 0x00000040, 0, 100, 0);
