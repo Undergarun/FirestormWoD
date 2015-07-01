@@ -6482,7 +6482,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
-                    // Intervene and Safeguard can be casted in root effects, so we need to remove movement impairing auras before check cast result
+                    // Intervene can be casted in root effects, so we need to remove movement impairing auras before check cast result
                     if (m_spellInfo->Id == 34784)
                         m_caster->RemoveMovementImpairingAuras();
                 }

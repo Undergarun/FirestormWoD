@@ -2127,8 +2127,54 @@ class spell_warr_glyph_of_shattering_throw : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Defensive Stance - 71
+class spell_warr_defensive_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_defensive_stance() : SpellScriptLoader("spell_warr_defensive_stance") { }
+
+        enum eSpells
+        {
+            UnwaveringSentinel = 29144
+        };
+
+        class spell_warr_defensive_stance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_defensive_stance_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasSpell(eSpells::UnwaveringSentinel) && !l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->CastSpell(l_Target, eSpells::UnwaveringSentinel, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->RemoveAura(eSpells::UnwaveringSentinel);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_defensive_stance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_defensive_stance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_defensive_stance_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_defensive_stance();
     new spell_warr_glyph_of_shattering_throw();
     new spell_warr_shattering_throw();
     new spell_warr_sweeping_strikes();
