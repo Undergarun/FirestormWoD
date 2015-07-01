@@ -3472,6 +3472,51 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Grimoire of Synergy - 171975
+class spell_warl_grimoire_of_synergy : public SpellScriptLoader
+{
+    public:
+        spell_warl_grimoire_of_synergy() : SpellScriptLoader("spell_warl_grimoire_of_synergy") { }
+
+        class spell_warl_grimoire_of_synergy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_grimoire_of_synergy_AuraScript);
+
+            enum eSpells
+            {
+                GrimoireofSynergyBuff = 171982
+            };
+
+            void OnProc(constAuraEffectPtr /*p_AurEff*/, ProcEventInfo& /*p_EventInfo*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (Player* l_Player = l_Target->ToPlayer())
+                {
+                    Pet* l_Pet = l_Player->GetPet();
+
+                    if (l_Pet == nullptr)
+                        return;
+
+                    l_Player->CastSpell(l_Pet, eSpells::GrimoireofSynergyBuff, true);
+                }
+                else if (Unit* l_Owner = l_Target->GetOwner())
+                    l_Target->CastSpell(l_Owner, eSpells::GrimoireofSynergyBuff, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_grimoire_of_synergy_AuraScript();
+        }
+};
+
 enum WoDPvPDemonology2PBonusSpells
 {
     WoDPvPDemonology2PBonusAura = 171393,
@@ -3572,6 +3617,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_fel_firebolt();
     new spell_warl_grimoire_of_supremacy_effect();
     new spell_warl_doom_bolt();
+    new spell_warl_grimoire_of_synergy();
 
     new PlayerScript_WoDPvPDemonology2PBonus();
 }
