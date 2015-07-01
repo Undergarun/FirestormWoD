@@ -678,6 +678,8 @@ struct GameObjectTemplate
                 return flagdrop.open;
             case GAMEOBJECT_TYPE_CAPTURE_POINT:
                 return capturePoint.open;
+            case GAMEOBJECT_TYPE_NEW_FLAG_DROP:
+                return newflagdrop.open;
             default:
                 return 0;
         }

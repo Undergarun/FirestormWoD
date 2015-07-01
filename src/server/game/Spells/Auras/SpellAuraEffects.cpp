@@ -4104,16 +4104,16 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
-        target->UpdateSpeed(MOVE_SWIM, true);
+        target->UpdateSpeed(MOVE_SWIM, false);
         return;
     }
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    target->UpdateSpeed(MOVE_RUN, false);
 
     if (GetAuraType() == SPELL_AURA_MOD_MINIMUM_SPEED)
     {
-        target->UpdateSpeed(MOVE_RUN_BACK, true);
-        target->UpdateSpeed(MOVE_FLIGHT, true);
+        target->UpdateSpeed(MOVE_RUN_BACK, false);
+        target->UpdateSpeed(MOVE_FLIGHT, false);
     }
 }
 

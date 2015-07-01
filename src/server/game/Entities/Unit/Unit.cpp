@@ -496,43 +496,61 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 }
 
 uint32 const positionUpdateDelay = 400;
+uint32 const g_FlightSplineSyncDelay = 5 * TimeConstants::IN_MILLISECONDS;
 
-void Unit::UpdateSplineMovement(uint32 t_diff)
+void Unit::UpdateSplineMovement(uint32 p_Diff)
 {
+    bool l_Arrived = movespline->Finalized();
     if (movespline->Finalized())
         return;
 
-    movespline->updateState(t_diff);
-    bool arrived = movespline->Finalized();
+    movespline->updateState(p_Diff);
+    l_Arrived = movespline->Finalized();
 
-    if (arrived)
+    if (l_Arrived)
         DisableSpline();
 
-    m_movesplineTimer.Update(t_diff);
-    if (m_movesplineTimer.Passed() || arrived)
+    m_movesplineTimer.Update(p_Diff);
+    if (m_movesplineTimer.Passed() || l_Arrived)
         UpdateSplinePosition();
+
+    m_FlightSplineSyncTimer.Update(p_Diff);
+    if (m_FlightSplineSyncTimer.Passed())
+    {
+        float l_Percent = 1.0f;
+        float l_TotalTime = movespline->spline.length();
+        if (l_TotalTime > 0.0f)
+            l_Percent = (float)movespline->m_TimePassed / l_TotalTime;
+
+        SendFlightSplineSync(l_Percent);
+        m_FlightSplineSyncTimer.Reset(g_FlightSplineSyncDelay);
+    }
 }
 
 void Unit::UpdateSplinePosition()
 {
     m_movesplineTimer.Reset(positionUpdateDelay);
-    Movement::Location loc = movespline->ComputePosition();
+
+    Movement::Location l_Location = movespline->ComputePosition();
     if (GetTransGUID())
     {
-        Position& pos = m_movementInfo.t_pos;
-        pos.m_positionX = loc.x;
-        pos.m_positionY = loc.y;
-        pos.m_positionZ = loc.z;
-        pos.SetOrientation(loc.orientation);
-        if (Unit* vehicle = GetVehicleBase())
-        if (TransportBase* transport = GetDirectTransport())
-            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+        Position& l_Pos = m_movementInfo.t_pos;
+        l_Pos.m_positionX = l_Location.x;
+        l_Pos.m_positionY = l_Location.y;
+        l_Pos.m_positionZ = l_Location.z;
+        l_Pos.SetOrientation(l_Location.orientation);
+
+        if (GetVehicleBase())
+        {
+            if (TransportBase* l_Transport = GetDirectTransport())
+                l_Transport->CalculatePassengerPosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+        }
     }
 
-    if (HasUnitState(UNIT_STATE_CANNOT_TURN))
-        loc.orientation = GetOrientation();
+    if (HasUnitState(UnitState::UNIT_STATE_CANNOT_TURN))
+        l_Location.orientation = GetOrientation();
 
-    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+    UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
 }
 
 void Unit::DisableSpline()
@@ -14655,6 +14673,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
+    float l_OldRate = m_speed_rate[p_MovementType];
     m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
@@ -14922,6 +14941,22 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         else
             SendMessageToSet(&l_SelfPacket, true);
     }
+}
+
+void Unit::SendAdjustSplineDuration(float p_Scale)
+{
+    WorldPacket l_Data(Opcodes::SMSG_ADJUST_SPLINE_DURATION);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_Scale);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
+void Unit::SendFlightSplineSync(float p_SplineDist)
+{
+    WorldPacket l_Data(Opcodes::SMSG_FLIGHT_SPLINE_SYNC);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_SplineDist);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::setDeathState(DeathState s)

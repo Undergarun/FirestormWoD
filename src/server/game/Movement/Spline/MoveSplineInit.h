@@ -130,6 +130,10 @@ namespace Movement
          */
         void SetOrientationFixed(bool enable);
 
+        void SetDurationMod(float p_Mod);
+        void AddDurationMod(float p_Mod);
+        void RemoveDurationMod(float p_Mod);
+
         /* Sets the velocity (in case you want to have custom movement velocity)
          * if no set, speed will be selected based on unit's speeds and current movement mode
          * Has no effect if falling mode enabled
@@ -144,6 +148,7 @@ namespace Movement
         void DisableTransportPathTransformations();
     protected:
 
+        float m_DurationMod;
         MoveSplineInitArgs args;
         Unit&  m_Unit;
     };
