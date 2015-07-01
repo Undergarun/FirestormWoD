@@ -2076,8 +2076,60 @@ class spell_warr_shattering_throw : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Shattering Throw - 159759
+class spell_warr_glyph_of_shattering_throw : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_shattering_throw() : SpellScriptLoader("spell_warr_glyph_of_shattering_throw") { }
+
+        class spell_warr_glyph_of_shattering_throw_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_shattering_throw_AuraScript);
+
+            enum eSpells
+            {
+                ShatteringThrow = 64382
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::ShatteringThrow))
+                    l_Player->learnSpell(eSpells::ShatteringThrow, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::ShatteringThrow))
+                    l_Player->removeSpell(eSpells::ShatteringThrow, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_glyph_of_shattering_throw_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_glyph_of_shattering_throw_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_glyph_of_shattering_throw_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_glyph_of_shattering_throw();
     new spell_warr_shattering_throw();
     new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
