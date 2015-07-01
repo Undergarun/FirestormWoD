@@ -2888,7 +2888,7 @@ class spell_dru_starfall_dummy: public SpellScriptLoader
                 /// Glyph of Untamed Stars expands Starfall to hit all targets within range.
                 if (!l_Caster->HasAura(SPELL_DRUID_GLYPH_OF_UNTAMED_STARS))
                 {
-                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE_DAMAGE))
+                    if (!l_Target->HasAura(SPELL_DRUID_MOONFIRE_DAMAGE, l_Caster->GetGUID()) && !l_Target->HasAura(SPELL_DRUID_SUNFIRE_DAMAGE, l_Caster->GetGUID()))
                         return;
                 }
 
