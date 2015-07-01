@@ -426,6 +426,7 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
 /// Berzerker Rage - 18499
 class spell_warr_berzerker_rage: public SpellScriptLoader
 {
@@ -438,12 +439,13 @@ class spell_warr_berzerker_rage: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    _player->CastSpell(_player, WARRIOR_SPELL_ENRAGE, true);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARRIOR_ARMS)
+                        l_Player->CastSpell(l_Player, WARRIOR_SPELL_ENRAGE, true); ///< It should proc only on fury and prot because they have Enrage passive talent and arms not
 
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_FURY && _player->getLevel() >= GetSpellInfo()->BaseLevel)
-                        _player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, _player);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY && l_Player->getLevel() >= GetSpellInfo()->BaseLevel)
+                        l_Player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, l_Player);
                 }
             }
 
