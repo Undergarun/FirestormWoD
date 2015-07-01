@@ -479,7 +479,11 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
+            /// Howl of Terror - 6 seconds in PvP (6.0)
             if (spellproto->Id == 5484)
+                return 6 * IN_MILLISECONDS;
+            /// Fear - 6 seconds in PvP (6.0)
+            if (spellproto->Id == 5782)
                 return 6 * IN_MILLISECONDS;
             break;
         }
