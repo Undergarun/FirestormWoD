@@ -1101,6 +1101,30 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+/// Mocking Banner - 59390
+class spell_npc_warr_mocking_banner : public CreatureScript
+{
+    public:
+        spell_npc_warr_mocking_banner() : CreatureScript("spell_npc_warr_mocking_banner") { }
+
+        struct spell_npc_warr_mocking_bannerAI : public ScriptedAI
+        {
+            spell_npc_warr_mocking_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warr_mocking_bannerAI(p_Creature);
+        }
+};
+
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
@@ -1120,6 +1144,7 @@ void AddSC_npc_spell_scripts()
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
+    new spell_npc_warr_mocking_banner();
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();

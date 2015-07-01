@@ -500,30 +500,29 @@ class spell_warr_mocking_banner: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_mocking_banner_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* target = GetTarget())
+                Unit* l_Target = GetTarget();
+
+                std::list<Creature*> l_BannerList;
+                std::list<Creature*> l_TempList;
+
+                l_Target->GetCreatureListWithEntryInGrid(l_TempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
+
+                l_BannerList = l_TempList;
+
+                // Remove other players banners
+                for (auto itr : l_TempList)
                 {
-                    std::list<Creature*> bannerList;
-                    std::list<Creature*> tempList;
+                    Unit* l_Owner = itr->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Target->GetGUID() && itr->isSummon())
+                        continue;
 
-                    target->GetCreatureListWithEntryInGrid(tempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
-
-                    bannerList = tempList;
-
-                    // Remove other players banners
-                    for (auto itr : tempList)
-                    {
-                        Unit* owner = itr->GetOwner();
-                        if (owner && owner == target && itr->isSummon())
-                            continue;
-
-                        bannerList.remove(itr);
-                    }
-
-                    for (auto itr : bannerList)
-                        target->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
+                    l_BannerList.remove(itr);
                 }
+
+                for (auto itr : l_BannerList)
+                    itr->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
             }
 
             void Register()
