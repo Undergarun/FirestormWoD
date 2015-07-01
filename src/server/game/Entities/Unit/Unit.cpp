@@ -518,7 +518,7 @@ void Unit::UpdateSplineMovement(uint32 p_Diff)
         float l_Percent = 1.0f;
         float l_TotalTime = movespline->spline.length();
         if (l_TotalTime > 0.0f)
-            l_Percent = (float)movespline->time_passed / l_TotalTime;
+            l_Percent = (float)movespline->m_TimePassed / l_TotalTime;
 
         SendFlightSplineSync(l_Percent);
         m_FlightSplineSyncTimer.Reset(g_FlightSplineSyncDelay);
@@ -14607,7 +14607,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (!IsInWorld())
         return;
 
-    bool l_MustAdjustSplineDuration = false;
     ObjectGuid l_Guid = GetGUID();
     if (!forced && GetTypeId() != TYPEID_PLAYER)
     {
@@ -14627,10 +14626,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
                 l_Data.Initialize(SMSG_SPLINE_MOVE_SET_RUN_SPEED, 16 + 2 + 4);
                 l_Data.appendPackGUID(l_Guid);
                 l_Data << float(GetSpeed(p_MovementType));
-
-                if (!movespline->Finalized())
-                    l_MustAdjustSplineDuration = true;
-
                 break;
             }
             case MOVE_RUN_BACK:
@@ -14868,23 +14863,6 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         }
         else
             SendMessageToSet(&l_SelfPacket, true);
-    }
-
-    /// Adjust Spline duration for client
-    if (l_MustAdjustSplineDuration && m_speed_rate[p_MovementType] != 0.0f)
-    {
-        float l_Scale = l_OldRate / m_speed_rate[p_MovementType];
-        if (l_Scale != 1.0f)
-        {
-            SendAdjustSplineDuration(l_Scale);
-
-            if (l_Scale > 1.0f)
-                movespline->RemoveDurationMod(l_Scale);
-            else
-                movespline->AddDurationMod(l_Scale);
-
-            movespline->RecalculateLengths();
-        }
     }
 }
 

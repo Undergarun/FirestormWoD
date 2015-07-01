@@ -183,7 +183,7 @@ namespace Movement
         l_Data << uint32(l_Splineflags & ~MoveSplineFlag::Mask_No_Monster_Move);                    ///< Spline raw flags
         l_Data << uint8(l_Splineflags.getAnimationId());                                            ///< Animation ID
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Animation Time
-        l_Data << uint32(l_MoveSpline.timePassed());                                                ///< Elapsed time
+        l_Data << uint32(l_MoveSpline.TimePassed());                                                ///< Elapsed time
         l_Data << uint32(l_MoveSpline.Duration());                                                  ///< Duration
         l_Data << float(l_MoveSpline.vertical_acceleration);                                        ///< Vertical Acceleration (AKA Jump gravity)
         l_Data << int32(l_MoveSpline.effect_start_time);                                            ///< Parabolic Time (AKA Special time)
@@ -336,7 +336,7 @@ namespace Movement
         m_Unit.SendMessageToSet(&l_Data, true);
     }
 
-    MoveSplineInit::MoveSplineInit(Unit& m) : m_Unit(m), m_DurationMod(1.0f)
+    MoveSplineInit::MoveSplineInit(Unit& m) : m_Unit(m)
     {
         args.splineId = splineIdGen.NewId();
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes

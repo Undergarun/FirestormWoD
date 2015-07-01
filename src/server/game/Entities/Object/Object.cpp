@@ -391,7 +391,6 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
             bool l_HasTransportInformations = l_Unit->m_movementInfo.t_guid != 0;
             bool l_HasFallData              = l_Unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || l_Unit->m_movementInfo.fallTime != 0;
-            bool l_HasMovementSpline        = false;
             bool l_HeightChangeFailed       = false;
             bool l_RemoteTimeValid          = false;
 
@@ -413,7 +412,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             p_Data->WriteBits(l_ExtraMovementFlags, 15);                    ///< Extra movement flags
             p_Data->WriteBit(l_HasTransportInformations);                   ///< Has transport informations
             p_Data->WriteBit(l_HasFallData);                                ///< Has fall data
-            p_Data->WriteBit(l_HasMovementSpline);                          ///< Has Movement Spline
+            p_Data->WriteBit(l_HasSpline);                                  ///< Has Movement Spline
             p_Data->WriteBit(l_HeightChangeFailed);                         ///< Height Change Failed
             p_Data->WriteBit(l_RemoteTimeValid);                            ///< Remote Time Valid
 
@@ -488,7 +487,7 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
 
         if (l_HasSpline)
         {
-            Movement::MoveSpline * l_Spline = l_Unit->movespline;
+            Movement::MoveSpline* l_Spline = l_Unit->movespline;
 
             *p_Data << uint32(l_Spline->GetId());                           ///< Move spline ID
 
@@ -502,9 +501,12 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
             }
             else
             {
-                *p_Data << float(0);                                        ///< Spline destination X
-                *p_Data << float(0);                                        ///< Spline destination Y
-                *p_Data << float(0);                                        ///< Spline destination Z
+                /// I've seen always the third points as Spline destination... Don't know why
+                Vector3 l_Destination = l_Spline->spline.last() > 2 ? l_Spline->spline.getPoint(2) : l_Spline->spline.getPoint(l_Spline->spline.last());
+
+                *p_Data << float(l_Destination.x);                                        ///< Spline destination X
+                *p_Data << float(l_Destination.y);                                        ///< Spline destination Y
+                *p_Data << float(l_Destination.z);                                        ///< Spline destination Z
             }
 
             p_Data->WriteBit(!l_Spline->Finalized());                       ///< HasSplineMove
@@ -539,10 +541,10 @@ void Object::BuildMovementUpdate(ByteBuffer* p_Data, uint32 p_Flags) const
                 p_Data->WriteBit(l_HasFilterKeys);                          ///< Has unk spline part
                 p_Data->FlushBits();
 
-                *p_Data << uint32(l_Spline->timePassed());                  ///< Time passed
+                *p_Data << uint32(l_Spline->TimePassed());                  ///< Time passed
                 *p_Data << uint32(l_Spline->Duration());                    ///< Total spline duration
-                *p_Data << float(1.f);                                      ///< splineInfo.duration_mod; added in 3.1
-                *p_Data << float(1.f);                                      ///< splineInfo.duration_mod_next; added in 3.1
+                *p_Data << float(1.0f);                                     ///< DurationMod
+                *p_Data << float(1.0f);                                     ///< DurationModNext
                 *p_Data << uint32(l_Spline->getPath().size());              ///< Path node count
 
                 if (l_FinalFacingMove == 3)

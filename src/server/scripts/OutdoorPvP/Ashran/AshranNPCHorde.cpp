@@ -3494,11 +3494,6 @@ class npc_ashran_speedy_horde_racer : public CreatureScript
     public:
         npc_ashran_speedy_horde_racer() : CreatureScript("npc_ashran_speedy_horde_racer") { }
 
-        enum eEvent
-        {
-            EventCheckPos = 1
-        };
-
         enum eSpell
         {
             HordeRacer = 166819
@@ -3506,15 +3501,16 @@ class npc_ashran_speedy_horde_racer : public CreatureScript
 
         struct npc_ashran_speedy_horde_racerAI : public MS::AI::CosmeticAI
         {
-            npc_ashran_speedy_horde_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature) { }
+            npc_ashran_speedy_horde_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_CheckCooldown = time(nullptr) + 5;;
+            }
 
-            Position m_LapPos;
-            EventMap m_Events;
+            uint8 m_MoveIndex;
+            uint32 m_CheckCooldown;
 
             void InitializeAI()
             {
-                m_LapPos = *me;
-
                 Reset();
             }
 
@@ -3522,6 +3518,8 @@ class npc_ashran_speedy_horde_racer : public CreatureScript
             {
                 me->CastSpell(me, eSpell::HordeRacer, true);
                 me->ModifyAuraState(AuraStateType::AURA_STATE_UNKNOWN22, true);
+
+                m_MoveIndex = 0;
 
                 AddTimedDelayedOperation(500, [this]() -> void
                 {
@@ -3531,40 +3529,27 @@ class npc_ashran_speedy_horde_racer : public CreatureScript
 
                 AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    Movement::MoveSplineInit l_Init(*me);
-                    FillRidePath(l_Init.Path());
-                    l_Init.SetCyclic();
-                    l_Init.Launch();
+                    me->GetMotionMaster()->MovePoint(m_MoveIndex, g_HordeRacingMoves[m_MoveIndex]);
                 });
-
-                /// Begin to check pos after 5s, to prevent counting laps too soon
-                m_Events.ScheduleEvent(eEvent::EventCheckPos, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const p_Diff) override
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
             {
-                MS::AI::CosmeticAI::UpdateAI(p_Diff);
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
 
-                m_Events.Update(p_Diff);
+                ++m_MoveIndex;
 
-                if (m_Events.ExecuteEvent() == eEvent::EventCheckPos)
+                if (m_MoveIndex >= eAshranDatas::HordeRacingMovesCount)
                 {
-                    if (me->IsNearPosition(&m_LapPos, 0.5f))
-                    {
-                        IncreaseLapCount();
-
-                        /// Begin to check pos after 5s, to prevent counting laps too soon
-                        m_Events.ScheduleEvent(eEvent::EventCheckPos, 5 * TimeConstants::IN_MILLISECONDS);
-                    }
-                    else
-                        m_Events.ScheduleEvent(eEvent::EventCheckPos, 100);
+                    m_MoveIndex = 0;
+                    IncreaseLapCount();
                 }
-            }
 
-            void FillRidePath(Movement::PointsArray& p_Path)
-            {
-                for (uint8 l_I = 0; l_I < eAshranDatas::HordeRacingMovesCount; ++l_I)
-                    p_Path.push_back(g_HordeRacingMoves[l_I]);
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    me->GetMotionMaster()->MovePoint(m_MoveIndex, g_HordeRacingMoves[m_MoveIndex]);
+                });
             }
 
             void IncreaseLapCount()

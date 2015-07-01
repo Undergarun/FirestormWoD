@@ -36,8 +36,8 @@ enum eAshranDatas
     AshranHallowedGroundA       = 7781,
     AshranHallowedGroundID      = 42989,
     AncientArtifactCount        = 9,
-    AllianceRacingMovesCount    = 40,
-    HordeRacingMovesCount       = 37,
+    AllianceRacingMovesCount    = 39,
+    HordeRacingMovesCount       = 36,
     MaxStadiumRacingLaps        = 3,
 
     /// Misc
@@ -701,7 +701,6 @@ go_type const g_RacingFlagsPos[eSpecialSpawns::MaxRacingFlags] =
 
 G3D::Vector3 const g_AllianceRacingMoves[eAshranDatas::AllianceRacingMovesCount] =
 {
-    { 4805.709f, -3872.469f, 7.171597f },
     { 4814.682f, -3862.875f, 5.536155f },
     { 4815.376f, -3862.155f, 5.536155f },
     { 4816.498f, -3862.345f, 6.306688f },
@@ -745,7 +744,6 @@ G3D::Vector3 const g_AllianceRacingMoves[eAshranDatas::AllianceRacingMovesCount]
 
 G3D::Vector3 const g_HordeRacingMoves[eAshranDatas::HordeRacingMovesCount] =
 {
-    { 4768.788f, -3832.371f, 4.797024f },
     { 4777.989f, -3825.748f, 4.340241f },
     { 4778.601f, -3824.957f, 4.340241f },
     { 4780.496f, -3821.010f, 3.984424f },
