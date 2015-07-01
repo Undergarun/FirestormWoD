@@ -3359,8 +3359,6 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                 Pet* l_Pet = GetUnitOwner()->ToPlayer()->GetPet();
                 if (l_Pet != nullptr)
                     targetList.push_back(l_Pet);
-                if (GetSpellInfo()->Id == 171975) ///< Hack Fix for Grimoire of Synergy
-                    targetList.push_back(GetUnitOwner());
             }
         }
         else

@@ -3508,6 +3508,7 @@ class spell_warl_grimoire_of_synergy : public SpellScriptLoader
             void Register()
             {
                 OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_warl_grimoire_of_synergy_AuraScript::OnProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
