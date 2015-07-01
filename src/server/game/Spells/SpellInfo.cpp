@@ -1131,7 +1131,7 @@ SpellInfo::SpellInfo(SpellEntry const* p_SpellEntry, uint32 p_Difficulty)
     RangeEntry = sSpellRangeStore.LookupEntry(rangeIndex);
     Speed = _misc ? _misc->speed : 1.00f;
 
-    for (uint8 i = 0; i < 2; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_VISUAL; ++i)
         SpellVisual[i] = 0;
 
     SpellIconID = _misc ? _misc->SpellIconID : 0;

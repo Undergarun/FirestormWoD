@@ -3121,7 +3121,11 @@ void SpellMgr::LoadSpellInfoStore()
 
             for (int l_I = 0; l_I < MAX_SPELL_VISUAL + 1; l_I++)
             {
-                assert("MAX_SPELL_VISUAL too low, needs to be increased!" && l_I < MAX_SPELL_VISUAL);
+                if (l_I >= MAX_SPELL_VISUAL)
+                {
+                    printf("MAX_SPELL_VISUAL too low, needs to be increased for spell %i!\n", l_Entry->SpellId);
+                    assert(false);
+                }
 
                 if (!l_SpellInfo->SpellVisual[l_I])
                 {
