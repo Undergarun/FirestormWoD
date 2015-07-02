@@ -4886,6 +4886,41 @@ class npc_consecration : public CreatureScript
             return new npc_consecrationAI(creature);
         }
 };
+/*######
+# npc_xuen_the_white_tiger
+######*/
+
+class npc_xuen_the_white_tiger : public CreatureScript
+{
+    public:
+        npc_xuen_the_white_tiger() : CreatureScript("npc_xuen_the_white_tiger") { }
+
+        enum eSpells
+        {
+            CRACKLING_TIGER_LIGHTNING = 123999
+        };
+        struct npc_xuen_the_white_tigerAI : public PetAI
+        {
+            EventMap events;
+
+            npc_xuen_the_white_tigerAI(Creature* creature) : PetAI(creature)
+            {
+                me->SetReactState(ReactStates::REACT_HELPER);
+            }
+
+            void Reset() override
+            {
+                PetAI::Reset();
+
+                me->CastSpell(me, eSpells::CRACKLING_TIGER_LIGHTNING, true);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_xuen_the_white_tigerAI(creature);
+        }
+};
 
 void AddSC_npcs_special()
 {
@@ -4941,4 +4976,5 @@ void AddSC_npcs_special()
     new npc_training_dummy_damage();
     new npc_training_dummy_tanking();
     new npc_consecration();
+    new npc_xuen_the_white_tiger();
 }

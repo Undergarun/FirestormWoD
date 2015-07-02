@@ -4387,8 +4387,11 @@ bool SpellInfo::CannotBeAddedToCharm() const
 {
     switch (Id)
     {
-        case 121087: // Ground Slam
-        case 121224: // Spirit Bolt
+        case 121087: ///< Ground Slam
+        case 121224: ///< Spirit Bolt
+        case 123995: ///< Invoke Xuen, the White Tiger
+        case 123996: ///< Crackling Tiger Lightning
+        case 123999: ///< Crackling Tiger Lightning Driver
             return false;
         default:
             return true;
