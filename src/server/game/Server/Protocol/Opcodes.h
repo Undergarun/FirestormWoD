@@ -170,6 +170,8 @@ enum Opcodes
         SMSG_PRE_RESURRECT                          = 0x01A5, ///< 6.2.0 19173
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0017, ///< 6.2.0 19173
         SMSG_SET_AI_ANIM_KIT                        = 0x0E36, ///< 6.2.0 19173
+        SMSG_SET_MELEE_ANIM_KIT                     = 0x0C83, ///< 6.2.0 19173
+        SMSG_SET_MOVEMENT_ANIM_KIT                  = 0x0688, ///< 6.2.0 19173
         SMSG_PLAYER_BOUND                           = 0x08A0, ///< 6.2.0 19173
         SMSG_OVERRIDE_LIGHT                         = 0x08DC, ///< 6.2.0 19173
         SMSG_PRINT_NOTIFICATION                     = 0x0E20, ///< 6.2.0 19173
