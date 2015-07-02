@@ -166,7 +166,6 @@ enum Opcodes
         SMSG_COMPLAIN_RESULT                        = 0x0D31, ///< 6.2.0 19173
         SMSG_XPGAIN_ABORTED                         = 0x01A6, ///< 6.2.0 19173
         SMSG_SUPERCEDED_SPELL                       = 0x023A, ///< 6.2.0 19173
-        SMSG_XPGAIN_ABORTED                         = 0x0000, ///< (unused)
         SMSG_PVP_CREDIT                             = 0x0726, ///< 6.2.0 19173
         SMSG_PRE_RESURRECT                          = 0x01A5, ///< 6.2.0 19173
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0017, ///< 6.2.0 19173
