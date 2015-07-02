@@ -39,12 +39,10 @@ class boss_koragh : public CreatureScript
             /// Expel Magic: Shadow
             ExpelMagicShadow            = 162184,
             /// Expel Magic: Frost
-            ExpelMagicFrostSearcher     = 177709,
             ExpelMagicFrostAreaTrigger  = 172747,
             ExpelMagicFrostDamage       = 161411,
             ExpelMagicFrostAura         = 172813,
             /// Suppression Field
-            SuppressionFieldSearcher    = 161306,
             SuppressionFieldAura        = 161328,
             SuppressionFieldMissile     = 161331,   ///< Triggers 161330 (AreaTrigger) and 161358 (Damage)
             SuppressionFieldDoT         = 161345,
@@ -262,6 +260,8 @@ class boss_koragh : public CreatureScript
 
                     me->SetAIAnimKitId(eAnimKit::AnimWaiting);
                 }
+
+                m_Events.Reset();
             }
 
             void SetGUID(uint64 p_Guid, int32 p_ID) override
@@ -336,7 +336,7 @@ class boss_koragh : public CreatureScript
                         m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfCharging, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
-                    case eSpells::SuppressionFieldSearcher:
+                    case eSpells::SuppressionFieldAura:
                     {
                         me->RemoveAura(eSpells::SuppressionFieldAura);
                         me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
@@ -493,47 +493,6 @@ class boss_koragh : public CreatureScript
                         Talk(eTalks::ExpelMagicArcaneWarn, p_Target->GetGUID());
                         break;
                     }
-                    case eSpells::SuppressionFieldSearcher:
-                    {
-                        float l_Distance = me->GetDistance(p_Target);
-
-                        if (l_Distance <= 10.0f)
-                        {
-                            me->SetFacingToObject(p_Target);
-
-                            me->RemoveAura(eSpells::SuppressionFieldAura);
-                            me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
-
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            {
-                                me->GetMotionMaster()->Clear();
-                                me->GetMotionMaster()->MoveChase(l_Target);
-                            }
-                        }
-                        else
-                        {
-                            float l_Orientation = me->GetAngle(p_Target);
-                            float l_Radius = me->GetDistance(p_Target) - 10.0f;
-                            float l_X = me->GetPositionX() + (l_Radius * cos(l_Orientation));
-                            float l_Y = me->GetPositionY() + (l_Radius * sin(l_Orientation));
-
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveCharge(l_X, l_Y, me->GetPositionZ(), SPEED_CHARGE, eSpells::SuppressionFieldSearcher);
-                        }
-
-                        break;
-                    }
-                    case eSpells::ExpelMagicFrostSearcher:
-                    {
-                        me->CastSpell(p_Target, eSpells::ExpelMagicFrostAreaTrigger, false);
-
-                        AddTimedDelayedOperation(1500, [this]() -> void
-                        {
-                            me->CastSpell(me, eSpells::ExpelMagicFrostDamage, true);
-                        });
-
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -598,7 +557,7 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventExpelMagicArcane:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(l_Target, eSpells::ExpelMagicArcaneAura, false);
                         Talk(eTalks::ExpelMagic);
                         m_Events.ScheduleEvent(eEvents::EventExpelMagicArcane, 30 * TimeConstants::IN_MILLISECONDS);
@@ -606,7 +565,16 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventExpelMagicFrost:
                     {
-                        me->CastSpell(me, eSpells::ExpelMagicFrostSearcher, true);
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        {
+                            me->CastSpell(l_Target, eSpells::ExpelMagicFrostAreaTrigger, false);
+
+                            AddTimedDelayedOperation(1500, [this]() -> void
+                            {
+                                me->CastSpell(me, eSpells::ExpelMagicFrostDamage, true);
+                            });
+                        }
+
                         Talk(eTalks::ExpelMagic);
                         m_Events.ScheduleEvent(eEvents::EventExpelMagicFrost, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
@@ -620,9 +588,41 @@ class boss_koragh : public CreatureScript
                     }
                     case eEvents::EventSuppressionField:
                     {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f))
+                        {
+                            me->CastSpell(me, eSpells::SuppressionFieldAura, false);
+
+                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Target]() -> void
+                            {
+                                float l_Distance = me->GetDistance(l_Target);
+
+                                if (l_Distance <= 10.0f)
+                                {
+                                    me->SetFacingToObject(l_Target);
+
+                                    me->RemoveAura(eSpells::SuppressionFieldAura);
+                                    me->CastSpell(me, eSpells::SuppressionFieldMissile, true);
+
+                                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                                    {
+                                        me->GetMotionMaster()->Clear();
+                                        me->GetMotionMaster()->MoveChase(l_Target);
+                                    }
+                                }
+                                else
+                                {
+                                    float l_Orientation = me->GetAngle(l_Target);
+                                    float l_Radius = me->GetDistance(l_Target) - 10.0f;
+                                    float l_X = me->GetPositionX() + (l_Radius * cos(l_Orientation));
+                                    float l_Y = me->GetPositionY() + (l_Radius * sin(l_Orientation));
+
+                                    me->GetMotionMaster()->Clear();
+                                    me->GetMotionMaster()->MoveCharge(l_X, l_Y, l_Target->GetPositionZ(), SPEED_CHARGE, eSpells::SuppressionFieldAura);
+                                }
+                            });
+                        }
+
                         Talk(eTalks::SuppressionField);
-                        me->CastSpell(me, eSpells::SuppressionFieldSearcher, true);
-                        me->CastSpell(me, eSpells::SuppressionFieldAura, true);
                         m_Events.ScheduleEvent(eEvents::EventSuppressionField, 17 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
