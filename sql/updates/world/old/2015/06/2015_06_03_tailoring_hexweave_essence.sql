@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id=168865 AND ScriptName="spell_Skill_ResetSecondaryProperties";
+INSERT INTO spell_script_names(spell_id, ScriptName) VALUES (168865, "spell_Skill_ResetSecondaryProperties");

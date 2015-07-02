@@ -397,8 +397,8 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // some commands have custom error messages. Don't send the default one in these cases.
         else if (!HasSentErrorMessage())
         {
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
             else
                 SendSysMessage(LANG_CMD_SYNTAX);
         }
@@ -448,7 +448,13 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
             sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
-        table[i].Help          = help;
+
+        char * l_NewHelp = new char[help.size() + 1];
+        sprintf(l_NewHelp, "%s", help.c_str());
+        l_NewHelp[help.size()] = '\0';
+
+        table[i].Help = (char const*)l_NewHelp;
+
         return true;
     }
 
@@ -624,14 +630,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
                     return true;
             }
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, table[i].Name, subcmd ? subcmd : ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return table[i].Help && strlen(table[i].Help);
         }
     }
     else
@@ -645,14 +651,14 @@ bool ChatHandler::ShowHelpForCommand(ChatCommand* table, const char* cmd)
             if (strlen(table[i].Name))
                 continue;
 
-            if (!table[i].Help.empty())
-                SendSysMessage(table[i].Help.c_str());
+            if (table[i].Help && strlen(table[i].Help))
+                SendSysMessage(table[i].Help);
 
             if (table[i].ChildCommands)
                 if (ShowHelpForSubCommands(table[i].ChildCommands, "", ""))
                     return true;
 
-            return !table[i].Help.empty();
+            return (table[i].Help && strlen(table[i].Help));
         }
     }
 
@@ -855,6 +861,67 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
     strtok(cKeysTail, "]");                                 // restart scan tail and skip name with possible spaces
     strtok(NULL, " ");                                      // skip link tail (to allow continue strtok(NULL, s) use after return from function
     return cKey;
+}
+
+uint32 ChatHandler::GetItemIDAndBonusesFromLink(char* p_Text, std::vector<uint32>& p_Bonuses, char** p_Something)
+{
+    /// Skip empty
+    if (!p_Text)
+        return 0;
+
+    /// Skip spaces
+    while (*p_Text == ' ' || *p_Text == '\t' || *p_Text == '\b')
+        ++p_Text;
+
+    if (!*p_Text)
+        return 0;
+
+    /// Return non link case
+    if (p_Text[0] != '|')
+        return atoi(strtok(p_Text, " "));
+
+    /// [name] Shift-click form |color|linkType:key|h[name]|h|r
+    /// Or
+    /// [name] Shift-click form |color|linkType:key:something1:...:somethingN|h[name]|h|r
+
+    char* l_Check = strtok(p_Text, "|");                    ///< Skip color
+    if (!l_Check)
+        return 0;                                           ///< End of data
+
+    char* l_CLinkType = strtok(nullptr, ":");               ///< Linktype
+    if (!l_CLinkType)
+        return 0;                                           ///< End of data
+
+    if (strcmp(l_CLinkType, "Hitem") != 0)
+    {
+        strtok(nullptr, " ");                               ///< Skip link tail (to allow continue strtok(NULL, s) use after return from function
+        SendSysMessage(LANG_WRONG_LINK_TYPE);
+        return 0;
+    }
+
+    char* l_CKeys = strtok(nullptr, "|");                   ///< Extract keys and values
+    char* l_CBonuses = l_CKeys;
+    char* l_CKeysTail = strtok(nullptr, "");
+
+    /// Bonus is the last one
+    uint32 l_Bonus = 0;
+    char* l_CBonus = strtok(l_CBonuses, ":|");
+    while (l_CBonus != nullptr)
+    {
+        l_Bonus = l_CBonus ? atol(l_CBonus) : 0;
+        l_CBonus = strtok(nullptr, ":|");
+    }
+
+    if (l_Bonus)
+        p_Bonuses.push_back(l_Bonus);
+
+    char* l_CKey = strtok(l_CKeys, ":|");                   ///< Extract key
+    if (p_Something)
+        *p_Something = strtok(nullptr, ":|");               ///< Extract something
+
+    strtok(l_CKeysTail, "]");                               ///< Restart scan tail and skip name with possible spaces
+    strtok(nullptr, " ");                                   ///< Skip link tail (to allow continue strtok(NULL, s) use after return from function
+    return l_CKey ? atol(l_CKey) : 0;
 }
 
 char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1)

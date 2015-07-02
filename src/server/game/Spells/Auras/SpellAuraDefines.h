@@ -518,14 +518,14 @@ enum AuraType
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,  // 6.0.X
     SPELL_AURA_INCREASE_DUAL_WIELD_DAMAGE                   = 458,  // 6.0.X
     SPELL_AURA_459                                          = 459,  // 6.0.X
-    SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                   = 460,  // 6.0.X
+    SPELL_AURA_RESET_COOLDOWNS_BEFORE_DUEL                  = 460,  // 6.0.X
     SPELL_AURA_461                                          = 461,  // 6.0.X
     SPELL_AURA_462                                          = 462,  // 6.0.X
     SPELL_AURA_CONVERT_CRIT_RATING_PCT_TO_PARRY_RATING      = 463,  // 6.0.X
     SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT                  = 464,  // 6.0.X
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,  // 6.0.X
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // 6.0.X
-    SPELL_AURA_467                                          = 467,  // 6.0.X
+    SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467,  // Affects stat gain from all sources except base stats
     SPELL_AURA_MOD_VERSATILITY                              = 468,  // 6.0.X SPELL_AURA_MOD_VERSATILITY
     SPELL_AURA_TRIGGER_BONUS_LOOT_2                         = 469,  // 6.0.X SPELL_AURA_TRIGGER_BONUS_LOOT_2
     SPELL_AURA_470                                          = 470,  // 6.0.X

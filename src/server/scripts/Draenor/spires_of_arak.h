@@ -24,7 +24,8 @@ namespace SpiresOfArakSpells
         SpellFixate               = 167757,
         SpellFixateSkyReach       = 176544, ///< skyreach spell, may be useful
         SpellSunburst             = 169810, ///< Explodes when killed by players (unused yet, maybe simply related to skyreach)
-        SpellSunStrike            = 153828  ///< Explodes when reaches a player (unused yet, maybe simply related to skyreach)
+        SpellSunStrike            = 153828, ///< Explodes when reaches a player (unused yet, maybe simply related to skyreach)
+        SouthshoreMobScalingAura  = 169704
     };
 }
 
@@ -32,13 +33,14 @@ namespace SpiresOfArakEvents
 {
     enum
     {
-        EventLooseQuills    = 1,
-        EventSharpBeak      = 2,
-        EventSolarBreath    = 3,
-        EventBlazeOfGlory   = 4,
-        EventBloodFeather   = 5,
-        EventSolarRadiation = 6,
-        EventMoveToPlayer   = 7
+        EventLooseQuills      = 1,
+        EventSharpBeak        = 2,
+        EventSolarBreath      = 3,
+        EventBlazeOfGlory     = 4,
+        EventBloodFeather     = 5,
+        EventSolarRadiation   = 6,
+        EventMoveToPlayer     = 7,
+        EventTurnPhoenixToAsh = 8
     };
 }
 
@@ -49,10 +51,19 @@ namespace SpiresOfArakQuests
     };
 }
 
+namespace SpiresOfArakDatas
+{
+    enum
+    {
+        HealthScalingCoeff = 10
+    };
+}
+
 namespace SpiresOfArakActions
 {
     enum
     {
+        ActionMoveDownToward = 1
     };
 }
 

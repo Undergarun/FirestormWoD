@@ -1413,6 +1413,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_MOP_TRANSFER_ENABLE] = ConfigMgr::GetBoolDefault("MopTransfer.enable", false);
 
+    m_bool_configs[CONFIG_LOG_PACKETS] = ConfigMgr::GetBoolDefault("LogPackets", true);
+
     std::string fn_analogsfile = ConfigMgr::GetStringDefault("LexicsCutterAnalogsFile", "letter_analogs.txt");
     std::string fn_wordsfile = ConfigMgr::GetStringDefault("LexicsCutterWordsFile", "innormative_words.txt");
 
@@ -2669,6 +2671,7 @@ void World::Update(uint32 diff)
         CharacterDatabase.KeepAlive();
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
+        HotfixDatabase.KeepAlive();
     }
 
     if (m_timers[WUPDATE_GUILDSAVE].Passed())
@@ -3196,14 +3199,6 @@ void World::ShutdownMsg(bool show, Player* player)
 
         SendServerMessage(msgid, str.c_str(), player);
         sLog->outDebug(LOG_FILTER_GENERAL, "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
-    }
-
-    if (m_ShutdownTimer == 5)
-        sWorld->KickAll(); // save and kick all players
-    else if (m_ShutdownTimer == 2)
-    {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Automatic scheduled server restart!");
-        ASSERT(false);
     }
 }
 

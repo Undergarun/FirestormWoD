@@ -67,6 +67,14 @@ struct AchievementCategoryEntry
     //uint32    sortOrder;                                  // 3        m_ui_order
 };
 
+struct AnimKitEntry
+{
+    uint32      ID;                                         // 0
+    //uint32      OneShotDuration;                          // 1
+    //uint32      OneShotStopAnimKitID;                     // 2
+    //uint32      LowDefAnimKitID;                          // 3
+};
+
 struct AreaTableEntry
 {
     uint32  ID;                                             // 0        m_ID
@@ -2361,7 +2369,7 @@ struct WorldStateExpressionEntry
     char*  Expression;                                      // 1
 
     /// Eval a worldstate expression
-    bool Eval(Player* p_Player) const;
+    bool Eval(Player* p_Player, std::vector<std::string> * p_OutStrResult = nullptr) const;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

@@ -1647,13 +1647,6 @@ public:
             return false;
 
         uint32 l_ID = atoi((char*)p_Args);
-        if (!l_ID)
-        {
-            p_Handler->SendSysMessage(LANG_BAD_VALUE);
-            p_Handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         Creature* l_Target = p_Handler->getSelectedCreature();
         if (!l_Target)
         {
@@ -1690,7 +1683,7 @@ public:
 
         WorldDatabase.Execute(l_Statement);
 
-        l_Target->SetAIAnimKit(l_ID);
+        l_Target->SetAIAnimKitId(l_ID);
         return true;
     }
 

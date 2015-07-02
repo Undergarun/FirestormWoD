@@ -64,6 +64,7 @@ enum eSpells
     SPELL_OVERLOADED_MISSILE        = 116989,
     SPELL_OVERLOADED                = 117204,
     SPELL_ENERGY_CASCADE            = 122199,
+    SPELL_ENERGY_CONDUIT            = 116663,
 
     // Empyreal Focus
     SPELL_FOCUS_INACTIVE            = 127303,
@@ -246,7 +247,6 @@ class boss_elegon : public CreatureScript
 
             void Reset()
             {
-
                 if (Creature* cho = GetClosestCreatureWithEntry(me, NPC_LOREWALKER_CHO, 100.0f, true))
                     cho->AI()->Talk(26);
 
@@ -279,7 +279,7 @@ class boss_elegon : public CreatureScript
 
                     for (int i = 0; i < 6; i++)
                     {
-                        if (Unit* focus = ObjectAccessor::FindUnit(empyrealFocus[i]))
+                        if (Unit* focus = Unit::GetUnit(*me, empyrealFocus[i]))
                             if (focus->GetAI())
                                 focus->GetAI()->DoAction(ACTION_RESET_EMPYREAL_FOCUS);
                     }
@@ -503,7 +503,7 @@ class boss_elegon : public CreatureScript
                         // Reset Empyreal focuses
                         for (int i = 0; i < 6; i++)
                         {
-                            if (Unit* focus = ObjectAccessor::FindUnit(empyrealFocus[i]))
+                            if (Unit* focus = Unit::GetUnit(*me, empyrealFocus[i]))
                                 if (focus->GetAI())
                                     focus->GetAI()->DoAction(ACTION_RESET_EMPYREAL_FOCUS);
                         }
@@ -570,7 +570,6 @@ class boss_elegon : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage, SpellInfo const* p_SpellInfo)
             {
-
                 if (phase == PHASE_1 && me->HealthBelowPctDamaged(nextPhase1EndingHealthPct, damage))
                 {
                     phase = PHASE_2;
@@ -610,6 +609,12 @@ class boss_elegon : public CreatureScript
                 {
                     pInstance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
+                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
+
                     Map::PlayerList const& playerList = pInstance->instance->GetPlayers();
                     if (!playerList.isEmpty())
                     {
@@ -633,15 +638,6 @@ class boss_elegon : public CreatureScript
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveLand(2, middlePos);
 
-                if (pInstance)
-                {
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_THE_TITANS);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TOUCH_OF_TITANS_VISUAL);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ELEGON_OVERCHARGED_2);
-                    pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CLOSED_CIRCUIT);
-                }
-
                 me->RemoveAurasDueToSpell(SPELL_RADIATING_ENERGIES_VISUAL);
                 me->RemoveAurasDueToSpell(SPELL_ELEGON_OVERCHARGED);
                 me->RemoveAurasDueToSpell(SPELL_TOUCH_OF_THE_TITANS);
@@ -659,6 +655,13 @@ class boss_elegon : public CreatureScript
                 {
                     if (Player* l_Player = l_Itr->getSource())
                         me->CastSpell(l_Player, SPELL_ELEGON_BONUS, true);
+                }
+
+                if (IsLFR())
+                {
+                    Player* l_Player = l_PlrList.begin()->getSource();
+                    if (l_Player && l_Player->GetGroup())
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -773,22 +776,6 @@ class boss_elegon : public CreatureScript
                                 if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                     energyPlatform->SetGoState(GO_STATE_ACTIVE);
 
-                                /*
-                                std::list<GameObject*> titanCircles1;
-                                std::list<GameObject*> titanCircles2;
-                                std::list<GameObject*> titanCircles3;
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f);
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f);
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f);
-
-                                for (auto titanCircle : titanCircles1)
-                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
-                                for (auto titanCircle : titanCircles2)
-                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
-                                for (auto titanCircle : titanCircles3)
-                                    titanCircle->SetGoState(GO_STATE_ACTIVE);
-                                */
-
                                 if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
 
@@ -798,17 +785,9 @@ class boss_elegon : public CreatureScript
                                 if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f))
                                     titanCircle->SetGoState(GO_STATE_ACTIVE);
 
-                                // std::list<GameObject*> moguRune;
-
                                 for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END + 1; entry++)
-                                    //GetGameObjectListWithEntryInGrid(moguRune, me, entry, 500.0f);
                                     if (GameObject* moguRune = GetClosestGameObjectWithEntry(me, entry, 500.0f))
                                         moguRune->SetGoState(GO_STATE_ACTIVE);
-
-                                    /*for (auto itr : moguRune)
-                                        itr->SetGoState(GO_STATE_ACTIVE);
-
-                                    moguRune.clear();*/
                             }
                         }
 
@@ -833,34 +812,6 @@ class boss_elegon : public CreatureScript
                             {
                                 if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                     energyPlatform->SetGoState(GO_STATE_READY);
-
-                                /*
-                                std::list<GameObject*> titanCircles1;
-                                std::list<GameObject*> titanCircles2;
-                                std::list<GameObject*> titanCircles3;
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f);
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f);
-                                GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f);
-
-                                for (auto titanCircle : titanCircles1)
-                                    titanCircle->SetGoState(GO_STATE_READY);
-                                for (auto titanCircle : titanCircles2)
-                                    titanCircle->SetGoState(GO_STATE_READY);
-                                for (auto titanCircle : titanCircles3)
-                                    titanCircle->SetGoState(GO_STATE_READY);
-
-                                std::list<GameObject*> moguRune;
-
-                                for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END; entry++)
-                                {
-                                    GetGameObjectListWithEntryInGrid(moguRune, me, entry, 500.0f);
-
-                                    for (auto itr : moguRune)
-                                        itr->SetGoState(GO_STATE_READY);
-
-                                    moguRune.clear();
-                                }
-                                */
 
                                 if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
                                     titanCircle->SetGoState(GO_STATE_READY);
@@ -1008,7 +959,7 @@ class mob_empyreal_focus : public CreatureScript
 
                         for (int i = 0; i < 6; i++)
                         {
-                            if (Unit* focus = ObjectAccessor::FindUnit(empyrealFocus[i]))
+                            if (Unit* focus = Unit::GetUnit(*me, empyrealFocus[i]))
                                 if (focus->GetAI())
                                     focus->GetAI()->DoAction(ACTION_ACTIVATE_EMPYREAL_FOCUS);
                         }
@@ -1238,7 +1189,6 @@ class mob_cosmic_spark : public CreatureScript
             {
                 events.Reset();
 
-                // if (Player* player = me->SelectNearestPlayerNotGM())
                 if (Unit* player = SelectTarget(SELECT_TARGET_NEAREST))
                     AttackStart(player);
 
@@ -1357,7 +1307,7 @@ class mob_energy_charge : public CreatureScript
                 {
                     case POINT_EMPYEREAN_FOCUS:
                     {
-                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetGuidValue(UNIT_FIELD_TARGET)))
+                        if (Unit* focus = Unit::GetUnit(*me, me->GetGuidValue(UNIT_FIELD_TARGET)))
                         {
                             Position pos;
                             focus->GetPosition(&pos);
@@ -1378,9 +1328,11 @@ class mob_energy_charge : public CreatureScript
                 {
                     case ACTION_ENERGIZE_EMPYREAL_FOCUS:
                     {
-                        if (Unit* focus = ObjectAccessor::FindUnit(me->GetGuidValue(UNIT_FIELD_TARGET)))
+                        if (Unit* focus = Unit::GetUnit(*me, me->GetGuidValue(UNIT_FIELD_TARGET)))
+                        {
                             if (focus->GetAI())
                                 focus->GetAI()->DoAction(ACTION_ACTIVATE_EMPYREAL_FOCUS);
+                        }
 
                         me->RemoveAurasDueToSpell(SPELL_CORE_CHECKER);
                         me->DespawnOrUnsummon();
@@ -1509,33 +1461,6 @@ class mob_infinite_energy : public CreatureScript
                             if (GameObject* energyPlatform = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_PLATFORM)))
                                 energyPlatform->SetGoState(GO_STATE_READY);
 
-                            /*
-                            std::list<GameObject*> titanCircles1;
-                            std::list<GameObject*> titanCircles2;
-                            std::list<GameObject*> titanCircles3;
-                            GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f);
-                            GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_2, 100.0f);
-                            GetGameObjectListWithEntryInGrid(titanCircles1, me, GOB_ENERGY_TITAN_CIRCLE_3, 100.0f);
-
-                            for (auto titanCircle : titanCircles1)
-                                titanCircle->SetGoState(GO_STATE_READY);
-                            for (auto titanCircle : titanCircles2)
-                                titanCircle->SetGoState(GO_STATE_READY);
-                            for (auto titanCircle : titanCircles3)
-                                titanCircle->SetGoState(GO_STATE_READY);
-
-                            std::list<GameObject*> moguRune;
-
-                            for (uint32 entry = GOB_MOGU_RUNE_FIRST; entry < GOB_MOGU_RUNE_END; entry++)
-                            {
-                                GetGameObjectListWithEntryInGrid(moguRune, me, entry, 500.0f);
-
-                                for (auto itr : moguRune)
-                                    itr->SetGoState(GO_STATE_READY);
-
-                                moguRune.clear();
-                            }
-                            */
                             if (GameObject* titanCircle = GetClosestGameObjectWithEntry(me, GOB_ENERGY_TITAN_CIRCLE_1, 100.0f))
                                 titanCircle->SetGoState(GO_STATE_READY);
 
@@ -1569,11 +1494,8 @@ class mob_infinite_energy : public CreatureScript
                     }
                     case ACTION_INFINITE_LOOT:
                     {
-                        if (me->GetMap()->IsLFR())
-                        {
-                            AutomaticLootDistribution();
+                        if (IsLFR())
                             break;
-                        }
 
                         // Loots chest
                         if (IsHeroic())
@@ -1585,14 +1507,6 @@ class mob_infinite_energy : public CreatureScript
                     default:
                         break;
                 }
-            }
-
-            void AutomaticLootDistribution()
-            {
-                me->SetLootRecipient(NULL);
-                Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
-                if (l_Player && l_Player->GetGroup())
-                    sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
             }
 
             void UpdateAI(const uint32 diff)
@@ -1682,7 +1596,7 @@ class go_celestial_control_console : public GameObjectScript
         {
             std::list<Player*> playerList;
             playerList.clear();
-            GetPlayerListInGrid(playerList, (GameObject*)go, 10.0f);
+            go->GetPlayerListInGrid(playerList, 10.f);
 
             if (!playerList.empty())
             {
@@ -1696,8 +1610,6 @@ class go_celestial_control_console : public GameObjectScript
                         if (GameObject* titanDisk = pInstance->instance->GetGameObject(pInstance->GetData64(GOB_ENERGY_TITAN_DISK)))
                             titanDisk->SetGoState(GO_STATE_READY);
 
-                        // go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-
                         return;
                     }
                 }
@@ -1706,7 +1618,7 @@ class go_celestial_control_console : public GameObjectScript
 };
 
 // Spawn Flash 1 Periodic - 127785
-class spell_spawn_flash_1_periodic: public SpellScriptLoader
+class spell_spawn_flash_1_periodic : public SpellScriptLoader
 {
     public:
         spell_spawn_flash_1_periodic() : SpellScriptLoader("spell_spawn_flash_1_periodic") { }
@@ -1737,7 +1649,7 @@ class spell_spawn_flash_1_periodic: public SpellScriptLoader
 };
 
 // Spawn Flash 2 Periodic - 127783
-class spell_spawn_flash_2_periodic: public SpellScriptLoader
+class spell_spawn_flash_2_periodic : public SpellScriptLoader
 {
     public:
         spell_spawn_flash_2_periodic() : SpellScriptLoader("spell_spawn_flash_2_periodic") { }
@@ -1770,7 +1682,7 @@ class spell_spawn_flash_2_periodic: public SpellScriptLoader
 };
 
 // Spawn Flash 3 Periodic - 127781
-class spell_spawn_flash_3_periodic: public SpellScriptLoader
+class spell_spawn_flash_3_periodic : public SpellScriptLoader
 {
     public:
         spell_spawn_flash_3_periodic() : SpellScriptLoader("spell_spawn_flash_3_periodic") { }
@@ -1799,7 +1711,7 @@ class spell_spawn_flash_3_periodic: public SpellScriptLoader
 };
 
 // Touch of Titans - 117874
-class spell_touch_of_titans: public SpellScriptLoader
+class spell_touch_of_titans : public SpellScriptLoader
 {
     public:
         spell_touch_of_titans() : SpellScriptLoader("spell_touch_of_titans") { }
@@ -1850,7 +1762,7 @@ class spell_touch_of_titans: public SpellScriptLoader
 };
 
 // Radiating Energies - 118313 (outside) or Radiating Energies - 122741 (inside)
-class spell_radiating_energies: public SpellScriptLoader
+class spell_radiating_energies : public SpellScriptLoader
 {
     public:
         spell_radiating_energies() : SpellScriptLoader("spell_radiating_energies") { }
@@ -1888,7 +1800,7 @@ class spell_radiating_energies: public SpellScriptLoader
 };
 
 // Draw Power - 119360 and Draw Power - 124967
-class spell_draw_power: public SpellScriptLoader
+class spell_draw_power : public SpellScriptLoader
 {
     public:
         spell_draw_power() : SpellScriptLoader("spell_draw_power") { }
@@ -1919,7 +1831,7 @@ class spell_draw_power: public SpellScriptLoader
 };
 
 // Core Checker - 118024
-class spell_core_checker: public SpellScriptLoader
+class spell_core_checker : public SpellScriptLoader
 {
     public:
         spell_core_checker() : SpellScriptLoader("spell_core_checker") { }
@@ -1954,7 +1866,7 @@ class spell_core_checker: public SpellScriptLoader
 };
 
 // Grasping Energy Tendrils - 127362
-class spell_grasping_energy_tendrils: public SpellScriptLoader
+class spell_grasping_energy_tendrils : public SpellScriptLoader
 {
     public:
         spell_grasping_energy_tendrils() : SpellScriptLoader("spell_grasping_energy_tendrils") { }
@@ -2007,7 +1919,7 @@ class spell_grasping_energy_tendrils: public SpellScriptLoader
 };
 
 // Destabilizing Energies - 132222
-class spell_destabilizing_energies: public SpellScriptLoader
+class spell_destabilizing_energies : public SpellScriptLoader
 {
     public:
         spell_destabilizing_energies() : SpellScriptLoader("spell_destabilizing_energies") { }
@@ -2040,7 +1952,7 @@ class spell_destabilizing_energies: public SpellScriptLoader
 };
 
 // Total Annihilation - 127911
-class spell_total_annihilation: public SpellScriptLoader
+class spell_total_annihilation : public SpellScriptLoader
 {
     public:
         spell_total_annihilation() : SpellScriptLoader("spell_total_annihilation") { }
@@ -2071,7 +1983,7 @@ class spell_total_annihilation: public SpellScriptLoader
 
                     uint8 diffic = caster->GetMap()->GetDifficultyID();
 
-                    if ((!targetCount &&  diffic == Difficulty::Difficulty10N) || (targetCount < 3 && diffic == Difficulty::Difficulty25N))
+                    if ((!targetCount &&  diffic == Difficulty10N) || (targetCount < 3 && diffic == Difficulty25N))
                         caster->CastSpell(caster, SPELL_CATASTROPHIC_ANOMALY, false);
                 }
             }
@@ -2090,7 +2002,7 @@ class spell_total_annihilation: public SpellScriptLoader
 };
 
 // Unstable Energy - 116994
-class spell_unstable_energy: public SpellScriptLoader
+class spell_unstable_energy : public SpellScriptLoader
 {
     public:
         spell_unstable_energy() : SpellScriptLoader("spell_unstable_energy") { }
@@ -2117,24 +2029,62 @@ class spell_unstable_energy: public SpellScriptLoader
         }
 };
 
+/// Created by spell 116546
+class at_draw_power : public AreaTriggerEntityScript
+{
+    public:
+        at_draw_power() : AreaTriggerEntityScript("at_draw_power") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 30.f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::NearestAttackableUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->IsInAxe(l_Caster, p_AreaTrigger, 2.f))
+                {
+                    if (l_Unit->HasAura(SPELL_ENERGY_CONDUIT))
+                        l_Caster->AddAura(SPELL_ENERGY_CONDUIT, l_Unit);
+                }
+                else
+                    l_Unit->RemoveAurasDueToSpell(SPELL_ENERGY_CONDUIT);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_draw_power();
+        }
+};
+
 void AddSC_boss_elegon()
 {
-    new boss_elegon();
-    new mob_empyreal_focus();
-    new mob_celestial_protector();
-    new mob_cosmic_spark();
-    new mob_energy_charge();
-    new mob_infinite_energy();
-    new go_celestial_control_console();
-    new spell_spawn_flash_1_periodic();
-    new spell_spawn_flash_2_periodic();
-    new spell_spawn_flash_3_periodic();
-    new spell_touch_of_titans();
-    new spell_radiating_energies();
-    new spell_draw_power();
-    new spell_core_checker();
-    new spell_grasping_energy_tendrils();
-    new spell_destabilizing_energies();
-    new spell_total_annihilation();
-    new spell_unstable_energy();
+    new boss_elegon();                      ///< 60410
+    new mob_empyreal_focus();               ///< 60776
+    new mob_celestial_protector();          ///< 60793
+    new mob_cosmic_spark();                 ///< 62618
+    new mob_energy_charge();                ///< 60913
+    new mob_infinite_energy();              ///< 65293
+    new go_celestial_control_console();     ///< 211650
+    new spell_spawn_flash_1_periodic();     ///< 127785
+    new spell_spawn_flash_2_periodic();     ///< 127783
+    new spell_spawn_flash_3_periodic();     ///< 127781
+    new spell_touch_of_titans();            ///< 117874
+    new spell_radiating_energies();         ///< 118313 - 122741
+    new spell_draw_power();                 ///< 119360 - 124967
+    new spell_core_checker();               ///< 118024
+    new spell_grasping_energy_tendrils();   ///< 127362
+    new spell_destabilizing_energies();     ///< 132222
+    new spell_total_annihilation();         ///< 127911
+    new spell_unstable_energy();            ///< 116994
+    new at_draw_power();                    ///< 116546
 }

@@ -555,7 +555,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_UPD_FACTION_OR_RACE, "UPDATE characters SET name = ?, race = ?, at_login = at_login & ~ ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_FACTION_OR_RACE_LOG, "INSERT INTO `log_faction_change` (`id`, `guid`, `account`, `OldRace`, `NewRace`, `date`) VALUES (0, ?, ?, ?, ?, NOW())", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_CHAR_SKILL_LANGUAGES, "DELETE FROM character_skills WHERE skill IN (98, 113, 759, 111, 313, 109, 115, 315, 673, 137, 905, 906, 907) AND guid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_INS_CHAR_SKILL_LANGUAGE, "INSERT INTO `character_skills` (guid, skill, value, max) VALUES (?, ?, 300, 300)", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_INS_CHAR_SKILL_LANGUAGE, "REPLACE INTO `character_skills` (guid, skill, value, max) VALUES (?, ?, 300, 300)", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_CHAR_TAXI_PATH, "UPDATE characters SET taxi_path = '' WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_UPD_CHAR_TAXIMASK, "UPDATE characters SET taximask = ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_DEL_CHAR_QUESTSTATUS, "DELETE FROM character_queststatus WHERE guid = ?", CONNECTION_ASYNC);
@@ -624,8 +624,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_SEL_CHAR_PET_BY_ENTRY_AND_SLOT, "SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = ? AND slot = ?", CONNECTION_BOTH);
     PREPARE_STATEMENT(CHAR_UPD_CHAR_LIST_SLOT, "UPDATE characters SET slot = ? WHERE guid = ?", CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_SEL_CHAR_VOID_STORAGE, "SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor FROM character_void_storage WHERE playerGuid = ?", CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_REP_CHAR_VOID_STORAGE_ITEM, "REPLACE INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor) VALUES (?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(CHAR_SEL_CHAR_VOID_STORAGE, "SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, bonuses FROM character_void_storage WHERE playerGuid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_REP_CHAR_VOID_STORAGE_ITEM, "REPLACE INTO character_void_storage (itemId, playerGuid, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, bonuses) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(CHAR_DEL_CHAR_VOID_STORAGE_ITEM_BY_SLOT, "DELETE FROM character_void_storage WHERE slot = ? AND playerGuid = ?", CONNECTION_ASYNC);
 
     // Guild Finder
@@ -651,8 +651,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_TITLE,      "DELETE FROM store_title WHERE transaction = ?",                                                CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_BOUTIQUE_TITLE_LOG,  "INSERT INTO log_store_title (id, transaction, guid, title) VALUES (0, ?, ?, ?);",              CONNECTION_ASYNC);
 
-    PREPARE_STATEMENT(CHAR_LOAD_BOUTIQUE_METIER,    "SELECT skill, value FROM store_metier WHERE guid = ?",                                         CONNECTION_ASYNC);
-    PREPARE_STATEMENT(CHAR_DEL_BOUTIQUE_METIER,     "DELETE FROM store_metier WHERE guid = ? AND skill = ? AND value = ?",                          CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_LOAD_STORE_PROFESSION,    "SELECT skill, recipe FROM store_profession WHERE guid = ?",                                   CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_DEL_STORE_PROFESSION,     "DELETE FROM store_profession WHERE guid = ? AND skill = ?",                                   CONNECTION_ASYNC);
 
     // Black Market
     PREPARE_STATEMENT(CHAR_INS_BLACKMARKET_AUCTION, "INSERT INTO blackmarket VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
@@ -726,4 +726,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PREPARE_STATEMENT(CHAR_SEL_BOSS_LOOTED, "SELECT `boss_entry`, `boss_model_id` FROM `characters_boss_looted` WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(CHAR_INS_BOSS_LOOTED, "INSERT INTO `characters_boss_looted` (`guid`, `boss_entry`, `boss_model_id`) VALUE (?, ?, ?)", CONNECTION_ASYNC);
+
+    PREPARE_STATEMENT(CHAR_SEL_WORLD_STATES, "SELECT `worldstate`, `value` FROM character_worldstates WHERE guid = ?", CONNECTION_ASYNC);
+    PREPARE_STATEMENT(CHAR_REP_WORLD_STATES, "REPLACE INTO `character_worldstates` (`guid`, `worldstate`, `value`) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }

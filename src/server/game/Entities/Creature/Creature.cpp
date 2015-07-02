@@ -327,7 +327,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
 
     // Load creature equipment
     if (!data || data->equipmentId == 0)                    // use default from the template
-        LoadEquipment(GetOriginalEquipmentId());
+        LoadEquipment(m_OriginalEquipmentId ? m_OriginalEquipmentId : -1);  ///< If no original equip, try to find a random one
     else if (data && data->equipmentId != 0)                // override, 0 means no equipment
     {
         m_OriginalEquipmentId = data->equipmentId;
@@ -1964,9 +1964,6 @@ bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) 
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (spellInfo->Effects[index].Mechanic - 1)))
         return true;
 
-    if (GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && spellInfo->Effects[index].Effect == SPELL_EFFECT_HEAL)
-        return true;
-
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
 
@@ -2458,7 +2455,7 @@ bool Creature::LoadCreaturesAddon()
     }
 
     if (l_CreatureAddon->AnimKit != 0)
-        SetAIAnimKit(l_CreatureAddon->AnimKit);
+        SetAIAnimKitId(l_CreatureAddon->AnimKit);
 
     return true;
 }

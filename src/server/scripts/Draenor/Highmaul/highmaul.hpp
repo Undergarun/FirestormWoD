@@ -54,7 +54,9 @@ enum eHighmaulDatas
     HighmaulSweeperMovesCount = 9,
     /// Brackenspore
     MaxCreepingMoss = 16,
-    MaxFleshEaterPos = 2
+    MaxFleshEaterPos = 2,
+    /// The Market
+    MaxTectusGuardians = 3
 };
 
 enum eHighmaulCreatures
@@ -77,29 +79,64 @@ enum eHighmaulCreatures
     /// The Underbelly
     TheButcher          = 77404,
     /// Gorian Strands
+    IronGrunt           = 88118,
+    BlackrockGrunt      = 86610,
+    LowBatchDeadPale    = 86283,
+    NightTwistedPaleVis = 82694,
+    CosmeticGorianWarr  = 82690,
+    GorianCivilian      = 85371,
     Brackenspore        = 78491,
-    BFC9000             = 81403
+    BFC9000             = 81403,
+    /// The Market
+    Tectus              = 78948,
+    Rokka               = 86071,
+    Oro                 = 86072,
+    Lokk                = 86073,
+    /// The Gorthenon
+    Phemos              = 78237,
+    Pol                 = 78238,
+    /// Chamber of Nullification
+    Koragh              = 79015,
+    RuneOfNullification = 79559,
+    VolatileAnomaly     = 79956
 };
 
 enum eHighmaulGameobjects
 {
-    ArenaElevator   = 233098,
-    CollisionWall   = 234299,
-    InstancePortal2 = 231770,
+    ArenaElevator       = 233098,
+    CollisionWall       = 234299,
+    InstancePortal2     = 231770,
+
     /// Kargath's Doors
-    GateArenaExit   = 231781,
-    GateArenaInner  = 231780,
+    GateArenaExit       = 231781,
+    GateArenaInner      = 231780,
+
     /// The Butcher's Doors
-    EarthenPillar   = 239110,
+    EarthenPillar       = 239110,
+
     /// Brackenspore's Doors
-    FungalGiantDoor = 239124,
-    WindDoor        = 236703,
+    FungalGiantDoor     = 239124,
+    WindDoor            = 236703,
 
     /// Kargath Bladefist
-    RaidGrate1      = 232368,
-    RaidGrate2      = 232369,
-    RaidGrate3      = 232370,
-    RaidGrate4      = 232371
+    RaidGrate1          = 232368,
+    RaidGrate2          = 232369,
+    RaidGrate3          = 232370,
+    RaidGrate4          = 232371,
+
+    /// Tectus's Doors
+    Earthwall1          = 237777,
+    Earthwall2          = 237778,
+    Earthwall3          = 237779,
+    Earthwall4          = 237780,
+
+    /// Twin Ogron's Doors
+    TwinOgronEntrance   = 236211,
+    TwinOgronExit       = 236212,
+
+    /// Ko'ragh's Doors
+    FelBreakerEntrance  = 236213,
+    FelBreakerExitDoor  = 236214
 };
 
 enum eHighmaulWorldStates
@@ -116,15 +153,20 @@ enum eHighmaulWorldStates
 enum eHighmaulSpells
 {
     PlayChogallScene    = 178333,
-    ChogallNight        = 163661
+    ChogallNight        = 163661,
+    Berserker           = 26662
 };
 
 enum eHighmaulLocs
 {
-    BeachEntrance   = 4780,
-    ExitTarget      = 4782,
-    ArenaCenter     = 4783,
-    KargathDefeated = 4784
+    BeachEntrance       = 4780,
+    ExitTarget          = 4782,
+    ArenaCenter         = 4783,
+    KargathDefeated     = 4784,
+    PalaceFrontGate     = 4785,
+    FelBreakerRoom      = 4786,
+    ImperatorsRise      = 4787,
+    CityBaseTeleporter  = 4788
 };
 
 #endif

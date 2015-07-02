@@ -1321,7 +1321,7 @@ enum SpellEffects
     SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
-    PELL_EFFECT_TAKE_SCREENSHOT                     = 250,  ///< Serverside marker for selfie screenshot
+    SPELL_EFFECT_TAKE_SCREENSHOT                    = 250,  ///< Serverside marker for selfie screenshot
     SPELL_EFFECT_251                                = 251,
     TOTAL_SPELL_EFFECTS                             = 252
 };

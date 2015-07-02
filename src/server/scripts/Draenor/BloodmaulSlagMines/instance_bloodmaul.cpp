@@ -43,10 +43,6 @@ namespace MS
 
                     struct instance_BloodmaulInstanceMapScript : public InstanceScript
                     {
-                        uint32 m_BeginningTime;
-                        bool m_CanUpdate;
-                        ObjectGuid m_InstanceGuid;
-
                         /// Scenario handling.
                         uint32 m_CreatureKilled;
 
@@ -68,8 +64,6 @@ namespace MS
 
                         instance_BloodmaulInstanceMapScript(Map* p_Map)
                             : InstanceScript(p_Map),
-                            m_BeginningTime(0),
-                            m_CanUpdate(false),
                             m_CreatureKilled(0),
                             m_NeutralMinerSpawnGuids(),
                             m_CapturedMinerGuids(),
@@ -322,26 +316,12 @@ namespace MS
                             return 0;
                         }
 
-                        void OnPlayerEnter(Player* p_Player)
-                        {
-                            if (!p_Player->IsInWorld())
-                                return;
-
-                            InstanceScript::OnPlayerEnter(p_Player);
-                            m_CanUpdate = true;
-                        }
-
                         void Update(uint32 p_Diff)
                         {
                             CheckPositionZForPlayers(p_Diff);
                             ScheduleBeginningTimeUpdate(p_Diff);
                             ScheduleChallengeStartup(p_Diff);
                             ScheduleChallengeTimeUpdate(p_Diff);
-
-                            if (!m_CanUpdate)
-                                return;
-
-                            m_BeginningTime += p_Diff;
                         }
 
                         void CheckPositionZForPlayers(uint32 p_Diff)

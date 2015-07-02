@@ -2437,6 +2437,65 @@ class spell_dk_death_coil : public SpellScriptLoader
         }
 };
 
+/// Enhanced Death Coil (aura) - 164047
+class spell_dk_enhanced_death_coil : public SpellScriptLoader
+{
+    public:
+        spell_dk_enhanced_death_coil() : SpellScriptLoader("spell_dk_enhanced_death_coil") { }
+
+        class spell_dk_enhanced_death_coil_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_enhanced_death_coil_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+            }
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                p_AurEff->SetAmount(l_Stack->GetTotalAmount());
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveStackOnDuration(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dk_enhanced_death_coil_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectUpdate += AuraEffectUpdateFn(spell_dk_enhanced_death_coil_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+                OnEffectRemove += AuraEffectRemoveFn(spell_dk_enhanced_death_coil_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_enhanced_death_coil_AuraScript();
+        }
+};
+
 enum SkeletonSpells
 {
     SpellSkeletonForm = 147157
@@ -2641,6 +2700,50 @@ class spell_dk_army_transform : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Icy Runes - 159418
+class spell_dk_glyph_of_icy_runes : public SpellScriptLoader
+{
+    public:
+        spell_dk_glyph_of_icy_runes() : SpellScriptLoader("spell_dk_glyph_of_icy_runes") { }
+
+        class spell_dk_glyph_of_icy_runes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_glyph_of_icy_runes_AuraScript);
+
+            enum eSpells
+            {
+                GlyphofIcyRunesProc = 159419
+            };
+
+            void OnProc(constAuraEffectPtr p_AurEff, ProcEventInfo& p_EventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster)
+                    return;
+
+                if (!p_EventInfo.GetDamageInfo()->GetSpellInfo() || p_EventInfo.GetDamageInfo()->GetSpellInfo()->Id != DK_SPELL_CHAINS_OF_ICE)
+                    return;
+
+                l_Caster->CastSpell(l_Caster, eSpells::GlyphofIcyRunesProc, true);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dk_glyph_of_icy_runes_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_glyph_of_icy_runes_AuraScript();
+        }
+};
+
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_death_coil();
@@ -2694,6 +2797,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_improved_death_grip();
     new spell_dk_glyph_of_deaths_embrace();
     new spell_dk_will_of_the_necropolis();
+    new spell_dk_glyph_of_icy_runes();
+    new spell_dk_enhanced_death_coil();
 
     /// Player script
     new PlayerScript_Blood_Tap();

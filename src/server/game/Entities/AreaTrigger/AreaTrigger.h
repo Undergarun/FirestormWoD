@@ -67,7 +67,22 @@ struct AreaTriggerTemplate
 {
     AreaTriggerTemplate()
     {
-        memset(this, 0, sizeof(AreaTriggerTemplate));
+        m_SpellID       = 0;
+        m_EffIndex      = 0;
+        m_Entry         = 0;
+        m_Type          = 0;
+        m_ScaleX        = 0.f;
+        m_ScaleY        = 0.f;
+        m_MoveCurveID   = 0;
+        m_ScaleCurveID  = 0;
+        m_MorphCurveID  = 0;
+        m_FacingCurveID = 0;
+
+        m_ScriptId              = 0;
+        m_CreatureVisualEntry   = 0;
+
+        for (uint32 l_I = 0; l_I < MAX_AREATRIGGER_DATA; l_I++)
+            m_Raw.m_Data[l_I] = 0;
     }
 
     uint32 m_SpellID;
@@ -90,7 +105,7 @@ struct AreaTriggerTemplate
         // Not use for specific field access (only for output with loop by all filed), also this determinate max union size
         struct
         {
-            float m_Data[MAX_AREATRIGGER_DATA];
+            uint32 m_Data[MAX_AREATRIGGER_DATA];
         } m_Raw;
 
         // AREATRIGGER_TYPE_POLYGON
@@ -132,13 +147,83 @@ struct AreaTriggerTemplate
 
         // Implemented in WoD
     };
+
+    bool HasAbsoluteOrientation() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_ABSOLUTE_ORIENTATION;
+    }
+
+    bool HasDynamicShape() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_DYNAMIC_SHAPE;
+    }
+
+    bool HasAttached() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_ATTACHED;
+    }
+
+    bool HasFaceMovementDir() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_FACE_MOVEMENT_DIR;
+    }
+
+    bool HasFollowsTerrain() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_FOLLOWS_TERRAIN;
+    }
+
+    bool HasTargetRollPitchYaw() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH;
+    }
+
+    bool HasScaleCurveID() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_HAS_SCALE_CURVE;
+    }
+
+    bool HasMorphCurveID() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_HAS_MORPH_CURVE;
+    }
+
+    bool HasFacingCurveID() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_HAS_FACING_CURVE;
+    }
+
+    bool HasMoveCurveID() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_HAS_MOVE_CURVE;
+    }
+
+    bool HasAreaTriggerSphere() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_AREATRIGGER_SPHERE;
+    }
+
+    bool HasAreaTriggerBox() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_AREATRIGGER_BOX;
+    }
+
+    bool HasAreaTriggerPolygon() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_AREATRIGGER_POLYGON;
+    }
+
+    bool HasAreaTriggerCylinder() const
+    {
+        return m_Flags & eAreaTriggerFlags::AREATRIGGER_FLAG_AREATRIGGER_CYLINDER;
+    }
 };
 
 struct AreaTriggerMoveTemplate
 {
     AreaTriggerMoveTemplate()
     {
-        memset(this, 0, sizeof(AreaTriggerMoveTemplate));
+        memset(this, 0, sizeof (AreaTriggerMoveTemplate));
     }
 
     // Maybe we can get those information an other way because duration is in the spellInfos and path_size is the number of MoveSplines in DB.
@@ -151,7 +236,7 @@ struct AreaTriggerMoveSplines
 {
     AreaTriggerMoveSplines()
     {
-        memset(this, 0, sizeof(AreaTriggerMoveSplines));
+        memset(this, 0, sizeof (AreaTriggerMoveSplines));
     }
 
     uint32 m_move_id;
@@ -189,18 +274,24 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         Unit* GetCaster() const { return m_Caster; }
         uint64 GetCasterGUID() const { return GetGuidValue(AREATRIGGER_FIELD_CASTER); }
 
+        void SetTimeToTarget(uint32 p_Time) { m_TimeToTarget = p_Time; }
+        uint32 GetTimeToTarget() const { return m_TimeToTarget; }
+
         void BindToCaster();
         void UnbindFromCaster();
 
         uint32 GetCreatedTime() const { return m_CreatedTime; }
 
+        float GetVisualRadius() const { return m_VisualRadius; }
+        void SetVisualRadius(float radius) { m_VisualRadius = radius; }
+
         uint32 GetUpdateInterval() const { return m_UpdateTimer.GetInterval(); }
         AreatriggerInterpolation GetTrajectory() const { return m_Trajectory; }
 
         AreaTriggerTemplateList GetTemplates() const { return m_Templates; }
-        const AreaTriggerTemplate* GetMainTemplate() const { return !m_Templates.empty() ? &m_Templates.front() : nullptr; }
+        AreaTriggerTemplate const* GetMainTemplate() const { return !m_Templates.empty() ? &m_Templates.front() : nullptr; }
 
-        AreaTriggerEntityScript * GetScript() const { return m_Script; }
+        AreaTriggerEntityScript* GetScript() const { return m_Script; }
         void SetScript(AreaTriggerEntityScript* p_Script) { m_Script = p_Script; }
 
         void SendMovementUpdate();
@@ -227,6 +318,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
          * @param p_SpellId : Id of spell to cast
          */
         void CastSpell(Unit* p_Target, uint32 p_SpellId);
+        bool IsInAreaTriggerPolygon(std::vector<G3D::Vector2> p_Polygon, G3D::Vector2 p_Point, float p_Radius = 0.5f) const;
+
+        void SendAreaTriggerRePath(uint32 p_TimeToTarget, uint32 p_OldTime);
 
     protected:
         int32 m_Duration;
@@ -240,6 +334,8 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         IntervalTimer m_UpdateTimer;
         AreaTriggerTemplateList m_Templates;
         AreaTriggerEntityScript* m_Script;
+
+        uint32 m_TimeToTarget;
 
         uint64 m_CreatureVisualGUID;
         std::list<Position> m_PathToLinearDestination;

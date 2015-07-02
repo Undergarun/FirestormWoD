@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-//
-//  MILLENIUM-STUDIO
-//  Copyright 2015 Millenium-studio SARL
-//  All Rights Reserved.
-//
+///
+///  MILLENIUM-STUDIO
+///  Copyright 2015 Millenium-studio SARL
+///  All Rights Reserved.
+///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "AshranMgr.hpp"
@@ -1324,6 +1324,2065 @@ class npc_ashran_wrynns_vanguard_battle_standard : public CreatureScript
         }
 };
 
+/// Stormshield Sentinel - 86767
+class npc_ashran_stormshield_sentinel : public CreatureScript
+{
+    public:
+        npc_ashran_stormshield_sentinel() : CreatureScript("npc_ashran_stormshield_sentinel") { }
+
+        enum eSpells
+        {
+            SpellShoot              = 163921,
+            SpellKillShot           = 173642,
+            SpellHeadhuntersMark    = 177203,
+            SpellConcussiveShot     = 17174
+        };
+
+        enum eEvents
+        {
+            SearchTarget = 1,
+            EventShoot,
+            EventKillShot,
+            EventHeadhuntersMark,
+            EventConcussiveShot,
+            EventClearEvade
+        };
+
+        struct npc_ashran_stormshield_sentinelAI : public ScriptedAI
+        {
+            npc_ashran_stormshield_sentinelAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_CosmeticEvent.Reset();
+            }
+
+            EventMap m_Events;
+            EventMap m_CosmeticEvent;
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_DISABLE_MOVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+
+                m_CosmeticEvent.ScheduleEvent(eEvents::SearchTarget, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                m_Events.ScheduleEvent(eEvents::EventShoot, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventKillShot, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHeadhuntersMark, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventConcussiveShot, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterEvadeMode() override
+            {
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+
+                CreatureAI::EnterEvadeMode();
+
+                m_CosmeticEvent.ScheduleEvent(eEvents::EventClearEvade, 500);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_CosmeticEvent.Update(p_Diff);
+
+                switch (m_CosmeticEvent.ExecuteEvent())
+                {
+                    case eEvents::SearchTarget:
+                    {
+                        if (Player* l_Player = me->FindNearestPlayer(40.0f))
+                            AttackStart(l_Player);
+                        else
+                            m_CosmeticEvent.ScheduleEvent(eEvents::SearchTarget, 1 * TimeConstants::IN_MILLISECONDS);
+
+                        break;
+                    }
+                    case eEvents::EventClearEvade:
+                    {
+                        me->ClearUnitState(UnitState::UNIT_STATE_EVADE);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventShoot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellShoot, false);
+                        m_Events.ScheduleEvent(eEvents::EventShoot, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventKillShot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        {
+                            if (l_Target->HealthBelowPct(20))
+                            {
+                                me->CastSpell(l_Target, eSpells::SpellKillShot, false);
+                                m_Events.ScheduleEvent(eEvents::EventKillShot, 10 * TimeConstants::IN_MILLISECONDS);
+                                break;
+                            }
+                        }
+
+                        m_Events.ScheduleEvent(eEvents::EventKillShot, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHeadhuntersMark:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellHeadhuntersMark, false);
+                        m_Events.ScheduleEvent(eEvents::EventHeadhuntersMark, 18 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventConcussiveShot:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SpellConcussiveShot, false);
+                        m_Events.ScheduleEvent(eEvents::EventConcussiveShot, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_stormshield_sentinelAI(p_Creature);
+        }
+};
+
+/// Avenger Turley <Alliance Captain> - 80499
+class npc_ashran_avenger_turley : public CreatureScript
+{
+    public:
+        npc_ashran_avenger_turley() : CreatureScript("npc_ashran_avenger_turley") { }
+
+        enum eSpells
+        {
+            AvengersShield  = 162638,
+            Consecration    = 162642,
+            DivineShield    = 164410,
+            DivineStorm     = 162641,
+            HammerOfJustice = 162764
+        };
+
+        enum eEvents
+        {
+            EventAvengerShield = 1,
+            EventConsecration,
+            EventDivineShield,
+            EventDivineStorm,
+            EventHammerOfJustice,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Slay,
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 14584
+        };
+
+        struct npc_ashran_avenger_turleyAI: public ScriptedAI
+        {
+            npc_ashran_avenger_turleyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Second equip is a shield
+                me->SetCanDualWield(false);
+
+                me->Mount(eData::MountID);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventAvengerShield, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventConsecration, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDivineShield, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDivineStorm, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHammerOfJustice, 7 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalks::Slay);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainAvengerTurley);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventAvengerShield:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::AvengersShield, false);
+                        m_Events.ScheduleEvent(eEvents::EventAvengerShield, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventConsecration:
+                    {
+                        me->CastSpell(me, eSpells::Consecration, false);
+                        m_Events.ScheduleEvent(eEvents::EventConsecration, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDivineShield:
+                    {
+                        if (me->HealthBelowPct(50))
+                            me->CastSpell(me, eSpells::DivineShield, true);
+                        else
+                            m_Events.ScheduleEvent(eEvents::EventDivineShield, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDivineStorm:
+                    {
+                        me->CastSpell(me, eSpells::DivineStorm, false);
+                        m_Events.ScheduleEvent(eEvents::EventDivineStorm, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHammerOfJustice:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::HammerOfJustice, false);
+                        m_Events.ScheduleEvent(eEvents::EventHammerOfJustice, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_avenger_turleyAI(p_Creature);
+        }
+};
+
+/// Jackson Bajheera <Alliance Captain> - 80484
+class npc_ashran_jackson_bajheera : public CreatureScript
+{
+    public:
+        npc_ashran_jackson_bajheera() : CreatureScript("npc_ashran_jackson_bajheera") { }
+
+        enum eSpells
+        {
+            Bladestorm = 164091
+        };
+
+        enum eEvents
+        {
+            EventBladestorm = 1,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Spawn,
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 38668
+        };
+
+        struct npc_ashran_jackson_bajheeraAI : public ScriptedAI
+        {
+            npc_ashran_jackson_bajheeraAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Spawn = false;
+            }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+            bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (!m_Spawn)
+                {
+                    Talk(eTalks::Spawn);
+                    m_Spawn = true;
+                }
+
+                me->Mount(eData::MountID);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventBladestorm, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterEvadeMode() override
+            {
+                me->InterruptNonMeleeSpells(true);
+
+                CreatureAI::EnterEvadeMode();
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainJacksonBajheera);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                /// Update position during Bladestorm
+                if (me->HasAura(eSpells::Bladestorm))
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    {
+                        me->GetMotionMaster()->MovePoint(0, *l_Target);
+                        return;
+                    }
+                }
+
+                /// Update target movements here to avoid some movements problems
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                {
+                    if (!me->IsWithinMeleeRange(l_Target))
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                    }
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBladestorm:
+                        me->CastSpell(me, eSpells::Bladestorm, false);
+                        m_Events.ScheduleEvent(eEvents::EventBladestorm, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_jackson_bajheeraAI(p_Creature);
+        }
+};
+
+/// John Swifty <Alliance Captain> - 79902
+class npc_ashran_john_swifty : public CreatureScript
+{
+    public:
+        npc_ashran_john_swifty() : CreatureScript("npc_ashran_john_swifty") { }
+
+        enum eSpells
+        {
+            Bladestorm = 164091
+        };
+
+        enum eEvents
+        {
+            EventBladestorm = 1,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Spawn,
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 38668
+        };
+
+        struct npc_ashran_john_swiftyAI : public ScriptedAI
+        {
+            npc_ashran_john_swiftyAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Spawn = false;
+            }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+            bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (!m_Spawn)
+                {
+                    Talk(eTalks::Spawn);
+                    m_Spawn = true;
+                }
+
+                me->Mount(eData::MountID);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventBladestorm, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void EnterEvadeMode() override
+            {
+                me->InterruptNonMeleeSpells(true);
+
+                CreatureAI::EnterEvadeMode();
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainJohnSwifty);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                /// Update position during Bladestorm
+                if (me->HasAura(eSpells::Bladestorm))
+                {
+                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                    {
+                        me->GetMotionMaster()->MovePoint(0, *l_Target);
+                        return;
+                    }
+                }
+
+                /// Update target movements here to avoid some movements problems
+                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                {
+                    if (!me->IsWithinMeleeRange(l_Target))
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MoveChase(l_Target);
+                    }
+                }
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBladestorm:
+                        me->CastSpell(me, eSpells::Bladestorm, false);
+                        m_Events.ScheduleEvent(eEvents::EventBladestorm, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_john_swiftyAI(p_Creature);
+        }
+};
+
+/// Tosan Galaxyfist <Alliance Captain> - 80494
+class npc_ashran_tosan_galaxyfist : public CreatureScript
+{
+    public:
+        npc_ashran_tosan_galaxyfist() : CreatureScript("npc_ashran_tosan_galaxyfist") { }
+
+        enum eSpells
+        {
+            BlackoutKick        = 164394,
+            LegSweep            = 164392,
+            RisingSunKick       = 127734,
+            SpinningCraneKick   = 162759
+        };
+
+        enum eEvents
+        {
+            EventBlackoutKick = 1,
+            EventLegSweep,
+            EventRisingSunKick,
+            EventSpinningCraneKick,
+            EventMove
+        };
+
+        struct npc_ashran_tosan_galaxyfistAI : public ScriptedAI
+        {
+            npc_ashran_tosan_galaxyfistAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventBlackoutKick, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLegSweep, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventRisingSunKick, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventSpinningCraneKick, 12 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainTosanGalaxyfist);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBlackoutKick:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::BlackoutKick, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlackoutKick, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventLegSweep:
+                        me->CastSpell(me, eSpells::LegSweep, false);
+                        m_Events.ScheduleEvent(eEvents::EventLegSweep, 25 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventRisingSunKick:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::RisingSunKick, false);
+                        m_Events.ScheduleEvent(eEvents::EventRisingSunKick, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventSpinningCraneKick:
+                        me->CastSpell(me, eSpells::SpinningCraneKick, false);
+                        m_Events.ScheduleEvent(eEvents::EventSpinningCraneKick, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_tosan_galaxyfistAI(p_Creature);
+        }
+};
+
+/// Brock the Crazed <Alliance Captain> - 80498
+class npc_ashran_brock_the_crazed : public CreatureScript
+{
+    public:
+        npc_ashran_brock_the_crazed() : CreatureScript("npc_ashran_brock_the_crazed") { }
+
+        enum eSpells
+        {
+            DevouringPlague = 164452,
+            Dispersion      = 164444,
+            MindBlast       = 164448,
+            MindSear        = 177402,
+            PsychicScream   = 164443,
+            ShadowWordPain  = 164446
+        };
+
+        enum eEvents
+        {
+            EventDevouringPlague = 1,
+            EventDispersion,
+            EventMindBlast,
+            EventMindSear,
+            EventPsychicScream,
+            EventShadowWordPain,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 28918
+        };
+
+        struct npc_ashran_brock_the_crazedAI : public ScriptedAI
+        {
+            npc_ashran_brock_the_crazedAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                me->Mount(eData::MountID);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMindBlast, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMindSear, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventPsychicScream, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainBrockTheCrazed);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventDevouringPlague:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::DevouringPlague, false);
+                        m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDispersion:
+                    {
+                        if (me->HealthBelowPct(50))
+                            me->CastSpell(me, eSpells::Dispersion, true);
+                        else
+                            m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventMindBlast:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::MindBlast, false);
+                        m_Events.ScheduleEvent(eEvents::EventMindBlast, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventMindSear:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::MindSear, false);
+                        m_Events.ScheduleEvent(eEvents::EventMindSear, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventPsychicScream:
+                    {
+                        me->CastSpell(me, eSpells::PsychicScream, false);
+                        m_Events.ScheduleEvent(eEvents::EventPsychicScream, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShadowWordPain:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::ShadowWordPain, false);
+                        m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_brock_the_crazedAI(p_Creature);
+        }
+};
+
+/// Alune Windmane <Alliance Captain> - 80488
+class npc_ashran_alune_windmane : public CreatureScript
+{
+    public:
+        npc_ashran_alune_windmane() : CreatureScript("npc_ashran_alune_windmane") { }
+
+        enum eSpells
+        {
+            Moonfire    = 162623,
+            Starfire    = 162622,
+            Starsurge   = 164087,
+            Sunfire     = 162628,
+            Typhoon     = 164337,
+            Wrath       = 162621
+        };
+
+        enum eEvents
+        {
+            EventMoonfire = 1,
+            EventStarfire,
+            EventStarsurge,
+            EventSunfire,
+            EventTyphoon,
+            EventWrath,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Spawn,
+            Slay
+        };
+
+        struct npc_ashran_alune_windmaneAI : public ScriptedAI
+        {
+            npc_ashran_alune_windmaneAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Spawn = false;
+            }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+            bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (!m_Spawn)
+                {
+                    Talk(eTalks::Spawn);
+                    m_Spawn = true;
+                }
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventMoonfire, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventStarfire, 3 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventStarsurge, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventSunfire, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventTyphoon, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventWrath, 6 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalks::Slay);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainAluneWindmane);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventMoonfire:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Moonfire, false);
+                        m_Events.ScheduleEvent(eEvents::EventMoonfire, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventStarfire:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Starfire, false);
+                        m_Events.ScheduleEvent(eEvents::EventStarfire, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventStarsurge:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Starsurge, false);
+                        m_Events.ScheduleEvent(eEvents::EventStarsurge, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventSunfire:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Sunfire, false);
+                        m_Events.ScheduleEvent(eEvents::EventSunfire, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventTyphoon:
+                    {
+                        me->CastSpell(me, eSpells::Typhoon, false);
+                        m_Events.ScheduleEvent(eEvents::EventTyphoon, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventWrath:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Wrath, false);
+                        m_Events.ScheduleEvent(eEvents::EventWrath, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_alune_windmaneAI(p_Creature);
+        }
+};
+
+/// Chani Malflame <Alliance Captain> - 85129
+class npc_ashran_chani_malflame : public CreatureScript
+{
+    public:
+        npc_ashran_chani_malflame() : CreatureScript("npc_ashran_chani_malflame") { }
+
+        enum eSpells
+        {
+            ChaosBolt   = 178076,
+            RainOfFire  = 178069
+        };
+
+        enum eEvents
+        {
+            EventChaosBolt = 1,
+            EventRainOfFire,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Slay,
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 25159
+        };
+
+        struct npc_ashran_chani_malflameAI : public ScriptedAI
+        {
+            npc_ashran_chani_malflameAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                me->Mount(eData::MountID);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventChaosBolt, 3 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventRainOfFire, 6 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalks::Slay);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainChaniMalflame);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventChaosBolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::ChaosBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventChaosBolt, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventRainOfFire:
+                        me->CastSpell(me, eSpells::RainOfFire, false);
+                        m_Events.ScheduleEvent(eEvents::EventRainOfFire, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_chani_malflameAI(p_Creature);
+        }
+};
+
+/// Hildie Hackerguard <Alliance Captain> - 80495
+class npc_ashran_hildie_hackerguard : public CreatureScript
+{
+    public:
+        npc_ashran_hildie_hackerguard() : CreatureScript("npc_ashran_hildie_hackerguard") { }
+
+        enum eSpells
+        {
+            Blind           = 178058,
+            CloakOfShadows  = 178055,
+            Eviscerate      = 178054,
+            FanOfKnives     = 178053,
+            Hemorrhage      = 178052,
+            Shadowstep      = 178056,
+            WoundPoison     = 178050
+        };
+
+        enum eEvents
+        {
+            EventBlind = 1,
+            EventCloakOfShadows,
+            EventEviscerate,
+            EventFanOfKnives,
+            EventHemorrhage,
+            EventShadowStep,
+            EventWoundPoison,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Slay,
+            Death
+        };
+
+        enum eData
+        {
+            MountID = 22720
+        };
+
+        struct npc_ashran_hildie_hackerguardAI : public ScriptedAI
+        {
+            npc_ashran_hildie_hackerguardAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                me->Mount(eData::MountID);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventBlind, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventCloakOfShadows, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventEviscerate, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventFanOfKnives, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHemorrhage, 2 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShadowStep, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventWoundPoison, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalks::Slay);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainHildieHackerguard);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBlind:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Blind, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlind, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventCloakOfShadows:
+                    {
+                        if (me->HealthBelowPct(50))
+                            me->CastSpell(me, eSpells::CloakOfShadows, true);
+                        else
+                            m_Events.ScheduleEvent(eEvents::EventCloakOfShadows, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventEviscerate:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Eviscerate, false);
+                        m_Events.ScheduleEvent(eEvents::EventEviscerate, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventFanOfKnives:
+                    {
+                        me->CastSpell(me, eSpells::FanOfKnives, false);
+                        m_Events.ScheduleEvent(eEvents::EventFanOfKnives, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventHemorrhage:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Hemorrhage, false);
+                        m_Events.ScheduleEvent(eEvents::EventHemorrhage, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShadowStep:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Shadowstep, false);
+                        m_Events.ScheduleEvent(eEvents::EventShadowStep, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventWoundPoison:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::WoundPoison, false);
+                        m_Events.ScheduleEvent(eEvents::EventWoundPoison, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_hildie_hackerguardAI(p_Creature);
+        }
+};
+
+/// Taylor Dewland <Alliance Captain> - 80500
+class npc_ashran_taylor_dewland : public CreatureScript
+{
+    public:
+        npc_ashran_taylor_dewland() : CreatureScript("npc_ashran_taylor_dewland") { }
+
+        enum eSpells
+        {
+            ChainLightning  = 178060,
+            Hex             = 178064,
+            LavaBurst       = 178091,
+            LightningBolt   = 178059,
+            MagmaTotem      = 178063,
+            MagmaTotemAura  = 178062
+        };
+
+        enum eEvents
+        {
+            EventChainLightning = 1,
+            EventHex,
+            EventLavaBurst,
+            EventLightningBolt,
+            EventMagmaTotem,
+            EventMove
+        };
+
+        struct npc_ashran_taylor_dewlandAI : public ScriptedAI
+        {
+            npc_ashran_taylor_dewlandAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                /// Second equip is a shield
+                me->SetCanDualWield(false);
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventChainLightning, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventHex, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLavaBurst, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventLightningBolt, 2 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMagmaTotem, 15 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustSummoned(Creature* p_Summon) override
+            {
+                p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
+                p_Summon->AddAura(eSpells::MagmaTotemAura, p_Summon);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainTaylorDewland);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventChainLightning:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::ChainLightning, false);
+                        m_Events.ScheduleEvent(eEvents::EventChainLightning, 8 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventHex:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Hex, false);
+                        m_Events.ScheduleEvent(eEvents::EventHex, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventLavaBurst:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::LavaBurst, false);
+                        m_Events.ScheduleEvent(eEvents::EventLavaBurst, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventLightningBolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::LightningBolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventLightningBolt, 6 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventMagmaTotem:
+                        me->CastSpell(me, eSpells::MagmaTotem, false);
+                        m_Events.ScheduleEvent(eEvents::EventMagmaTotem, 40 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_taylor_dewlandAI(p_Creature);
+        }
+};
+
+/// Malda Brewbelly <Alliance Captain> - 85122
+class npc_ashran_malda_brewbelly : public CreatureScript
+{
+    public:
+        npc_ashran_malda_brewbelly() : CreatureScript("npc_ashran_malda_brewbelly") { }
+
+        enum eSpells
+        {
+            Shoot           = 164095,
+            SerpentSting    = 162754
+        };
+
+        enum eEvents
+        {
+            EventShoot = 1,
+            EventSerpentSting,
+            EventMove
+        };
+
+        enum eData
+        {
+            MountID = 44837
+        };
+
+        struct npc_ashran_malda_brewbellyAI : public ScriptedAI
+        {
+            npc_ashran_malda_brewbellyAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                me->Mount(eData::MountID);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventShoot, 3 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventSerpentSting, 5 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainMaldaBrewbelly);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventShoot:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Shoot, false);
+                        m_Events.ScheduleEvent(eEvents::EventShoot, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventSerpentSting:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::SerpentSting, false);
+                        m_Events.ScheduleEvent(eEvents::EventSerpentSting, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_malda_brewbellyAI(p_Creature);
+        }
+};
+
+/// Shani Freezewind <Alliance Captain> - 80485
+class npc_ashran_shani_freezewind : public CreatureScript
+{
+    public:
+        npc_ashran_shani_freezewind() : CreatureScript("npc_ashran_shani_freezewind") { }
+
+        enum eSpells
+        {
+            Blizzard    = 162610,
+            FrostNova   = 164067,
+            Frostbolt   = 162608,
+            IceLance    = 162609
+        };
+
+        enum eEvents
+        {
+            EventBlizzard = 1,
+            EventFrostNova,
+            EventFrostbolt,
+            EventIceLance,
+            EventMove
+        };
+
+        enum eData
+        {
+            MountID = 38668
+        };
+
+        struct npc_ashran_shani_freezewindAI : public ScriptedAI
+        {
+            npc_ashran_shani_freezewindAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                me->Mount(eData::MountID);
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                me->Mount(0);
+
+                m_Events.ScheduleEvent(eEvents::EventBlizzard, 6 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventFrostNova, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventFrostbolt, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventIceLance, 10 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainShaniFreezewind);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventBlizzard:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Blizzard, false);
+                        m_Events.ScheduleEvent(eEvents::EventBlizzard, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventFrostNova:
+                        me->CastSpell(me, eSpells::FrostNova, false);
+                        m_Events.ScheduleEvent(eEvents::EventFrostNova, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventFrostbolt:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::Frostbolt, false);
+                        m_Events.ScheduleEvent(eEvents::EventFrostbolt, 5 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    case eEvents::EventIceLance:
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::IceLance, false);
+                        m_Events.ScheduleEvent(eEvents::EventIceLance, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_shani_freezewindAI(p_Creature);
+        }
+};
+
+/// Anne Otther <Alliance Captain> - 85140
+class npc_ashran_anne_otther : public CreatureScript
+{
+    public:
+        npc_ashran_anne_otther() : CreatureScript("npc_ashran_anne_otther") { }
+
+        enum eSpells
+        {
+            PlagueStrike    = 164063,
+            DeathAndDecay   = 164334,
+            DeathCoil       = 164064,
+            DeathGrip       = 79894,
+            DeathGripJump   = 168563
+        };
+
+        enum eEvents
+        {
+            EventPlagueStrike = 1,
+            EventDeathAndDecay,
+            EventDeathCoil,
+            EventDeathGrip,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Slay,
+            Death
+        };
+
+        struct npc_ashran_anne_ottherAI : public ScriptedAI
+        {
+            npc_ashran_anne_ottherAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventPlagueStrike, 2 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDeathAndDecay, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDeathCoil, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDeathGrip, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* p_Killed) override
+            {
+                if (p_Killed->GetTypeId() == TypeID::TYPEID_PLAYER)
+                    Talk(eTalks::Slay);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainAnneOtther);
+            }
+
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            {
+                if (p_Target == nullptr)
+                    return;
+
+                if (p_SpellInfo->Id == eSpells::DeathGrip)
+                    p_Target->CastSpell(*me, eSpells::DeathGripJump, true);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventPlagueStrike:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::PlagueStrike, false);
+                        m_Events.ScheduleEvent(eEvents::EventPlagueStrike, 8 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDeathAndDecay:
+                    {
+                        me->CastSpell(me, eSpells::DeathAndDecay, false);
+                        m_Events.ScheduleEvent(eEvents::EventDeathAndDecay, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDeathCoil:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::DeathCoil, false);
+                        m_Events.ScheduleEvent(eEvents::EventDeathCoil, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDeathGrip:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::DeathGrip, false);
+                        m_Events.ScheduleEvent(eEvents::EventDeathGrip, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_anne_ottherAI(p_Creature);
+        }
+};
+
+/// Mathias Zunn <Alliance Captain> - 85137
+class npc_ashran_mathias_zunn : public CreatureScript
+{
+    public:
+        npc_ashran_mathias_zunn() : CreatureScript("npc_ashran_mathias_zunn") { }
+
+        enum eSpells
+        {
+            DevouringPlague = 164452,
+            Dispersion      = 164444,
+            MindBlast       = 164448,
+            MindSear        = 177402,
+            PsychicScream   = 164443,
+            ShadowWordPain  = 164446
+        };
+
+        enum eEvents
+        {
+            EventDevouringPlague = 1,
+            EventDispersion,
+            EventMindBlast,
+            EventMindSear,
+            EventPsychicScream,
+            EventShadowWordPain,
+            EventMove
+        };
+
+        enum eTalks
+        {
+            Spawn,
+            Death
+        };
+
+        struct npc_ashran_mathias_zunnAI : public ScriptedAI
+        {
+            npc_ashran_mathias_zunnAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Spawn = false;
+            }
+
+            EventMap m_Events;
+            EventMap m_MoveEvent;
+            bool m_Spawn;
+
+            void InitializeAI() override
+            {
+                m_MoveEvent.ScheduleEvent(eEvents::EventMove, 1 * TimeConstants::IN_MILLISECONDS);
+
+                Reset();
+            }
+
+            void Reset() override
+            {
+                m_Events.Reset();
+
+                if (!m_Spawn)
+                {
+                    Talk(eTalks::Spawn);
+                    m_Spawn = true;
+                }
+            }
+
+            void EnterCombat(Unit* p_Attacker) override
+            {
+                me->SetHomePosition(*me);
+
+                m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 10 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMindBlast, 5 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventMindSear, 8 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventPsychicScream, 15 * TimeConstants::IN_MILLISECONDS);
+                m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 1 * TimeConstants::IN_MILLISECONDS);
+            }
+
+            void JustDied(Unit* p_Killer) override
+            {
+                Talk(eTalks::Death);
+
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)me->GetZoneScript())
+                    l_Ashran->HandleCaptainDeath(eSpecialSpawns::CaptainMathiasZunn);
+            }
+
+            void UpdateAI(uint32 const p_Diff) override
+            {
+                m_MoveEvent.Update(p_Diff);
+
+                if (m_MoveEvent.ExecuteEvent() == eEvents::EventMove)
+                {
+                    /// Use same path as Frangraal
+                    me->LoadPath(eCreatures::Frangraal);
+                    me->SetDefaultMovementType(MovementGeneratorType::WAYPOINT_MOTION_TYPE);
+                    me->GetMotionMaster()->Initialize();
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                    return;
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case eEvents::EventDevouringPlague:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::DevouringPlague, false);
+                        m_Events.ScheduleEvent(eEvents::EventDevouringPlague, 15 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventDispersion:
+                    {
+                        if (me->HealthBelowPct(50))
+                            me->CastSpell(me, eSpells::Dispersion, true);
+                        else
+                            m_Events.ScheduleEvent(eEvents::EventDispersion, 1 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventMindBlast:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::MindBlast, false);
+                        m_Events.ScheduleEvent(eEvents::EventMindBlast, 10 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventMindSear:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::MindSear, false);
+                        m_Events.ScheduleEvent(eEvents::EventMindSear, 20 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventPsychicScream:
+                    {
+                        me->CastSpell(me, eSpells::PsychicScream, false);
+                        m_Events.ScheduleEvent(eEvents::EventPsychicScream, 30 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    case eEvents::EventShadowWordPain:
+                    {
+                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, eSpells::ShadowWordPain, false);
+                        m_Events.ScheduleEvent(eEvents::EventShadowWordPain, 12 * TimeConstants::IN_MILLISECONDS);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_mathias_zunnAI(p_Creature);
+        }
+};
+
+/// Ex Alliance Racer - 82884
+class npc_ashran_ex_alliance_racer : public CreatureScript
+{
+    public:
+        npc_ashran_ex_alliance_racer() : CreatureScript("npc_ashran_ex_alliance_racer") { }
+
+        enum eSpell
+        {
+            AllianceRacer = 166784
+        };
+
+        struct npc_ashran_ex_alliance_racerAI : public MS::AI::CosmeticAI
+        {
+            npc_ashran_ex_alliance_racerAI(Creature* p_Creature) : MS::AI::CosmeticAI(p_Creature)
+            {
+                m_CheckCooldown = time(nullptr) + 5;;
+            }
+
+            uint8 m_MoveIndex;
+            uint32 m_CheckCooldown;
+
+            void InitializeAI()
+            {
+                Reset();
+            }
+
+            void Reset() override
+            {
+                me->CastSpell(me, eSpell::AllianceRacer, true);
+                me->ModifyAuraState(AuraStateType::AURA_STATE_UNKNOWN22, true);
+
+                m_MoveIndex = 0;
+
+                AddTimedDelayedOperation(500, [this]() -> void
+                {
+                    if (Creature* l_Rider = me->FindNearestCreature(eCreatures::AllianceRider, 10.0f))
+                        l_Rider->EnterVehicle(me);
+                });
+
+                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                {
+                    me->GetMotionMaster()->MovePoint(m_MoveIndex, g_AllianceRacingMoves[m_MoveIndex]);
+                });
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_ID) override
+            {
+                if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
+                    return;
+
+                ++m_MoveIndex;
+
+                if (m_MoveIndex >= eAshranDatas::AllianceRacingMovesCount)
+                {
+                    m_MoveIndex = 0;
+                    IncreaseLapCount();
+                }
+
+                AddTimedDelayedOperation(100, [this]() -> void
+                {
+                    me->GetMotionMaster()->MovePoint(m_MoveIndex, g_AllianceRacingMoves[m_MoveIndex]);
+                });
+            }
+
+            void IncreaseLapCount()
+            {
+                OutdoorPvP* l_Outdoor = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(me->GetZoneId());
+                if (OutdoorPvPAshran* l_Ashran = (OutdoorPvPAshran*)l_Outdoor)
+                    l_Ashran->SetEventData(eAshranEvents::EventStadiumRacing, TeamId::TEAM_ALLIANCE, 1);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const override
+        {
+            return new npc_ashran_ex_alliance_racerAI(p_Creature);
+        }
+};
+
 void AddSC_AshranNPCAlliance()
 {
     new npc_rylai_crestfall();
@@ -1343,4 +3402,19 @@ void AddSC_AshranNPCAlliance()
     new npc_ashran_stormshield_stormcrow();
     new npc_ashran_stormshield_gladiator();
     new npc_ashran_wrynns_vanguard_battle_standard();
+    new npc_ashran_stormshield_sentinel();
+    new npc_ashran_avenger_turley();
+    new npc_ashran_jackson_bajheera();
+    new npc_ashran_john_swifty();
+    new npc_ashran_tosan_galaxyfist();
+    new npc_ashran_brock_the_crazed();
+    new npc_ashran_alune_windmane();
+    new npc_ashran_chani_malflame();
+    new npc_ashran_hildie_hackerguard();
+    new npc_ashran_taylor_dewland();
+    new npc_ashran_malda_brewbelly();
+    new npc_ashran_shani_freezewind();
+    new npc_ashran_anne_otther();
+    new npc_ashran_mathias_zunn();
+    new npc_ashran_ex_alliance_racer();
 }

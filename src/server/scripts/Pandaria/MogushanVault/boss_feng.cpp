@@ -326,7 +326,7 @@ class boss_feng : public CreatureScript
                     me->SetLootRecipient(NULL);
                     Player* l_Player = me->GetMap()->GetPlayers().begin()->getSource();
                     if (l_Player && l_Player->GetGroup())
-                        sLFGMgr->AutomaticLootDistribution(me, l_Player->GetGroup());
+                        sLFGMgr->AutomaticLootAssignation(me, l_Player->GetGroup());
                 }
             }
 
@@ -1162,7 +1162,7 @@ class mob_wild_spark : public CreatureScript
 };
 
 // Mogu Epicenter - 116040
-class spell_mogu_epicenter: public SpellScriptLoader
+class spell_mogu_epicenter : public SpellScriptLoader
 {
     public:
         spell_mogu_epicenter() : SpellScriptLoader("spell_mogu_epicenter") { }
@@ -1198,7 +1198,7 @@ class spell_mogu_epicenter: public SpellScriptLoader
 };
 
 // Wildfire Spark - 116583
-class spell_mogu_wildfire_spark: public SpellScriptLoader
+class spell_mogu_wildfire_spark : public SpellScriptLoader
 {
     public:
         spell_mogu_wildfire_spark() : SpellScriptLoader("spell_mogu_wildfire_spark") { }
@@ -1237,7 +1237,7 @@ class spell_mogu_wildfire_spark: public SpellScriptLoader
 };
 
 // Wildfire spark - 116784
-class spell_wildfire_spark: public SpellScriptLoader
+class spell_wildfire_spark : public SpellScriptLoader
 {
     public:
         spell_wildfire_spark() : SpellScriptLoader("spell_wildfire_spark") { }
@@ -1273,7 +1273,7 @@ class spell_wildfire_spark: public SpellScriptLoader
 };
 
 // Wildfire Infusion (stacks) - 116821
-class spell_wildfire_infusion_stacks: public SpellScriptLoader
+class spell_wildfire_infusion_stacks : public SpellScriptLoader
 {
     public:
         spell_wildfire_infusion_stacks() : SpellScriptLoader("spell_wildfire_infusion_stacks") { }
@@ -1308,7 +1308,7 @@ class spell_wildfire_infusion_stacks: public SpellScriptLoader
 };
 
 // Wildfire Infusion - 116816
-class spell_mogu_wildfire_infusion: public SpellScriptLoader
+class spell_mogu_wildfire_infusion : public SpellScriptLoader
 {
     public:
         spell_mogu_wildfire_infusion() : SpellScriptLoader("spell_mogu_wildfire_infusion") { }
@@ -1337,7 +1337,7 @@ class spell_mogu_wildfire_infusion: public SpellScriptLoader
 };
 
 // Draw Flame - 116711
-class spell_draw_flame: public SpellScriptLoader
+class spell_draw_flame : public SpellScriptLoader
 {
     public:
         spell_draw_flame() : SpellScriptLoader("spell_draw_flame") { }
@@ -1373,7 +1373,7 @@ class spell_draw_flame: public SpellScriptLoader
 };
 
 // Arcane Velocity - 116365
-class spell_mogu_arcane_velocity: public SpellScriptLoader
+class spell_mogu_arcane_velocity : public SpellScriptLoader
 {
     public:
         spell_mogu_arcane_velocity() : SpellScriptLoader("spell_mogu_arcane_velocity") { }
@@ -1393,8 +1393,8 @@ class spell_mogu_arcane_velocity: public SpellScriptLoader
                 float distance = caster->GetExactDist2d(target);
 
                 uint8 mode = GetCaster()->GetInstanceScript()->instance->GetSpawnMode();
-                int32 mindmg = (mode == Difficulty::Difficulty10N ? 39000 : (mode == Difficulty::Difficulty25N ? 44850 : (mode == Difficulty::Difficulty10HC ? 58500 : (mode == Difficulty::Difficulty25HC ? 67275 : 16770))));
-                int32 range = (mode == Difficulty::Difficulty10N ? 2000 : (mode == Difficulty::Difficulty25N ? 2300 : (mode == Difficulty::Difficulty10HC ? 3000 : (mode == Difficulty::Difficulty25HC ? 3450 : 860))));
+                int32 mindmg  = (mode == Difficulty10N ? 39000 : (mode == Difficulty25N ? 44850 : (mode == Difficulty10HC ? 58500 : (mode == Difficulty25HC ? 67275 : 16770))));
+                int32 range   = (mode == Difficulty10N ?  2000 : (mode == Difficulty25N ?  2300 : (mode == Difficulty10HC ?  3000 : (mode == Difficulty25HC ?  3450 :   860))));
 
                 if (distance >= 0.0f && distance <= 60.0f)
                     SetHitDamage(mindmg + int32(range * (distance / MAX_DIST)));
@@ -1413,7 +1413,7 @@ class spell_mogu_arcane_velocity: public SpellScriptLoader
 };
 
 // Arcane Resonance - 116434
-class spell_mogu_arcane_resonance: public SpellScriptLoader
+class spell_mogu_arcane_resonance : public SpellScriptLoader
 {
     public:
         spell_mogu_arcane_resonance() : SpellScriptLoader("spell_mogu_arcane_resonance") { }
@@ -1451,7 +1451,7 @@ class spell_mogu_arcane_resonance: public SpellScriptLoader
 };
 
 // Mogu Inversion - 118300 / 118302 / 118304 / 118305 / 118307 / 118308 / 132296 / 132297 / 132298
-class spell_mogu_inversion: public SpellScriptLoader
+class spell_mogu_inversion : public SpellScriptLoader
 {
     public:
         spell_mogu_inversion() : SpellScriptLoader("spell_mogu_inversion") { }
@@ -1486,7 +1486,7 @@ class spell_mogu_inversion: public SpellScriptLoader
 };
 
 // Spirit Bolt - 118530
-class spell_spirit_bolt: public SpellScriptLoader
+class spell_spirit_bolt : public SpellScriptLoader
 {
     public:
         spell_spirit_bolt() : SpellScriptLoader("spell_spirit_bolt") { }
@@ -1545,7 +1545,7 @@ class spell_spirit_bolt: public SpellScriptLoader
 };
 
 // Nullification Barrier - for Shield action purpose
-class spell_nullification_barrier: public SpellScriptLoader
+class spell_nullification_barrier : public SpellScriptLoader
 {
     public:
         spell_nullification_barrier() : SpellScriptLoader("spell_nullification_barrier") { }
@@ -1616,24 +1616,75 @@ class go_cancel : public GameObjectScript
         }
 };
 
+/// Created by spell 115817
+class at_nullification_barrier : public AreaTriggerEntityScript
+{
+    public:
+        at_nullification_barrier() : AreaTriggerEntityScript("at_nullification_barrier") { }
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 6.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            if (!l_TargetList.empty())
+            for (Unit* l_Target : l_TargetList)
+                l_Target->CastSpell(l_Target, SPELL_NULLIFICATION_BARRIER, true);
+        }
+
+        void OnRemove(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            std::list<Unit*> l_TargetList;
+            float l_Radius = 60.0f;
+            Unit* l_Caster = p_AreaTrigger->GetCaster();
+
+            if (!l_Caster)
+                return;
+
+            JadeCore::AnyFriendlyUnitInObjectRangeCheck u_check(p_AreaTrigger, l_Caster, l_Radius);
+            JadeCore::UnitListSearcher<JadeCore::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_TargetList, u_check);
+            p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
+
+            for (Unit* l_Unit : l_TargetList)
+            {
+                if (l_Unit->HasAura(SPELL_NULLIFICATION_BARRIER))
+                    l_Unit->RemoveAura(SPELL_NULLIFICATION_BARRIER);
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new at_nullification_barrier();
+        }
+};
+
 void AddSC_boss_feng()
 {
-    new boss_feng();                        // 60009
-    new mob_lightning_fist();               // 60241
-    new mob_wild_spark();                   // 60438
-    new mob_siphon_shield();                // 60627
-    new mob_soul_fragment();                // 60781
-    new spell_mogu_epicenter();             // 116040
-    new spell_mogu_wildfire_spark();        // 116583
-    new spell_wildfire_spark();             // 116784
-    new spell_wildfire_infusion_stacks();   // 116821
-    new spell_mogu_wildfire_infusion();     // 116816
-    new spell_draw_flame();                 // 116711
-    new spell_mogu_arcane_velocity();       // 116365
-    new spell_mogu_arcane_resonance();      // 116434
-    new spell_mogu_inversion();             // 118300 - 118302 - 118304 - 118305 - 118307 - 118308 - 132296 - 132297 - 132298
-    new spell_spirit_bolt();                // 118530
-    new spell_nullification_barrier();      // 115817
-    new go_inversion;                       // 211628
-    new go_cancel;                          // 211626
+    new boss_feng();                        ///< 60009
+    new mob_lightning_fist();               ///< 60241
+    new mob_wild_spark();                   ///< 60438
+    new mob_siphon_shield();                ///< 60627
+    new mob_soul_fragment();                ///< 60781
+    new spell_mogu_epicenter();             ///< 116040
+    new spell_mogu_wildfire_spark();        ///< 116583
+    new spell_wildfire_spark();             ///< 116784
+    new spell_wildfire_infusion_stacks();   ///< 116821
+    new spell_mogu_wildfire_infusion();     ///< 116816
+    new spell_draw_flame();                 ///< 116711
+    new spell_mogu_arcane_velocity();       ///< 116365
+    new spell_mogu_arcane_resonance();      ///< 116434
+    new spell_mogu_inversion();             ///< 118300 - 118302 - 118304 - 118305 - 118307 - 118308 - 132296 - 132297 - 132298
+    new spell_spirit_bolt();                ///< 118530
+    new spell_nullification_barrier();      ///< 115817
+    new go_inversion;                       ///< 211628
+    new go_cancel;                          ///< 211626
+    new at_nullification_barrier();         ///< 115817
 }

@@ -846,7 +846,7 @@ void Spell::SelectSpellTargets()
 
         if (m_spellInfo->IsChanneled())
         {
-            uint8 mask = (1 << i);
+            uint32 mask = (1 << i);
             for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             {
                 if (ihit->effectMask & mask)
@@ -867,8 +867,8 @@ void Spell::SelectSpellTargets()
                     // Do not check for selfcast
                     if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
                     {
-                         m_UniqueTargetInfo.erase(ihit++);
-                         continue;
+                        ihit = m_UniqueTargetInfo.erase(ihit);
+                        continue;
                     }
                 }
                 ++ihit;
@@ -1544,39 +1544,45 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex p_EffIndex, SpellImplicitTar
                 break;
             }
             case SPELLFAMILY_DRUID:
+            {
+                bool l_RemoveEnemies = true;
                 switch(m_spellInfo->Id)
                 {
-                    // Firebloom, Item  Druid T12 Restoration 4P Bonus
+                    /// Firebloom, Item  Druid T12 Restoration 4P Bonus
                     case 99017:
                         l_MaxSize = 1;
                         l_Power = POWER_HEALTH;
                         break;
-                    // Efflorescence
+                    /// Efflorescence
                     case 81269:
                         l_MaxSize = 3;
                         l_Power = POWER_HEALTH;
                         break;
-                    // Tranquility
+                    /// Tranquility
                     case 44203:
                         l_MaxSize = 5;
                         l_Power = POWER_HEALTH;
                         break;
-                }
-                if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
-                {
-                    l_MaxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
-                    l_Power = POWER_HEALTH;
-                }
-                else
-                    break;
 
-                // Remove targets outside caster's raid
-                for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
-                    if (!(*l_Iterator)->IsInRaidWith(m_caster))
-                        l_Iterator = l_UnitTargets.erase(l_Iterator);
-                    else
-                        ++l_Iterator;
+                    default:
+                        l_RemoveEnemies = false;
+                        break;
+                }
+                
+                if (l_RemoveEnemies)
+                {
+                    /// Remove targets outside caster's raid
+                    for (std::list<Unit*>::iterator l_Iterator = l_UnitTargets.begin(); l_Iterator != l_UnitTargets.end();)
+                    {
+                        if (!(*l_Iterator)->IsInRaidWith(m_caster))
+                            l_Iterator = l_UnitTargets.erase(l_Iterator);
+                        else
+                            ++l_Iterator;
+                    }
+                }
+
                 break;
+            }
             default:
                 break;
         }
@@ -2959,14 +2965,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             {
                 if (l_Caster->HasAura(158476)) ///< Soul of the forest
                 {
-                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL && m_damage != 0)
+                    if (l_Caster->GetSpecializationId(l_Caster->GetActiveSpec()) == SPEC_DRUID_FERAL)
                         l_Caster->EnergizeBySpell(l_Caster, 158476, 4 * l_Combo, POWER_ENERGY);
                 }
                 else if (l_Caster->HasAura(14161)) ///< Ruthlessness
                 {
                     if (roll_chance_i(20 * l_Combo))
                     {
-                        l_Caster->CastSpell(l_Caster, 139569, true); ///< Combo point awarding
+                        m_comboPointGain += 1;
                         l_Caster->CastSpell(l_Caster, 14181, true);  ///< Energy energize
                     }
                 }
@@ -3162,6 +3168,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if (!unit || !effectMask)
         return SPELL_MISS_EVADE;
 
+    MeleeHitOutcome l_HitResult = MELEE_HIT_NORMAL;
+    SpellMissInfo l_SpellResult = SPELL_MISS_NONE;
+    if (unit->ToCreature() && unit->IsAIEnabled)
+        unit->ToCreature()->GetAI()->CheckHitResult(l_HitResult, l_SpellResult, m_caster, m_spellInfo);
+
+    if (l_SpellResult != SPELL_MISS_NONE)
+        return l_SpellResult;
+
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
     if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
@@ -3170,8 +3184,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if ((m_spellInfo->Id == 105771 || m_spellInfo->Id == 7922) && unit->HasAura(19263))
         return SPELL_MISS_MISS;
 
-    // Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
-    if ((m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
+    /// Hack fix for Cloak of Shadows (just Blood Plague and Censure (DoT) can hit to Cloak of Shadows)
+    if (!m_spellInfo->IsPositive() &&(m_spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_MAGIC) && unit->HasAura(31224) && m_spellInfo->Id != 59879 && m_spellInfo->Id != 31803)
         return SPELL_MISS_MISS;
 
     // disable effects to which unit is immune
@@ -3614,8 +3628,8 @@ void Spell::prepare(SpellCastTargets const* targets, constAuraEffectPtr triggere
     m_caster->m_Events.AddEvent(Event, m_caster->m_Events.CalculateTime(1));
 
     //Prevent casting at cast another spell (ServerSide check)
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count && !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS)
-        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0))
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS) && m_caster->IsNonMeleeSpellCasted(false, true, true) && m_cast_count && (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster))
+        && (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0) || GetSpellInfo()->CalcCastTime(m_caster))))
     {
         SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
         finish(false);
@@ -4294,6 +4308,8 @@ void Spell::SendSpellCooldown()
     {
         // need in some way provided data for Spell::finish SendCooldownEvent
         _player->SetLastPotionId(m_CastItem->GetEntry());
+        if (!_player->isInCombat())
+            _player->UpdatePotionCooldown();
         return;
     }
 
@@ -4731,7 +4747,11 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    uint32 l_CastFlags = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 l_CastFlags   = CAST_FLAG_HAS_TRAJECTORY;
+    uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
+
+    if (m_CastItemEntry)
+        l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
     if (m_triggeredByAuraSpell)
         l_CastFlags |= CAST_FLAG_PENDING;
@@ -4885,7 +4905,7 @@ void Spell::SendSpellStart()
         data << float(l_Itr._position.GetPositionZ());
     }
 
-    data.WriteBits(0, 20);                  ///< Cast flag ex
+    data.WriteBits(l_CastFlagsEx, 20);  ///< Cast flag ex
     data.WriteBit(false);
     data.FlushBits();
 
@@ -4908,7 +4928,7 @@ void Spell::SendSpellGo()
         }
     }
 
-    uint32 l_CastFlags = CAST_FLAG_UNKNOWN_9;
+    uint32 l_CastFlags   = CAST_FLAG_UNKNOWN_9;
     uint32 l_CastFlagsEx = CastFlagsEx::CAST_FLAG_EX_NONE;
 
     // triggered spells with spell visual != 0
@@ -4938,6 +4958,9 @@ void Spell::SendSpellGo()
 
     if (!m_spellInfo->StartRecoveryTime)
         l_CastFlags |= CAST_FLAG_NO_GCD;
+
+    if (m_CastItemEntry)
+        l_CastFlagsEx |= CastFlagsEx::CAST_FLAG_EX_TOY_COOLDOWN;
 
     uint32 l_MissCount = 0;
     uint32 l_HitCount = 0;
@@ -5201,7 +5224,7 @@ void Spell::SendSpellGo()
 
 void Spell::SendLogExecute()
 {
-    if (m_effectExecuteData.size() <= 0)
+    if (m_effectExecuteData.empty())
         return;
 
     WorldPacket l_Data(SMSG_SPELL_EXECUTE_LOG, 1024);
@@ -5965,6 +5988,10 @@ void Spell::HandleEffects(Unit* p_UnitTarget, Item* p_ItemTarget, GameObject* p_
 
 SpellCastResult Spell::CheckCast(bool strict)
 {
+    // Hack fixing Skulloc LOS issue with the bridge sequence
+    if (m_spellInfo->Id == 168539 || m_spellInfo->Id == 168540)
+        return SPELL_CAST_OK;
+
     // Custom Spell_failed
     if (m_spellInfo->IsCustomCastCanceled(m_caster))
         return SPELL_FAILED_DONT_REPORT;
@@ -5972,6 +5999,9 @@ SpellCastResult Spell::CheckCast(bool strict)
     // Check death state
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !((m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD) || (IsTriggered() && !m_triggeredByAuraSpell)))
         return SPELL_FAILED_CASTER_DEAD;
+
+    if (m_spellInfo->HasEffect(SPELL_EFFECT_RESURRECT_WITH_AURA) && m_caster->GetInstanceScript() && m_caster->GetInstanceScript()->IsEncounterInProgress())
+        return SPELL_FAILED_TARGET_IN_COMBAT;
 
     // Check cooldowns to prevent cheating
     if (m_caster->GetTypeId() == TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE))
@@ -5982,8 +6012,8 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY)
             && !(player->HasAura(46924) && m_spellInfo->Id == 55694 || m_spellInfo->Id == 469 || m_spellInfo->Id == 6673 || m_spellInfo->Id == 97462 || m_spellInfo->Id == 5246 || m_spellInfo->Id == 12323
             || m_spellInfo->Id == 107566 || m_spellInfo->Id == 102060 || m_spellInfo->Id == 1160 || m_spellInfo->Id == 18499) && // Hack fix Bladestorm - caster should be able to cast only shout spells during bladestorm
-            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : (m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0) &&
-            !(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS))
+            (!m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) ? true : ((m_caster->GetCurrentSpell(CURRENT_GENERIC_SPELL)->GetSpellInfo()->AttributesEx9 & SPELL_ATTR9_CAN_CAST_WHILE_CASTING_THIS) == 0 || GetSpellInfo()->CalcCastTime(m_caster))) &&
+            (!(m_spellInfo->AttributesEx9 & SPELL_ATTR9_CASTABLE_WHILE_CAST_IN_PROGRESS) || GetSpellInfo()->CalcCastTime(m_caster)))
             return SPELL_FAILED_SPELL_IN_PROGRESS;
 
         if (player->HasSpellCooldown(m_spellInfo->Id) && !player->HasAuraTypeWithAffectMask(SPELL_AURA_ALLOW_CAST_WHILE_IN_COOLDOWN, m_spellInfo))
@@ -5998,7 +6028,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (categories && categories->ChargesCategory != 0)
         {
             auto const category = sSpellCategoryStores.LookupEntry(categories->ChargesCategory);
-            if (category && category->MaxCharges != 0 && !player->CanUseCharge(categories->Id))
+            if (category && category->MaxCharges != 0 && !player->CanUseCharge(category->Id))
                 return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_READY;
         }
     }
@@ -6439,8 +6469,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                     // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
-                    // Intervene and Safeguard can be casted in root effects, so we need to remove movement impairing auras before check cast result
-                    if (m_spellInfo->Id == 34784 || m_spellInfo->Id == 114029)
+                    // Intervene can be casted in root effects, so we need to remove movement impairing auras before check cast result
+                    if (m_spellInfo->Id == 34784)
                         m_caster->RemoveMovementImpairingAuras();
                 }
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
@@ -7044,31 +7074,9 @@ SpellCastResult Spell::CheckCasterAuras() const
     SpellCastResult prevented_reason = SPELL_CAST_OK;
     // Have to check if there is a stun aura. Otherwise will have problems with ghost aura apply while logging out
     uint32 unitflag = m_caster->GetUInt32Value(UNIT_FIELD_FLAGS);     // Get unit state
-    if (unitflag & UNIT_FLAG_STUNNED)
-    {
-        // spell is usable while stunned, check if caster has only mechanic stun auras, another stun types must prevent cast spell
-        if (usableInStun)
-        {
-            bool foundNotStun = false;
-            Unit::AuraEffectList const& stunAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_STUN);
-            for (Unit::AuraEffectList::const_iterator i = stunAuras.begin(); i != stunAuras.end(); ++i)
-            {
-                if ((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() && !((*i)->GetSpellInfo()->GetAllEffectsMechanicMask() & (1<<MECHANIC_STUN)))
-                {
-                    // Sap & Hand of Freedom hack
-                    if ((*i)->GetSpellInfo()->Id == 6770 && m_spellInfo->Id == 1044)
-                        continue;
 
-                    foundNotStun = true;
-                    break;
-                }
-            }
-            if (foundNotStun && m_spellInfo->Id != 22812)
-                prevented_reason = SPELL_FAILED_STUNNED;
-        }
-        else
-            prevented_reason = SPELL_FAILED_STUNNED;
-    }
+    if (unitflag & UNIT_FLAG_STUNNED && !usableInStun)
+        prevented_reason = SPELL_FAILED_STUNNED;
     else if (unitflag & UNIT_FLAG_CONFUSED && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_CONFUSED))
         prevented_reason = SPELL_FAILED_CONFUSED;
     else if (unitflag & UNIT_FLAG_FLEEING && !m_spellInfo->HasAttribute(SPELL_ATTR5_USABLE_WHILE_FEARED))

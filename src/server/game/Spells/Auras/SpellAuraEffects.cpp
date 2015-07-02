@@ -127,7 +127,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModStalked,                            // 68 SPELL_AURA_MOD_STALKED
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS clientside
-    &AuraEffect::HandleModSpellCritChanceShool,                   // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
+    &AuraEffect::HandleModSpellCritChanceSchool,                  // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     &AuraEffect::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
@@ -402,7 +402,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //343 SPELL_AURA_MOD_AUTOATTACK_DAMAGE_TARGET implemented in Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleModAutoAttackDamage,                       //344 SPELL_AURA_MOD_AUTOATTACK_DAMAGE implemented in Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
-    &AuraEffect::HandleProgressBar,                               //346 SPELL_AURA_ENABLE_ALT_POWER
+    &AuraEffect::HandleEnableAltPower,                            //346 SPELL_AURA_ENABLE_ALT_POWER
     &AuraEffect::HandleNULL,                                      //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
     &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency (TODO?)
@@ -523,7 +523,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //464 SPELL_AURA_MOD_AP_FROM_BONUS_ARMOR_PCT
     &AuraEffect::HandleAuraBonusArmor,                            //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleAuraBonusArmor,                            //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
-    &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_467
+    &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleAuraVersatility,                           //468 SPELL_AURA_MOD_VERSATILITY
     &AuraEffect::HandleNoImmediateEffect,                         //469 SPELL_AURA_TRIGGER_BONUS_LOOT_2
     &AuraEffect::HandleNULL,                                      //470 SPELL_AURA_470
@@ -1104,12 +1104,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         }
         case SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT:
         {
+
             switch (GetId())
             {
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 10;
 
                     break;
@@ -1127,7 +1128,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 120954:// Fortifying Brew
                 {
                     // Glyph of Fortifying Brew
-                    if (caster->HasAura(124997))
+                    if (caster && caster->HasAura(124997))
                         amount = 25;
 
                     break;
@@ -1143,7 +1144,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             switch (GetId())
             {
                 case 6262:  // Healthstone
-                    if (!caster->HasAura(56224)) // Glyph of Healthstone
+                    if (caster && !caster->HasAura(56224)) // Glyph of Healthstone
                         amount = 0;
                     break;
                 default:
@@ -1159,7 +1160,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 case 182287: ///< Ignite
                 {
                     /// Glyph of Ignite - Causes your Ignite to also slow the target's movement speed by 50%.
-                    if (caster->HasAura(61205))
+                    if (caster && caster->HasAura(61205))
                         amount = -50;
                     break;
                 }
@@ -1269,19 +1270,37 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     }
 
-    if (DoneActualBenefit != 0.0f)
-    {
-        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
+    if (DoneActualBenefit != 0.0f && caster)
         amount += (int32)DoneActualBenefit;
-    }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(CONST_CAST(AuraEffect, shared_from_this()), amount, m_canBeRecalculated);
 
     if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
-        /// Apply Versatility absorb bonus
         if (GetAuraType() == AuraType::SPELL_AURA_SCHOOL_ABSORB || GetAuraType() == AuraType::SPELL_AURA_SCHOOL_HEAL_ABSORB)
-            amount += CalculatePct(amount, caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        {
+            float l_Minval = (float)caster->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+            float l_Maxval = (float)caster->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_ABSORPTION_PCT);
+
+            /// Apply bonus absorption
+            float totalMod = l_Minval + l_Maxval;
+
+            /// Apply Versatility absorb bonus
+            totalMod += caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT);
+
+            /// Apply Mastery: Discipline Shield
+            if (caster->HasAura(77484))
+            {
+                float l_Mastery = caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.625f;
+                totalMod += l_Mastery;
+            }
+
+            amount += CalculatePct(amount, totalMod);
+
+            /// Check if is crit
+            if (caster->IsAuraAbsorbCrit(m_spellInfo, m_spellInfo->GetSchoolMask()))
+                amount = caster->SpellCriticalAuraAbsorbBonus(m_spellInfo, amount);
+        }
     }
 
     amount *= GetBase()->GetStackAmount();
@@ -2467,7 +2486,6 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_STAG:                                     // 0x03
         case FORM_AQUA:                                     // 0x04
         case FORM_AMBIENT:                                  // 0x06
-        case FORM_STEVES_GHOUL:                             // 0x09
         case FORM_THARONJA_SKELETON:                        // 0x0A
         case FORM_TEST_OF_STRENGTH:                         // 0x0B
         case FORM_BLB_PLAYER:                               // 0x0C
@@ -2476,6 +2494,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_CREATURECAT:                              // 0x0F
         case FORM_GHOSTWOLF:                                // 0x10
             break;
+        case FORM_SPIRITED_CRANE:                           // 0x09
         case FORM_WISE_SERPENT:                             // 0x14
             PowerType = POWER_MANA;
             break;
@@ -4087,16 +4106,16 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     if (GetAuraType() == SPELL_AURA_INCREASE_MIN_SWIM_SPEED)
     {
-        target->UpdateSpeed(MOVE_SWIM, true);
+        target->UpdateSpeed(MOVE_SWIM, false);
         return;
     }
 
-    target->UpdateSpeed(MOVE_RUN, true);
+    target->UpdateSpeed(MOVE_RUN, false);
 
     if (GetAuraType() == SPELL_AURA_MOD_MINIMUM_SPEED)
     {
-        target->UpdateSpeed(MOVE_RUN_BACK, true);
-        target->UpdateSpeed(MOVE_FLIGHT, true);
+        target->UpdateSpeed(MOVE_RUN_BACK, false);
+        target->UpdateSpeed(MOVE_FLIGHT, false);
     }
 }
 
@@ -5365,7 +5384,7 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const* aurApp, uint8 m
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
 }
 
-void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModSpellCritChanceSchool(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5592,7 +5611,7 @@ void AuraEffect::HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 m
     float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
     float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, false);
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_CurrentAmount, true);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, l_NewAmount, true);
 }
 
 void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5608,7 +5627,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
     float l_CurrentAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? shared_from_this() : nullptr, apply ? nullptr : std::const_pointer_cast<AuraEffect>(shared_from_this()));
     float l_NewAmount = target->GetTotalAuraModifier(GetAuraType(), apply ? nullptr : shared_from_this());
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, false);
-    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_CurrentAmount, true);
+    target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, l_NewAmount, true);
 }
 
 void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -7468,6 +7487,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT, GetBase()->GetStackAmount());
 
+        /// Apply versatility rating for players
+        if (caster->GetSpellModOwner())
+            damage += CalculatePct(damage, caster->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + caster->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+
         // Calculate armor mitigation
         if (Unit::IsDamageReducedByArmor(GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), GetEffIndex()))
         {
@@ -7756,21 +7779,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     }
     else
     {
-        damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
-
-        // Wild Growth
-        if (m_spellInfo->Id == 48438)
-        {
-            float l_SetMod = 0.f;
-
-            // Item - Druid T10 Restoration 2P Bonus
-            if (AuraEffectPtr l_AurEff = caster->GetAuraEffect(70658, 0))
-                l_SetMod = l_AurEff->GetAmount() / 100.f;
-
-            float l_Mod = (((GetTotalTicks() - GetTickNumber()) - 3.5f) * (2.f + l_SetMod) + 100.f) / 100.f;
-            damage *= l_Mod;
-        }
-
         damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, GetEffIndex(), DOT, GetBase()->GetStackAmount());
 
         if (isAreaAura)
@@ -8146,73 +8154,70 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
     }
 }
 
-void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleEnableAltPower(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+    if (!(p_Mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Player* target = aurApp->GetTarget()->ToPlayer();
-
-    if (!target)
+    Unit* l_Target = p_AurApp->GetTarget();
+    if (!l_Target)
         return;
 
-    if (!apply)
+    if (!p_Apply)
     {
-        target->SetMaxPower(POWER_ALTERNATE_POWER, 0);
-        target->SetPower(POWER_ALTERNATE_POWER, 0);
+        l_Target->SetMaxPower(POWER_ALTERNATE_POWER, 0);
+        l_Target->SetPower(POWER_ALTERNATE_POWER, 0);
         return;
     }
 
-    uint32 startPower = 0;
-    uint32 maxPower = 0;
-
-    // Unknow max misc : 116
+    uint32 l_StartPower = 0;
+    uint32 l_MaxPower = 0;
 
     switch (GetMiscValue())
     {
         case 80:
-            maxPower = 3;
+            l_MaxPower = 3;
             break;
         case 32:
         case 89:
-            maxPower = 4;
+            l_MaxPower = 4;
             break;
         case 30:
         case 34:
         case 90:
-            maxPower = 5;
+            l_MaxPower = 5;
             break;
         case 33:
         case 35:
-            maxPower = 7;
+            l_MaxPower = 7;
             break;
         case 88:
-            maxPower = 10;
+            l_MaxPower = 10;
             break;
         case 117:
-            maxPower = 25;
+            l_MaxPower = 25;
             break;
         case 129:
         case 133:
-            maxPower = 30;
+            l_MaxPower = 30;
             break;
         case 29:
-            maxPower = 34;
+            l_MaxPower = 34;
             break;
         case 114:
         case 203:
-            maxPower = 40;
+            l_MaxPower = 40;
             break;
         case 64:
-            maxPower = 50;
+            l_MaxPower = 50;
             break;
         case 84:
-            maxPower = 60;
+            l_MaxPower = 60;
             break;
         case 137:
         case 149:
         case 195:
-            maxPower = 90;
+            l_MaxPower = 90;
             break;
         case 23:
         case 37:
@@ -8244,50 +8249,49 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
         case 206:
         case 207:
         default:
-            maxPower = 100;
+            l_MaxPower = 100;
             break;
         case 63:
-            maxPower = 105;
+            l_MaxPower = 105;
             break;
         case 87:
-            maxPower = 120;
+            l_MaxPower = 120;
             break;
         case 66:
         case 67:
-            maxPower = 180;
+            l_MaxPower = 180;
             break;
         case 24:
-            maxPower = 250;
+            l_MaxPower = 250;
             break;
         case 26:
-            maxPower = 300;
+            l_MaxPower = 300;
             break;
         case 158:
-            maxPower = 700;
+            l_MaxPower = 700;
             break;
         case 36:
-            maxPower = 35000;
+            l_MaxPower = 35000;
             break;
     }
 
     switch (GetMiscValue())
     {
         case 89:
-            startPower = 4;
+            l_StartPower = 4;
             break;
         case 34:
         case 90:
         case 204:
         case 205:
-        //case 206:
         case 207:
-            startPower = 5;
+            l_StartPower = 5;
             break;
         case 103:
-            startPower = 10;
+            l_StartPower = 10;
             break;
         case 64:
-            startPower = 25;
+            l_StartPower = 25;
             break;
         case 87:
         case 93:
@@ -8295,18 +8299,18 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
         case 151:
         case 176:
         case 183:
-            startPower = 50;
+            l_StartPower = 50;
             break;
         case 178:
-            startPower = 100;
+            l_StartPower = 100;
             break;
         default:
-            startPower = 0;
+            l_StartPower = 0;
             break;
     }
 
-    target->SetMaxPower(POWER_ALTERNATE_POWER, maxPower);
-    target->SetPower(POWER_ALTERNATE_POWER, startPower);
+    l_Target->SetMaxPower(POWER_ALTERNATE_POWER, l_MaxPower);
+    l_Target->SetPower(POWER_ALTERNATE_POWER, l_StartPower);
 }
 
 void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -8505,6 +8509,35 @@ void AuraEffect::HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_M
 
     l_Player->HandleStatModifier(UNIT_MOD_BONUS_ARMOR, l_Type, (float)GetAmount(), p_Apply);
     l_Player->UpdateArmor();
+}
+
+void AuraEffect::HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const
+{
+    if (!(p_Mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* l_Target = p_AurApp->GetTarget();
+
+    if (GetMiscValue() < -1 || GetMiscValue() > 4)
+    {
+        sLog->outWarn(LOG_FILTER_SPELLS_AURAS, "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
+        return;
+    }
+
+    /// Only players have base stats
+    if (l_Target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    for (int32 l_I = STAT_STRENGTH; l_I < MAX_STATS; ++l_I)
+    {
+        if (GetMiscValue() == l_I || GetMiscValue() == -1)
+        {
+            l_Target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + l_I), BASE_PCT_EXCLUDE_CREATE, float(m_amount), p_Apply);
+
+            if (l_Target->GetTypeId() == TYPEID_PLAYER || l_Target->ToCreature()->isPet())
+                l_Target->ApplyStatPercentBuffMod(Stats(l_I), float(m_amount), p_Apply);
+        }
+    }
 }
 
 void AuraEffect::HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const

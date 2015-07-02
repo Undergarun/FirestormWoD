@@ -612,6 +612,7 @@ struct Position
         }
         return fmod(o, 2.0f * static_cast<float>(M_PI));
     }
+
     static float NormalizePitch(float o)
     {
         if (o > -M_PI && o < M_PI)
@@ -620,6 +621,20 @@ struct Position
         o = NormalizeOrientation(o + M_PI) - M_PI;
 
         return o;
+    }
+
+    bool IsNearPosition(Position const* p_CheckPos, float p_Range) const
+    {
+        float l_PosX = GetPositionX();
+        float l_PosY = GetPositionY();
+        float l_PosZ = GetPositionZ();
+
+        if ((l_PosX <= (p_CheckPos->m_positionX + p_Range) && l_PosX >= (p_CheckPos->m_positionX - p_Range)) &&
+            (l_PosY <= (p_CheckPos->m_positionY + p_Range) && l_PosY >= (p_CheckPos->m_positionY - p_Range)) &&
+            (l_PosZ <= (p_CheckPos->m_positionZ + p_Range) && l_PosZ >= (p_CheckPos->m_positionZ - p_Range)))
+            return true;
+
+        return false;
     }
 };
 
@@ -1031,8 +1046,8 @@ class WorldObject : public Object, public WorldLocation
             pos.Relocate(x, y, z, ang);
             return SummonCreature(id, pos, spwtype, despwtime, 0, viewerGuid, viewersList);
         }
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false);
-        GameObject* SummonGameObject(uint32 p_Entry, Position const p_Pos, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3, uint32 p_RespTime, uint64 p_ViewerGuid = 0, std::list<uint64>* p_ViewerList = nullptr, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, uint64 viewerGuid = 0, std::list<uint64>* viewersList = NULL, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false, bool p_Active = false);
+        GameObject* SummonGameObject(uint32 p_Entry, Position const& p_Pos, float p_Rot0, float p_Rot1, float p_Rot2, float p_Rot3, uint32 p_RespTime, uint64 p_ViewerGuid = 0, std::list<uint64>* p_ViewerList = nullptr, uint32 p_AnimProgress = 100, uint32 p_GoHealth = 0, bool p_GarrisonPlotObject = false, bool p_Active = false);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>& list);
 
@@ -1040,6 +1055,7 @@ class WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true);
+        AreaTrigger* FindNearestAreaTrigger(uint32 p_SpellID, float p_Range) const;
 
         void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
@@ -1091,6 +1107,13 @@ class WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
+        uint16 GetAIAnimKitId() const { return m_AIAnimKitId; }
+        void SetAIAnimKitId(uint16 animKitId);
+        uint16 GetMovementAnimKitId() const { return m_MovementAnimKitId; }
+        void SetMovementAnimKitId(uint16 animKitId);
+        uint16 GetMeleeAnimKitId() const { return m_MeleeAnimKitId; }
+        void SetMeleeAnimKitId(uint16 animKitId);
+
         // Personal visibility system
         bool MustBeVisibleOnlyForSomePlayers() const { return !_visibilityPlayerList.empty(); }
         void GetMustBeVisibleForPlayersList(std::list<uint64/* guid*/>& playerList) { playerList = _visibilityPlayerList; }
@@ -1140,6 +1163,10 @@ class WorldObject : public Object, public WorldLocation
         bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
         bool CanDetectInvisibilityOf(WorldObject const* obj) const;
         bool CanDetectStealthOf(WorldObject const* obj) const;
+
+        uint16 m_AIAnimKitId;
+        uint16 m_MovementAnimKitId;
+        uint16 m_MeleeAnimKitId;
 };
 
 namespace JadeCore

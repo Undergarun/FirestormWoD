@@ -75,9 +75,11 @@ class ScriptMgr
     public:
         /// Assign script to Areatrigger
         void InitScriptEntity(AreaTrigger* p_AreaTrigger);
+
         /// Proc when AreaTrigger is created.
         /// @p_AreaTrigger : AreaTrigger instance
         void OnCreateAreaTriggerEntity(AreaTrigger* p_AreaTrigger);
+
         /// Procs before creation to specify position and linear destination of the areatrigger
         /// @p_AreaTrigger: Areatrigger Instance
         /// @p_Caster: Caster because he the Areatrigger is not spawned so caster is not defined
@@ -85,14 +87,19 @@ class ScriptMgr
         /// @p_DestinationPostion: Linear destination of the Areatrigger
         /// @p_PathToLinearDestination: Linear path without the endpoint
         void OnSetCreatePositionEntity(AreaTrigger* p_AreaTrigger, Unit* p_Caster, Position& p_SourcePosition, Position& p_DestinationPosition, std::list<Position>& p_PathToLinearDestination);
+
         /// Proc when AreaTrigger is updated.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
         void OnUpdateAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
+
         /// Proc when AreaTrigger is removed.
         /// @p_AreaTrigger : AreaTrigger instance
         /// @p_Time        : Diff since last update
         void OnRemoveAreaTriggerEntity(AreaTrigger* p_AreaTrigger, uint32 p_Time);
+
+        /// Called when AreaTrigger is arrived to DestPos
+        void OnDestinationReached(AreaTrigger* p_AreaTrigger);
 
     /// CreatureScript
     public:
@@ -810,6 +817,11 @@ class ScriptMgr
         /// @p_DamageEffectTyp : Damage type
         /// @p_Damage          : Amount of damage taken
         void OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage);
+
+        /// Called when player block attack
+        /// @p_Player : Player instance
+        /// @p_Attacker  : Damage Infos
+        void OnPlayerBlock(Player* p_Player, Unit* p_Attacker);
 
     /// BattlegroundScript
     public:

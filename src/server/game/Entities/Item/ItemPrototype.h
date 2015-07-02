@@ -234,6 +234,7 @@ enum ItemFlagsCustom
     ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   ///< No quest status will be checked when this item drops
     ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004,   ///< Item will always follow group/master/need before greed looting rules
     ITEM_FLAGS_CU_CANT_BE_SELL          = 0x0008,   ///< Item can't be sell
+    ITEM_FLAGS_CU_BYPASS_VENDOR_FILTER  = 0x0010    ///< Bypass vendor filter (always shown)
 };
 
 enum CurrencyCategory
@@ -929,8 +930,8 @@ struct ItemTemplate
 
     bool CanBeTransmogrified() const
     {
-        if (Quality == ITEM_QUALITY_LEGENDARY)
-            return false;
+        //if (Quality == ITEM_QUALITY_LEGENDARY)
+        //    return false;
 
         if (Class != ITEM_CLASS_ARMOR &&
             Class != ITEM_CLASS_WEAPON)
@@ -950,8 +951,10 @@ struct ItemTemplate
         if (Flags2 & ITEM_FLAGS_EXTRA_CANNOT_TRANSMOG)
             return false;
 
-        if (Quality == ITEM_QUALITY_LEGENDARY)
-            return false;
+        /// Custom removed for selling old legendary item
+        /// Ask by Peluche
+        //if (Quality == ITEM_QUALITY_LEGENDARY)
+        //    return false;
 
         if (Class != ITEM_CLASS_ARMOR &&
             Class != ITEM_CLASS_WEAPON)

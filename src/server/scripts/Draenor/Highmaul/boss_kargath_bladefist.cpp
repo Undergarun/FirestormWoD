@@ -171,7 +171,8 @@ class boss_kargath_bladefist : public CreatureScript
         enum eCosmeticEvents
         {
             OrientationForFight = 1,
-            EventEndOfArenasStands
+            EventEndOfArenasStands,
+            EventEndOfChainHurl
         };
 
         enum eDatas
@@ -216,8 +217,6 @@ class boss_kargath_bladefist : public CreatureScript
             Obscured                = 160131,
             ChainHurlStunAura       = 159947,
 
-            SpellBerserker          = 26662,
-
             /// In Mythic difficulty, the raid must perform well to gain favor that is tracked by Roar of the Crowd.
             /// If the raid gains enough favor from Roar of the Crowd, the raid is granted increased damage dealing.
             SpellRoarOfTheCrowd     = 163302,   ///< Enable Alt Power
@@ -237,7 +236,6 @@ class boss_kargath_bladefist : public CreatureScript
             EventBerserker,
             EventSpawnIronBombers,
             EventFreeTiger,
-            EventEndOfChainHurl
         };
 
         enum eCreatures
@@ -269,6 +267,8 @@ class boss_kargath_bladefist : public CreatureScript
             bool m_ChainHurl;
             bool m_NearDeath;
 
+            bool m_InEvadeMode;
+
             void Reset() override
             {
                 m_Events.Reset();
@@ -278,6 +278,7 @@ class boss_kargath_bladefist : public CreatureScript
                 me->RemoveAura(eSpells::BladeFistAmputation);
                 me->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 me->RemoveAura(eSpells::FirePillarTargetSelect);
+                me->RemoveAura(eHighmaulSpells::Berserker);
 
                 me->SetDisplayId(eDatas::MorphWithWeapon);
 
@@ -286,6 +287,7 @@ class boss_kargath_bladefist : public CreatureScript
 
                 m_ChainHurl = false;
                 m_NearDeath = false;
+                m_InEvadeMode = false;
 
                 if (m_Instance)
                 {
@@ -443,6 +445,9 @@ class boss_kargath_bladefist : public CreatureScript
                     }
                     case eActions::InterruptByPillar:
                     {
+                        if (m_InEvadeMode)
+                            break;
+
                         Talk(eTalks::FlamePillar);
                         me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
                         me->RemoveAura(eSpells::BerserkerRushDamageTick);
@@ -483,7 +488,17 @@ class boss_kargath_bladefist : public CreatureScript
 
             void EnterEvadeMode() override
             {
-                me->SetControlled(false, UnitState::UNIT_STATE_ROOT);
+                m_InEvadeMode = true;
+
+                me->RemoveAllAuras();
+                me->CastSpell(me, eSpells::TriggerCosmeticAura, true);
+
+                me->InterruptNonMeleeSpells(true);
+
+                /// Just in case, to prevent the fail Return to Home
+                me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
+                me->ClearUnitState(UnitState::UNIT_STATE_DISTRACTED);
+                me->ClearUnitState(UnitState::UNIT_STATE_STUNNED);
 
                 if (Unit* l_ChainHurl = Unit::GetUnit(*me, m_ChainHurlGuid))
                 {
@@ -495,6 +510,8 @@ class boss_kargath_bladefist : public CreatureScript
 
                 if (m_Instance != nullptr)
                     m_Instance->SetBossState(eHighmaulDatas::BossKargathBladefist, EncounterState::FAIL);
+
+                m_InEvadeMode = false;
             }
 
             void JustReachedHome() override
@@ -554,6 +571,10 @@ class boss_kargath_bladefist : public CreatureScript
                             break;
 
                         p_Target->EnterVehicle(me, 0, true);
+
+                        /// @WORKAROUND - Clear ON VEHICLE state to allow healing (Invalid target errors)
+                        /// Current rule for applying this state is questionable (seatFlags & VEHICLE_SEAT_FLAG_ALLOW_TURNING ???)
+                        p_Target->ClearUnitState(UnitState::UNIT_STATE_ONVEHICLE);
 
                         /// This should prevent Kargath to send player under map after Impale
                         if (Creature* l_ATForCrowd = me->FindNearestCreature(eCreatures::AreaTriggerForCrowd, 100.0f))
@@ -628,6 +649,11 @@ class boss_kargath_bladefist : public CreatureScript
 
                         for (Creature* l_Sweeper : l_SweeperList)
                             l_Sweeper->AI()->DoAction(0);
+                        break;
+                    }
+                    case eCosmeticEvents::EventEndOfChainHurl:
+                    {
+                        DoAction(eActions::EndOfChainHurl);
                         break;
                     }
                     default:
@@ -728,12 +754,12 @@ class boss_kargath_bladefist : public CreatureScript
 
                         m_Events.DelayEvent(eEvents::EventImpale, 18000);
                         m_Events.DelayEvent(eEvents::EventBerserkerRush, 18000);
-                        m_Events.ScheduleEvent(eEvents::EventEndOfChainHurl, 14000);
+                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventEndOfChainHurl, 14000);
                         break;
                     }
                     case eEvents::EventBerserker:
                     {
-                        me->CastSpell(me, eSpells::SpellBerserker, true);
+                        me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         Talk(eTalks::Berserk);
                         break;
                     }
@@ -781,9 +807,6 @@ class boss_kargath_bladefist : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventFreeTiger, 110000);
                         break;
                     }
-                    case eEvents::EventEndOfChainHurl:
-                        DoAction(eActions::EndOfChainHurl);
-                        break;
                     default:
                         break;
                 }
@@ -1429,7 +1452,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
 
                         me->SetFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                         me->PlayOneShotAnimKit(eData::AnimKit1);
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKit(eData::AnimKit2); });
+                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->SetAIAnimKitId(eData::AnimKit2); });
                         AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::FlameJet, true); });
 
                         if (me->GetMap()->IsMythic())
@@ -1489,7 +1512,7 @@ class npc_highmaul_fire_pillar : public CreatureScript
                 me->RemoveAllAreasTrigger();
                 me->RemoveFlag(EUnitFields::UNIT_FIELD_FLAGS, eUnitFlags::UNIT_FLAG_IN_COMBAT);
                 me->RemoveAllAuras();
-                me->SetAIAnimKit(0);
+                me->SetAIAnimKitId(0);
                 me->PlayOneShotAnimKit(eData::AnimKit3);
                 me->RemoveAura(eSpells::FlameGoutPeriodic);
             }
@@ -3480,7 +3503,7 @@ class spell_highmaul_correct_searchers : public SpellScriptLoader
             {
                 p_Targets.remove_if(JadeCore::UnitAuraCheck(true, eSpells::Obscured));
 
-                if (GetSpellInfo()->Id == eSpells::BerserkerRush && p_Targets.size() > 0)
+                if (GetSpellInfo()->Id == eSpells::BerserkerRush && !p_Targets.empty())
                 {
                     p_Targets.remove_if([this](WorldObject* p_Object) -> bool
                     {
@@ -3536,7 +3559,12 @@ class areatrigger_highmaul_molten_bomb : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->IsOnVehicle())
+                        continue;
+
                     l_Caster->CastSpell(l_Unit, eSpell::MoltenBomb, true);
+                }
             }
         }
 
@@ -3581,6 +3609,14 @@ class areatrigger_highmaul_flame_jet : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
+                    if (l_Unit->IsOnVehicle())
+                    {
+                        if (l_Unit->HasAura(eSpells::FlameJet))
+                            l_Unit->RemoveAura(eSpells::FlameJet);
+
+                        continue;
+                    }
+
                     /// Don't add DoT on targets in vehicle (Chain Hurl or Impale)
                     if (l_Caster->GetDistance(l_Unit) <= 7.0f && !l_Unit->IsOnVehicle())
                         l_Caster->CastSpell(l_Unit, eSpells::FlameJet, true);
@@ -3631,7 +3667,12 @@ class areatrigger_highmaul_mauling_brew : public AreaTriggerEntityScript
                 p_AreaTrigger->VisitNearbyObject(l_Radius, l_Searcher);
 
                 for (Unit* l_Unit : l_TargetList)
+                {
+                    if (l_Unit->IsOnVehicle())
+                        continue;
+
                     l_Caster->CastSpell(l_Unit, eSpells::MaulingBrew, true);
+                }
             }
         }
 

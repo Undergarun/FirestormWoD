@@ -19,251 +19,210 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 79867 - Orgek Ironhand                                             ///
     //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_OrgekIronhand::npc_OrgekIronhand()
-        : CreatureScript("npc_OrgekIronhand_Garr")
+    namespace npc_OrgekIronhandAIData
     {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_OrgekIronhand::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (!p_Player->HasQuest(Quests::Horde_YourFirstBlacksmithingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstBlacksmithingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstBlacksmithingWorkOrder, 4);
-
-        p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need you to do something for me.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_OrgekIronhand::GetAI(Creature * p_Creature) const
-    {
-        return new npc_OrgekIronhandAI(p_Creature);
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_OrgekIronhand::npc_OrgekIronhandAI::npc_OrgekIronhandAI(Creature * p_Creature)
-        : GarrisonNPCAI(p_Creature)
-    {
-        SetAIObstacleManagerEnabled(true);
-        SetupActionSequence(OrgekIronhand_Level1::MovePointLoc, OrgekIronhand_Level1::Sequence, sizeof(OrgekIronhand_Level1::Sequence), OrgekIronhand_Level1::MovePointIDs::Anvil);
-
-        m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Anvil] = [this]() -> void
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Anvil, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Anvil - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+            p_This->SetAIObstacleManagerEnabled(true);
+            p_This->SetupActionSequence(OrgekIronhand_Level1::MovePointLoc, OrgekIronhand_Level1::Sequence, sizeof(OrgekIronhand_Level1::Sequence), OrgekIronhand_Level1::MovePointIDs::Anvil);
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [this]() -> void
+            p_This->m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Anvil] = [p_This, p_Me]() -> void
             {
-                me->LoadEquipment(1, true);
-                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
-            });
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Anvil, [this]() -> void
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Anvil, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                                [p_This]() -> void { p_This->SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Anvil - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS, [p_Me]() -> void
+                {
+                    p_Me->LoadEquipment(1, true);
+                    p_Me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+                });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Anvil, [p_Me]() -> void
+                {
+                    p_Me->LoadEquipment(0, true);
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Front] = [p_This, p_Me]() -> void
             {
-                me->LoadEquipment(0, true);
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Front, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push([p_This]() -> void { p_This->SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Front - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Front, [p_Me]() -> void
+                {
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Forge1] = [p_This, p_Me]() -> void
+            {
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge1, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                                 [p_This]() -> void { p_This->SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Forge1 - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS, [p_Me]() -> void
+                {
+                    p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                    p_Me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+                });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge1, [p_Me]() -> void
+                {
+                    p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Forge2] = [p_This, p_Me]() -> void
+            {
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge2, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                                 [p_This]() -> void { p_This->SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Forge2 - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                             [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge2, [p_Me]() -> void
+                {
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Chest] = [p_This, p_Me]() -> void
+            {
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Chest, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                                [p_This]() -> void { p_This->SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Chest - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [p_Me]() -> void { p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
+                p_This->AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Chest, [p_Me]() -> void { p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
+            };
+
+            p_This->DoNextSequenceAction();
         };
 
-        m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Front] = [this]() -> void
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Front, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Front - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Front, [this]() -> void
-            {
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
         };
 
-        m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Forge1] = [this]() -> void
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge1, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Forge1 - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                             [this]() -> void
-            {
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
-                me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
-            });
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge1, [this]() -> void
-            {
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
         };
 
-        m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Forge2] = [this]() -> void
+        char ScriptName[] = "npc_OrgekIronhand_Garr";
+
+        std::vector<SkillNPC_RecipeEntry> Recipes
         {
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge2, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Forge2 - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
-
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                             [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Forge2, [this]() -> void
-            {
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
+            { 171692,     0 },
+            { 171693,     0 },
+            { 171691,     0 },
+            { 171694, 28366 },
+            { 171695, 28366 },
+            { 171696, 28366 },
+            { 171697, 28366 },
+            { 171698, 28366 },
+            { 171699, 28366 },
+            { 171700, 28367 },
+            { 171701, 28367 },
+            { 171702, 28367 },
+            { 171703, 28367 },
+            { 171704, 28367 },
+            { 171705, 28367 },
+            { 171706, 28367 },
+            { 171707, 28367 },
+            { 173355, 28366 },
+            { 178243, 28366 },
+            { 178245, 28366 },
         };
-
-        m_OnPointReached[OrgekIronhand_Level1::MovePointIDs::Chest] = [this]() -> void
-        {
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Chest, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(OrgekIronhand_Level1::MovePointLoc[OrgekIronhand_Level1::MovePointIDs::Chest - OrgekIronhand_Level1::MovePointIDs::Anvil].O); });
-
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                            [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8); });
-            AddTimedDelayedOperation(OrgekIronhand_Level1::DestPointDuration::Chest, [this]() -> void { me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0); });
-        };
-
-        DoNextSequenceAction();
     }
 
     //////////////////////////////////////////////////////////////////////////
     /// 79817 - Kinja                                                      ///
     //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_Kinja::npc_Kinja()
-        : CreatureScript("npc_Kinja_Garr")
+    namespace npc_KinjaAIData
     {
-
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a player opens a gossip dialog with the GameObject.
-    /// @p_Player     : Source player instance
-    /// @p_Creature   : Target GameObject instance
-    bool npc_Kinja::OnGossipHello(Player * p_Player, Creature * p_Creature)
-    {
-        if (p_Player->HasQuest(Quests::Horde_YourFirstBlacksmithingWorkOrder) || p_Player->IsQuestRewarded(Quests::Horde_YourFirstBlacksmithingWorkOrder))
-            p_Player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I would like to place an order.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        if (p_Player->HasQuest(Quests::Horde_YourFirstBlacksmithingWorkOrder) && !p_Player->IsQuestRewarded(Quests::Horde_YourFirstBlacksmithingWorkOrder))
-            p_Player->PlayerTalkClass->GetQuestMenu().AddMenuItem(Quests::Horde_YourFirstBlacksmithingWorkOrder, 4);
-
-        p_Player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, p_Creature->GetGUID());
-
-        return true;
-    }
-
-    /// Called when a player selects a gossip item in the creature's gossip menu.
-    /// @p_Player   : Source player instance
-    /// @p_Creature : Target creature instance
-    /// @p_Sender   : Sender menu
-    /// @p_Action   : Action
-    bool npc_Kinja::OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
-    {
-        if (p_Player && p_Creature && p_Creature->AI() && p_Creature->GetScriptName() == GetName())
-            reinterpret_cast<GarrisonNPCAI*>(p_Creature->AI())->SendShipmentCrafterUI(p_Player);
-
-        return true;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Called when a CreatureAI object is needed for the creature.
-    /// @p_Creature : Target creature instance
-    CreatureAI * npc_Kinja::GetAI(Creature * p_Creature) const
-    {
-        return new npc_KinjaAI(p_Creature);
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
-
-    /// Constructor
-    npc_Kinja::npc_KinjaAI::npc_KinjaAI(Creature * p_Creature)
-        : GarrisonNPCAI(p_Creature)
-    {
-        SetAIObstacleManagerEnabled(true);
-        SetupActionSequence(Kinja_Level1::MovePointLoc, Kinja_Level1::Sequence, sizeof(Kinja_Level1::Sequence), Kinja_Level1::MovePointIDs::Anvil);
-
-        m_OnPointReached[Kinja_Level1::MovePointIDs::Anvil] = [this]() -> void
+        InitSequenceFunction FnLevel1 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Anvil, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Anvil - Kinja_Level1::MovePointIDs::Anvil].O); });
+            p_This->SetAIObstacleManagerEnabled(true);
+            p_This->SetupActionSequence(Kinja_Level1::MovePointLoc, Kinja_Level1::Sequence, sizeof(Kinja_Level1::Sequence), Kinja_Level1::MovePointIDs::Anvil);
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                    [this]() -> void
+            p_This->m_OnPointReached[Kinja_Level1::MovePointIDs::Anvil] = [p_This, p_Me]() -> void
             {
-                me->LoadEquipment(1, true);
-                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
-            });
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Anvil, [this]() -> void
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Anvil, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                        [p_This]() -> void { p_This->SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Anvil - Kinja_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                    [p_Me]() -> void
+                {
+                    p_Me->LoadEquipment(1, true);
+                    p_Me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_GARR);
+                });
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Anvil, [p_Me]() -> void
+                {
+                    p_Me->LoadEquipment(0, true);
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[Kinja_Level1::MovePointIDs::Front] = [p_This, p_Me]() -> void
             {
-                me->LoadEquipment(0, true);
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Front, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                        [p_This]() -> void { p_This->SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Front - Kinja_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                    [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK); });
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Front, [p_Me]() -> void
+                {
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[Kinja_Level1::MovePointIDs::Forge1] = [p_This, p_Me]() -> void
+            {
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge1, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                         [p_This]() -> void { p_This->SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Forge1 - Kinja_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [p_Me]() -> void
+                {
+                    p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
+                    p_Me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+                });
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge1, [p_Me]() -> void
+                {
+                    p_Me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->m_OnPointReached[Kinja_Level1::MovePointIDs::Forge2] = [p_This, p_Me]() -> void
+            {
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge2, [p_This]() -> void { p_This->DoNextSequenceAction(); });
+                p_This->m_DelayedOperations.push(                                         [p_This]() -> void { p_This->SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Forge2 - Kinja_Level1::MovePointIDs::Anvil].O); });
+
+                p_This->AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [p_Me]() -> void { p_Me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
+                p_This->AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge2, [p_Me]() -> void
+                {
+                    p_Me->HandleEmoteCommand(0);
+                    p_Me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
+                });
+            };
+
+            p_This->DoNextSequenceAction();
         };
 
-        m_OnPointReached[Kinja_Level1::MovePointIDs::Front] = [this]() -> void
+        InitSequenceFunction FnLevel2 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Front, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Front - Kinja_Level1::MovePointIDs::Anvil].O); });
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                    [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Front, [this]() -> void
-            {
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
         };
 
-        m_OnPointReached[Kinja_Level1::MovePointIDs::Forge1] = [this]() -> void
+        InitSequenceFunction FnLevel3 = [](GarrisonNPCAI * p_This, Creature * p_Me)
         {
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge1, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Forge1 - Kinja_Level1::MovePointIDs::Anvil].O); });
 
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [this]() -> void
-            {
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 8);
-                me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
-            });
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge1, [this]() -> void
-            {
-                me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
         };
 
-        m_OnPointReached[Kinja_Level1::MovePointIDs::Forge2] = [this]() -> void
-        {
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge2, [this]() -> void { DoNextSequenceAction(); });
-            m_DelayedOperations.push([this]() -> void { SetFacingBuildingRelative(Kinja_Level1::MovePointLoc[Kinja_Level1::MovePointIDs::Forge2 - Kinja_Level1::MovePointIDs::Anvil].O); });
-
-            AddTimedDelayedOperation(0 * IN_MILLISECONDS,                     [this]() -> void { me->HandleEmoteCommand(EMOTE_STATE_READ_AND_TALK);    });
-            AddTimedDelayedOperation(Kinja_Level1::DestPointDuration::Forge2, [this]() -> void
-            {
-                me->HandleEmoteCommand(0);
-                me->SetUInt32Value(UNIT_FIELD_EMOTE_STATE, 0);
-            });
-        };
-
-        DoNextSequenceAction();
+        char ScriptName[] = "npc_Kinja_Garr";
     }
 
 }   ///< namespace Garrison

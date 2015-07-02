@@ -10,6 +10,7 @@
 
 #include "../../../GarrisonScriptData.hpp"
 #include "../../../GarrisonNPC.hpp"
+#include "../../ProfessionBuilding.hpp"
 #include "GarrisonMgr.hpp"
 
 namespace MS { namespace Garrison 
@@ -17,64 +18,32 @@ namespace MS { namespace Garrison
     //////////////////////////////////////////////////////////////////////////
     /// 77359 - Auria Irondreamer
     //////////////////////////////////////////////////////////////////////////
-    class npc_AuriaIrondreamer : public CreatureScript
+    namespace npc_AuriaIrondreamerAIData
     {
-        public:
-            /// Constructor
-            npc_AuriaIrondreamer();
+        extern InitSequenceFunction FnLevel1;
+        extern InitSequenceFunction FnLevel2;
+        extern InitSequenceFunction FnLevel3;
 
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
+        extern char ScriptName[];
 
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
+        extern std::vector<SkillNPC_RecipeEntry> Recipes;
+    }
 
-            /// Creature AI
-            struct npc_AuriaIrondreamerAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_AuriaIrondreamerAI(Creature * p_Creature);
-
-            };
-
-    };
+    using npc_AuriaIrondreamer = ProfessionBuilding_SkillNPC<npc_AuriaIrondreamerAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, &npc_AuriaIrondreamerAIData::Recipes, &npc_AuriaIrondreamerAIData::FnLevel1, &npc_AuriaIrondreamerAIData::FnLevel2, &npc_AuriaIrondreamerAIData::FnLevel3>;
 
     //////////////////////////////////////////////////////////////////////////
     /// 77792 - Yulia Samras
     //////////////////////////////////////////////////////////////////////////
-    class npc_YuliaSamras : public CreatureScript
+    namespace npc_YuliaSamrasAIData
     {
-        public:
-            /// Constructor
-            npc_YuliaSamras();
+        extern InitSequenceFunction FnLevel1;
+        extern InitSequenceFunction FnLevel2;
+        extern InitSequenceFunction FnLevel3;
 
-            /// Called when a player opens a gossip dialog with the GameObject.
-            /// @p_Player     : Source player instance
-            /// @p_Creature   : Target GameObject instance
-            virtual bool OnGossipHello(Player * p_Player, Creature * p_Creature) override;
-            /// Called when a player selects a gossip item in the creature's gossip menu.
-            /// @p_Player   : Source player instance
-            /// @p_Creature : Target creature instance
-            /// @p_Sender   : Sender menu
-            /// @p_Action   : Action
-            virtual bool OnGossipSelect(Player * p_Player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action) override;
-
-            /// Called when a CreatureAI object is needed for the creature.
-            /// @p_Creature : Target creature instance
-            CreatureAI * GetAI(Creature * p_Creature) const;
-
-            /// Creature AI
-            struct npc_YuliaSamrasAI : public GarrisonNPCAI
-            {
-                /// Constructor
-                npc_YuliaSamrasAI(Creature * p_Creature);
-
-            };
-
-    };
+        extern char ScriptName[];
+    }
+    
+    using npc_YuliaSamras = ProfessionBuilding_WorkOrderNPC<npc_YuliaSamrasAIData::ScriptName, SKILL_BLACKSMITHING, Quests::Alliance_YourFirstBlacksmithingWorkOrder, &npc_YuliaSamrasAIData::FnLevel1, &npc_YuliaSamrasAIData::FnLevel2, &npc_YuliaSamrasAIData::FnLevel3>;
 
 }   ///< namespace Garrison
 }   ///< namespace MS

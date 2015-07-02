@@ -259,6 +259,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleAuraVersatility(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraAddParryPCTOfCSFromGear(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraBonusArmor(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
+        void HandleModStatBonusPercent(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
         void HandleAuraIncreaseDualWieldDamage(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         //   heal and energize
@@ -280,7 +281,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModSpellCritChanceSchool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResiliencePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack speed
@@ -331,7 +332,7 @@ class AuraEffect : public std::enable_shared_from_this<AuraEffect>
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModCategoryCooldown(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAreaTrigger(AuraApplication const* p_AurApp, uint8 p_Mode, bool p_Apply) const;
 
         // aura effect periodic tick handlers

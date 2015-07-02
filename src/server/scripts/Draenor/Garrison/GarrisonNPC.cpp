@@ -16,8 +16,6 @@
 #include "Buildings/Alliance/Large/ABarracks.hpp"
 #include "Buildings/Alliance/Large/ADwarvenBunker.hpp"
 #include "Buildings/Alliance/Medium/ATradingPost.hpp"
-#include "Buildings/Alliance/Small/AFishingHut.hpp"
-#include "Buildings/Alliance/Small/ALunarfallExcavation.hpp"
 #include "Buildings/Alliance/Small/ATheForge.hpp"
 #include "Buildings/Alliance/Small/ATailoringEmporium.hpp"
 #include "Buildings/Alliance/Small/AAlchemyLab.hpp"
@@ -25,6 +23,10 @@
 #include "Buildings/Alliance/Small/AEnchanterStudy.hpp"
 #include "Buildings/Alliance/Small/AGemBoutique.hpp"
 #include "Buildings/Alliance/Small/AEngineeringWorks.hpp"
+#include "Buildings/Alliance/Small/AScribeQuarters.hpp"
+#include "Buildings/Alliance/AFishingHut.hpp"
+#include "Buildings/Alliance/ALunarfallExcavation.hpp"
+#include "Buildings/Alliance/AHerbGarden.hpp"
 
 #include "Buildings/Horde/Large/HWarMill.hpp"
 #include "Buildings/Horde/Medium/HTradingPost.hpp"
@@ -35,6 +37,7 @@
 #include "Buildings/Horde/Small/HEnchanterStudy.hpp"
 #include "Buildings/Horde/Small/HGemBoutique.hpp"
 #include "Buildings/Horde/Small/HEngineeringWorks.hpp"
+#include "Buildings/Horde/Small/HScribeQuarters.hpp"
 
 #include <random>
 
@@ -509,6 +512,10 @@ void AddSC_Garrison_NPC()
         /// Engineering works
         new MS::Garrison::npc_Zaren;
         new MS::Garrison::npc_HelaynWhent;
+
+        /// Scribe quarters
+        new MS::Garrison::npc_EricBroadoak;
+        new MS::Garrison::npc_KurtBroadoak;
     }
 
     /// Horde
@@ -556,5 +563,9 @@ void AddSC_Garrison_NPC()
         /// Engineering works
         new MS::Garrison::npc_Pozzlow;
         new MS::Garrison::npc_GarbraFizzwonk;
+
+        /// Scribe quarters
+        new MS::Garrison::npc_Urgra;
+        new MS::Garrison::npc_Yrogg;
     }
 }

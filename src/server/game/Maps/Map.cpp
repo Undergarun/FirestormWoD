@@ -66,6 +66,7 @@ Map::~Map()
         WorldObject* obj = *i_worldObjects.begin();
         ASSERT(obj->IsWorldObject());
         //ASSERT(obj->GetTypeId() == TYPEID_CORPSE);
+        obj->SetZoneScript();
         obj->RemoveFromWorld();
         obj->ResetMap();
     }
@@ -2603,7 +2604,7 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
 InstanceMap::~InstanceMap()
 {
     delete i_data;
-    i_data = NULL;
+    i_data = nullptr;
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -3014,6 +3015,9 @@ bool Map::IsHeroic() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
+    if (GetDifficultyID() == Difficulty::DifficultyRaidLFR)
+        return 25;
+
     if (MapDifficulty const* mapDiff = GetMapDifficulty())
     {
         if (mapDiff->MaxPlayers || GetDifficultyID() == DifficultyNormal)    // Normal case (expect that regular difficulty always have correct maxplayers)
@@ -3040,6 +3044,8 @@ uint32 InstanceMap::GetMaxPlayers() const
                 return 10;
             case Difficulty::Difficulty25N:
             case Difficulty::Difficulty25HC:
+            case Difficulty::DifficultyRaidLFR:
+            case Difficulty::DifficultyRaidTool:
                 return 25;
             case Difficulty::DifficultyRaidNormal:
             case Difficulty::DifficultyRaidHeroic:

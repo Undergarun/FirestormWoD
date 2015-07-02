@@ -166,6 +166,7 @@ enum Opcodes
         SMSG_COMPLAIN_RESULT                        = 0x0D31, ///< 6.2.0 19173
         SMSG_XPGAIN_ABORTED                         = 0x01A6, ///< 6.2.0 19173
         SMSG_SUPERCEDED_SPELL                       = 0x023A, ///< 6.2.0 19173
+        SMSG_XPGAIN_ABORTED                         = 0x0000, ///< (unused)
         SMSG_PVP_CREDIT                             = 0x0726, ///< 6.2.0 19173
         SMSG_PRE_RESURRECT                          = 0x01A5, ///< 6.2.0 19173
         SMSG_PLAY_ONE_SHOT_ANIM_KIT                 = 0x0017, ///< 6.2.0 19173
@@ -220,6 +221,7 @@ enum Opcodes
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x0D36, ///< 6.2.0 19173
         SMSG_POWER_UPDATE                           = 0x004F, ///< 6.2.0 19173
+        SMSG_ADJUST_SPLINE_DURATION                 = 0x025B, ///< 6.2.0 19865
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x0290, ///< 6.2.0 19173
@@ -521,6 +523,10 @@ enum Opcodes
 
         /// Toys
         SMSG_ACCOUNT_TOYS_UPDATE                                = 0x0ACF, ///< 6.2.0 19173
+
+        /// AreaTriggers
+        SMSG_AREA_TRIGGER_RE_SHAPE                              = 0x0C13, ///< 6.2.0 19173
+        SMSG_AREA_TRIGGER_RE_PATH                               = 0x05A5, ///< 6.2.0 19173
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -730,6 +736,7 @@ enum Opcodes
         SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x12F1, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_SET_FLYING                 = 0x1048, ///< 6.2.0 19173
         SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x1483, ///< 6.2.0 19173
+        SMSG_FLIGHT_SPLINE_SYNC                     = 0x0F23, ///< 6.2.0 19173
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -771,7 +778,7 @@ enum Opcodes
         SMSG_WEEKLY_SPELL_USAGE                     = 0x0000, ///< (unused)
         SMSG_SEND_KNOWN_SPELLS                      = 0x096E, ///< 6.2.0 19173
         SMSG_SEND_SPELL_CHARGES                     = 0x0BF9, ///< 6.2.0 19173
-        SMSG_SEND_SPELL_HISTORY                     = 0x0000, ///< (unused)
+        SMSG_SEND_SPELL_HISTORY                     = 0x0629, ///< 6.2.0 19173
         SMSG_SEND_UNLEARN_SPELLS                    = 0x0000, ///< (unused)
         SMSG_CLEAR_ALL_SPELL_CHARGES                = 0x016D, ///< 6.2.0 19173
         SMSG_CLEAR_COOLDOWN                         = 0x0ED7, ///< 6.2.0 19173
@@ -1779,7 +1786,6 @@ enum Opcodes
 
     // SMSG
     SMSG_ACCOUNT_PROFILE                                = 0x0000,
-    SMSG_ADJUST_SPLINE_DURATION                         = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                  = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                   = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
@@ -1826,8 +1832,6 @@ enum Opcodes
     SMSG_SERVER_INFO_QUERY_RESPONSE                     = 0x0000,
     SMSG_PROFILE_DATA_RESPONSE                          = 0x0000,
     SMSG_SET_ITEM_CHALLENGE_MODE_DATA                   = 0x0000,
-    SMSG_SET_MELEE_ANIM_KIT                             = 0x0000,
-    SMSG_SET_MOVEMENT_ANIM_KIT                          = 0x0000,
     SMSG_SET_PROMOTION_RESPONSE                         = 0x0000,
     SMSG_SET_SERVER_WOW_TIME                            = 0x0000,
     SMSG_SHOW_ZONES_CHEAT_RESULT                        = 0x0000,
@@ -1854,7 +1858,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FLIGHT_SPLINE_SYNC                             = 0x0000,
     SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,

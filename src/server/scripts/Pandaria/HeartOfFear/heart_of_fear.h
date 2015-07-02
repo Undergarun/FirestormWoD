@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
+#include "Group.h"
 
 enum eData
 {
@@ -250,6 +251,7 @@ enum eEvents
     EVENT_SONIC_BLADE,
     EVENT_CRY_HAVOC,
     EVENT_FRENZIED_ASSAULT,
+    EVENT_ZEPHYR_MOVE
 };
 
 #define DISPLAYID_INVISIBLE 11686

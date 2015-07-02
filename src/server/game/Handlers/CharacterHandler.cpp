@@ -317,9 +317,17 @@ bool LoginQueryHolder::Initialize()
     l_Statement->setUInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_DAILY_LOOT_COOLDOWNS, l_Statement);
 
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_SEL_WORLD_STATES);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_WORLD_STATES, l_Statement);
+
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_ITEM);
     l_Statement->setInt32(0, l_LowGuid);
     l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_BOUTIQUE_ITEM, l_Statement);
+
+    l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_STORE_PROFESSION);
+    l_Statement->setUInt32(0, l_LowGuid);
+    l_Result &= SetPreparedQuery(PLAYER_LOGIN_QUERY_STORE_PROFESSION, l_Statement);
 
     l_Statement = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_BOUTIQUE_GOLD);
     l_Statement->setInt32(0, l_LowGuid);
@@ -443,8 +451,10 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& p_RecvData)
 
     if (l_TemplateSetID)
     {
+        bool l_TemplateAvailable            = m_ServiceFlags & ServiceFlags::Premade || sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED);
         CharacterTemplate const* l_Template = sObjectMgr->GetCharacterTemplate(l_TemplateSetID);
-        if (!l_Template || l_Template->m_PlayerClass != l_CharacterClass)
+
+        if (!l_TemplateAvailable || !l_Template || l_Template->m_PlayerClass != l_CharacterClass)
         {
             l_CreationResponse << (uint8)CHAR_CREATE_ERROR;
             SendPacket(&l_CreationResponse);
@@ -893,6 +903,17 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
                 CharacterDatabase.PExecute("UPDATE characters SET currentPetSlot = '0', petSlotUsed = '1' WHERE guid = %u", newChar.GetGUIDLow());
                 newChar.SetTemporaryUnsummonedPetNumber(pet_id);
+            }
+
+            /// Remove premade service flags if we've just create a premade and premade aren't free on that realm.
+            if (createInfo->TemplateId && !sWorld->getBoolConfig(CONFIG_TEMPLATES_ENABLED))
+            {
+                PreparedStatement* l_Statement = LoginDatabase.GetPreparedStatement(LOGIN_REMOVE_ACCOUNT_SERVICE);
+                l_Statement->setUInt32(0, ServiceFlags::Premade);
+                l_Statement->setUInt32(1, GetAccountId());
+                LoginDatabase.Execute(l_Statement);
+
+                m_ServiceFlags &= ~ServiceFlags::Premade;
             }
 
             WorldPacket data(SMSG_CREATE_CHAR, 1);
@@ -1387,6 +1408,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* l_CharacterHolder, LoginD
     pCurrChar->HandleStoreGoldCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_GOLD));
     pCurrChar->HandleStoreTitleCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_TITLE));
     pCurrChar->HandleStoreLevelCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_BOUTIQUE_LEVEL));
+    pCurrChar->HandleStoreProfessionCallback(l_CharacterHolder->GetPreparedResult(PLAYER_LOGIN_QUERY_STORE_PROFESSION));
     pCurrChar->SaveToDB();
 
     delete l_CharacterHolder;
@@ -1709,6 +1731,10 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     if (bs_skinColor && (bs_skinColor->Type != 3 || bs_skinColor->Race != m_Player->getRace() || bs_skinColor->Sex != m_Player->getGender()))
         return;
 
+    BarberShopStyleEntry const* l_FaceEntry = sBarberShopStyleStore.LookupEntry(Face);
+    if (l_FaceEntry && (l_FaceEntry->Type != 4 || l_FaceEntry->Race != m_Player->getRace() || l_FaceEntry->Sex != m_Player->getGender()))
+        return;
+
     GameObject* go = m_Player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
@@ -1726,7 +1752,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
         return;
     }
 
-    uint32 cost = m_Player->GetBarberShopCost(bs_hair->Data, Color, bs_facialHair->Data, bs_skinColor);
+    uint32 cost = m_Player->GetBarberShopCost(bs_hair->Data, Color, bs_facialHair->Data, bs_skinColor, l_FaceEntry);
 
     // 0 - ok
     // 1, 3 - not enough money
@@ -1751,8 +1777,12 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->Data));
     m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(Color));
     m_Player->SetByteValue(PLAYER_FIELD_REST_STATE, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->Data));
+
     if (bs_skinColor)
         m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->Data));
+
+    if (l_FaceEntry)
+        m_Player->SetByteValue(PLAYER_FIELD_HAIR_COLOR_ID, PLAYER_BYTES_OFFSET_FACE_ID, l_FaceEntry->Data);
 
     m_Player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 

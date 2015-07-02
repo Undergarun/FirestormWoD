@@ -571,6 +571,16 @@ void ScriptMgr::OnRemoveAreaTriggerEntity(AreaTrigger * p_AreaTrigger, uint32 p_
     p_AreaTrigger->GetScript()->OnRemove(p_AreaTrigger, p_Time);
 }
 
+void ScriptMgr::OnDestinationReached(AreaTrigger* p_AreaTrigger)
+{
+    ASSERT(p_AreaTrigger);
+
+    if (!p_AreaTrigger->GetScript())
+        return;
+
+    p_AreaTrigger->GetScript()->OnDestinationReached(p_AreaTrigger);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 /// Called when a dummy spell effect is triggered on the creature.
@@ -2032,6 +2042,14 @@ void ScriptMgr::OnPlayerRegenPower(Player * p_Player, Powers const p_Power, floa
 void ScriptMgr::OnPlayerTakeDamage(Player* p_Player, DamageEffectType p_DamageEffectType, uint32 p_Damage, SpellSchoolMask p_SchoolMask, CleanDamage const* p_CleanDamage)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTakeDamage(p_Player, p_DamageEffectType, p_Damage, p_SchoolMask, p_CleanDamage);
+}
+
+/// Called when player block attack
+/// @p_Player : Player instance
+/// @p_DamageInfo  : Damage Infos
+void ScriptMgr::OnPlayerBlock(Player* p_Player, Unit* p_Attacker)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnBlock(p_Player, p_Attacker);
 }
 
 //////////////////////////////////////////////////////////////////////////

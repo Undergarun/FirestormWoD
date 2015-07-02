@@ -58,7 +58,6 @@ class boss_brackenspore : public CreatureScript
         enum eSpells
         {
             /// Misc
-            Berserker               = 26662,
             RotDot                  = 163241,
             CreepingMossPeriodic    = 163347,
             CreepingMossAreaTrigger = 173229,
@@ -120,7 +119,6 @@ class boss_brackenspore : public CreatureScript
             MindFungus          = 86611,
             SporeShooter        = 86612,
             WorldTrigger        = 59481,
-            BlackrockGrunt      = 86610,
             /// Fight
             SporeShooterFight   = 79183,
             MindFungusFight     = 79082,
@@ -159,7 +157,7 @@ class boss_brackenspore : public CreatureScript
 
                 _Reset();
 
-                me->RemoveAura(eSpells::Berserker);
+                me->RemoveAura(eHighmaulSpells::Berserker);
                 me->RemoveAura(eSpells::CreepingMossPeriodic);
 
                 me->SetPower(Powers::POWER_RAGE, 0);
@@ -357,10 +355,7 @@ class boss_brackenspore : public CreatureScript
                     m_Events.ScheduleEvent(eEvents::EventSpecialAbility, 20 * TimeConstants::IN_MILLISECONDS);
 
                 if (m_Instance != nullptr)
-                {
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
-                    m_Instance->CheckRequiredBosses(eHighmaulDatas::BossBrackenspore);
-                }
 
                 /// Spawn timer for Creeping Moss AreaTrigger
                 /// 5s for LFR, 2s for Normal mode, 1.85s for Heroic mode
@@ -369,7 +364,7 @@ class boss_brackenspore : public CreatureScript
                 me->CastSpell(me, eSpells::EnergyRegen, true);
 
                 std::list<Creature*> l_CosmeticMobs;
-                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eCreatures::BlackrockGrunt, 800.0f);
+                me->GetCreatureListWithEntryInGrid(l_CosmeticMobs, eHighmaulCreatures::BlackrockGrunt, 800.0f);
 
                 for (Creature* l_Grunt : l_CosmeticMobs)
                     l_Grunt->DespawnOrUnsummon();
@@ -534,7 +529,7 @@ class boss_brackenspore : public CreatureScript
                         m_Events.ScheduleEvent(eEvents::EventNecroticBreath, 32 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventBerserker:
-                        me->CastSpell(me, eSpells::Berserker, true);
+                        me->CastSpell(me, eHighmaulSpells::Berserker, true);
                         break;
                     case eEvents::EventInfestingSpores:
                         Talk(eTalk::WarnInfestingSpores);

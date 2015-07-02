@@ -1203,15 +1203,6 @@ class spell_pri_power_word_shield: public SpellScriptLoader
 
                 p_Amount = ((l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 4.59f) + GetSpellInfo()->Effects[EFFECT_0].BasePoints) * 1;
 
-                if (l_Caster->HasAura(MASTERY_SPELL_DISCIPLINE_SHIELD) && l_Caster->getLevel() >= 80)
-                {
-                    float l_Mastery = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
-                    p_Amount += CalculatePct(p_Amount, l_Mastery);
-                }
-
-                /// Apply versatility 
-                p_Amount += CalculatePct(p_Amount, l_Caster->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Caster->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-
                 if (l_Caster->HasAura(PRIEST_GLYPH_OF_POWER_WORD_SHIELD)) // Case of PRIEST_GLYPH_OF_POWER_WORD_SHIELD
                 {
                     SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(PRIEST_GLYPH_OF_POWER_WORD_SHIELD);
@@ -1626,8 +1617,9 @@ public:
     }
 };
 
-// Called by Fade - 586
-// Phantasm - 108942
+/// last update : 6.1.2 19802
+/// Called by Fade - 586
+/// Phantasm - 108942, Glyph of Shadow Magic - 159628
 class spell_pri_phantasm: public SpellScriptLoader
 {
     public:
@@ -1637,16 +1629,25 @@ class spell_pri_phantasm: public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_phantasm_SpellScript);
 
+            enum eSpells
+            {
+                GlyphOfShadowMagic  = 159628,
+                ShadowMagic         = 159630,
+                PhantasmAura        = 108942,
+                PhantasmProc        = 114239
+            };
+
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::PhantasmAura))
                 {
-                    if (_player->HasAura(PRIEST_PHANTASM_AURA))
-                    {
-                        _player->CastSpell(_player, PRIEST_PHANTASM_PROC, true);
-                        _player->RemoveMovementImpairingAuras();
-                    }
+                    l_Caster->CastSpell(l_Caster, eSpells::PhantasmProc, true);
+                    l_Caster->RemoveMovementImpairingAuras();
                 }
+                if (l_Caster->HasAura(eSpells::GlyphOfShadowMagic))
+                    l_Caster->CastSpell(l_Caster, eSpells::ShadowMagic, true);
             }
 
             void Register()
@@ -1851,7 +1852,7 @@ class spell_pri_cascade_second: public SpellScriptLoader
                         }
 
                         // ... or if there are no targets reachable
-                        if (targetList.size() == 0)
+                        if (targetList.empty())
                             return;
 
                         // Each bound hit twice more targets up to 8 for the same bound
@@ -2173,12 +2174,14 @@ class spell_pri_halo: public SpellScriptLoader
 
 enum LeapOfFaithSpells
 {
+    LeapOfJump                  = 73325,
     EnhancedLeapOfFaithAura     = 157145,
     EnhancedLeapOfFaith         = 157146,
-    LeapOfFaithJump             = 97817
+    LeapOfFaithJump             = 97817,
+    GlyphOfLeapOfFaith          = 119850
 };
 
-// Leap of Faith - 73325
+/// Leap of Faith - 73325, Leap of Faith - 159623 (Glyph of Restored Faith)
 class spell_pri_leap_of_faith: public SpellScriptLoader
 {
     public:
@@ -2190,18 +2193,22 @@ class spell_pri_leap_of_faith: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Unit* l_Caster = GetCaster())
-                {
-                    Unit* l_Target = GetHitUnit();
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
 
-                    if (l_Target == nullptr)
-                        return;
+                if (l_Target == nullptr)
+                    return;
 
+                if (GetSpellInfo()->Id == LeapOfFaithSpells::LeapOfJump)
                     l_Target->CastSpell(l_Caster, LeapOfFaithSpells::LeapOfFaithJump, true);
+                else
+                    l_Caster->CastSpell(l_Target, LeapOfFaithSpells::LeapOfFaithJump, true);
 
-                    if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
-                        l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
-                }
+                if (l_Caster->HasAura(LeapOfFaithSpells::EnhancedLeapOfFaithAura))
+                    l_Caster->CastSpell(l_Target, LeapOfFaithSpells::EnhancedLeapOfFaith, true);
+
+                if (l_Caster->HasAura(LeapOfFaithSpells::GlyphOfLeapOfFaith))
+                    l_Target->RemoveMovementImpairingAuras();
             }
 
             void Register()
@@ -2699,12 +2706,7 @@ public:
 
             if (AuraEffectPtr l_Shield = l_Target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_0))
             {
-                int32 l_Bp = m_AmountPreviousShield + int32(l_Player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f * 1.3f);
-                /// Apply Mastery
-                float l_Mastery = l_Player->GetFloatValue(PLAYER_FIELD_MASTERY) * 1.6f;
-                l_Bp += CalculatePct(l_Bp, l_Mastery);
-                /// Apply versatility 
-                l_Bp += CalculatePct(l_Bp, l_Player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + l_Player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+                int32 l_Bp = m_AmountPreviousShield + l_Shield->GetAmount();
 
                 int32 l_MaxStackAmount = CalculatePct(l_Player->GetMaxHealth(), 75); ///< Stack up to a maximum of 75% of the casting Priest's health
 
@@ -2721,6 +2723,31 @@ public:
             AfterHit += SpellHitFn(spell_pri_clarity_of_will_SpellScript::HandleAfterHit);
         }
     };
+
+    class spell_pri_clarity_of_will_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_clarity_of_will_AuraScript);
+
+        void CalculateAmount(constAuraEffectPtr /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            Unit* l_Caster = GetCaster();
+
+            if (l_Caster == nullptr)
+                return;
+
+            amount = int32(l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 6.60f);
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_clarity_of_will_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_clarity_of_will_AuraScript();
+    }
 
     SpellScript* GetSpellScript() const
     {
@@ -3515,13 +3542,13 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 l_Caster->CastCustomSpell(l_Target, eDivineAegisSpell::DivineAegisAura, &l_Amount, NULL, NULL, true);
                 
                 /// Apply the previous amount after casting to no apply the bonus multiple times.
-                if (AuraEffectPtr l_AcutalShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
+                if (AuraEffectPtr l_ActualShield = l_Target->GetAuraEffect(eDivineAegisSpell::DivineAegisAura, EFFECT_0, l_Caster->GetGUID()))
                 {
-                    l_AcutalShield->SetAmount(l_AcutalShield->GetAmount() + l_PreviousAmount);
+                    l_ActualShield->SetAmount(l_ActualShield->GetAmount() + l_PreviousAmount);
 
                     /// The maximum size of a Divine Aegis is 40% of the maximum health of the target.
-                    if (l_AcutalShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
-                        l_AcutalShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
+                    if (l_ActualShield->GetAmount() > (int32)CalculatePct(l_Target->GetMaxHealth(), 40))
+                        l_ActualShield->SetAmount(CalculatePct(l_Target->GetMaxHealth(), 40));
                 }
             }
 
@@ -3642,8 +3669,144 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
+/// Call by Holy Fire - 14914, Power Word: Solace - 129250
+/// Glyph of the Inquisitor - 159624
+class spell_pri_glyph_of_the_inquisitor : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_the_inquisitor() : SpellScriptLoader("spell_pri_glyph_of_the_inquisitor") { }
+
+        class spell_pri_glyph_of_the_inquisitor_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_glyph_of_the_inquisitor_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfTheInquisitor = 159624,
+                GlyphOfTheInquisitorDamage = 159625
+            };
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphOfTheInquisitor))
+                    return;
+
+                if (constAuraEffectPtr l_GlyphOfTheInquisitor = l_Caster->GetAuraEffect(eSpells::GlyphOfTheInquisitor, EFFECT_1))
+                {
+                    int32 l_Damage = CalculatePct(GetHitDamage(), l_GlyphOfTheInquisitor->GetAmount());
+                    l_Caster->CastCustomSpell(l_Caster, eSpells::GlyphOfTheInquisitorDamage, &l_Damage, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_glyph_of_the_inquisitor_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_glyph_of_the_inquisitor_SpellScript;
+        }
+};
+
+/// Glyph of Restored Faith - 159606
+class spell_pri_glyph_of_restored_faith : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_restored_faith() : SpellScriptLoader("spell_pri_glyph_of_restored_faith") { }
+
+        class spell_pri_glyph_of_restored_faith_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_restored_faith_AuraScript);
+
+            enum eSpells
+            {
+                LeapOfFaith = 159623
+            };
+
+            void OnApply(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                l_Player->learnSpell(eSpells::LeapOfFaith, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::LeapOfFaith))
+                    l_Player->removeSpell(eSpells::LeapOfFaith, false, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_glyph_of_restored_faith_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_pri_glyph_of_restored_faith_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_glyph_of_restored_faith_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Dispel Mass - 32592
+class spell_pri_dispel_mass : public SpellScriptLoader
+{
+    public:
+        spell_pri_dispel_mass() : SpellScriptLoader("spell_pri_dispel_mass") { }
+
+        enum eSpells
+        {
+            DispelMassGlyphe = 55691,
+            DispelMassInvulnerability = 39897
+        };
+
+        class spell_pri_dispel_mass_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_dispel_mass_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::DispelMassGlyphe))
+                    return;
+
+                if (WorldLocation const* l_Dest = GetExplTargetDest())
+                    l_Caster->CastSpell(l_Dest->m_positionX, l_Dest->m_positionY, l_Dest->m_positionZ, eSpells::DispelMassInvulnerability, true);
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_pri_dispel_mass_SpellScript::HandleBeforeCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_dispel_mass_SpellScript();
+        }
+};
+
+
+
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_dispel_mass();
     new spell_pri_shadowy_apparition();
     new spell_pri_mind_flay();
     new spell_pri_glyphe_of_mind_blast();
@@ -3713,6 +3876,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_dispersion();
     new spell_pri_binding_heal();
     new spell_pri_saving_grace();
+    new spell_pri_glyph_of_the_inquisitor();
+    new spell_pri_glyph_of_restored_faith();
 
     /// Player Script
     new PlayerScript_Shadow_Orb();

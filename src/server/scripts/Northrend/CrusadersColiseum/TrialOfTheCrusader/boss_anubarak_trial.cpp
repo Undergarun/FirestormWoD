@@ -188,8 +188,10 @@ class boss_anubarak_trial : public CreatureScript
                 std::list<Creature*> FrostSphereList;
                 me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
                 if (!FrostSphereList.empty())
+                {
                     for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
                         (*itr)->DespawnOrUnsummon();
+                }
 
                 _burrowGUID.clear();
             }
@@ -216,14 +218,22 @@ class boss_anubarak_trial : public CreatureScript
             void JustReachedHome()
             {
                 if (instance)
+                {
                     instance->SetBossState(BOSS_ANUBARAK, FAIL);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEECHING_SWARM_AURA);
+                }
+
                 //Summon Scarab Swarms neutral at random places
                 for (int i = 0; i < 10; i++)
-                    if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
+                {
+                    if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX() + urand(0, 50) - 25, AnubarakLoc[1].GetPositionY() + urand(0, 50) - 25, AnubarakLoc[1].GetPositionZ()))
                     {
                         temp->setFaction(31);
                         temp->GetMotionMaster()->MoveRandom(10);
                     }
+
+                    me->RemoveAllAuras();
+                }
             }
 
             void JustDied(Unit* /*killer*/)
@@ -236,8 +246,13 @@ class boss_anubarak_trial : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_FROST_SPHERE, 150.0f);
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
                 if (!AddList.empty())
+                {
                     for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
                         (*itr)->DespawnOrUnsummon();
+                }
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEECHING_SWARM_AURA);
             }
 
             void JustSummoned(Creature* summoned)
@@ -280,8 +295,10 @@ class boss_anubarak_trial : public CreatureScript
 
                 // Spawn 6 Frost Spheres at start
                 for (int i = 0; i < 6; i++)
+                {
                     if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
                         _sphereGUID[i] = summoned->GetGUID();
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -448,8 +465,10 @@ class mob_swarm_scarab : public CreatureScript
                 DoCast(me, SPELL_ACID_MANDIBLE);
                 me->SetInCombatWithZone();
                 if (me->isInCombat())
+                {
                     if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
+                }
             }
 
             void DoAction(const int32 actionId)
@@ -522,8 +541,10 @@ class mob_nerubian_burrower : public CreatureScript
                 DoCast(me, SPELL_AWAKENED);
                 me->SetInCombatWithZone();
                 if (me->isInCombat())
+                {
                     if (Creature* Anubarak = ObjectAccessor::GetCreature(*me, _instance->GetData64(NPC_ANUBARAK)))
                         Anubarak->AI()->JustSummoned(me);
+                }
             }
 
             void DoAction(const int32 actionId)
@@ -532,8 +553,10 @@ class mob_nerubian_burrower : public CreatureScript
                 {
                     case ACTION_SHADOW_STRIKE:
                         if (!me->HasAura(SPELL_AWAKENED))
+                        {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_SHADOW_STRIKE);
+                        }
                         break;
                     default:
                         break;

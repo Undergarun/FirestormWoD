@@ -1436,6 +1436,36 @@ namespace JadeCore
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&);
     };
 
+    /// Success at areatrigger in range, range update for next check (this can be use with CreatureLastSearcher to find nearest creature)
+    class NearestAreaTriggerWithIDInObjectRangeCheck
+    {
+        public:
+            NearestAreaTriggerWithIDInObjectRangeCheck(WorldObject const& p_Object, uint32 p_SpellID, float p_Range)
+                : m_Object(p_Object), m_SpellID(p_SpellID), m_Range(p_Range) { }
+
+            bool operator()(AreaTrigger* p_AreaTrigger)
+            {
+                if (p_AreaTrigger->GetSpellId() == m_SpellID && m_Object.IsWithinDistInMap(p_AreaTrigger, m_Range))
+                {
+                    /// Use found areatrigger range as new range limit for next check
+                    m_Range = m_Object.GetDistance(p_AreaTrigger);
+                    return true;
+                }
+
+                return false;
+            }
+
+            float GetLastRange() const { return m_Range; }
+
+        private:
+            WorldObject const& m_Object;
+            uint32 m_SpellID;
+            float m_Range;
+
+            // prevent clone this object
+            NearestAreaTriggerWithIDInObjectRangeCheck(NearestAreaTriggerWithIDInObjectRangeCheck const&);
+    };
+
     class AnyPlayerInObjectRangeCheck
     {
         public:

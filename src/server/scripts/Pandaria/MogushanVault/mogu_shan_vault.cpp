@@ -108,6 +108,38 @@ enum eTrashsActions
     ACTION_CURSED_MOGU_ATTACK_PLAYER = 1
 };
 
+void StartNextFight(uint32 p_PreviousAdd, uint32 p_NextAdd, uint32 p_PreviousBoss, uint32 p_NextBoss, uint32 p_Action, uint32 p_NextAction, Creature* me)
+{
+    std::list<Creature*> l_CreatureList;
+    me->GetCreatureListWithEntryInGrid(l_CreatureList, p_PreviousAdd, 200.0f);
+
+    for (Creature* l_Creature : l_CreatureList)
+    {
+        if (l_Creature->isAlive() && l_Creature == me)
+            return;
+    }
+
+    me->AI()->DoAction(p_Action);
+
+    if (Creature* l_Boss = GetClosestCreatureWithEntry(me, p_PreviousBoss, 200.0f))
+    {
+        if (l_Boss->GetAI())
+            l_Boss->AI()->DoAction(p_Action);
+    }
+
+    l_CreatureList.clear();
+    me->GetCreatureListWithEntryInGrid(l_CreatureList, p_NextAdd, 200.0f);
+
+    for (Creature* l_Creature : l_CreatureList)
+        l_Creature->AI()->DoAction(ACTION_BEFORE_COMBAT);
+
+    if (Creature* l_Boss = GetClosestCreatureWithEntry(me, p_NextBoss, 200.0f))
+    {
+        if (l_Boss->GetAI())
+            l_Boss->AI()->DoAction(ACTION_BEFORE_COMBAT);
+    }
+}
+
 // 61334 / 61989 - Cursed Mogu Sculpture
 class mob_cursed_mogu_sculpture : public CreatureScript
 {
@@ -142,6 +174,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
                 activationDone = false;
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 me->SetReactState(REACT_PASSIVE);
                 me->AI()->SetCanSeeEvenInPassiveMode(true);
                 me->RemoveAurasDueToSpell(SPELL_GHOST_ESSENCE);
@@ -295,7 +328,7 @@ class mob_cursed_mogu_sculpture : public CreatureScript
 };
 
 // Ghost Essence - 120764
-class spell_ghost_essence: public SpellScriptLoader
+class spell_ghost_essence : public SpellScriptLoader
 {
     public:
         spell_ghost_essence() : SpellScriptLoader("spell_ghost_essence") { }
@@ -612,7 +645,7 @@ class mob_zandalari_skullcharger : public CreatureScript
 };
 
 // 125092 - Petrification
-class spell_mogu_petrification: public SpellScriptLoader
+class spell_mogu_petrification : public SpellScriptLoader
 {
     public:
         spell_mogu_petrification() : SpellScriptLoader("spell_mogu_petrification") { }
@@ -696,6 +729,11 @@ class npc_lorewalker_cho : public CreatureScript
     public:
         npc_lorewalker_cho() : CreatureScript("npc_lorewalker_cho") { }
 
+        enum eMisc
+        {
+            MogushanSecondPart = 528
+        };
+
         bool OnGossipHello(Player* player, Creature* creature)
         {
             if (creature->GetPositionX() >= 4292.0f && creature->GetPositionX() <= 4294.0f && creature->GetPositionY() >= 1533.0f && creature->GetPositionY() <= 1533.1f)
@@ -768,6 +806,38 @@ class npc_lorewalker_cho : public CreatureScript
                 hasSaidSecretsKeeperCombat = false;
                 hasSaidKeeperDied = false;
                 eventInProgress = false;
+
+                /// Setup escort state at Spirit Kings in second LFR part
+                if (IsLFR())
+                {
+                    Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
+                    {
+                        if (Player* l_Player = l_Itr->getSource())
+                        {
+                            uint32 l_DungeonID = l_Player->GetGroup() ? sLFGMgr->GetDungeon(l_Player->GetGroup()->GetGUID()) : 0;
+                            if (!l_DungeonID)
+                                continue;
+
+                            if (l_DungeonID == eMisc::MogushanSecondPart)
+                            {
+                                hasSaidIntro = true;
+                                Start(false, true, l_Player->GetGUID());
+
+                                if (GetClosestCreatureWithEntry(me, MOB_MENG, 500.0f, true))
+                                {
+                                    me->SetOrientation(4.68f);
+                                    me->SetFacingTo(4.68f);
+                                    me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                    SetEscortPaused(true);
+                                }
+
+                                /// After Spirit Kings event
+                                SetNextWaypoint(39);
+                            }
+                        }
+                    }
+                }
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -932,7 +1002,6 @@ class npc_lorewalker_cho : public CreatureScript
                                         if (king->GetEntry() == MOB_ZIAN)
                                         {
                                             king->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                                            events.ScheduleEvent(EVENT_START_FIRST_COMBAT, 5000);
                                         }
                                     }
                                 }
@@ -1138,24 +1207,6 @@ class npc_lorewalker_cho : public CreatureScript
                                     button->SetGoState(GO_STATE_ACTIVE);
                                     button->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 }
-                                // Console hasn't right GoState
-                                else
-                                {
-                                    sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                                    sLog->outAshran("Invalid button GO_STATE, player in raid : ");
-                                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                        sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
-                                    sLog->outAshran("=============================================");
-                                }
-                            }
-                            // Can't find button
-                            else
-                            {
-                                sLog->outAshran("===== ACTION_ELEGON_GOB_ACTIVATION FAIL =====");
-                                sLog->outAshran("Can't get button GO, player in raid : ");
-                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                    sLog->outAshran("Player[%u] : %s", itr->getSource()->GetGUIDLow(), itr->getSource()->GetName());
-                                sLog->outAshran("=============================================");
                             }
                         }
                         break;
@@ -1408,6 +1459,11 @@ class mob_sorcerer_mogu : public CreatureScript
                 events.Reset();
             }
 
+            void JustDied(Unit* p_Killer)
+            {
+                StartNextFight(NPC_SORCERER_MOGU, NPC_MOUNTED_MOGU, MOB_ZIAN, MOB_QIANG, ACTION_END_FIRST_COMBAT, ACTION_START_SECOND_COMBAT, me);
+            }
+
             void DoAction(const int32 action)
             {
                 switch (action)
@@ -1500,6 +1556,7 @@ class mob_qiang : public CreatureScript
                         break;
                     case ACTION_BEFORE_COMBAT:
                         me->AddAura(SPELL_ACTIVATION_VISUAL, me);
+                        events.ScheduleEvent(EVENT_QIANG_START_SECOND_FIGHT, 5000);
                         break;
                     case ACTION_START_SECOND_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
@@ -1521,35 +1578,6 @@ class mob_qiang : public CreatureScript
 
                 events.Update(diff);
 
-                std::list<Creature*> sorcererMoguList;
-                me->GetCreatureListWithEntryInGrid(sorcererMoguList, NPC_SORCERER_MOGU, 200.0f);
-
-                std::list<Creature*> mountedMoguList;
-                me->GetCreatureListWithEntryInGrid(mountedMoguList, NPC_MOUNTED_MOGU, 200.0f);
-
-                for (auto sorcererMogu : sorcererMoguList)
-                {
-                    if (sorcererMogu->isAlive() && sorcererMogu != me)
-                        return;
-                    else
-                    {
-                        sorcererMogu->AI()->DoAction(ACTION_END_FIRST_COMBAT);
-
-                        if (Creature* zian = GetClosestCreatureWithEntry(me, MOB_ZIAN, 200.0f))
-                            if (zian->AI())
-                                zian->AI()->DoAction(ACTION_END_FIRST_COMBAT);
-                    }
-                }
-
-                if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
-                    if (qiang->AI())
-                        qiang->AI()->DoAction(ACTION_BEFORE_COMBAT);
-
-                for (auto mountedMogu : mountedMoguList)
-                    mountedMogu->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                    
-                events.ScheduleEvent(EVENT_QIANG_START_SECOND_FIGHT, 5000);
-
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -1560,12 +1588,23 @@ class mob_qiang : public CreatureScript
                             events.ScheduleEvent(EVENT_QIANG_ANNIHILATE,       urand(10000, 20000));
                             break;
                         case EVENT_QIANG_START_SECOND_FIGHT:
+                        {
                             if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
+                            {
                                 if (qiang->AI())
                                     qiang->AI()->DoAction(ACTION_START_SECOND_COMBAT);
-                            for (auto itr : mountedMoguList)
-                                itr->AI()->DoAction(ACTION_START_SECOND_COMBAT);
+                            }
+
+                            std::list<Creature*> l_MountedMoguList;
+                            GetCreatureListWithEntryInGrid(l_MountedMoguList, me, NPC_MOUNTED_MOGU, 200.0f);
+
+                            for (Creature* l_MountedMogu : l_MountedMoguList)
+                            {
+                                if (l_MountedMogu->GetAI())
+                                    l_MountedMogu->AI()->DoAction(ACTION_START_SECOND_COMBAT);
+                            }
                             break;
+                        }
                         default:
                             break;
                     }
@@ -1602,6 +1641,11 @@ class mob_mounted_mogu : public CreatureScript
                 me->SetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID, 11686);
 
                 events.Reset();
+            }
+
+            void JustDied(Unit* p_Killer)
+            {
+                StartNextFight(NPC_MOUNTED_MOGU, NPC_MOGU_ARCHER, MOB_QIANG, MOB_SUBETAI, ACTION_END_SECOND_COMBAT, ACTION_START_THIRD_COMBAT, me);
             }
 
             void DoAction(const int32 action)
@@ -1704,6 +1748,7 @@ class mob_subetai : public CreatureScript
                         break;
                     case ACTION_BEFORE_COMBAT:
                         me->AddAura(SPELL_ACTIVATION_VISUAL, me);
+                        events.ScheduleEvent(EVENT_SUBETAI_START_THIRD_COMBAT, 5000);
                         break;
                     case ACTION_START_THIRD_COMBAT:
                         me->RemoveAurasDueToSpell(SPELL_ACTIVATION_VISUAL);
@@ -1724,35 +1769,6 @@ class mob_subetai : public CreatureScript
                     return;
 
                 events.Update(diff);
-                
-                std::list<Creature*> mountedMoguList;
-                me->GetCreatureListWithEntryInGrid(mountedMoguList, NPC_MOUNTED_MOGU, 200.0f);
-                
-                std::list<Creature*> moguArcherList;
-                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 100.0f);
-
-                for (auto mountedMogu : mountedMoguList)
-                {
-                    if (mountedMogu->isAlive() && mountedMogu != me)
-                        return;
-                    else
-                    {
-                        mountedMogu->AI()->DoAction(ACTION_END_SECOND_COMBAT);
-
-                        if (Creature* qiang = GetClosestCreatureWithEntry(me, MOB_QIANG, 200.0f))
-                            if (qiang->AI())
-                                qiang->AI()->DoAction(ACTION_END_SECOND_COMBAT);
-                    }
-                }
-
-                if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
-                    if (subetai->AI())
-                        subetai->AI()->DoAction(ACTION_BEFORE_COMBAT);
-
-                for (auto moguArcher : moguArcherList)
-                    moguArcher->AI()->DoAction(ACTION_BEFORE_COMBAT);
-                    
-                events.ScheduleEvent(EVENT_SUBETAI_START_THIRD_COMBAT, 5000);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1764,12 +1780,23 @@ class mob_subetai : public CreatureScript
                             events.ScheduleEvent(EVENT_SUBETAI_VOLLEY,       urand(10000, 20000));
                             break;
                         case EVENT_SUBETAI_START_THIRD_COMBAT:
+                        {
                             if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
+                            {
                                 if (subetai->AI())
                                     subetai->AI()->DoAction(ACTION_START_THIRD_COMBAT);
-                            for (auto itr : moguArcherList)
-                                itr->AI()->DoAction(ACTION_START_THIRD_COMBAT);
+                            }
+
+                            std::list<Creature*> l_MoguArcherList;
+                            GetCreatureListWithEntryInGrid(l_MoguArcherList, me, NPC_MOGU_ARCHER, 200.0f);
+
+                            for (Creature* l_MoguArcher : l_MoguArcherList)
+                            {
+                                if (l_MoguArcher->GetAI())
+                                    l_MoguArcher->AI()->DoAction(ACTION_START_THIRD_COMBAT);
+                            }
                             break;
+                        }
                         default:
                             break;
                     }
@@ -1804,6 +1831,11 @@ class mob_mogu_archer : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 events.Reset();
+            }
+
+            void JustDied(Unit* p_Killer)
+            {
+                StartNextFight(NPC_MOGU_ARCHER, NPC_KINGSGUARD, MOB_SUBETAI, MOB_MENG, ACTION_END_THIRD_COMBAT, ACTION_START_FOURTH_COMBAT, me);
             }
 
             void DoAction(const int32 action)
@@ -1909,6 +1941,7 @@ class mob_meng : public CreatureScript
                     case ACTION_BEFORE_COMBAT:
                     {
                         me->AddAura(SPELL_ACTIVATION_VISUAL, me);
+                        events.ScheduleEvent(EVENT_MENG_START_FOURTH_COMBAT, 5000);
                         break;
                     }
                     case ACTION_START_FOURTH_COMBAT:
@@ -1956,35 +1989,6 @@ class mob_meng : public CreatureScript
                     return;
 
                 events.Update(diff);
-                
-                std::list<Creature*> moguArcherList;
-                me->GetCreatureListWithEntryInGrid(moguArcherList, NPC_MOGU_ARCHER, 200.0f);
-
-                for (auto moguArcher : moguArcherList)
-                {
-                    if (moguArcher->isAlive() && moguArcher != me)
-                        return;
-                    else
-                    {
-                        moguArcher->AI()->DoAction(ACTION_END_THIRD_COMBAT);
-
-                        if (Creature* subetai = GetClosestCreatureWithEntry(me, MOB_SUBETAI, 200.0f))
-                            if (subetai->AI())
-                                subetai->AI()->DoAction(ACTION_END_THIRD_COMBAT);
-                    }
-                }
-
-                if (Creature* meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
-                    if (meng->AI())
-                        meng->AI()->DoAction(ACTION_BEFORE_COMBAT);
-
-                std::list<Creature*> kingsGuardList;
-                me->GetCreatureListWithEntryInGrid(kingsGuardList, NPC_KINGSGUARD, 200.0f);
-
-                for (auto kingsGuard : kingsGuardList)
-                    kingsGuard->AI()->DoAction(ACTION_BEFORE_COMBAT);
-
-                events.ScheduleEvent(EVENT_MENG_START_FOURTH_COMBAT, 5000);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1993,8 +1997,15 @@ class mob_meng : public CreatureScript
                         case EVENT_MENG_START_FOURTH_COMBAT:
                         {
                             DoAction(ACTION_START_FOURTH_COMBAT);
-                            for (auto itr : kingsGuardList)
-                                itr->AI()->DoAction(ACTION_START_FOURTH_COMBAT);
+
+                            std::list<Creature*> l_KingsGuardsList;
+                            GetCreatureListWithEntryInGrid(l_KingsGuardsList, me, NPC_KINGSGUARD, 200.0f);
+
+                            for (Creature* l_KingsGuard : l_KingsGuardsList)
+                            {
+                                if (l_KingsGuard->GetAI())
+                                    l_KingsGuard->AI()->DoAction(ACTION_START_FOURTH_COMBAT);
+                            }
                             break;
                         }
                         case EVENT_MENG_COWARDICE:
@@ -2042,13 +2053,22 @@ class mob_kingsguard : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                std::list<Creature*> l_CreatureList;
+                me->GetCreatureListWithEntryInGrid(l_CreatureList, me->GetEntry(), 200.0f);
+
+                for (Creature* l_Creature : l_CreatureList)
+                {
+                    if (l_Creature->isAlive() && l_Creature == me)
+                        return;
+                }
+
                 DoAction(ACTION_END_FOURTH_COMBAT);
 
-                Creature* mob = GetClosestCreatureWithEntry(me, me->GetEntry(), 200.0f, true);
-                if (!mob)
-                    if (Creature* meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
-                        if (meng->AI())
-                            meng->AI()->DoAction(ACTION_END_FOURTH_COMBAT);
+                if (Creature* l_Meng = GetClosestCreatureWithEntry(me, MOB_MENG, 200.0f))
+                {
+                    if (l_Meng->AI())
+                        l_Meng->AI()->DoAction(ACTION_END_FOURTH_COMBAT);
+                }
             }
 
             void DoAction(const int32 action)

@@ -1266,11 +1266,29 @@ CriteriaProgressMap* AchievementMgr<T>::GetCriteriaProgressMap()
  * Called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
  */
 template<class T>
-void AchievementMgr<T>::CheckAllAchievementCriteria(Player* referencePlayer)
+void AchievementMgr<T>::CheckAllAchievementCriteria(Player* p_ReferencePlayer)
 {
-    // Suppress sending packets
-    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
-        UpdateAchievementCriteria(AchievementCriteriaTypes(i), 0, 0, 0, NULL, referencePlayer);
+    if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
+        return;
+
+    for (uint32 l_AchievementCriteriaType = 0; l_AchievementCriteriaType < ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++l_AchievementCriteriaType)
+    {
+        AchievementCriteriaUpdateTask l_Task;
+        l_Task.PlayerGUID = p_ReferencePlayer->GetGUID();
+        l_Task.UnitGUID   = 0;
+        l_Task.Task = [l_AchievementCriteriaType](uint64 const& p_PlayerGuid, uint64 const& p_UnitGUID) -> void
+        {
+            /// Task will be executed async
+            /// We need to ensure the player still exist
+            Player* l_Player = HashMapHolder<Player>::Find(p_PlayerGuid);
+            if (l_Player == nullptr)
+                return;
+
+            l_Player->GetAchievementMgr().UpdateAchievementCriteria((AchievementCriteriaTypes)l_AchievementCriteriaType, 0, 0, 0, nullptr, l_Player, true);
+        };
+
+        sAchievementMgr->AddCriteriaUpdateTask(l_Task);
+    }
 }
 
 static const uint32 achievIdByArenaSlot[MAX_ARENA_SLOT] = {1057, 1107, 1108};
@@ -1293,7 +1311,7 @@ template<> bool IsGuild<Guild>() { return true; }
  * This function will be called whenever the user might have done a criteria relevant action
  */
 template<class T>
-void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit const* p_Unit /*= NULL*/, Player* p_ReferencePlayer /*= NULL*/)
+void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Type, uint64 p_MiscValue1 /*= 0*/, uint64 p_MiscValue2 /*= 0*/, uint64 p_MiscValue3 /*= 0*/, Unit const* p_Unit /*= NULL*/, Player* p_ReferencePlayer /*= NULL*/, bool p_LoginCheck)
 {
     if (sWorld->getBoolConfig(CONFIG_ACHIEVEMENT_DISABLE))
         return;
@@ -1653,14 +1671,14 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 continue;
 
             if (IsCompletedCriteriaForAchievement(l_AchievementCriteria, l_Achievement))
-                CompletedCriteriaFor(l_Achievement, p_ReferencePlayer);
+                CompletedCriteriaFor(l_Achievement, p_ReferencePlayer, p_LoginCheck);
 
             // check again the completeness for SUMM and REQ COUNT achievements,
             // as they don't depend on the completed criteria but on the sum of the progress of each individual criteria
             if (l_Achievement->Flags & ACHIEVEMENT_FLAG_SUMM)
             {
                 if (IsCompletedAchievement(l_Achievement))
-                    CompletedAchievement(l_Achievement, p_ReferencePlayer);
+                    CompletedAchievement(l_Achievement, p_ReferencePlayer, p_LoginCheck);
             }
 
             if (AchievementEntryList const* l_AchRefList = sAchievementMgr->GetAchievementByReferencedId(l_Achievement->ID))
@@ -1668,7 +1686,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes p_Typ
                 for (AchievementEntryList::const_iterator l_Itr = l_AchRefList->begin(); l_Itr != l_AchRefList->end(); ++l_Itr)
                 {
                     if (IsCompletedAchievement(*l_Itr))
-                        CompletedAchievement(*l_Itr, p_ReferencePlayer);
+                        CompletedAchievement(*l_Itr, p_ReferencePlayer, p_LoginCheck);
                 }
             }
         }
@@ -1891,7 +1909,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaForAchievement(CriteriaEntry const* p
 }
 
 template<class T>
-void AchievementMgr<T>::CompletedCriteriaFor(AchievementEntry const* p_Achievement, Player* p_ReferencePlayer)
+void AchievementMgr<T>::CompletedCriteriaFor(AchievementEntry const* p_Achievement, Player* p_ReferencePlayer, bool p_LoginCheck)
 {
     // Counter can never complete
     if (p_Achievement->Flags & ACHIEVEMENT_FLAG_COUNTER)
@@ -1902,7 +1920,7 @@ void AchievementMgr<T>::CompletedCriteriaFor(AchievementEntry const* p_Achieveme
         return;
 
     if (IsCompletedAchievement(p_Achievement))
-        CompletedAchievement(p_Achievement, p_ReferencePlayer);
+        CompletedAchievement(p_Achievement, p_ReferencePlayer, p_LoginCheck);
 }
 
 template<class T>
@@ -2174,7 +2192,7 @@ void AchievementMgr<T>::RemoveTimedAchievement(AchievementCriteriaTimedTypes typ
 }
 
 template<class T>
-void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achievement, Player* p_ReferencePlayer)
+void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achievement, Player* p_ReferencePlayer, bool p_LoginCheck)
 {
     // Disable for game masters with GM-mode enabled
     if (GetOwner()->isGameMaster())
@@ -2191,13 +2209,14 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
     if (p_Achievement->ID == 7433 /* Newbie */ || p_Achievement->ID == 6566 /* Just a Pup */)
         GetOwner()->GetSession()->SendPetBattleJournalBattleSlotUpdate();
 
-    if (!GetOwner()->GetSession()->PlayerLoading())
+    if (!GetOwner()->GetSession()->PlayerLoading() && !p_LoginCheck)
         SendAchievementEarned(p_Achievement);
 
     if (HasAccountAchieved(p_Achievement->ID))
     {
         CompletedAchievementData& l_Data = m_completedAchievements[p_Achievement->ID];
         l_Data.completedByThisCharacter = true;
+        l_Data.changed = true;
         return;
     }
 
@@ -2271,7 +2290,7 @@ void AchievementMgr<T>::CompletedAchievement(AchievementEntry const* p_Achieveme
 }
 
 template<>
-void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
+void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer, bool p_LoginCheck)
 {
     if (achievement->Flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement->ID)  || !(achievement->Flags & ACHIEVEMENT_FLAG_GUILD))
         return;
@@ -4061,15 +4080,13 @@ void AchievementGlobalMgr::ProcessAllCriteriaUpdateTask()
 
 
 AchievementCriteriaUpdateRequest::AchievementCriteriaUpdateRequest(MapUpdater* p_Updater)
-: m_Updater(p_Updater)
+    : MapUpdaterTask(p_Updater)
 {
 
 }
 
-int AchievementCriteriaUpdateRequest::call()
+void AchievementCriteriaUpdateRequest::call()
 {
     sAchievementMgr->ProcessAllCriteriaUpdateTask();
-
-    m_Updater->_update_finished();
-    return 0;
+    UpdateFinished();
 }

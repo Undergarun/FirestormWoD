@@ -911,10 +911,9 @@ class instance_ulduar : public InstanceMapScript
                         instance->LoadGrid(2307, 284.632f);
                         if (GetData(DATA_TRAM) == NOT_STARTED)
                             SetData(DATA_TRAM, DONE);
+
                         if (GameObject* go = instance->GetGameObject(MimironTrainGUID))
                         {
-                            go->SetGoState(GOState(data));
-                            
                             // Send movement update to players
                             Map* tramMap = go->GetMap();
                             if (tramMap && tramMap->IsDungeon())

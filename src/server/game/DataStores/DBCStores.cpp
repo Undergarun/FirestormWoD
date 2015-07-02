@@ -63,6 +63,7 @@ static AreaFlagByMapID                    sAreaFlagByMapID;                    /
 static WMOAreaInfoByTripple               sWMOAreaInfoByTripple;
 
 DBCStorage <AchievementEntry>             sAchievementStore(Achievementfmt);
+DBCStorage <AnimKitEntry>                 sAnimKitStore(AnimKitfmt);
 DBCStorage <AreaTriggerEntry>             sAreaTriggerStore(AreaTriggerEntryfmt);
 DBCStorage <ArmorLocationEntry>           sArmorLocationStore(ArmorLocationfmt);
 DBCStorage <BankBagSlotPricesEntry>       sBankBagSlotPricesStore(BankBagSlotPricesEntryfmt);
@@ -284,6 +285,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);  // 17399
+    LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");                                                      // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");                                                  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");                                                    // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");                                                // 17399
@@ -574,6 +576,28 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateStore,               dbcPath, "WorldState.dbc");                                                   // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sWorldStateExpressionStore,     dbcPath, "WorldStateExpression.dbc");                                         // 19865
 
+    /// Uncomment this to disam world state expressions
+    ///for (uint32 l_I = 0; l_I < sWorldStateExpressionStore.GetNumRows(); l_I++)
+    ///{
+    ///    WorldStateExpressionEntry const* l_WorldStateExpression = sWorldStateExpressionStore.LookupEntry(i);
+    ///
+    ///    if (!l_WorldStateExpression)
+    ///        continue;
+    ///
+    ///    std::vector<std::string> l_Lines;
+    ///    l_WorldStateExpression->Eval(nullptr, &l_Lines);
+    ///
+    ///    FILE * l_File = fopen(("wse/WorldStateExpression_" + std::to_string(l_I) + ".txt").c_str(), "w+");
+    ///
+    ///    if (!l_File)
+    ///        continue;
+    ///
+    ///    for (auto l_Line : l_Lines)
+    ///        fprintf(l_File, "%s\n", l_Line.c_str());
+    ///
+    ///    fclose(l_File);
+    ///}
+
     for (uint32 i = 0; i < sItemSetSpellStore.GetNumRows(); i++)
     {
         ItemSetSpellEntry const* setSpells = sItemSetSpellStore.LookupEntry(i);
@@ -847,7 +871,7 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                        // Client have map coords swapped
 }
 
-MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID)
+MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID, Difficulty* p_Difficulty /*= nullptr*/)
 {
     auto l_It = sMapDifficultyMap.find(p_MapID);
     if (l_It == sMapDifficultyMap.end())
@@ -858,13 +882,21 @@ MapDifficulty const* GetDefaultMapDifficulty(uint32 p_MapID)
 
     for (auto& l_Pair : l_It->second)
     {
-        DifficultyEntry const* l_Difficulty = sDifficultyStore.LookupEntry(l_Pair.first);
-        if (!l_Difficulty)
+        DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Pair.first);
+        if (!l_DifficultyEntry)
             continue;
 
-        if (l_Difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
+        if (l_DifficultyEntry->Flags & DIFFICULTY_FLAG_DEFAULT)
+        {
+            if (p_Difficulty)
+                *p_Difficulty = Difficulty(l_Pair.first);
+
             return &l_Pair.second;
+        }
     }
+
+    if (p_Difficulty)
+        *p_Difficulty = Difficulty(l_It->second.begin()->first);
 
     return &l_It->second.begin()->second;
 }
@@ -887,7 +919,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
 {
     DifficultyEntry const* l_DifficultyEntry = sDifficultyStore.LookupEntry(l_Difficulty);
     if (!l_DifficultyEntry)
-        return GetDefaultMapDifficulty(mapId);
+        return GetDefaultMapDifficulty(mapId, &l_Difficulty);
 
     uint32 l_TempDifficulty = l_Difficulty;
     MapDifficulty const* l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty));
@@ -898,7 +930,7 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &l_
         l_DifficultyEntry = sDifficultyStore.LookupEntry(l_TempDifficulty);
 
         if (!l_DifficultyEntry)
-            return GetDefaultMapDifficulty(mapId);
+            return GetDefaultMapDifficulty(mapId, &l_Difficulty);
 
         // pull new data
         l_MapDifficulty = GetMapDifficultyData(mapId, Difficulty(l_TempDifficulty)); // we are 10 normal or 25 normal
@@ -1206,6 +1238,16 @@ namespace WorldStateExpressionCustomOpType
     };
 }
 
+namespace WorldStateExpressionEvalResultLogic
+{
+    enum
+    {
+        FirstAndSecond      = 1,
+        FirstOrSecond       = 2,
+        NotFirstOrNotSecond = 3
+    };
+}
+
 namespace WorldStateExpressionFunctions
 {
     enum
@@ -1222,7 +1264,16 @@ namespace WorldStateExpressionFunctions
         HolidayLeft,
         HolidayActive,
         TimerCurrentTime,
-        WeekNumber
+        WeekNumber,
+        None2,
+        None3,
+        None4,
+        None5,
+        None6,
+        None7,
+        None8,
+        None9,
+        None10
     };
 
     const char * Names[] =
@@ -1239,7 +1290,16 @@ namespace WorldStateExpressionFunctions
         "HolidayLeft",
         "HolidayActive",
         "TimerCurrentTime",
-        "WeekNumber"
+        "WeekNumber",
+        "None2",
+        "None3",
+        "None4",
+        "None5",
+        "None6",
+        "None7",
+        "None8",
+        "None9",
+        "None10"
     };
 }
 
@@ -1557,6 +1617,51 @@ static std::function<int32(Player*, int32, int32)> g_WorldStateExpressionFunctio
     {
         time_t l_Time = sWorld->GetGameTime();
         return (l_Time - sWorld->GetServerRaidOrigin()) / WEEK;
+    },
+    /// WorldStateExpressionFunctions::None2
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None3
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None4
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None5
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None6
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None7
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None8
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None9
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
+    },
+    /// WorldStateExpressionFunctions::None10
+    [](Player* p_Player, int32 p_Arg1, int32 p_Arg2) -> int32
+    {
+        return 0;
     }
 };
 
@@ -1617,7 +1722,7 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         UNPACK_INT32(l_Value);
 
 #ifdef _MSC_VER
-        p_Instructions.push_back("mov ret, " + std::to_string(l_Value));
+        p_Instructions.push_back("mov eax, " + std::to_string(l_Value));
 #endif
 
         return l_Value;
@@ -1630,7 +1735,6 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #ifdef _MSC_VER
         p_Instructions.push_back("push " + std::to_string(l_WorldStateID));
         p_Instructions.push_back("call GetWorldStateValue");
-        p_Instructions.push_back("mov ret, eax");
 #endif
 
         if (p_Player && sWorldStateStore.LookupEntry(l_WorldStateID))
@@ -1651,7 +1755,6 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
         p_Instructions.push_back("push " + std::to_string(l_Arg1));
         p_Instructions.push_back("push " + std::to_string(l_Arg2));
         p_Instructions.push_back("call " + std::string(WorldStateExpressionFunctions::Names[l_FunctionID]));
-        p_Instructions.push_back("mov ret, eax");
 #endif
 
         return g_WorldStateExpressionFunction[l_FunctionID](p_Player, l_Arg1, l_Arg2);
@@ -1662,54 +1765,50 @@ int32 WorldStateExpression_EvalPush(Player* p_Player, char const** p_UnpackedExp
 #undef UNPACK_UINT8
 }
 
-int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
+int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions, bool p_ForA)
 {
-#define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
+#define UNPACK_UINT8(x) { x = *(uint8_t*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8_t);} 
     int l_LeftValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
     char l_Opperand;
     UNPACK_UINT8(l_Opperand);
 
-#ifdef _MSC_VER
-    p_Instructions.push_back("mov pC, ret");
-#endif
-
     if (!l_Opperand)
     {
 #ifdef _MSC_VER
-        p_Instructions.push_back("mov ret, pC");
+        p_Instructions.push_back(p_ForA ? "mov pA, eax" : "mov pB, eax");
 #endif
         return l_LeftValue;
     }
 
-    int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
-
 #ifdef _MSC_VER
-    p_Instructions.push_back("mov pD, ret");
+    p_Instructions.push_back("mov pC, eax");
 #endif
+
+    int l_RightValue = WorldStateExpression_EvalPush(p_Player, p_UnpackedExpression, p_Instructions);
 
     switch (l_Opperand)
     {
         case WorldStateExpressionMathOpcode::Add:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pC + pD]");
+            p_Instructions.push_back(p_ForA ? "mov pA, [pC + eax]" : "mov pB, [pC + eax]");
 #endif
             return l_RightValue + l_LeftValue;
             break;
         case WorldStateExpressionMathOpcode::Substract:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pC - pD]");
+            p_Instructions.push_back(p_ForA ? "mov pA, [pC - eax]" : "mov pB, [pC - eax]");
 #endif
             return l_LeftValue - l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Multiply:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pC * pD]");
+            p_Instructions.push_back(p_ForA ? "mov pA, [pC * eax]" : "mov pB, [pC * eax]");
 #endif
             return l_LeftValue * l_RightValue;
             break;
         case WorldStateExpressionMathOpcode::Divide:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pC / pD]");
+            p_Instructions.push_back(p_ForA ? "mov pA, [pC / eax]" : "mov pB, [pC / eax]");
 #endif
             if (!l_RightValue)
                 return 0;
@@ -1718,7 +1817,7 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
             break;
         case WorldStateExpressionMathOpcode::Modulo:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pC % pD]");
+            p_Instructions.push_back(p_ForA ? "mov pA, [pC % eax]" : "mov pB, [pC % eax]");
 #endif
             if (!l_RightValue)
                 return 0;
@@ -1736,108 +1835,99 @@ int32 WorldStateExpression_EvalArithmetic(Player* p_Player, char const** p_Unpac
 bool WorldStateExpression_EvalCompare(Player* p_Player, char const** p_UnpackedExpression, std::vector<std::string>& p_Instructions)
 {
 #define UNPACK_UINT8(x) { x = *(uint8*)(*p_UnpackedExpression); *p_UnpackedExpression += sizeof(uint8);} 
-    int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
+    int l_LeftValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions, true);
     char l_Opperand;
     UNPACK_UINT8(l_Opperand);
-
-#ifdef _MSC_VER
-    p_Instructions.push_back("mov pA, ret");
-#endif
 
     if (!l_Opperand)
     {
 #ifdef _MSC_VER
-        p_Instructions.push_back("mov ret, pA");
+        p_Instructions.push_back("mov eax, pA");
 #endif
         return !!l_LeftValue;
     }
 
-    int l_RightValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions);
-
-#ifdef _MSC_VER
-    p_Instructions.push_back("mov pB, ret");
-#endif
+    int l_RightValue = WorldStateExpression_EvalArithmetic(p_Player, p_UnpackedExpression, p_Instructions, false);
 
     switch (l_Opperand)
     {
         case WorldStateExpressionCompareOpcode::Equal:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA == pB]");
+            p_Instructions.push_back("mov eax, [pA == pB]");
 #endif
             return l_LeftValue == l_RightValue;
         case WorldStateExpressionCompareOpcode::Different:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA != pB]");
+            p_Instructions.push_back("mov eax, [pA != pB]");
 #endif
             return l_LeftValue != l_RightValue;
         case WorldStateExpressionCompareOpcode::Less:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA < pB]");
+            p_Instructions.push_back("mov eax, [pA < pB]");
 #endif
             return l_LeftValue < l_RightValue;
         case WorldStateExpressionCompareOpcode::LessOrEqual:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA <= pB]");
+            p_Instructions.push_back("mov eax, [pA <= pB]");
 #endif
             return l_LeftValue <= l_RightValue;
         case WorldStateExpressionCompareOpcode::More:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA > pB]");
+            p_Instructions.push_back("mov eax, [pA > pB]");
 #endif
             return l_LeftValue > l_RightValue;
         case WorldStateExpressionCompareOpcode::MoreOrEqual:
 #ifdef _MSC_VER
-            p_Instructions.push_back("mov ret, [pA >= pB]");
+            p_Instructions.push_back("mov eax, [pA >= pB]");
 #endif
             return l_LeftValue >= l_RightValue;
         default:
             break;
     }
 
-    return 0;
+    return false;
 #undef UNPACK_UINT8
 }
 
-bool WorldStateExpression_EvalResult(char p_LogicResult, int32 p_EvalResult, int p_PrevResult)
+bool WorldStateExpression_EvalResult(char p_LogicResult, uint8_t p_EvalResultRoutineID, bool p_EvalResult, uint8_t p_PrevResultRoutineID, bool p_PrevResult, std::vector<std::string>& p_Instructions)
 {
-    int v3;
-    int v4;
+    bool l_Result = false;
 
-    v3 = p_LogicResult - 1;
-    if (v3)
+    switch (p_LogicResult)
     {
-        v4 = v3 - 1;
-        if (v4)
-        {
-            if (v4 != 1)
-                return false;
-            if (p_PrevResult)
-            {
-                if (p_EvalResult)
-                    return false;
-                return 1;
-            }
-        }
-        else if (p_PrevResult)
-        {
-            return 1;
-        }
-    }
-    else if (!p_PrevResult)
-    {
-        return false;
-    }
-    if (p_EvalResult)
-        return 1;
+        case WorldStateExpressionEvalResultLogic::FirstAndSecond:
+            l_Result = p_EvalResult != 0 && p_PrevResult != 0;
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov eax, [pA && pB]");
+#endif
+            break;
 
-    return false;
+        case WorldStateExpressionEvalResultLogic::FirstOrSecond:
+            l_Result = (p_PrevResult || p_EvalResult) != 0;
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov eax, [pA || pB]");
+#endif
+            break;
+
+        case WorldStateExpressionEvalResultLogic::NotFirstOrNotSecond:
+#ifdef _MSC_VER
+            p_Instructions.push_back("mov eax, [(pA || pB) ? (!pA || !pB) : 0]");
+#endif
+            if (p_PrevResult || p_EvalResult)
+                l_Result = (p_PrevResult == 0 || p_PrevResult == 0);
+            break;
+    }
+
+    return l_Result;
 }
 
 /// Eval a worldstate expression
-bool WorldStateExpressionEntry::Eval(Player* p_Player) const
+bool WorldStateExpressionEntry::Eval(Player* p_Player, std::vector<std::string> * p_OutStrResult) const
 {
 #define UNPACK_UINT8(x) { x = *l_UnpackedExpression; l_UnpackedExpression += sizeof(uint8);} 
     std::vector<std::string> p_Instructions;
+    std::vector<std::string> p_InstructionsSecond;
+
     if (this->Expression && strlen(this->Expression))
     {
         std::string l_UnpackedExpressionString = UnpackWorldStateExpression(this->Expression);
@@ -1848,21 +1938,56 @@ bool WorldStateExpressionEntry::Eval(Player* p_Player) const
 
         if (l_Value == 1)
         {
+#ifdef _MSC_VER
+            p_Instructions.push_back("========= routine 1 =========");
+#endif
             bool l_Result = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions);
+#ifdef _MSC_VER
+            p_Instructions.push_back("=============================");
+#endif
             char l_ResultLogic;
             UNPACK_UINT8(l_ResultLogic);
 
             if (l_ResultLogic)
             {
-                l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+#ifdef _MSC_VER
+                p_Instructions.push_back("========= routine 2 =========");
+#endif
+                bool l_Routine2 = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions);
+#ifdef _MSC_VER
+                p_Instructions.push_back("=============================");
+
+                p_InstructionsSecond.push_back("call Routine1");
+                p_InstructionsSecond.push_back("mov pA, eax");
+                p_InstructionsSecond.push_back("call Routine2");
+                p_InstructionsSecond.push_back("mov pB, eax");
+#endif
+                l_Result = WorldStateExpression_EvalResult(l_ResultLogic, 2, l_Routine2, 1, l_Result, p_InstructionsSecond);
                 UNPACK_UINT8(l_ResultLogic);
 
                 if (l_ResultLogic)
                 {
-                    l_Result = WorldStateExpression_EvalResult(l_ResultLogic, WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions), l_Result);
+#ifdef _MSC_VER
+                    p_Instructions.push_back("========= routine 3 =========");
+#endif
+                    bool l_Routine3 = WorldStateExpression_EvalCompare(p_Player, &l_UnpackedExpression, p_Instructions);
+#ifdef _MSC_VER
+                    p_Instructions.push_back("=============================");
+
+                    p_InstructionsSecond.push_back("mov pA, eax");
+                    p_InstructionsSecond.push_back("call Routine3");
+                    p_InstructionsSecond.push_back("mov pB, eax");
+#endif
+                    l_Result = WorldStateExpression_EvalResult(l_ResultLogic, 3, l_Routine3, 2, l_Result, p_InstructionsSecond);
                     UNPACK_UINT8(l_ResultLogic);
                 }
             }
+
+            for (auto l_Line : p_InstructionsSecond)
+                p_Instructions.push_back("$> " + l_Line);
+
+            if (p_OutStrResult)
+                *p_OutStrResult = p_Instructions;
 
             return l_Result;
         }

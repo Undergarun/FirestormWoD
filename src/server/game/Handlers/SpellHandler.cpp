@@ -35,35 +35,14 @@
 #include "SpellAuraEffects.h"
 #include "GarrisonMgr.hpp"
 
-void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
-{
-    if (castFlags & 0x8)   // Archaeology
-    {
-        uint32 count, entry, usedCount;
-        uint8 type;
-        recvPacket >> count;
-        for (uint32 i = 0; i < count; ++i)
-        {
-            recvPacket >> type;
-            switch (type)
-            {
-                case 2: // Keystones
-                    recvPacket >> entry;        // Item id
-                    recvPacket >> usedCount;    // Item count
-                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, false);
-                    break;
-                case 1: // Fragments
-                    recvPacket >> entry;        // Currency id
-                    recvPacket >> usedCount;    // Currency count
-                    GetPlayer()->GetArchaeologyMgr().AddProjectCost(entry, usedCount, true);
-                    break;
-            }
-        }
-    }
-}
-
 void WorldSession::HandleUseItemOpcode(WorldPacket& p_RecvPacket)
 {
+    time_t l_Now = time(nullptr);
+    if (l_Now - m_TimeLastUseItem < 1)
+        return;
+    else
+        m_TimeLastUseItem = l_Now;
+
     // TODO: add targets.read() check
     Player* pUser = m_Player;
 
