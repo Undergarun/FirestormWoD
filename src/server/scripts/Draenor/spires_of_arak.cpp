@@ -170,10 +170,25 @@ class boss_rukhmar : public CreatureScript
                     {
                         if (CheckPosition(m_ZNew))
                         {
+                            std::list<Creature*> l_CreatureList;
+                            std::list<Creature*> l_PhoenixList;
                             m_MovingUpToward = false;
+
                             me->CastSpell(me, SpiresOfArakSpells::SpellLooseQuillsLauncher, true);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             me->AddUnitState(UNIT_STATE_ROOT);
+                            me->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
+
+                            for (Creature* l_Creature : l_CreatureList)
+                            {
+                                me->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureDepletedPhoenix, 150.0f);
+
+                                if (l_PhoenixList.size() >= 8)
+                                    break;
+
+                                l_Creature->DespawnOrUnsummon();
+                                me->SummonCreature(SpiresOfArakCreatures::CreatureDepletedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
+                            }
                         }
                     }
                     else if (m_MovingDownToward)
@@ -199,16 +214,6 @@ class boss_rukhmar : public CreatureScript
                         m_ZRef = me->GetPositionZ();
                         m_ZNew = m_ZRef + 15.0f;
                         m_Events.Reset();
-
-                        std::list<Creature*> l_CreatureList;
-
-                        me->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 50.0f);
-
-                        for (Creature* l_Creature : l_CreatureList)
-                        {
-                            l_Creature->DespawnOrUnsummon();
-                            me->SummonCreature(SpiresOfArakCreatures::CreatureDepletedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
-                        }
 
                         me->GetMotionMaster()->MoveCharge(me->m_positionX, me->m_positionY, m_ZNew, 3.0f);
                         m_Events.ScheduleEvent(SpiresOfArakEvents::EventLooseQuills, 90000);
@@ -306,19 +311,12 @@ class npc_energized_phoenix : public CreatureScript
             {
                 m_Events.Update(p_Diff);
 
-                if (!UpdateVictim())
-                    return;
-
-                if (!me->isMoving())
-                    me->DespawnOrUnsummon();
-
                 switch (m_Events.ExecuteEvent())
                 {
                     case SpiresOfArakEvents::EventPhoenixFixatePlr:
                     {
-
                         std::list<Player*> l_PlayerList;
-                        GetPlayerListInGrid(l_PlayerList, me, 30.0f);
+                        GetPlayerListInGrid(l_PlayerList, me, 100.0f);
 
                         if (!l_PlayerList.empty())
                         {
@@ -329,7 +327,7 @@ class npc_energized_phoenix : public CreatureScript
                                 m_PlayerGuid = l_Player->GetGUID();
                                 me->AddThreat(l_Player, 100000.0f);
                                 me->CastSpell(l_Player, SpiresOfArakSpells::SpellFixate, false);
-                                m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                                m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 200);
                             }
                         }
                         break;
@@ -353,7 +351,7 @@ class npc_energized_phoenix : public CreatureScript
                                 {
                                     me->GetMotionMaster()->Clear();
                                     me->GetMotionMaster()->MoveCharge(l_Player->m_positionX, l_Player->m_positionY, l_Player->m_positionZ, 2.0f);
-                                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 300);
+                                    m_Events.ScheduleEvent(SpiresOfArakEvents::EventMoveToPlayer, 200);
                                 }
                             }
                         }
@@ -403,10 +401,17 @@ class spell_rukhmar_blaze_of_glory : public SpellScriptLoader
                     return;
 
                 std::list<Creature*> l_CreatureList;
-                l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 50.0f);
+                std::list<Creature*> l_PhoenixList;
+
+                l_Caster->GetCreatureListWithEntryInGrid(l_CreatureList, SpiresOfArakCreatures::CreaturePileOfAsh, 150.0f);
 
                 for (Creature* l_Creature : l_CreatureList)
                 {
+                    l_Caster->GetCreatureListWithEntryInGrid(l_PhoenixList, SpiresOfArakCreatures::CreatureEnergizedPhoenix, 150.0f);
+
+                    if (l_PhoenixList.size() >= 8)
+                        break;
+
                     l_Creature->DespawnOrUnsummon();
                     l_Caster->SummonCreature(SpiresOfArakCreatures::CreatureEnergizedPhoenix, l_Creature->m_positionX, l_Creature->m_positionY, l_Creature->m_positionZ);
                 }
