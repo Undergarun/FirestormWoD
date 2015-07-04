@@ -94,6 +94,23 @@ const char GlyphRequiredSpecfmt[] =
 };
 
 //////////////////////////////////////////////////////////////////////////
+/// Area DB2
+//////////////////////////////////////////////////////////////////////////
+
+const char AreaGroupEntryfmt[] =
+{
+    FT_INDEX,
+};
+
+const char AreaGroupMemberEntryfmt[] =
+{
+    FT_INDEX,
+    FT_INT,
+    FT_INT,
+    FT_END
+};
+
+//////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
 //////////////////////////////////////////////////////////////////////////
 const char GarrSiteLevelEntryfmt[] = "niiiiffiiii";
@@ -110,6 +127,7 @@ const char GarrMissionXEncouterEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrBuildingEntryfmt[] = "niiiiissssiiiiiiiiiiiiii";
 const char GarrPlotBuildingEntryfmt[] =
 {
@@ -118,6 +136,7 @@ const char GarrPlotBuildingEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrFollowerEntryfmt[] = "nxiiiiiiiiiiiiiissiiiixx";
 const char GarrAbilityEntryfmt[] = "nissiiix";
 const char GarrAbilityEffectEntryfmt[] = "niiiiiffiiix";
@@ -129,6 +148,7 @@ const char GarrFollowerXAbilityEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrBuildingPlotInstEntryfmt[] =
 {
     FT_INDEX,
@@ -139,6 +159,7 @@ const char GarrBuildingPlotInstEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrMechanicTypeEntryfmt[] =
 {
     FT_INDEX,
@@ -148,6 +169,7 @@ const char GarrMechanicTypeEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrMechanicEntryfmt[] =
 {
     FT_INDEX,
@@ -155,6 +177,7 @@ const char GarrMechanicEntryfmt[] =
     FT_FLOAT,
     FT_END
 };
+
 const char GarrEncouterXMechanicEntryfmt[] =
 {
     FT_INDEX,
@@ -162,6 +185,7 @@ const char GarrEncouterXMechanicEntryfmt[] =
     FT_INT,
     FT_END
 };
+
 const char GarrFollowerLevelXPEntryfmt[] =
 {
     FT_INDEX,
@@ -171,6 +195,7 @@ const char GarrFollowerLevelXPEntryfmt[] =
     FT_NA,
     FT_END
 };
+
 const char GarrSpecializationEntryfmt[] =
 {
     FT_INDEX,
@@ -184,6 +209,7 @@ const char GarrSpecializationEntryfmt[] =
     FT_STRING,
     FT_END
 };
+
 const char CharShipmentEntryfmt[] =
 {
     FT_INDEX,
@@ -196,6 +222,7 @@ const char CharShipmentEntryfmt[] =
     FT_NA,
     FT_END
 };
+
 const char CharShipmentContainerEntryfmt[] =
 {
     FT_INDEX,

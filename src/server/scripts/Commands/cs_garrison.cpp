@@ -139,7 +139,7 @@ class garrison_commandscript: public CommandScript
 
             l_TargetPlayer->CreateGarrison();
 
-            uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->CreationMovie;
+            uint32 l_MovieID = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MovieID;
             uint32 l_MapID   = l_TargetPlayer->GetGarrison()->GetGarrisonSiteLevelEntry()->MapID;
             uint32 l_TeamID  = l_TargetPlayer->GetTeamId();
 
@@ -217,7 +217,7 @@ class garrison_commandscript: public CommandScript
                         const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_I);
 
                         if (l_Entry)
-                            l_TargetPlayer->GetGarrison()->LearnBlueprint(l_Entry->BuildingID);
+                            l_TargetPlayer->GetGarrison()->LearnBlueprint(l_Entry->ID);
                     }
 
                     return true;
@@ -265,8 +265,8 @@ class garrison_commandscript: public CommandScript
             {
                 const GarrBuildingEntry * l_Entry = sGarrBuildingStore.LookupEntry(l_Building.BuildingID);
 
-                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->BuildingID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::FactionIndex::Alliance ? l_Entry->NameA : l_Entry->NameH);
-                p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->BuildingLevel);
+                p_Handler->PSendSysMessage("Building : %u - %s", l_Entry->ID, l_TargetPlayer->GetGarrison()->GetGarrisonFactionIndex() == MS::Garrison::FactionIndex::Alliance ? l_Entry->NameAlliance : l_Entry->NameHorde);
+                p_Handler->PSendSysMessage("Active %u Level %u", l_Building.Active, l_Entry->Level);
             }
 
             float l_X = l_TargetPlayer->GetPositionX();

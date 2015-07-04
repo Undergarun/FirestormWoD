@@ -9493,7 +9493,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     return NULL;
 }
 
-void ObjectMgr::LoadResearchSiteZones()
+ void ObjectMgr::LoadResearchSiteZones()
 {
     uint32 counter = 0;
 

@@ -56,7 +56,6 @@ typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTri
 ItemSetSpellsByItemID sItemSetSpellsByItemIDStore;
 
 DBCStorage <AreaTableEntry>               sAreaStore(AreaTableEntryfmt);
-DBCStorage <AreaGroupEntry>               sAreaGroupStore(AreaGroupEntryfmt);
 static AreaFlagByAreaID                   sAreaFlagByAreaID;
 static AreaFlagByMapID                    sAreaFlagByMapID;                    // For instances without generated *.map files
 
@@ -153,11 +152,6 @@ DBCStorage <QuestFactionRewEntry>        sQuestFactionRewardStore(QuestFactionRe
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 
 DBCStorage <QuestPOIPointEntry> sQuestPOIPointStore(QuestPOIPointfmt);
-
-
-std::set<ResearchSiteEntry const*> sResearchSiteSet;
-std::set<ResearchProjectEntry const*> sResearchProjectSet;
-
 
 DBCStorage <ScenarioStepEntry> sScenarioStepStore(ScenarioStepEntryfmt);
 
@@ -287,7 +281,6 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore,            dbcPath, "Achievement.dbc", &CustomAchievementfmt, &CustomAchievementIndex);  // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sAnimKitStore,                dbcPath, "AnimKit.dbc");                                                      // 19865
     LoadDBC(availableDbcLocales, bad_dbc_files, sAreaTriggerStore,            dbcPath, "AreaTrigger.dbc");                                                  // 17399
-    LoadDBC(availableDbcLocales, bad_dbc_files, sAreaGroupStore,              dbcPath, "AreaGroup.dbc");                                                    // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sArmorLocationStore,          dbcPath, "ArmorLocation.dbc");                                                // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sBankBagSlotPricesStore,      dbcPath, "BankBagSlotPrices.dbc");                                            // 17399
     LoadDBC(availableDbcLocales, bad_dbc_files, sBattlemasterListStore,       dbcPath, "BattlemasterList.dbc");                                             // 17399

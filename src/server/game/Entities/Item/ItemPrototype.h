@@ -239,19 +239,19 @@ enum ItemFlagsCustom
 
 enum CurrencyCategory
 {
-    CURRENCY_CATEGORY_MISC              = 1,       // Miscellaneous
-    CURRENCY_CATEGORY_PVP               = 2,        //Player vs. Player
-    CURRENCY_CATEGORY_UNUSED            = 3,        //Unused
-    CURRENCY_CATEGORY_CLASSIC           = 4,        //Classic
-    CURRENCY_CATEGORY_WOTLK             = 21,       //Wrath of the Lich King
-    CURRENCY_CATEGORY_DUNGEON_AND_RAID  = 22,       //Dungeon and Raid
-    CURRENCY_CATEGORY_BC                = 23,       //Burning Crusade
-    CURRENCY_CATEGORY_TEST              = 41,       //Test
-    CURRENCY_CATEGORY_CATACLYSM         = 81,       //Cataclysm
-    CURRENCY_CATEGORY_ARCHAEOLOGY       = 82,       //Archaeology
-    CURRENCY_CATEGORY_META_CONQUEST     = 89,       //Meta
-    CURRENCY_CATEGORY_MOP               = 133,      //Mists of Pandaria
-    CURRENCY_CATEGORY_WOD               = 137       //Warlords of Draenor
+    CURRENCY_CATEGORY_MISC              = 1,        ///< Miscellaneous
+    CURRENCY_CATEGORY_PVP               = 2,        ///< Player vs. Player
+    CURRENCY_CATEGORY_UNUSED            = 3,        ///< Unused
+    CURRENCY_CATEGORY_CLASSIC           = 4,        ///< Classic
+    CURRENCY_CATEGORY_WOTLK             = 21,       ///< Wrath of the Lich King
+    CURRENCY_CATEGORY_DUNGEON_AND_RAID  = 22,       ///< Dungeon and Raid
+    CURRENCY_CATEGORY_BC                = 23,       ///< Burning Crusade
+    CURRENCY_CATEGORY_TEST              = 41,       ///< Test
+    CURRENCY_CATEGORY_CATACLYSM         = 81,       ///< Cataclysm
+    CURRENCY_CATEGORY_ARCHAEOLOGY       = 82,       ///< Archaeology
+    CURRENCY_CATEGORY_META_CONQUEST     = 89,       ///< Meta
+    CURRENCY_CATEGORY_MOP               = 133,      ///< Mists of Pandaria
+    CURRENCY_CATEGORY_WOD               = 137       ///< Warlords of Draenor
 };
 
 enum ItemVendorType

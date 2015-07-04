@@ -27,6 +27,8 @@
 
 extern std::map<uint32, DB2StorageBase*> sDB2PerHash;
 
+extern DB2Storage <AreaGroupEntry>                  sAreaGroupStore;
+extern DB2Storage <AreaGroupMemberEntry>            sAreaGroupMemberStore;
 extern DB2Storage <SoundEntriesEntry>               sSoundEntriesStore;
 extern DB2Storage <CurrencyTypesEntry>              sCurrencyTypesStore;
 extern DB2Storage <PathNodeEntry>                   sPathNodeStore;
@@ -73,6 +75,8 @@ extern DB2Storage <PlayerConditionEntry>            sPlayerConditionStore;
 extern DB2Storage <VignetteEntry>                   sVignetteStore;
 extern DB2Storage <GlyphRequiredSpecEntry>          sGlyphRequiredSpecStore;
 extern DB2Storage <MailTemplateEntry>               sMailTemplateStore;
+extern DB2Storage std::set<ResearchProjectEntry const*> sResearchProjectSet;
+extern DB2Storage std::set<ResearchSiteEntry const*>    sResearchSiteSet;
 
 //////////////////////////////////////////////////////////////////////////
 /// Garrison DB2
