@@ -542,9 +542,9 @@ enum AuraType
     SPELL_AURA_481                                          = 481,  // 6.1.2
     SPELL_AURA_482                                          = 482,  // 6.1.2 S.E.L.F.I.E. Camera
     SPELL_AURA_483                                          = 483,  // 6.1.2 Rated PvP Transform Suppression
-    SPELL_AURA_484                                          = 484,  // 6.1.2
-    SPELL_AURA_485                                          = 485,  // 6.1.2
-    TOTAL_AURAS                                             = 486   // 6.1.2
+    SPELL_AURA_484                                          = 484,  // 6.2.0
+    SPELL_AURA_485                                          = 485,  // 6.2.0
+    TOTAL_AURAS                                             = 486   // 6.2.0
 };
 
 enum AuraObjectType

@@ -365,7 +365,7 @@ enum Powers
     MAX_POWERS_COST                     = MAX_POWERS+1
 };
 
-#define MAX_POWERS_PER_CLASS              5
+#define MAX_POWERS_PER_CLASS              6 /// Druid have power 0 1 3 8 10 4 (6.2.0)
 
 enum SpellSchools
 {
@@ -1322,7 +1322,7 @@ enum SpellEffects
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250,  ///< Serverside marker for selfie screenshot
-    SPELL_EFFECT_251                                = 251,
+    SPELL_EFFECT_251                                = 251,  ///< Increases the maximum cache size of your garrison.
     TOTAL_SPELL_EFFECTS                             = 252
 };
 
@@ -1864,8 +1864,24 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_APEXIS_SENTINEL_REQUIRES_ENERGY  = 249,  ///< "This Apexis Sentinel requires energy from a nearby Apexis Pylon to be powered up."
     SPELL_CUSTOM_ERROR_MUST_HAVE_3_OR_FEWER_PLAYERS     = 250,  ///< "You must have 3 or fewer players."
     SPELL_CUSTOM_ERROR_ALREADY_READ_TREASURE_MAP        = 251,  ///< "You have already read that treasure map."
-    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252   ///< "You may only use this item while your garrison is under attack."
-};
+    SPELL_CUSTOM_ERROR_ONLY_USABLE_DURING_INVASION      = 252,  ///< "You may only use this item while your garrison is under attack."
+    SPELL_CUSTOM_ERROR_REQUIRE_ACTIVE_MUSHROOMS         = 253  ///< This spell requires active mushrooms for you to detonate.
+    SPELL_CUSTOM_ERROR_REQUIRE_FASTER_TIME              = 254, ///< Requires a faster time with the basic racer
+    SPELL_CUSTOM_ERROR_REQUIRE_INFERNO_SHOT_AMMO        = 255, ///< Requires Inferno Shot Ammo!
+    SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT                 = 256, ///< You cannot do that right now.
+    SPELL_CUSTOM_ERROR_TRAP_ALREADY_HERE                = 257, ///< A trap is already placed there.
+    SPELL_CUSTOM_ERROR_ALREADY_ON_QUEST                 = 258, ///< You are already on that quest.
+    SPELL_CUSTOM_ERROR_REQUIRE_FELFORGED_CUDGEL         = 259, ///< Requires a Felforged Cudgel!
+    SPELL_CUSTOM_ERROR_CANT_TAKE_UNDER_DAMAGE           = 260, ///< Can't take while being damaged!
+    SPELL_CUSTOM_ERROR_BOUND_DRAENOR                    = 261, ///< You are bound to Draenor by Archimonde's magic.
+    SPELL_CUSTOM_ERROR_MAXIMUM_SHIP_AT_SHIPYARD         = 262, ///< You already have the maximum number of ships your shipyard can support.
+    SPELL_CUSTOM_ERROR_ONLY_ON_SHIPYARD                 = 263, ///< You must be at your shipyard.
+    SPELL_CUSTOM_ERROR_REQUIRE_MAGE_TOWER_LVL3          = 264, ///< Requires a level 3 Mage Tower.
+    SPELL_CUSTOM_ERROR_REQUIRE_SPIRIT_LODGE_LEVEL3      = 265, ///< Requires a level 3 Spirit Lodge.
+    SPELL_CUSTOM_ERROR_FEEL_LIKE_EEG_AND_HAM            = 266, ///< You do not like Fel Eggs and Ham.
+    SPELL_CUSTOM_ERROR_ALREADY_TRADE                    = 267, ///< You have already entered in to this trade agreement.
+
+    };
 
 enum StealthType
 {
