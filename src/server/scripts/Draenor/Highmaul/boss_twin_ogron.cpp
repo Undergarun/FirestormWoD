@@ -98,10 +98,6 @@ class boss_twin_ogron_pol : public CreatureScript
             ScheduleShieldCharge
         };
 
-        enum eCreatures
-        {
-        };
-
         enum eTalks
         {
             Intro,

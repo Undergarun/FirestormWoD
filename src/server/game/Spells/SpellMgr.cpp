@@ -6351,6 +6351,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
+            case 159740: ///< Glyph of Raging Blow
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
+                break;
             default:
                 break;
         }

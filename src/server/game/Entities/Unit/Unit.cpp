@@ -12244,6 +12244,17 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     if (HasAura(14771) && HasAura(588))
         AddPct(TakenTotalMod, -6);
 
+    /// Prey on the Weak
+    if (AuraEffectPtr l_PreyOnTheWeak = caster->GetAuraEffect(131511, SpellEffIndex::EFFECT_0))
+    {
+        if (HasAura(408)  || ///< Kidney Shot
+            HasAura(1833) || ///< Cheap Shot
+            HasAura(1776) || ///< Gouge
+            HasAura(6770) || ///< Sap
+            HasAura(2094))   ///< Blind
+            AddPct(TakenTotalMod, l_PreyOnTheWeak->GetAmount());
+    }
+
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
 
     // Check for table values
