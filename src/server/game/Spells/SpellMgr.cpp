@@ -128,10 +128,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         case SPELLFAMILY_WARRIOR:
         {
             // Shockwave -- 132168
-            if (spellproto->SpellFamilyFlags[1] & 0x8000 && spellproto->Id != 46968)
+            if (spellproto->Id == 132168)
                 return DIMINISHING_STUN;
             // Storm Bolt -- 132169
-            if (spellproto->SpellFamilyFlags[2] & 0x1000 && spellproto->Id != 107570 && spellproto->Id != 145585)
+            if (spellproto->Id == 132169)
                 return DIMINISHING_STUN;
 
             // Intimidating Shout -- 5246
@@ -156,7 +156,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
-            if (spellproto->SpellFamilyFlags[1] & 0x400 && spellproto->Id != 5782)
+            if (spellproto->Id == 118699)
                 return DIMINISHING_DISORIENT;
             // Howl of Terror -- 5484
             if (spellproto->SpellFamilyFlags[1] & 0x8)
@@ -483,7 +483,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
             if (spellproto->Id == 5484)
                 return 6 * IN_MILLISECONDS;
             /// Fear - 6 seconds in PvP (6.0)
-            if (spellproto->Id == 5782)
+            if (spellproto->Id == 118699)
                 return 6 * IN_MILLISECONDS;
             break;
         }
