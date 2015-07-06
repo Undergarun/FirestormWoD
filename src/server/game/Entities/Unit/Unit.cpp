@@ -15480,13 +15480,16 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
 
     Unit* owner = GetOwner();
     // called from caster
-    if (Player* modOwner = GetSpellModOwner())
+    Player* modOwner = GetSpellModOwner();
+
+    if (modOwner != nullptr)
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
     if (!((spellProto->Attributes & (SPELL_ATTR0_ABILITY|SPELL_ATTR0_TRADESPELL)) || (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))) &&
         ((GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
     {
-        castTime = int32(float(castTime) * GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
+        if (modOwner != nullptr)
+            castTime = int32(float(castTime) * modOwner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
         // Gargoyle Strike should be affected by DeathKnight haste
         if (spellProto->Id == 51963 && owner && owner->GetTypeId() == TYPEID_PLAYER)
             castTime = int32(float(castTime) * owner->GetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED));
