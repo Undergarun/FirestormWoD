@@ -465,6 +465,9 @@ void Unit::Update(uint32 p_time)
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
 
+    /// Update all the stack durations
+    UpdateStackOnDuration(p_time);
+
     if (isAlive())
     {
         ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, HealthBelowPct(20));
@@ -493,43 +496,61 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 }
 
 uint32 const positionUpdateDelay = 400;
+uint32 const g_FlightSplineSyncDelay = 5 * TimeConstants::IN_MILLISECONDS;
 
-void Unit::UpdateSplineMovement(uint32 t_diff)
+void Unit::UpdateSplineMovement(uint32 p_Diff)
 {
+    bool l_Arrived = movespline->Finalized();
     if (movespline->Finalized())
         return;
 
-    movespline->updateState(t_diff);
-    bool arrived = movespline->Finalized();
+    movespline->updateState(p_Diff);
+    l_Arrived = movespline->Finalized();
 
-    if (arrived)
+    if (l_Arrived)
         DisableSpline();
 
-    m_movesplineTimer.Update(t_diff);
-    if (m_movesplineTimer.Passed() || arrived)
+    m_movesplineTimer.Update(p_Diff);
+    if (m_movesplineTimer.Passed() || l_Arrived)
         UpdateSplinePosition();
+
+    m_FlightSplineSyncTimer.Update(p_Diff);
+    if (m_FlightSplineSyncTimer.Passed())
+    {
+        float l_Percent = 1.0f;
+        float l_TotalTime = movespline->spline.length();
+        if (l_TotalTime > 0.0f)
+            l_Percent = (float)movespline->m_TimePassed / l_TotalTime;
+
+        SendFlightSplineSync(l_Percent);
+        m_FlightSplineSyncTimer.Reset(g_FlightSplineSyncDelay);
+    }
 }
 
 void Unit::UpdateSplinePosition()
 {
     m_movesplineTimer.Reset(positionUpdateDelay);
-    Movement::Location loc = movespline->ComputePosition();
+
+    Movement::Location l_Location = movespline->ComputePosition();
     if (GetTransGUID())
     {
-        Position& pos = m_movementInfo.t_pos;
-        pos.m_positionX = loc.x;
-        pos.m_positionY = loc.y;
-        pos.m_positionZ = loc.z;
-        pos.SetOrientation(loc.orientation);
-        if (Unit* vehicle = GetVehicleBase())
-        if (TransportBase* transport = GetDirectTransport())
-            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
+        Position& l_Pos = m_movementInfo.t_pos;
+        l_Pos.m_positionX = l_Location.x;
+        l_Pos.m_positionY = l_Location.y;
+        l_Pos.m_positionZ = l_Location.z;
+        l_Pos.SetOrientation(l_Location.orientation);
+
+        if (GetVehicleBase())
+        {
+            if (TransportBase* l_Transport = GetDirectTransport())
+                l_Transport->CalculatePassengerPosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
+        }
     }
 
-    if (HasUnitState(UNIT_STATE_CANNOT_TURN))
-        loc.orientation = GetOrientation();
+    if (HasUnitState(UnitState::UNIT_STATE_CANNOT_TURN))
+        l_Location.orientation = GetOrientation();
 
-    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+    UpdatePosition(l_Location.x, l_Location.y, l_Location.z, l_Location.orientation);
 }
 
 void Unit::DisableSpline()
@@ -1544,10 +1565,13 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
-        damage += CalculatePct(damage, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (GetSpellModOwner()) 
+    {
+        if (GetSpellModOwner()->getClass() != CLASS_HUNTER) ///< Hunter is exception, to prevent double stack of versatility)
+            damage += CalculatePct(damage, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (victim->GetSpellModOwner())
+            damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    }
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
@@ -1733,8 +1757,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damage *= CalculateDamageTakenFactor(victim, ToCreature());
 
     /// Apply Versatility damage bonus done/taken
-    if (victim->GetTypeId() == TYPEID_PLAYER)
-        damage -= CalculatePct(damage, victim->ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (victim->GetSpellModOwner())
+        damage -= CalculatePct(damage, victim->GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + victim->GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -4933,6 +4957,33 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
                 dispelList.push_back(std::make_pair(aura, charges));
         }
     }
+}
+
+StackOnDuration* Unit::GetStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) != m_StackOnDurationMap.end())
+        return &m_StackOnDurationMap[p_SpellID];
+
+    return nullptr;
+}
+
+void Unit::AddToStackOnDuration(uint32 p_SpellID, uint64 p_DurationTime, int32 p_Amount)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        m_StackOnDurationMap.insert(std::make_pair(p_SpellID, StackOnDuration(p_DurationTime, p_Amount)));
+    else
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(p_SpellID);
+        l_Stack->m_StackDuration.push_back(std::make_pair(p_DurationTime, p_Amount));
+    }
+}
+
+void Unit::RemoveStackOnDuration(uint32 p_SpellID)
+{
+    if (m_StackOnDurationMap.find(p_SpellID) == m_StackOnDurationMap.end())
+        return;
+    else
+        m_StackOnDurationMap.erase(m_StackOnDurationMap.find(p_SpellID));
 }
 
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
@@ -8200,6 +8251,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffectPtr trigge
 
                     if (bp0)
                         EnergizeBySpell(this, 101033, bp0, POWER_MANA);
+
+                    break;
+                }
+                case 10400: ///< Flametongue
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    if (!(procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK))
+                        return false;
+
+                    if (effIndex != EFFECT_0)
+                        return false;
+
+                    triggered_spell_id = 10444;
 
                     break;
                 }
@@ -12178,6 +12244,17 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     if (HasAura(14771) && HasAura(588))
         AddPct(TakenTotalMod, -6);
 
+    /// Prey on the Weak
+    if (AuraEffectPtr l_PreyOnTheWeak = caster->GetAuraEffect(131511, SpellEffIndex::EFFECT_0))
+    {
+        if (HasAura(408)  || ///< Kidney Shot
+            HasAura(1833) || ///< Cheap Shot
+            HasAura(1776) || ///< Gouge
+            HasAura(6770) || ///< Sap
+            HasAura(2094))   ///< Blind
+            AddPct(TakenTotalMod, l_PreyOnTheWeak->GetAmount());
+    }
+
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
 
     // Check for table values
@@ -12791,8 +12868,8 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, ui
     }
 
     /// Apply Versatility healing bonus done
-    if (GetTypeId() == TYPEID_PLAYER)
-        DoneTotal += CalculatePct(healamount, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+    if (GetSpellModOwner())
+        DoneTotal += CalculatePct(healamount, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
 
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
@@ -13045,8 +13122,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
                 AdvertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(WeaponAttackType::BaseAttack), (*i)->GetAmount()));
 
         /// Apply Versatility healing bonus
-        if (GetTypeId() == TYPEID_PLAYER)
-            AdvertisedBenefit += CalculatePct(AdvertisedBenefit, ToPlayer()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
+        if (GetSpellModOwner())
+            AdvertisedBenefit += CalculatePct(AdvertisedBenefit, GetSpellModOwner()->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + GetSpellModOwner()->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY_PCT));
     }
 
     return AdvertisedBenefit;
@@ -13361,7 +13438,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Custom MoP Script
     // 76806 - Mastery : Main Gauche
-    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack && !spellProto)
+    if (GetTypeId() == TYPEID_PLAYER && victim && pdamage != 0 && attType == WeaponAttackType::BaseAttack)
     {
         if (HasAura(76806))
         {
@@ -14607,6 +14684,7 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
     if (m_speed_rate[MOVE_WALK] > m_speed_rate[MOVE_RUN])
         m_speed_rate[MOVE_WALK] = m_speed_rate[MOVE_RUN];
 
+    float l_OldRate = m_speed_rate[p_MovementType];
     m_speed_rate[p_MovementType] = rate;
 
     if (!clientSideOnly)
@@ -14874,6 +14952,22 @@ void Unit::SetSpeed(UnitMoveType p_MovementType, float rate, bool forced)
         else
             SendMessageToSet(&l_SelfPacket, true);
     }
+}
+
+void Unit::SendAdjustSplineDuration(float p_Scale)
+{
+    WorldPacket l_Data(Opcodes::SMSG_ADJUST_SPLINE_DURATION);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_Scale);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
+}
+
+void Unit::SendFlightSplineSync(float p_SplineDist)
+{
+    WorldPacket l_Data(Opcodes::SMSG_FLIGHT_SPLINE_SYNC);
+    l_Data.appendPackGUID(GetGUID());
+    l_Data << float(p_SplineDist);
+    SendMessageToSetInRange(&l_Data, GetMap()->GetVisibilityRange(), false);
 }
 
 void Unit::setDeathState(DeathState s)
@@ -17058,7 +17152,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             continue;
 
         // Some spells can proc on absorb
-        if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 ||
+        if (spellProto->Id == 33757 || spellProto->Id == 28305 || spellProto->Id == 2823 || spellProto->Id == 3408 || spellProto->Id == 108211 || spellProto->Id == 44448 ||
             triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SpellSpecificType::SpellSpecificSeal || spellProto->HasAura(SPELL_AURA_MOD_STEALTH)
             || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
             active = true;
@@ -17789,6 +17883,43 @@ void Unit::UpdateReactives(uint32 p_time)
         {
             m_reactiveTimer[reactive] -= p_time;
         }
+    }
+}
+
+void Unit::UpdateStackOnDuration(uint32 p_Time)
+{
+    for (AuraStackOnDurationMap::iterator l_Iter = m_StackOnDurationMap.begin(); l_Iter != m_StackOnDurationMap.end();)
+    {
+        StackOnDuration* l_Stack = GetStackOnDuration(l_Iter->first);
+
+        std::vector<std::pair<uint64, int32>> l_StackDuration = l_Stack->GetStackDuration();
+
+        bool l_MustContinue = false;
+        uint8 l_Count = 0;
+        for (std::pair<uint64, int32> l_StackParam : l_StackDuration)
+        {
+            if (l_StackParam.first <= p_Time)
+            {
+                if (l_StackDuration.size() <= 1)
+                {
+                    l_Iter = m_StackOnDurationMap.erase(l_Iter);
+                    l_MustContinue = true;
+                    break;
+                }
+
+                l_Stack->m_StackDuration.erase(l_Stack->m_StackDuration.begin() + l_Count);
+                continue;
+            }
+            else
+                l_Stack->DecreaseDuration(l_Count, p_Time);
+
+            ++l_Count;
+        }
+
+        if (l_MustContinue)
+            continue;
+
+        ++l_Iter;
     }
 }
 
@@ -21480,20 +21611,7 @@ bool Unit::IsVisionObscured(Unit* victim, SpellInfo const* spellInfo)
         else
             return true;
     }
-    // Victim and caster have aura with effect SPELL_AURA_INTERFERE_TARGETTING, but aura may be not smoke bomb.
-    else if (myAura != NULL && victimAura != NULL)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (AuraEffectPtr effect = myAura->GetEffect(i))
-            {
-                if (effect->GetAuraType() != SPELL_AURA_INTERFERE_TARGETTING)
-                    continue;
-                if (effect->GetAmount() && !IsFriendlyTo(victimCaster))
-                    return true;
-            }
-        }
-    }
+
     return false;
 }
 

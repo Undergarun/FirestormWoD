@@ -4180,6 +4180,49 @@ class spell_taunt_flag_targeting : public SpellScriptLoader
         }
 };
 
+/// Arcane Brillance - 1459, Dark Intent - 109773, Legacy of the White Tiger - 116781
+class spell_gen_raid_buff_stack : public SpellScriptLoader
+{
+    public:
+        spell_gen_raid_buff_stack() : SpellScriptLoader("spell_gen_raid_buff_stack") { }
+
+        class spell_gen_raid_buff_stack_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_raid_buff_stack_SpellScript);
+
+            enum eSpells
+            {
+                DarkIntent = 109773,
+                ArcaneBrillance = 1459,
+                LegacyoftheWhiteTiger = 116781,
+            };
+
+            static uint8 const l_TabAuraSize = 3;
+
+            void FilterTargets(std::list<WorldObject*>& p_Targets)
+            {
+                uint32 l_TabAura[l_TabAuraSize] = { eSpells::DarkIntent, eSpells::ArcaneBrillance, eSpells::LegacyoftheWhiteTiger };
+
+                for (uint8 l_Idx = 0; l_Idx < l_TabAuraSize; ++l_Idx)
+                {
+                    if (GetSpellInfo()->Id != l_TabAura[l_Idx])
+                        p_Targets.remove_if(JadeCore::UnitAuraCheck(true, l_TabAura[l_Idx]));
+                }
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_raid_buff_stack_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_ALLY_OR_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_raid_buff_stack_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_ALLY_OR_RAID);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_raid_buff_stack_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_drums_of_fury();
@@ -4260,6 +4303,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_carrying_seaforium();
     new spell_inherit_master_threat_list();
     new spell_taunt_flag_targeting();
+    new spell_gen_raid_buff_stack();
 
     /// PlayerScript
     new PlayerScript_Touch_Of_Elune();

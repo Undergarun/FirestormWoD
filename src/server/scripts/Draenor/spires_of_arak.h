@@ -40,7 +40,8 @@ namespace SpiresOfArakEvents
         EventBloodFeather     = 5,
         EventSolarRadiation   = 6,
         EventMoveToPlayer     = 7,
-        EventTurnPhoenixToAsh = 8
+        EventTurnPhoenixToAsh = 8,
+        EventPhoenixFixatePlr = 9
     };
 }
 

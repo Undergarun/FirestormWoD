@@ -15,8 +15,9 @@ if (USE_SCRIPTPCH)
 endif ()
 
 message(STATUS "SCRIPT PREPARATIONS")
-include(Spells/CMakeLists.txt)
 
+include(Spells/CMakeLists.txt)
+include(World/CMakeLists.txt)
 include(Commands/CMakeLists.txt)
 
 # include(Examples/CMakeLists.txt)
@@ -30,7 +31,6 @@ set(scripts_STAT_SRCS
 
 if(SCRIPTS)
   include(Custom/CMakeLists.txt)
-  include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
   include(Kalimdor/CMakeLists.txt)
