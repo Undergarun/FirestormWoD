@@ -915,7 +915,7 @@ void Player::UpdateMasteryPercentage()
                 if (AuraEffectPtr l_AurEff = l_Aura->GetEffect(l_I))
                 {
                     l_AurEff->SetCanBeRecalculated(true);
-                    l_AurEff->ChangeAmount(l_AurEff->CalculateAmount(this), true, true);
+                    l_AurEff->ChangeAmount((int32)(value * l_SpellInfo->Effects[l_I].BonusMultiplier), true, true);
                 }
             }
         }
@@ -1130,6 +1130,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
+
     SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
