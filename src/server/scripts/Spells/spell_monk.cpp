@@ -4987,6 +4987,45 @@ class spell_monk_glyph_of_freedom_roll : public SpellScriptLoader
         }
 };
 
+/// Crackling Tiger Lightning - 123996
+class spell_monk_crackling_tiger_lightning : public SpellScriptLoader
+{
+    public:
+        spell_monk_crackling_tiger_lightning() : SpellScriptLoader("spell_monk_crackling_tiger_lightning") { }
+
+        class spell_monk_crackling_tiger_lightning_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_crackling_tiger_lightning_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*p_EffIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Owner = l_Caster->GetOwner();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Owner == nullptr)
+                    return;
+
+                int32 l_Damage = 0.67f * l_Owner->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack);
+
+                l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
+                l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
+
+                SetHitDamage(l_Damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_crackling_tiger_lightning_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_crackling_tiger_lightning_SpellScript();
+        }
+};
+
 /// Glyph of Victory Roll - 159497
 class spell_monk_glyph_of_victory_roll : public SpellScriptLoader
 {
@@ -5114,6 +5153,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_zen_sphere_tick();
     new spell_monk_zen_sphere_detonate_heal();
     new spell_monk_glyph_of_freedom_roll();
+    new spell_monk_crackling_tiger_lightning();
 
     /// Player Script
     new PlayerScript_TigereEyeBrew_ManaTea();

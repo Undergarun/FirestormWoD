@@ -340,8 +340,6 @@ namespace MS { namespace Skill { namespace Archaeology
         if (!l_CurrentSkillValue)
             return;
 
-        m_ResearchProjects.clear();
-
         ProjectsSetMap l_CandidatesProjectListPerBranch;
         uint32 l_ProjectBaseChance = l_CurrentSkillValue / 10;
 
@@ -351,6 +349,16 @@ namespace MS { namespace Skill { namespace Archaeology
 
             if (!l_ProjectEntry)
                 continue;
+
+            auto l_SecondIt = std::find_if(m_ResearchProjects.begin(), m_ResearchProjects.end(), [l_ProjectEntry](uint32 const& p_ProjectID) -> bool
+            {
+                ResearchProjectEntry const* l_Second = sResearchProjectStore.LookupEntry(p_ProjectID);
+
+                if (!l_Second || l_Second->branchId != l_ProjectEntry->branchId)
+                    return false;
+
+                return true;
+            });
 
             if ((l_ProjectEntry->rare && !roll_chance_i(l_ProjectBaseChance)))
                 continue;

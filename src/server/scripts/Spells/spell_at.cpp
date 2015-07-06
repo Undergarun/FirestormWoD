@@ -290,8 +290,8 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
         enum eSpells
         {
             SpellIceTrapEffect  = 13810,
-            SpellEntrapmentAura = 19387,
-            SpellEntrapment = 64803
+            SpellEntrapment     = 19387,
+            SpellEntrapmentRoot = 64803
         };
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -314,8 +314,9 @@ class spell_at_hun_ice_trap : public AreaTriggerEntityScript
                 {
                     l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellIceTrapEffect, true);
 
-                    if (l_Caster->HasAura(eSpells::SpellEntrapmentAura)) ///< Entrapment
-                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentAura, true);
+                    if (l_Caster->HasAura(eSpells::SpellEntrapment)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), eSpells::SpellEntrapmentRoot, true);
+
                     p_AreaTrigger->Remove(0);
                 }
             }
@@ -470,6 +471,51 @@ class spell_at_hun_explosive_trap : public AreaTriggerEntityScript
         }
 };
 
+/// Snake Trap - 34600
+/// Snake Trap (Fire - Trap Launcher) - 82949
+class spell_at_hun_snake_trap : public AreaTriggerEntityScript
+{
+    public:
+        spell_at_hun_snake_trap() : AreaTriggerEntityScript("at_snake_trap") { }
+
+        enum HunterSnakeTrap
+        {
+            SpellEntrapment     = 19387,
+            SpellEntrapmentRoot = 64803
+        };
+
+        void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
+        {
+            auto l_CreateSpell = sSpellMgr->GetSpellInfo(p_AreaTrigger->GetSpellId());
+            auto l_Caster = p_AreaTrigger->GetCaster();
+
+            if (l_Caster && l_CreateSpell)
+            {
+                float l_Radius = 5.0f;
+                Unit* l_Target = nullptr;
+
+                JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck l_Checker(p_AreaTrigger, l_Caster, l_Radius);
+                JadeCore::UnitSearcher<JadeCore::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> l_Searcher(p_AreaTrigger, l_Target, l_Checker);
+                p_AreaTrigger->VisitNearbyGridObject(l_Radius, l_Searcher);
+                if (!l_Target)
+                    p_AreaTrigger->VisitNearbyWorldObject(l_Radius, l_Searcher);
+
+                if (l_Target != nullptr)
+                {
+                    if (l_Caster->HasAura(HunterSnakeTrap::SpellEntrapment)) ///< Entrapment
+                        l_Caster->CastSpell(p_AreaTrigger->GetPositionX(), p_AreaTrigger->GetPositionY(), p_AreaTrigger->GetPositionZ(), HunterSnakeTrap::SpellEntrapmentRoot, true);
+
+                    p_AreaTrigger->Remove(0);
+                }
+            }
+        }
+
+        AreaTriggerEntityScript* GetAI() const
+        {
+            return new spell_at_hun_snake_trap();
+        }
+};
+
 /// Item - Mage WoD PvP Frost 2P Bonus - 180723
 class spell_at_mage_wod_frost_2p_bonus : public AreaTriggerEntityScript
 {
@@ -549,10 +595,9 @@ class spell_at_mage_arcane_orb : public AreaTriggerEntityScript
             l_Position.m_positionX = p_SourcePosition.m_positionX + (l_Dist * cos(p_Caster->GetOrientation()));
             l_Position.m_positionY = p_SourcePosition.m_positionY + (l_Dist * sin(p_Caster->GetOrientation()));
             l_Position.m_positionZ = p_SourcePosition.m_positionZ;
-            p_Caster->UpdateGroundPositionZ(l_Position.m_positionX, l_Position.m_positionY, l_Position.m_positionZ);
 
             p_PathToLinearDestination.push_back(l_Position);
-            p_DestinationPosition = p_SourcePosition; // Return back
+            p_DestinationPosition = l_Position;
         }
 
         void OnUpdate(AreaTrigger* p_AreaTrigger, uint32 p_Time)
@@ -1033,6 +1078,8 @@ class spell_at_rogue_smoke_bomb : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                     l_Caster->CastSpell(l_Unit, eSmokeSpells::SmokeBombAura, true);
+
+                l_Caster->CastSpell(l_Caster, eSmokeSpells::SmokeBombAura, true);
             }
         }
 
@@ -1057,6 +1104,7 @@ void AddSC_areatrigger_spell_scripts()
     new spell_at_hun_ice_trap_effect();
     new spell_at_hun_freezing_trap();
     new spell_at_hun_explosive_trap();
+    new spell_at_hun_snake_trap();
 
     /// Mage Area Trigger
     new spell_at_mage_wod_frost_2p_bonus();

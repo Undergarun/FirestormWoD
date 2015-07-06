@@ -222,6 +222,7 @@ enum Opcodes
         /// World Object management
         SMSG_UPDATE_OBJECT                          = 0x1CB2, ///< 6.1.2 19783
         SMSG_POWER_UPDATE                           = 0x0F96, ///< 6.1.2 19783
+        SMSG_ADJUST_SPLINE_DURATION                 = 0x0E97, ///< 6.1.2 19865
 
         /// Character list
         SMSG_ENUM_CHARACTERS_RESULT                 = 0x18F1, ///< 6.1.2 19783
@@ -742,6 +743,7 @@ enum Opcodes
         SMSG_SPLINE_MOVE_SET_WALK_MODE              = 0x0B09, ///< 6.1.2 19783
         SMSG_SPLINE_MOVE_SET_FLYING                 = 0x0B2A, ///< 6.1.2 19783
         SMSG_SPLINE_MOVE_UNSET_FLYING               = 0x1A2C, ///< 6.1.2 19783
+        SMSG_FLIGHT_SPLINE_SYNC                     = 0x1647, ///< 6.1.2 19865
     #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////
@@ -1791,7 +1793,6 @@ enum Opcodes
 
     // SMSG
     SMSG_ACCOUNT_PROFILE                                = 0x0000,
-    SMSG_ADJUST_SPLINE_DURATION                         = 0x0000,
     SMSG_ADD_BATTLENET_FRIEND_RESPONSE                  = 0x0000,
     SMSG_AREA_SHARE_MAPPINGS_RESPONSE                   = 0x0000,
     SMSG_AREA_SHARE_INFO_RESPONSE                       = 0x0000,
@@ -1864,7 +1865,6 @@ enum Opcodes
     SMSG_DONT_AUTO_PUSH_SPELLS_TO_ACTION_BAR            = 0x0000,
     SMSG_DUMP_RIDE_TICKETS_RESPONSE                     = 0x0000,
     SMSG_FAILED_PLAYER_CONDITION                        = 0x0000,
-    SMSG_FLIGHT_SPLINE_SYNC                             = 0x0000,
     SMSG_FORCED_DEATH_UPDATE                            = 0x0000,
     SMSG_GAMEOBJECT_RESET_STATE                         = 0x0000,
     SMSG_GAME_SPEED_SET                                 = 0x0000,
