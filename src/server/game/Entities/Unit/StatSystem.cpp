@@ -1118,6 +1118,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     uint32 cooldown = 0;
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == rune)
@@ -1130,7 +1131,7 @@ void Player::UpdateRuneRegen(RuneType rune)
         return;
 
     float regen = float(1 * IN_MILLISECONDS) / float(cooldown);
-
+    regen *= HastePct;
     SetFloatValue(PLAYER_FIELD_RUNE_REGEN + uint8(rune), regen);
 }
 
@@ -1138,6 +1139,8 @@ void Player::UpdateAllRunesRegen()
 {
     if (getClass() != Classes::CLASS_DEATH_KNIGHT)
         return;
+
+    float HastePct = 2.0f - GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
     {
@@ -1148,6 +1151,7 @@ void Player::UpdateAllRunesRegen()
             if (regen < 0.0099999998f)
                 regen = 0.01f;
 
+            regen *= HastePct;
             SetFloatValue(PLAYER_FIELD_RUNE_REGEN + i, regen);
         }
     }
