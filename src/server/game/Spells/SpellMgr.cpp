@@ -479,7 +479,11 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_WARLOCK:
         {
+            /// Howl of Terror - 6 seconds in PvP (6.0)
             if (spellproto->Id == 5484)
+                return 6 * IN_MILLISECONDS;
+            /// Fear - 6 seconds in PvP (6.0)
+            if (spellproto->Id == 5782)
                 return 6 * IN_MILLISECONDS;
             break;
         }
@@ -3355,6 +3359,9 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+            case 167630: ///< Blaze of Glory (Rukhmar)
+                spellInfo->Effects[EFFECT_0].SetRadiusIndex(EFFECT_RADIUS_3_YARDS); ///< 3yd
+                break;
             case 128254: ///< Brew Finale Wheat Effect (Yan-Zhu - Stormstout Brewery)
             case 128256: ///< Brew Finale Medium Effect (Yan-Zhu - Stormstout Brewery)
             case 128258: ///< Brew Finale Dark Effect (Yan-Zhu - Stormstout Brewery)
@@ -3733,6 +3740,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 94954: ///< Heroic Leap
                 spellInfo->Effects[EFFECT_1].ValueMultiplier = 0;
                 break;
+            case 159232:///< Ursa Major
             case 159362:///< Blood Craze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
                 break;
@@ -4017,6 +4025,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 134030: ///< Kick Shell
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_APPLY_AURA;
+                break;
+            case 171975: ///< Grimoire of Synergy
+                spellInfo->Effects[1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[1].ApplyAuraName = SPELL_AURA_DUMMY;
+                spellInfo->Effects[1].TargetA = TARGET_UNIT_CASTER;
                 break;
             case 134476: ///< Rockfall (large damage)
                 spellInfo->Effects[0].TargetB = TARGET_UNIT_SRC_AREA_ENEMY;
@@ -6338,7 +6351,9 @@ void SpellMgr::LoadSpellCustomAttr()
             case 81298: ///< Consecration Visual
                 spellInfo->Effects[SpellEffIndex::EFFECT_0].TargetA = Targets::TARGET_DEST_DEST;
                 break;
-
+            case 159740: ///< Glyph of Raging Blow
+                spellInfo->Effects[SpellEffIndex::EFFECT_0].TriggerSpell = 159747;
+                break;
             default:
                 break;
         }

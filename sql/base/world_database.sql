@@ -1527,7 +1527,7 @@ CREATE TABLE `gameobject_template` (
   `unkInt32` int(10) NOT NULL DEFAULT '0',
   `AIName` char(64) NOT NULL DEFAULT '',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
-  `WDBVerified` smallint(6) DEFAULT '1',
+  `BuildVerified` smallint(6) DEFAULT '1',
   PRIMARY KEY (`entry`),
   KEY `idx_name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';

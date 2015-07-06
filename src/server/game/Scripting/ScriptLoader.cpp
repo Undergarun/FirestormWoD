@@ -49,7 +49,7 @@ void AddSC_spell_skill();
 void AddSC_npc_spell_scripts();
 void AddSC_areatrigger_spell_scripts();
 void AddSC_spell_item_enchantment();
-
+void AddSC_spell_toy();
 void AddSC_SmartSCripts();
 void AddSC_petbattle_abilities();
 
@@ -948,6 +948,7 @@ void AddSpellScripts()
     AddSC_npc_spell_scripts();
     AddSC_areatrigger_spell_scripts();
     AddSC_spell_item_enchantment();
+    AddSC_spell_toy();
 #ifdef SCRIPTS
     AddSC_petbattle_abilities();
 #endif

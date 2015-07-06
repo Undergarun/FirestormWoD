@@ -12,7 +12,7 @@
 		`speed_fly` = 2,
 		`unit_flags` = 0,
 		`scriptname` = "boss_rukhmar",
-		`mechanic_immune_mask` = 8388624,
+		`mechanic_immune_mask` = 769638399,
 		`trackingquestid` = 37464,
 		`rank` = 3
 	WHERE `entry` = @RUKHMAR;

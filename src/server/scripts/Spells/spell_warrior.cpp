@@ -426,6 +426,7 @@ public:
     }
 };
 
+/// last update : 6.1.2 19802
 /// Berzerker Rage - 18499
 class spell_warr_berzerker_rage: public SpellScriptLoader
 {
@@ -438,12 +439,13 @@ class spell_warr_berzerker_rage: public SpellScriptLoader
 
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* l_Player = GetCaster()->ToPlayer())
                 {
-                    _player->CastSpell(_player, WARRIOR_SPELL_ENRAGE, true);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_WARRIOR_ARMS)
+                        l_Player->CastSpell(l_Player, WARRIOR_SPELL_ENRAGE, true); ///< It should proc only on fury and prot because they have Enrage passive talent and arms not
 
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARRIOR_FURY && _player->getLevel() >= GetSpellInfo()->BaseLevel)
-                        _player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, _player);
+                    if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) == SPEC_WARRIOR_FURY && l_Player->getLevel() >= GetSpellInfo()->BaseLevel)
+                        l_Player->AddAura(WARRIOR_SPELL_ALLOW_RAGING_BLOW, l_Player);
                 }
             }
 
@@ -498,30 +500,29 @@ class spell_warr_mocking_banner: public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_mocking_banner_AuraScript);
 
-            void OnTick(constAuraEffectPtr aurEff)
+            void OnTick(constAuraEffectPtr /*p_AurEff*/)
             {
-                if (Unit* target = GetTarget())
+                Unit* l_Target = GetTarget();
+
+                std::list<Creature*> l_BannerList;
+                std::list<Creature*> l_TempList;
+
+                l_Target->GetCreatureListWithEntryInGrid(l_TempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
+
+                l_BannerList = l_TempList;
+
+                // Remove other players banners
+                for (auto itr : l_TempList)
                 {
-                    std::list<Creature*> bannerList;
-                    std::list<Creature*> tempList;
+                    Unit* l_Owner = itr->GetOwner();
+                    if (l_Owner && l_Owner->GetGUID() == l_Target->GetGUID() && itr->isSummon())
+                        continue;
 
-                    target->GetCreatureListWithEntryInGrid(tempList, WARRIOR_NPC_MOCKING_BANNER, GetSpellInfo()->RangeEntry->maxRangeHostile);
-
-                    bannerList = tempList;
-
-                    // Remove other players banners
-                    for (auto itr : tempList)
-                    {
-                        Unit* owner = itr->GetOwner();
-                        if (owner && owner == target && itr->isSummon())
-                            continue;
-
-                        bannerList.remove(itr);
-                    }
-
-                    for (auto itr : bannerList)
-                        target->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
+                    l_BannerList.remove(itr);
                 }
+
+                for (auto itr : l_BannerList)
+                    itr->CastSpell(itr, WARRIOR_SPELL_MOCKING_BANNER_TAUNT, true);
             }
 
             void Register()
@@ -1863,7 +1864,7 @@ class spell_warr_blood_craze : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    // 3% of your health over 3 sec.
+                    /// 3% of your health over 3 sec.
                     int32 l_Health = CalculatePct(l_Caster->GetMaxHealth(), p_AurEff->GetAmount()) / (l_SpellInfo->GetDuration() / IN_MILLISECONDS);
 
                     l_Caster->CastCustomSpell(l_Caster, SPELL_WARR_BLOOD_CRAZE_HEAL, &l_Health, nullptr, nullptr, true);
@@ -1879,6 +1880,66 @@ class spell_warr_blood_craze : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_warr_blood_craze_Aurascript();
+        }
+};
+
+/// Blood Craze (aura) - 159363
+class spell_warr_blood_craze_aura : public SpellScriptLoader
+{
+    public:
+        spell_warr_blood_craze_aura() : SpellScriptLoader("spell_warr_blood_craze_aura") { }
+
+        class spell_warr_blood_craze_aura_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_blood_craze_aura_AuraScript);
+
+            void OnApply(constAuraEffectPtr p_AurEff, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                /// 3% of your health over 3 sec.
+                l_Caster->AddToStackOnDuration(GetSpellInfo()->Id, GetSpellInfo()->GetMaxDuration(), p_AurEff->GetAmount());
+            }
+
+            void OnUpdate(uint32 /*p_Diff*/, AuraEffectPtr p_AurEff)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                StackOnDuration* l_Stack = l_Caster->GetStackOnDuration(GetSpellInfo()->Id);
+
+                if (l_Stack == nullptr)
+                    return;
+
+                p_AurEff->SetAmount(l_Stack->GetTotalAmount());
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster == nullptr)
+                    return;
+
+                l_Caster->RemoveStackOnDuration(GetSpellInfo()->Id);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_blood_craze_aura_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAL | AURA_EFFECT_HANDLE_REAPPLY));
+                OnEffectUpdate += AuraEffectUpdateFn(spell_warr_blood_craze_aura_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_blood_craze_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_blood_craze_aura_AuraScript();
         }
 };
 
@@ -2016,8 +2077,106 @@ class spell_warr_shattering_throw : public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Glyph of Shattering Throw - 159759
+class spell_warr_glyph_of_shattering_throw : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_shattering_throw() : SpellScriptLoader("spell_warr_glyph_of_shattering_throw") { }
+
+        class spell_warr_glyph_of_shattering_throw_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_glyph_of_shattering_throw_AuraScript);
+
+            enum eSpells
+            {
+                ShatteringThrow = 64382
+            };
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (!l_Player->HasSpell(eSpells::ShatteringThrow))
+                    l_Player->learnSpell(eSpells::ShatteringThrow, false);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Player* l_Player = GetTarget()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                if (l_Player->HasSpell(eSpells::ShatteringThrow))
+                    l_Player->removeSpell(eSpells::ShatteringThrow, false);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_glyph_of_shattering_throw_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_glyph_of_shattering_throw_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_glyph_of_shattering_throw_AuraScript();
+        }
+};
+
+/// last update : 6.1.2 19802
+/// Defensive Stance - 71
+class spell_warr_defensive_stance : public SpellScriptLoader
+{
+    public:
+        spell_warr_defensive_stance() : SpellScriptLoader("spell_warr_defensive_stance") { }
+
+        enum eSpells
+        {
+            UnwaveringSentinel = 29144
+        };
+
+        class spell_warr_defensive_stance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_defensive_stance_AuraScript);
+
+            void OnApply(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasSpell(eSpells::UnwaveringSentinel) && !l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->CastSpell(l_Target, eSpells::UnwaveringSentinel, true);
+            }
+
+            void OnRemove(constAuraEffectPtr /*p_AurEff*/, AuraEffectHandleModes /*p_Mode*/)
+            {
+                Unit* l_Target = GetTarget();
+
+                if (l_Target->HasAura(eSpells::UnwaveringSentinel))
+                    l_Target->RemoveAura(eSpells::UnwaveringSentinel);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_defensive_stance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_defensive_stance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_defensive_stance_AuraScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_defensive_stance();
+    new spell_warr_glyph_of_shattering_throw();
     new spell_warr_shattering_throw();
     new spell_warr_sweeping_strikes();
     new spell_warr_ravager();
@@ -2060,6 +2219,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_executor();
     new spell_warr_meat_cleaver();
     new spell_warr_shield_slam();
+    new spell_warr_blood_craze_aura();
 
     /// Playerscripts
     new PlayerScript_second_wind();

@@ -13,6 +13,7 @@
 #include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "Vehicle.h"
 
 /// Prismatic Crystal - 76933
 class spell_npc_mage_prismatic_crystal : public CreatureScript
@@ -95,6 +96,139 @@ class spell_npc_mage_prismatic_crystal : public CreatureScript
             return new spell_npc_mage_prismatic_crystalAI(p_Creature);
         }
 };
+
+/// Frozen Orb - 45322
+class npc_frozen_orb : public CreatureScript
+{
+    public:
+        npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
+
+        struct npc_frozen_orbAI : public ScriptedAI
+        {
+            npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
+            {
+                frozenOrbTimer = 0;
+                frozenOrbTimer2 = 0;
+            }
+
+            enum frozenOrbSpells
+            {
+                FingersOfFrostVisual = 44544,
+                SelfSnare90Pct       = 82736,
+                TargetSnareAndDamage = 84721,
+                FingersOfFrost       = 126084,
+                FrozenOrbVisual      = 123605
+            };
+
+            uint32 frozenOrbTimer;
+            uint32 frozenOrbTimer2;
+            float m_DestX;
+            float m_DestY;
+
+            void EnterEvadeMode() override
+            {
+                if (!_EnterEvadeMode())
+                    return;
+
+                Reset();
+
+                if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
+                    me->GetVehicleKit()->Reset(true);
+
+                me->SetLastDamagedTime(0);
+            }
+
+            void IsSummonedBy(Unit* p_Owner) override
+            {
+                if (p_Owner && p_Owner->GetTypeId() == TYPEID_PLAYER)
+                {
+                    //me->RemoveAllAuras();
+                    me->CastSpell(me, FrozenOrbVisual, true);
+                    me->CastSpell(me, SelfSnare90Pct, true);
+
+                    p_Owner->CastSpell(p_Owner, FingersOfFrostVisual, true);
+                    p_Owner->CastSpell(p_Owner, FingersOfFrost, true);
+
+                    frozenOrbTimer = 1000;
+                    frozenOrbTimer2 = 500;
+
+                    float rotation = p_Owner->GetOrientation();
+
+                    float l_LastZ = p_Owner->GetPositionZ();
+                    float l_MaxDist = 0.f;
+                    for (float l_I = 1; l_I <= 35; l_I += 0.25f)
+                    {
+                        float x = p_Owner->GetPositionX() + (l_I * cos(rotation));
+                        float y = p_Owner->GetPositionY() + (l_I * sin(rotation));
+
+                        float l_Z = p_Owner->GetMap()->GetHeight(x, y, MAX_HEIGHT);
+
+                        me->SetPosition(x, y, l_Z, 0);
+
+                        if (abs(l_Z - l_LastZ) < 0.25f && p_Owner->IsWithinLOSInMap(me))
+                        {
+                            l_LastZ = l_Z;
+                            l_MaxDist = l_I;
+                        }
+                        else
+                            break;
+                    }
+
+                    m_DestX = p_Owner->GetPositionX() + (l_MaxDist * cos(rotation));
+                    m_DestY = p_Owner->GetPositionY() + (l_MaxDist * sin(rotation));
+
+                    me->SetPosition(p_Owner->GetPositionX(), p_Owner->GetPositionY(), p_Owner->GetPositionZ(), rotation);
+
+                    me->SetSpeed(MOVE_RUN, 1, true);
+                    me->SetWalk(false);
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(m_DestX, m_DestY, MAX_HEIGHT) + 0.5);
+
+                    me->getHostileRefManager().setOnlineOfflineState(false);
+                }
+                else
+                    me->DespawnOrUnsummon();
+            }
+
+            void UpdateAI(const uint32 p_Diff) override
+            {
+                Unit* l_Owner = me->GetOwner();
+
+                if (!l_Owner)
+                    return;
+
+                if (frozenOrbTimer <= p_Diff)
+                {
+                    if (l_Owner->ToPlayer()->HasSpellCooldown(TargetSnareAndDamage))
+                        l_Owner->ToPlayer()->RemoveSpellCooldown(TargetSnareAndDamage);
+
+                    l_Owner->CastSpell(me, TargetSnareAndDamage, true);
+
+                    frozenOrbTimer = 1000;
+                }
+                else
+                    frozenOrbTimer -= p_Diff;
+
+                if (frozenOrbTimer2 <= p_Diff)
+                {
+                    //me->SetSpeed(MOVE_RUN, 1, true);
+                    //me->SetWalk(false);
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), m_DestX, m_DestY, me->GetMap()->GetHeight(me->m_positionX, me->m_positionY, MAX_HEIGHT) + 0.5);
+
+                    frozenOrbTimer2 = 500;
+                }
+                else
+                    frozenOrbTimer2 -= p_Diff;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_frozen_orbAI(creature);
+        }
+};
+
 
 /// Shadow Reflection - 77726
 class spell_npc_rogue_shadow_reflection : public CreatureScript
@@ -967,10 +1101,35 @@ class spell_npc_warl_demonic_gateway_green : public CreatureScript
         }
 };
 
+/// Mocking Banner - 59390
+class spell_npc_warr_mocking_banner : public CreatureScript
+{
+    public:
+        spell_npc_warr_mocking_banner() : CreatureScript("spell_npc_warr_mocking_banner") { }
+
+        struct spell_npc_warr_mocking_bannerAI : public ScriptedAI
+        {
+            spell_npc_warr_mocking_bannerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->SetReactState(ReactStates::REACT_PASSIVE);
+                me->AddUnitState(UnitState::UNIT_STATE_ROOT);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new spell_npc_warr_mocking_bannerAI(p_Creature);
+        }
+};
+
+
 void AddSC_npc_spell_scripts()
 {
     /// Mage NPC
     new spell_npc_mage_prismatic_crystal();
+    new npc_frozen_orb();
 
     /// Rogue NPC
     new spell_npc_rogue_shadow_reflection();
@@ -985,6 +1144,7 @@ void AddSC_npc_spell_scripts()
 
     /// Warrior NPC
     new spell_npc_warr_ravager();
+    new spell_npc_warr_mocking_banner();
 
     /// Warlock NPC
     new spell_npc_warl_wild_imp();

@@ -180,7 +180,8 @@ enum SpellSpecificType
     SpellSpecificNonLethalPoison,
     SpellSpecificCrowdFavorite,
     SpellSpecificTarrenMillTitle,
-    SpellSpecificDisposition
+    SpellSpecificDisposition,
+    SpellSpecificTowerBuffs
 };
 
 enum SpellCustomAttributes

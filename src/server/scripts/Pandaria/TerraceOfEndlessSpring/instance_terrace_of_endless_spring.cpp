@@ -295,6 +295,12 @@ class instance_terrace_of_endless_spring : public InstanceMapScript
 
                 return true;
             }
+
+            void OnPlayerExit(Player* p_Player)
+            {
+                if (p_Player->HasAura(SPELL_NIGHT_PHASE_EFFECT))
+                    p_Player->RemoveAura(SPELL_NIGHT_PHASE_EFFECT);
+            }
         };
 };
 
