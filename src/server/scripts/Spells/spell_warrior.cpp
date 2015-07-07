@@ -1240,6 +1240,7 @@ class spell_warr_spell_reflection: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
 /// Intervene - 3411
 class spell_warr_intervene: public SpellScriptLoader
 {
@@ -1250,17 +1251,32 @@ class spell_warr_intervene: public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_intervene_SpellScript);
 
+            SpellCastResult CheckCastRange()
+            {
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (l_Caster->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusFriend)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+            }
+
             void HandleOnHit()
             {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                        caster->CastSpell(target, WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
-                }
+                Unit* l_Caster = GetCaster();
+                Unit* l_Target = GetHitUnit();
+
+                if (l_Target == nullptr)
+                    return;
+                
+                l_Caster->CastSpell(l_Target, WARRIOR_SPELL_INTERVENE_TRIGGERED, true);
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_warr_intervene_SpellScript::CheckCastRange);
                 OnHit += SpellHitFn(spell_warr_intervene_SpellScript::HandleOnHit);
             }
         };
