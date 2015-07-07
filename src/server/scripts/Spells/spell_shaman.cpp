@@ -101,7 +101,6 @@ enum ShamanSpells
     SPELL_SHA_PVP_BONUS_WOD_2                   = 166103,
     SPELL_SHA_PVP_BONUS_WOD_4                   = 171121,
     SPELL_SHA_LIGHTNING_SHIELD                  = 324,
-    SPELL_SHA_IMPROVED_CHAIN_LIGHTNING          = 157766,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ELEMENTAL    = 159101,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_ENHANCEMENT  = 159103,
     SPELL_SHA_ECHO_OF_THE_ELEMENTS_RESTORATION  = 159105,
@@ -1185,8 +1184,9 @@ class spell_sha_earthquake: public SpellScriptLoader
 
             enum eSpells
             {
-                Earthquake     = 61882,
-                EarthquakeTick = 77478
+                Earthquake             = 61882,
+                EarthquakeTick         = 77478,
+                ImprovedChainLightning = 157766,
             };
 
             void OnTick(constAuraEffectPtr aurEff)
@@ -1202,8 +1202,8 @@ class spell_sha_earthquake: public SpellScriptLoader
                 /// dealing ${$SPN * 0.11 * 10 * (1 + $170374m3 / 100)} Physical damage over $d
                 int32 l_Bp0 = l_Caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL) * 0.11 * 10;
 
-                if (AuraPtr l_ChainLightning = l_Caster->GetAura(SPELL_SHA_IMPROVED_CHAIN_LIGHTNING))
-                    l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetEffect(EFFECT_0)->GetAmount());
+                if (AuraEffectPtr l_ChainLightning = l_Caster->GetAuraEffect(eSpells::ImprovedChainLightning, EFFECT_0))
+                    l_Bp0 += CalculatePct(l_Bp0, l_ChainLightning->GetAmount());
 
                 l_Bp0 /= GetSpellInfo()->GetDuration() / IN_MILLISECONDS;
 
@@ -2115,32 +2115,42 @@ class spell_sha_fulmination_proc: public SpellScriptLoader
         }
 };
 
-/// 157765 Enhanced Chain Lightning
+/// Enhanced Chain Lightning - 157765
+/// Called by Chain Lightning - 421 and Lava Beam - 114074
 class spell_sha_enhanced_chain_lightning: public SpellScriptLoader
 {
     public:
         spell_sha_enhanced_chain_lightning() : SpellScriptLoader("spell_sha_enhanced_chain_lightning") { }
 
-        class spell_sha_enhanced_chain_lightning_AuraScript : public AuraScript
+        class spell_sha_enhanced_chain_lightning_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_sha_enhanced_chain_lightning_AuraScript);
+            PrepareSpellScript(spell_sha_enhanced_chain_lightning_SpellScript);
 
-
-            void OnProc(constAuraEffectPtr aurEff, ProcEventInfo& eventInfo)
+            enum eSpells
             {
-                PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_SHA_IMPROVED_CHAIN_LIGHTNING, true);
+                ImprovedChainLightning              = 157765,
+                ImprovedChainLightningEarthquakeMod = 157766,
+            };
+
+            uint8 m_TargetReach = 0;
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (l_Caster->HasAura(eSpells::ImprovedChainLightning) && ++m_TargetReach == 3)
+                    l_Caster->CastSpell(l_Caster, eSpells::ImprovedChainLightningEarthquakeMod, true);
             }
 
             void Register()
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_enhanced_chain_lightning_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnHit += SpellHitFn(spell_sha_enhanced_chain_lightning_SpellScript::HandleOnHit);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_sha_enhanced_chain_lightning_AuraScript();
+            return new spell_sha_enhanced_chain_lightning_SpellScript();
         }
 };
 
