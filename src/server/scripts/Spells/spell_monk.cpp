@@ -4921,10 +4921,14 @@ class spell_monk_detonate_chi : public SpellScriptLoader
 
             void HandleCast()
             {
+                uint32 l_AllMonkHealingSphereSpells[] = { 157682, 157683, 157684, 157685, 157686, 157687, 157688, 157689, eSpells::HealingSphereAreaTrigger};
+
                 Unit* l_Caster = GetCaster();
 
                 std::list<AreaTrigger*> l_HealingSphereList;
-                l_Caster->GetAreaTriggerList(l_HealingSphereList, eSpells::HealingSphereAreaTrigger);
+
+                for (int l_I = 0; l_I < sizeof(l_AllMonkHealingSphereSpells) / sizeof(int); l_I++)
+                    l_Caster->GetAreaTriggerList(l_HealingSphereList, l_AllMonkHealingSphereSpells[l_I]);
 
                 if (!l_HealingSphereList.empty())
                 {
