@@ -55,6 +55,11 @@ enum DumpTableType
     DTT_ACC_ACH_PRO,    //   account_achievement_progress
     DTT_ACC_ACH,        //   account_achievement
     DTT_ACC_SPELL,      ///< account_spell
+    DTT_GARR_MAIN,      ///< Garrison main table
+    DTT_GARR_B,         ///< Garrison building
+    DTT_GARR_F,         ///< Garrison followers
+    DTT_GARR_M,         ///< Garrison missions
+    DTT_GARR_WO,        ///< Garrison work orders
 };
 
 enum DumpReturn
@@ -87,7 +92,7 @@ public:
 private:
     typedef std::set<uint32> GUIDs;
 
-    bool DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type, std::vector<std::string> const& columns, bool ashran);
+    bool DumpTable(std::string& dump, uint32 guid, uint32 account, char const*tableFrom, char const*tableTo, DumpTableType type, std::vector<std::string> const& columns, bool ashran, uint32& p_GarrisonID);
     std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
     std::string GenerateWhereStr(char const* field, uint32 guid);
 
