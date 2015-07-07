@@ -5586,14 +5586,8 @@ void SpellMgr::LoadSpellCustomAttr()
             case 126895: ///< Zen Pilgrimage : Return
                 spellInfo->Effects[0].Effect = SPELL_EFFECT_DUMMY;
                 break;
-            case 101546: ///< Spinning Crane Kick
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
-                break;
             case 125084: ///< Charging Ox Wave
                 spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(10); ///< radius 30
-                break;
-            case 107270: ///< Spinning Crane Kick - Radius
-                spellInfo->Effects[0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                 break;
             case 107223: ///< Sunfire Rays
                 spellInfo->Effects[0].TargetA = TARGET_UNIT_TARGET_ENEMY;
