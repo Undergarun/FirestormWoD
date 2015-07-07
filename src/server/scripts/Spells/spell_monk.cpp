@@ -629,7 +629,7 @@ class spell_monk_chi_brew: public SpellScriptLoader
                         l_Player->CastSpell(l_Player, SPELL_MONK_MANA_TEA_STACKS, true);
                     break;
                 case SPEC_MONK_WINDWALKER:
-                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_1].BasePoints; ++i)
+                    for (uint8 i = 0; i < l_BonusAmount->Effects[EFFECT_0].BasePoints; ++i)
                         l_Player->CastSpell(l_Player, SPELL_MONK_TIGEREYE_BREW_STACKS, true);
 
                     if (l_Mastery)
