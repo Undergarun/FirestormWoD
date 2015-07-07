@@ -4951,9 +4951,10 @@ class npc_doomguard : public CreatureScript
                     return;
                 }
 
-                float l_Dist = l_Victim->GetDistance(*me);
+                Position l_Pos = *l_Victim;
+                float l_DistSq = me->GetExactDistSq(&l_Pos);
                 float l_Range = AISpellInfo[eSpells::SPELL_DOOMBOLT].maxRange;
-                if (l_Dist * l_Dist > l_Range * l_Range)
+                if (l_DistSq > l_Range * l_Range)
                     me->GetMotionMaster()->MoveChase(l_Victim, l_Range);
                 else
                     me->GetMotionMaster()->Clear(true);
