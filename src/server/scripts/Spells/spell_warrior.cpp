@@ -2045,6 +2045,14 @@ class spell_warr_shield_slam : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_shield_slam_SpellScript);
 
+            static float gte(int32 p_Level, int32 p_MinLevel)
+            {
+                if (p_Level < p_MinLevel)
+                    return (float)p_MinLevel / 100;
+
+                return (float)p_Level / 100;
+            }
+
             void HandleDamage(SpellEffIndex /*p_EffIndex*/)
             {
                 Unit* l_Caster = GetCaster();
@@ -2053,7 +2061,12 @@ class spell_warr_shield_slam : public SpellScriptLoader
                 if (l_Target == nullptr)
                     return;
 
-                int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * 0.366f;
+                /// Formula : $apmult=${0.366+$gte($PL,80)*0.426+$gte($PL,85)*2.46}
+                float l_ApMul = 0.366f + gte(l_Caster->getLevel(), 80) * 0.426f + gte(l_Caster->getLevel(), 85) * 2.46f;
+                /// $gladmult=$?a156291[${1.05}][${1.0}] -> Already apply by Gladiator Stance
+                /// $shieldchargemult=$?a169667[${1.25}][${1.0}] -> Already apply on spell_warr_shield_charge
+
+                int32 l_Damage = l_Caster->GetTotalAttackPowerValue(WeaponAttackType::BaseAttack) * l_ApMul;
 
                 l_Damage = l_Caster->SpellDamageBonusDone(l_Target, GetSpellInfo(), l_Damage, 0, SPELL_DIRECT_DAMAGE);
                 l_Damage = l_Target->SpellDamageBonusTaken(l_Caster, GetSpellInfo(), l_Damage, SPELL_DIRECT_DAMAGE);
