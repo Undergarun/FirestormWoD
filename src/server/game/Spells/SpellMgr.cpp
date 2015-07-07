@@ -6410,6 +6410,7 @@ void SpellMgr::LoadSpellCustomAttr()
 
             switch (spellInfo->Id)
             {
+                case 120644: ///< Halo (damage)
                 case 120517: ///< Halo (heal)
                 case 61882: ///< Earthquake
                 case 152280:///< Defile
