@@ -843,24 +843,14 @@ class spell_mastery_hand_of_light: public SpellScriptLoader
                             {
                                 float value = l_Caster->GetFloatValue(PLAYER_FIELD_MASTERY) * 2.25f;
 
-                                int32 l_Bp = int32(CalculatePct(GetHitDamage(), value));
+                                int32 l_Bp = int32(CalculatePct(GetHitDamage() + GetAbsorbedDamage(), value));
 
                                 SpellInfo const* l_Inquisition = sSpellMgr->GetSpellInfo(SPELL_PAL_INQUISITION);
                                 // [Inquisition - 84963] does increase the holy damage done by Mastery : Hand of Light - 76672
                                 if (l_Caster->HasAura(SPELL_PAL_INQUISITION))
                                     AddPct(l_Bp, l_Inquisition->Effects[EFFECT_0].BasePoints);
 
-                                // Need to recalculate if damage is absorbed
-                                if (!l_Bp)
-                                {
-                                    int32 l_AbsorbedDamage = int32(CalculatePct(GetAbsorbedDamage(), value));
-                                    // If spell didn't hit, absorbedDamage will be random negative value, because of it players receive 1kk+ heal/damage from it.
-                                    // 100000 - to prevent bug with high damage, because it's unreal to deal ~555k damage (555k*0.18%=100k).
-                                    if (l_AbsorbedDamage > 0 && l_AbsorbedDamage < 100000)
-                                        l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_AbsorbedDamage, NULL, NULL, true);
-                                }
-                                else
-                                    l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
+                                l_Caster->CastCustomSpell(l_Target, MASTERY_SPELL_HAND_OF_LIGHT, &l_Bp, NULL, NULL, true);
                             }
                         }
                     }
