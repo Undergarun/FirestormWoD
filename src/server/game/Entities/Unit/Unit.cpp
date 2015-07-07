@@ -12745,6 +12745,10 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* p_SpellProto, uint32 p_Da
     if (l_ModOwner != nullptr && l_ModVictimOwner != nullptr)
         l_CritPctBonus = 50; ///< 150% on pvp
 
+    /// Special case for Prismatic Crystal - 150% crit
+    if (l_ModOwner != nullptr && l_ModOwner->getClass() == CLASS_MAGE && p_Victim->GetTypeId() == TYPEID_UNIT && p_Victim->HasAura(155153))
+        l_CritPctBonus = 50;
+
     if (p_SpellProto)
     {
         l_CritPctBonus += CalculatePct(l_CritPctBonus, GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, p_SpellProto->GetSchoolMask()));
