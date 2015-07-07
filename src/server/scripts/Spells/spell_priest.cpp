@@ -1428,6 +1428,68 @@ class spell_pri_atonement: public SpellScriptLoader
             }
         };
 
+        class spell_pri_atonement_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_atonement_AuraScript);
+
+            enum eSpells
+            {
+                PowerWordSolace = 129250
+            };
+
+            void OnTick(constAuraEffectPtr p_AurEff)
+            {
+                if (GetCaster() == nullptr)
+                    return;
+
+                Player* l_Player = GetCaster()->ToPlayer();
+
+                if (l_Player == nullptr)
+                    return;
+
+                SpellInfo const* l_SpellInfoAtonement = sSpellMgr->GetSpellInfo(PRIEST_ATONEMENT_AURA);
+                if (!l_SpellInfoAtonement && !l_Player->HasAura(PRIEST_ATONEMENT_AURA))
+                    return;
+
+                if (l_Player->GetSpecializationId(l_Player->GetActiveSpec()) != SPEC_PRIEST_DISCIPLINE)
+                    return;
+
+                std::list<Unit*> l_GroupList;
+                l_Player->GetRaidMembers(l_GroupList);
+
+                l_GroupList.remove_if([this, l_Player, l_SpellInfoAtonement](Unit* p_Unit)
+                {
+                    return l_Player->GetDistance(p_Unit->GetPositionX(), p_Unit->GetPositionY(), p_Unit->GetPositionZ()) > l_SpellInfoAtonement->Effects[EFFECT_1].BasePoints;
+                });
+
+                if (l_GroupList.size() > 1)
+                {
+                    l_GroupList.sort(JadeCore::HealthPctOrderPred());
+                    l_GroupList.resize(1);
+                }
+
+                int32 l_Heal = CalculatePct(p_AurEff->GetAmount(), l_SpellInfoAtonement->Effects[EFFECT_0].BasePoints);
+                for (auto itr : l_GroupList)
+                {
+                    if (itr->GetGUID() == l_Player->GetGUID())
+                        l_Heal /= 2;
+
+                    l_Player->CastCustomSpell(itr, PRIEST_ATONEMENT_HEAL, &l_Heal, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                if (m_scriptSpellId == eSpells::PowerWordSolace)
+                    OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_atonement_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_atonement_AuraScript();
+        }
+
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_atonement_SpellScript();
