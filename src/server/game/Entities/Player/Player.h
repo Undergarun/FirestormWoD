@@ -2435,6 +2435,7 @@ class Player : public Unit, public GridObject<Player>
             ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
             RemoveFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
             m_contestedPvPTimer = 0;
+
         }
 
         /** todo: -maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler.. **/

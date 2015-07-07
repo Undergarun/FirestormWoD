@@ -32835,7 +32835,6 @@ void Player::UpdatePvP(uint32 diff)
 void Player::OnLeavePvPCombat()
 {
     RescaleAllItemsIfNeeded(true);
-    UpdatePotionCooldown();
 }
 
 /// Get pet battle combat team size
