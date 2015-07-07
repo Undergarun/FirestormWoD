@@ -654,6 +654,64 @@ class spell_warr_mortal_strike: public SpellScriptLoader
         }
 };
 
+/// last update : 6.1.2 19802
+/// Mortal strike - 12294, Wild Strike - 100130
+class spell_warr_glyph_of_die_by_the_sword : public SpellScriptLoader
+{
+    public:
+        spell_warr_glyph_of_die_by_the_sword() : SpellScriptLoader("spell_warr_glyph_of_die_by_the_sword") { }
+
+        class spell_warr_glyph_of_die_by_the_sword_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_glyph_of_die_by_the_sword_SpellScript);
+
+            enum eSpells
+            {
+                MortalStrike = 12294,
+                WildStrike = 100130,
+                GlyphofDiebytheSword = 58386,
+                DiebytheSword = 118038
+            };
+
+            void HandleOnHit()
+            {
+                Unit* l_Caster = GetCaster();
+
+                if (!l_Caster->HasAura(eSpells::GlyphofDiebytheSword))
+                    return;
+
+                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eSpells::GlyphofDiebytheSword);
+
+                if (l_SpellInfo == nullptr)
+                    return;
+
+                if (AuraPtr l_DieByTheSword = l_Caster->GetAura(eSpells::DiebytheSword))
+                {
+                    switch (GetSpellInfo()->Id)
+                    {
+                    case eSpells::MortalStrike: ///< increases its duration by 2 sec
+                        l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (l_SpellInfo->Effects[EFFECT_1].BasePoints * IN_MILLISECONDS));
+                    case eSpells::WildStrike: ///< increases its duration by 0.25 sec
+                        l_DieByTheSword->SetDuration(l_DieByTheSword->GetDuration() + (((float)l_SpellInfo->Effects[EFFECT_0].BasePoints / 4) * IN_MILLISECONDS));
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warr_glyph_of_die_by_the_sword_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_glyph_of_die_by_the_sword_SpellScript();
+        }
+};
+
 /// Rallying cry - 97462
 class spell_warr_rallying_cry: public SpellScriptLoader
 {
@@ -2292,6 +2350,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_meat_cleaver();
     new spell_warr_shield_slam();
     new spell_warr_blood_craze_aura();
+    new spell_warr_glyph_of_die_by_the_sword();
 
     /// Playerscripts
     new PlayerScript_second_wind();
