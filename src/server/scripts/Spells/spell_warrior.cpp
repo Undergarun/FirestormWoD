@@ -900,6 +900,48 @@ class spell_warr_bloodthirst: public SpellScriptLoader
         }
 };
 
+/// Bloodthirst (heal) - 117313
+class spell_warr_bloodthirst_heal: public SpellScriptLoader
+{
+    public:
+        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
+
+        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
+
+            enum eSpells
+            {
+                GlyphOfRagingBlow = 159747
+            };
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                Unit* l_Caster = GetCaster();
+                int32 l_Heal = GetHitHeal();
+
+                if (AuraPtr GlyphOfRagingBlow = l_Caster->GetAura(eSpells::GlyphOfRagingBlow))
+                {
+                    AddPct(l_Heal, GlyphOfRagingBlow->GetEffect(EFFECT_0)->GetAmount());
+                    GlyphOfRagingBlow->Remove();
+                }
+
+                SetHitHeal(l_Heal);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_bloodthirst_heal_SpellScript;
+        }
+};
+
+
 /// Victory Rush - 34428
 class spell_warr_victory_rush: public SpellScriptLoader
 {
@@ -2200,6 +2242,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_heroic_leap();
     new spell_warr_shockwave();
     new spell_warr_bloodthirst();
+    new spell_warr_bloodthirst_heal();
     new spell_warr_victory_rush();
     new spell_warr_deep_wounds();
     new spell_warr_charge();
