@@ -197,7 +197,58 @@ enum eSpells
 
     // Ritual Guard
     SPELL_SHADOW_NOVA                   = 137998,
-    SPELL_SHOCKWAVE                     = 139215
+    SPELL_SHOCKWAVE                     = 139215,
+
+    // Weisheng
+    SPELL_TRIUMPHANT_ROAR               = 139815,
+
+    // Manchu
+    SPELL_WILD_SMASH                    = 139797,
+    SPELL_TRIUMPHANT_RUSH               = 139803,
+
+    // Untrained Quilen
+    SPELL_CARNIVOROUS_BITE              = 122962,
+    SPELL_LEAPING_RUSH                  = 121190,
+
+    // Muckbat
+    SPELL_MUCK_SPIT                     = 139309,
+
+    // Skittering Spiderling
+    SPELL_FOUL_VENOM                    = 139310,
+
+    // Putrid Waste
+    SPELL_PUTRIFY                       = 139316,
+
+    // Rotting Scavenger
+    SPELL_FRENZIED_CONSUMPTION          = 139311,
+    SPELL_INFECTED_BITE                 = 139314,
+    SPELL_ROT                           = 139315,
+
+    // Shan'ze Celestial Shaper
+    SPELL_SIPHON_ESSENCE                = 139590,
+    SPELL_LIGHTNING_LASH                = 139771,
+    SPELL_COSMIC_STRIKE                 = 139772,
+    SPELL_COSMIC_STRIKE_STAR_CTRL       = 139788,
+    SPELL_COSMIC_STRIKE_STAR_JUMP       = 139790,
+    SPELL_COSMIC_STRIKE_STAR_DAMAGE     = 139791,
+
+    // Star (summoned by Shan'ze Celestial Shaper)
+    SPELL_CRASHING_STAR                 = 137130,   // Make the star jump to its target
+
+    // Celestial Construct
+    SPELL_INACTIVE_PLATFORM             = 139767,
+    SPELL_INACTIVE_FIRST                = 139352,   // Inactive visual
+    SPELL_INACTIVE_SECOND_SMALLER       = 139752,   // Reduce scale
+    SPELL_INACTIVE_THIRD                = 139769,   // Second Inactive visual
+
+    // Thunder Lord
+    SPELL_CONDUCTIVE_SHIELD             = 140296,
+    SPELL_LEI_SHENS_GIFT                = 138201,
+
+    // Lightning Guardian
+    SPELL_LIGHTNING_BURST               = 138196,
+    SPELL_LIGHTNING_STORM               = 138187,
+    SPELL_LIGHTNING_STORM_DAMAGE        = 138234
 };
 
 enum eEvents
@@ -320,13 +371,51 @@ enum eEvents
 
     // Ritual Guard
     EVENT_SHADOW_NOVA,
-    EVENT_SHOCKWAVE
+    EVENT_SHOCKWAVE,
+
+    // Weisheng & Manchu
+    EVENT_AGGRO_MOGU,
+    EVENT_TRIUMPHANT_ROAR,
+    EVENT_TRIUMPHANT_RUSH,
+    EVENT_WILD_SMASH,
+
+    // Untrained Quilen
+    EVENT_CARNIVOROUS_BITE,
+    EVENT_LEAPING_RUSH,
+
+    // Muckbat
+    EVENT_MUCK_SPIT,
+
+    // Skittering Spiderling
+    EVENT_FOUL_VENOM,
+
+    // Rotting Scavenger
+    EVENT_FRENZIED_CONSUMPTION,
+    EVENT_INFECTED_BITE,
+    EVENT_ROT,
+
+    // Shan'ze Celestial Shaper
+    EVENT_LIGHTNING_LASH,
+    EVENT_COSMIC_STRIKE,
+
+    // Thunder Lord
+    EVENT_CONDUCTIVE_SHIELD,
+    EVENT_LEI_SHENS_GIFT,
+
+    // Lightning Guardian
+    EVENT_LIGHTNING_BURST,
+    EVENT_LIGHTNING_STORM
 };
 
 enum eActions
 {
     ACTION_SPIDER_ENGAGED,
-    ACTION_SWITCH_FIXATED
+    ACTION_SWITCH_FIXATED,
+    ACTION_LAUNCH_MANCHU,
+    ACTION_LAUNCH_WEISHENG,
+    ACTION_QUILEN_DIES,
+    ACTION_MOGU_DIES,
+    ACTION_IRON_QON_TRASH_DONE,
 };
 
 enum eEquipIds
@@ -378,7 +467,22 @@ enum eEquipIds
     PRELATE_OFF_HAND    = 94193,
 
     // Ritual Guard
-    RITUAL_GUARD_WEAPON = 85756
+    RITUAL_GUARD_WEAPON = 85756,
+
+    EQUIP_MANCHU        = 93764,
+    EQUIP_WEISHENG      = 93936,
+
+    // Shan'Ze Celestial Shaper
+    SHANZE_WEAPON       = 94107,
+
+    // Thunder Lord
+    LORD_WEAPON_1       = 91080,
+    LORD_WEAPON_2       = 93659
+};
+
+enum eTalkMogu
+{
+    TALK_MOGU_AGGRO = 1
 };
 
 // Zandalari Water-Binder - 69455
@@ -1144,11 +1248,12 @@ class mob_dark_winds : public CreatureScript
 
                     if (inSquare)
                     {
-                        plr->SendApplyMovementForce(me->GetGUID(), true, darkWindSourcePos, force);    ///< Use creature entry has force ID
+                        if (!plr->HasMovementForce(me->GetEntry(), true))
+                            plr->SendApplyMovementForce(me->GetGUID(), true, darkWindSourcePos, force, 1);
                         plr->CastSpell(plr, SPELL_DARK_WINDS_FORCE_WEATHER, true);
                     }
                     else
-                        plr->SendApplyMovementForce(me->GetGUID(), false, darkWindSourcePos, force);    ///< Use creature entry has force ID
+                        plr->RemoveAllMovementForces(me->GetEntry());
                 }
             }
 
@@ -2872,8 +2977,819 @@ class mob_ritual_guard : public CreatureScript
         }
 };
 
+bool QonTrashesDone(Creature* p_Me)
+{
+    uint32 l_QonTrashEntries[4] = { NPC_MANCHU, NPC_WEISHENG, NPC_UNTRAINED_QUILEN, NPC_UNTRAINED_QUILEN2 };
+    for (uint8 l_Idx = 0; l_Idx < 4; ++l_Idx)
+        if (GetClosestCreatureWithEntry(p_Me, l_QonTrashEntries[l_Idx], 200.0f))
+            return false;
+
+    return true;
+}
+
+// Untrained Quilen - 70206 - 70209
+class mob_untrained_quilen : public CreatureScript
+{
+    public:
+        mob_untrained_quilen() : CreatureScript("mob_untrained_quilen") { }
+
+        struct mob_untrained_quilenAI : public ScriptedAI
+        {
+            mob_untrained_quilenAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+            bool m_InCombat;
+
+            void Reset()
+            {
+                m_Events.Reset();
+                m_InCombat = false;
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (!m_Instance)
+                    return;
+
+                Creature* l_Qon = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_IRON_QON));
+                if (!l_Qon)
+                    return;
+
+                if (QonTrashesDone(me))
+                    l_Qon->AI()->DoAction(ACTION_IRON_QON_TRASH_DONE);
+                else
+                    // Rand to avoid spam when several quilens are killed in a short delay
+                    if (urand(0, 1))
+                        l_Qon->AI()->DoAction(ACTION_QUILEN_DIES);
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            {
+                if (me->getVictim())
+                    return;
+
+                EnterCombat(p_Attacker);
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_LEAPING_RUSH, urand(5000, 10000));
+                m_Events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, urand(7000, 12000));
+                DoZoneInCombat();
+            }
+
+            void UpdateAI(uint32 const p_Diff)
+            {
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                while (uint32 l_EventId = m_Events.ExecuteEvent())
+                {
+                    switch (l_EventId)
+                    {
+                        case EVENT_CARNIVOROUS_BITE:
+                        {
+                            Unit* l_Victim = (me->getVictim() ? me->getVictim() : SelectTarget(SELECT_TARGET_TOPAGGRO));
+                            if (l_Victim)
+                                me->CastSpell(l_Victim, SPELL_CARNIVOROUS_BITE, true);
+
+                            m_Events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, 5000);
+                            break;
+                        }
+                        case EVENT_LEAPING_RUSH:
+                        {
+                            if (Unit* l_Victim = SelectTarget(SELECT_TARGET_RANDOM))
+                                me->CastSpell(l_Victim, SPELL_LEAPING_RUSH, true);
+
+                            m_Events.ScheduleEvent(EVENT_LEAPING_RUSH, 7000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_untrained_quilenAI(p_Creature);
+        }
+};
+
+// 70205 - Weisheng <Disciple of Iron Qon>
+// 70202 - Manchu <Disciple of Iron Qon>
+class mob_iron_qon_disciple : CreatureScript
+{
+    public:
+        mob_iron_qon_disciple() : CreatureScript("mob_iron_qon_disciple") { }
+
+        struct mob_iron_qon_discipleAI : public ScriptedAI
+        {
+            mob_iron_qon_discipleAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            {
+                m_Instance = p_Creature->GetInstanceScript();
+            }
+
+            InstanceScript* m_Instance;
+            EventMap m_Events;
+            bool m_IntroDone;
+            bool m_InCombat;
+            uint64 m_FirstTargetGuid;
+
+            void Reset()
+            {
+                m_Events.Reset();
+                m_IntroDone = false;
+                m_InCombat  = false;
+                m_FirstTargetGuid = 0;
+                uint32 l_Equip = me->GetEntry() == NPC_MANCHU ? EQUIP_MANCHU : EQUIP_WEISHENG;
+                SetEquipmentSlots(true, l_Equip, l_Equip);
+            }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (me->GetDistance(p_Who) < 20.0f && !m_IntroDone)
+                    {
+                        if (m_Instance)
+                        {
+                            if (Creature* l_IronQon = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_IRON_QON)))
+                            {
+                                l_IronQon->AI()->DoAction(me->GetEntry() == NPC_MANCHU ? ACTION_LAUNCH_MANCHU : ACTION_LAUNCH_WEISHENG);
+                                m_Events.ScheduleEvent(EVENT_AGGRO_MOGU, 1000);
+                                m_FirstTargetGuid = p_Who->GetGUID();
+                                EnterCombat(p_Who);
+                                DoZoneInCombat();
+                            }
+                        }
+                        m_IntroDone = true;
+                    }
+                }
+            }
+
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo)
+            {
+                if (!m_InCombat)
+                    EnterCombat(p_Attacker);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                if (m_InCombat)
+                    return;
+
+                if (me->GetEntry() == NPC_MANCHU)
+                {
+                    m_Events.ScheduleEvent(EVENT_TRIUMPHANT_RUSH, 15000);
+                    m_Events.ScheduleEvent(EVENT_WILD_SMASH, 5000);
+                }
+
+                m_InCombat = true;
+                /* Temporarily deactivate this event -- needs debug
+                else
+                    m_Events.ScheduleEvent(EVENT_TRIUMPHANT_ROAR, 7000);
+                */
+            }
+
+            void JustReachedHome()
+            {
+                m_IntroDone = false;
+                m_InCombat = false;
+                m_FirstTargetGuid = 0;
+            }
+
+            void EnterEvadeMode()
+            {
+                m_Events.Reset();
+                me->CombatStop();
+                me->GetMotionMaster()->MoveTargetedHome();
+                me->DeleteThreatList();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (!m_Instance)
+                    return;
+
+                Creature* l_Qon = m_Instance->instance->GetCreature(m_Instance->GetData64(NPC_IRON_QON));
+                if (!l_Qon)
+                    return;
+
+                if (QonTrashesDone(me))
+                    l_Qon->AI()->DoAction(ACTION_IRON_QON_TRASH_DONE);
+                else
+                    // Rand to avoid spam when several quilens are killed in a short delay
+                    if (urand(0, 1))
+                        l_Qon->AI()->DoAction(ACTION_MOGU_DIES);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                while (uint32 p_EventId = m_Events.ExecuteEvent())
+                {
+                    switch (p_EventId)
+                    {
+                        case EVENT_AGGRO_MOGU:
+                        {
+                            Talk(TALK_MOGU_AGGRO);
+
+                            Unit* l_Target = me->GetPlayer(*me, m_FirstTargetGuid);
+                            if (!l_Target)
+                            {
+                                l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true);
+                                m_FirstTargetGuid = l_Target->GetGUID();
+                            }
+
+                            if (l_Target  && !m_InCombat)
+                                EnterCombat(l_Target);
+                            break;
+                        }
+                        case EVENT_WILD_SMASH:
+                        {
+                            me->CastSpell(me, SPELL_WILD_SMASH, true);
+                            m_Events.ScheduleEvent(EVENT_WILD_SMASH, 6000);
+                            break;
+                        }
+                        case EVENT_TRIUMPHANT_RUSH:
+                        {
+                            me->CastSpell(me, SPELL_TRIUMPHANT_RUSH, true);
+                            m_Events.ScheduleEvent(EVENT_TRIUMPHANT_RUSH, 12000);
+                            break;
+                        }
+                        case EVENT_TRIUMPHANT_ROAR:
+                        {
+                            me->CastSpell(me, SPELL_TRIUMPHANT_ROAR, true);
+                            m_Events.ScheduleEvent(EVENT_TRIUMPHANT_ROAR, 10000);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+                return new mob_iron_qon_discipleAI(p_Creature);
+        }
+};
+
+// Muckbat - 70232
+class mob_muckbat : public CreatureScript
+{
+    public:
+        mob_muckbat() : CreatureScript("mob_muckbat") { }
+
+        struct mob_muckbatAI : public ScriptedAI
+        {
+            mob_muckbatAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_MUCK_SPIT, 2000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_MUCK_SPIT:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_MUCK_SPIT, false);
+                        m_Events.ScheduleEvent(EVENT_MUCK_SPIT, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_muckbatAI(p_Creature);
+        }
+};
+
+// Skittering Spiderling - 70227
+class mob_skittering_spiderling : public CreatureScript
+{
+    public:
+        mob_skittering_spiderling() : CreatureScript("mob_skittering_spiderling") { }
+
+        struct mob_skittering_spiderlingAI : public ScriptedAI
+        {
+            mob_skittering_spiderlingAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_FOUL_VENOM, 2000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_FOUL_VENOM:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_FOUL_VENOM, true);
+                        m_Events.ScheduleEvent(EVENT_FOUL_VENOM, 15000);
+                        break;
+                    default:
+                        break;
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_skittering_spiderlingAI(p_Creature);
+        }
+};
+
+// Putrid Waste - 70219
+class mob_putrid_waste : public CreatureScript
+{
+    public:
+        mob_putrid_waste() : CreatureScript("mob_putrid_waste") { }
+
+        struct mob_putrid_wasteAI : public ScriptedAI
+        {
+            mob_putrid_wasteAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+                me->CastSpell(me, SPELL_PUTRIFY, true);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_putrid_wasteAI(p_Creature);
+        }
+};
+
+// Rotting Scavenger - 70224
+class mob_rotting_scavenger : public CreatureScript
+{
+    public:
+        mob_rotting_scavenger() : CreatureScript("mob_rotting_scavenger") { }
+
+        struct mob_rotting_scavengerAI : public ScriptedAI
+        {
+            mob_rotting_scavengerAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_FRENZIED_CONSUMPTION, 2000);
+                m_Events.ScheduleEvent(EVENT_INFECTED_BITE, 4000);
+                m_Events.ScheduleEvent(EVENT_ROT, 6000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_FRENZIED_CONSUMPTION:
+                        me->CastSpell(me, SPELL_FRENZIED_CONSUMPTION, false);
+                        m_Events.ScheduleEvent(EVENT_FRENZIED_CONSUMPTION, 15000);
+                        break;
+                    case EVENT_INFECTED_BITE:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_RANDOM))
+                            me->CastSpell(l_Target, SPELL_INFECTED_BITE, true);
+                        m_Events.ScheduleEvent(EVENT_INFECTED_BITE, 12000);
+                        break;
+                    case EVENT_ROT:
+                        me->CastSpell(me, SPELL_ROT, true);
+                        m_Events.ScheduleEvent(EVENT_ROT, 20000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_rotting_scavengerAI(p_Creature);
+        }
+};
+
+// Shan'ze Celestial Shaper - 70240
+class mob_shanze_celestial_shaper : public CreatureScript
+{
+    public:
+        mob_shanze_celestial_shaper() : CreatureScript("mob_shanze_celestial_shaper") { }
+
+        struct mob_shanze_celestial_shaperAI : public ScriptedAI
+        {
+            mob_shanze_celestial_shaperAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+
+                SetEquipmentSlots(false, SHANZE_WEAPON, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+
+                if (Creature* l_Construct = me->FindNearestCreature(NPC_CELESTIAL_CONSTRUCT, 50.f))
+                    me->CastSpell(l_Construct, SPELL_SIPHON_ESSENCE, false);
+
+                m_Events.ScheduleEvent(EVENT_LIGHTNING_LASH, 2000);
+                //m_Events.ScheduleEvent(EVENT_COSMIC_STRIKE, 4000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_LIGHTNING_LASH:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_LIGHTNING_LASH, false);
+                        m_Events.ScheduleEvent(EVENT_LIGHTNING_LASH, 15000);
+                        break;
+                    // @TODO: Cosmic Strike
+                    /*case EVENT_COSMIC_STRIKE:
+                        me->CastSpell(me, SPELL_COSMIC_STRIKE, false);
+                        m_Events.ScheduleEvent(EVENT_COSMIC_STRIKE, 12000);
+                        break;*/
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_shanze_celestial_shaperAI(p_Creature);
+        }
+};
+
+enum eStarAction
+{
+    ACTION_COSMIC_STARS = 6,
+};
+
+// 69365 - Star (from Shan'ze Celestial Shaper's Cosmic Strike
+class mob_star : public CreatureScript
+{
+    public:
+        mob_star() : CreatureScript("mob_star") { }
+
+        struct mob_starAI : public ScriptedAI
+        {
+            mob_starAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            bool m_IsTwinSummoned;
+            bool m_HasJumped;
+            uint64 m_TargetGuid;
+
+            void Reset()
+            {
+                me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_SPLINE_ELEVATION | MOVEMENTFLAG_FALLING_SLOW);
+                me->SetReactState(REACT_PASSIVE);
+                m_IsTwinSummoned = false;
+                m_HasJumped = false;
+
+            }
+
+            void IsSummonedBy(Unit* p_Summoner)
+            {
+                if (p_Summoner->GetEntry() == NPC_SHANZE_CELESTIAL_SHAPER)
+                    DoAction(ACTION_COSMIC_STARS);
+                else
+                    m_IsTwinSummoned = true;
+            }
+
+            void SetGUID(uint64 p_Guid, int32 p_Data)
+            {
+                if (p_Data == DATA_COSMIC_TARGET)
+                    m_TargetGuid = p_Guid;
+            }
+
+            void DoAction(int32 const p_Action)
+            {
+                if (p_Action == ACTION_COSMIC_STARS)
+                {
+                    if (m_HasJumped)
+                        return;
+
+                    Player* l_Target = nullptr;
+
+                    if (m_IsTwinSummoned)
+                    {
+                        l_Target = Player::GetPlayer(*me, m_TargetGuid);
+
+                        if (!l_Target)
+                            me->DespawnOrUnsummon();
+                    }
+                    else
+                    {
+                        // Choosing target
+                        std::list<Player*> l_PlayerList;
+                        GetPlayerListInGrid(l_PlayerList, me, 200.0f);
+
+                        if (l_PlayerList.empty())
+                        {
+                            me->DespawnOrUnsummon();
+                            return;
+                        }
+
+                        JadeCore::RandomResizeList(l_PlayerList, 1);
+                        l_Target = l_PlayerList.front();
+                    }
+
+                    if (!l_Target)
+                        me->DespawnOrUnsummon();
+
+                    me->CastSpell(l_Target, m_IsTwinSummoned ? SPELL_CRASHING_STAR : SPELL_COSMIC_STRIKE_STAR_JUMP, true);
+                    m_HasJumped = true;
+                }
+            }
+
+            void MovementInform(uint32 p_Type, uint32 p_Id)
+            {
+                if (p_Type != EFFECT_MOTION_TYPE || m_IsTwinSummoned)
+                    return;
+
+                me->CastSpell(me, SPELL_COSMIC_STRIKE_STAR_DAMAGE, true);
+                me->DespawnOrUnsummon(5000);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_starAI(p_Creature);
+        }
+};
+
+// Celestial Construct - 70241
+class mob_celestial_construct : public CreatureScript
+{
+    public:
+        mob_celestial_construct() : CreatureScript("mob_celestial_construct") { }
+
+        struct mob_celestial_constructAI : public ScriptedAI
+        {
+            mob_celestial_constructAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            void Reset()
+            {
+                me->AddUnitState(UNIT_STATE_STUNNED);
+                me->CastSpell(me, SPELL_INACTIVE_FIRST, true);
+
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                    l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_PLATFORM, true);
+            }
+
+            void MoveInLineOfSight(Unit* p_Who)
+            {
+                if (p_Who->GetTypeId() != TYPEID_PLAYER || me->HasAura(SPELL_INACTIVE_SECOND_SMALLER))
+                    return;
+
+                if (p_Who->GetDistance(me) > 50.f)
+                    return;
+
+                if (Creature* l_InvisibleMan = me->FindNearestCreature(NPC_INVISIBLE_MAN, 20.f))
+                    l_InvisibleMan->CastSpell(l_InvisibleMan, SPELL_INACTIVE_SECOND_SMALLER, true);
+
+                me->CastSpell(me, SPELL_INACTIVE_SECOND_SMALLER, true);
+            }
+
+            void UpdateAI(const uint32 p_Diff) { }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_celestial_constructAI(p_Creature);
+        }
+};
+
+// Thunder Lord - 69821
+class mob_thunder_lord : public CreatureScript
+{
+    public:
+        mob_thunder_lord() : CreatureScript("mob_thunder_lord") { }
+
+        struct mob_thunder_lordAI : public ScriptedAI
+        {
+            mob_thunder_lordAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+
+                SetEquipmentSlots(false, LORD_WEAPON_1, LORD_WEAPON_2, EQUIP_NO_CHANGE);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 2000);
+                m_Events.ScheduleEvent(EVENT_LEI_SHENS_GIFT, 4000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_CONDUCTIVE_SHIELD:
+                        me->CastSpell(me, SPELL_CONDUCTIVE_SHIELD, true);
+                        m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 15000);
+                        break;
+                    case EVENT_LEI_SHENS_GIFT:
+                        me->CastSpell(me, SPELL_LEI_SHENS_GIFT, false);
+                        m_Events.ScheduleEvent(EVENT_LEI_SHENS_GIFT, 15000);
+                        break;
+                    default:
+                        break;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_thunder_lordAI(p_Creature);
+        }
+};
+
+// Lightning Guardian - 69834
+class mob_lightning_guardian : public CreatureScript
+{
+    public:
+        mob_lightning_guardian() : CreatureScript("mob_lightning_guardian") { }
+
+        struct mob_lightning_guardianAI : public ScriptedAI
+        {
+            mob_lightning_guardianAI(Creature* p_Creature) : ScriptedAI(p_Creature) { }
+
+            EventMap m_Events;
+
+            void Reset()
+            {
+                me->ReenableEvadeMode();
+
+                m_Events.Reset();
+
+                SetEquipmentSlots(false, LORD_WEAPON_1, LORD_WEAPON_2, EQUIP_NO_CHANGE);
+            }
+
+            void EnterCombat(Unit* p_Attacker)
+            {
+                m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 2000);
+                m_Events.ScheduleEvent(EVENT_LIGHTNING_BURST, 4000);
+                m_Events.ScheduleEvent(EVENT_LIGHTNING_STORM, 6000);
+            }
+
+            void UpdateAI(const uint32 p_Diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                m_Events.Update(p_Diff);
+
+                switch (m_Events.ExecuteEvent())
+                {
+                    case EVENT_CONDUCTIVE_SHIELD:
+                        me->CastSpell(me, SPELL_CONDUCTIVE_SHIELD, true);
+                        m_Events.ScheduleEvent(EVENT_CONDUCTIVE_SHIELD, 15000);
+                        break;
+                    case EVENT_LIGHTNING_BURST:
+                        if (Unit* l_Target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                            me->CastSpell(l_Target, SPELL_LIGHTNING_BURST, false);
+                        m_Events.ScheduleEvent(EVENT_LIGHTNING_BURST, 12000);
+                        break;
+                    case EVENT_LIGHTNING_STORM:
+                        me->CastSpell(me, SPELL_LIGHTNING_STORM, false);
+                        m_Events.ScheduleEvent(EVENT_LIGHTNING_STORM, 20000);
+                        break;
+                    default:
+                        break;
+                }
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* p_Creature) const
+        {
+            return new mob_lightning_guardianAI(p_Creature);
+        }
+};
+
 // Water Bolt - 139231
-class spell_water_bolt: public SpellScriptLoader
+class spell_water_bolt : public SpellScriptLoader
 {
     public:
         spell_water_bolt() : SpellScriptLoader("spell_water_bolt") { }
@@ -2913,7 +3829,7 @@ class spell_water_bolt: public SpellScriptLoader
 };
 
 // Storm Weapon - 139218
-class spell_storm_weapon: public SpellScriptLoader
+class spell_storm_weapon : public SpellScriptLoader
 {
     public:
         spell_storm_weapon() : SpellScriptLoader("spell_storm_weapon") { }
@@ -2956,7 +3872,7 @@ class spell_storm_weapon: public SpellScriptLoader
 };
 
 // Focused Lightning (AoE) - 139209
-class spell_focused_lightning_aoe: public SpellScriptLoader
+class spell_focused_lightning_aoe : public SpellScriptLoader
 {
     public:
         spell_focused_lightning_aoe() : SpellScriptLoader("spell_focused_lightning_aoe") { }
@@ -2987,7 +3903,7 @@ class spell_focused_lightning_aoe: public SpellScriptLoader
 };
 
 // Spirit Light - 139461
-class spell_spirit_light: public SpellScriptLoader
+class spell_spirit_light : public SpellScriptLoader
 {
     public:
         spell_spirit_light() : SpellScriptLoader("spell_spirit_light") { }
@@ -3021,7 +3937,7 @@ class spell_spirit_light: public SpellScriptLoader
 };
 
 // Glacial Freeze (damage & stun) - 138687
-class spell_glacial_freeze: public SpellScriptLoader
+class spell_glacial_freeze : public SpellScriptLoader
 {
     public:
         spell_glacial_freeze() : SpellScriptLoader("spell_glacial_freeze") { }
@@ -3049,7 +3965,7 @@ class spell_glacial_freeze: public SpellScriptLoader
 };
 
 // Eruption - 138652
-class spell_eruption: public SpellScriptLoader
+class spell_eruption : public SpellScriptLoader
 {
     public:
         spell_eruption() : SpellScriptLoader("spell_eruption") { }
@@ -3080,7 +3996,7 @@ class spell_eruption: public SpellScriptLoader
 };
 
 // Fiery Core - 138610
-class spell_fiery_core: public SpellScriptLoader
+class spell_fiery_core : public SpellScriptLoader
 {
     public:
         spell_fiery_core() : SpellScriptLoader("spell_fiery_core") { }
@@ -3114,7 +4030,7 @@ class spell_fiery_core: public SpellScriptLoader
 };
 
 // Judgement of the Loa - 139223
-class spell_judgement_of_the_loa: public SpellScriptLoader
+class spell_judgement_of_the_loa : public SpellScriptLoader
 {
     public:
         spell_judgement_of_the_loa() : SpellScriptLoader("spell_judgement_of_the_loa") { }
@@ -3151,7 +4067,7 @@ class spell_judgement_of_the_loa: public SpellScriptLoader
 };
 
 // Waterspout (triggered) - 140814
-class spell_waterspout: public SpellScriptLoader
+class spell_waterspout : public SpellScriptLoader
 {
     public:
         spell_waterspout() : SpellScriptLoader("spell_waterspout") { }
@@ -3185,7 +4101,7 @@ class spell_waterspout: public SpellScriptLoader
 };
 
 // Drain the Weak - 135103
-class spell_drain_the_weak: public SpellScriptLoader
+class spell_drain_the_weak : public SpellScriptLoader
 {
     public:
         spell_drain_the_weak() : SpellScriptLoader("spell_drain_the_weak") { }
@@ -3231,7 +4147,7 @@ class spell_drain_the_weak: public SpellScriptLoader
 };
 
 // Drain the Weak (damage) - 135101
-class spell_drain_the_weak_damage: public SpellScriptLoader
+class spell_drain_the_weak_damage : public SpellScriptLoader
 {
     public:
         spell_drain_the_weak_damage() : SpellScriptLoader("spell_drain_the_weak_damage") { }
@@ -3276,7 +4192,7 @@ class SonicCallTargetSelector
 };
 
 // Sonic Call - 140600
-class spell_sonic_call: public SpellScriptLoader
+class spell_sonic_call : public SpellScriptLoader
 {
     public:
         spell_sonic_call() : SpellScriptLoader("spell_sonic_call") { }
@@ -3338,7 +4254,7 @@ class SiphonLifeTargetSelector
 };
 
 // Siphon Life - 140630
-class spell_siphon_life: public SpellScriptLoader
+class spell_siphon_life : public SpellScriptLoader
 {
     public:
         spell_siphon_life() : SpellScriptLoader("spell_siphon_life") { }
@@ -3368,7 +4284,7 @@ class spell_siphon_life: public SpellScriptLoader
 };
 
 // Luciferase - 134470
-class spell_luciferase: public SpellScriptLoader
+class spell_luciferase : public SpellScriptLoader
 {
     public:
         spell_luciferase() : SpellScriptLoader("spell_luciferase") { }
@@ -3399,7 +4315,7 @@ class spell_luciferase: public SpellScriptLoader
 };
 
 // Fixated - 140306
-class spell_fixated: public SpellScriptLoader
+class spell_fixated : public SpellScriptLoader
 {
     public:
         spell_fixated() : SpellScriptLoader("spell_fixated") { }
@@ -3430,7 +4346,7 @@ class spell_fixated: public SpellScriptLoader
 };
 
 // Devoured - 134415
-class spell_devoured: public SpellScriptLoader
+class spell_devoured : public SpellScriptLoader
 {
     public:
         spell_devoured() : SpellScriptLoader("spell_devoured") { }
@@ -3460,6 +4376,72 @@ class spell_devoured: public SpellScriptLoader
         }
 };
 
+// Lightning Storm - 138187
+class spell_lightning_storm : public SpellScriptLoader
+{
+    public:
+        spell_lightning_storm() : SpellScriptLoader("spell_lightning_storm") { }
+
+        class spell_lightning_storm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_lightning_storm_AuraScript);
+
+            void OnUpdate(uint32 p_Diff)
+            {
+                if (Unit* l_Caster = GetCaster())
+                {
+                    std::list<Unit*> l_Targets;
+                    float l_Radius = 8.0f;
+
+                    JadeCore::NearestAttackableUnitInObjectRangeCheck l_Check(l_Caster, l_Caster, l_Radius);
+                    JadeCore::UnitListSearcher<JadeCore::NearestAttackableUnitInObjectRangeCheck> l_Searcher(l_Caster, l_Targets, l_Check);
+                    l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
+
+                    for (Unit* l_Unit : l_Targets)
+                        l_Unit->CastSpell(l_Unit, SPELL_LIGHTNING_STORM_DAMAGE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnAuraUpdate += AuraUpdateFn(spell_lightning_storm_AuraScript::OnUpdate);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_lightning_storm_AuraScript();
+        }
+};
+
+// 139772 - Cosmic Strike
+class spell_cosmic_strike : public SpellScriptLoader
+{
+    public:
+        spell_cosmic_strike() : SpellScriptLoader("spell_cosmic_strike") { }
+
+        class spell_cosmic_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_cosmic_strike_SpellScript);
+
+            void Movement()
+            {
+                if (Unit* l_Caster = GetCaster())
+                    l_Caster->CastSpell(l_Caster, SPELL_COSMIC_STRIKE_STAR_CTRL, false);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_cosmic_strike_SpellScript::Movement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_cosmic_strike_SpellScript();
+        }
+};
+
 // Ancient Mogu Bell - 218723
 class go_ancient_mogu_bell : public GameObjectScript
 {
@@ -3478,6 +4460,9 @@ class go_ancient_mogu_bell : public GameObjectScript
             if (go->GetGoState() == GO_STATE_ACTIVE)
                 return false;
 
+            if (pInstance->GetBossState(DATA_MEGAERA) == DONE)
+                return false;
+
             pInstance->SetData(DATA_ANCIENT_MOGU_BELL, 1);
             go->SetGoState(GO_STATE_ACTIVE);
 
@@ -3492,7 +4477,7 @@ class go_ancient_mogu_bell : public GameObjectScript
                         bunny->MonsterTextEmote("The cavern trembles violently!", 0, true);
                         break;
                     case 2:
-                        bunny->MonsterTextEmote("An ancient beast stir within the mists!", 0, true);
+                        bunny->MonsterTextEmote("An ancient beast stirs within the mists!", 0, true);
                         break;
                     case 3:
                         bunny->MonsterTextEmote("|cFFF00000Megaera|r rises from the mists!", 0, true);
@@ -3508,59 +4493,72 @@ class go_ancient_mogu_bell : public GameObjectScript
 
 void AddSC_throne_of_thunder()
 {
-    new mob_zandalari_water_binder();
-    new mob_zandalari_blade_initiate();
-    new mob_zandalari_spear_shaper();
-    new mob_thrown_spear();
-    new mob_zandalari_storm_caller();
-    new mob_trash_focused_lightning();
-    new mob_ancient_python();
-    new mob_spirit_flayer();
-    new mob_tourmented_spirit();
-    new mob_soul_fed_construct();
-    new mob_stormbringer_draz_kil();
-    new mob_dark_winds();
-    new mob_drakkari_frost_warden();
-    new mob_gacial_freeze_totem();
-    new mob_gurubashi_berserker();
-    new mob_amani_shi_flame_chanter();
-    new mob_farraki_sand_conjurer();
-    new mob_sand_elemental();
-    new mob_zandalari_high_priest();
-    new mob_zandalari_prophet();
-    new mob_zandalari_warlord();
-    new mob_zandalari_prelate();
-    new mob_waterspout();
-    new mob_vampiric_cave_bat();
-    new mob_greater_cave_bat();
-    new mob_mysterious_mushroom();
-    new mob_shale_stalker();
-    new mob_fungal_growth();
-    new mob_mist_lurker();
-    new mob_cavern_burrower();
-    new mob_eternal_guardian();
-    new mob_bore_worm();
-    new mob_bow_fly_swarm();
-    new mob_gastropod();
-    new mob_web();
-    new mob_corpse_spider();
-    new mob_quivering_blob();
-    new mob_ritual_guard();
-    new spell_storm_weapon();
-    new spell_water_bolt();
-    new spell_focused_lightning_aoe();
-    new spell_spirit_light();
-    new spell_glacial_freeze();
-    new spell_eruption();
-    new spell_fiery_core();
-    new spell_judgement_of_the_loa();
-    new spell_waterspout();
-    new spell_drain_the_weak();
-    new spell_drain_the_weak_damage();
-    new spell_sonic_call();
-    new spell_siphon_life();
-    new spell_luciferase();
-    new spell_fixated();
-    new spell_devoured();
-    new go_ancient_mogu_bell();
+    new mob_zandalari_water_binder();   ///< 69455
+    new mob_zandalari_blade_initiate(); ///< 70230
+    new mob_zandalari_spear_shaper();   ///< 69388
+    new mob_thrown_spear();             ///< 69438
+    new mob_zandalari_storm_caller();   ///< 69390
+    new mob_trash_focused_lightning();  ///< 70174
+    new mob_ancient_python();           ///< 70448
+    new mob_spirit_flayer();            ///< 70246
+    new mob_tourmented_spirit();        ///< 70341
+    new mob_soul_fed_construct();       ///< 70308
+    new mob_stormbringer_draz_kil();    ///< 70445
+    new mob_dark_winds();               ///< 59394
+    new mob_drakkari_frost_warden();    ///< 69910
+    new mob_gacial_freeze_totem();      ///< 70047
+    new mob_gurubashi_berserker();      ///< 69905 - 69916
+    new mob_amani_shi_flame_chanter();  ///< 69909
+    new mob_farraki_sand_conjurer();    ///< 69899
+    new mob_sand_elemental();           ///< 69944
+    new mob_zandalari_high_priest();    ///< 69906
+    new mob_zandalari_prophet();        ///< 70557
+    new mob_zandalari_warlord();        ///< 69911
+    new mob_zandalari_prelate();        ///< 69927
+    new mob_waterspout();               ///< 70147
+    new mob_vampiric_cave_bat();        ///< 69352
+    new mob_greater_cave_bat();         ///< 69351
+    new mob_mysterious_mushroom();      ///< 70545
+    new mob_shale_stalker();            ///< 70587
+    new mob_fungal_growth();            ///< 70153
+    new mob_mist_lurker();              ///< 70594
+    new mob_cavern_burrower();          ///< 70589
+    new mob_eternal_guardian();         ///< 70586
+    new mob_bore_worm();                ///< 68221
+    new mob_bow_fly_swarm();            ///< 68222
+    new mob_gastropod();                ///< 68220
+    new mob_web();                      ///< 68249
+    new mob_corpse_spider();            ///< 68248
+    new mob_quivering_blob();           ///< 69383
+    new mob_ritual_guard();             ///< 70179
+    new mob_untrained_quilen();         ///< 70206 - 70209
+    new mob_iron_qon_disciple();        ///< 70202 - 70205 (Manchu / Weisheng)
+    new mob_muckbat();                  ///< 70232
+    new mob_skittering_spiderling();    ///< 70227
+    new mob_putrid_waste();             ///< 70219
+    new mob_rotting_scavenger();        ///< 70224
+    new mob_shanze_celestial_shaper();  ///< 70240
+    new mob_thunder_lord();             ///< 69821
+    new mob_lightning_guardian();       ///< 69834
+    new mob_star();                     ///< 69365
+    new mob_celestial_construct();      ///< 70241
+    new spell_water_bolt();             ///< 139231
+    new spell_storm_weapon();           ///< 139218
+    new spell_focused_lightning_aoe();  ///< 139209
+    new spell_spirit_light();           ///< 139461
+    new spell_glacial_freeze();         ///< 138687
+    new spell_eruption();               ///< 138652
+    new spell_fiery_core();             ///< 138610
+    new spell_judgement_of_the_loa();   ///< 139223
+    new spell_waterspout();             ///< 140814
+    new spell_drain_the_weak();         ///< 135103
+    new spell_drain_the_weak_damage();  ///< 135101   
+    new spell_sonic_call();             ///< 140600
+    new spell_siphon_life();            ///< 140630
+    new spell_luciferase();             ///< 134470
+    new spell_fixated();                ///< 140306
+    new spell_devoured();               ///< 134415
+    new spell_lightning_storm();        ///< 138187
+    new spell_cosmic_strike();          ///< 139772
+    new go_ancient_mogu_bell();         ///< 218723
 }
