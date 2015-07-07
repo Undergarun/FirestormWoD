@@ -1486,14 +1486,6 @@ class spell_dk_blood_boil: public SpellScriptLoader
                 if (l_Player == nullptr)
                     return SPELL_FAILED_SUCCESS;
 
-                Unit* l_Target = l_Player->GetSelectedUnit();
-
-                if (l_Target != nullptr && !l_Player->IsValidAttackTarget(l_Target))
-                    return SPELL_FAILED_NO_VALID_TARGETS;
-
-                if (l_Target != nullptr && l_Player->GetDistance(l_Target) > GetSpellInfo()->Effects[EFFECT_0].RadiusEntry->radiusHostile)
-                    return SPELL_FAILED_OUT_OF_RANGE;
-
                 return SPELL_CAST_OK;
             }
 
