@@ -5088,7 +5088,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
             case 33110: ///< Prayer of Mending
                 spellInfo->Effects[0].BonusMultiplier = 0.0f;
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
             case 119611: ///< Renewing Mist 
                 spellInfo->Effects[0].BonusMultiplier = 0.109984f;

@@ -3085,6 +3085,8 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                             if (AuraEffectPtr l_AurEffT9 = l_Caster->GetAuraEffect(PrayerOfMendingSpells::T9Healing2Pieces, EFFECT_0))
                                 AddPct(l_Heal, l_AurEffT9->GetAmount());
 
+                            l_Heal = l_Caster->SpellHealingBonusDone(l_Target, GetSpellInfo(), l_Heal, EFFECT_0, HEAL);
+                            l_Heal = l_Target->SpellHealingBonusTaken(l_Caster, GetSpellInfo(), l_Heal, HEAL);
                             SetHitHeal(l_Heal);
 
                             if (l_CurrentStackAmount >= 1)
