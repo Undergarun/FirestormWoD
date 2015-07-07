@@ -16,17 +16,36 @@ namespace Battlepay
     {
         void SendProductList(WorldSession* p_Session)
         {
+            Player* l_Player = p_Session->GetPlayer();
+
             WorldPacket l_Data(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE);
             l_Data << uint32(ProductListResult::Available);                         ///< Result
             l_Data << uint32(sBattlepayMgr->GetShopCurrency());                     ///< CurrencyID
 
-            l_Data << uint32(sBattlepayMgr->GetProducts().size());
+            uint32 l_ProductSize = std::count_if(sBattlepayMgr->GetProducts().begin(), sBattlepayMgr->GetProducts().end(), [p_Session, l_Player](std::pair<uint32, Battlepay::Product const&> p_Itr) -> bool
+            {
+                if (p_Itr.second.ClassMask == 0)
+                    return true;
+
+                if (l_Player == nullptr)
+                    return p_Itr.second.ClassMask == 0;
+
+                return l_Player->getClassMask() & p_Itr.second.ClassMask;
+            });
+
+            l_Data << uint32(l_ProductSize);
             l_Data << uint32(sBattlepayMgr->GetProductGroups().size());
             l_Data << uint32(sBattlepayMgr->GetShopEntries().size());
 
             for (auto& l_Iterator : sBattlepayMgr->GetProducts())
             {
                 Battlepay::Product const& l_Product = l_Iterator.second;
+
+                if (!l_Player && l_Product.ClassMask != 0)
+                    continue;
+
+                if (l_Product.ClassMask && (l_Player->getClassMask() & l_Product.ClassMask) == 0)
+                    continue;
 
                 l_Data << uint32(l_Product.ProductID);
                 l_Data << uint64(l_Product.NormalPriceFixedPoint * g_CurrencyPrecision);
@@ -44,13 +63,13 @@ namespace Battlepay
                 for (auto& l_ItemProduct : l_Product.Items)
                 {
                     l_Data << uint32(l_ItemProduct.ID);
-                    l_Data << uint32(l_ItemProduct.ItemID);
+                    l_Data << uint32(l_Product.Items.size() > 1 ? 0 : l_ItemProduct.ItemID);    ///< Disable tooltip for packs (client handle only one tooltip).
                     l_Data << uint32(l_ItemProduct.Quantity);
 
                     l_Data.FlushBits();
 
                     l_Data.WriteBit(l_ItemProduct.DisplayInfoID != 0);
-                    l_Data.WriteBit(sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, p_Session->GetPlayer()));
+                    l_Data.WriteBit(sBattlepayMgr->AlreadyOwnProduct(l_ItemProduct.ItemID, p_Session->GetPlayer())); ///< Already has product item
                     l_Data.WriteBit(l_ItemProduct.PetResult != 0);
 
                     if (l_ItemProduct.PetResult != 0)
@@ -63,7 +82,13 @@ namespace Battlepay
                 l_Data.FlushBits();
 
                 if (l_Product.DisplayInfoID != 0)
-                    WriteDisplayInfo(l_Product.DisplayInfoID, l_Data);
+                {
+                    std::string l_Description;
+                    if (l_Product.Items.size() > 1)
+                        l_Description = sBattlepayMgr->GeneratePackDescription(l_Product, p_Session->GetSessionDbLocaleIndex());
+
+                    WriteDisplayInfo(l_Product.DisplayInfoID, l_Data, l_Description);
+                }
             }
 
             for (auto& l_ProductGroup : sBattlepayMgr->GetProductGroups())
@@ -98,7 +123,7 @@ namespace Battlepay
             p_Session->SendPacket(&l_Data);
         }
 
-        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet)
+        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet, std::string p_Description)
         {
             DisplayInfo const* l_DisplayInfo = sBattlepayMgr->GetDisplayInfo(p_DisplayInfoID);
             if (l_DisplayInfo == nullptr)
@@ -109,7 +134,7 @@ namespace Battlepay
             p_Packet.WriteBit(l_DisplayInfo->FileDataID != 0);
             p_Packet.WriteBits(l_DisplayInfo->Name1.size(), 10);
             p_Packet.WriteBits(l_DisplayInfo->Name2.size(), 10);
-            p_Packet.WriteBits(l_DisplayInfo->Name3.size(), 13);
+            p_Packet.WriteBits(!p_Description.empty() ? p_Description.size() : l_DisplayInfo->Name3.size(), 13);
             p_Packet.WriteBit(l_DisplayInfo->Flags != 0);
 
             if (l_DisplayInfo->CreatureDisplayInfoID != 0)
@@ -120,7 +145,7 @@ namespace Battlepay
 
             p_Packet.WriteString(l_DisplayInfo->Name1);
             p_Packet.WriteString(l_DisplayInfo->Name2);
-            p_Packet.WriteString(l_DisplayInfo->Name3);
+            p_Packet.WriteString(!p_Description.empty() ? p_Description : l_DisplayInfo->Name3);
 
             if (l_DisplayInfo->Flags != 0)
                 p_Packet << uint32(l_DisplayInfo->Flags);

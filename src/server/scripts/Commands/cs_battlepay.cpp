@@ -24,6 +24,7 @@ class battlepay_commandscript: public CommandScript
             static ChatCommand g_BattlepayCommandTable[] =
             {
                 { "dumpwebshopcategory",    SEC_ADMINISTRATOR, false, &HandleDumpWebShopCategory,   "", nullptr },
+                { "dumppack",               SEC_ADMINISTRATOR, false, &HandleDumpWebShopPackCategory, "", nullptr },
                 { "reload",                 SEC_ADMINISTRATOR, false, &HandleReloadBattlePay,       "", nullptr },
                 { nullptr,                  0,                 false, nullptr,                       "", nullptr }
             };
@@ -126,6 +127,90 @@ class battlepay_commandscript: public CommandScript
                 l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID" << ");" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_product_item` (ProductID, ItemID, Quantity, DisplayID, PetResult) VALUES (" << "@PRODUCTID" << "," << l_ItemID << ",1,0,0);" << std::endl;
                 l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Item->Name1->Get(LocaleConstant::LOCALE_enUS) << "\", '',\"" << "" << "\", 0);" << std::endl;
+                l_StrBuilder << "SET @PRODUCTID := @PRODUCTID + 1;" << std::endl;
+                l_StrBuilder << "SET @ORDER := @ORDER + 1;" << std::endl;
+                l_StrBuilder << "SET @DISPLAYINFOID := @DISPLAYINFOID + 1;" << std::endl;
+            }
+            while (l_Result->NextRow());
+
+            fwrite(l_StrBuilder.str().c_str(), l_StrBuilder.str().length(), 1, l_Output);
+            fflush(l_Output);
+            fclose(l_Output);
+
+            return true;
+        }
+
+        static bool HandleDumpWebShopPackCategory(ChatHandler* p_ChatHandler, char const* p_Args)
+        {
+            uint32 l_Category = atoi(strtok((char*)p_Args, " "));
+            if (!l_Category)
+                return false;
+
+            uint32 l_Group = atoi(strtok(nullptr, " "));
+            if (!l_Group)
+                return false;
+
+            uint32 l_FlagsFilter = atoi(strtok(nullptr, " "));
+
+            QueryResult l_Result = WebDatabase.PQuery("SELECT id, price, fake_price, nameUS, filedataID, class_mask FROM shop_pack WHERE category = %u", l_Category);
+            if (!l_Result)
+                return false;
+
+            FILE* l_Output = fopen("./battlepay_webshop.sql", "w+");
+            if (!l_Output)
+                return false;
+
+            std::ostringstream l_StrBuilder;
+
+            l_StrBuilder << "SET @PRODUCTID := COALESCE((SELECT MAX(ProductID) FROM battlepay_product), 0) + 1;" << std::endl;
+            l_StrBuilder << "SET @ORDER := COALESCE((SELECT MAX(Ordering) FROM battlepay_shop_entry WHERE GroupID = " << l_Group << "), 0) + 1;" << std::endl;
+            l_StrBuilder << "SET @DISPLAYINFOID := COALESCE((SELECT MAX(DisplayInfoId) FROM battlepay_display_info), 0) + 1;" << std::endl;
+
+            do
+            {
+                Field* l_Fields = l_Result->Fetch();
+                uint32 l_ID = l_Fields[0].GetUInt32();
+                uint32 l_Price = l_Fields[1].GetUInt32();
+                uint32 l_FakePrice = l_Fields[2].GetUInt32();
+                std::string l_Name = l_Fields[3].GetString();
+                uint32 l_FileDataID = l_Fields[4].GetUInt32();
+                uint32 l_ClassMask = l_Fields[5].GetUInt32();
+
+
+                if (l_FakePrice == 0)
+                    l_FakePrice = l_Price;
+
+                uint32 l_CreatureDisplayInfoID = 0;
+
+
+
+                l_StrBuilder << "INSERT INTO `battlepay_shop_entry` (GroupID, ProductID, Ordering, Flags, BannerType, DisplayInfoID) VALUES (" << l_Group << ",@PRODUCTID, @ORDER, 0, 0, 0);" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_product` (ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ClassMask) VALUES (" << "@PRODUCTID" << "," << l_Price << "," << l_FakePrice << ",0,2,47," << "@DISPLAYINFOID," << l_ClassMask <<  ");" << std::endl;
+                l_StrBuilder << "INSERT INTO `battlepay_display_info` (DisplayInfoId, CreatureDisplayInfoID, FileDataID, Name1, Name2, Name3, Flags) VALUES (" << "@DISPLAYINFOID" << "," << l_CreatureDisplayInfoID << "," << l_FileDataID << ",\"" << l_Name << "\", '',\"" << "" << "\", 0);" << std::endl;
+
+                QueryResult l_Result2 = WebDatabase.PQuery("SELECT id_item from shop_pack_items where id_pack = %u", l_ID);
+                if (l_Result2)
+                {
+                    do
+                    {
+                        Field* l_Field = l_Result2->Fetch();
+                        uint32 l_ItemShopID = l_Field[0].GetUInt32();
+                        QueryResult l_Result3 = WebDatabase.PQuery("SELECT itemID from shop_items WHERE id = %u", l_ItemShopID);
+
+                        if (!l_Result3)
+                            continue;
+
+                        uint32 l_ItemID = l_Result3->Fetch()[0].GetUInt32();
+
+                        ItemTemplate const* l_Item = sObjectMgr->GetItemTemplate(l_ItemID);
+                        if (l_Item == nullptr)
+                            continue;
+
+                        l_StrBuilder << "INSERT INTO `battlepay_product_item` (ProductID, ItemID, Quantity, DisplayID, PetResult) VALUES (" << "@PRODUCTID" << "," << l_ItemID << ",1,0,0);" << std::endl;
+                    }
+                    while (l_Result2->NextRow());
+                }
+
                 l_StrBuilder << "SET @PRODUCTID := @PRODUCTID + 1;" << std::endl;
                 l_StrBuilder << "SET @ORDER := @ORDER + 1;" << std::endl;
                 l_StrBuilder << "SET @DISPLAYINFOID := @DISPLAYINFOID + 1;" << std::endl;

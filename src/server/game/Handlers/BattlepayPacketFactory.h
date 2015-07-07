@@ -89,7 +89,7 @@ namespace Battlepay
         * @param p_DisplayInfoID: Id of the display info to write
         * @param p_Packet: The packet where we write display info data
         */
-        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet);
+        void WriteDisplayInfo(uint32 p_DisplayInfoID, WorldPacket& p_Packet, std::string p_Description = "");
 
         /*
         * Build & send a battlepay start purchase response packet to the client

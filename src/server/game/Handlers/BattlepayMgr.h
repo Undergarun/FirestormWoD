@@ -95,6 +95,7 @@ namespace Battlepay
         uint8                       ChoiceType;
         uint32                      Flags;
         uint32                      DisplayInfoID;
+        uint32                      ClassMask;
         std::string                 ScriptName;
     };
 
@@ -239,6 +240,8 @@ namespace Battlepay
             */
             std::string const& GetDefaultWalletName() const { return m_WalletName; }
 
+            std::string GeneratePackDescription(Battlepay::Product const& p_Product, LocaleConstant p_Locale);
+
         private:
 
             /*
@@ -260,6 +263,8 @@ namespace Battlepay
             * Load display info of Battlepay in database
             */
             void LoadDisplayInfos();
+
+            std::string GetQualityColor(ItemQualities p_Quality) const;
 
             std::vector<ProductGroup>     m_ProductGroups;
             std::vector<ShopEntry>        m_ShopEntries;

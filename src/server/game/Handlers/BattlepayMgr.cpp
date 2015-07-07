@@ -81,7 +81,7 @@ namespace Battlepay
     {
         m_Products.clear();
 
-        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ScriptName FROM battlepay_product");
+        QueryResult l_Result = WorldDatabase.PQuery("SELECT ProductID, NormalPriceFixedPoint, CurrentPriceFixedPoint, Type, ChoiceType, Flags, DisplayInfoID, ClassMask, ScriptName FROM battlepay_product");
         if (!l_Result)
             return;
 
@@ -97,7 +97,8 @@ namespace Battlepay
             l_Product.ChoiceType             = l_Fields[4].GetUInt8();
             l_Product.Flags                  = l_Fields[5].GetUInt32();
             l_Product.DisplayInfoID          = l_Fields[6].GetUInt32();
-            l_Product.ScriptName             = l_Fields[7].GetString();
+            l_Product.ClassMask              = l_Fields[7].GetUInt32();
+            l_Product.ScriptName             = l_Fields[8].GetString();
 
             m_Products.insert(std::make_pair(l_Product.ProductID, l_Product));
         } 
@@ -278,6 +279,46 @@ namespace Battlepay
         }
 
         return false;
+    }
+
+    std::string Manager::GetQualityColor(ItemQualities p_Quality) const
+    {
+        switch (p_Quality)
+        {
+            case ITEM_QUALITY_POOR:
+                return "|cff9d9d9d";
+            case ITEM_QUALITY_NORMAL:
+                return "|cffffffff";
+            default:
+            case ITEM_QUALITY_UNCOMMON:
+                return "|cff1eff00";
+            case ITEM_QUALITY_RARE:
+                return "|cff0070dd";
+            case ITEM_QUALITY_EPIC:
+                return "|cffa335ee";
+            case ITEM_QUALITY_LEGENDARY:
+                return "|cffff8000";
+            case ITEM_QUALITY_ARTIFACT:
+                return "|cffe5cc80";
+            case ITEM_QUALITY_HEIRLOOM:
+                return "|cffe5cc80";
+                break;
+        }
+    }
+
+    std::string Manager::GeneratePackDescription(Battlepay::Product const& p_Product, LocaleConstant p_Locale)
+    {
+        std::string l_Description;
+        for (auto l_Item : p_Product.Items)
+        {
+            ItemTemplate const* l_ItemTemplate = sObjectMgr->GetItemTemplate(l_Item.ItemID);
+            if (l_ItemTemplate == nullptr)
+                continue;
+
+            l_Description += GetQualityColor((ItemQualities)l_ItemTemplate->Quality) + l_ItemTemplate->Name1->Get(p_Locale) + "\n";
+        }
+
+        return l_Description;
     }
 
 }
